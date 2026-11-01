@@ -179,6 +179,22 @@ void BackendAccount::state(QString value,QString detail){state_=std::move(value)
 QJsonObject BackendAccount::snapshot() const {
     return {{"state",player_.isEmpty()?"signed_out":"signed_in"},{"player_id",player_}};
 }
+QVariantMap BackendAccount::profileIdentity(const QVariantMap& social,const QString& localName) const {
+    // A name is presentation, never an account key. Do not mix another Fluxer
+    // user's portrait/name with this player's wallet while accounts transition.
+    const auto socialId=social["userId"].toString();
+    const bool hasSocial=!socialId.isEmpty() && social["state"]!="signed-out";
+    const bool server=!player_.isEmpty();
+    const bool matching=hasSocial && (!server || socialId==subject_);
+    QString name=matching?social["name"].toString().trimmed():QString();
+    if(name.isEmpty() && server)name=profileName_;
+    if(name.isEmpty())name=(server||hasSocial)?QString("Player"):localName.trimmed();
+    if(name.isEmpty())name="Your profile";
+    return {{"name",name},{"source",server?"traineros":hasSocial?"fluxer":"local"},
+        {"playerId",player_},{"subject",server?subject_:hasSocial?socialId:QString()},
+        {"avatar",matching?social["profile"].toMap()["avatar"].toString():QString()},
+        {"presence",matching && social["state"]=="connected"?social["presence"].toString():QString()}};
+}
 QString BackendAccount::actionLabel() const {
     if(state_=="waiting"||state_=="opening")return "Cancel TrainerOS sign-in";
     if(state_=="connected")return "Sign out of TrainerOS";
@@ -211,7 +227,7 @@ void BackendAccount::reset() {
     const auto channels=playGrants_.keys();for(const auto& channel:channels)closePlay(channel);
     ++epoch_;expiry_.stop();refreshTimer_.stop();listener_.close();encrypted_.cancel();
     for(auto* socket:findChildren<QTcpSocket*>(QString(),Qt::FindDirectChildrenOnly)){socket->abort();socket->deleteLater();}
-    attempt_.clear();verifier_.clear();callbackPath_.clear();player_.clear();session_.clear();subject_.clear();access_.clear();refresh_.clear();
+    attempt_.clear();verifier_.clear();callbackPath_.clear();player_.clear();session_.clear();subject_.clear();profileName_.clear();access_.clear();refresh_.clear();
     logoutPending_=false;
 }
 void BackendAccount::configure(const QString& owner) {
@@ -413,6 +429,11 @@ void BackendAccount::tokens(const QJsonObject& result) {
         if(!shopSnapshot_.isEmpty()&&shopSnapshot_["player_id"].toString()!=player_){shopSnapshot_={};shopIndex_=0;saveCommerce();}
         if(logoutPending_){logoutPending_=false;logout();return;}
         state("connected","Connected through Fluxer");
+        request("GET","/v1/me/profile",{},[this,player](int status,QJsonObject profile){
+            const auto name=profile["display_name"].toString().trimmed();
+            if(status==200 && player_==player && profile["player_id"].toString()==player
+                && !name.isEmpty() && name.size()<=256) {profileName_=name;emit changed();}
+        },access_);
         if(!supportClaim_.isEmpty()) {
             const auto body=std::exchange(supportClaim_,QJsonObject{});supportBusy_=false;
             supportRequest("POST","/v1/me/support/patreon/claim",body);

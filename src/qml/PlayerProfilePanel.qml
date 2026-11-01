@@ -77,7 +77,7 @@ Panel {
                 id: body; width: factsScroll.width; spacing: root.compact?5:9
                 Item {
                     width: parent.width; height: root.compact?42:55
-                    Text { objectName: "profile-name"; y: -5; width: parent.width-62; text: root.profile.profile.name || "Your profile"; textFormat: Text.PlainText; font.family: Theme.displayFamily; font.pixelSize: root.compact?28:36; minimumPixelSize:20; fontSizeMode:Text.HorizontalFit; elide:Text.ElideRight; color:Theme.ink }
+                    Text { objectName: "profile-name"; y: -5; width: parent.width-62; text: root.account.name; textFormat: Text.PlainText; font.family: Theme.displayFamily; font.pixelSize: root.compact?28:36; minimumPixelSize:20; fontSizeMode:Text.HorizontalFit; elide:Text.ElideRight; color:Theme.ink }
                     ProfileAction { objectName: "profile-edit"; anchors.right: parent.right; y: -5; width: 55; actionIndex: 0; label: root.profile.exists?"Edit":"Create" }
                     Text { y: root.compact?26:38; width: parent.width; text: root.profile.profile.joined?"Playing since "+root.profile.profile.joined:"Your adventures, your story"; font.pixelSize: 10; color: root.accent; elide:Text.ElideRight }
                 }

@@ -31,6 +31,8 @@ struct Harness {
     QUrl returnUri,browser;
     QList<QString> calls;
     QJsonObject claim;
+    QJsonObject publicProfile{{"player_id",Player},{"display_name","Ren"}};
+    bool deferProfile=false;BackendAccount::Reply pendingProfile;
     bool failStorage=false,loseRefresh=false,deferClaim=false,rejectDeleteOnce=false;
     BackendAccount::Reply pending;
     BackendAccount::Reply pendingGrant;
@@ -55,6 +57,8 @@ struct Harness {
                     bool tombstone=false;for(const auto& bytes:disk)tombstone|=QJsonDocument::fromJson(bytes).object()["pending"].toBool();
                     if(!tombstone){done(500,{});return;}
                     done(loseRefresh?0:200,loseRefresh?QJsonObject():credentials());
+                } else if(path=="/v1/me/profile") {
+                    if(deferProfile)pendingProfile=std::move(done);else done(200,publicProfile);
                 } else if(path=="/v1/me/progression" || path.startsWith("/v1/me/progression/ra/")) {
                     Q_ASSERT(auth==QByteArray(43,'a'));
                     if(deferProgression)pendingProgression=std::move(done);else done(progressionOk?200:503,progress);
@@ -507,6 +511,33 @@ private slots:
         h.callback();QVERIFY(bool(h.pending));account.configure("bob");h.pending(200,credentials());
         QVERIFY(account.snapshot()["player_id"].toString().isEmpty());QVERIFY(h.disk.isEmpty());
         account.activate();account.cancel();QVERIFY(account.snapshot()["player_id"].toString().isEmpty());
+    }
+    void serverIdentityOverridesLocalNameAndRejectsAnotherUsersPortrait() {
+        Harness h;BackendAccount account;account.setServices(h.services());account.configure("local-alice");
+        QCOMPARE(account.profileIdentity({},"Offline Alice")["name"].toString(),"Offline Alice");
+        QVariantMap social{{"userId","12345"},{"name","Ren updated"},{"state","connected"},
+            {"profile",QVariantMap{{"avatar","ren-avatar"}}}};
+        QCOMPARE(account.profileIdentity(social,"Offline Alice")["source"].toString(),"fluxer");
+        account.activate();h.callback();
+        auto identity=account.profileIdentity({},"Offline Alice");
+        QCOMPARE(identity["name"].toString(),"Ren");QCOMPARE(identity["playerId"].toString(),Player);
+        QCOMPARE(identity["subject"].toString(),"12345");QCOMPARE(identity["source"].toString(),"traineros");
+        QCOMPARE(account.profileIdentity(social,"Offline Alice")["name"].toString(),"Ren updated");
+        social["userId"]="99999";social["name"]="Mika";
+        identity=account.profileIdentity(social,"Offline Alice");
+        QCOMPARE(identity["name"].toString(),"Ren");QVERIFY(identity["avatar"].toString().isEmpty());
+        account.configure("another-local-owner");
+        QCOMPARE(account.profileIdentity({},"Offline Bob")["name"].toString(),"Offline Bob");
+        social["state"]="signed-out";
+        QCOMPARE(account.profileIdentity(social,"Offline Bob")["source"].toString(),"local");
+    }
+    void profileResponseCannotRenameAnotherOwnerOrAccount() {
+        Harness h;h.deferProfile=true;BackendAccount account;account.setServices(h.services());account.configure("identity-owner");
+        account.activate();h.callback();auto pending=h.pendingProfile;
+        pending(200,{{"player_id",Attempt},{"display_name","Wrong player"}});
+        QCOMPARE(account.profileIdentity({},"Local")["name"].toString(),"Player");
+        account.configure("other-owner");pending(200,h.publicProfile);
+        QCOMPARE(account.profileIdentity({},"Other local")["name"].toString(),"Other local");
     }
     void restartRefreshIsDurableAndAmbiguousFailureNeverReplays() {
         Harness h;

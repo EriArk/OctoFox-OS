@@ -14,7 +14,7 @@ Item {
                 x: 28; y: 20; spacing: 13
                 Repeater {
                     model: [
-                        {label: root.shell.trainer.exists ? "Edit Trainer" : "Create Trainer", detail: root.shell.trainer.profile.name || "Give your journey a name"},
+                        {label: root.shell.trainer.exists ? "Edit local profile" : "Create local profile", detail: root.shell.trainer.profile.name || "Give your journey a name"},
                         {label: "RetroAchievements", detail: "Manage the connected account"},
                         {label: root.shell.sampleLibrary ? "Preview registration & PIN" : "Trainers", detail: root.shell.sampleLibrary ? "Development only · no personal changes" : "Choose a player or create a Trainer"},
                         {label: "Back to settings", detail: ""},
@@ -32,7 +32,7 @@ Item {
             }
             TrainerEmblem { x: 622; y: 20; width: 146; height: 146; emblem: root.shell.trainer.profile.emblem || "compass" }
             Text {
-                x: 580; y: 181; width: parent.width - x - 24; text: root.shell.trainer.profile.name || "Your Trainer card"
+                x: 580; y: 181; width: parent.width - x - 24; text: root.shell.profileAccount.name
                 textFormat: Text.PlainText; elide: Text.ElideRight; horizontalAlignment: Text.AlignHCenter
                 color: Theme.ink; font.pixelSize: 23; font.bold: true
             }

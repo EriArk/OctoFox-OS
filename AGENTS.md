@@ -4,6 +4,15 @@
 
 ## Current working mode — owner correction, 21 October 2026
 
+**Owner primary identity, 1 November (latest):** the verified Fluxer subject is
+primary: it identifies the server-side TrainerOS account. Local Trainer names
+are offline labels, not competing online identities and never account/commerce
+keys. Prefer the connected account in the shell and player profile; preserve
+local data and stable server ownership. Matching names do not establish identity.
+Keep account-switch protection and distinguish connected chat from a verified
+Backend session; do not hide session recovery failures with a renamed local
+profile. See [player identity](docs/PLAYER_PROFILE.md#primary-identity).
+
 **Owner support-provider decision, 29 October (latest):** Patreon is the only
 support provider. Remove Ko-fi from active requirements and draft contracts;
 it is cancelled scope, not unfinished work. Keep historical delivery records
