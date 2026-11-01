@@ -216,7 +216,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         closeHomeMenu();openGameHubFace("lobby");
     });
     connect(settings_.communication(),&CommunicationSettings::changed,this,[this]{if(service_=="account-profile" || (service_=="settings" && settings_.category()==13))emit changed();});
-    connect(settings_.communication(),&CommunicationSettings::backRequested,this,[this]{if(service_=="account-profile"){service_.clear();emit changed();}else settings_.selectCategory(13,false);});
+    connect(settings_.communication(),&CommunicationSettings::backRequested,this,[this]{if(service_=="account-profile"){service_=accountProfileReturn_?"profile":QString();accountProfileReturn_=false;emit changed();}else settings_.selectCategory(13,false);});
     connect(this,&ShellController::changed,this,[this]{if(service_!="account-profile" && (service_!="settings" || settings_.category()!=13))settings_.communication()->leave();});
     connect(settings_.communication(),&CommunicationSettings::textRequested,this,[this](QString title,QString text,int limit){textTarget_=TextTarget::Communication;keyboard_.begin(title,text,limit,false,"Save",true);});
     connect(settings_.clock(), &ClockController::backRequested, this, [this]{ if(service_=="settings")settings_.selectCategory(11,false); });
@@ -292,7 +292,14 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         if(!ids.isEmpty())offset=(offset+batch.size())%ids.size();
         source["games"]=batch;return source;
     };
-    connect(&social_,&SocialController::changed,this,[this]{backendAccount_.setSocialSubject(social_.account()["userId"].toString());});
+    connect(&social_,&SocialController::changed,this,[this,previous=QVariantMap{}]() mutable {
+        const auto social=social_.account();
+        backendAccount_.setSocialSubject(social["userId"].toString());
+        const auto identity=backendAccount_.profileIdentity(social,trainer_.profile()["name"].toString());
+        // Update the global card on identity/presence edits without refreshing
+        // the whole shell for every background chat event.
+        if(identity!=previous){previous=identity;emit changed();}
+    });
     connect(&files_, &FilesController::changed, this, &ShellController::changed);
     connect(&browser_, &BrowserController::pageInputRequested,this,[this](int hints){textTarget_=TextTarget::Browser;keyboard_.beginLive(hints);});
     connect(&browser_, &BrowserController::pageInputEnded,this,[this]{if(keyboard_.live())keyboard_.cancel();});
@@ -1674,7 +1681,7 @@ void ShellController::closeHomeMenu() {
 }
 void ShellController::openAccountProfile() {
     if(!canReceiveNearby() || quickAppsOpen_ || moduleWriting() || !apps_.menu().isEmpty())return;
-    service_="account-profile";settings_.communication()->beginProfile();emit changed();
+    accountProfileReturn_=false;service_="account-profile";settings_.communication()->beginProfile();emit changed();
 }
 bool ShellController::profileContentActive() const {
     return service_=="profile" && !trainer_.editing() && !homeMenuOpen_ && !menuOpen_
@@ -1685,11 +1692,13 @@ QVariantMap ShellController::profileAccount() const {
     const auto identity=backendAccount_.snapshot();
     const auto progress=backendAccount_.progression(),mastery=progress["mastery"].toMap();
     const bool known=progress["known"].toBool();
-    return {{"signedIn",identity["state"].toString()=="signed_in"},
+    auto result=backendAccount_.profileIdentity(social_.account(),trainer_.profile()["name"].toString());
+    result.insert({{"signedIn",identity["state"].toString()=="signed_in"},
         {"levelKnown",known},{"balanceKnown",known},{"previewKnown",!progress["support_preview"].toMap().isEmpty()},
         {"stale",progress["stale"]},{"xp",mastery["xp"]},{"levelXp",mastery["level_xp"]},{"nextLevelXp",mastery["next_level_xp"]},
         {"levelText",known?QString::number(mastery["level"].toLongLong()):QString::fromUtf8("\xe2\x80\x94")},
-        {"sparksText",known?QString::number(progress["balance"].toLongLong()):QString::fromUtf8("\xe2\x80\x94")}};
+        {"sparksText",known?QString::number(progress["balance"].toLongLong()):QString::fromUtf8("\xe2\x80\x94")}});
+    return result;
 }
 void ShellController::openVisitorProfile(QString player) {
     if(QUuid(player).isNull())return;
@@ -1712,7 +1721,7 @@ void ShellController::openProfile(bool loadOwn) {
         {"overviewFocus",overviewFocus_},{"overviewSession",overviewSessionId_},
         {"album",QJsonObject::fromVariantMap(album_.navigationState())}};
     homeMenuOpen_=false;quickAppsOpen_=drawerOpen_=false;service_="profile";profileFocus_=0;
-    profileRoute_="summary";profileRaAccountReturn_=false;
+    profileRoute_="summary";profileRaAccountReturn_=false;accountProfileReturn_=false;
     if(loadOwn){trainer_.reload();profileSnapshot_=story_.profile();backendAccount_.refreshProgression();backendAccount_.refreshPrizes();}
     emit changed();
 }
@@ -1796,7 +1805,12 @@ void ShellController::activateProfile(int index) {
     else if(index==10){profileRoute_="support";profileFocus_=0;backendAccount_.refreshProgression(false);backendAccount_.refreshSupport();}
     else if(index==9){profileRoute_="shop";profileFocus_=1;backendAccount_.refreshShop();}
     else if(index==1){profileRoute_="outfits";outfits_.open();}
-    else if(index==0)trainer_.activate(index);
+    else if(index==0) {
+        if(profileAccount()["source"]!="local") {
+            accountProfileReturn_=true;service_="account-profile";
+            settings_.communication()->beginProfile();settings_.communication()->editProfile();
+        }else trainer_.activate(index);
+    }
     else if(index==4){profileRoute_="account";profileFocus_=0;backendAccount_.refreshProgression(false);}
     else if(index==3 || index>=7) {
         hall_.showAchievementLibrary();profileRoute_="ra";
@@ -1950,7 +1964,7 @@ QVariantList ShellController::homeMenuActions() const {
     return rows;
 }
 QString ShellController::homeMenuCaption() const {
-    if(!homeCallOpen_)return trainer_.profile()["name"].toString();
+    if(!homeCallOpen_)return profileAccount()["name"].toString();
     const auto voice=social_.account()["voice"].toMap();
     return voice["summary"].toString().isEmpty()?voice["status"].toString():voice["summary"].toString();
 }
@@ -2163,6 +2177,9 @@ void ShellController::dispatch(Action action) {
         return;
     }
     if(service_=="account-profile" && !menuOpen_ && notice_.isEmpty() && action!=Action::SystemMenu && action!=Action::Home) {
+        if(action==Action::Back && accountProfileReturn_ && !keyboard_.isOpen() && !settings_.communication()->choosingAvatar()) {
+            accountProfileReturn_=false;service_="profile";emit changed();return;
+        }
         if(keyboard_.isOpen())keyboard_.dispatch(action);
         else settings_.communication()->dispatch(action);
         return;

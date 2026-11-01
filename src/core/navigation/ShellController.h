@@ -434,6 +434,7 @@ private:
     int profileFocus_=0;
     QString profileRoute_="summary";
     bool profileRaAccountReturn_=false;
+    bool accountProfileReturn_=false;
     void activateProfile(int index);
     void dispatchProfile(Action action);
     void closeProfile();

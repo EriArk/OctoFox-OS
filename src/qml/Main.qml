@@ -83,13 +83,13 @@ Window {
             AccountAvatar {
                 id: headerAvatar
                 x: 14; y: (parent.height-height)/2; width: 44
-                name: shell.trainer.profile.name || shell.social.account.name || "Player"
-                source: (shell.social.account.profile || {}).avatar || ""
-                presence: shell.social.account.state === "connected" ? shell.social.account.presence || "" : ""
+                name: shell.profileAccount.name
+                source: shell.profileAccount.avatar
+                presence: shell.profileAccount.presence
             }
             Text {
                 id: headerName; objectName: "header-account-name"
-                readonly property string fullName: (shell.trainer.profile.name || "Your profile").trim()
+                readonly property string fullName: shell.profileAccount.name
                 readonly property var words: fullName.split(/\s+/)
                 readonly property bool twoLines: words.length === 2
                 x: headerAvatar.x + headerAvatar.width + 14

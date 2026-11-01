@@ -76,6 +76,17 @@ No game match or universal performance/latency claim is made.
 
 ## Preserved scope
 
+### Later core delivery, 1 November
+
+The account-identity delivery integrated commits `056f1bc9` and `fe66607d`
+before building and replacing either shell. Both devices now run shell SHA-256
+`8ef902a854f896e644f0744cd8d4b6b115e013cf8045ed8d54ee3ecb856cce38`.
+All 14 checkpointed Supermodel package/helper files on Flip are unchanged.
+Odin's separate Supermodel package/helper delivery remains pending; the shell
+update alone does not complete that route. Earlier network and pending gameplay
+evidence above is retained, not rerun or expanded. Storage recovery is tracked
+in the [core delivery record](../2026-11-01-account-identity/README.md).
+
 Steam library/session integration, avatar pack, saved profiles and other emulator
 packages are outside this change. Remote Play, Iris and the paused Sonic/Battlefront
 diagnostics were not resumed. Difficult NAT and per-game polishing remain separate.

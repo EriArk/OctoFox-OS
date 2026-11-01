@@ -44,6 +44,7 @@ public:
     void configure(const QString& owner);
     void setSocialSubject(const QString& subject);
     QJsonObject snapshot() const;
+    QVariantMap profileIdentity(const QVariantMap& social, const QString& localName) const;
     QString actionLabel() const;
     QString detail() const { return detail_; }
     Q_INVOKABLE void activate();
@@ -148,7 +149,7 @@ private:
     bool avatarBusy_=false;
     std::shared_ptr<QLockFile> lock_;
     QString owner_,key_,state_="disabled",detail_="Open your Trainer to sign in";
-    QString attempt_,verifier_,callbackPath_,socialSubject_,subject_,player_,session_;
+    QString attempt_,verifier_,callbackPath_,socialSubject_,subject_,player_,session_,profileName_;
     QByteArray access_,refresh_;
     QDateTime accessExpiry_;
     quint64 epoch_=0;
