@@ -56,7 +56,7 @@ bool LobbyConnection::start(QString self,QString ticket,QString helper,QJsonArra
     const bool psp=mode=="psp"&&game["mode"].toString().startsWith("runtime.ppsspp.")&&s["relay"]=="psp-host"&&!live;
     const bool bba=mode=="bba"&&(game["mode"]=="runtime.dolphin.bba.v1"||game["mode"]=="runtime.xemu.lan.v1")&&s["relay"].toString("auto")=="auto"&&!live;
     const bool ps2=mode=="ps2"&&game["mode"]=="runtime.armsx2.lan.v1"&&s["relay"].toString("auto")=="auto"&&!live;
-    const bool cabinet=mode=="cabinet"&&(game["mode"]=="runtime.flycast.cabinet.v1"||game["mode"]=="runtime.supermodel.link.v1")&&s["relay"].toString("auto")=="auto"&&!live;
+    const bool cabinet=mode=="cabinet"&&(game["mode"]=="runtime.flycast.cabinet.v1"||game["mode"]=="runtime.supermodel.link.v1"||game["mode"]=="runtime.odamex.doom.v1")&&s["relay"].toString("auto")=="auto"&&!live;
     if((s["phase"]!="launching"&&!live)||s["ticket"]!=ticket||ticket.isEmpty()
        ||(!(mode=="game"&&game["mode"]=="remoteplay.v1")&&!psp&&!ps2&&!bba&&!cabinet)||capacity<2||capacity>((mode=="game"||cabinet||ps2||bba)?4:2))return false;
     mode_=mode;

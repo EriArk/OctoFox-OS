@@ -178,6 +178,7 @@ add_library(trainer_core STATIC
     src/integrations/adventure/standalone/DolphinNetplay.cpp
     src/integrations/adventure/standalone/DolphinLan.cpp
     src/integrations/adventure/standalone/XboxLan.cpp
+    src/integrations/adventure/standalone/DoomNetplay.cpp
     src/integrations/adventure/standalone/Model3Netplay.cpp
     src/integrations/adventure/standalone/RmgNetplay.cpp
     src/integrations/adventure/standalone/FlycastNetplay.cpp

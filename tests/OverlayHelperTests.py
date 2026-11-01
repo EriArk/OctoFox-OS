@@ -229,6 +229,16 @@ class OverlayHelperTests(unittest.TestCase):
                     self.assertEqual(supported_emulator_process(42, root), expected)
                 executable.unlink()
 
+    def test_doom_close_requires_managed_launch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); process = root / '42'; process.mkdir()
+            (process / 'exe').symlink_to('/bundle/bin/odamex')
+            for env, expected in ((b'OTHER=value\0', False),
+                                  (b'TRAINEROS_DOOM_MANAGED=0\0', False),
+                                  (b'TRAINEROS_DOOM_MANAGED=1\0', True)):
+                (process / 'environ').write_bytes(env)
+                self.assertEqual(supported_emulator_process(42, root), expected)
+
     def test_vita_close_requires_managed_launch(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);process=root/'42';process.mkdir()

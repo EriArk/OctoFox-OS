@@ -24,3 +24,7 @@ assets/crates/examples/*-LICENSE.txt -text whitespace=-blank-at-eof
 # Preserve the collected upstream Mesa GLU notice comment formatting.
 packaging/emulators/supermodel/GLU-NOTICES.txt text eol=lf whitespace=-blank-at-eol
 docs/adapters/implementations/runtime/packaging/emulators/supermodel/GLU-NOTICES.txt text eol=lf whitespace=-blank-at-eol
+
+# Preserve the exact upstream Odamex third-party notices.
+packaging/emulators/odamex/3RD-PARTY-LICENSES text eol=lf whitespace=-blank-at-eol
+docs/adapters/implementations/runtime/packaging/emulators/odamex/3RD-PARTY-LICENSES text eol=lf whitespace=-blank-at-eol

@@ -5,6 +5,7 @@
 #include "integrations/adventure/standalone/DolphinLan.h"
 #include "integrations/adventure/standalone/XboxLan.h"
 #include "integrations/adventure/standalone/Model3Netplay.h"
+#include "integrations/adventure/standalone/DoomNetplay.h"
 #include "integrations/adventure/standalone/CabinetConnection.h"
 #include "integrations/adventure/standalone/NativeLanConnection.h"
 #include "integrations/adventure/standalone/AzaharNetplay.h"
@@ -47,6 +48,46 @@ class StandaloneTests final : public QObject {
         QFile file(path); QVERIFY(file.open(QIODevice::WriteOnly)); QCOMPARE(file.write(data), data.size());
     }
 private slots:
+    void doomNativePackageAdmissionAndProtectedSolo() {
+#ifdef Q_OS_WIN
+        QSKIP("Native Linux package preparation");
+#else
+        const auto source=qEnvironmentVariable("TRAINEROS_DOOM_TEST_BUNDLE");
+        const auto wad=qEnvironmentVariable("TRAINEROS_DOOM_TEST_WAD");
+        if(source.isEmpty()||wad.isEmpty())QSKIP("Supply the sealed package and local WAD fixture");
+        QTemporaryDir dir;const auto old=qgetenv("XDG_DATA_HOME");const bool oldMode=QStandardPaths::isTestModeEnabled();
+        QStandardPaths::setTestModeEnabled(false);qputenv("XDG_DATA_HOME",dir.filePath("data").toUtf8());
+        const auto restore=qScopeGuard([&]{if(old.isNull())qunsetenv("XDG_DATA_HOME");else qputenv("XDG_DATA_HOME",old);QStandardPaths::setTestModeEnabled(oldMode);});
+        const auto root=doom::bundleRoot();QVERIFY(QDir().mkpath(root));
+        QFile manifest(source+"/manifest.json");QVERIFY(manifest.open(QIODevice::ReadOnly));
+        const auto m=QJsonDocument::fromJson(manifest.readAll()).object();const auto files=m["files"].toObject();
+        for(auto it=files.begin();it!=files.end();++it){QVERIFY(QDir().mkpath(QFileInfo(root+'/'+it.key()).absolutePath()));QVERIFY(QFile::copy(source+'/'+it.key(),root+'/'+it.key()));}
+        write(root+"/manifest.json",QJsonDocument(m).toJson());
+        AdventureRegistration r;r.adventure.id="native-doom";r.adventure.title="Renamed game";
+        r.adventure.adapterId="odamex";r.adventure.platformId="doom";r.contentPath=wad;
+        std::atomic_bool cancel=false;QStringList dependencies;
+        const auto profile=doom::netplayIdentity(r,cancel,[&](const QString& p){dependencies<<p;});
+        QVERIFY(!profile.isEmpty());QVERIFY(dependencies.contains(QFileInfo(wad).canonicalFilePath()));
+        QVERIFY(localLobbyRuntime(profile));QVERIFY(permitsMultiplayer({{"players","1"}},profile));
+        auto solo=doom::soloCommand(r);QCOMPARE(solo.prepare(solo,cancel),QString());
+        write(solo.workingDirectory+"/own-save.ods","owned progress");solo.settled({});
+        for(int seat=1;seat<=4;++seat){
+            flycast::CabinetConnection group{seat,4,{}};
+            for(int peer=1;peer<=4;++peer)if(peer!=seat&&(seat==1||peer==1))group.sockets[peer]=dir.filePath(QString::number(peer)+"/cabinet.sock");
+            const auto connection=dir.filePath("connection.json");write(connection,group.encode());QFile::setPermissions(connection,QFile::ReadOwner|QFile::WriteOwner);
+            auto cmd=doom::command(r,profile,connection,seat==1);QCOMPARE(cmd.prepare(cmd,cancel),QString());
+            QVERIFY(cmd.arguments.contains("--unshare-net"));QVERIFY(cmd.workingDirectory!=solo.workingDirectory);
+            QVERIFY(cmd.runtimeControls["temporaryProgress"].toBool());
+            auto duplicate=doom::command(r,profile,connection,seat==1);QVERIFY(!duplicate.prepare(duplicate,cancel).isEmpty());
+            cmd.settled({});
+            auto wrong=doom::command(r,profile,connection,seat!=1);QVERIFY(!wrong.prepare(wrong,cancel).isEmpty());
+        }
+        QFile saved(solo.workingDirectory+"/own-save.ods");QVERIFY(saved.open(QIODevice::ReadOnly));QCOMPARE(saved.readAll(),QByteArray("owned progress"));
+        auto changed=profile;changed["content"]=QString(64,'0');
+        auto stale=doom::command(r,changed,dir.filePath("connection.json"),true);QVERIFY(!stale.prepare(stale,cancel).isEmpty());
+        write(root+"/content.py","tampered");QVERIFY(doom::netplayIdentity(r,cancel).isEmpty());
+#endif
+    }
     void model3NativePackageAdmissionAndOwnedSeats() {
 #ifdef Q_OS_WIN
         QSKIP("Native Linux package preparation");

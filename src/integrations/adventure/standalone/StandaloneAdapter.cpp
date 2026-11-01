@@ -4,6 +4,7 @@
 #include "integrations/adventure/MultiplayerRoute.h"
 #include "core/model/GamePlayers.h"
 #include "PpssppNetplay.h"
+#include "DoomNetplay.h"
 #include "DolphinNetplay.h"
 #include "AzaharNetplay.h"
 #include <QFile>
@@ -23,6 +24,7 @@ QStringList allowedPlatforms(const QString& id) {
     if (id == "duckstation") return {"psx"};
     if (id == "rpcs3") return {"ps3"};
     if (id == "eden") return {"switch"};
+    if (id == "odamex") return {"doom"};
     if (id == "supermodel") return {"model3"};
     if (id == "xemu") return {"xbox"};
     if (id == "azahar") return {"n3ds"};
@@ -38,6 +40,7 @@ QStringList extensions(const QString& platform) {
     if (platform == "psx") return {"cue", "chd", "pbp", "m3u", "iso", "exe", "bin", "img", "mdf", "mds", "ccd"};
     if (platform == "ps3") return {"self", "elf"};
     if (platform == "switch") return {"nro", "nsp", "xci"};
+    if (platform == "doom") return {"wad", "doom"};
     if (platform == "model3") return {"zip"};
     if (platform == "xbox") return {"iso"};
     if (platform == "n3ds") return {"3dsx", "3ds", "cci", "cxi", "app", "elf", "axf", "zcci", "zcxi", "z3dsx", "cia", "zcia"};
@@ -122,6 +125,10 @@ std::optional<ProcessCommand> StandaloneAdapter::command(const Adventure& advent
     if (!record || record->adventure.adapterId != id_ || !QDir::isAbsolutePath(record->contentPath)
         || !supports(record->adventure.platformId, record->contentPath)) return {};
     auto arguments = installation_.prefixArguments;
+    if (id_ == "odamex") {
+        const auto end=arguments.indexOf("--");
+        return doom::soloCommand(*record,end>=0?arguments.mid(0,end+1):QStringList{});
+    }
     if (id_ == "melonds") arguments << "-f" << record->contentPath;
     else if (id_ == "azahar") arguments << "-f" << record->contentPath;
     else if (id_ == "vita3k") arguments << record->contentPath;

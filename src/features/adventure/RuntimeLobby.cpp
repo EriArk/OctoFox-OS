@@ -93,7 +93,7 @@ void RuntimeMultiplayer::prepare(QString operation,QJsonObject context,Completio
     if(context["relay"]=="psp-host"&&(players!=2||ppsspp::hostRelayRoot().isEmpty())) {
         done(false,"The handheld relay needs two players and the PSP connection package on both devices. Choose the standard relay otherwise.");return;
     }
-    if(profile["id"]=="runtime.azahar.3ds.v1"||requiresLinkedSavePreparation(profile)||profile["id"]=="runtime.flycast.cabinet.v1"||profile["id"]=="runtime.armsx2.lan.v1"||profile["id"]=="runtime.supermodel.link.v1"||profile["id"]=="runtime.xemu.lan.v1"||profile["id"]=="runtime.dolphin.bba.v1") {
+    if(profile["id"]=="runtime.azahar.3ds.v1"||requiresLinkedSavePreparation(profile)||profile["id"]=="runtime.flycast.cabinet.v1"||profile["id"]=="runtime.armsx2.lan.v1"||profile["id"]=="runtime.odamex.doom.v1"||profile["id"]=="runtime.supermodel.link.v1"||profile["id"]=="runtime.xemu.lan.v1"||profile["id"]=="runtime.dolphin.bba.v1") {
         if(players<2) {done(false,"This linked-machine mode needs another player.");return;}
         for(int i=1;i<=players;++i)if(!seats.contains(i)) {done(false,"Linked machines need consecutive seats starting at P1.");return;}
     }
@@ -134,7 +134,7 @@ void RuntimeMultiplayer::launch(QString operation,QString ticket,QJsonObject con
         relaySelector_.start(lobbyContext_["self"].toString(),context["owner"].toString(),peers,context["relay"].toString("auto"));
         if(!relayStarted_)return; // Synchronous context rejection already completed the launch.
     }
-    if(selected["id"]=="runtime.armsx2.lan.v1"||selected["id"]=="runtime.supermodel.link.v1"||selected["id"]=="runtime.xemu.lan.v1"||selected["id"]=="runtime.dolphin.bba.v1"||selected["id"]=="runtime.flycast.cabinet.v1") {
+    if(selected["id"]=="runtime.armsx2.lan.v1"||selected["id"]=="runtime.odamex.doom.v1"||selected["id"]=="runtime.supermodel.link.v1"||selected["id"]=="runtime.xemu.lan.v1"||selected["id"]=="runtime.dolphin.bba.v1"||selected["id"]=="runtime.flycast.cabinet.v1") {
         nativeLanConnection_=true;nativeLaunchContext_=context;
         startNativeLanConnections(ticket,context);
         return;
@@ -175,7 +175,7 @@ void RuntimeMultiplayer::startNativeLanConnections(QString ticket,const QJsonObj
     auto selected=context["game"].toObject()["runtime"].toObject();if(selected.isEmpty())selected=lobbyDescriptor_;
     const auto id=selected["id"].toString();
     const QString mode=id=="runtime.armsx2.lan.v1"?"ps2":id=="runtime.dolphin.bba.v1"?"bba":id=="runtime.xemu.lan.v1"?"xbox":"cabinet";
-    const auto root=id=="runtime.supermodel.link.v1"?model3::bundleRoot():mode=="ps2"?ps2lan::bundleRoot():mode=="bba"?dolphinlan::bundleRoot():mode=="xbox"?xboxlan::bundleRoot():flycast::cabinetRoot();
+    const auto root=id=="runtime.odamex.doom.v1"?doom::bundleRoot():id=="runtime.supermodel.link.v1"?model3::bundleRoot():mode=="ps2"?ps2lan::bundleRoot():mode=="bba"?dolphinlan::bundleRoot():mode=="xbox"?xboxlan::bundleRoot():flycast::cabinetRoot();
     const auto room=QString::fromLatin1(QCryptographicHash::hash(("native-lan-v2/"+ticket).toUtf8(),QCryptographicHash::Sha256).toHex().left(12));
     const auto guests=self==owner?players:QMap<int,QString>{{seat,self}};
     for(auto it=guests.cbegin();it!=guests.cend();++it) {

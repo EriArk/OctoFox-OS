@@ -21,6 +21,7 @@
 #include "integrations/adventure/standalone/Ps2LanNetplay.h"
 #include "integrations/adventure/standalone/XboxLan.h"
 #include "integrations/adventure/standalone/Model3Netplay.h"
+#include "integrations/adventure/standalone/DoomNetplay.h"
 #include "platform/network/LocalLinkPeer.h"
 #include <QFutureWatcher>
 #include <memory>
@@ -125,7 +126,8 @@ private:
     bool gcLan() const { return descriptor_["id"]=="runtime.dolphin.bba.v1"; }
     bool dcOnline() const { return descriptor_["id"]=="runtime.flycast.online.v1"; }
     bool cabinetLan() const { return descriptor_["id"]=="runtime.flycast.cabinet.v1"; }
-    bool nativeLan() const { return ps2Lan()||gcLan()||xboxLan()||model3Lan()||cabinetLan(); }
+    bool nativeLan() const { return doomLan()||ps2Lan()||gcLan()||xboxLan()||model3Lan()||cabinetLan(); }
+    bool doomLan() const {return descriptor_["id"]=="runtime.odamex.doom.v1";}
     bool model3Lan() const {return descriptor_["id"]=="runtime.supermodel.link.v1";}
     bool xboxLan() const { return descriptor_["id"]=="runtime.xemu.lan.v1"; }
     bool ps2Lan() const { return descriptor_["id"]=="runtime.armsx2.lan.v1"; }

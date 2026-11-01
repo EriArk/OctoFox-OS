@@ -1,0 +1,49 @@
+{
+  "success": true,
+  "base": "189323ae",
+  "sha256": "abae6ffe44c3340884e52bd882057c01b8da6d3661d1530970f3c1b38eb1c712",
+  "package_sha256": "c12b031f10cf8e933c54568d306cf22fb8636d55f888c0c2a5059778de36a38d",
+  "source_files": 1299,
+  "source_manifest_sha256": "aa8f5171f09b13187e7913346a0f0e85e8ce2466211d2a9ea5b3307b09cd6dad",
+  "qt": "6.11.2",
+  "production": true,
+  "runtime_tests": 105,
+  "package_tests": 3,
+  "content_transport_tests": 9,
+  "overlay_tests": 26,
+  "native_clients": [
+    2,
+    4
+  ],
+  "source_commit": "cc423552",
+  "installed_devices": [
+    "Flip"
+  ],
+  "odin_accessed": false,
+  "native_renamed_content": {
+    "players": 4,
+    "native_clients_alive": true,
+    "native_server_admitted_clients": 4,
+    "renamed_guest_content": true,
+    "loss_revokes_server_without_closing_clients": true,
+    "bidirectional_bytes": [
+      14812,
+      50767,
+      14913,
+      51012,
+      14963,
+      50864
+    ],
+    "duration_seconds": 20
+  },
+  "installation": {
+    "sha256": "abae6ffe44c3340884e52bd882057c01b8da6d3661d1530970f3c1b38eb1c712",
+    "old_protected_rows_preserved": true,
+    "other_runtime_manifests_preserved": true,
+    "avatar_preserved": true,
+    "settings_unchanged": true,
+    "running_sessions": 0
+  },
+  "qml_errors": 0,
+  "runtime_discovered": true
+}
