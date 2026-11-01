@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "sha256": "64a0b0f51cb2141ca09f05cd6446391073693d82a5436e1260339e77d1c24f64",
+  "base": "883ecaf051fc5de5c5a96139d05ee064e3d6ff8b",
+  "source_files": 1288,
+  "source_manifest_sha256": "419ec9dca9545c4fdfbe3b621ec25e2e7f033c049583bf19988829d78b4b6d46",
+  "qt": "6.11.2",
+  "production": true,
+  "runtime_tests": 104,
+  "package_tests": 3,
+  "content_tests": 4,
+  "overlay_tests": 25,
+  "package_sha256": "4370181bd81c468fac13259d8441ba7da1d0aebf34e849d7163bb8c215f69c4c"
+}

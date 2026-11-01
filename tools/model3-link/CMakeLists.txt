@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.24)
+project(traineros_model3_endpoint LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+find_package(Qt6 REQUIRED COMPONENTS Core Network)
+add_executable(model3_endpoint endpoint.cpp)
+target_link_libraries(model3_endpoint PRIVATE Qt6::Core Qt6::Network)

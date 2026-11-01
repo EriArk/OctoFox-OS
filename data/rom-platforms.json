@@ -19,6 +19,17 @@
       "shape": "computer"
     },
     {
+      "id": "model3",
+      "folder": "model3",
+      "name": "Sega Model 3",
+      "core": "supermodel",
+      "extensions": [
+        "zip"
+      ],
+      "aliases": [],
+      "shape": "arcade"
+    },
+    {
       "id": "xbox",
       "folder": "xbox",
       "name": "Xbox",

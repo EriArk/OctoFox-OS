@@ -21,3 +21,6 @@ tools/remote-play-stream/transport/licenses/* -text
 tools/remote-play-stream/transport/licenses/lib*.LICENSE whitespace=-blank-at-eol
 # These notices are hashed in the Crates artwork provenance; preserve upstream bytes.
 assets/crates/examples/*-LICENSE.txt -text whitespace=-blank-at-eof
+# Preserve the collected upstream Mesa GLU notice comment formatting.
+packaging/emulators/supermodel/GLU-NOTICES.txt text eol=lf whitespace=-blank-at-eol
+docs/adapters/implementations/runtime/packaging/emulators/supermodel/GLU-NOTICES.txt text eol=lf whitespace=-blank-at-eol

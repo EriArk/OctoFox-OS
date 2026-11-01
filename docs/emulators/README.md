@@ -17,6 +17,7 @@ a second execution plan or a claim that all installed runtimes are validated.
 
 | Emulator | Record | Scope |
 |---|---|---|
+| Supermodel | [Model 3 Cabinet Link](supermodel.md) | Native capability/ROM admission, Lobby 2–4, original TCP ring over the existing carrier, own per-seat NVRAM; source, installation and game evidence kept separate |
 | ARMSX2 | [Native LAN integration](armsx2-lan.md) | Lobby binding, isolated native network, exact disc identity and own-card launch; paired native admission passed, network utility input/match and full Lobby cycle unfinished |
 | xemu | [Original Xbox / System Link](xemu.md) | Ordinary launch retained; source Lobby 2–4, native UDP Ethernet and own-HDD lifecycle; delivery and game evidence recorded separately |
 | RPCS3 | [PS3 homebrew launch](rpcs3.md) | Existing Odin runtime/firmware, shared launch and separate SDL input profile; device cycle recorded in LAUNCH-80 |

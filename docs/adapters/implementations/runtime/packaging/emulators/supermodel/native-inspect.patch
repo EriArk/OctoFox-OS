@@ -1,0 +1,82 @@
+diff --git a/Src/Model3/SimNetBoard.cpp b/Src/Model3/SimNetBoard.cpp
+index 78b4711..dfbb1ce 100644
+--- a/Src/Model3/SimNetBoard.cpp
++++ b/Src/Model3/SimNetBoard.cpp
+@@ -60,6 +60,19 @@ void CSimNetBoard::LoadState(CBlockFile* SaveState)
+ 
+ }
+ 
++GameType CSimNetBoard::LinkType(const Game& game)
++{
++	const auto IsGame = [&game](const char* name){ return game.name == name || game.parent == name; };
++	if (IsGame("daytona2") || IsGame("harley") || IsGame("scud") || IsGame("srally2") ||
++		IsGame("skichamp") || IsGame("spikeout") || IsGame("spikeofe"))
++		return GameType::one;
++	else if (IsGame("lemans24") || IsGame("von2") || IsGame("dirtdvls"))
++		return GameType::two;
++	else
++		return GameType::unknown;
++
++}
++
+ Result CSimNetBoard::Init(uint8_t* netRAMPtr, uint8_t* netBufferPtr)
+ {
+ 	RAM = netRAMPtr;
+@@ -73,12 +86,8 @@ Result CSimNetBoard::Init(uint8_t* netRAMPtr, uint8_t* netBufferPtr)
+ 	if (!m_attached)
+ 		return Result::OKAY;
+ 
+-	if (IsGame("daytona2") || IsGame("harley") || IsGame("scud") || IsGame("srally2") ||
+-		IsGame("skichamp") || IsGame("spikeout") || IsGame("spikeofe"))
+-		m_gameType = GameType::one;
+-	else if (IsGame("lemans24") || IsGame("von2") || IsGame("dirtdvls"))
+-		m_gameType = GameType::two;
+-	else
++	m_gameType = LinkType(m_gameInfo);
++	if (m_gameType == GameType::unknown)
+ 		return ErrorLog("Game not recognized or supported");
+ 
+ 	m_state = State::start;
+diff --git a/Src/Model3/SimNetBoard.h b/Src/Model3/SimNetBoard.h
+index 0e81b96..6b4ec8b 100644
+--- a/Src/Model3/SimNetBoard.h
++++ b/Src/Model3/SimNetBoard.h
+@@ -46,6 +46,7 @@ enum class GameType
+ class CSimNetBoard : public INetBoard
+ {
+ public:
++	static GameType LinkType(const Game& game);
+ 	CSimNetBoard(const Util::Config::Node& config, std::shared_ptr<CNetServer> server);
+ 	~CSimNetBoard(void);
+ 
+diff --git a/Src/OSD/SDL/Main.cpp b/Src/OSD/SDL/Main.cpp
+index 789a60f..85d10f9 100644
+--- a/Src/OSD/SDL/Main.cpp
++++ b/Src/OSD/SDL/Main.cpp
+@@ -97,6 +97,7 @@
+ #include "Model3/Model3.h"
+ #include "Pro1000/Pro1000.h"
+ #include "Network/NetServer.h"
++#include "Model3/SimNetBoard.h"
+ #include "Graphics/Pro1000Render2D.h"
+ #include "Graphics/IRender2D.h"
+ #include "OSD/Audio.h"
+@@ -2373,6 +2374,18 @@ int main(int argc, char **argv)
+       }
+       if (loader.Load(&game, &rom_set, *cmd_line.rom_files.begin()))
+         return 1;
++      // Local, read-only native content/capability probe. No SDL, networking or NVRAM.
++      if (const char* inspect = getenv("TRAINEROS_SUPERMODEL_INSPECT"); inspect && std::string(inspect) == "1")
++      {
++        const bool link = game.platform == Game::PLATFORM_MODEL3 && game.netboard_present
++          && CSimNetBoard::LinkType(game) != GameType::unknown;
++        // Names come from the pinned local Games.xml, not a peer or file basename.
++        const auto safe = [](const std::string& value) { return value.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789_") == std::string::npos; };
++        if (!safe(game.name) || !safe(game.parent)) return 1;
++        printf("[TrainerOSModel3] {\"name\":\"%s\",\"parent\":\"%s\",\"link\":%s}\n", game.name.c_str(), game.parent.c_str(), link ? "true" : "false");
++        return 0;
++      }
++
+       Util::Config::MergeINISections(&config4, config3, fileConfig[game.name]);   // apply game-specific config
+     }
+     else

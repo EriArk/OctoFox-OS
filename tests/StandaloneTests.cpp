@@ -4,6 +4,8 @@
 #include "integrations/adventure/standalone/DolphinNetplay.h"
 #include "integrations/adventure/standalone/DolphinLan.h"
 #include "integrations/adventure/standalone/XboxLan.h"
+#include "integrations/adventure/standalone/Model3Netplay.h"
+#include "integrations/adventure/standalone/CabinetConnection.h"
 #include "integrations/adventure/standalone/NativeLanConnection.h"
 #include "integrations/adventure/standalone/AzaharNetplay.h"
 #include "integrations/adventure/standalone/VitaNetplay.h"
@@ -45,6 +47,48 @@ class StandaloneTests final : public QObject {
         QFile file(path); QVERIFY(file.open(QIODevice::WriteOnly)); QCOMPARE(file.write(data), data.size());
     }
 private slots:
+    void model3NativePackageAdmissionAndOwnedSeats() {
+#ifdef Q_OS_WIN
+        QSKIP("Native Linux package preparation");
+#else
+        const auto source=qEnvironmentVariable("TRAINEROS_MODEL3_TEST_BUNDLE");
+        const auto rom=qEnvironmentVariable("TRAINEROS_MODEL3_TEST_ROM");
+        if(source.isEmpty()||rom.isEmpty())QSKIP("Supply the reviewed package and owner-local native ROM");
+        QTemporaryDir dir;const auto old=qgetenv("XDG_DATA_HOME");const bool oldMode=QStandardPaths::isTestModeEnabled();
+        QStandardPaths::setTestModeEnabled(false);qputenv("XDG_DATA_HOME",dir.filePath("data").toUtf8());
+        const auto restore=qScopeGuard([&]{if(old.isNull())qunsetenv("XDG_DATA_HOME");else qputenv("XDG_DATA_HOME",old);QStandardPaths::setTestModeEnabled(oldMode);});
+        const auto root=model3::bundleRoot();QVERIFY(QDir().mkpath(root));
+        QFile manifest(source+"/manifest.json");QVERIFY(manifest.open(QIODevice::ReadOnly));
+        auto m=QJsonDocument::fromJson(manifest.readAll()).object();const auto files=m["files"].toObject();
+        for(auto it=files.begin();it!=files.end();++it){QVERIFY(QDir().mkpath(QFileInfo(root+'/'+it.key()).absolutePath()));QVERIFY(QFile::copy(source+'/'+it.key(),root+'/'+it.key()));}
+        const auto config=dir.filePath("own.ini"),nvram=dir.filePath("own-nvram");
+        write(config,"[ Global ]\nInputSystem=\"sdlgamepad\"\n");QVERIFY(QDir().mkpath(nvram));
+        m["config"]=config;m["nvram"]=nvram;write(root+"/manifest.json",QJsonDocument(m).toJson());
+        AdventureRegistration r;r.adventure.id="native-model3";r.adventure.title="Owner game";
+        r.adventure.adapterId="supermodel";r.adventure.platformId="model3";r.contentPath=rom;
+        std::atomic_bool cancel=false;const auto profile=model3::netplayIdentity(r,cancel);
+        QVERIFY(!profile.isEmpty());QCOMPARE(profile["players"].toInt(),4);
+        QVERIFY(localLobbyRuntime(profile));QCOMPARE(multiplayerPresentation(profile)["label"].toString(),"Cabinet Link");
+        const auto name=profile["set"].toString();write(nvram+'/'+name+".nv","own progress");
+        for(int seat=1;seat<=4;++seat){
+            flycast::CabinetConnection group{seat,4,{}};
+            for(int peer=1;peer<=4;++peer)if(peer!=seat&&(seat==1||peer==1))group.sockets[peer]=dir.filePath(QString::number(peer)+"/cabinet.sock");
+            const auto connection=dir.filePath("connection.json");write(connection,group.encode());QFile::setPermissions(connection,QFile::ReadOwner|QFile::WriteOwner);
+            auto cmd=model3::command(r,profile,connection,seat==1);QCOMPARE(cmd.prepare(cmd,cancel),QString());
+            QVERIFY(cmd.arguments.contains("--unshare-net"));QVERIFY(cmd.arguments.contains("-port-in="+QString::number(19700+seat)));
+            QVERIFY(cmd.arguments.contains("-port-out="+QString::number(19700+seat%4+1)));QVERIFY(!cmd.runtimeControls["temporaryProgress"].toBool());
+            const auto saved=cmd.workingDirectory+"/NVRAM/"+name+".nv";QFile seed(saved);QVERIFY(seed.open(QIODevice::ReadOnly));QCOMPARE(seed.readAll(),QByteArray("own progress"));seed.close();
+            auto duplicate=model3::command(r,profile,connection,seat==1);QVERIFY(!duplicate.prepare(duplicate,cancel).isEmpty());
+            write(saved,"cabinet progress");cmd.settled({});
+            auto again=model3::command(r,profile,connection,seat==1);QCOMPARE(again.prepare(again,cancel),QString());
+            QVERIFY(seed.open(QIODevice::ReadOnly));QCOMPARE(seed.readAll(),QByteArray("cabinet progress"));seed.close();again.settled({});
+            auto wrong=model3::command(r,profile,connection,seat!=1);QVERIFY(!wrong.prepare(wrong,cancel).isEmpty());
+        }
+        QFile original(nvram+'/'+name+".nv");QVERIFY(original.open(QIODevice::ReadOnly));QCOMPARE(original.readAll(),QByteArray("own progress"));
+        auto wrong=r;wrong.adventure.adapterId="retroarch";QVERIFY(model3::netplayIdentity(wrong,cancel).isEmpty());
+        write(root+"/Config/Games.xml","changed package");QVERIFY(model3::netplayIdentity(r,cancel).isEmpty());
+#endif
+    }
     void orderedDiscListsRejectAmbiguityAndWatchMissingMembers() {
         QTemporaryDir dir;write(dir.filePath("one.iso"),"disc one");write(dir.filePath("two.chd"),"disc two");
         const auto path=dir.filePath("set.m3u8");
@@ -988,6 +1032,7 @@ private slots:
             QTest::newRow(qPrintable(QString("PS1-")+extension))<<QString("duckstation")<<QString("psx")<<QString(extension);
         QTest::newRow("PS3-homebrew") << QString("rpcs3") << QString("ps3") << QString("self");
         QTest::newRow("Switch-homebrew") << QString("eden") << QString("switch") << QString("nro");
+        QTest::newRow("Model3-cabinet") << QString("supermodel") << QString("model3") << QString("zip");
         QTest::newRow("Xbox-disc") << QString("xemu") << QString("xbox") << QString("iso");
         QTest::newRow("GameCube") << QString("dolphin") << QString("gc") << QString("iso");
         QTest::newRow("Wii") << QString("dolphin") << QString("wii") << QString("wad");
@@ -1054,6 +1099,7 @@ private slots:
             : adapterId == "duckstation" ? QJsonArray{"-batch", "-fullscreen", "--", record.contentPath}
             : adapterId == "rpcs3" ? QJsonArray{"--no-gui", "--fullscreen", record.contentPath}
             : adapterId == "eden" ? QJsonArray{"-f", "-g", record.contentPath}
+            : adapterId == "supermodel" ? QJsonArray{"-fullscreen", "-no-net", record.contentPath}
             : adapterId == "xemu" ? QJsonArray{"-full-screen", "-dvd_path", record.contentPath}
             : QJsonArray{"-b", "-C", "Dolphin.Display.Fullscreen=True", "-C", "Dolphin.Interface.ConfirmStop=False", "-e", record.contentPath};
         if(dsArchive){arguments.append("--archive-file");arguments.append("nested/Actual.srl");}

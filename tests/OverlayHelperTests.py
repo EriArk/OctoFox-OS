@@ -51,6 +51,8 @@ class OverlayHelperTests(unittest.TestCase):
                                ('rpcs3.AppImage',b'AppRun.wrapped\0--no-gui\0--fullscreen\0game.self\0'),
                                ('eden.AppImage',b'eden\0-f\0-g\0game.nro\0'),
                                ('eden',b'eden\0-f\0-g\0game.nro\0'),
+                               ('supermodel',b'supermodel\0-fullscreen\0-no-net\0game.zip\0'),
+                               ('supermodel.real',b'supermodel.real\0-fullscreen\0-net\0game.zip\0'),
                                ('xemu',b'xemu\0-full-screen\0-dvd_path\0game.iso\0'),
                                ('xemu.AppImage',b'AppRun\0-full-screen\0-dvd_path\0game.iso\0')):
                 target=process/'exe'

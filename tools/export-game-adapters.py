@@ -92,6 +92,7 @@ for relative in ("src/integrations/adventure/standalone/AzaharNetplay.cpp",
                  "src/integrations/adventure/CartridgeContent.cpp",
                  "src/integrations/adventure/standalone/PpssppNetplay.cpp",
                  "src/integrations/adventure/standalone/XboxLan.cpp",
+                 "src/integrations/adventure/standalone/Model3Netplay.cpp",
                  "src/integrations/adventure/retroarch/RetroArchNetplay.cpp",
                  "src/integrations/adventure/retroarch/PS2Netplay.cpp",
                  "src/integrations/adventure/retroarch/RetroArchNetplayClient.cpp",
@@ -106,7 +107,7 @@ for relative in ("src/integrations/adventure/standalone/AzaharNetplay.cpp",
 for profile in registry.get("runtimeProfiles", []):
     exported_profile = dict(profile, evidenceBase="../../../")
     files[f"profiles/{profile['id']}.json"] = (json.dumps(exported_profile, indent=2) + "\n").encode()
-for directory in ("ps2-lan", "flycast-lan"):
+for directory in ("ps2-lan", "flycast-lan", "model3-link"):
     for path in sorted((root / "tools" / directory).iterdir()):
         if path.is_file():
             files[path.relative_to(root).as_posix()] = path.read_text(encoding="utf-8").encode("utf-8")
@@ -116,7 +117,7 @@ for name in ("ps2_sockets.hpp", "cabinet_channel.hpp", "bba_channel.hpp", "check
 for path in sorted((root / "tools/ppsspp-content").iterdir()):
     if path.is_file():
         files[path.relative_to(root).as_posix()] = path.read_text(encoding="utf-8").encode("utf-8")
-for directory in ("dolphin", "handheld", "rmg", "flycast", "flycast-lan", "melonds", "azahar", "xemu", "vita3k", "native-lan", "lrps2", "pcsx-rearmed"):
+for directory in ("dolphin", "handheld", "rmg", "flycast", "flycast-lan", "melonds", "azahar", "xemu", "supermodel", "vita3k", "native-lan", "lrps2", "pcsx-rearmed"):
     for path in sorted((root / "packaging/emulators" / directory).iterdir()):
         if path.is_file():
             files[path.relative_to(root).as_posix()] = path.read_text(encoding="utf-8").encode("utf-8")

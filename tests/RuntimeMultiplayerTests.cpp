@@ -15,6 +15,8 @@
 #include <QFile>
 #include <QDir>
 #include <QPromise>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 namespace trainer {
 class RuntimeMultiplayerTests final : public QObject {
@@ -40,6 +42,7 @@ class RuntimeMultiplayerTests final : public QObject {
     };
     struct Fixture {
         QTemporaryDir dir;
+        QTcpServer relayDirectory,relayProbe;
         Library library;
         RetroArchAdapter retro{library,{}};
         StandaloneAdapter psp{"ppsspp",library,{}},dolphin{"dolphin",library,{}};
@@ -49,6 +52,21 @@ class RuntimeMultiplayerTests final : public QObject {
         AdventureExitPresentation view{lifecycle.exitController()};
         RuntimeMultiplayer runtime{library,retro,psp,dolphin,social,process,lifecycle,view};
         Fixture() {
+            // Lifecycle tests must not depend on the public relay directory.
+            // Keep real HTTP/TCP measurement and the normal authenticated reports.
+            if(!relayDirectory.listen(QHostAddress::LocalHost))qFatal("Test relay directory unavailable");
+            if(!relayProbe.listen(QHostAddress::LocalHost))qFatal("Test relay probe unavailable");
+            runtime.relaySelector_.directory_="http://127.0.0.1:"+QString::number(relayDirectory.serverPort())+"/?name=";
+            QObject::connect(&relayProbe,&QTcpServer::newConnection,&relayProbe,[this]{
+                while(auto* socket=relayProbe.nextPendingConnection()){socket->disconnectFromHost();socket->deleteLater();}
+            });
+            QObject::connect(&relayDirectory,&QTcpServer::newConnection,&relayDirectory,[this]{
+                while(auto* socket=relayDirectory.nextPendingConnection())QObject::connect(socket,&QTcpSocket::readyRead,socket,[this,socket]{
+                    socket->readAll();const auto body="status=OK\ntunnel_addr=127.0.0.1\ntunnel_port="+QByteArray::number(relayProbe.serverPort())+"\n";
+                    socket->write("HTTP/1.1 200 OK\r\nContent-Length: "+QByteArray::number(body.size())+"\r\nConnection: close\r\n\r\n"+body);
+                    QObject::connect(socket,&QTcpSocket::disconnected,socket,&QObject::deleteLater);socket->disconnectFromHost();
+                });
+            });
             QObject::connect(&lifecycle,&AdventureLaunchController::checkpointRequested,&lifecycle,
                 [this](quint64 token,const QJsonObject&){lifecycle.checkpointCompleted(token,{});});
             QObject::connect(&view,&AdventureExitPresentation::menuCaptureRequested,&view,
@@ -125,7 +143,7 @@ class RuntimeMultiplayerTests final : public QObject {
 private slots:
     void lobbyRoutesIgnoreOrdinaryEmulatorPreferences() {
         const QHash<QString,QString> routes{{"psp","ppsspp"},{"gc","dolphin"},{"wii","dolphin"},
-            {"nds","melonds"},{"n3ds","azahar"},{"psvita","vita3k"},{"ps2","armsx2"},
+            {"nds","melonds"},{"n3ds","azahar"},{"psvita","vita3k"},{"ps2","armsx2"},{"model3","supermodel"},
             {"n64","retroarch"},{"dreamcast","retroarch"}};
         for(auto it=routes.cbegin();it!=routes.cend();++it) {
             AdventureRegistration original;original.adventure.platformId=it.key();original.adventure.adapterId="personal-emulator";
@@ -221,6 +239,7 @@ private slots:
     void ps2TransportLossKeepsOwnedGameAndCannotRelaunch_data() {
         QTest::addColumn<QString>("mode");
         QTest::newRow("ps2")<<QString("runtime.armsx2.lan.v1");
+        QTest::newRow("model3-link")<<QString("runtime.supermodel.link.v1");
         QTest::newRow("xbox-system-link")<<QString("runtime.xemu.lan.v1");
         QTest::newRow("gamecube-bba")<<QString("runtime.dolphin.bba.v1");
         QTest::newRow("arcade-cabinets")<<QString("runtime.flycast.cabinet.v1");
@@ -359,7 +378,7 @@ private slots:
         QVERIFY(a.social.lobbyRuntime()->prepare());
         if(together) {QVERIFY(b.social.lobbyRuntime()->prepare());QVERIFY(g->ready(true));}
         QVERIFY(h->ready(true));QVERIFY(h->start());
-        QTRY_COMPARE(h->state()["phase"].toString(),"playing");const auto pid=a.process.processId();const auto ticket=h->state()["ticket"].toString();
+        QTRY_VERIFY2(h->state()["phase"]=="playing",qPrintable(a.social.lobbyRuntime()->status()+" / "+b.social.lobbyRuntime()->status()));const auto pid=a.process.processId();const auto ticket=h->state()["ticket"].toString();
         if(!together) {QVERIFY(g->join("1",h->state()["id"].toString()));QVERIFY(b.social.lobbyRuntime()->joinLive());}
         QTRY_COMPARE(b.lifecycle.state(),"running");QCOMPARE(a.process.processId(),pid);QCOMPARE(a.runtime.descriptor_,profile);
         if(together) {
@@ -503,12 +522,12 @@ private slots:
         f.runtime.descriptor_=lan;QCOMPARE(f.runtime.nativeLan(),linked!="runtime.flycast.online.v1");QVERIFY(!f.runtime.dolphin());QVERIFY(!f.runtime.supportsLive(lan));
     }
     void nativeReadyIsBoundToEachAssignedSeat() {
-        for(const auto& mode:{QString("runtime.flycast.online.v1"),QString("runtime.flycast.cabinet.v1"),QString("runtime.armsx2.lan.v1"),QString("runtime.dolphin.bba.v1"),QString("runtime.xemu.lan.v1")})
+        for(const auto& mode:{QString("runtime.flycast.online.v1"),QString("runtime.flycast.cabinet.v1"),QString("runtime.armsx2.lan.v1"),QString("runtime.dolphin.bba.v1"),QString("runtime.xemu.lan.v1"),QString("runtime.supermodel.link.v1")})
         for(int slot=2;slot<=4;++slot)for(int received:{1,2,3,4,5}) {
             Fixture f;f.runtime.active_=true;f.runtime.host_=false;f.runtime.request_.slot=slot;
             f.runtime.descriptor_={{"id",mode},{"players",4}};
             int inspected=0;f.library.inspect=[&]{++inspected;};
-            f.runtime.frame({{"kind",mode.contains("online")?"dc-online-ready":mode.contains("armsx2")?"ps2-ready":mode.contains("dolphin")?"bba-ready":mode.contains("xemu")?"xbox-ready":"cabinet-ready"},{"identity",f.runtime.descriptor_},{"slot",received}});
+            f.runtime.frame({{"kind",mode.contains("online")?"dc-online-ready":mode.contains("armsx2")?"ps2-ready":mode.contains("dolphin")?"bba-ready":mode.contains("supermodel")?"model3-ready":mode.contains("xemu")?"xbox-ready":"cabinet-ready"},{"identity",f.runtime.descriptor_},{"slot",received}});
             // The valid seat reaches local content verification. Another seat
             // must fail before looking up or launching any game.
             QCOMPARE(inspected>0,received==slot);
@@ -1090,7 +1109,8 @@ private slots:
         QTRY_VERIFY(!f.runtime.profiles_.value("disc").isEmpty()&&f.runtime.profiles_.value("disc")!=second);
         QTRY_VERIFY(!f.runtime.scan_.isRunning());
         const auto current=f.runtime.profiles_.value("disc");
-        QVERIFY(f.start(false,"disc"));QTRY_VERIFY(f.lifecycle.active());
+        QVERIFY(f.start(false,"disc"));QTRY_COMPARE(f.lifecycle.state(),"running");
+        QVERIFY(f.process.processId()>0);
         f.runtime.active_=true;f.runtime.game_="disc";f.runtime.descriptor_=current;
         f.runtime.party_.configure("test-trainer",{current},current,true);
         f.runtime.party_.invite("friend");QVERIFY(f.runtime.party_.active());

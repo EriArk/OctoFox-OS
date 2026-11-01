@@ -1,0 +1,21 @@
+{
+  "sha256": "64a0b0f51cb2141ca09f05cd6446391073693d82a5436e1260339e77d1c24f64",
+  "model3": [
+    [
+      [
+        "supermodel",
+        8
+      ],
+      [
+        "unconfigured",
+        1
+      ]
+    ]
+  ],
+  "old_protected_rows_preserved": true,
+  "other_runtime_manifests_preserved": true,
+  "avatar_preserved": true,
+  "settings_unchanged": true,
+  "volume": "Volume: 0.20",
+  "running_sessions": 0
+}

@@ -11,7 +11,7 @@ inline AdventureRegistration multiplayerRegistration(AdventureRegistration r) {
     static const QHash<QString,QString> native{
         {"psp","ppsspp"},{"gc","dolphin"},{"wii","dolphin"},
         {"nds","melonds"},{"n3ds","azahar"},{"psvita","vita3k"},
-        {"ps2","armsx2"},{"n64","retroarch"},{"dreamcast","retroarch"}};
+        {"ps2","armsx2"},{"model3","supermodel"},{"n64","retroarch"},{"dreamcast","retroarch"}};
     static const QSet<QString> libretro{
         "nes","fds","snes","sg1000","mastersystem","megadrive","segacd","sega32x",
         "pcengine","pcenginecd","supergrafx","atari2600","psx","fbneo","neogeo","mame",

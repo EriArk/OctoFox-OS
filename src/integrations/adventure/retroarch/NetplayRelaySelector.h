@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <functional>
 
+namespace trainer { class RuntimeMultiplayerTests; }
 namespace trainer::retroarch {
 // Scores travel through the existing authenticated lobby runtime channel.
 // Peers supply scores only, never arbitrary probe addresses or relay endpoints.
@@ -24,6 +25,7 @@ signals:
     void failed(QString message);
 private:
     friend class NetplayRelayTests;
+    friend class trainer::RuntimeMultiplayerTests;
     void probe(QString region,quint64 generation);
     void result(QString region,QString endpoint,int score,quint64 generation);
     void decide();

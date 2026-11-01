@@ -1,0 +1,141 @@
+Mesa GLU 9.0.3 dependency notices
+Source: https://archive.mesa3d.org/glu/glu-9.0.3.tar.xz
+SHA256: bd43fe12f374b1192eb15fe20e45ff456b9bc26ab57f0eee919f96ca0f8a330f
+
+Files: glu-9.0.3/include/GL/glu.h, glu-9.0.3/src/libnurbs/interface/bezierEval.h, glu-9.0.3/src/libnurbs/interface/bezierPatch.h, glu-9.0.3/src/libnurbs/interface/bezierPatchMesh.h, glu-9.0.3/src/libnurbs/interface/glcurveval.h, glu-9.0.3/src/libnurbs/interface/glimports.h, glu-9.0.3/src/libnurbs/interface/glrenderer.h, glu-9.0.3/src/libnurbs/interface/glsurfeval.h, glu-9.0.3/src/libnurbs/interface/mystdio.h, glu-9.0.3/src/libnurbs/interface/mystdlib.h, glu-9.0.3/src/libnurbs/internals/arc.h, glu-9.0.3/src/libnurbs/internals/arcsorter.h, glu-9.0.3/src/libnurbs/internals/arctess.h, glu-9.0.3/src/libnurbs/internals/backend.h, glu-9.0.3/src/libnurbs/internals/basiccrveval.h, glu-9.0.3/src/libnurbs/internals/basicsurfeval.h, glu-9.0.3/src/libnurbs/internals/bezierarc.h, glu-9.0.3/src/libnurbs/internals/bin.h, glu-9.0.3/src/libnurbs/internals/bufpool.h, glu-9.0.3/src/libnurbs/internals/cachingeval.h, glu-9.0.3/src/libnurbs/internals/coveandtiler.h, glu-9.0.3/src/libnurbs/internals/curve.h, glu-9.0.3/src/libnurbs/internals/curvelist.h, glu-9.0.3/src/libnurbs/internals/dataTransform.h, glu-9.0.3/src/libnurbs/internals/defines.h, glu-9.0.3/src/libnurbs/internals/displaylist.h, glu-9.0.3/src/libnurbs/internals/displaymode.h, glu-9.0.3/src/libnurbs/internals/flist.h, glu-9.0.3/src/libnurbs/internals/flistsorter.h, glu-9.0.3/src/libnurbs/internals/gridline.h, glu-9.0.3/src/libnurbs/internals/gridtrimvertex.h, glu-9.0.3/src/libnurbs/internals/gridvertex.h, glu-9.0.3/src/libnurbs/internals/hull.h, glu-9.0.3/src/libnurbs/internals/jarcloc.h, glu-9.0.3/src/libnurbs/internals/knotvector.h, glu-9.0.3/src/libnurbs/internals/mapdesc.h, glu-9.0.3/src/libnurbs/internals/maplist.h, glu-9.0.3/src/libnurbs/internals/mesher.h, glu-9.0.3/src/libnurbs/internals/monotonizer.h, glu-9.0.3/src/libnurbs/internals/myassert.h, glu-9.0.3/src/libnurbs/internals/mymath.h, glu-9.0.3/src/libnurbs/internals/mysetjmp.h, glu-9.0.3/src/libnurbs/internals/mystring.h, glu-9.0.3/src/libnurbs/internals/nurbsconsts.h, glu-9.0.3/src/libnurbs/internals/nurbstess.h, glu-9.0.3/src/libnurbs/internals/patch.h, glu-9.0.3/src/libnurbs/internals/patchlist.h, glu-9.0.3/src/libnurbs/internals/pwlarc.h, glu-9.0.3/src/libnurbs/internals/quilt.h, glu-9.0.3/src/libnurbs/internals/reader.h, glu-9.0.3/src/libnurbs/internals/renderhints.h, glu-9.0.3/src/libnurbs/internals/simplemath.h, glu-9.0.3/src/libnurbs/internals/slicer.h, glu-9.0.3/src/libnurbs/internals/sorter.h, glu-9.0.3/src/libnurbs/internals/subdivider.h, glu-9.0.3/src/libnurbs/internals/trimline.h, glu-9.0.3/src/libnurbs/internals/trimregion.h, glu-9.0.3/src/libnurbs/internals/trimvertex.h, glu-9.0.3/src/libnurbs/internals/trimvertpool.h, glu-9.0.3/src/libnurbs/internals/types.h, glu-9.0.3/src/libnurbs/internals/uarray.h, glu-9.0.3/src/libnurbs/internals/varray.h, glu-9.0.3/src/libnurbs/nurbtess/definitions.h, glu-9.0.3/src/libnurbs/nurbtess/directedLine.h, glu-9.0.3/src/libnurbs/nurbtess/glimports.h, glu-9.0.3/src/libnurbs/nurbtess/gridWrap.h, glu-9.0.3/src/libnurbs/nurbtess/monoChain.h, glu-9.0.3/src/libnurbs/nurbtess/monoPolyPart.h, glu-9.0.3/src/libnurbs/nurbtess/monoTriangulation.h, glu-9.0.3/src/libnurbs/nurbtess/mystdio.h, glu-9.0.3/src/libnurbs/nurbtess/mystdlib.h, glu-9.0.3/src/libnurbs/nurbtess/partitionX.h, glu-9.0.3/src/libnurbs/nurbtess/partitionY.h, glu-9.0.3/src/libnurbs/nurbtess/polyDBG.h, glu-9.0.3/src/libnurbs/nurbtess/polyUtil.h, glu-9.0.3/src/libnurbs/nurbtess/primitiveStream.h, glu-9.0.3/src/libnurbs/nurbtess/quicksort.h, glu-9.0.3/src/libnurbs/nurbtess/rectBlock.h, glu-9.0.3/src/libnurbs/nurbtess/sampleComp.h, glu-9.0.3/src/libnurbs/nurbtess/sampleCompBot.h, glu-9.0.3/src/libnurbs/nurbtess/sampleCompRight.h, glu-9.0.3/src/libnurbs/nurbtess/sampleCompTop.h, glu-9.0.3/src/libnurbs/nurbtess/sampleMonoPoly.h, glu-9.0.3/src/libnurbs/nurbtess/sampledLine.h, glu-9.0.3/src/libnurbs/nurbtess/searchTree.h, glu-9.0.3/src/libnurbs/nurbtess/zlassert.h, glu-9.0.3/src/libtess/dict-list.h, glu-9.0.3/src/libtess/dict.c, glu-9.0.3/src/libtess/dict.h, glu-9.0.3/src/libtess/geom.c, glu-9.0.3/src/libtess/geom.h, glu-9.0.3/src/libtess/memalloc.c, glu-9.0.3/src/libtess/memalloc.h, glu-9.0.3/src/libtess/mesh.c, glu-9.0.3/src/libtess/mesh.h, glu-9.0.3/src/libtess/normal.c, glu-9.0.3/src/libtess/normal.h, glu-9.0.3/src/libtess/priorityq-heap.c, glu-9.0.3/src/libtess/priorityq-heap.h, glu-9.0.3/src/libtess/priorityq-sort.h, glu-9.0.3/src/libtess/priorityq.c, glu-9.0.3/src/libtess/priorityq.h, glu-9.0.3/src/libtess/render.c, glu-9.0.3/src/libtess/render.h, glu-9.0.3/src/libtess/sweep.c, glu-9.0.3/src/libtess/sweep.h, glu-9.0.3/src/libtess/tess.c, glu-9.0.3/src/libtess/tess.h, glu-9.0.3/src/libtess/tessmono.c, glu-9.0.3/src/libtess/tessmono.h, glu-9.0.3/src/libutil/error.c, glu-9.0.3/src/libutil/glue.c, glu-9.0.3/src/libutil/gluint.h, glu-9.0.3/src/libutil/mipmap.c, glu-9.0.3/src/libutil/project.c, glu-9.0.3/src/libutil/quad.c, glu-9.0.3/src/libutil/registry.c
+/*
+ * SGI FREE SOFTWARE LICENSE B (Version 2.0, Sept. 18, 2008)
+ * Copyright (C) 1991-2000 Silicon Graphics, Inc. All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice including the dates of first publication and
+ * either this permission notice or a reference to
+ * http://oss.sgi.com/projects/FreeB/
+ * shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * SILICON GRAPHICS, INC. BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Silicon Graphics, Inc.
+ * shall not be used in advertising or otherwise to promote the sale, use or
+ * other dealings in this Software without prior written authorization from
+ * Silicon Graphics, Inc.
+ */
+
+Files: glu-9.0.3/src/libnurbs/interface/bezierEval.cc, glu-9.0.3/src/libnurbs/interface/glrenderer.cc, glu-9.0.3/src/libnurbs/nurbtess/directedLine.cc, glu-9.0.3/src/libnurbs/nurbtess/polyDBG.cc
+/*
+** License Applicability. Except to the extent portions of this file are
+** made subject to an alternative license as permitted in the SGI Free
+** Software License B, Version 1.1 (the "License"), the contents of this
+** file are subject only to the provisions of the License. You may not use
+** this file except in compliance with the License. You may obtain a copy
+** of the License at Silicon Graphics, Inc., attn: Legal Services, 1600
+** Amphitheatre Parkway, Mountain View, CA 94043-1351, or at:
+**
+** http://oss.sgi.com/projects/FreeB
+**
+** Note that, as provided in the License, the Software is distributed on an
+** "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
+** DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
+** CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
+** PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+**
+** Original Code. The Original Code is: OpenGL Sample Implementation,
+** Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
+** Inc. The Original Code is Copyright (c) 1991-2000 Silicon Graphics, Inc.
+** Copyright in any portions created by third parties is as indicated
+** elsewhere herein. All Rights Reserved.
+**
+** Additional Notice Provisions: The application programming interfaces
+** established by SGI in conjunction with the Original Code are The
+** OpenGL(R) Graphics System: A Specification (Version 1.2.1), released
+** April 1, 1999; The OpenGL(R) Graphics System Utility Library (Version
+** 1.3), released November 4, 1998; and OpenGL(R) Graphics with the X
+** Window System(R) (Version 1.3), released October 19, 1998. This software
+** was created using the OpenGL(R) version 1.2.1 Sample Implementation
+** published by SGI, but has not been independently verified as being
+** compliant with the OpenGL(R) version 1.2.1 Specification.
+**
+*/
+
+Files: glu-9.0.3/src/libnurbs/interface/bezierPatch.cc, glu-9.0.3/src/libnurbs/interface/bezierPatchMesh.cc, glu-9.0.3/src/libnurbs/interface/glinterface.cc, glu-9.0.3/src/libnurbs/interface/incurveeval.cc, glu-9.0.3/src/libnurbs/interface/insurfeval.cc, glu-9.0.3/src/libnurbs/internals/dataTransform.cc, glu-9.0.3/src/libnurbs/internals/monoTriangulationBackend.cc, glu-9.0.3/src/libnurbs/internals/mycode.cc, glu-9.0.3/src/libnurbs/nurbtess/gridWrap.cc, glu-9.0.3/src/libnurbs/nurbtess/monoChain.cc, glu-9.0.3/src/libnurbs/nurbtess/monoPolyPart.cc, glu-9.0.3/src/libnurbs/nurbtess/monoTriangulation.cc, glu-9.0.3/src/libnurbs/nurbtess/partitionX.cc, glu-9.0.3/src/libnurbs/nurbtess/partitionY.cc, glu-9.0.3/src/libnurbs/nurbtess/polyUtil.cc, glu-9.0.3/src/libnurbs/nurbtess/primitiveStream.cc, glu-9.0.3/src/libnurbs/nurbtess/quicksort.cc, glu-9.0.3/src/libnurbs/nurbtess/rectBlock.cc, glu-9.0.3/src/libnurbs/nurbtess/sampleComp.cc, glu-9.0.3/src/libnurbs/nurbtess/sampleCompBot.cc, glu-9.0.3/src/libnurbs/nurbtess/sampleCompRight.cc, glu-9.0.3/src/libnurbs/nurbtess/sampleCompTop.cc, glu-9.0.3/src/libnurbs/nurbtess/sampleMonoPoly.cc, glu-9.0.3/src/libnurbs/nurbtess/sampledLine.cc, glu-9.0.3/src/libnurbs/nurbtess/searchTree.cc
+/*
+** License Applicability. Except to the extent portions of this file are
+** made subject to an alternative license as permitted in the SGI Free
+** Software License B, Version 1.1 (the "License"), the contents of this
+** file are subject only to the provisions of the License. You may not use
+** this file except in compliance with the License. You may obtain a copy
+** of the License at Silicon Graphics, Inc., attn: Legal Services, 1600
+** Amphitheatre Parkway, Mountain View, CA 94043-1351, or at:
+** 
+** http://oss.sgi.com/projects/FreeB
+** 
+** Note that, as provided in the License, the Software is distributed on an
+** "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
+** DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
+** CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
+** PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+** 
+** Original Code. The Original Code is: OpenGL Sample Implementation,
+** Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
+** Inc. The Original Code is Copyright (c) 1991-2000 Silicon Graphics, Inc.
+** Copyright in any portions created by third parties is as indicated
+** elsewhere herein. All Rights Reserved.
+** 
+** Additional Notice Provisions: The application programming interfaces
+** established by SGI in conjunction with the Original Code are The
+** OpenGL(R) Graphics System: A Specification (Version 1.2.1), released
+** April 1, 1999; The OpenGL(R) Graphics System Utility Library (Version
+** 1.3), released November 4, 1998; and OpenGL(R) Graphics with the X
+** Window System(R) (Version 1.3), released October 19, 1998. This software
+** was created using the OpenGL(R) version 1.2.1 Sample Implementation
+** published by SGI, but has not been independently verified as being
+** compliant with the OpenGL(R) version 1.2.1 Specification.
+**
+*/
+
+Files: glu-9.0.3/src/libnurbs/interface/glcurveval.cc, glu-9.0.3/src/libnurbs/interface/glsurfeval.cc, glu-9.0.3/src/libnurbs/internals/arc.cc, glu-9.0.3/src/libnurbs/internals/arcsorter.cc, glu-9.0.3/src/libnurbs/internals/arctess.cc, glu-9.0.3/src/libnurbs/internals/backend.cc, glu-9.0.3/src/libnurbs/internals/basiccrveval.cc, glu-9.0.3/src/libnurbs/internals/basicsurfeval.cc, glu-9.0.3/src/libnurbs/internals/bin.cc, glu-9.0.3/src/libnurbs/internals/bufpool.cc, glu-9.0.3/src/libnurbs/internals/cachingeval.cc, glu-9.0.3/src/libnurbs/internals/ccw.cc, glu-9.0.3/src/libnurbs/internals/coveandtiler.cc, glu-9.0.3/src/libnurbs/internals/curve.cc, glu-9.0.3/src/libnurbs/internals/curvelist.cc, glu-9.0.3/src/libnurbs/internals/curvesub.cc, glu-9.0.3/src/libnurbs/internals/displaylist.cc, glu-9.0.3/src/libnurbs/internals/flist.cc, glu-9.0.3/src/libnurbs/internals/flistsorter.cc, glu-9.0.3/src/libnurbs/internals/hull.cc, glu-9.0.3/src/libnurbs/internals/intersect.cc, glu-9.0.3/src/libnurbs/internals/knotvector.cc, glu-9.0.3/src/libnurbs/internals/mapdesc.cc, glu-9.0.3/src/libnurbs/internals/mapdescv.cc, glu-9.0.3/src/libnurbs/internals/maplist.cc, glu-9.0.3/src/libnurbs/internals/mesher.cc, glu-9.0.3/src/libnurbs/internals/monotonizer.cc, glu-9.0.3/src/libnurbs/internals/nurbsinterfac.cc, glu-9.0.3/src/libnurbs/internals/nurbstess.cc, glu-9.0.3/src/libnurbs/internals/patch.cc, glu-9.0.3/src/libnurbs/internals/patchlist.cc, glu-9.0.3/src/libnurbs/internals/quilt.cc, glu-9.0.3/src/libnurbs/internals/reader.cc, glu-9.0.3/src/libnurbs/internals/renderhints.cc, glu-9.0.3/src/libnurbs/internals/slicer.cc, glu-9.0.3/src/libnurbs/internals/sorter.cc, glu-9.0.3/src/libnurbs/internals/splitarcs.cc, glu-9.0.3/src/libnurbs/internals/subdivider.cc, glu-9.0.3/src/libnurbs/internals/tobezier.cc, glu-9.0.3/src/libnurbs/internals/trimline.cc, glu-9.0.3/src/libnurbs/internals/trimregion.cc, glu-9.0.3/src/libnurbs/internals/trimvertpool.cc, glu-9.0.3/src/libnurbs/internals/uarray.cc, glu-9.0.3/src/libnurbs/internals/varray.cc
+/*
+** License Applicability. Except to the extent portions of this file are
+** made subject to an alternative license as permitted in the SGI Free
+** Software License B, Version 1.1 (the "License"), the contents of this
+** file are subject only to the provisions of the License. You may not use
+** this file except in compliance with the License. You may obtain a copy
+** of the License at Silicon Graphics, Inc., attn: Legal Services, 1600
+** Amphitheatre Parkway, Mountain View, CA 94043-1351, or at:
+**
+** http://oss.sgi.com/projects/FreeB
+**
+** Note that, as provided in the License, the Software is distributed on an
+** "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
+** DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
+** CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
+** PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+**
+** Original Code. The Original Code is: OpenGL Sample Implementation,
+** Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
+** Inc. The Original Code is Copyright (c) 1991-2000 Silicon Graphics, Inc.
+** Copyright in any portions created by third parties is as indicated
+** elsewhere herein. All Rights Reserved.
+**
+** Additional Notice Provisions: The application programming interfaces
+** established by SGI in conjunction with the Original Code are The
+** OpenGL(R) Graphics System: A Specification (Version 1.2.1), released
+** April 1, 1999; The OpenGL(R) Graphics System Utility Library (Version
+** 1.3), released November 4, 1998; and OpenGL(R) Graphics with the X
+** Window System(R) (Version 1.3), released October 19, 1998. This software
+** was created using the OpenGL(R) version 1.2.1 Sample Implementation
+** published by SGI, but has not been independently verified as being
+** compliant with the OpenGL(R) version 1.2.1 Specification.
+*/

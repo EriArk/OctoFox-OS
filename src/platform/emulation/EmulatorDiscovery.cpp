@@ -20,6 +20,7 @@ const QList<Route> routes{
     {"duckstation", "org.duckstation.DuckStation", "duckstation-qt", {"duckstation-qt", "DuckStation", "duckstation"}, {"psx"}},
     {"rpcs3", {}, "rpcs3", {"rpcs3", "RPCS3"}, {"ps3"}},
     {"eden", {}, "eden", {"eden"}, {"switch"}},
+    {"supermodel", {}, "supermodel", {"supermodel"}, {"model3"}},
     {"xemu", "app.xemu.xemu", "xemu", {"xemu"}, {"xbox"}},
     {"melonds", "net.kuribo64.melonDS", "melonDS", {"melonDS"}, {"nds"}},
     {"azahar", "org.azahar_emu.Azahar", "azahar", {"azahar"}, {"n3ds"}},
@@ -279,7 +280,7 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
             const auto manifest=readProfile(QFileInfo(launcher).dir().filePath("../manifest.json"));
             if(manifest["protocol"]!=1||manifest["source"]!="46602447c7f84d53790b44e1869ab5105178bf16"||manifest["settings"]!="native-lan-two-owned-v1")continue;
         }
-        if ((route.id == "melonds" || route.id == "dolphin" || route.id == "azahar" || route.id == "vita3k" || route.id == "cemu" || route.id == "duckstation" || route.id == "rpcs3" || route.id == "eden" || route.id == "xemu") && executable(env.executables.value("python3"))) {
+        if ((route.id == "melonds" || route.id == "dolphin" || route.id == "azahar" || route.id == "vita3k" || route.id == "cemu" || route.id == "duckstation" || route.id == "rpcs3" || route.id == "eden" || route.id == "xemu" || route.id == "supermodel") && executable(env.executables.value("python3"))) {
             const QStringList helpers{QDir(env.home).filePath(".local/libexec/traineros/controller-bridge.py"),
                 "/var/opt/traineros/integrations/controller-bridge.py"};
             for (const auto& helper : helpers) if (QFileInfo(helper).isFile()) {
