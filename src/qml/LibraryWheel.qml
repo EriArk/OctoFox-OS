@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 
 Item {
     id: root
@@ -146,6 +147,14 @@ Item {
                     source: root.visible ? (modelData.logo || "") : ""
                     asynchronous: true; sourceSize.width: 640; sourceSize.height: 220
                     fillMode: Image.PreserveAspectFit; mipmap: true
+                    // Provider logos can be white; keep their silhouette readable
+                    // on the light paper surface without recoloring the artwork.
+                    layer.enabled: !Theme.dark && status === Image.Ready
+                    layer.effect: MultiEffect {
+                        shadowEnabled: true; shadowColor: "#173b3a"
+                        shadowBlur: 0.18; shadowOpacity: 0.85
+                        shadowHorizontalOffset: 0; shadowVerticalOffset: 1
+                    }
                 }
                 Text {
                     x: fallback.x; y: fallback.y + 3; width: fallback.width; height: fallback.height

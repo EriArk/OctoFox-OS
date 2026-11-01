@@ -371,9 +371,14 @@ QString BatoceraLibrary::storageRootFor(const QString& id) const {
 }
 QVariantMap BatoceraLibrary::artwork(const QString& id) const {
     auto result=media_.value(id);
-    if(const auto record=library_.registration(id);record&&record->adventure.adapterId=="pc-local") {
+    if(const auto record=library_.registration(id);record&&(record->adventure.adapterId=="pc-local"||record->adventure.adapterId=="steam")) {
         const auto cover=record->integrationConfig["artwork"].toString();
         if(!cover.isEmpty())result["cover"]=cover;
+        if(record->adventure.adapterId=="steam") {
+            const auto media=record->integrationConfig["media"].toObject();
+            for(const auto& key:{"marquee","fanart","developer","publisher","releasedate"})
+                if(media[key].isString())result[key]=media[key].toString();
+        }
     }
     result.remove("experienceIdentity");
     const bool cover=display_["picture"].toString()=="cover";

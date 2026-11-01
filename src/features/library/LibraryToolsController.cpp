@@ -57,6 +57,12 @@ QString LibraryToolsController::detail() const {
     if(route_=="trash" && trash_.isEmpty())return "The trash is empty.";
     if(route_=="properties") {
         QStringList information;if(!installNotice_.isEmpty())information.append(installNotice_);
+        if(game_.adventure.adapterId=="steam") {
+            information.append("Steam · App ID "+game_.integrationConfig["appId"].toString());
+            information.append("Installation, updates, Proton and Steam Input are managed in Steam.");
+            information.append(game_.integrationConfig["issue"].toString());
+            return information.join('\n');
+        }
         information.append("Platform: "+platformLabel(game_.adventure.platformId).name);
         information.append("File: "+QFileInfo(game_.contentPath).fileName());
         information.append("Folder: "+QFileInfo(game_.contentPath).absolutePath());
@@ -83,7 +89,7 @@ QVariantList LibraryToolsController::rows() const {
     }
     const auto viewRows=[&] { return QVariantList{row("View: Wheel"+(browserView_=="wheel"?QString(" ✓"):QString())),row("View: List"+(browserView_=="list"?QString(" ✓"):QString())),row("View: Shelves"+(browserView_=="shelves"?QString(" ✓"):QString())),row("View: Grid"+(browserView_=="grid"?QString(" ✓"):QString()))}; };
     if(route_=="browse") { QVariantList result{row("Search library"),row("Change filter")};if(!browserView_.isEmpty())result.append(viewRows());result.append(row("Back"));return result; }
-    if(route_=="game"){QVariantList result{row("Rename"),row("Move",catalog_ && !repository_.storageRootFor(game_.adventure.id).isEmpty()),row("Удалить"),row("Properties"),row("Download information & artwork",!repository_.storageRootFor(game_.adventure.id).isEmpty()),row("Add to collection")};result.append(row("Game settings"));if(browserActions_){result.append(row("Search library"));result.append(row("Change filter"));if(!browserView_.isEmpty())result.append(viewRows());}return result;}
+    if(route_=="game"){const bool steam=game_.adventure.adapterId=="steam";QVariantList result{row("Rename"),row("Move",!steam && catalog_ && !repository_.storageRootFor(game_.adventure.id).isEmpty()),row(steam?"Uninstall in Steam":"Удалить",!steam),row("Properties"),row("Download information & artwork",!steam && !repository_.storageRootFor(game_.adventure.id).isEmpty()),row("Add to collection")};result.append(row("Game settings"));if(browserActions_){result.append(row("Search library"));result.append(row("Change filter"));if(!browserView_.isEmpty())result.append(viewRows());}return result;}
     if(route_=="move-kind")return {row("Platform / folder",catalog_ && !repository_.storageRootFor(game_.adventure.id).isEmpty()),row("Another World")};
     if(route_=="move-file")return {row("Cancel"),row("Move")};
     if(route_=="world")return {row("Rename World"),row("Done"),row("Scrape this collection")};

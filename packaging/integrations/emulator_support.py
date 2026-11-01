@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 
 HELPERS = ('overlay_support.py', 'game_input.py', 'adventure-overlay.py', 'invitation-overlay.py', 'controller-bridge.py', 'grant-input-read.py',
-           'apps-service.py', 'apps_input.py', 'keyboard_input.py', 'game-performance.py')
+           'apps-service.py', 'apps_input.py', 'keyboard_input.py', 'game-performance.py', 'steam_library.py', 'steam_session.py')
 LEGACY_BRIDGE = 'e6dc58795a67b789aabe546b5d20952c10a971c071a496b2c56b81f9c587c210'
 
 

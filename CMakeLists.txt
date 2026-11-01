@@ -99,6 +99,8 @@ add_library(trainer_core STATIC
     src/features/apps/AppsController.cpp
     src/features/crates/CratesController.cpp
     src/features/pc/PcGamesController.cpp
+    src/features/pc/SteamLibrary.cpp
+    src/features/pc/SteamLibrary.h
     src/features/pc/PcGamesController.h
     src/features/pc/PcRuntime.cpp
     src/features/pc/PcGameSettings.cpp
@@ -743,6 +745,8 @@ if(BUILD_TESTING)
     endif()
     if(UNIX AND Python3_Interpreter_FOUND)
         add_test(NAME pc_session COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/PcSessionTests.py)
+        add_test(NAME steam_library COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/SteamLibraryTests.py)
+        set_tests_properties(steam_library PROPERTIES TIMEOUT 30)
         set_tests_properties(pc_session PROPERTIES TIMEOUT 15)
     endif()
     target_link_libraries(trainer_crates_tests PRIVATE trainer_core Qt6::Test)

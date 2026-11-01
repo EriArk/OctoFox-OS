@@ -30,6 +30,9 @@ struct ProcessCommand {
     std::function<QString(const ProcessOutcome&)> finalize{};
     // Session-owned settings channel. Runs on the same worker as prepare/finalize.
     std::function<QJsonObject(const QJsonObject&)> updateSettings{};
+    // Optional supervisor readiness marker. History/overlays begin with a real
+    // game, not a detached launcher. Input is bounded and handles split reads.
+    QByteArray readyMarker{};
 };
 class ProcessService final : public QObject {
     Q_OBJECT
@@ -70,6 +73,7 @@ private:
     bool updatingSettings_ = false;
     QString validationError_;
     QString launchStage_;
+    QByteArray readyMarker_, readyBuffer_;
     quint64 request_ = 0;
     bool preparing_ = false;
     bool active_ = false;

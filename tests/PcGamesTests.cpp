@@ -14,6 +14,7 @@
 #include "features/library/LibraryToolsController.h"
 #include "features/worlds/MultiversePresentation.h"
 #include "integrations/adventure/PcAdventureAdapter.h"
+#include "features/pc/SteamLibrary.h"
 using namespace trainer;
 namespace {
 QByteArray nativeHeader() {
@@ -53,6 +54,20 @@ public:
 class PcGamesTests : public QObject {
     Q_OBJECT
 private slots:
+    void steamReconciliationRetainsIdentityAndHistoryAcrossMovesAndAbsence() {
+        PcLibrary library;SteamLibrary steam(library);QSignalSpy changed(&steam,&SteamLibrary::changed);
+        QTemporaryDir root;
+        QJsonObject game{{"appId","100"},{"title","Original title"},{"manifest",root.filePath("appmanifest_100.acf")},{"libraryId","one"},{"available",true}};
+        steam.reconcile({game});QTRY_COMPARE(changed.size(),1);QCOMPARE(library.records.size(),1);
+        QCOMPARE(library.records[0].adventure.id,"steam:100");library.records[0].adventure.title="Personal title";
+        game["manifest"]=root.filePath("moved/appmanifest_100.acf");game["libraryId"]="two";
+        steam.reconcile({game});QTRY_COMPARE(changed.size(),2);QCOMPARE(library.records.size(),1);
+        QCOMPARE(library.records[0].revision,2);QCOMPARE(library.records[0].adventure.title,"Personal title");
+        steam.reconcile({});QCOMPARE(library.records.size(),1);QVERIFY(!library.records[0].removed);
+        steam.reconcile({game});QCOMPARE(library.records[0].revision,2);
+        LibraryToolsController tools(library);tools.beginGame("steam:100");
+        QVERIFY(!tools.rows()[2].toMap()["enabled"].toBool());
+    }
     void liveProfileUsesActualGameAndOwnerAndIgnoresStaleReplies() {
         QTemporaryDir d;PcLibrary library;AdventureRegistration r;r.adventure.id="live";library.records<<r;
         r.adventure.id="other";library.records<<r;

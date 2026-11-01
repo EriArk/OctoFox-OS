@@ -27,6 +27,11 @@ QString migrateLibraryEditing(QSqlDatabase& db) {
     if(!db.commit()){db.rollback();return failure();}return {};
 }
 QString editLibrary(QSqlDatabase& db, const LibraryEdit& edit, const QString& owner) {
+    if(edit.kind==LibraryEditKind::RemoveGame||edit.kind==LibraryEditKind::MoveFile) {
+        QSqlQuery managed(db);managed.prepare("SELECT adapter_id FROM adventures WHERE id=?");managed.addBindValue(edit.id);
+        if(!managed.exec())return failure();
+        if(managed.next()&&managed.value(0).toString()=="steam")return "Manage this game's installation in Steam. Its files and history were kept.";
+    }
     if(edit.kind==LibraryEditKind::MoveFile)return moveLibraryFile(db,edit);
     if(edit.id.isEmpty())return "Choose an item first.";
     if(!db.transaction())return failure();

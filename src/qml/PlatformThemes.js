@@ -35,6 +35,7 @@ var themes = {
     naomi:["#682217","#ff9550","#f2e2bf","arcade"],
     atomiswave:["#601644","#ff477a","#c52b4c","arcade"],
     pc:["#153b61","#34eccc","#263b4e","tower"],
+    steam:["#102c4b","#54c8f3","#24374b","tower"],
     c64:["#5c2523","#ff9f3c","#d5bd91","keyboard"],
     pico8:["#452159","#ff78b2","#793a8e","arcade"],
     android:["#245627","#92f147","#3ba780","portable"]

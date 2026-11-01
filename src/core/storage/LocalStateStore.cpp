@@ -722,6 +722,7 @@ void LocalStateStore::saveAdventureAsync(const AdventureRegistration& candidate,
             if (record.newWorld && std::none_of(worlds_.cbegin(), worlds_.cend(), [&](const auto& world) { return world.id == record.newWorld->id; }))
                 worlds_.append(*record.newWorld);
             record.contentAvailable = true; // The worker just validated this file before committing.
+            if(record.adventure.adapterId=="steam")record.contentAvailable=record.integrationConfig["available"].toBool();
             for (const auto& world : record.additionalNewWorlds)
                 if (std::none_of(worlds_.begin(), worlds_.end(), [&](const auto& w) { return w.id == world.id; })) worlds_.append(world);
             record.additionalNewWorlds.clear();
@@ -770,7 +771,7 @@ void LocalStateStore::refreshContentAvailability() {
     availabilityPending_=true;
     auto snapshot=std::make_shared<QList<AdventureRegistration>>(registrations_);
     write([snapshot](SqliteWorker&) {
-        for(auto& r:*snapshot) {const QFileInfo file(r.contentPath);r.contentAvailable=file.isFile() && file.isReadable();}
+        for(auto& r:*snapshot) {const QFileInfo file(r.contentPath);r.contentAvailable=file.isFile() && file.isReadable();if(r.adventure.adapterId=="steam")r.contentAvailable=r.contentAvailable&&r.integrationConfig["available"].toBool();}
         return QString();
     },[this,snapshot](const QString& error) {
         availabilityPending_=false;if(!error.isEmpty())return;

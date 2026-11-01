@@ -287,7 +287,7 @@ def run(args):
                 # own close confirmation, which this overlay must not obscure.
                 supported = False
                 if target and x11.owns(target,args.game,game_start):
-                    supported = supported_emulator_process(x11.pid(target))
+                    supported = supported_emulator_process(x11.pid(target)) or x11.steam_game(target,args.game,game_start)
                 if supported and x11.atom('WM_DELETE_WINDOW') in x11.prop(target,'WM_PROTOCOLS'):
                     state = 'requested'; emit('request')
                 else: state = 'release'; neutral_since = None

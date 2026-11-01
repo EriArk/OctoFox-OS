@@ -2,6 +2,7 @@
 #include "core/storage/SqlitePlayHistory.h"
 #include "core/storage/LocalStateStore.h"
 #include "core/storage/SqliteScreens.h"
+#include "core/storage/SteamMediaIdentity.h"
 #include "features/home/PlayHistoryController.h"
 #include "features/home/ExitImage.h"
 #include <QPainter>
@@ -50,6 +51,43 @@ class PlayHistoryTests final : public QObject {
         QTRY_VERIFY(done); QVERIFY(ok);
     }
 private slots:
+    void steamExitPictureSurvivesBookkeepingButRejectsChangedBuild() {
+        QTemporaryDir dir;const auto path=dir.filePath("appmanifest_42.acf");
+        auto manifest=[&](const QByteArray& build,const QByteArray& played) {
+            QFile f(path);QVERIFY(f.open(QIODevice::WriteOnly));
+            f.write("\"AppState\" { \"appid\" \"42\" \"buildid\" \""+build+"\" \"installdir\" \"Fixture\" \"LastPlayed\" \""+played+"\" }");
+        };
+        manifest("123","0");const auto original=steamMediaIdentity(path);QVERIFY(!original.isEmpty());
+        const auto now=QDateTime::currentDateTimeUtc();
+        {
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());profile(store);
+            AdventureRegistration r;r.adventure.id="steam:42";r.adventure.title="Steam fixture";
+            r.adventure.domain="multiverse";r.adventure.platformId="steam";r.adventure.adapterId="steam";r.contentPath=path;
+            r.integrationConfig={{"appId","42"},{"available",true}};
+            bool done=false;store.saveAdventureAsync(r,this,[&](auto result){QVERIFY(result.success);done=true;});QTRY_VERIFY(done);
+            ExitMediaSource source{"owner","multiverse",*store.registration("steam:42")};
+            PlaySession value{"steam-clean","steam:42",now,{},{},PlaySessionOutcome::Running};
+            QVERIFY(saveMedia(store,value,source).isEmpty());
+            manifest("123","1760000000");QCOMPARE(steamMediaIdentity(path),original);
+            value.outcome=PlaySessionOutcome::Returned;value.endedAt=now.addSecs(3);value.elapsedSeconds=3;
+            QImage frame(64,36,QImage::Format_RGB32);frame.fill(Qt::blue);
+            QVERIFY(saveMedia(store,value,source,ExitCapture{frame,now}).isEmpty());
+            QVERIFY(store.exitMedia("steam:42"));
+        }
+        {
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());
+            QVERIFY(store.exitMedia("steam:42"));QVERIFY(!store.exitImage("steam-clean").isNull());
+        }
+        manifest("124","1760000000");QVERIFY(steamMediaIdentity(path)!=original);
+        {
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QVERIFY(!store.exitMedia("steam:42"));
+            QCOMPARE(store.recentSessions().first().outcome,PlaySessionOutcome::Returned);
+        }
+        {QFile f(path);QVERIFY(f.open(QIODevice::WriteOnly|QIODevice::Append));f.write("truncated");}
+        QVERIFY(steamMediaIdentity(path).isEmpty());
+        {QFile f(path);QVERIFY(f.open(QIODevice::WriteOnly));f.write("\"AppState\" { \"appid\" \"42\" \"buildid\" \"123\" \"buildid\" \"124\" \"installdir\" \"Fixture\" }");}
+        QVERIFY(steamMediaIdentity(path).isEmpty());
+    }
     void cleanExitsAccumulateWhileHomeKeepsLatestAndStarsSurviveGameRemoval() {
         QTemporaryDir dir;const auto content=this->content(dir);const auto now=QDateTime::currentDateTimeUtc();
         {

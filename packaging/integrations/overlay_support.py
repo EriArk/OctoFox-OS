@@ -224,6 +224,9 @@ class X11:
         try:
             if identity(root_pid) != start: return False
             pid = self.pid(window)
+            from steam_session import session_roots, owns_pid
+            steam = session_roots(root_pid, start)
+            if steam is not None: return owns_pid(pid, steam)
             for _ in range(32):
                 if pid == root_pid: return True
                 if pid <= 1: return False
@@ -231,6 +234,11 @@ class X11:
         except (OSError, ValueError, IndexError):
             pass
         return False
+
+    def steam_game(self, window, root_pid, start):
+        from steam_session import session_roots, owns_pid
+        roots = session_roots(root_pid, start)
+        return roots is not None and owns_pid(self.pid(window), roots)
 
     def hide_prompt(self, shell_pid, shell_start, all_windows=False):
         try:

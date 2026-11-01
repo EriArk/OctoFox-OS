@@ -112,6 +112,7 @@ LibrarySnapshot readLibrary(QSqlDatabase& db, const QString& owner) {
         record.adventure.domain = q.value(12).toString();
         const QFileInfo content(record.contentPath);
         record.contentAvailable = content.isFile() && content.isReadable();
+        if(record.adventure.adapterId=="steam")record.contentAvailable=record.contentAvailable&&record.integrationConfig["available"].toBool();
         result.registrations.append(record);
     }
     if (!q.exec("SELECT adventure_id,world_id FROM adventure_worlds ORDER BY world_id")) return fail();

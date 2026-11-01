@@ -3,6 +3,8 @@
 #include "SessionConnections.h"
 #include "integrations/adventure/CratesAdventureAdapter.h"
 #include "integrations/adventure/PcAdventureAdapter.h"
+#include "integrations/adventure/SteamAdventureAdapter.h"
+#include "features/pc/SteamLibrary.h"
 #include "features/crates/CratesLibrary.h"
 #ifdef TRAINER_WEBENGINE
 #include <QtWebEngineQuick/qtwebenginequickglobal.h>
@@ -393,9 +395,11 @@ int main(int argc, char* argv[]) {
             std::make_shared<const SaveRuntimes>(SaveRuntimes{retroarchInstallation, melonDsInstallation}));
         CratesAdventureAdapter cratesRuntime;
         PcAdventureAdapter pcRuntime;
+        SteamAdventureAdapter steamRuntime;
         cratesRuntime.root=QDir(stateDirectory).filePath("crates");
         cratesRuntime.helper="/var/opt/traineros/crates/launch.py";
-        AdapterRouter adapters({&pcRuntime,&cratesRuntime,&ppsspp, &armsx2, &cemu, &duckstation, &rpcs3, &eden, &xemu, &melonDs, &dolphin, &azahar, &vita3k, &retroarch});
+        AdapterRouter adapters({&steamRuntime,&pcRuntime,&cratesRuntime,&ppsspp, &armsx2, &cemu, &duckstation, &rpcs3, &eden, &xemu, &melonDs, &dolphin, &azahar, &vita3k, &retroarch});
+        SteamLibrary steamLibrary(activeLibrary);
         if (personalLibrary && !smoke) selectedAdapter = &adapters;
 #ifdef TRAINEROS_UI_TESTS
         ProbeAdventureAdapter probeAdapter;
@@ -484,7 +488,7 @@ int main(int argc, char* argv[]) {
         if (store) bindings.connect(store.get(), &LocalStateStore::libraryChanged, &shell, [&] {
             // A folder import can bind dozens of games. Rebuild pages once when
             // that batch finishes instead of after every individual SQLite write.
-            if(!folders.busy())shell.refreshLibrary();
+            if(!folders.busy()&&!steamLibrary.busy())shell.refreshLibrary();
         });
         if(realAchievements)bindings.connect(realAchievements.get(),&AchievementProvider::achievementsEarned,&shell,&ShellController::showAchievements);
         if (realAchievements) bindings.connect(store.get(), &LocalStateStore::opened, realAchievements.get(), [&](bool success) {
@@ -804,7 +808,8 @@ int main(int argc, char* argv[]) {
         bindings.connect(&session,&SessionState::changed,&multiplayer,refreshMultiplayerState);
         bindings.connect(shell.trainer(),&TrainerController::changed,&multiplayer,refreshMultiplayerState);
         bindings.connect(&shell,&ShellController::changed,&multiplayer,refreshMultiplayerState);
-        if(store)bindings.connect(store.get(),&LocalStateStore::libraryChanged,&multiplayer,refreshMultiplayer);
+        if(store)bindings.connect(store.get(),&LocalStateStore::libraryChanged,&multiplayer,[&]{if(!steamLibrary.busy())refreshMultiplayer();});
+        bindings.connect(&steamLibrary,&SteamLibrary::changed,&multiplayer,refreshMultiplayer);
         refreshMultiplayer();
         auto gameNotifications=[&]{
             QVariantList rows;
@@ -962,7 +967,7 @@ int main(int argc, char* argv[]) {
                 adventureOverlay = std::make_unique<AdventureOverlayService>(adventureProcess, adventureLaunch,
                     exitPresentation, overlayHelper);
             if(adventureOverlay) {
-                adventureOverlay->inputProfile=[&](const QString& id){return shell.pcGames()->steam.active()?QJsonObject{}:shell.settings()->gameInput()->snapshot(id);};
+                adventureOverlay->inputProfile=[&](const QString& id){const auto r=activeLibrary.registration(id);return shell.pcGames()->steam.active()||(r&&r->adventure.adapterId=="steam")?QJsonObject{}:shell.settings()->gameInput()->snapshot(id);};
                 bindings.connect(adventureOverlay.get(),&AdventureOverlayService::radialChanged,shell.settings()->gameInput(),&GameInputProfiles::setRadial);
                 bindings.connect(shell.settings()->gameInput(),&GameInputProfiles::radialSlotRequested,adventureOverlay.get(),&AdventureOverlayService::selectRadialSlot);
                 bindings.connect(adventureOverlay.get(),&AdventureOverlayService::inputMappingFailed,&shell,&ShellController::showNotice);
@@ -1047,7 +1052,8 @@ int main(int argc, char* argv[]) {
             bindings.connect(store.get(), &LocalStateStore::opened, gameProgress.get(), [refreshProgress](bool success) {
                 if (success) refreshProgress(true);
             });
-            bindings.connect(store.get(), &LocalStateStore::libraryChanged, gameProgress.get(), [&,refreshProgress] { if(!folders.busy())refreshProgress(true); });
+            bindings.connect(store.get(), &LocalStateStore::libraryChanged, gameProgress.get(), [&,refreshProgress] { if(!folders.busy()&&!steamLibrary.busy())refreshProgress(true); });
+            bindings.connect(&steamLibrary,&SteamLibrary::changed,gameProgress.get(),[refreshProgress]{refreshProgress(true);});
             bindings.connect(&folders, &BatoceraLibrary::scanFinished, gameProgress.get(), [refreshProgress] { refreshProgress(true); });
             bindings.connect(&adventureLaunch, &AdventureLaunchController::changed, gameProgress.get(), [&, refreshProgress] {
                 if (adventureLaunch.active()) { progressSelection.clear(); gameProgress->invalidate(); }
@@ -1367,6 +1373,7 @@ int main(int argc, char* argv[]) {
                 auto returnedAdventure=std::make_shared<QString>();
                 const auto requestAdventure = [&, window, returnFullscreen, returnedAdventure](const ProcessCommand& command, const QString& id) -> AdventureResult {
                     if(shell.pcGames()->installing())return {false,"Finish or cancel the game installer before starting a game."};
+                    if(steamLibrary.writing())return {false,"Your Steam library is being updated. Try again in a moment."};
                     if(adventureLaunch.minimized()) {
                         if(id==adventureLaunch.adventureId() && adventureOverlay){adventureOverlay->returnToGame();return {true,{},true};}
                         return {false,"A game is still running. Return to it or exit it from Game Options before starting another."};
@@ -1403,6 +1410,16 @@ int main(int argc, char* argv[]) {
                 xemu.requestLaunch = requestAdventure;
                 cratesRuntime.requestLaunch = requestAdventure;
                 pcRuntime.library=&activeLibrary;
+                steamLibrary.canApply=[&]{return !adventureLaunch.active()&&!session.blocked();};
+                steamRuntime.library=&activeLibrary;
+                steamRuntime.requestLaunch=requestAdventure;
+                const auto scanSteam=[&]{if(store->load()&&!adventureLaunch.active()&&!session.blocked())steamLibrary.scan();};
+                bindings.connect(&steamLibrary,&SteamLibrary::changed,&shell,[&]{shell.refreshLibrary();});
+                bindings.connect(&steamLibrary,&SteamLibrary::notice,&shell,&ShellController::showNotice);
+                bindings.connect(store.get(),&LocalStateStore::opened,&shell,[scanSteam](bool ready){if(ready)scanSteam();});
+                bindings.connect(shell.settings(),&SettingsController::libraryRefreshRequested,&shell,scanSteam);
+                bindings.connect(&adventureLaunch,&AdventureLaunchController::adventureFinished,&shell,[&,scanSteam](bool){QTimer::singleShot(0,&steamLibrary,scanSteam);});
+                QTimer::singleShot(0,&steamLibrary,scanSteam);
                 pcRuntime.requestLaunch=requestAdventure;
                 pcRuntime.steamEnvironment=[&]{return shell.pcGames()->steam.active()?shell.pcGames()->steam.environment():QJsonObject{};};
                 shell.pcGames()->steam.launch=[&](const QString& id)->QString {

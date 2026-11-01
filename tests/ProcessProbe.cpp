@@ -39,6 +39,13 @@ int main(int argc, char** argv) {
         output.write(input.readAll());return 0;
     }
     const auto mode = args.value(1);
+    if(mode=="delayed-ready") {
+        QFile output;if(!output.open(stdout,QIODevice::WriteOnly))return 3;
+        QTimer::singleShot(150,&app,[&]{output.write("GAME_");output.flush();});
+        QTimer::singleShot(300,&app,[&]{output.write("READY\nGAME_READY\n");output.flush();});
+        QTimer::singleShot(600,&app,&QCoreApplication::quit);
+        return app.exec();
+    }
     if (mode == "stdin-control" && args.size() == 4) {
         QFile identity(args[3]); if (!identity.open(QIODevice::WriteOnly)) return 3;
         identity.write(QByteArray::number(QCoreApplication::applicationPid())); identity.close();

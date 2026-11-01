@@ -11,18 +11,23 @@ ProcessService::ProcessService(QObject* parent) : QObject(parent), worker_(new Q
     thread_.start();
     killTimer_.setSingleShot(true); killTimer_.setInterval(1500);
     connect(&killTimer_, &QTimer::timeout, this, [this] { if (active_) process_.kill(); });
-    connect(&process_, &QProcess::started, this, [this]{ childStarted_=true; emit started(); });
+    connect(&process_, &QProcess::started, this, [this]{ if(readyMarker_.isEmpty()){childStarted_=true; emit started();} });
     connect(&process_, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         if (error == QProcess::FailedToStart) complete(-1, false, "The Adventure couldn't start. Check its setup and try again.");
     });
     connect(&process_, &QProcess::finished, this, [this](int code, QProcess::ExitStatus status) {
         drainOutput();
         complete(code, status == QProcess::CrashExit, !validationError_.isEmpty() ? validationError_
+            : !childStarted_ && !readyMarker_.isEmpty() ? "Steam did not open the game. Check its launch in Steam before trying again."
             : status == QProcess::CrashExit ? "The Adventure stopped unexpectedly. You're back in TrainerOS." : QString());
     });
     connect(&process_, &QProcess::readyReadStandardOutput, this, &ProcessService::drainOutput);
 }
 ProcessService::~ProcessService() {
+    // QProcess is destroyed after the state used by its callbacks. Normal game
+    // finalization belongs to stop()/complete(), never to object destruction.
+    disconnect(&process_, nullptr, this, nullptr);
+    killTimer_.stop();
     if (cancelled_) *cancelled_ = true;
     if (settingsCancelled_) *settingsCancelled_ = true;
     thread_.quit(); thread_.wait();
@@ -37,6 +42,7 @@ bool ProcessService::start(const ProcessCommand& command) {
     settingsCancelled_ = std::make_shared<std::atomic_bool>(false);
     runtimeControls_.clear();
     stopRequested_ = false;
+    readyMarker_=command.readyMarker;readyBuffer_.clear();
     childStarted_ = false; finalizing_ = false; settled_=command.settled;finalize_=command.finalize;
     validationError_.clear(); inspectOutput_ = {};
     const auto token = ++request_;
@@ -64,19 +70,29 @@ bool ProcessService::start(const ProcessCommand& command) {
 void ProcessService::execute(const ProcessCommand& command) {
     if (!QDir::isAbsolutePath(command.program)) { complete(-1, false, "The Adventure's play setup changed."); return; }
     inspectOutput_ = command.inspectOutput;
+    readyMarker_=command.readyMarker;readyBuffer_.clear();
     runtimeControls_=command.runtimeControls;
     updateSettings_=command.updateSettings;
     process_.setProcessChannelMode(QProcess::MergedChannels);
-    process_.setStandardOutputFile(inspectOutput_ || runtimeControls_.contains("netplay") || runtimeControls_.contains("achievements") ? QString() : QProcess::nullDevice());
+    process_.setStandardOutputFile(inspectOutput_ || !readyMarker_.isEmpty() || runtimeControls_.contains("netplay") || runtimeControls_.contains("achievements") ? QString() : QProcess::nullDevice());
     process_.setProgram(command.program); process_.setArguments(command.arguments);
     process_.setWorkingDirectory(command.workingDirectory);
-    launchStage_="Starting emulator…";emit launchStageChanged();
+    launchStage_=readyMarker_.isEmpty()?"Starting emulator…":"Waiting for Steam to open the game…";emit launchStageChanged();
     if(stopRequested_){complete(0,false,{});return;}
     process_.start(); // No shell, no interpolated command string, no blocking wait.
 }
 void ProcessService::drainOutput() {
     while (process_.bytesAvailable() > 0) {
         const auto bytes = process_.read(16384);
+        if(!childStarted_ && !readyMarker_.isEmpty() && !stopRequested_) {
+            readyBuffer_+=bytes;
+            while(readyBuffer_.contains('\n')) {
+                const auto line=readyBuffer_.left(readyBuffer_.indexOf('\n')).trimmed();
+                readyBuffer_.remove(0,readyBuffer_.indexOf('\n')+1);
+                if(line==readyMarker_&&!childStarted_){childStarted_=true;emit started();}
+            }
+            if(readyBuffer_.size()>4096)readyBuffer_=readyBuffer_.right(4096);
+        }
         if(runtimeControls_.contains("netplay") || runtimeControls_.contains("achievements"))emit runtimeOutput(bytes);
         if (!inspectOutput_ || !validationError_.isEmpty()) continue;
         validationError_ = inspectOutput_(bytes);

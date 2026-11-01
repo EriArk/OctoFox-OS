@@ -40,6 +40,20 @@ public:
 class LibraryTests final : public QObject {
     Q_OBJECT
 private slots:
+    void steamAvailabilityAndFileOwnershipSurviveStorageRefresh() {
+        QTemporaryDir dir;const auto path=dir.filePath("appmanifest_100.acf");fixtureFile(path);
+        LocalStateStore store(dir.filePath("state"),nullptr,"user-library-v1");store.open();QTRY_VERIFY(store.ready());
+        AdventureRegistration record;record.adventure.id="steam:100";record.adventure.title="Steam fixture";
+        record.adventure.adapterId="steam";record.adventure.platformId="steam";record.adventure.domain="multiverse";
+        record.contentPath=path;record.integrationConfig={{"available",false},{"appId","100"}};
+        bool saved=false;store.saveAdventureAsync(record,this,[&](auto result){QVERIFY(result.success);saved=true;});QTRY_VERIFY(saved);
+        QVERIFY(!store.registration("steam:100")->contentAvailable);
+        store.refreshContentAvailability();QTest::qWait(50);QVERIFY(!store.registration("steam:100")->contentAvailable);
+        for(const auto kind:{LibraryEditKind::RemoveGame,LibraryEditKind::MoveFile}) {
+            QString error;store.editLibraryAsync({kind,"steam:100",1},this,[&](QString result){error=result;});QTRY_VERIFY(!error.isEmpty());
+            QVERIFY(error.contains("Steam"));QVERIFY(QFileInfo::exists(path));QVERIFY(!store.registration("steam:100")->removed);
+        }
+    }
     void contentInstallationIsExplicitGuardedAndCancellable() {
         QTemporaryDir dir;const auto path=dir.filePath("game.cia");fixtureFile(path);
         LocalStateStore store(dir.filePath("state"),nullptr,"user-library-v1");store.open();QTRY_VERIFY(store.ready());

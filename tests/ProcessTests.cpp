@@ -18,6 +18,16 @@ class ProcessTests final : public QObject {
         );
     }
 private slots:
+    void supervisorReadinessIsSplitSafeAndNeverCountsLauncherOnlyRuns() {
+        ProcessService process;QSignalSpy started(&process,&ProcessService::started),finished(&process,&ProcessService::finished);
+        ProcessCommand command{probe(),{"delayed-ready"},{}};command.readyMarker="GAME_READY";
+        QVERIFY(process.start(command));QTest::qWait(220);QCOMPARE(started.size(),0);
+        QTRY_COMPARE(finished.size(),1);QCOMPARE(started.size(),1);
+        command.arguments={"error"};QVERIFY(process.start(command));
+        QTRY_COMPARE(finished.size(),2);QCOMPARE(started.size(),1);QVERIFY(!finished.last()[2].toString().isEmpty());
+        command.readyMarker.clear();command.arguments={};QVERIFY(process.start(command));
+        QTRY_COMPARE(finished.size(),3);QCOMPARE(started.size(),2);
+    }
     void lostSettingsChannelIsNotOfferedAgainInTheSameSession() {
         QTemporaryDir dir;ProcessService process;QSignalSpy finished(&process,&ProcessService::finished);
         ProcessCommand command{probe(),{"controlled",dir.filePath("control"),dir.filePath("pid")},{}};

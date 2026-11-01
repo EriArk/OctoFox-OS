@@ -10,6 +10,15 @@
   ],
   "platforms": [
     {
+      "id": "steam",
+      "folder": "steam",
+      "name": "Steam",
+      "core": "",
+      "extensions": [],
+      "aliases": [],
+      "shape": "computer"
+    },
+    {
       "id": "xbox",
       "folder": "xbox",
       "name": "Xbox",

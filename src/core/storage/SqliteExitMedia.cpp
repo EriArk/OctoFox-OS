@@ -1,5 +1,6 @@
 #include "SqliteExitMedia.h"
 #include "SqliteScreens.h"
+#include "SteamMediaIdentity.h"
 #include <QBuffer>
 #include <QCryptographicHash>
 #include <QFile>
@@ -71,7 +72,8 @@ std::optional<PreparedExitMedia> prepareExitMedia(QSqlDatabase& db, const ExitMe
     if (!currentSource(db, source)) return {};
     const QFileInfo file(source.registration.contentPath);
     PreparedExitMedia result{source, {}, file.size(), file.lastModified().toMSecsSinceEpoch()};
-    result.buildSha256 = contentHash(file.filePath(), result.contentSize, result.contentModified);
+    result.buildSha256 = source.registration.adventure.adapterId == "steam" ? steamMediaIdentity(file.filePath())
+        : contentHash(file.filePath(), result.contentSize, result.contentModified);
     if (result.buildSha256.isEmpty()) return {};
     return result;
 }
@@ -79,7 +81,9 @@ QString writeExitMedia(QSqlDatabase& db, const PlaySession& session, const Prepa
     const auto& source = prepared.source;
     if (session.outcome != PlaySessionOutcome::Returned || session.adventureId != source.registration.adventure.id
         || capture.frame.isNull() || capture.frame.sizeInBytes() > 64 * 1024 * 1024 || !capture.capturedAt.isValid()
-        || !currentSource(db, source) || contentHash(source.registration.contentPath, prepared.contentSize, prepared.contentModified) != prepared.buildSha256)
+        || !currentSource(db, source) || (source.registration.adventure.adapterId == "steam"
+            ? steamMediaIdentity(source.registration.contentPath)
+            : contentHash(source.registration.contentPath, prepared.contentSize, prepared.contentModified)) != prepared.buildSha256)
         return failure();
     const auto frame = capture.frame.scaled(960, 540, Qt::KeepAspectRatio, Qt::SmoothTransformation).convertToFormat(QImage::Format_RGB32);
     QByteArray bytes; QBuffer buffer(&bytes); buffer.open(QIODevice::WriteOnly);
@@ -99,7 +103,7 @@ QList<ExitMedia> readExitMedia(QSqlDatabase& db, const QString& owner) {
     QSqlQuery q(db);
     // Exact owner and registration gates also apply after restart. Media is
     // optional: damage never prevents the library/history from opening.
-    q.prepare("SELECT m.session_id,m.trainer_id,m.domain,m.adventure_id,m.registration_revision,m.build_sha256,m.captured_at,m.jpeg,m.image_sha256,m.content_path,m.content_size,m.content_modified,m.width,m.height FROM exit_media m JOIN trainer_profile p ON p.id=m.trainer_id JOIN adventures a ON a.id=m.adventure_id AND a.revision=m.registration_revision AND a.content_path=m.content_path JOIN play_sessions s ON s.id=m.session_id AND s.adventure_id=m.adventure_id AND s.outcome='returned' AND s.trainer_id=m.trainer_id WHERE m.trainer_id=? AND length(m.jpeg) BETWEEN 1 AND 524288 ORDER BY s.rowid DESC LIMIT 100"); q.addBindValue(owner);
+    q.prepare("SELECT m.session_id,m.trainer_id,m.domain,m.adventure_id,m.registration_revision,m.build_sha256,m.captured_at,m.jpeg,m.image_sha256,m.content_path,m.content_size,m.content_modified,m.width,m.height,a.adapter_id FROM exit_media m JOIN trainer_profile p ON p.id=m.trainer_id JOIN adventures a ON a.id=m.adventure_id AND a.revision=m.registration_revision AND a.content_path=m.content_path JOIN play_sessions s ON s.id=m.session_id AND s.adventure_id=m.adventure_id AND s.outcome='returned' AND s.trainer_id=m.trainer_id WHERE m.trainer_id=? AND length(m.jpeg) BETWEEN 1 AND 524288 ORDER BY s.rowid DESC LIMIT 100"); q.addBindValue(owner);
     if (!q.exec()) return result;
     qint64 budget = 16 * 1024 * 1024;
     qint64 contentBudget = 256 * 1024 * 1024;
@@ -107,10 +111,11 @@ QList<ExitMedia> readExitMedia(QSqlDatabase& db, const QString& owner) {
         const auto bytes = q.value(7).toByteArray();
         if (bytes.size() > budget || hash(bytes) != q.value(8).toString()) continue;
         const QFileInfo content(q.value(9).toString());
-        if (!content.isFile() || content.size() != q.value(10).toLongLong() || content.lastModified().toMSecsSinceEpoch() != q.value(11).toLongLong()) continue;
+        const bool steam=q.value(14).toString()=="steam";
+        if (!content.isFile() || (!steam && (content.size() != q.value(10).toLongLong() || content.lastModified().toMSecsSinceEpoch() != q.value(11).toLongLong()))) continue;
         if (content.size() <= 0 || hashCost(content.size()) > contentBudget) continue;
         contentBudget -= hashCost(content.size());
-        if (contentHash(content.filePath(), content.size(), content.lastModified().toMSecsSinceEpoch()) != q.value(5).toString()) continue;
+        if ((steam ? steamMediaIdentity(content.filePath()) : contentHash(content.filePath(), content.size(), content.lastModified().toMSecsSinceEpoch())) != q.value(5).toString()) continue;
         QBuffer buffer; buffer.setData(bytes); buffer.open(QIODevice::ReadOnly);
         QImageReader reader(&buffer, "JPEG");
         const QSize expected(q.value(12).toInt(), q.value(13).toInt());
