@@ -56,10 +56,17 @@ renderer enabled. [Build identity and checks](build.json).
   remains unconfigured after historical text-validation failure; its native
   Cabinet Link probe also rejects the present archive. No personal metadata was
   rewritten to force admission. Multiplayer routing uses a copy of the record.
-- **Odin not installed:** it stopped answering on its known SSH endpoint before
-  delivery began. No package, shell or helper replacement was attempted there.
-  The same checked payload is retained for delivery after access returns; recheck
-  the current shell identity and concurrent work before installing.
+- **Odin not installed:** access returned on the continuation. The original shell
+  and helper still matched their expected hashes, with no active game and volume
+  at zero. Delivery stopped before uploading files: microSD is mounted read-only.
+  The kernel records MMC busy/recovery failures, lost writes, an aborted ext4
+  journal and an automatic read-only remount. This supersedes the earlier
+  connectivity-only blocker. No package, shell or helper replacement occurred.
+  The cause is unresolved; these observations do not identify a defective card
+  versus a contact/controller/driver issue. No writable remount, filesystem repair
+  or further card write was attempted. Coordinate storage recovery with the other
+  active work before proceeding. The checked payload remains available; recheck
+  current source and installed identities before eventual delivery.
 
 The previous shell `0ea60099b04f543e948a533ac5e81bc47e0559c86da23574ef2cf03d552c91b1`
 and private database/settings snapshots are retained in Flip's task delivery
