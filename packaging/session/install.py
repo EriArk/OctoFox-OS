@@ -53,12 +53,19 @@ def main():
                     Path('/etc/sddm.conf.d/zz-steamos-autologin.conf')]
         if any(p.exists() and b'traineros' in p.read_bytes().lower() for p in defaults):
             parser.error('Choose Desktop or Steam as the boot default before removing the TrainerOS session')
+        # Drop user-owned links as that user, before removing the trusted target.
+        # Older installations did not have this helper.
+        entry_helper = Path('/var/opt/traineros/session/desktop-entry.py')
+        for name in owned.data['files']: owned.check(name)
+        if str(entry_helper) in owned.data['files'] and entry_helper.is_file():
+            subprocess.run(['/usr/sbin/runuser', '-u', args.user, '--', '/usr/bin/python3', '-I',
+                            str(entry_helper), 'uninstall'], check=True)
         owned.uninstall()
         subprocess.run(['/usr/bin/systemctl', 'daemon-reload'], check=True)
         print('Managed session files removed. Host defaults and personal data preserved.')
         return
     for binary in ["/usr/bin/gamescope", "/usr/libexec/armada/device-env",
-                   "/usr/libexec/armada/session-control", "/usr/sbin/visudo"]:
+                   "/usr/libexec/armada/session-control", "/usr/sbin/visudo", "/usr/sbin/runuser"]:
         if not os.access(binary, os.X_OK):
             parser.error("Missing platform prerequisite: " + binary)
     if not os.access(Path(account.pw_dir) / ".local/bin/traineros", os.X_OK):
@@ -147,9 +154,13 @@ def main():
     with tempfile.NamedTemporaryFile(prefix="traineros-sudoers-") as trial:
         trial.write(policy); trial.flush()
         subprocess.run(["/usr/sbin/visudo", "-cf", trial.name], check=True, stdout=subprocess.DEVNULL)
-    for name in ["client.py", "start-session.sh", "compositor.sh", "control.py"]:
+    for name in ["client.py", "start-session.sh", "compositor.sh", "control.py", "desktop-entry.py"]:
         install("/var/opt/traineros/session/" + name, (source / name).read_bytes().replace(b"\r\n", b"\n"), 0o755)
     install(own + "/traineros.desktop", (source / "traineros.desktop").read_bytes(), 0o644)
+    # /usr/local is also immutable on Armada. Keep the target with our helpers
+    # and create the XDG application link without root privileges below.
+    install("/var/opt/traineros/session/org.traineros.Session.desktop",
+            (source / "org.traineros.Session.desktop").read_bytes().replace(b"\r\n", b"\n"), 0o644)
     install("/etc/systemd/user/traineros-session.service", (source / "traineros-session.service").read_bytes(), 0o644)
     install("/etc/sudoers.d/traineros-session", policy, 0o440)
     power_spec = importlib.util.spec_from_file_location("traineros_install_power", source.parent / "integrations/install-power.py")
@@ -164,6 +175,8 @@ def main():
         for path, _, _ in planned: owned.check(path)
         for path, data, mode in planned: write_file(path, data, mode)
         subprocess.run(['/usr/bin/systemctl', 'daemon-reload'], check=True)
+    subprocess.run(['/usr/sbin/runuser', '-u', args.user, '--', '/usr/bin/python3', '-I',
+                    '/var/opt/traineros/session/desktop-entry.py', 'install'], check=True)
     # Keep the original default for an explicit rollback, without modifying it.
     original = backup / "original-autologin.conf"
     override = Path("/etc/sddm.conf.d/zz-steamos-autologin.conf")

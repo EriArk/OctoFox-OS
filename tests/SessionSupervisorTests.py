@@ -12,6 +12,36 @@ from unittest.mock import call, patch
 ROOT = Path(__file__).resolve().parents[1]
 
 
+class DesktopEntryTests(unittest.TestCase):
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location('desktop_entry', ROOT / 'packaging/session/desktop-entry.py')
+        self.entry = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.entry)
+
+    def test_install_upgrade_and_uninstall_only_own_link(self):
+        with tempfile.TemporaryDirectory() as home:
+            target = Path(home) / '.local/share/applications/org.traineros.Session.desktop'
+            self.entry.update(home, 'install')
+            self.entry.update(home, 'install')
+            self.assertEqual(os.readlink(target), self.entry.TARGET)
+            self.entry.update(home, 'uninstall')
+            self.assertFalse(target.is_symlink())
+
+    def test_preserve_legacy_and_custom_launchers(self):
+        for symbolic in (False, True):
+            with self.subTest(symbolic=symbolic), tempfile.TemporaryDirectory() as home:
+                target = Path(home) / '.local/share/applications/org.traineros.Session.desktop'
+                target.parent.mkdir(parents=True)
+                if symbolic:
+                    target.symlink_to('/custom/launcher.desktop')
+                else:
+                    target.write_text('My existing launcher')
+                self.entry.update(home, 'install')
+                self.entry.update(home, 'uninstall')
+                self.assertEqual(os.readlink(target) if symbolic else target.read_text(),
+                                 '/custom/launcher.desktop' if symbolic else 'My existing launcher')
+
+
 class SupervisorTests(unittest.TestCase):
     def run_probe(self, source, attempts=3, ready_timeout=None):
         with tempfile.TemporaryDirectory() as temporary:

@@ -10,13 +10,30 @@ First install and validate the native application at `~/.local/bin/traineros`. F
 
 ```sh
 sudo python3 -I packaging/session/install.py --user armada
-install -Dm644 packaging/session/org.traineros.Session.desktop \
-  ~/.local/share/applications/org.traineros.Session.desktop
 ```
 
 The account is an explicit installer argument. Root-owned launchers live in `/var/opt/traineros/session`; the user service is `/etc/systemd/user/traineros-session.service`. The SDDM entry lives under `/etc/traineros/wayland-sessions`, added without removing existing session search paths. Installation preserves the current autologin choice. Original files and the original autologin override are retained in `/var/lib/traineros/session-backup`.
 
 `ArmadaPlatformService` exposes fixed mode choices. The root helper accepts only session/power verbs; Python runs in isolated mode and a narrow sudoers rule allows those actions without a password. No arbitrary root command or file path enters this interface.
+
+### Return from Steam — 1 November 2026
+
+Use Steam menu → Power → Switch to Desktop, then **Return to TrainerOS** in
+Plasma's applications/search. This deliberately keeps the ordinary desktop
+available; Steam's menu and SteamOS Manager desktop preference are unchanged.
+The return entry enters the dedicated session rather than opening a second
+TrainerOS window inside Steam or Plasma. Save desktop work before selecting it.
+
+The session installer now installs this entry automatically. Its target is
+root-owned under `/var/opt/traineros/session`; an unprivileged helper creates
+the link in the selected user's XDG applications directory. `/usr/local` is
+also immutable on the inspected Armada build. Existing manual entries, custom
+files and custom links are preserved. Managed removal removes only the exact
+link to our target, with the user's permissions, before removing owned files.
+The entry includes a Russian name and hides when its session helper is absent.
+Legacy manual entries keep their previous text until their owner replaces them.
+
+[Installed checks and limits](evidence/steam-return-20261101/README.md).
 
 The existing Armada selector owns Desktop and Steam transitions. On this build its Desktop choice is Armada Plasma Mobile; the other installed Plasma entries remain available. TrainerOS writes the same autologin override when selected, so subsequent official mode choices remain authoritative.
 

@@ -1,8 +1,13 @@
 [Desktop Entry]
 Name=Return to TrainerOS
+Name[ru]=Вернуться в TrainerOS
 Comment=Save desktop work before entering the TrainerOS session
+Comment[ru]=Сохраните работу на рабочем столе перед возвращением в TrainerOS
 Exec=/usr/bin/sudo -n /var/opt/traineros/session/control.py traineros
+TryExec=/var/opt/traineros/session/control.py
 Type=Application
 Terminal=false
 Categories=Game;
 Icon=applications-games
+Keywords=TrainerOS;session;return;
+Keywords[ru]=TrainerOS;сессия;вернуться;
