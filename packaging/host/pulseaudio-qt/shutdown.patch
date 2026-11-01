@@ -1,0 +1,41 @@
+diff --git a/src/context.cpp b/src/context.cpp
+index 55d5312..def658e 100644
+--- a/src/context.cpp
++++ b/src/context.cpp
+@@ -262,6 +262,15 @@ Context::Context(QObject *parent)
+     d->m_context = nullptr;
+     d->m_mainloop = nullptr;
+ 
++    // QML can retain device/port bindings until process-static teardown. Empty
++    // the models while QGuiApplication and its font/thread state still exist.
++    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, [this] {
++        d->m_shuttingDown = true;
++        d->m_connectTimer.stop();
++        d->forceDisconnect();
++        d->reset();
++    });
++
+     d->connectToDaemon();
+ 
+     QDBusServiceWatcher *watcher =
+@@ -688,7 +697,7 @@ void ContextPrivate::streamRestoreWrite(const pa_ext_stream_restore_info *info)
+ 
+ void ContextPrivate::connectToDaemon()
+ {
+-    if (m_context) {
++    if (m_context || m_shuttingDown) {
+         return;
+     }
+ 
+diff --git a/src/context_p.h b/src/context_p.h
+index de16190..d7b94ac 100644
+--- a/src/context_p.h
++++ b/src/context_p.h
+@@ -46,6 +46,7 @@ public:
+ 
+     QTimer m_connectTimer;
+     int m_connectTries = 0;
++    bool m_shuttingDown = false;
+     Context::State m_state = Context::State::Unconnected;
+ 
+     static QString s_applicationId;

@@ -14,6 +14,7 @@ remain in force. Distribution/image obligations need a separate review before re
 | Community gym-badge recreations | [Author, CC BY 3.0 and provenance](assets/badges/README.md); underlying designs are not cleared by attribution |
 | Dolphin integration patch | [Source SPDX notice](packaging/emulators/dolphin/TrainerNetplay.inc), GPL-2.0-or-later; [maintenance](docs/emulators/dolphin.md) |
 | Linux Iris encoder patches | [Pinned source, upstream attribution, GPL-2.0 text and build procedure](packaging/kernel/iris/README.md); separate diagnostic kernel module, no firmware or binary bundled |
+| PulseAudioQt Plasma shutdown patch | [Pinned KDE source, LGPL terms, build, version guard and rollback](packaging/host/pulseaudio-qt/README.md); optional host library, no binary bundled |
 | Emulator builds and changes | [Per-emulator records](docs/emulators/README.md); each upstream's actual license/source obligations apply |
 | Flycast arcade dependency catalogue | Generated from the pinned Flycast native table (GPL-2.0-or-later), containing MAME ROM metadata (LGPL-2.1-or-later); [authors, exact source and retained notices](packaging/emulators/flycast/arcade-catalog.NOTICE). No ROM/BIOS/key/EEPROM bytes included |
 | SameBoy linked-pair core | [Pinned source, MIT licence and maintained changes](docs/emulators/sameboy.md); retain upstream notices with source/binaries |

@@ -22,10 +22,13 @@ def main():
     parser.add_argument("--default", action="store_true", help="Boot into the validated TrainerOS session")
     parser.add_argument("--managed", action="store_true", help="Record ownership for the recoverable Software installer")
     parser.add_argument("--uninstall", action="store_true", help="Remove only unchanged managed session files")
+    parser.add_argument("--plasma-audio-library", type=Path, help="Reviewed optional PulseAudioQt shutdown repair artifact")
     helpers = parser.add_mutually_exclusive_group()
     helpers.add_argument("--emulator-support-only", action="store_true", help="Update Adventure helpers without changing the session")
     helpers.add_argument("--clock-only", action="store_true", help="Install date/time permissions without changing the session")
     args = parser.parse_args()
+    if args.plasma_audio_library and (args.uninstall or args.emulator_support_only or args.clock_only):
+        parser.error('The Plasma repair artifact belongs to a session installation')
     if (args.managed or args.uninstall) and (args.default or args.emulator_support_only or args.clock_only):
         parser.error("Managed installation preserves boot and host power preferences")
     if args.default and (args.emulator_support_only or args.clock_only):
@@ -90,6 +93,12 @@ def main():
     if own not in directories:
         directories.append(own)
     source = Path(__file__).resolve().parent
+    audio_payload = []
+    if args.plasma_audio_library:
+        spec = importlib.util.spec_from_file_location('plasma_audio_repair', source.parent / 'host/pulseaudio-qt/integration.py')
+        repair = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(repair)
+        audio_payload = repair.files(args.plasma_audio_library)
     backup = Path("/var/lib/traineros/session-backup")
     backup.mkdir(parents=True, exist_ok=True, mode=0o700)
 
@@ -154,7 +163,8 @@ def main():
     with tempfile.NamedTemporaryFile(prefix="traineros-sudoers-") as trial:
         trial.write(policy); trial.flush()
         subprocess.run(["/usr/sbin/visudo", "-cf", trial.name], check=True, stdout=subprocess.DEVNULL)
-    for name in ["client.py", "start-session.sh", "compositor.sh", "control.py", "desktop-entry.py"]:
+    for name in ["client.py", "start-session.sh", "compositor.sh", "control.py", "desktop-entry.py",
+                 "desktop-logout.py", "plasma-brightness.py"]:
         install("/var/opt/traineros/session/" + name, (source / name).read_bytes().replace(b"\r\n", b"\n"), 0o755)
     install(own + "/traineros.desktop", (source / "traineros.desktop").read_bytes(), 0o644)
     # /usr/local is also immutable on Armada. Keep the target with our helpers
@@ -162,6 +172,10 @@ def main():
     install("/var/opt/traineros/session/org.traineros.Session.desktop",
             (source / "org.traineros.Session.desktop").read_bytes().replace(b"\r\n", b"\n"), 0o644)
     install("/etc/systemd/user/traineros-session.service", (source / "traineros-session.service").read_bytes(), 0o644)
+    install("/etc/systemd/user/plasma-kwin_wayland.service.d/50-traineros-brightness.conf",
+            (source / "plasma-brightness.conf").read_bytes().replace(b"\r\n", b"\n"), 0o644)
+    for path, data, mode in audio_payload:
+        install(path, data, mode)
     install("/etc/sudoers.d/traineros-session", policy, 0o440)
     power_spec = importlib.util.spec_from_file_location("traineros_install_power", source.parent / "integrations/install-power.py")
     power_install = importlib.util.module_from_spec(power_spec)
@@ -177,6 +191,11 @@ def main():
         subprocess.run(['/usr/bin/systemctl', 'daemon-reload'], check=True)
     subprocess.run(['/usr/sbin/runuser', '-u', args.user, '--', '/usr/bin/python3', '-I',
                     '/var/opt/traineros/session/desktop-entry.py', 'install'], check=True)
+    runtime = '/run/user/' + str(account.pw_uid)
+    if Path(runtime, 'bus').exists():
+        subprocess.run(['/usr/sbin/runuser', '-u', args.user, '--', '/usr/bin/env',
+                        'XDG_RUNTIME_DIR=' + runtime, 'DBUS_SESSION_BUS_ADDRESS=unix:path=' + runtime + '/bus',
+                        '/usr/bin/systemctl', '--user', 'daemon-reload'], check=True)
     # Keep the original default for an explicit rollback, without modifying it.
     original = backup / "original-autologin.conf"
     override = Path("/etc/sddm.conf.d/zz-steamos-autologin.conf")

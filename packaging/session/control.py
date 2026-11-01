@@ -2,6 +2,7 @@
 """Root-owned, fixed-verb Armada session boundary. Never load user Python code."""
 import os
 import json
+import pwd
 from pathlib import Path
 import subprocess
 import sys
@@ -11,6 +12,27 @@ import time
 OVERRIDE = Path("/etc/sddm.conf.d/zz-steamos-autologin.conf")
 ARMADA = "/usr/libexec/armada/session-control"
 MARKER = Path("/run/traineros-transition")
+
+
+def logout_desktop(uid):
+    """Ask the caller's real KDE session to finish before releasing its seat.
+
+    10 means no live standalone KDE session; only that result permits the
+    display-manager fallback. A rejected logout must not force-close documents.
+    """
+    if not uid or not uid.isascii() or not uid.isdigit() or int(uid) == 0:
+        return 10
+    try:
+        user = pwd.getpwuid(int(uid)).pw_name
+    except KeyError:
+        return 10
+    try:
+        return subprocess.call(['/usr/sbin/runuser', '-u', user, '--', '/usr/bin/env',
+                                'DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/' + uid + '/bus',
+                                'XDG_RUNTIME_DIR=/run/user/' + uid,
+                                '/usr/bin/python3', '-I', '/var/opt/traineros/session/desktop-logout.py'], timeout=15)
+    except subprocess.TimeoutExpired:
+        return 1
 
 
 def session_pids():
@@ -64,6 +86,7 @@ def main():
         return 2
     if (action == "recover" and (len(sys.argv) != 3 or not sys.argv[2].isascii() or not sys.argv[2].isdigit())) or (action != "recover" and len(sys.argv) != 2):
         return 2
+    caller_uid = os.environ.get('SUDO_UID', '')
     os.environ.clear()
     os.environ.update(PATH="/usr/sbin:/usr/bin:/sbin:/bin", LANG="C.UTF-8")
     if action == "recover":
@@ -80,6 +103,9 @@ def main():
         atomic_write(OVERRIDE, "[Autologin]\nSession=traineros.desktop\n")
         if action == "default-traineros":
             return 0
+        result = logout_desktop(caller_uid)
+        if result != 10:
+            return result
     atomic_write(MARKER, json.dumps({"pids": session_pids(), "time": time.monotonic()}))
     if action in {"desktop", "steam"}:
         # Armada's switch-gamemode tries KDE logout first. D-Bus can activate
