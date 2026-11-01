@@ -19,6 +19,18 @@
       "shape": "computer"
     },
     {
+      "id": "doom",
+      "folder": "doom",
+      "name": "Doom",
+      "core": "odamex",
+      "extensions": [
+        "wad",
+        "doom"
+      ],
+      "aliases": [],
+      "shape": "computer"
+    },
+    {
       "id": "model3",
       "folder": "model3",
       "name": "Sega Model 3",

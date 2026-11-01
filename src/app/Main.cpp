@@ -389,6 +389,7 @@ int main(int argc, char* argv[]) {
         StandaloneAdapter duckstation("duckstation", activeLibrary, standaloneInstallation("duckstation"));
         StandaloneAdapter rpcs3("rpcs3", activeLibrary, standaloneInstallation("rpcs3"));
         StandaloneAdapter eden("eden", activeLibrary, standaloneInstallation("eden"));
+        StandaloneAdapter odamex("odamex", activeLibrary, standaloneInstallation("odamex"));
         StandaloneAdapter supermodel("supermodel", activeLibrary, standaloneInstallation("supermodel"));
         StandaloneAdapter xemu("xemu", activeLibrary, standaloneInstallation("xemu"));
         struct SaveRuntimes { RetroArchInstallation retroarch; StandaloneInstallation melonds; };
@@ -399,7 +400,7 @@ int main(int argc, char* argv[]) {
         SteamAdventureAdapter steamRuntime;
         cratesRuntime.root=QDir(stateDirectory).filePath("crates");
         cratesRuntime.helper="/var/opt/traineros/crates/launch.py";
-        AdapterRouter adapters({&steamRuntime,&pcRuntime,&cratesRuntime,&ppsspp, &armsx2, &cemu, &duckstation, &rpcs3, &eden, &supermodel, &xemu, &melonDs, &dolphin, &azahar, &vita3k, &retroarch});
+        AdapterRouter adapters({&steamRuntime,&pcRuntime,&cratesRuntime,&ppsspp, &armsx2, &cemu, &duckstation, &rpcs3, &eden, &odamex, &supermodel, &xemu, &melonDs, &dolphin, &azahar, &vita3k, &retroarch});
         SteamLibrary steamLibrary(activeLibrary);
         if (personalLibrary && !smoke) selectedAdapter = &adapters;
 #ifdef TRAINEROS_UI_TESTS
@@ -1112,6 +1113,7 @@ int main(int argc, char* argv[]) {
                 changed |= duckstation.updateInstallation(standalone("duckstation"));
                 changed |= rpcs3.updateInstallation(standalone("rpcs3"));
                 changed |= eden.updateInstallation(standalone("eden"));
+                changed |= odamex.updateInstallation(standalone("odamex"));
                 changed |= supermodel.updateInstallation(standalone("supermodel"));
                 changed |= xemu.updateInstallation(standalone("xemu"));
                 if (changed) {
@@ -1409,6 +1411,7 @@ int main(int argc, char* argv[]) {
                 duckstation.requestLaunch = requestAdventure;
                 rpcs3.requestLaunch = requestAdventure;
                 eden.requestLaunch = requestAdventure;
+                odamex.requestLaunch = requestAdventure;
                 supermodel.requestLaunch = requestAdventure;
                 xemu.requestLaunch = requestAdventure;
                 cratesRuntime.requestLaunch = requestAdventure;

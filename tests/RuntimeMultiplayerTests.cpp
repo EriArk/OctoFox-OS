@@ -143,7 +143,7 @@ class RuntimeMultiplayerTests final : public QObject {
 private slots:
     void lobbyRoutesIgnoreOrdinaryEmulatorPreferences() {
         const QHash<QString,QString> routes{{"psp","ppsspp"},{"gc","dolphin"},{"wii","dolphin"},
-            {"nds","melonds"},{"n3ds","azahar"},{"psvita","vita3k"},{"ps2","armsx2"},{"model3","supermodel"},
+            {"nds","melonds"},{"n3ds","azahar"},{"psvita","vita3k"},{"ps2","armsx2"},{"model3","supermodel"},{"doom","odamex"},
             {"n64","retroarch"},{"dreamcast","retroarch"}};
         for(auto it=routes.cbegin();it!=routes.cend();++it) {
             AdventureRegistration original;original.adventure.platformId=it.key();original.adventure.adapterId="personal-emulator";
@@ -239,6 +239,7 @@ private slots:
     void ps2TransportLossKeepsOwnedGameAndCannotRelaunch_data() {
         QTest::addColumn<QString>("mode");
         QTest::newRow("ps2")<<QString("runtime.armsx2.lan.v1");
+        QTest::newRow("doom-native")<<QString("runtime.odamex.doom.v1");
         QTest::newRow("model3-link")<<QString("runtime.supermodel.link.v1");
         QTest::newRow("xbox-system-link")<<QString("runtime.xemu.lan.v1");
         QTest::newRow("gamecube-bba")<<QString("runtime.dolphin.bba.v1");
@@ -522,12 +523,12 @@ private slots:
         f.runtime.descriptor_=lan;QCOMPARE(f.runtime.nativeLan(),linked!="runtime.flycast.online.v1");QVERIFY(!f.runtime.dolphin());QVERIFY(!f.runtime.supportsLive(lan));
     }
     void nativeReadyIsBoundToEachAssignedSeat() {
-        for(const auto& mode:{QString("runtime.flycast.online.v1"),QString("runtime.flycast.cabinet.v1"),QString("runtime.armsx2.lan.v1"),QString("runtime.dolphin.bba.v1"),QString("runtime.xemu.lan.v1"),QString("runtime.supermodel.link.v1")})
+        for(const auto& mode:{QString("runtime.flycast.online.v1"),QString("runtime.flycast.cabinet.v1"),QString("runtime.armsx2.lan.v1"),QString("runtime.dolphin.bba.v1"),QString("runtime.xemu.lan.v1"),QString("runtime.supermodel.link.v1"),QString("runtime.odamex.doom.v1")})
         for(int slot=2;slot<=4;++slot)for(int received:{1,2,3,4,5}) {
             Fixture f;f.runtime.active_=true;f.runtime.host_=false;f.runtime.request_.slot=slot;
             f.runtime.descriptor_={{"id",mode},{"players",4}};
             int inspected=0;f.library.inspect=[&]{++inspected;};
-            f.runtime.frame({{"kind",mode.contains("online")?"dc-online-ready":mode.contains("armsx2")?"ps2-ready":mode.contains("dolphin")?"bba-ready":mode.contains("supermodel")?"model3-ready":mode.contains("xemu")?"xbox-ready":"cabinet-ready"},{"identity",f.runtime.descriptor_},{"slot",received}});
+            f.runtime.frame({{"kind",mode.contains("online")?"dc-online-ready":mode.contains("armsx2")?"ps2-ready":mode.contains("dolphin")?"bba-ready":mode.contains("odamex")?"doom-ready":mode.contains("supermodel")?"model3-ready":mode.contains("xemu")?"xbox-ready":"cabinet-ready"},{"identity",f.runtime.descriptor_},{"slot",received}});
             // The valid seat reaches local content verification. Another seat
             // must fail before looking up or launching any game.
             QCOMPARE(inspected>0,received==slot);
