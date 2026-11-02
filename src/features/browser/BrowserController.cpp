@@ -34,6 +34,8 @@ BrowserController::BrowserController(QObject* parent):QObject(parent) {
     connect(&saveTimer_,&QTimer::timeout,this,&BrowserController::persist);
     downloadSaveTimer_.setSingleShot(true);downloadSaveTimer_.setInterval(1000);
     connect(&downloadSaveTimer_,&QTimer::timeout,this,&BrowserController::persistDownloads);
+    connect(&picker_,&FilePickerController::cancelled,this,[this]{cancelDialog();});
+    connect(&picker_,&FilePickerController::filesSelected,this,[this](const QStringList& paths){finishDialog(true,paths);});
 }
 BrowserController::~BrowserController(){persist();persistDownloads();delete profile_;}
 bool BrowserController::available() const {
@@ -46,7 +48,7 @@ bool BrowserController::available() const {
 void BrowserController::configure(const QString& directory,const QString& owner) {
     const QString next=owner.isEmpty()?QString():directory+"/browser/"+QString::fromLatin1(QCryptographicHash::hash(owner.toUtf8(),QCryptographicHash::Sha256).toHex());
     if(next==path_)return;
-    stopPageInput();inputSurface_=nullptr;
+    cancelDialog();stopPageInput();inputSurface_=nullptr;
     persist();persistDownloads();saveTimer_.stop();downloadSaveTimer_.stop();emit profileChanging();
     delete profile_;profile_=nullptr;field_=nullptr;tabs_.clear();bookmarks_.clear();history_.clear();jobs_.clear();selected_.clear();textTarget_.clear();path_=next;owner_=owner;
     if(!path_.isEmpty()) {
@@ -119,17 +121,19 @@ QString BrowserController::navigationUrl(QString input) {
     return "https://duckduckgo.com/?q="+QString::fromLatin1(QUrl::toPercentEncoding(input));
 }
 QString BrowserController::newTab(QString url) {
+    cancelDialog();
     url=navigationUrl(url);if(url.isEmpty())return {};
     const auto id=QUuid::createUuid().toString(QUuid::WithoutBraces);tabs_<<QVariantMap{{"id",id},{"url",url},{"title","New tab"},{"icon",QString()}};selected_=id;saveTimer_.start();emit changed();return id;
 }
-void BrowserController::select(const QString& id){for(const auto& v:tabs_)if(v.toMap()["id"]==id){selected_=id;enter();saveTimer_.start();emit changed();return;}}
+void BrowserController::select(const QString& id){for(const auto& v:tabs_)if(v.toMap()["id"]==id){if(selected_!=id)cancelDialog();selected_=id;enter();saveTimer_.start();emit changed();return;}}
 void BrowserController::openUrl(const QString& input){
+    cancelDialog();
     const auto url=navigationUrl(input);if(url.isEmpty())return;
     if(tabs_.isEmpty())newTab();
     updateTab(selected_,url,url=="about:blank"?"New tab":url,QString());
     enter();emit navigateRequested(url);
 }
-void BrowserController::closeTab(const QString& id){for(int i=0;i<tabs_.size();++i)if(tabs_[i].toMap()["id"]==id){tabs_.removeAt(i);if(selected_==id)selected_=tabs_.isEmpty()?QString():tabs_[qMin(i,int(tabs_.size())-1)].toMap()["id"].toString();break;}if(tabs_.isEmpty())newTab();enter();saveTimer_.start();emit changed();}
+void BrowserController::closeTab(const QString& id){for(int i=0;i<tabs_.size();++i)if(tabs_[i].toMap()["id"]==id){if(dialog_["tab"].toString()==id)cancelDialog();tabs_.removeAt(i);if(selected_==id)selected_=tabs_.isEmpty()?QString():tabs_[qMin(i,int(tabs_.size())-1)].toMap()["id"].toString();break;}if(tabs_.isEmpty())newTab();enter();saveTimer_.start();emit changed();}
 void BrowserController::updateTab(const QString& id,const QString& url,const QString& title,const QString& icon,bool visited){
     for(auto& v:tabs_)if(v.toMap()["id"]==id){auto row=v.toMap();row["url"]=url;row["title"]=title.isEmpty()?"New tab":title;row["icon"]=icon;v=row;break;}
     if(visited&&(url.startsWith("https://")||url.startsWith("http://"))) {
@@ -140,8 +144,37 @@ void BrowserController::updateTab(const QString& id,const QString& url,const QSt
 void BrowserController::toggleBookmark(const QString& url,const QString& title){if(!url.startsWith("http://")&&!url.startsWith("https://"))return;bool removed=bookmarks_.removeIf([&](const QVariant& v){return v.toMap()["url"]==url;})>0;if(!removed)bookmarks_<<QVariantMap{{"url",url},{"title",title}};persist();emit changed();}
 void BrowserController::removeHistory(){history_.clear();persist();emit changed();}
 void BrowserController::persist(){if(path_.isEmpty())return;QSaveFile f(path_+"/session.json");if(f.open(QIODevice::WriteOnly)){f.setPermissions(QFile::ReadOwner|QFile::WriteOwner);f.write(QJsonDocument(QJsonObject{{"tabs",QJsonArray::fromVariantList(tabs_)},{"selected",selected_},{"bookmarks",QJsonArray::fromVariantList(bookmarks_)},{"history",QJsonArray::fromVariantList(history_)}}).toJson());f.commit();}}
+int BrowserController::requestDialog(const QString& tab,const QString& kind,const QString& origin,const QString& message,const QString& initial,const QStringList& types) {
+    if(tab!=selected_||!std::any_of(tabs_.cbegin(),tabs_.cend(),[&](const QVariant& row){return row.toMap()["id"]==tab;})
+        ||!QStringList{"file","files","folder","prompt","alert","confirm","leave"}.contains(kind))return 0;
+    cancelDialog();stopPageInput();
+    const QUrl url(origin);
+    const auto label=url.host().isEmpty()?QString("This page"):url.toDisplayString(QUrl::RemoveUserInfo|QUrl::RemovePath|QUrl::RemoveQuery|QUrl::RemoveFragment);
+    dialog_={{"id",++dialogSerial_},{"tab",tab},{"kind",kind},{"origin",label},{"message",message},{"text",initial},{"types",types.join(", ")}};
+    if(kind=="file"||kind=="files"||kind=="folder")picker_.beginUpload(kind=="files",kind=="folder",types);
+    emit dialogChanged();return dialogSerial_;
+}
+void BrowserController::finishDialog(bool accepted,const QStringList& values) {
+    if(dialog_.isEmpty())return;
+    const auto previous=dialog_;dialog_.clear();
+    if(textTarget_=="dialog"){textTarget_.clear();emit dialogTextCancelled();}
+    picker_.cancel();emit dialogChanged();
+    emit dialogFinished(previous["id"].toInt(),accepted&&previous["tab"]==selected_,values);
+}
+void BrowserController::cancelDialog(int id) {
+    if(id==0||dialog_["id"].toInt()==id)finishDialog(false);
+}
+void BrowserController::answerDialog(bool accepted) {
+    if(dialog_.isEmpty()||picker_.isOpen())return;
+    finishDialog(accepted,QStringList{dialog_["text"].toString()});
+}
+void BrowserController::editDialogText() {
+    if(dialog_["kind"]!="prompt")return;
+    stopPageInput();textTarget_="dialog";
+    emit textRequested("Website response",dialog_["text"].toString(),4096,false);
+}
 void BrowserController::requestAddress(const QString& url){stopPageInput();textTarget_="address";emit textRequested("Address or search",url=="about:blank"?QString():url,4096,false);}
-void BrowserController::applyText(const QString& text){const auto target=textTarget_;textTarget_.clear();if(target=="address")openUrl(text);}
+void BrowserController::applyText(const QString& text){const auto target=textTarget_;textTarget_.clear();if(target=="address")openUrl(text);else if(target=="dialog"&&dialog_["kind"]=="prompt"){dialog_["text"]=text;emit dialogChanged();}}
 bool BrowserController::validInputTarget() const {
     auto* surface=qobject_cast<QQuickItem*>(inputSurface_.data());
     auto* target=qobject_cast<QQuickItem*>(QGuiApplication::focusObject());
@@ -149,6 +182,7 @@ bool BrowserController::validInputTarget() const {
         && QInputMethod::queryFocusObject(Qt::ImEnabled,{}).toBool();
 }
 void BrowserController::editPageField(QObject* surface,bool explicitRequest) {
+    if(!dialog_.isEmpty())return;
     if(inputSurface_!=surface){stopPageInput();inputSurface_=surface;inputDismissed_=false;}
     if(!validInputTarget()){
         inputDismissed_=false;
@@ -210,7 +244,7 @@ void BrowserController::pageKeyStroke(int key,int modifiers,const QString& text)
 void BrowserController::copyText(const QString& text){QGuiApplication::clipboard()->setText(text);}
 void BrowserController::pointerEvent(QObject* object,qreal x,qreal y,int button){auto* item=qobject_cast<QQuickItem*>(object);if(!item||!item->window())return;const auto local=item->mapToScene(QPointF(x,y));const auto global=item->window()->mapToGlobal(local.toPoint());if(!button){QMouseEvent e(QEvent::MouseMove,local,global,Qt::NoButton,Qt::NoButton,Qt::NoModifier);QCoreApplication::sendEvent(item->window(),&e);return;}const auto b=button==2?Qt::RightButton:Qt::LeftButton;QMouseEvent press(QEvent::MouseButtonPress,local,global,b,b,Qt::NoModifier);QMouseEvent release(QEvent::MouseButtonRelease,local,global,b,Qt::NoButton,Qt::NoModifier);QCoreApplication::sendEvent(item->window(),&press);QCoreApplication::sendEvent(item->window(),&release);}
 void BrowserController::wheel(QObject* object,qreal x,qreal y,qreal dx,qreal dy){auto* item=qobject_cast<QQuickItem*>(object);if(!item||!item->window())return;const auto local=item->mapToScene(QPointF(x,y));QWheelEvent e(local,item->window()->mapToGlobal(local.toPoint()),QPoint(int(dx),int(dy)),QPoint(int(dx),int(dy)),Qt::NoButton,Qt::NoModifier,Qt::NoScrollPhase,false);QCoreApplication::sendEvent(item->window(),&e);}
-void BrowserController::dispatch(Action a){const char* command=nullptr;switch(a){case Action::Up:command="up";break;case Action::Down:command="down";break;case Action::Left:command="left";break;case Action::Right:command="right";break;case Action::Confirm:command="click";break;case Action::ContextMenu:command="context";break;case Action::Back:command="back";break;case Action::LocalAction:command="chrome";break;case Action::ScrollUp:command="scroll-up";break;case Action::ScrollDown:command="scroll-down";break;default:break;}if(command)emit commandRequested(command);}
+void BrowserController::dispatch(Action a){if(picker_.isOpen()){picker_.dispatch(a);return;}const char* command=nullptr;switch(a){case Action::Up:command="up";break;case Action::Down:command="down";break;case Action::Left:command="left";break;case Action::Right:command="right";break;case Action::Confirm:command="click";break;case Action::ContextMenu:command="context";break;case Action::Back:command="back";break;case Action::LocalAction:command="chrome";break;case Action::ScrollUp:command="scroll-up";break;case Action::ScrollDown:command="scroll-down";break;default:break;}if(command)emit commandRequested(command);}
 QVariantList BrowserController::downloads() const {
     QVariantList rows;
     for(const auto& d:jobs_){QVariantList actions;

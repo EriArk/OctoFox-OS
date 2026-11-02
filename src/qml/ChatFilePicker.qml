@@ -6,6 +6,7 @@ Item {
     id: root
     required property var picker
     property string title: "Choose a file"
+    property string subtitle: ""
     property var entries: []
     property string displayedPath: ""
     visible: picker.open
@@ -42,7 +43,8 @@ Item {
         id: panel
         anchors.centerIn: parent; width: Math.max(0,Math.min(790,parent.width-48)); height: Math.max(0,Math.min(440,parent.height-34)); radius: 24
         FilesIcon { x: 22; y: 19; width: 30; height: 30; kind: "folder" }
-        Text { x: 64; y: 20; text: root.title; font.family: Theme.displayFamily; font.pixelSize: 23; color: Theme.ink }
+        Text { x: 64; y: root.subtitle ? 13 : 20; width: parent.width-125; text: root.title; textFormat: Text.PlainText; elide: Text.ElideRight; font.family: Theme.displayFamily; font.pixelSize: root.subtitle ? 20 : 23; color: Theme.ink }
+        Text { x: 64; y: 38; width: parent.width-125; visible: !!root.subtitle; text: root.subtitle; textFormat: Text.PlainText; elide: Text.ElideMiddle; font.pixelSize: 11; color: Theme.muted }
         SocialIconButton { anchors.right: parent.right; anchors.rightMargin: 20; y: 17; icon: "x"; label: "Cancel"; onClicked: root.picker.cancel() }
         Rectangle { x: 17; y: 59; width: parent.width-34; height: 37; radius: 8; color: Qt.rgba(Theme.rim.r,Theme.rim.g,Theme.rim.b,.08) }
         Row { x: 23; y: 62; spacing: 3
@@ -111,20 +113,21 @@ Item {
                 delegate: Item {
                     required property var modelData; required property int index
                     width: contents.cellWidth; height: contents.cellHeight
-                    opacity: root.picker.choosingFolder&&!modelData.directory ? .43 : 1
+                    opacity: modelData.allowed===false ? .43 : 1
                     Accessible.role: Accessible.Button; Accessible.name: modelData.title
                     Accessible.onPressAction: root.picker.activate(index,"list")
                     Rectangle { anchors.fill: parent; anchors.margins: 2; radius: 6
                         color: root.picker.rowIndex===index&&root.picker.zone==="list" ? Qt.rgba(Theme.blue.r,Theme.blue.g,Theme.blue.b,.22) : "transparent"
                         border.width: root.picker.rowIndex===index&&root.picker.zone==="list" ? 1 : 0; border.color: Theme.focusGlow }
                     FilesIcon { x: root.picker.grid ? (parent.width-width)/2 : 8; y: root.picker.grid ? 5 : 5; width: root.picker.grid ? 43 : 25; height: width; kind: modelData.icon }
+                    Text { visible: root.picker.multiple && modelData.checked===true; anchors.right: parent.right; anchors.rightMargin: 6; y: 3; text: "✓"; color: Theme.ink; font.pixelSize: 18 }
                     Text { x: root.picker.grid ? 5 : 42; y: root.picker.grid ? 52 : 0; width: root.picker.grid ? parent.width-10 : parent.width*.60-42; height: root.picker.grid ? 31 : parent.height
                         text: modelData.title; textFormat: Text.PlainText; color: Theme.ink; font.pixelSize: 12; verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: root.picker.grid ? Text.AlignHCenter : Text.AlignLeft; wrapMode: root.picker.grid ? Text.Wrap : Text.NoWrap; maximumLineCount: 2; elide: Text.ElideRight }
                     Text { visible: !root.picker.grid; x: parent.width*.61; width: parent.width*.15; height: parent.height; text: modelData.size; verticalAlignment: Text.AlignVCenter; color: Theme.muted; font.pixelSize: 10; elide: Text.ElideRight }
                     Text { visible: !root.picker.grid; x: parent.width*.77; width: parent.width*.22; height: parent.height; text: modelData.modified; verticalAlignment: Text.AlignVCenter; color: Theme.muted; font.pixelSize: 10; elide: Text.ElideRight }
                     Rectangle { visible: !root.picker.grid; x: 7; width: parent.width-14; height: 1; y: parent.height-1; color: Theme.rim; opacity: .12 }
-                    TapHandler { onTapped: { if(modelData.directory)root.picker.activate(index,"list"); else root.picker.select(index) } }
+                    TapHandler { onTapped: { if(modelData.directory||root.picker.multiple)root.picker.activate(index,"list"); else root.picker.select(index) } }
                 }
             }
             Column { anchors.centerIn: parent; width: parent.width-30; spacing: 9; visible: !contents.count
@@ -138,7 +141,7 @@ Item {
             font.pixelSize: 12; color: Theme.muted; elide: Text.ElideMiddle }
         CapButton { x: panel.width-284; y: panel.height-53; width: 104; height: 35; label: "Cancel"; textSize: 13; tint: Theme.paper
             selected: root.picker.zone==="actions"&&root.picker.focusIndex===0; onActivated: root.picker.cancel() }
-        CapButton { x: panel.width-168; y: panel.height-53; width: 143; height: 35; label: root.picker.choosingFolder ? "Choose folder" : "Choose file"; textSize: 13; tint: Theme.green
+        CapButton { x: panel.width-168; y: panel.height-53; width: 143; height: 35; label: root.picker.choosingFolder ? "Choose folder" : root.picker.multiple ? "Choose files" : "Choose file"; textSize: 13; tint: Theme.green
             enabled: root.picker.canChoose; opacity: enabled ? 1 : .45
             selected: root.picker.zone==="actions"&&root.picker.focusIndex===1; onActivated: root.picker.choose() }
     }

@@ -30,6 +30,32 @@ Item {
             id: web
             required property string tabId
             property bool selected: false
+            property var siteRequest: null
+            property int siteRequestId: 0
+            property string siteRequestKind: ""
+            function cancelSiteRequest() { if(siteRequestId)engine.flow.cancelDialog(siteRequestId) }
+            function requestSiteDialog(request,kind,origin,message,initial,types) {
+                request.accepted=true
+                if(!selected||!engine.surface.active){request.dialogReject();return}
+                cancelSiteRequest()
+                siteRequest=request;siteRequestKind=kind
+                siteRequestId=engine.flow.requestDialog(tabId,kind,origin,message,initial||"",types||[])
+                if(!siteRequestId){siteRequest=null;request.dialogReject()}
+            }
+            Connections {
+                target: engine.flow
+                function onDialogFinished(id,accepted,values) {
+                    if(id!==web.siteRequestId||!web.siteRequest)return
+                    const request=web.siteRequest, kind=web.siteRequestKind
+                    web.siteRequest=null;web.siteRequestId=0
+                    if(!accepted)request.dialogReject()
+                    else if(kind==="file"||kind==="files"||kind==="folder")request.dialogAccept(values)
+                    else if(kind==="prompt")request.dialogAccept(values[0]||"")
+                    else request.dialogAccept()
+                    if(web.foreground)web.forceActiveFocus()
+                }
+            }
+            Component.onDestruction: cancelSiteRequest()
             property real lastScroll: 0
             // Chromium rasterizes at the item's own size. Compensate the shell
             // transform so pages stay crisp at native pixels, with readable CSS.
@@ -62,11 +88,11 @@ Item {
             // Keep live DOM/downloads across shell navigation. Chromium throttles
             // invisible views; never discard them as a side effect of tab switching.
             function publish(visited) { engine.flow.updateTab(tabId,url.toString(),title,icon.toString(),visited) }
-            onUrlChanged: { if(selected)engine.flow.stopPageInput();publish(false);if(selected)engine.surface.reveal() }
+            onUrlChanged: { cancelSiteRequest();if(selected)engine.flow.stopPageInput();publish(false);if(selected)engine.surface.reveal() }
             onTitleChanged: publish(false)
             onIconChanged: publish(false)
             onActiveFocusChanged: if(activeFocus&&selected)engine.surface.queueFieldCheck()
-            onLoadingChanged: function(info) { if(info.status===WebEngineView.LoadSucceededStatus)publish(true);if(selected&&info.status===WebEngineView.LoadFailedStatus)engine.surface.error=info.errorString }
+            onLoadingChanged: function(info) { if(info.status===WebEngineView.LoadStartedStatus)cancelSiteRequest();if(info.status===WebEngineView.LoadSucceededStatus)publish(true);if(selected&&info.status===WebEngineView.LoadFailedStatus)engine.surface.error=info.errorString }
             onScrollPositionChanged: {const dy=scrollPosition.y-lastScroll;lastScroll=scrollPosition.y;if(selected&&Math.abs(dy)>3)engine.surface.scrolled(dy)}
             onContextMenuRequested: function(request) {
                 request.accepted=true
@@ -92,19 +118,20 @@ Item {
                 engine.surface.ask("Site permission",permission.origin.toString()+" requests access to "+name+".",function(allowed){if(allowed)permission.grant();else permission.deny()})
             }
             onJavaScriptDialogRequested: function(request) {
-                if(!selected||!engine.surface.active){request.accepted=true;request.dialogReject();return}
-                // The engine's text prompt retains its native input/validation;
-                // never answer a prompt with an empty confirmation response.
-                if(request.type===JavaScriptDialogRequest.DialogTypePrompt)return
-                request.accepted=true
-                engine.surface.ask("Website message",request.securityOrigin.toString()+"\n"+request.message,function(allowed){if(allowed)request.dialogAccept();else request.dialogReject()},["Cancel","OK"])
+                const kinds=["alert","confirm","prompt","leave"]
+                requestSiteDialog(request,kinds[request.type]||"confirm",request.securityOrigin.toString(),request.message,request.defaultText,[])
+            }
+            onFileDialogRequested: function(request) {
+                const kind=request.mode===FileDialogRequest.FileModeOpen?"file":request.mode===FileDialogRequest.FileModeOpenMultiple?"files":request.mode===FileDialogRequest.FileModeUploadFolder?"folder":""
+                if(!kind){request.accepted=true;request.dialogReject();engine.surface.error="This file dialog is not supported. Use the site's download action.";return}
+                requestSiteDialog(request,kind,web.url.toString(),"","",request.acceptedMimeTypes)
             }
             onCertificateError: function(error) {error.rejectCertificate();engine.surface.error="The site's certificate could not be verified.";engine.surface.reveal()}
             onNavigationRequested: function(request) {
                 const scheme=request.url.toString().split(":")[0]
                 if(["https","http","about","blob","data"].indexOf(scheme)<0)request.reject()
             }
-            onRenderProcessTerminated: function(status,code) {if(selected){engine.surface.error="This page stopped. Reload to try again.";engine.surface.reveal()}}
+            onRenderProcessTerminated: function(status,code) {cancelSiteRequest();if(selected){engine.surface.error="This page stopped. Reload to try again.";engine.surface.reveal()}}
             TapHandler {
                 acceptedButtons: Qt.LeftButton
                 gesturePolicy: TapHandler.DragThreshold

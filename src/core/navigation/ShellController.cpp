@@ -308,9 +308,10 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&keyboard_, &TextEntryController::keyStroke,&browser_,&BrowserController::pageKeyStroke);
     connect(&keyboard_, &TextEntryController::changed,this,[this]{if(!keyboard_.isOpen())browser_.stopPageInput();});
     connect(&browser_, &BrowserController::textRequested, this, [this](QString title,QString text,int limit,bool secret){
-        textTarget_=TextTarget::Browser;keyboard_.begin(title,text,limit,secret,"Go");
+        textTarget_=TextTarget::Browser;keyboard_.begin(title,text,limit,secret,browser_.dialog().isEmpty()?"Go":"Apply");
         keyboard_.select(0,text.size());
     });
+    connect(&browser_,&BrowserController::dialogTextCancelled,this,[this]{if(textTarget_==TextTarget::Browser){textTarget_=TextTarget::None;keyboard_.cancel();}});
     connect(&browser_, &BrowserController::downloadsChanged, this, [this]{downloads_.publish("browser",browser_.downloads());});
     browser_.setFilesService(files_.service());
     social_.files()->setFilesService(files_.service());
@@ -2053,6 +2054,12 @@ void ShellController::openSocialNotification() {
     social_.openNotification();emit changed();
 }
 void ShellController::dispatch(Action action) {
+    if(page_==AppsPage && appsFace_=="browser" && !browser_.dialog().isEmpty() && !keyboard_.isOpen()
+        && service_.isEmpty() && !menuOpen_ && !homeMenuOpen_ && notice_.isEmpty()
+        && !drawerOpen_ && !quickAppsOpen_ && !localModalOpen() && social_.incomingCall().isEmpty()) {
+        if(action==Action::ToggleKeyboard){browser_.editDialogText();return;}
+        browser_.dispatch(action);return;
+    }
     if(action==Action::ToggleKeyboard) {
         if(!notice_.isEmpty())return;
         menuOpen_=homeMenuOpen_=quickAppsOpen_=false;

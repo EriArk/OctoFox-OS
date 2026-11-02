@@ -21,6 +21,14 @@ Item {
     property string question: ""
     property string questionTitle: ""
     property var answer: null
+    property int siteFocus: 0
+    property int siteId: 0
+    readonly property bool siteDialog: !!flow.dialog.id
+    readonly property bool sitePrompt: flow.dialog.kind==="prompt"
+    function activateSite(index) {
+        if(sitePrompt&&index===0)flow.editDialogText()
+        else flow.answerDialog(flow.dialog.kind==="alert" || index===(sitePrompt?2:1))
+    }
     property bool toolsFocused: false
     property int toolIndex: 0
     property bool pointerVisible: false
@@ -53,12 +61,12 @@ Item {
     function forgetTab(id){delete thumbs[id];thumbs=Object.assign({},thumbs)}
     function queueFieldCheck(){fieldCheck.restart()}
     property var thumbs: ({})
-    Timer {id:fieldCheck;interval:140;onTriggered:if((root.takesFocus||root.typing)&&!root.popup)root.flow.editPageField(root.page)}
+    Timer {id:fieldCheck;interval:140;onTriggered:if((root.takesFocus||root.typing)&&!root.popup&&!root.siteDialog)root.flow.editPageField(root.page)}
     // Chromium's editable focus can change after a tap (scripts/iframes), while
     // QQuickItem activeFocus remains on the same render widget.
     Timer { interval: 120; repeat: true; running: root.active
         onTriggered: {
-            if(root.page && !root.popup && (root.takesFocus || root.typing))
+            if(root.page && !root.popup && !root.siteDialog && (root.takesFocus || root.typing))
                 root.flow.editPageField(root.page,false)
             else root.flow.stopPageInput()
         }
@@ -76,6 +84,7 @@ Item {
         popup=""
     }
     function command(id) {
+        if(siteDialog)return
         if(id==="back"){if(popup){dismiss();return}if(page&&page.canGoBack)page.goBack();reveal()}
         else if(id==="forward"){if(page)page.goForward();reveal()}
         else if(id==="reload"){if(page){error="";page.loading?page.stop():page.reload()}reveal()}
@@ -91,6 +100,14 @@ Item {
         page.runJavaScript(js,1,function(p){if(p){root.pointerX=p.x+webLoader.x;root.pointerY=p.y+webLoader.y;root.pointerVisible=true}})
     }
     function handle(action) {
+        if(siteDialog) {
+            if(action==="back"){flow.cancelDialog();return}
+            const last=sitePrompt?2:flow.dialog.kind==="alert"?0:1
+            if(action==="up"||action==="left")siteFocus=Math.max(0,siteFocus-1)
+            if(action==="down"||action==="right")siteFocus=Math.min(last,siteFocus+1)
+            if(action==="click")activateSite(siteFocus)
+            return
+        }
         if(action==="chrome"){chrome=!chrome;toolsFocused=chrome;toolIndex=0;return}
         if(popup) {
             if(action==="back"){dismiss();return}
@@ -138,9 +155,10 @@ Item {
         function command(id){root.command(id)}
     }
     property alias toolFlow: toolFlow
-    onActiveChanged: if(!active){flow.stopPageInput();dismiss();pointerVisible=false}
+    onActiveChanged: if(!active){flow.cancelDialog();flow.stopPageInput();dismiss();pointerVisible=false}
     onTakesFocusChanged: if(!takesFocus){pointerVisible=false;if(!shellController.keyboard.open&&popup!=="permission")dismiss()}
     Connections {target:flow
+        function onDialogChanged(){if(root.siteId!==flow.dialog.id){root.siteId=flow.dialog.id||0;root.siteFocus=0;if(root.siteId)root.dismiss()}}
         function onCommandRequested(command){if(root.active)root.handle(command)}
         function onNavigateRequested(url){if(root.page)root.page.url=url;else if(webLoader.item)webLoader.item.reconcile();root.reveal()}
         function onProfileChanging(){webLoader.active=false;root.page=null;root.thumbs=({});root.dismiss()}
@@ -149,12 +167,36 @@ Item {
     Connections {target:controllerInput
         function onPageScrolled(dx,dy){
             if(!root.takesFocus)return
+            if(root.siteDialog){if(flow.picker.open)flow.picker.scroll(dy<0?1:-1);else siteBody.contentY=Math.max(0,Math.min(Math.max(0,siteBody.contentHeight-siteBody.height),siteBody.contentY-dy));return}
             if(root.popup){if(!popupScrollGate.running&&Math.abs(dy)>1){root.handle(dy<0?"down":"up");popupScrollGate.start()};return}
             if(root.page)root.flow.wheel(root,root.pointerX,root.pointerY,dx,dy)
         }
-        function onPointerMoved(dx,dy){if(!root.takesFocus||root.popup)return;root.toolsFocused=false;root.pointerVisible=true;root.pointerX=Math.max(2,Math.min(root.width-4,root.pointerX+dx));root.pointerY=Math.max(2,Math.min(root.height-4,root.pointerY+dy));flow.pointerEvent(root,root.pointerX,root.pointerY,0)}
+        function onPointerMoved(dx,dy){if(!root.takesFocus||root.popup||root.siteDialog)return;root.toolsFocused=false;root.pointerVisible=true;root.pointerX=Math.max(2,Math.min(root.width-4,root.pointerX+dx));root.pointerY=Math.max(2,Math.min(root.height-4,root.pointerY+dy));flow.pointerEvent(root,root.pointerX,root.pointerY,0)}
     }
     Rectangle {anchors.fill:parent;color:Theme.paper}
+    Item {
+        anchors.fill:parent;z:7;visible:root.siteDialog&&!flow.picker.open
+        Rectangle {anchors.fill:parent;color:Theme.surfaceColor("#65162723");MouseArea {anchors.fill:parent}}
+        Panel {
+            enabled: root.takesFocus
+            anchors.centerIn:parent;width:Math.min(540,parent.width-36);height:Math.min(root.sitePrompt?310:250,parent.height-24);radius:14
+            Text {x:20;y:17;width:parent.width-40;text:flow.dialog.kind==="leave"?"Leave this page?":"Website message";font.family:Theme.displayFamily;font.pixelSize:22;color:Theme.ink}
+            Text {x:20;y:47;width:parent.width-40;text:flow.dialog.origin||"";textFormat:Text.PlainText;elide:Text.ElideMiddle;font.pixelSize:12;color:Theme.muted}
+            Flickable {id:siteBody;x:20;y:72;width:parent.width-40;height:parent.height-(root.sitePrompt?186:130);contentHeight:siteMessage.height;clip:true;boundsBehavior:Flickable.StopAtBounds
+                Text {id:siteMessage;width:parent.width;text:flow.dialog.message||"";textFormat:Text.PlainText;wrapMode:Text.WrapAnywhere;font.pixelSize:15;color:Theme.ink}
+            }
+            Rectangle {x:20;y:parent.height-105;width:parent.width-40;height:40;radius:6;visible:root.sitePrompt;color:Qt.alpha(Theme.chassis,.06);border.color:root.siteFocus===0?Theme.focusGlow:Theme.rim
+                Text {x:10;anchors.verticalCenter:parent.verticalCenter;width:parent.width-65;text:flow.dialog.text||"Enter a response";textFormat:Text.PlainText;elide:Text.ElideRight;color:Theme.ink;font.pixelSize:14}
+                Text {anchors.right:parent.right;anchors.rightMargin:10;anchors.verticalCenter:parent.verticalCenter;text:"Edit";font.pixelSize:13;color:Theme.muted}
+                MouseArea {anchors.fill:parent;onClicked:flow.editDialogText()}
+            }
+            Row {anchors.right:parent.right;anchors.rightMargin:20;anchors.bottom:parent.bottom;anchors.bottomMargin:17;spacing:12
+                CapButton {width:110;height:35;label:"Cancel";tint:Theme.paper;visible:flow.dialog.kind!=="alert";selected:root.siteFocus===(root.sitePrompt?1:0);onActivated:flow.cancelDialog()}
+                CapButton {width:110;height:35;label:flow.dialog.kind==="leave"?"Leave":"OK";tint:Theme.green;selected:root.siteFocus===(root.sitePrompt?2:flow.dialog.kind==="alert"?0:1);onActivated:flow.answerDialog(true)}
+            }
+        }
+    }
+    ChatFilePicker {anchors.fill:parent;z:8;picker:flow.picker;title:flow.dialog.kind==="folder"?"Upload a folder and its contents":"Choose files to upload";subtitle:(flow.dialog.origin||"")+(flow.dialog.types?" · "+flow.dialog.types:"")}
     Loader {
         id:webLoader;anchors.fill:parent
         anchors.topMargin: root.chrome&&!root.typing ? 50 : 0

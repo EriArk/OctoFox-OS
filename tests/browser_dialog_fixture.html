@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8"><title>Browser dialog fixture</title>
+<style>body{font:20px sans-serif;background:#fffdf5}button,input{font:inherit;margin:12px;padding:14px}output{display:block}</style>
+<h1>TrainerOS website dialogs</h1>
+<input id="single" type="file" accept=".txt" onchange="this.files[0].text().then(text=>result=this.files[0].name+':'+text)">
+<input id="multi" type="file" accept="text/plain" multiple onchange="result=Array.from(this.files,f=>f.name).sort().join(',')">
+<input id="folder" type="file" webkitdirectory onchange="result=Array.from(this.files,f=>f.webkitRelativePath).sort().join(',')">
+<button id="prompt" onclick="result=prompt('Как назвать файл? A website message with a default response.', 'initial')">Text prompt</button>
+<button id="confirm" onclick="result=confirm('Keep this change?')">Confirm</button>
+<button id="alert" onclick="alert('Saved.');result='alert closed'">Alert</button>
+<button id="leave" onclick="window.onbeforeunload=()=>true;result='guarded'">Protect navigation</button>
+<script>var result='';</script>

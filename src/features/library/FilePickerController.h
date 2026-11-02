@@ -10,6 +10,7 @@ class FilePickerController final : public QObject {
     Q_PROPERTY(bool open READ isOpen NOTIFY changed)
     Q_PROPERTY(bool busy READ busy NOTIFY changed)
     Q_PROPERTY(bool choosingFolder READ choosingFolder NOTIFY changed)
+    Q_PROPERTY(bool multiple READ multiple NOTIFY changed)
     Q_PROPERTY(bool grid READ grid NOTIFY changed)
     Q_PROPERTY(bool canChoose READ canChoose NOTIFY changed)
     Q_PROPERTY(bool canBack READ canBack NOTIFY changed)
@@ -29,6 +30,7 @@ public:
     bool isOpen() const { return open_; }
     bool busy() const { return busy_; }
     bool choosingFolder() const { return chooseFolder_; }
+    bool multiple() const { return multiple_; }
     bool grid() const { return grid_; }
     bool canChoose() const;
     bool canBack() const { return !history_.isEmpty(); }
@@ -44,6 +46,7 @@ public:
     QVariantList places() const { return places_; }
     QVariantList breadcrumbs() const;
     void begin(const QString& startingFolder = {}, bool chooseFolder = false);
+    void beginUpload(bool multiple, bool folder, const QStringList& types);
     void setCatalog(FileCatalog* catalog) { cancel(); catalog_ = catalog; }
     Q_INVOKABLE void cancel();
     void dispatch(Action);
@@ -56,20 +59,26 @@ public:
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void loadMore();
     Q_INVOKABLE void toggleView();
+    Q_INVOKABLE void scroll(int direction){emit scrollRequested(direction<0?-1:1);}
     Q_INVOKABLE void setColumns(int value) { columns_=std::max(1,value); }
 signals:
     void changed();
     void rowsChanged();
     void selected(const QString& path);
+    void filesSelected(const QStringList& paths);
+    void cancelled();
     void scrollRequested(int direction);
 private:
     void load(const QString&, int page = 0, const QString& selection = {});
+    bool allowed(const QString& path) const;
     struct Location { QString path; int page; QString selection; };
     FileCatalog* catalog_;
     DirectoryPage current_;
     QList<Location> history_;
     QVariantList places_;
     QString zone_="list", selectedPath_;
+    QStringList selectedPaths_, types_;
+    bool multiple_=false;
     int row_=0, control_=0, place_=0, generation_=0, placesGeneration_=0, columns_=4;
     bool open_=false, busy_=false, chooseFolder_=false, grid_=false, advanceAfterLoad_=false;
 };

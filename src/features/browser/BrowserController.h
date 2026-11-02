@@ -5,6 +5,7 @@
 #include <QPointer>
 #include <QTimer>
 #include <QPointF>
+#include "features/library/FilePickerController.h"
 
 namespace trainer {
 class FilesService;
@@ -18,6 +19,8 @@ class BrowserController final : public QObject {
     Q_PROPERTY(QString selected READ selected NOTIFY changed)
     Q_PROPERTY(QString storagePath READ storagePath NOTIFY profileChanged)
     Q_PROPERTY(QVariantList downloads READ downloads NOTIFY downloadsChanged)
+    Q_PROPERTY(trainer::FilePickerController* picker READ picker CONSTANT)
+    Q_PROPERTY(QVariantMap dialog READ dialog NOTIFY dialogChanged)
 public:
     explicit BrowserController(QObject* parent=nullptr);
     ~BrowserController() override;
@@ -29,6 +32,12 @@ public:
     QString selected() const{return selected_;}
     QString storagePath() const{return path_;}
     QVariantList downloads() const;
+    FilePickerController* picker(){return &picker_;}
+    QVariantMap dialog() const{return dialog_;}
+    Q_INVOKABLE int requestDialog(const QString& tab,const QString& kind,const QString& origin,const QString& message,const QString& initial={},const QStringList& types={});
+    Q_INVOKABLE void cancelDialog(int id=0);
+    Q_INVOKABLE void answerDialog(bool accepted);
+    Q_INVOKABLE void editDialogText();
     void configure(const QString& directory,const QString& owner);
     void enter();
     void ensureEngine();
@@ -61,12 +70,20 @@ signals:
     void profileChanging();
     void profileChanged();
     void downloadsChanged();
+    void dialogChanged();
+    void dialogFinished(int id,bool accepted,QStringList values);
+    void dialogTextCancelled();
     void commandRequested(QString command);
     void textRequested(QString title,QString text,int limit,bool secret);
     void pageInputRequested(int hints);
     void pageInputEnded();
     void navigateRequested(QString url);
 private:
+    void finishDialog(bool accepted,const QStringList& values={});
+    LocalFileCatalog catalog_;
+    FilePickerController picker_{&catalog_};
+    QVariantMap dialog_;
+    int dialogSerial_=0;
     void persist();
     void persistDownloads();
     void acceptDownload(QObject* request);

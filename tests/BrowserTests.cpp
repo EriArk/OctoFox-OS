@@ -10,6 +10,43 @@ using namespace trainer;
 class BrowserTests:public QObject {
     Q_OBJECT
 private slots:
+    void dialogsKeepOriginAndResolveOnlyOnce() {
+        BrowserController b;const auto tab=b.newTab();QSignalSpy finished(&b,&BrowserController::dialogFinished);
+        const int id=b.requestDialog(tab,"prompt","https://user:secret@example.org/path?token=private","Question","original");
+        QVERIFY(id>0);QCOMPARE(b.dialog()["origin"].toString(),QString("https://example.org"));
+        b.editDialogText();b.applyText("new response");QCOMPARE(b.dialog()["text"].toString(),QString("new response"));QVERIFY(finished.isEmpty());
+        b.answerDialog(true);b.answerDialog(true);QCOMPARE(finished.size(),1);QCOMPARE(finished[0][0].toInt(),id);
+        QVERIFY(finished[0][1].toBool());QCOMPARE(finished[0][2].toStringList(),QStringList{"new response"});QVERIFY(b.dialog().isEmpty());
+    }
+    void dialogsCancelOnTabOwnerAndNavigationChanges() {
+        QTemporaryDir dir;BrowserController b;b.configure(dir.path(),"one");auto tab=b.selected();QSignalSpy finished(&b,&BrowserController::dialogFinished);
+        auto id=b.requestDialog(tab,"prompt","https://example.org","Question","old");b.editDialogText();
+        const auto other=b.newTab();QCOMPARE(finished.size(),1);QVERIFY(!finished.last()[1].toBool());
+        b.applyText("late answer");QVERIFY(b.dialog().isEmpty());
+        QCOMPARE(b.requestDialog(tab,"prompt","","background"),0);
+        const auto next=b.requestDialog(other,"confirm","","New request");b.cancelDialog(id);QCOMPARE(b.dialog()["id"].toInt(),next);
+        b.openUrl("about:blank");QVERIFY(b.dialog().isEmpty()); // No Chromium in this QCoreApplication test.
+        b.requestDialog(other,"prompt","","Question");b.configure(dir.path(),"two");QVERIFY(b.dialog().isEmpty());
+        b.requestDialog(b.selected(),"confirm","","Question");b.closeTab(b.selected());QVERIFY(b.dialog().isEmpty());
+        QCOMPARE(finished.size(),4);for(const auto& row:finished)QVERIFY(!row[1].toBool());
+    }
+    void uploadFiltersMultiSelectionAndCancellation() {
+        QTemporaryDir dir;QDir().mkpath(dir.path()+"/nested");
+        for(const auto& name:{"one.txt","two.png","nested/three.txt"}){QFile f(dir.filePath(name));QVERIFY(f.open(QIODevice::WriteOnly));f.write("fixture");}
+        BrowserController b;const auto tab=b.newTab();QSignalSpy finished(&b,&BrowserController::dialogFinished);
+        b.requestDialog(tab,"files","https://example.org","",{},QStringList{"text/plain"});auto p=b.picker();p->navigate(dir.path());QTRY_VERIFY(!p->busy());
+        auto index=[&](QString name){const auto rows=p->rows();for(int i=0;i<rows.size();++i)if(rows[i].toMap()["title"]==name)return i;return -1;};
+        QVERIFY(!p->rows()[index("two.png")].toMap()["allowed"].toBool());
+        p->activate(index("two.png"),"list");QVERIFY(!p->canChoose());
+        p->activate(index("one.txt"),"list");QVERIFY(p->canChoose());
+        p->select(index("two.png"));QVERIFY(p->canChoose()); // Focus does not toggle a multi-selection.
+        p->navigate(dir.path()+"/nested");QTRY_VERIFY(!p->busy());p->activate(index("three.txt"),"list");p->choose();
+        QCOMPARE(finished.size(),1);QVERIFY(finished[0][1].toBool());QCOMPARE(finished[0][2].toStringList(),(QStringList{dir.filePath("one.txt"),dir.filePath("nested/three.txt")}));
+        b.requestDialog(tab,"file","","",{},QStringList{".txt"});p->navigate(dir.path());QTRY_VERIFY(!p->busy());p->select(index("one.txt"));
+        QVERIFY(QFile::remove(dir.filePath("one.txt")));p->choose();QVERIFY(p->isOpen());QVERIFY(!p->error().isEmpty());QCOMPARE(finished.size(),1);
+        p->cancel();QCOMPARE(finished.size(),2);QVERIFY(!finished.last()[1].toBool());
+        p->begin(dir.path(),true);QTRY_VERIFY(!p->busy());QVERIFY(!p->multiple());QVERIFY(p->canChoose());p->cancel();
+    }
     void completedDownloadMovesWithoutReplacingExistingFile() {
         FilesService files;if(!files.available())QSKIP("Linux libfm backend required");
         QTemporaryDir temp;QDir().mkpath(temp.path()+"/target");

@@ -13,7 +13,7 @@ Window {
     readonly property real uiScale: shell.settings.displayDensity(Screen.width, Screen.height,
         width, height, shell.settings.displayProfile, shell.settings.interfaceScale)
     Binding { target: controllerInput; property: "pointerMode"; value: !shell.social.incomingCall.id && (filesPane.takesFocus || browserPane.takesFocus) && (!adventureLaunch.active || adventureLaunch.minimized) && !sessionState.blocked }
-    Binding { target: controllerInput; property: "nativeKeyboard"; value: !shell.social.incomingCall.id && !browserPane.popup && (browserPane.typing || (browserPane.takesFocus && !browserPane.toolsFocused)) }
+    Binding { target: controllerInput; property: "nativeKeyboard"; value: !shell.social.incomingCall.id && !browserPane.popup && !browserPane.siteDialog && (browserPane.typing || (browserPane.takesFocus && !browserPane.toolsFocused)) }
     Binding { target: controllerInput; property: "browserMode"; value: !shell.social.incomingCall.id && browserPane.takesFocus }
     RadialInputWindow { flow: shell.settings.gameInput; bridge: radialOverlay; permitted: adventureLaunch.active && !adventureLaunch.minimized && !sessionState.blocked && !adventureExitPresentation.visible }
     AppControlsWindow { flow: shell.apps; bridge: appsOverlay }

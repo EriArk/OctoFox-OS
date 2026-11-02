@@ -49,6 +49,9 @@ int main(int argc,char** argv){
         QObject::connect(&keyboard,&trainer::TextEntryController::textCommitted,&browser,&trainer::BrowserController::commitPageText);
         QObject::connect(&keyboard,&trainer::TextEntryController::keyRequested,&browser,&trainer::BrowserController::pageKey);
         QObject::connect(&keyboard,&trainer::TextEntryController::keyStroke,&browser,&trainer::BrowserController::pageKeyStroke);
+        QObject::connect(&browser,&trainer::BrowserController::textRequested,&keyboard,[&](QString title,QString text,int limit,bool secret){keyboard.begin(title,text,limit,secret,browser.dialog().isEmpty()?"Go":"Apply");keyboard.select(0,text.size());});
+        QObject::connect(&keyboard,&trainer::TextEntryController::accepted,&browser,&trainer::BrowserController::applyText);
+        QObject::connect(&browser,&trainer::BrowserController::dialogTextCancelled,&keyboard,&trainer::TextEntryController::cancel);
         QObject::connect(&keyboard,&trainer::TextEntryController::changed,&browser,[&]{input.setTextEntryEnabled(keyboard.isOpen());if(!keyboard.isOpen())browser.stopPageInput();});
         // Load the production components with their real singleton registration.
         QTemporaryDir qml;
@@ -57,8 +60,10 @@ int main(int argc,char** argv){
         QFile qmldir(qml.filePath("qmldir"));if(!qmldir.open(QIODevice::WriteOnly))return 8;
         qmldir.write("singleton Theme 1.0 Theme.qml\n");qmldir.close();
         engine.rootContext()->setContextProperty("keyboard",&keyboard);
+        engine.rootContext()->setContextProperty("shellController",QVariantMap{{"keyboard",QVariant::fromValue(&keyboard)}});
         engine.rootContext()->setContextProperty("controllerInput",&input);
         engine.rootContext()->setContextProperty("engineSource",QUrl::fromLocalFile(qml.filePath("BrowserEngine.qml")));
+        engine.rootContext()->setContextProperty("paneSource",QUrl::fromLocalFile(qml.filePath("BrowserPane.qml")));
         engine.rootContext()->setContextProperty("keyboardSource",QUrl::fromLocalFile(qml.filePath("KeyboardPanel.qml")));
         bool passed=false;
         QObject::connect(&engine,&QQmlEngine::exit,&app,[&](int code){

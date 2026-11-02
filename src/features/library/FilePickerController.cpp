@@ -1,6 +1,7 @@
 ﻿#include "FilePickerController.h"
 #include <QDir>
 #include <QFileInfo>
+#include <QMimeDatabase>
 #include <algorithm>
 #include <memory>
 
@@ -8,7 +9,8 @@ namespace trainer {
 QVariantList FilePickerController::rows() const {
     QVariantList result;
     for(const auto& e:current_.entries)result.append(QVariantMap{{"id",e.path},{"title",e.name},{"directory",e.directory},
-        {"icon",e.icon.isEmpty()?(e.directory?"folder":"file"):e.icon},{"size",e.sizeLabel},{"modified",e.modified}});
+        {"icon",e.icon.isEmpty()?(e.directory?"folder":"file"):e.icon},{"size",e.sizeLabel},{"modified",e.modified},
+        {"checked",selectedPaths_.contains(e.path)},{"allowed",e.directory||(!chooseFolder_&&allowed(e.path))}});
     return result;
 }
 QVariantList FilePickerController::breadcrumbs() const {
@@ -23,12 +25,14 @@ QVariantList FilePickerController::breadcrumbs() const {
     return result;
 }
 bool FilePickerController::canChoose() const {
-    return open_ && !busy_ && current_.error.isEmpty() && (chooseFolder_?!current_.path.isEmpty():!selectedPath_.isEmpty());
+    return open_ && !busy_ && current_.error.isEmpty() && (chooseFolder_?!current_.path.isEmpty():multiple_?!selectedPaths_.isEmpty():!selectedPath_.isEmpty());
 }
 QString FilePickerController::selectionName() const {
+    if(multiple_)return selectedPaths_.isEmpty()?QString("Select files · confirm to toggle"):QString("%1 files selected").arg(selectedPaths_.size());
     return chooseFolder_?(QFileInfo(current_.path).fileName().isEmpty()?current_.path:QFileInfo(current_.path).fileName()):QFileInfo(selectedPath_).fileName();
 }
 void FilePickerController::begin(const QString& folder,bool chooseFolder) {
+    multiple_=false;types_.clear();selectedPaths_.clear();
     chooseFolder_=chooseFolder;open_=true;history_.clear();places_.clear();place_=0;
     const auto token=++placesGeneration_;
     if(catalog_)catalog_->list({},0,this,[this,token](const DirectoryPage& result){
@@ -38,7 +42,22 @@ void FilePickerController::begin(const QString& folder,bool chooseFolder) {
     });
     load(folder.isEmpty()?QDir::homePath():folder);
 }
-void FilePickerController::cancel() {++generation_;++placesGeneration_;open_=false;busy_=false;emit changed();}
+void FilePickerController::beginUpload(bool multiple,bool folder,const QStringList& types) {
+    begin({},folder);multiple_=multiple;types_=types;emit rowsChanged();emit changed();
+}
+bool FilePickerController::allowed(const QString& path) const {
+    if(types_.isEmpty())return true;
+    const auto name=QFileInfo(path).fileName().toLower();
+    const auto mime=QMimeDatabase().mimeTypeForFile(path,QMimeDatabase::MatchExtension);
+    for(auto type:types_) {
+        type=type.trimmed().toLower();
+        if(type=="*/*" || (type.startsWith('.')&&name.endsWith(type)))return true;
+        if(type.endsWith("/*")&&mime.name().startsWith(type.left(type.size()-1)))return true;
+        if(mime.name()==type||mime.inherits(type))return true;
+    }
+    return false;
+}
+void FilePickerController::cancel() {const bool wasOpen=open_;++generation_;++placesGeneration_;open_=false;busy_=false;selectedPaths_.clear();emit changed();if(wasOpen)emit cancelled();}
 void FilePickerController::load(const QString& path,int page,const QString& selection) {
     const auto token=++generation_;
     busy_=true;advanceAfterLoad_=false;selectedPath_.clear();current_={};current_.path=path;row_=0;zone_="list";
@@ -90,14 +109,17 @@ void FilePickerController::toggleView() {grid_=!grid_;emit changed();}
 void FilePickerController::select(int index) {
     if(busy_||index<0||index>=current_.entries.size())return;
     row_=index;zone_="list";
-    selectedPath_=!chooseFolder_&&!current_.entries[index].directory?current_.entries[index].path:QString();emit changed();
+    selectedPath_=!chooseFolder_&&!current_.entries[index].directory&&allowed(current_.entries[index].path)?current_.entries[index].path:QString();emit changed();
 }
 void FilePickerController::choose() {
     if(!canChoose())return;
-    const auto path=chooseFolder_?current_.path:selectedPath_;
-    const QFileInfo file(path);
-    if(!file.exists()||!file.isReadable()||(chooseFolder_?!file.isDir():!file.isFile())) {current_.error="This item is no longer available. Refresh or choose another location.";emit changed();return;}
-    cancel();emit selected(path);
+    const auto paths=chooseFolder_?QStringList{current_.path}:multiple_?selectedPaths_:QStringList{selectedPath_};
+    for(const auto& path:paths) {
+        const QFileInfo file(path);
+        if(!file.exists()||!file.isReadable()||(chooseFolder_?!file.isDir():!file.isFile()||!allowed(path))) {current_.error="A selected item is no longer available or has the wrong type. Refresh and select again.";selectedPaths_.clear();emit rowsChanged();emit changed();return;}
+    }
+    ++generation_;++placesGeneration_;open_=false;busy_=false;selectedPaths_.clear();emit changed();
+    emit filesSelected(paths);emit selected(paths.first());
 }
 void FilePickerController::activate(int index,const QString& zone) {
     if(!open_)return;
@@ -108,7 +130,10 @@ void FilePickerController::activate(int index,const QString& zone) {
     if(zone=="list" && !busy_ && index>=0 && index<current_.entries.size()) {
         select(index);const auto entry=current_.entries[index];
         if(entry.directory)navigate(entry.path);
-        else if(!chooseFolder_){zone_="actions";control_=1;emit changed();}
+        else if(!chooseFolder_&&allowed(entry.path)){
+            if(multiple_){if(!selectedPaths_.removeAll(entry.path))selectedPaths_.append(entry.path);emit rowsChanged();}
+            else {zone_="actions";control_=1;}emit changed();
+        }
     }
 }
 void FilePickerController::dispatch(Action action) {
