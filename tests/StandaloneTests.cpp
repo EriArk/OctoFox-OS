@@ -435,13 +435,14 @@ private slots:
     }
     void wirelessFileAliasesPreserveExactIdentity_data() {
         QTest::addColumn<bool>("ds");
-        QTest::newRow("DS-nds-srl")<<true;QTest::newRow("3DS-cci-3ds")<<false;
+        QTest::addColumn<bool>("group");
+        QTest::newRow("DS-nds-srl")<<true<<false;QTest::newRow("DS-group-nds-srl")<<true<<true;QTest::newRow("3DS-cci-3ds")<<false<<false;
     }
     void wirelessFileAliasesPreserveExactIdentity() {
 #ifdef Q_OS_WIN
         QSKIP("Native Linux executable permissions; run these admission cases on Linux/ARM64.");
 #endif
-        QFETCH(bool,ds);
+        QFETCH(bool,ds);QFETCH(bool,group);
         const bool previous=QStandardPaths::isTestModeEnabled();QStandardPaths::setTestModeEnabled(true);
         const auto restore=qScopeGuard([previous]{QStandardPaths::setTestModeEnabled(previous);});
         const auto root=ds?melonds::bundleRoot():azahar::bundleRoot();
@@ -455,7 +456,7 @@ private slots:
         const auto hash=[](const QString& path){QFile file(path);if(!file.open(QIODevice::ReadOnly))return QString();return QString::fromLatin1(QCryptographicHash::hash(file.readAll(),QCryptographicHash::Sha256).toHex());};
         for(const auto& name:names){if(name!=native)write(root+'/'+name,"fixture helper");files[name]=hash(root+'/'+name);}
         write(root+"/manifest.json",QJsonDocument(QJsonObject{{"protocol",1},{"source",ds?melonds::sourceRevision:azahar::sourceRevision},
-            {"settings",ds?"detmp-two-owned-v1":"native-room-two-private-v1"},{"files",files},
+            {"settings",ds?(group?"detmp-group-owned-v2":"detmp-two-owned-v1"):"native-room-two-private-v1"},{"files",files},
             {"interpreterSha256",hash(root+"/transport/venv/bin/python")}}).toJson());
         QTemporaryDir dir;std::atomic_bool cancel=false;
         AdventureRegistration r;r.adventure.platformId=ds?"nds":"n3ds";r.adventure.adapterId=ds?"melonds":"azahar";
@@ -463,6 +464,7 @@ private slots:
         r.contentPath=dir.filePath(ds?"Unknown.nds":"Unknown.cci");write(r.contentPath,data);
         const auto identify=[&]{return ds?melonds::netplayIdentity(r,cancel):azahar::netplayIdentity(r,cancel);};
         const auto identity=identify();QVERIFY(!identity.isEmpty());
+        if(ds)QCOMPARE(identity["players"].toInt(),group?4:2);
         r.contentPath=dir.filePath(ds?"Any name.SRL":"Any name.3DS");write(r.contentPath,data);
         QVERIFY(sameMultiplayerGame(identity,identify()));
         if(ds) {
@@ -566,6 +568,20 @@ private slots:
         QVERIFY(vita::event("TRAINEROS_VITA !!!").isEmpty());
     }
 
+    void dsEndpointsBindPrivateConnectionToOneSeat() {
+        const auto line=[](const QJsonObject& value){return QByteArray("TRAINEROS_DS_ENDPOINT ")+QJsonDocument(value).toJson(QJsonDocument::Compact).toBase64();};
+        const QJsonObject endpoint{{"mode","nearby"},{"port",12345},{"fingerprint",QString(64,'a')},{"token",QString(32,'b')}};
+        QCOMPARE(melonds::event(line(endpoint))["endpoint"].toObject(),endpoint);
+        for(int seat=2;seat<=4;++seat) {
+            const auto event=melonds::event(line({{"seat",seat},{"connection",endpoint}}));
+            QCOMPARE(event["seat"].toInt(),seat);QCOMPARE(event["endpoint"].toObject(),endpoint);
+        }
+        for(double seat:{1.0,5.0,2.5})QVERIFY(melonds::event(line({{"seat",seat},{"connection",endpoint}})).isEmpty());
+        auto bad=endpoint;bad["token"]="";
+        QVERIFY(melonds::event(line({{"seat",2},{"connection",bad}})).isEmpty());
+        QVERIFY(melonds::event(line({{"seat",2},{"connection",endpoint},{"broadcast",true}})).isEmpty());
+        QVERIFY(melonds::event("TRAINEROS_DS_ENDPOINT !!!").isEmpty());
+    }
     void azaharEventsRejectUnboundedOrCrossRuntimeAdmission() {
         const auto line=[](const QJsonObject& value){return QByteArray("TRAINEROS_3DS ")+QJsonDocument(value).toJson(QJsonDocument::Compact).toBase64();};
         QCOMPARE(azahar::event(line({{"event","running"}}))["event"].toString(),QString("running"));

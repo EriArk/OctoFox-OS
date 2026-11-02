@@ -33,6 +33,16 @@ int main() {
         const auto network=ReadPreparedSession(temporary.path(),content,2,true);
         require(network.peerPending && !network.startup.seats[0] && network.startup.seats[1]==prepared.startup.seats[1],
                 "Pending peer became fresh progress or changed owner state");
+        for(unsigned count:{3u,4u})for(unsigned owner=0;owner<count;++owner) {
+            QJsonArray states;for(unsigned seat=0;seat<count;++seat)
+                states.append(seat==owner?QJsonObject{{"fresh",true}}:QJsonObject{{"peer",true}});
+            auto group=pending;group["ownerSeat"]=int(owner);group["seats"]=states;writeManifest(group);
+            const auto admitted=ReadPreparedSession(temporary.path(),content,count,true);
+            require(admitted.ownerSeat==owner&&admitted.peerPending&&admitted.startup.seats.size()==count,"Group preparation ownership");
+            states[(owner+1)%count]=QJsonObject{{"fresh",true}};group["seats"]=states;writeManifest(group);
+            bool refused=false;try{ReadPreparedSession(temporary.path(),content,count,true);}catch(const std::exception&){refused=true;}
+            require(refused,"Group accepted fabricated fresh peer state");
+        }
         auto missing=pending;missing["seats"]=manifest["seats"];writeManifest(missing);
         bool missingRejected=false;
         try {ReadPreparedSession(temporary.path(),content,2,true);}catch(const std::exception&){missingRejected=true;}

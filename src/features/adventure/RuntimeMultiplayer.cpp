@@ -843,6 +843,7 @@ void RuntimeMultiplayer::startParty(bool host,const QJsonObject& endpoint) {
         prepareHost();
     } else if(host&&ds()) {
         dsRequest_={selected,{},true,online_,randomToken()+randomToken(),(transportPeer_.startsWith("local:")?social_.localSocketAddress(transportPeer_.mid(6)):nearby_.localAddressFor(transportPeer_.mid(7)))};
+        dsRequest_.players=roster.size();dsRequest_.seat=1;
         prepareHost();
     } else if(host&&flycast()) {
         flycastRequest_={selected,true,online_,(transportPeer_.startsWith("local:")?social_.localPeerAddress(transportPeer_.mid(6)):nearby_.addressOf(transportPeer_.mid(7))),randomToken(),{}};
@@ -1118,12 +1119,16 @@ void RuntimeMultiplayer::frame(const QJsonObject& packet) {
     }
     if(ds()) {
         if(host_||packet["kind"]!="ds-ready"||lifecycle_.active()||launchPending_)return;
-        if(packet["identity"].toObject()!=descriptor_||packet["slot"]!=QJsonValue(2)) {
+        if(packet["identity"].toObject()!=descriptor_||packet["slot"]!=QJsonValue(request_.slot)
+           ||request_.slot<2||request_.slot>descriptor_["players"].toInt(2)
+           ||packet["players"].toInt(2)!=party_.state()["members"].toArray().size()) {
             fail("Your DS game or invitation changed. Invite again.");return;
         }
         dsRequest_={descriptor_,packet["connection"].toObject(),false,online_,packet["key"].toString(),(transportPeer_.startsWith("local:")?social_.localPeerAddress(transportPeer_.mid(6)):nearby_.addressOf(transportPeer_.mid(7)))};
+        dsRequest_.players=packet["players"].toInt(2);dsRequest_.seat=request_.slot;
         launchPending_=true;launch();return;
     }
+
     if(packet["kind"]=="left"){
         if(hotseat())fail("Your friend left the game.");
         else {status_="Your friend left the game";emit notice(status_);}return;
@@ -1245,7 +1250,13 @@ void RuntimeMultiplayer::output(const QByteArray& bytes) {
             if(event["event"]=="ready"&&host_&&!relaySent_) {
                 const auto endpoint=event["endpoint"].toObject();
                 if(endpoint["mode"]!=(online_?"online":"nearby")){fail("The DS connection changed. Invite again.");return;}
-                relaySent_=true;send({{"kind","ds-ready"},{"identity",descriptor_},{"key",dsRequest_.identity},{"connection",endpoint}});
+                const QJsonObject packet{{"kind","ds-ready"},{"identity",descriptor_},{"key",dsRequest_.identity},
+                    {"connection",endpoint},{"players",dsRequest_.players}};
+                if(event.contains("seat")) {
+                    if(event["seat"].toInt()>dsRequest_.players||!party_.readyMember(event["seat"].toInt(),packet)) {
+                        fail("The DS player seats changed. Invite again.");return;
+                    }
+                } else {relaySent_=true;send(packet);}
                 status_="Waiting for your friend...";
             } else if(event["event"]=="running") {
               deadline_=0;timer_.stop();status_="Playing together";emit changed();

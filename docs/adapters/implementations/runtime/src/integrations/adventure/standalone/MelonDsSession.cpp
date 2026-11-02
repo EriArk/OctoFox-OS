@@ -27,8 +27,8 @@ QByteArray read(const QString& path,qint64 maximum) {
 }
 }
 QString prepareOwnedSession(ProcessCommand& command,const AdventureRegistration& record,const QString& backupRoot,
-                            const SaveTargetResolver& resolve,const QString& directory,int owner,const QString& content) {
-    if(owner<0||owner>1||!realDirectory(directory)||!QDir(directory).entryList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden).isEmpty())
+                            const SaveTargetResolver& resolve,const QString& directory,int owner,const QString& content,int players) {
+    if(players<2||players>4||owner<0||owner>=players||!realDirectory(directory)||!QDir(directory).entryList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden).isEmpty())
         return "Couldn't prepare a private DS session.";
     if(!QFile::setPermissions(directory,QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner))return "Couldn't protect the session folder.";
     const auto seed=captureRuntimeSave(backupRoot,record,resolve);
@@ -38,7 +38,7 @@ QString prepareOwnedSession(ProcessCommand& command,const AdventureRegistration&
     const auto cartridgeRevision=cartridge::archived(record.contentPath)
         ?cartridge::read(record.contentPath,"nds",std::atomic_bool{false}).digest():seed.target.contentRevision;
     if(cartridgeRevision!=content)return "Your DS game changed. Invite again.";
-    QJsonArray seats{QJsonObject{{"peer",true}},QJsonObject{{"peer",true}}};
+    QJsonArray seats;for(int i=0;i<players;++i)seats.append(QJsonObject{{"peer",true}});
     seats[owner]=seed.existed?QJsonObject{{"bytes",seed.bytes.size()},{"sha256",digest(seed.bytes)}}:QJsonObject{{"fresh",true}};
     if(seed.existed&&!writeNew(QDir(directory).filePath(QString("seat-%1.sav").arg(owner)),seed.bytes))
         return "Couldn't prepare your game save. Your original file was kept.";

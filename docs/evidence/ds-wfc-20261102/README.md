@@ -1,5 +1,10 @@
 # DS WFC — local source/build evidence, 2 November 2026
 
+Subsequent [ARM64/group preparation](../ds-groups-preparation-20261102/README.md)
+supersedes the ARM64-build-next and four-wireless-unimplemented statements below:
+both are now prepared and checked off-device. This original report remains the
+Windows/source evidence; neither pass installed these new packages on handhelds.
+
 Scope: R043, S03/S06/S08; owner explicitly requested this pass **without
 handhelds**. No device access, installation, user-ROM launch, server registration
 or live WFC match was performed. Existing main/core `b4399f49` includes

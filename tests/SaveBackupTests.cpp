@@ -37,16 +37,20 @@ class SaveBackupTests final : public QObject {
     Q_OBJECT
 private slots:
     void dsPreparedReturnChecksOwnerReceiptAndProcessOutcome() {
-        for(int scenario=0;scenario<7;++scenario) {
+        for(int players=2;players<=4;++players)for(int owner=0;owner<players;++owner)for(int scenario=0;scenario<7;++scenario) {
             Fixture f;const auto directory=f.dir.filePath("session");QVERIFY(QDir().mkdir(directory));
             ProcessCommand command;
-            const auto error=melonds::prepareOwnedSession(command,f.record,f.root,f.resolve,directory,1,f.target.contentRevision);
+            const auto error=melonds::prepareOwnedSession(command,f.record,f.root,f.resolve,directory,owner,f.target.contentRevision,players);
             QVERIFY2(error.isEmpty(),qPrintable(error));
             const auto manifest=QJsonDocument::fromJson(read(directory+"/session.json")).object();
-            QCOMPARE(manifest["version"].toInt(),2);QVERIFY(manifest["seats"].toArray()[0].toObject()["peer"].toBool());
-            QCOMPARE(read(directory+"/seat-1.sav"),QByteArray("FIRST SAVE"));QVERIFY(!QFileInfo::exists(directory+"/seat-0.sav"));
+            QCOMPARE(manifest["version"].toInt(),2);QCOMPARE(manifest["seats"].toArray().size(),players);
+            for(int seat=0;seat<players;++seat) {
+                const auto path=directory+QString("/seat-%1.sav").arg(seat);
+                if(seat==owner)QCOMPARE(read(path),QByteArray("FIRST SAVE"));
+                else {QVERIFY(!QFileInfo::exists(path));QVERIFY(manifest["seats"].toArray()[seat].toObject()["peer"].toBool());}
+            }
             const QByteArray after(10,'x');write(directory+"/owner-return.sav",after);
-            QJsonObject receipt{{"version",1},{"ownerSeat",scenario==1?0:1},{"content",f.target.contentRevision},
+            QJsonObject receipt{{"version",1},{"ownerSeat",scenario==1?(owner+1)%players:owner},{"content",f.target.contentRevision},
                 {"frame",120},{"bytes",after.size()},{"sha256",scenario==2?sha("wrong"):sha(after)},{"hasSave",true}};
             if(scenario==6)receipt["frame"]=120.5;
             write(directory+"/owner-return.json",QJsonDocument(receipt).toJson(QJsonDocument::Compact));

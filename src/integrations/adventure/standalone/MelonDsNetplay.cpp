@@ -33,7 +33,7 @@ QJsonObject bundle(const std::atomic_bool& cancel) {
     QFile file(root+"/manifest.json");
     if(canonical.isEmpty()||QFileInfo(file.fileName()).isSymLink()||!file.open(QIODevice::ReadOnly)||file.size()>16384)return {};
     auto value=QJsonDocument::fromJson(file.readAll()).object();
-    if(value["protocol"]!=1||value["source"]!=sourceRevision||value["settings"]!="detmp-two-owned-v1")return {};
+    if(value["protocol"]!=1||value["source"]!=sourceRevision||(value["settings"]!="detmp-two-owned-v1"&&value["settings"]!="detmp-group-owned-v2"))return {};
     const auto files=value["files"].toObject();
     const QStringList expected{"bin/traineros-ds","transport/secure-channel.py","transport/requirements.lock"};
     if(files.size()!=expected.size())return {};
@@ -60,14 +60,14 @@ QJsonObject netplayIdentity(const AdventureRegistration& record,const std::atomi
     const auto content=image.digest();if(content.isEmpty())return {};
     return {{"id","runtime.melonds.nds.v1"},{"label",record.adventure.title.left(96)},
         {"content",content},{"runtime",installed["digest"]},{"settings",installed["settings"]},
-        {"players",2},{"lateJoin",false},{"privateProgress",true}};
+        {"players",installed["settings"]=="detmp-group-owned-v2"?4:2},{"lateJoin",false},{"privateProgress",true}};
 }
 ProcessCommand command(const AdventureRegistration& record,const Request& request,const QString& backupRoot,
                        const SaveTargetResolver& resolve,const QStringList& inputPrefix) {
     ProcessCommand result;result.runtimeControls={{"kind","melonds"},{"game",record.adventure.id},
         {"netplay",request.expected.toVariantMap()},{"temporaryProgress",false}};
     result.prepare=[record,request,backupRoot,resolve,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
-        if(!hex(request.identity)||(!request.host&&(!endpoint(request.endpoint)
+        if(request.players<2||request.players>request.expected["players"].toInt()||request.seat<1||request.seat>request.players||request.host!=(request.seat==1)||!hex(request.identity)||(!request.host&&(!endpoint(request.endpoint)
            ||request.endpoint["mode"]!=(request.online?"online":"nearby")))
            ||(!request.online&&QHostAddress(request.address).protocol()!=QAbstractSocket::IPv4Protocol))
             return "This DS invitation is invalid.";
@@ -77,7 +77,7 @@ ProcessCommand command(const AdventureRegistration& record,const Request& reques
         auto directory=std::make_shared<QTemporaryDir>(QDir(parent).filePath("ds-XXXXXX"));
         if(!directory->isValid())return "Couldn't prepare the DS session.";
         const auto path=QFileInfo(directory->path()).canonicalFilePath();
-        const auto error=prepareOwnedSession(out,record,backupRoot,resolve,path,request.host?0:1,request.expected["content"].toString());
+        const auto error=prepareOwnedSession(out,record,backupRoot,resolve,path,request.seat-1,request.expected["content"].toString(),request.players);
         if(!error.isEmpty())return error;
         QString content=record.contentPath;
         if(cartridge::archived(content)) {
@@ -85,7 +85,7 @@ ProcessCommand command(const AdventureRegistration& record,const Request& reques
             if(content.isEmpty())return "Couldn't prepare the DS cartridge from its archive.";
         }
         QJsonObject config=request.host?QJsonObject{}:request.endpoint;
-        config["host"]=request.host;config["mode"]=request.online?"online":"nearby";config["identity"]=request.identity;
+        config["players"]=request.players;config["host"]=request.host;config["mode"]=request.online?"online":"nearby";config["identity"]=request.identity;
         if(!request.online)config["address"]=request.address;
         config["python"]=bundleRoot()+"/transport/venv/bin/python";config["helper"]=bundleRoot()+"/transport/secure-channel.py";
         QFile file(path+"/network.json");const auto bytes=QJsonDocument(config).toJson(QJsonDocument::Compact);
@@ -98,7 +98,7 @@ ProcessCommand command(const AdventureRegistration& record,const Request& reques
             return error;
         };
         out.program="/usr/bin/env";out.arguments={"QT_QPA_PLATFORM=xcb"};out.arguments+=inputPrefix;
-        out.arguments<<bundleRoot()+"/bin/traineros-ds"<<content<<"--fullscreen"<<"--seats"<<"2"
+        out.arguments<<bundleRoot()+"/bin/traineros-ds"<<content<<"--fullscreen"<<"--seats"<<QString::number(request.players)
             <<"--prepared-session"<<path<<"--network-session"<<path+"/network.json";
         out.workingDirectory=path;return {};
     };
@@ -113,6 +113,8 @@ QJsonObject event(const QByteArray& bytes) {
     const auto decoded=QByteArray::fromBase64Encoding(line.mid(qstrlen(prefix)),QByteArray::AbortOnBase64DecodingErrors);
     if(!decoded)return {};
     const auto value=QJsonDocument::fromJson(decoded.decoded).object();
+    if(value.size()==2&&value["seat"].toInt()>=2&&value["seat"].toInt()<=4&&value["seat"]==QJsonValue(value["seat"].toInt())&&endpoint(value["connection"].toObject()))
+        return {{"event","ready"},{"seat",value["seat"]},{"endpoint",value["connection"]}};
     return endpoint(value)?QJsonObject{{"event","ready"},{"endpoint",value}}:QJsonObject{};
 }
 }

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include "NativeSession.h"
+#include "NetworkSession.h"
 #include "PreparedSession.h"
 #include <QElapsedTimer>
 #include <QProcess>
@@ -16,9 +17,8 @@ namespace traineros::ds {
 // reference delayed InputFrame model (type 6), with explicit little-endian
 // serialization, secure transport, bounded queues and full-state checkpoints.
 // The common shell must supply accepted-party identity and prepared owner state.
-class RemoteSession final {
+class RemoteSession final : public NetworkSession {
 public:
-    struct OwnerSeed {uint32_t expectedSize=0;std::optional<std::vector<uint8_t>> bytes;};
     RemoteSession(const QJsonObject& config, const QString& admissionHash, unsigned owner,
                   std::function<void(QJsonObject)> endpoint, std::optional<OwnerSeed> seed=std::nullopt)
         : owner(owner), endpoint(std::move(endpoint)),seed(std::move(seed)) {
@@ -58,8 +58,8 @@ public:
     ~RemoteSession() {closing=true;process.disconnect();process.kill();process.waitForFinished(1000);}
     bool Ready() const {return running&&!failed;}
     bool StartupReady() const {return stateReceived&&stateDelivered&&!failed;}
-    std::optional<std::vector<uint8_t>> TakePeerState() {
-        if(!StartupReady()||!seed||peerStateTaken)throw std::runtime_error("Peer cartridge is not prepared");
+    std::optional<std::vector<uint8_t>> TakePeerState(unsigned seat) {
+        if(seat!=1-owner||!StartupReady()||!seed||peerStateTaken)throw std::runtime_error("Peer cartridge is not prepared");
         peerStateTaken=true;return std::move(peerState);
     }
     void MachinesReady(){localMachinesReady=true;maybeReady();}

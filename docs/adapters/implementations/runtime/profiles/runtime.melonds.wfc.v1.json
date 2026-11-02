@@ -13,10 +13,11 @@
     "builtin-firmware-ap-dns-and-stable-mac",
     "wfc-identity-reopened-in-fresh-process",
     "archive-and-own-save-return-failure-tests",
-    "lobby-independent-process-lifecycle"
+    "lobby-independent-process-lifecycle",
+    "arm64-core-build-and-qemu-600-frame-wfc-persistence"
   ],
   "remaining": [
-    "arm64-build-and-device-delivery",
+    "arm64-package-device-delivery",
     "actual-wfc-service-gameplay-and-nat",
     "wider-game-service-and-performance-acceptance"
   ],

@@ -31,7 +31,8 @@ def main():
     if git(source, 'rev-parse', 'HEAD') != SOURCE:
         raise SystemExit('Unexpected melonDS DS source revision')
     patch = RECIPE / '0001-register-console-mac.patch'
-    diff = subprocess.check_output(['git', '-C', str(source), 'diff', 'HEAD'])
+    diff = subprocess.check_output(['git', '-C', str(source), 'diff', '--no-ext-diff', '--no-color',
+                                    '--abbrev=7', '--src-prefix=a/', '--dst-prefix=b/', 'HEAD'])
     if not diff:
         subprocess.run(['git', '-C', str(source), 'apply', '--check', str(patch)], check=True)
         subprocess.run(['git', '-C', str(source), 'apply', str(patch)], check=True)

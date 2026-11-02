@@ -55,7 +55,7 @@ inline PreparedSession ReadPreparedSession(const QString& directory, const QStri
     const int owner=value["ownerSeat"].toInt(-1);
     const bool pending=value["version"]==QJsonValue(2);
     if (parse.error!=QJsonParseError::NoError || !doc.isObject() || value.size()!=4
-            || (value["version"]!=QJsonValue(1) && !(pending&&allowPeer&&seats==2)) || owner<0 || owner>=int(seats)
+            || (value["version"]!=QJsonValue(1) && !(pending&&allowPeer&&seats>=2&&seats<=4)) || owner<0 || owner>=int(seats)
             || value["ownerSeat"]!=QJsonValue(owner) || !StateDigest(contentHash)
             || value["content"]!=contentHash || !value["seats"].isArray())
         throw std::runtime_error("Prepared session identity mismatch");

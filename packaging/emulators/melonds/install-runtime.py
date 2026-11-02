@@ -43,7 +43,7 @@ def main():
     subprocess.run(["sh", str(recipe / "install-transport.sh"), str(output / "transport")], check=True)
     files = ["bin/traineros-ds", "transport/secure-channel.py", "transport/requirements.lock"]
     manifest = {"protocol": 1, "source": "906e9ebb27da8c6a715cd7abab4abfe8a8d29427",
-                "settings": "detmp-two-owned-v1", "files": {name: digest(output / name) for name in files},
+                "settings": "detmp-group-owned-v2", "files": {name: digest(output / name) for name in files},
                 "interpreterSha256": digest(output / "transport/venv/bin/python")}
     # Manifest last; interrupted dependency installation cannot enable a profile.
     with (output / "manifest.pending").open("x", encoding="utf-8") as file:

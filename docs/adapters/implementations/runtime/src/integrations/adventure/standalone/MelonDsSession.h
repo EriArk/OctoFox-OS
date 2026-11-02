@@ -7,5 +7,5 @@ namespace trainer::melonds {
 // directory is a private local staging folder, never a peer-supplied path.
 QString prepareOwnedSession(ProcessCommand&,const AdventureRegistration&,const QString& backupRoot,
                             const SaveTargetResolver&,const QString& directory,int ownerSeat,
-                            const QString& expectedContent);
+                            const QString& expectedContent,int players=2);
 }

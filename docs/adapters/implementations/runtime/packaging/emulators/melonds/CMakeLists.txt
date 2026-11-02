@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(TrainerOSDetMPChecks LANGUAGES C CXX)
 
-# Build the patched core, focused checks and an optional local player frontend.
-# This is not an Internet-capable runtime bundle or GameParty admission profile.
+# Build the patched core, focused checks and player frontend. Packaging still
+# requires the isolated transport environment and verified admission manifest.
 if(NOT EXISTS "${MELONDS_SOURCE}/src/net/DetMP.cpp")
     message(FATAL_ERROR "MELONDS_SOURCE must point to the pinned, patched tree")
 endif()
@@ -64,7 +64,7 @@ target_include_directories(traineros_ds_pair_probe PRIVATE
     "${MELONDS_SOURCE}/src" "${MELONDS_SOURCE}/src/net")
 target_link_libraries(traineros_ds_pair_probe PRIVATE core Threads::Threads)
 
-option(TRAINEROS_DS_LOCAL_FRONTEND "Build the local player frontend (no network admission)" ON)
+option(TRAINEROS_DS_LOCAL_FRONTEND "Build the player frontend and network coordinator checks" ON)
 if(TRAINEROS_DS_LOCAL_FRONTEND)
     find_package(Qt6 REQUIRED COMPONENTS Widgets)
     find_package(SDL2 REQUIRED)
@@ -73,6 +73,10 @@ if(TRAINEROS_DS_LOCAL_FRONTEND)
     target_include_directories(traineros_ds_prepared_checks PRIVATE "${MELONDS_SOURCE}/src")
     target_link_libraries(traineros_ds_prepared_checks PRIVATE Qt6::Core)
     add_test(NAME ds_prepared_session COMMAND traineros_ds_prepared_checks)
+    add_executable(traineros_ds_group_checks group_session_checks.cpp)
+    target_compile_features(traineros_ds_group_checks PRIVATE cxx_std_17)
+    target_include_directories(traineros_ds_group_checks PRIVATE "${MELONDS_SOURCE}/src" "${MELONDS_SOURCE}/src/net")
+    target_link_libraries(traineros_ds_group_checks PRIVATE Qt6::Core)
     add_executable(traineros_ds_local LocalFrontend.cpp NativeSession.cpp
         ProbePlatform.cpp "${MELONDS_SOURCE}/src/net/DetMP.cpp")
     target_compile_features(traineros_ds_local PRIVATE cxx_std_17)

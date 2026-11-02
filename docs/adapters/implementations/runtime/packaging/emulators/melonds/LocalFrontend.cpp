@@ -5,6 +5,7 @@
 #include "InputTrace.h"
 #include "PreparedSession.h"
 #include "RemoteSession.h"
+#include "GroupRemoteSession.h"
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QCloseEvent>
@@ -69,7 +70,7 @@ public:
         if (this->prepared) {
             selected=unsigned(this->prepared->ownerSeat);
             if(!networkConfig.isEmpty()) {
-                if(seats!=2)throw std::runtime_error("The network player currently admits two devices");
+                if(networkConfig["players"].toInt(2)!=int(seats))throw std::runtime_error("Network roster mismatch");
                 QJsonArray states;
                 for(const auto& state:this->prepared->startup.seats)
                     states.append(state?StateHash(QByteArray(reinterpret_cast<const char*>(state->data()),qsizetype(state->size()))):QString("fresh"));
@@ -85,14 +86,14 @@ public:
                     admission.remove("states");admission["stateExchange"]="owned-cartridge-v1";
                     admission["saveBytes"]=qint64(ownerSeed->expectedSize);
                 }
-                network=std::make_unique<RemoteSession>(networkConfig,
-                    StateHash(QJsonDocument(admission).toJson(QJsonDocument::Compact)),selected,
-                    [](QJsonObject endpoint){
-                        // Private child output: the ordinary launcher routes this
-                        // through accepted GameParty admission, never a user log.
-                        std::cout<<"TRAINEROS_DS_ENDPOINT "
-                                 <<QJsonDocument(endpoint).toJson(QJsonDocument::Compact).toBase64().constData()<<std::endl;
-                    },std::move(ownerSeed));
+                const auto announce=[](QJsonObject endpoint){
+                    std::cout<<"TRAINEROS_DS_ENDPOINT "
+                        <<QJsonDocument(endpoint).toJson(QJsonDocument::Compact).toBase64().constData()<<std::endl;
+                };
+                admission["players"]=int(seats);
+                const auto identity=StateHash(QJsonDocument(admission).toJson(QJsonDocument::Compact));
+                if(seats==2)network=std::make_unique<RemoteSession>(networkConfig,identity,selected,announce,std::move(ownerSeed));
+                else network=std::make_unique<GroupRemoteSession>(networkConfig,identity,selected,announce,std::move(ownerSeed));
             }
             pendingStartup=std::move(this->prepared->startup);
         }
@@ -268,7 +269,8 @@ private:
             }
             if(!session&&network->StartupReady()) {
                 try {
-                    pendingStartup->seats[1-selected]=network->TakePeerState();
+                    for(unsigned seat=0;seat<seats;++seat)if(seat!=selected)
+                        pendingStartup->seats[seat]=network->TakePeerState(seat);
                     createMachines();
                 } catch(const std::exception&) {
                     result=2;error="Could not prepare the DS consoles. Your original save is unchanged.";
@@ -397,7 +399,7 @@ private:
     std::vector<melonDS::NDSArgs> pendingArgs;
     std::vector<uint8_t> pendingRom;
     std::optional<CartridgeStartup> pendingStartup;
-    std::unique_ptr<RemoteSession> network;
+    std::unique_ptr<NetworkSession> network;
     std::map<SDL_JoystickID,SDL_GameController*> controllers;
     std::set<SDL_JoystickID> neutralRequired;
     std::set<int> keyboard;
@@ -444,11 +446,11 @@ int main(int argc,char** argv) {
             prepared=ReadPreparedSession(parser.value("prepared-session"),StateHash(bytes),seats,parser.isSet("network-session"));
         QJsonObject networkConfig;
         if(parser.isSet("network-session")) {
-            if(!prepared||seats!=2)throw std::runtime_error("Network play requires a prepared two-player session");
+            if(!prepared)throw std::runtime_error("Network play requires prepared progress");
             QJsonParseError error;
             const auto config=QJsonDocument::fromJson(ReadStagedFile(parser.value("network-session"),4096),&error);
             networkConfig=config.object();
-            if(error.error!=QJsonParseError::NoError||networkConfig.isEmpty())throw std::runtime_error("Invalid network session");
+            if(error.error!=QJsonParseError::NoError||networkConfig.isEmpty()||networkConfig["players"].toInt(2)!=int(seats))throw std::runtime_error("Invalid network session");
         }
         std::vector<uint8_t> rom(bytes.begin(),bytes.end()); bytes.clear(); file.close();
         std::signal(SIGTERM,interrupt); std::signal(SIGINT,interrupt);

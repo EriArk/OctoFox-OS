@@ -40,7 +40,8 @@ def run(core, directory, dll_directory):
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('core');ap.add_argument('--dll-directory');ap.add_argument('--worker');args=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('core');ap.add_argument('--dll-directory');ap.add_argument('--worker')
+    ap.add_argument('--worker-python',help='Python executable or QEMU wrapper for the target architecture');args=ap.parse_args()
     if args.worker:
         run(str(Path(args.core).resolve()),args.worker,args.dll_directory)
         return
@@ -49,7 +50,7 @@ def main():
         root=Path(directory);rom=root/'game.nds';rom.write_bytes(cartridge())
         system=root/'system'/'melonDS DS';system.mkdir(parents=True)
         (system/'console.txt').write_text('10:21:32:43:54:65\n')
-        command=[sys.executable,str(Path(__file__).resolve()),args.core,'--worker',directory]
+        command=[args.worker_python or sys.executable,str(Path(__file__).resolve()),args.core,'--worker',directory]
         if args.dll_directory:command+=['--dll-directory',args.dll_directory]
         subprocess.run(command,check=True,timeout=90)
         target=system/'wfcsettings.bin';raw=target.read_bytes();assert len(raw)==2304
