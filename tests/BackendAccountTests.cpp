@@ -31,6 +31,9 @@ struct Harness {
     QUrl returnUri,browser;
     QList<QString> calls;
     QJsonObject claim;
+    QList<QJsonObject> refreshRequests;
+    bool deferRefresh=false;BackendAccount::Reply pendingRefresh;
+    int refreshStatus=200;
     QJsonObject publicProfile{{"player_id",Player},{"display_name","Ren"}};
     bool deferProfile=false;BackendAccount::Reply pendingProfile;
     bool failStorage=false,loseRefresh=false,deferClaim=false,rejectDeleteOnce=false;
@@ -54,9 +57,11 @@ struct Harness {
                 } else if(path.endsWith("/claim")) {
                     claim=body;if(deferClaim)pending=std::move(done);else done(200,credentials());
                 } else if(path=="/v1/auth/refresh") {
-                    bool tombstone=false;for(const auto& bytes:disk)tombstone|=QJsonDocument::fromJson(bytes).object()["pending"].toBool();
-                    if(!tombstone){done(500,{});return;}
-                    done(loseRefresh?0:200,loseRefresh?QJsonObject():credentials());
+                    refreshRequests<<body;
+                    bool durable=false;for(const auto& bytes:disk){const auto saved=QJsonDocument::fromJson(bytes).object();durable|=saved["pending"].toBool()&&saved["version"]==2&&saved["refresh_token"]==body["refresh_token"]&&saved["recovery_proof"]==body["recovery_proof"]&&body["recovery_proof"].toString().size()==43;}
+                    if(!durable){done(500,{});return;}
+                    if(deferRefresh){pendingRefresh=std::move(done);return;}
+                    done(loseRefresh?0:refreshStatus,loseRefresh?QJsonObject():credentials());
                 } else if(path=="/v1/me/profile") {
                     if(deferProfile)pendingProfile=std::move(done);else done(200,publicProfile);
                 } else if(path=="/v1/me/progression" || path.startsWith("/v1/me/progression/ra/")) {
@@ -539,14 +544,110 @@ private slots:
         account.configure("other-owner");pending(200,h.publicProfile);
         QCOMPARE(account.profileIdentity({},"Other local")["name"].toString(),"Other local");
     }
-    void restartRefreshIsDurableAndAmbiguousFailureNeverReplays() {
+    void restartRecoversTheSameDurableRefreshOperation() {
         Harness h;
         {BackendAccount account;account.setServices(h.services());account.configure("alice");account.activate();h.callback();QCOMPARE(account.snapshot()["player_id"].toString(),Player);}
         h.loseRefresh=true;
         {BackendAccount account;account.setServices(h.services());account.configure("alice");QVERIFY(account.snapshot()["player_id"].toString().isEmpty());}
         QCOMPARE(h.calls.count("/v1/auth/refresh"),1);
-        {BackendAccount account;account.setServices(h.services());account.configure("alice");QVERIFY(account.detail().contains("interrupted"));}
-        QCOMPARE(h.calls.count("/v1/auth/refresh"),1);
+        h.loseRefresh=false;
+        {BackendAccount account;account.setServices(h.services());account.configure("alice");QCOMPARE(account.snapshot()["player_id"].toString(),Player);}
+        QCOMPARE(h.calls.count("/v1/auth/refresh"),2);QCOMPARE(h.refreshRequests[0],h.refreshRequests[1]);
+        for(const auto& bytes:h.disk)QVERIFY(!QJsonDocument::fromJson(bytes).object()["pending"].toBool());
+    }
+    void offlineRestartKeepsVerifiedServerProfileWithoutGrantingOnlineAccess() {
+        Harness h;h.progressionOk=true;
+        h.progress={{"player_id",Player},{"balance",100000},{"revision","31"},{"history",QJsonArray{}},
+            {"mastery",QJsonObject{{"xp",2000},{"level",5},{"level_xp",200},{"next_level_xp",700}}},
+            {"checked_at",QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs)}};
+        {BackendAccount a;a.setServices(h.services());a.configure("offline-primary");a.activate();h.callback();}
+        h.loseRefresh=true;BackendAccount a;a.setServices(h.services());a.configure("offline-primary");
+        const auto profile=a.profileIdentity({},"Local name");
+        QCOMPARE(profile["source"].toString(),"traineros");QCOMPARE(profile["playerId"].toString(),Player);
+        QCOMPARE(profile["name"].toString(),"Ren");QCOMPARE(profile["subject"].toString(),"12345");
+        QVERIFY(a.progression()["known"].toBool());QVERIFY(a.progression()["stale"].toBool());
+        QCOMPARE(a.progression()["balance"].toInt(),100000);
+        QCOMPARE(a.snapshot()["state"].toString(),"signed_out");
+        int status=0;const auto calls=h.calls.size();
+        a.playRequest("offline","test.app","play.rules",{},[&](int code,QJsonObject){status=code;});
+        QCOMPARE(status,409);QCOMPARE(h.calls.size(),calls);
+        a.setSocialSubject("12345");a.setSocialSubject({});
+        QCOMPARE(a.profileIdentity({},"Local name")["name"].toString(),"Ren");
+        h.loseRefresh=false;a.activate();QCOMPARE(a.snapshot()["player_id"].toString(),Player);
+        QVERIFY(!a.progression()["stale"].toBool());
+    }
+    void offlineProfileRequiresProtectedIdentityAndMatchingPresentationOwner() {
+        Harness h;
+        {BackendAccount a;a.setServices(h.services());a.configure("cache-fence");a.activate();h.callback();}
+        for(auto i=h.commerceDisk.begin();i!=h.commerceDisk.end();++i) {
+            auto value=QJsonDocument::fromJson(i.value()).object();auto profile=value["profile"].toObject();
+            profile["player_id"]=Attempt;profile["display_name"]="Other player";value["profile"]=profile;
+            i.value()=QJsonDocument(value).toJson();
+        }
+        h.loseRefresh=true;
+        {BackendAccount a;a.setServices(h.services());a.configure("cache-fence");
+            QCOMPARE(a.profileIdentity({},"Local")["name"].toString(),"Player");QVERIFY(!a.progression()["known"].toBool());}
+        for(auto i=h.disk.begin();i!=h.disk.end();++i) {
+            auto value=QJsonDocument::fromJson(i.value()).object();value.remove("identity");i.value()=QJsonDocument(value).toJson();
+        }
+        BackendAccount a;a.setServices(h.services());a.configure("cache-fence");
+        QCOMPARE(a.profileIdentity({},"Local")["source"].toString(),"local");
+    }
+    void explicitSignOutClearsOfflinePrimaryProfile() {
+        Harness h;
+        {BackendAccount a;a.setServices(h.services());a.configure("cache-logout");a.activate();h.callback();a.activate();
+            QCOMPARE(a.profileIdentity({},"Local")["source"].toString(),"local");}
+        h.loseRefresh=true;BackendAccount a;a.setServices(h.services());a.configure("cache-logout");
+        QCOMPARE(a.profileIdentity({},"Local")["name"].toString(),"Local");
+    }
+    void expiredSessionKeepsAccountPresentationButNotAuthorization() {
+        Harness h;
+        {BackendAccount a;a.setServices(h.services());a.configure("cache-expired");a.activate();h.callback();}
+        h.refreshStatus=401;BackendAccount a;a.setServices(h.services());a.configure("cache-expired");
+        QCOMPARE(a.profileIdentity({},"Local")["name"].toString(),"Ren");
+        QVERIFY(a.snapshot()["player_id"].toString().isEmpty());
+        a.setSocialSubject("99999");QCOMPARE(a.profileIdentity({},"Local")["source"].toString(),"local");
+        a.configure("different-local-owner");QCOMPARE(a.profileIdentity({},"Other")["name"].toString(),"Other");
+    }
+    void legacyTombstoneDoesNotInventARecoverableCredential() {
+        Harness h;
+        {BackendAccount a;a.setServices(h.services());a.configure("legacy");a.activate();h.callback();}
+        for(auto i=h.disk.begin();i!=h.disk.end();++i)i.value()="{\"pending\":true}";
+        BackendAccount a;a.setServices(h.services());a.configure("legacy");
+        QVERIFY(a.detail().contains("interrupted"));QVERIFY(h.refreshRequests.isEmpty());
+    }
+    void offlineRetryPreservesProofAndSerializesRequests() {
+        Harness h;
+        {BackendAccount a;a.setServices(h.services());a.configure("retry");a.activate();h.callback();}
+        h.loseRefresh=true;BackendAccount a;a.setServices(h.services());a.configure("retry");
+        QCOMPARE(a.actionLabel(),"Retry TrainerOS connection");
+        h.loseRefresh=false;h.deferRefresh=true;a.activate();a.activate();
+        QCOMPARE(h.refreshRequests.size(),2);QCOMPARE(h.refreshRequests[0],h.refreshRequests[1]);
+        h.pendingRefresh(200,credentials());QCOMPARE(a.snapshot()["player_id"].toString(),Player);
+    }
+    void transientRefreshFailureRetriesAutomatically() {
+        Harness h;
+        {BackendAccount a;a.setServices(h.services());a.configure("automatic");a.activate();h.callback();}
+        h.refreshStatus=503;BackendAccount a;a.setServices(h.services());a.configure("automatic");
+        h.refreshStatus=200;QTRY_COMPARE_WITH_TIMEOUT(a.snapshot()["player_id"].toString(),Player,3500);
+        QCOMPARE(h.refreshRequests.size(),2);QCOMPARE(h.refreshRequests[0],h.refreshRequests[1]);
+    }
+    void failedTokenPersistenceKeepsRecoverableJournalWithoutRevocation() {
+        Harness h;
+        {BackendAccount a;a.setServices(h.services());a.configure("save-retry");a.activate();h.callback();}
+        h.deferRefresh=true;BackendAccount a;a.setServices(h.services());a.configure("save-retry");
+        h.failStorage=true;h.pendingRefresh(200,credentials());
+        QCOMPARE(a.actionLabel(),"Retry TrainerOS connection");QVERIFY(a.snapshot()["player_id"].toString().isEmpty());
+        for(const auto& call:h.calls)QVERIFY(!call.startsWith("/v1/auth/sessions/"));
+        h.failStorage=false;h.deferRefresh=false;a.activate();QCOMPARE(a.snapshot()["player_id"].toString(),Player);
+        QCOMPARE(h.refreshRequests[0],h.refreshRequests[1]);
+    }
+    void rejectedRefreshDoesNotLoopOrPublishIdentity() {
+        Harness h;
+        {BackendAccount a;a.setServices(h.services());a.configure("rejected");a.activate();h.callback();}
+        h.refreshStatus=401;BackendAccount a;a.setServices(h.services());a.configure("rejected");
+        QVERIFY(a.snapshot()["player_id"].toString().isEmpty());QVERIFY(a.detail().contains("Sign in again"));
+        QTest::qWait(2100);QCOMPARE(h.refreshRequests.size(),1);
     }
     void restartRestoresAndSocialChangeInvalidates() {
         Harness h;

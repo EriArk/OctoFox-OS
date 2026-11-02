@@ -70,10 +70,11 @@ QString BackendAccount::rewardActionLabel() const {
     if(!progression_["challenge"].toObject().isEmpty())return "Verify RA profile code";
     return "Enable RA rewards";
 }
-bool BackendAccount::adoptProgression(const QJsonObject& value) {
+bool BackendAccount::adoptProgression(const QJsonObject& value,bool cached) {
     auto integer=[](QJsonValue v,double minimum){return v.isDouble() && std::isfinite(v.toDouble()) && v.toDouble()>=minimum && v.toDouble()<=9007199254740991.0 && std::floor(v.toDouble())==v.toDouble();};
     const auto mastery=value["mastery"].toObject();
-    if(player_.isEmpty() || value["player_id"].toString()!=player_ || !integer(value["balance"],0)
+    const auto player=cached?cachedIdentity_["player_id"].toString():player_;
+    if(player.isEmpty() || value["player_id"].toString()!=player || !integer(value["balance"],0)
         || !integer(mastery["xp"],0) || !integer(mastery["level"],1) || !integer(mastery["level_xp"],0)
         || !integer(mastery["next_level_xp"],1) || mastery["level_xp"].toDouble()>=mastery["next_level_xp"].toDouble()
         || !value["history"].isArray() || value["history"].toArray().size()>50
@@ -116,8 +117,9 @@ bool BackendAccount::adoptProgression(const QJsonObject& value) {
     if(!integer(support["multiplier"],1) || support["multiplier"].toInt()>3
         || (support["multiplier"].toInt()>1 && !QDateTime::fromString(support["verified_until"].toString(),Qt::ISODateWithMs).isValid()))
         sanitized["support"]=QJsonValue();
-    progression_=sanitized;progressionStale_=false;
-    if(had && xpDelta>=0 && sparkDelta>0)emit rewardsEarned(xpDelta,sparkDelta);
+    progression_=sanitized;progressionStale_=cached;
+    if(!cached){profileSnapshot_["player_id"]=player;profileSnapshot_["progression"]=sanitized;saveCommerce();}
+    if(!cached && had && xpDelta>=0 && sparkDelta>0)emit rewardsEarned(xpDelta,sparkDelta);
     return true;
 }
 void BackendAccount::rewardRequest(QString action,QJsonObject body,bool sync) {
@@ -184,20 +186,23 @@ QVariantMap BackendAccount::profileIdentity(const QVariantMap& social,const QStr
     // user's portrait/name with this player's wallet while accounts transition.
     const auto socialId=social["userId"].toString();
     const bool hasSocial=!socialId.isEmpty() && social["state"]!="signed-out";
-    const bool server=!player_.isEmpty();
-    const bool matching=hasSocial && (!server || socialId==subject_);
+    const auto player=player_.isEmpty()?cachedIdentity_["player_id"].toString():player_;
+    const auto subject=subject_.isEmpty()?cachedIdentity_["fluxer_subject"].toString():subject_;
+    const bool server=!player.isEmpty();
+    const bool matching=hasSocial && (!server || socialId==subject);
     QString name=matching?social["name"].toString().trimmed():QString();
     if(name.isEmpty() && server)name=profileName_;
     if(name.isEmpty())name=(server||hasSocial)?QString("Player"):localName.trimmed();
     if(name.isEmpty())name="Your profile";
     return {{"name",name},{"source",server?"traineros":hasSocial?"fluxer":"local"},
-        {"playerId",player_},{"subject",server?subject_:hasSocial?socialId:QString()},
+        {"playerId",player},{"subject",server?subject:hasSocial?socialId:QString()},
         {"avatar",matching?social["profile"].toMap()["avatar"].toString():QString()},
         {"presence",matching && social["state"]=="connected"?social["presence"].toString():QString()}};
 }
 QString BackendAccount::actionLabel() const {
     if(state_=="waiting"||state_=="opening")return "Cancel TrainerOS sign-in";
     if(state_=="connected")return "Sign out of TrainerOS";
+    if(state_=="reconnecting")return "Retry TrainerOS connection";
     if(state_=="restoring"||state_=="refreshing"||state_=="claiming"||state_=="signing_out")return "TrainerOS account — please wait";
     return "Sign in to TrainerOS with Fluxer";
 }
@@ -227,12 +232,12 @@ void BackendAccount::reset() {
     const auto channels=playGrants_.keys();for(const auto& channel:channels)closePlay(channel);
     ++epoch_;expiry_.stop();refreshTimer_.stop();listener_.close();encrypted_.cancel();
     for(auto* socket:findChildren<QTcpSocket*>(QString(),Qt::FindDirectChildrenOnly)){socket->abort();socket->deleteLater();}
-    attempt_.clear();verifier_.clear();callbackPath_.clear();player_.clear();session_.clear();subject_.clear();profileName_.clear();access_.clear();refresh_.clear();
+    attempt_.clear();verifier_.clear();callbackPath_.clear();player_.clear();session_.clear();subject_.clear();profileName_.clear();access_.clear();refresh_.clear();refreshProof_.clear();refreshInFlight_=false;refreshFailures_=0;
     logoutPending_=false;
 }
 void BackendAccount::configure(const QString& owner) {
     if(owner_==owner)return;
-    reset();lock_.reset();shopSnapshot_={};shopPending_={};prizeSnapshot_={};celebrationIds_={};prizeIndex_=0;wardrobeState_={};outfitWrites_={};outfitFlushing_=false;shopStatus_.clear();shopIndex_=0;owner_=owner;socialSubject_.clear();
+    reset();cachedIdentity_={};profileSnapshot_={};lock_.reset();shopSnapshot_={};shopPending_={};prizeSnapshot_={};celebrationIds_={};prizeIndex_=0;wardrobeState_={};outfitWrites_={};outfitFlushing_=false;shopStatus_.clear();shopIndex_=0;owner_=owner;socialSubject_.clear();
     if(owner.isEmpty()){state("disabled","Open your Trainer to sign in");return;}
     key_=QString::fromLatin1(QCryptographicHash::hash(("traineros-backend-v1\n"+Origin+"\n"+owner).toUtf8(),QCryptographicHash::Sha256).toHex());
     const auto directory=QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/credentials";
@@ -247,17 +252,30 @@ void BackendAccount::configure(const QString& owner) {
         if(epoch!=epoch_)return;
         if(!ok){state("error","Could not open secure storage. Try again.");return;}
         const auto data=QJsonDocument::fromJson(bytes).object();
-        if(data["pending"].toBool()||!token(data["refresh_token"].toString())){state("signed_out",data["pending"].toBool()?"Previous sign-in was interrupted. Sign in again.":"Use your Fluxer account — no new password");return;}
+        const auto identity=data["identity"].toObject();
+        const auto subject=identity["fluxer_subject"].toString();
+        if(uuid(identity["player_id"].toString()) && QRegularExpression("^[0-9]{1,32}$").match(subject).hasMatch()
+            && (socialSubject_.isEmpty()||socialSubject_==subject)) {
+            cachedIdentity_=identity;restoreCachedProfile();
+        }
+        const bool pending=data["pending"].toBool();
+        if(!token(data["refresh_token"].toString())||(pending && (data["version"].toInt()!=2||!token(data["recovery_proof"].toString())))){
+            state("signed_out",pending?"Previous sign-in was interrupted. Sign in again.":"Use your Fluxer account — no new password");return;
+        }
         refresh_=data["refresh_token"].toString().toLatin1();
-        // Identity is published only after the server verifies this session.
+        if(pending)refreshProof_=data["recovery_proof"].toString().toLatin1();
+        // The last verified profile remains primary offline. Live credentials
+        // and SDK/network authorization still require the server response.
         refresh();
     });
 }
 void BackendAccount::setSocialSubject(const QString& subject) {
     if(socialSubject_==subject)return;
     socialSubject_=subject;
-    if(!subject.isEmpty()&&((!subject_.isEmpty()&&subject_!=subject)||state_=="opening"||state_=="waiting"||state_=="claiming")) {
+    const auto previous=subject_.isEmpty()?cachedIdentity_["fluxer_subject"].toString():subject_;
+    if(!subject.isEmpty()&&((!previous.isEmpty()&&previous!=subject)||state_=="opening"||state_=="waiting"||state_=="claiming")) {
         if(!access_.isEmpty())request("DELETE","/v1/auth/sessions/"+session_,{},[](int,QJsonObject){},access_);
+        cachedIdentity_={};profileSnapshot_={};saveCommerce();
         fail("Fluxer account changed. Sign in with the same account as Social.");
     }
 }
@@ -265,13 +283,20 @@ void BackendAccount::activate() {
     if(owner_.isEmpty()||state_=="disabled")return;
     if(state_=="waiting"||state_=="opening"){cancel();return;}
     if(state_=="connected"){logout();return;}
+    if(state_=="reconnecting"){refresh();return;}
     if(state_=="signed_out"||state_=="error")begin();
 }
-void BackendAccount::cancel(){reset();state("signed_out","Sign-in cancelled. You can continue offline.");}
-void BackendAccount::fail(const QString& message){reset();state("error",message);}
+void BackendAccount::restoreCachedProfile() {
+    if(cachedIdentity_.isEmpty()||profileSnapshot_["player_id"]!=cachedIdentity_["player_id"])return;
+    const auto name=profileSnapshot_["display_name"].toString().trimmed();
+    if(!name.isEmpty()&&name.size()<=256)profileName_=name;
+    adoptProgression(profileSnapshot_["progression"].toObject(),true);
+}
+void BackendAccount::cancel(){reset();restoreCachedProfile();state("signed_out","Sign-in cancelled. You can continue offline.");}
+void BackendAccount::fail(const QString& message){reset();restoreCachedProfile();state("error",message);}
 void BackendAccount::begin() {
     if(loginGuard){const auto error=loginGuard();if(!error.isEmpty()){state("error",error);return;}}
-    reset();verifier_=randomSecret();callbackPath_="/traineros/auth/"+randomSecret();
+    reset();restoreCachedProfile();verifier_=randomSecret();callbackPath_="/traineros/auth/"+randomSecret();
     if(!listener_.listen(QHostAddress::LocalHost,0)){fail("Could not prepare browser return. Try again.");return;}
     listener_.setMaxPendingConnections(4);
     state("opening","Opening Fluxer in your browser…");expiry_.start(600000);
@@ -279,6 +304,7 @@ void BackendAccount::begin() {
         {"claim_challenge",QString::fromLatin1(QCryptographicHash::hash(verifier_.toLatin1(),QCryptographicHash::Sha256).toBase64(QByteArray::Base64UrlEncoding|QByteArray::OmitTrailingEquals))},
         {"return_uri",QString("http://127.0.0.1:%1%2").arg(listener_.serverPort()).arg(callbackPath_)}};
     if(!socialSubject_.isEmpty())body["expected_subject"]=socialSubject_;
+    else if(!cachedIdentity_.isEmpty())body["expected_subject"]=cachedIdentity_["fluxer_subject"];
     request("POST","/v1/auth/login-attempts",body,[this](int status,QJsonObject result){
         QUrl url(result["authorization_url"].toString());
         if(status!=201||!uuid(result["attempt_id"].toString())||url.scheme()!="https"||url.host()!="traineros-api.abysstail.art"||url.port(-1)!=-1||!url.userInfo().isEmpty()||url.path()!="/v1/auth/fluxer/start") {fail("Could not start sign-in. Check your connection and try again.");return;}
@@ -411,7 +437,9 @@ void BackendAccount::accept() {
     }
 }
 QByteArray BackendAccount::saved(bool pending) const {
-    return QJsonDocument(pending?QJsonObject{{"pending",true}}:QJsonObject{{"refresh_token",QString::fromLatin1(refresh_)}}).toJson(QJsonDocument::Compact);
+    QJsonObject value{{"refresh_token",QString::fromLatin1(refresh_)},{"identity",cachedIdentity_}};
+    if(pending){value["version"]=2;value["pending"]=true;value["recovery_proof"]=QString::fromLatin1(refreshProof_);}
+    return QJsonDocument(value).toJson(QJsonDocument::Compact);
 }
 void BackendAccount::tokens(const QJsonObject& result) {
     const auto subject=result["fluxer_subject"].toString();
@@ -419,11 +447,20 @@ void BackendAccount::tokens(const QJsonObject& result) {
     if(!uuid(result["player_id"].toString())||!uuid(result["session_id"].toString())||!token(result["access_token"].toString())||!token(result["refresh_token"].toString())
         ||!QRegularExpression("^[0-9]{1,32}$").match(subject).hasMatch()||!expires.isValid()||expires<=QDateTime::currentDateTimeUtc()
         ||(!socialSubject_.isEmpty()&&subject!=socialSubject_)){fail("Account verification failed. Sign in again with your Social account.");return;}
-    subject_=subject;session_=result["session_id"].toString();access_=result["access_token"].toString().toLatin1();refresh_=result["refresh_token"].toString().toLatin1();accessExpiry_=expires;
     const auto player=result["player_id"].toString();const auto epoch=epoch_;
-    write(saved(),[this,epoch,player](bool ok){
+    const QJsonObject identity{{"player_id",player},{"fluxer_subject",subject}};
+    const auto replacement=QJsonDocument(QJsonObject{{"refresh_token",result["refresh_token"]},{"identity",identity}}).toJson(QJsonDocument::Compact);
+    write(replacement,[this,epoch,player,result,subject,expires,identity](bool ok){
         if(epoch!=epoch_)return;
-        if(!ok){request("DELETE","/v1/auth/sessions/"+session_,{},[](int,QJsonObject){},access_);fail("Could not save the session securely. Try again.");return;}
+        if(!ok){
+            if(!refreshProof_.isEmpty()){retryRefresh("Could not save the renewed session. Retrying automatically…");return;}
+            request("DELETE","/v1/auth/sessions/"+result["session_id"].toString(),{},[](int,QJsonObject){},result["access_token"].toString().toLatin1());
+            fail("Could not save the session securely. Try again.");return;
+        }
+        if(profileSnapshot_["player_id"].toString()!=player){profileSnapshot_={};progression_={};profileName_.clear();saveCommerce();}
+        cachedIdentity_=identity;
+        subject_=subject;session_=result["session_id"].toString();access_=result["access_token"].toString().toLatin1();refresh_=result["refresh_token"].toString().toLatin1();accessExpiry_=expires;
+        refreshProof_.clear();refreshInFlight_=false;refreshFailures_=0;
         player_=player;if(!supportPending_){attempt_.clear();verifier_.clear();}
         if(!prizeSnapshot_.isEmpty()&&prizeSnapshot_["player_id"].toString()!=player_){prizeSnapshot_={};saveCommerce();}
         if(!shopSnapshot_.isEmpty()&&shopSnapshot_["player_id"].toString()!=player_){shopSnapshot_={};shopIndex_=0;saveCommerce();}
@@ -432,7 +469,7 @@ void BackendAccount::tokens(const QJsonObject& result) {
         request("GET","/v1/me/profile",{},[this,player](int status,QJsonObject profile){
             const auto name=profile["display_name"].toString().trimmed();
             if(status==200 && player_==player && profile["player_id"].toString()==player
-                && !name.isEmpty() && name.size()<=256) {profileName_=name;emit changed();}
+                && !name.isEmpty() && name.size()<=256) {profileName_=name;profileSnapshot_["player_id"]=player;profileSnapshot_["display_name"]=name;saveCommerce();emit changed();}
         },access_);
         if(!supportClaim_.isEmpty()) {
             const auto body=std::exchange(supportClaim_,QJsonObject{});supportBusy_=false;
@@ -444,24 +481,35 @@ void BackendAccount::tokens(const QJsonObject& result) {
     });
 }
 void BackendAccount::refresh() {
-    if(refresh_.isEmpty())return;
+    if(refresh_.isEmpty()||refreshInFlight_)return;
+    refreshTimer_.stop();refreshInFlight_=true;
+    if(refreshProof_.isEmpty())refreshProof_=randomSecret().toLatin1();
     state("refreshing","Checking your TrainerOS session…");const auto epoch=epoch_;const auto credential=refresh_;
-    // Durable tombstone BEFORE the one-shot request: no refresh replay after crash/response loss.
-    write(saved(true),[this,epoch,credential](bool ok){
+    const auto proof=refreshProof_;
+    // Persist the exact recoverable operation before any network request. A
+    // retry carries both secrets; old-token replay without this proof is rejected.
+    write(saved(true),[this,epoch,credential,proof](bool ok){
         if(epoch!=epoch_)return;
-        if(!ok){fail("Could not update secure storage. Sign in again.");return;}
-        refresh_.clear();
-        request("POST","/v1/auth/refresh",{{"refresh_token",QString::fromLatin1(credential)}},[this](int status,QJsonObject result){
+        if(!ok){retryRefresh("Could not update secure storage. Retrying automatically…");return;}
+        request("POST","/v1/auth/refresh",{{"refresh_token",QString::fromLatin1(credential)},{"recovery_proof",QString::fromLatin1(proof)}},[this](int status,QJsonObject result){
+            if(status==0||status==408||status==429||status>=500){retryRefresh("Connection interrupted. Reconnecting automatically…");return;}
             if(status!=200){fail("Session could not be restored. Sign in again.");return;}tokens(result);
         });
     });
+}
+void BackendAccount::retryRefresh(const QString& message) {
+    refreshInFlight_=false;progressionStale_=true;shopStale_=true;prizeStale_=true;
+    progressionTimer_.stop();
+    const int delay=qMin(60000,2000*(1<<qMin(refreshFailures_,5)));
+    refreshFailures_=qMin(refreshFailures_+1,6);
+    state("reconnecting",message);refreshTimer_.start(delay);
 }
 void BackendAccount::logout() {
     refreshTimer_.stop();state("signing_out","Signing out…");
     request("DELETE","/v1/auth/sessions/"+session_,{},[this](int status,QJsonObject){
         if(status==401&&!refresh_.isEmpty()){logoutPending_=true;refresh();return;}
         if(status!=204){state("connected","Could not sign out on the server. Try again.");refreshTimer_.start(30000);return;}
-        const auto epoch=epoch_;write("{}",[this,epoch](bool ok){if(epoch!=epoch_)return;shopSnapshot_={};saveCommerce();reset();state("signed_out",ok?"Signed out. Your local Trainer is unchanged.":"Signed out. Saved credential is no longer valid.");});
+        const auto epoch=epoch_;write("{}",[this,epoch](bool ok){if(epoch!=epoch_)return;shopSnapshot_={};cachedIdentity_={};profileSnapshot_={};saveCommerce();reset();state("signed_out",ok?"Signed out. Your local Trainer is unchanged.":"Signed out. Saved credential is no longer valid.");});
     },access_);
 }
 void BackendAccount::request(QByteArray method,QString path,QJsonObject body,Reply done,QByteArray access) {

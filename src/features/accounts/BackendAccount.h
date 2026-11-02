@@ -103,9 +103,11 @@ private:
     void accept();
     void tokens(const QJsonObject& result);
     void refresh();
+    void retryRefresh(const QString& message);
     void syncPublicAvatar();
     void rewardRequest(QString action,QJsonObject body,bool sync=false);
-    bool adoptProgression(const QJsonObject&);
+    bool adoptProgression(const QJsonObject&,bool cached=false);
+    void restoreCachedProfile();
     QVariantList shopItems() const;
     bool adoptShop(const QJsonObject&,bool cached=false);
     bool validOutfits(const QJsonObject&) const;
@@ -129,7 +131,7 @@ private:
     QTimer expiry_{this}, refreshTimer_{this};
     QTimer avatarRetry_{this};
     QTimer progressionTimer_{this};
-    QJsonObject progression_;
+    QJsonObject progression_,cachedIdentity_,profileSnapshot_;
     QString rewardStatus_;
     bool rewardBusy_=false,progressionStale_=false;
     qint64 lastRewardSync_=0;
@@ -150,7 +152,9 @@ private:
     std::shared_ptr<QLockFile> lock_;
     QString owner_,key_,state_="disabled",detail_="Open your Trainer to sign in";
     QString attempt_,verifier_,callbackPath_,socialSubject_,subject_,player_,session_,profileName_;
-    QByteArray access_,refresh_;
+    QByteArray access_,refresh_,refreshProof_;
+    bool refreshInFlight_=false;
+    int refreshFailures_=0;
     QDateTime accessExpiry_;
     quint64 epoch_=0;
     bool encryptedStore_=false;

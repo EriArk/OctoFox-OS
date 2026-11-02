@@ -13,6 +13,12 @@ Keep account-switch protection and distinguish connected chat from a verified
 Backend session; do not hide session recovery failures with a renamed local
 profile. See [player identity](docs/PLAYER_PROFILE.md#primary-identity).
 
+**Owner offline identity, 2 November:** the last verified server TrainerOS account
+remains the primary profile when the internet is unavailable, including after
+restart. Preserve its identity and clearly stale presentation of name/progress/
+balance; offline cache does not authorize purchases, grants or server writes.
+Only explicit sign-out/account change clears that profile, not network loss.
+
 **Owner support-provider decision, 29 October (latest):** Patreon is the only
 support provider. Remove Ko-fi from active requirements and draft contracts;
 it is cancelled scope, not unfinished work. Keep historical delivery records

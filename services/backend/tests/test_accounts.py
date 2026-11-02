@@ -245,6 +245,81 @@ def test_parallel_refresh_replay_commits_revocation(account,db):
     assert event['aggregate_id']==old['session_id'] and event['aggregate_revision']==2
 
 
+def test_refresh_response_loss_recovers_same_pair_without_plaintext_storage(account,db):
+    old=login(account);proof=secrets.token_urlsafe(32)
+    fresh=account.refresh(old['refresh_token'],proof)
+    restarted=Accounts(db,CONFIG,Provider())
+    assert restarted.refresh(old['refresh_token'],proof)==fresh
+    with db.transaction() as conn:
+        rows=conn.execute('SELECT * FROM trainer_backend.refresh_credentials WHERE session_id=%s',(old['session_id'],)).fetchall()
+    assert len(rows)==2
+    consumed=next(row for row in rows if row['consumed_at'])
+    assert consumed['recovery_hash']==digest(proof) and consumed['successor_hash']==digest(fresh['refresh_token'])
+    stored=str(rows)
+    for secret in (proof,old['refresh_token'],fresh['refresh_token'],fresh['access_token']):
+        assert secret not in stored
+    assert restarted.me(fresh['access_token'])['player_id']==old['player_id']
+
+
+def test_refresh_recovery_after_offline_preserves_session_deadline(account,db):
+    old=login(account);proof=secrets.token_urlsafe(32);fresh=account.refresh(old['refresh_token'],proof)
+    with db.transaction() as conn:
+        deadline=conn.execute('UPDATE trainer_backend.device_sessions SET access_expires_at=clock_timestamp()-interval \'1 hour\' WHERE id=%s RETURNING expires_at',(old['session_id'],)).fetchone()['expires_at']
+    recovered=account.refresh(old['refresh_token'],proof)
+    assert recovered['access_token']==fresh['access_token'] and recovered['refresh_token']==fresh['refresh_token']
+    assert recovered['expires_at']>fresh['expires_at']
+    assert account.me(recovered['access_token'])['player_id']==old['player_id']
+    with db.transaction() as conn:
+        assert conn.execute('SELECT expires_at FROM trainer_backend.device_sessions WHERE id=%s',(old['session_id'],)).fetchone()['expires_at']==deadline
+
+
+def test_parallel_exact_refresh_retry_does_not_revoke(account,db):
+    old=login(account);proof=secrets.token_urlsafe(32)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results=list(pool.map(lambda _:account.refresh(old['refresh_token'],proof),range(2)))
+    assert results[0]==results[1]
+    assert account.me(results[0]['access_token'])['status']=='active'
+
+
+@pytest.mark.parametrize('wrong_proof',[None,'x'*43])
+def test_old_refresh_without_matching_recovery_proof_still_revokes(account,wrong_proof):
+    old=login(account);fresh=account.refresh(old['refresh_token'],secrets.token_urlsafe(32))
+    with pytest.raises(AuthError):account.refresh(old['refresh_token'],wrong_proof)
+    with pytest.raises(AuthError):account.me(fresh['access_token'])
+
+
+def test_superseded_exact_retry_neither_recovers_new_tokens_nor_revokes(account):
+    old=login(account);proof=secrets.token_urlsafe(32)
+    first=account.refresh(old['refresh_token'],proof)
+    latest=account.refresh(first['refresh_token'],secrets.token_urlsafe(32))
+    with pytest.raises(AuthError) as error:account.refresh(old['refresh_token'],proof)
+    assert error.value.status==409
+    assert account.me(latest['access_token'])['status']=='active'
+    account.revoke(latest['access_token'],old['session_id'])
+    with pytest.raises(AuthError):account.refresh(old['refresh_token'],proof)
+
+
+@pytest.mark.parametrize('reason',['expired','suspended'])
+def test_recovery_respects_account_and_session_state(account,db,postgres,reason):
+    old=login(account);proof=secrets.token_urlsafe(32);account.refresh(old['refresh_token'],proof)
+    with psycopg.connect(postgres[0]) as conn:
+        if reason=='expired':conn.execute("UPDATE trainer_backend.device_sessions SET expires_at=clock_timestamp()-interval '1 minute' WHERE id=%s",(old['session_id'],))
+        else:conn.execute("UPDATE trainer_backend.principals SET state='suspended' WHERE id=%s",(old['player_id'],))
+    with pytest.raises(AuthError):account.refresh(old['refresh_token'],proof)
+
+
+def test_http_refresh_recovery_contract(postgres,db):
+    provider=Provider()
+    with TestClient(create_app(Settings(postgres[1],'test',oauth=CONFIG),provider=provider),base_url=CONFIG.public_base) as client:
+        old=login(client.app.state.accounts);proof=secrets.token_urlsafe(32)
+        body={'refresh_token':old['refresh_token'],'recovery_proof':proof}
+        fresh=client.post('/v1/auth/refresh',json=body)
+        assert fresh.status_code==200 and fresh.headers['cache-control']=='no-store'
+        assert client.post('/v1/auth/refresh',json=body).json()==fresh.json()
+        body['recovery_proof']='invalid'
+        assert client.post('/v1/auth/refresh',json=body).status_code==422
+
+
 def test_provider_http_transport_rejects_redirects_and_oversized_bodies():
     seen=[]
     class Handler(BaseHTTPRequestHandler):

@@ -176,6 +176,14 @@ S01/F08: отзыв session запрещает дальнейшие записи
 аттестация и push revocation не заявлены. [Сервер](../services/backend/play.md),
 [приёмка и ограничения](evidence/backend-play-20261025/README.md).
 
+**2 ноября — восстановление refresh, S01/S04/S15:** S04 атомарно сохраняет
+защищённый журнал token + recovery proof до HTTP; S01 допускает точный повтор
+операции с прежней парой и сохраняет replay/revoke/expiry ограничения. S15
+доставляет миграцию 15 и сохраняет совместимый rollback. S11 читает прежнюю
+identity/кошелёк после восстановления; S14 не получает секретов и не меняет
+постоянный Player UUID. [Контракт](../services/backend/accounts.md),
+[проверки и границы](evidence/2026-11-02-session-recovery/README.md).
+
 **Accounts, позднее 25 октября:** S01 получил серверную реализацию identity и
 сессий в [`services/backend/trainer_backend/accounts`](../services/backend/trainer_backend/accounts).
 Вход опирается на S05/Fluxer OAuth и выдаёт собственную сессию оболочке; внешний

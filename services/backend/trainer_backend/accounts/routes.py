@@ -49,6 +49,7 @@ class LoginClaim(StrictBody):
 
 class Refresh(StrictBody):
     refresh_token: str = Field(pattern=r'^[A-Za-z0-9_-]{43}$')
+    recovery_proof: str|None = Field(default=None,pattern=r'^[A-Za-z0-9_-]{43}$')
 
 
 def service(request):
@@ -126,7 +127,7 @@ def claim(body: LoginClaim, request: Request):
 
 @router.post('/v1/auth/refresh')
 def refresh(body: Refresh, request: Request):
-    return wire(service(request).refresh(body.refresh_token))
+    return wire(service(request).refresh(body.refresh_token,body.recovery_proof))
 
 
 @router.get('/v1/auth/sessions')

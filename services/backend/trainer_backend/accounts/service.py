@@ -153,8 +153,8 @@ class Accounts:
         if row['return_uri']:
             return row['return_uri']+'?'+urlencode({'attempt_id':row['id'],'handoff_token':handoff})
 
-    def issue(self, conn, session_id, player):
-        access, refresh = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
+    def issue(self, conn, session_id, player, credentials=None):
+        access, refresh = credentials or (secrets.token_urlsafe(32), secrets.token_urlsafe(32))
         row = conn.execute('''UPDATE trainer_backend.device_sessions SET access_hash=%s,
             access_expires_at=LEAST(clock_timestamp()+interval '15 minutes',expires_at)
             WHERE id=%s RETURNING access_expires_at''', (digest(access),session_id)).fetchone()
@@ -199,7 +199,9 @@ class Accounts:
         self.active(conn,row['player_id'])
         return Identity(row['player_id'],row['id'])
 
-    def refresh(self, token):
+    def refresh(self, token, recovery_proof=None):
+        if recovery_proof is not None and not re.fullmatch(r'[A-Za-z0-9_-]{43}',recovery_proof):
+            raise AuthError('invalid_request',400)
         replay = False
         with self.db.transaction() as conn:
             entry = conn.execute('SELECT session_id FROM trainer_backend.refresh_credentials WHERE token_hash=%s',(digest(token),)).fetchone()
@@ -210,13 +212,35 @@ class Accounts:
             if not row or not row['live'] or row['revoked_at']:
                 raise AuthError()
             self.active(conn,row['player_id'])
-            current = conn.execute('SELECT consumed_at FROM trainer_backend.refresh_credentials WHERE token_hash=%s',(digest(token),)).fetchone()
+            current = conn.execute('SELECT consumed_at,recovery_hash,successor_hash FROM trainer_backend.refresh_credentials WHERE token_hash=%s',(digest(token),)).fetchone()
+            credentials = (self.secret('refresh-v2-access:'+token+':'+recovery_proof,row['id']),
+                           self.secret('refresh-v2-token:'+token+':'+recovery_proof,row['id'])) if recovery_proof else None
             if current['consumed_at']:
-                self.revoke_row(conn,row['player_id'],row['id'],'accounts.refresh_replay')
-                replay = True
+                if recovery_proof and current['recovery_hash'] and hmac.compare_digest(current['recovery_hash'],digest(recovery_proof)):
+                    successor=conn.execute('SELECT consumed_at FROM trainer_backend.refresh_credentials WHERE token_hash=%s AND session_id=%s',
+                                           (current['successor_hash'],row['id'])).fetchone()
+                    # An exact delayed retry must not revoke a session that has
+                    # already moved on. It cannot obtain any newer credential.
+                    if not successor or successor['consumed_at'] or not hmac.compare_digest(row['access_hash'],digest(credentials[0])):
+                        raise AuthError('refresh_superseded',409)
+                    # Recover the same pair after offline/restart, without storing
+                    # plaintext tokens or extending the device-session lifetime.
+                    expires=conn.execute('''UPDATE trainer_backend.device_sessions
+                        SET access_expires_at=CASE WHEN access_expires_at<=clock_timestamp()+interval '1 minute'
+                        THEN LEAST(clock_timestamp()+interval '15 minutes',expires_at) ELSE access_expires_at END
+                        WHERE id=%s RETURNING access_expires_at''',(row['id'],)).fetchone()['access_expires_at']
+                    subject=conn.execute('SELECT subject FROM trainer_backend.external_identities WHERE player_id=%s AND instance=%s',
+                                         (row['player_id'],self.provider.instance)).fetchone()['subject']
+                    result={'player_id':row['player_id'],'session_id':row['id'],'fluxer_subject':subject,
+                            'access_token':credentials[0],'refresh_token':credentials[1],'expires_at':expires}
+                else:
+                    self.revoke_row(conn,row['player_id'],row['id'],'accounts.refresh_replay')
+                    replay = True
             else:
-                conn.execute('UPDATE trainer_backend.refresh_credentials SET consumed_at=clock_timestamp() WHERE token_hash=%s',(digest(token),))
-                result = self.issue(conn,row['id'],row['player_id'])
+                conn.execute('''UPDATE trainer_backend.refresh_credentials SET consumed_at=clock_timestamp(),
+                    recovery_hash=%s,successor_hash=%s WHERE token_hash=%s''',
+                    (digest(recovery_proof) if recovery_proof else None,digest(credentials[1]) if credentials else None,digest(token)))
+                result = self.issue(conn,row['id'],row['player_id'],credentials)
         # Commit revocation before rejecting a reused refresh token.
         if replay:
             raise AuthError()
