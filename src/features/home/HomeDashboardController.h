@@ -30,6 +30,7 @@ public:
     QVariantList widgetChoices() const;
     void setInstalledWidgets(const QString& root,const QVariantList& receipts);
     bool selectPackageWidget(const QString& package,const QString& localId={});
+    bool allowsStartWidgets(const QString& app) const;
     bool widgetPicking() const {return widgetPicking_;}
     int widgetChoiceIndex() const {return widgetChoiceIndex_;}
     void editWidget();

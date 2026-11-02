@@ -47,6 +47,7 @@ inline QVariantList installedHomeWidgets(const QString& root, const QVariantList
             seen.insert(local);
             rows.append(QVariantMap{{"id","crates:"+package+":"+local},{"package",package},{"localId",local},
                 {"title",title},{"renderer",renderer},{"assetBase",QUrl::fromLocalFile(base+"/").toString()},
+                {"allowStartWidgets",manifest["allowStartWidgets"].toBool(false)},
                 {"version",r["version"]}});
         }
         if(valid)result.append(rows);

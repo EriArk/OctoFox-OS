@@ -5,7 +5,8 @@ Item {
     required property var shell
     readonly property var flow: shell.dashboard
     readonly property bool generic: flow.genericLayout
-    readonly property bool active: visible && shell.unobstructed && !shell.quickAppsOpen && !shell.drawerOpen && !shell.keyboard.open
+    readonly property bool active: visible && shell.primaryId === "home" && Qt.application.state === Qt.ApplicationActive
+        && shell.unobstructed && !shell.quickAppsOpen && !shell.drawerOpen && !shell.keyboard.open
     readonly property real unit: 1
     readonly property real gap: 16 * unit
     readonly property real split: width * .33
@@ -88,6 +89,7 @@ Item {
             }
         }
         HomeWidgetSlot {
+            presentationActive: root.active
             shell: root.shell; selected: root.active && root.flow.focus==="widget"
             y: chatRow.y+chatRow.height+12; width: parent.width
             height: Math.min(208,Math.max(0,parent.height-y))

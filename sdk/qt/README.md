@@ -46,9 +46,21 @@ the requested state. Settled static poses do not rebuild geometry. Mesh-list
 notifications are separate from pose changes, so animation does not recreate
 QML materials/delegates. `clearIdentity()` removes geometry, sockets and transient
 face/action state. On account revocation clear the old instance before resolving
-another identity. Inactive hosts may unload the scene entirely.
+another identity. Inactive Home hosts destroy the scene entirely; cancelling an
+in-flight parse also stops work at the next accessor boundary. The diagnostic
+logging category `trainer.avatar.lifecycle` records instance creation/destruction
+when explicitly enabled.
 
-This first Qt implementation evaluates morphs and skinning on CPU at up to 24 Hz.
+`AvatarView3D` now uses Qt Quick 3D's standard [Skin](https://doc.qt.io/qt-6/qml-qtquick3d-skin.html):
+the real joint hierarchy and inverse bind matrices drive GPU skinning. Sparse
+morphs and animation sampling run on CPU at up to 24 Hz; only changed morphs
+upload mesh bytes. Pose-only changes update joint nodes, leaving vertex buffers
+intact. `geometryUploads` exposes this distinction for diagnostics. Source mesh,
+wardrobe, UVs, weights and rig remain unchanged. Bounds use a conservative avatar
+envelope rather than scanning every skinned vertex each frame.
+Native `AvatarScene` defaults to the retained CPU reference path; the QML wrapper
+sets `gpuSkinning:true`. Set it explicitly to false for reference comparisons;
+changing it reloads the source. This is not an automatic silent fallback.
 It supports the current pack's LINEAR/STEP tracks, embedded base-colour textures,
 vertex colours and PBR factors; it is not a general glTF renderer (CUBICSPLINE,
 normal maps and arbitrary extensions are outside this path). Qt texture V
@@ -58,7 +70,8 @@ server preview is not a handheld measurement.
 
 Tests: `trainer_avatar_scene_tests`, `trainer_home_companion_tests`,
 `trainer_history_tests`, `trainer_experience_tests`, plus the rendered example.
-See [Home companion evidence](../../docs/evidence/2026-11-02-home-companion/README.md).
+See [Home companion evidence](../../docs/evidence/2026-11-02-home-companion/README.md)
+and [GPU/lifecycle checks](../../docs/evidence/2026-11-02-companion-fixes/README.md).
 
 ## Static cards
 

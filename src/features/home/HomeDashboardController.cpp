@@ -50,6 +50,11 @@ bool HomeDashboardController::selectPackageWidget(const QString& package,const Q
     }
     return false;
 }
+bool HomeDashboardController::allowsStartWidgets(const QString& app) const {
+    for(const auto& value:installedWidgets_){const auto row=value.toMap();
+        if(row["package"]==app)return row["allowStartWidgets"].toBool();
+    }return true;
+}
 QVariantMap HomeDashboardController::widget() const {
     if(widgetId_.isEmpty())return {};
     for(const auto& value:widgetChoices())if(value.toMap()["id"]==widgetId_) {

@@ -17,6 +17,15 @@ asset presence and renderer before offering a choice. No downloaded QML, native
 plugin, arbitrary file URL or script executes inside the shell. Unknown renderers
 require a future host update; there is no silent fallback to a different widget.
 
+Home contributors are Home-only by default. The host omits `ui.start.widget`
+from their SDK handshake and rejects `widget.put` with `home_only_app`. Inventory
+changes remove any already registered Start contributions from those apps.
+A package with a genuinely separate text-only Start contribution may explicitly
+set top-level `"allowStartWidgets":true`. Apps without a Home contribution keep
+the existing Start contract. Companion 0.1.0 needs no package replacement: its
+existing manifest already uses the Home-only default. This is a surface policy,
+not OS process authentication or a sandbox.
+
 The initial trusted renderer is `avatar-care-v1`. Its asset contract contains
 three backgrounds (`backgrounds/cozy-room.png`, `sunny-garden.png`,
 `evening-nook.png`), `furniture-kit/loungeChair.glb`, and six `food-kit/` GLBs:
@@ -29,6 +38,14 @@ the contribution and switch asset roots. Removal hides it immediately, stops its
 renderer/timer and retains the saved selection and care state. Reinstall makes
 that selection available again. Installing alone never replaces the user's Home
 selection. **Open** in Crates selects its first contribution through host routing.
+
+The avatar-care presentation is created only on the active, unobstructed Home.
+Leaving Home, opening Start/drawers/keyboard, or deactivating the shell destroys
+the complete widget, its 3D scene, animation timers and owned geometry. Returning
+creates one instance from the current profile. Care, queued achievements and
+verified gameplay accounting stay in their lightweight host services; unloading
+is not the Rest action and grants no energy. Render-driver caches need not cause
+process RSS to fall immediately when a presentation is destroyed.
 
 ## Optional SDK activation
 

@@ -1,0 +1,12 @@
+********* Start testing of HomeCompanionTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : HomeCompanionTests::initTestCase()
+PASS   : HomeCompanionTests::slowOfflineAndClockRollback()
+PASS   : HomeCompanionTests::actionsPersistenceAndOwnerIsolation()
+PASS   : HomeCompanionTests::restAndInactiveInput()
+PASS   : HomeCompanionTests::newEventsOnlyAndQuietMode()
+PASS   : HomeCompanionTests::hintRoutesAndController()
+PASS   : HomeCompanionTests::playtimeReplacesPlayButton()
+PASS   : HomeCompanionTests::cleanupTestCase()
+Totals: 8 passed, 0 failed, 0 skipped, 0 blacklisted, 67ms
+********* Finished testing of HomeCompanionTests *********

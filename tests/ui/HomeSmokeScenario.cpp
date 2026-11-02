@@ -699,7 +699,8 @@ Item {
         property var keyboard: ({open:false})
         property var notifications: []
     }
-    HomeWidgetSlot { anchors.fill:parent; shell:probe.proxy; selected:true }
+    property bool presentationActive: true
+    HomeWidgetSlot { anchors.fill:parent; shell:probe.proxy; selected:true;presentationActive:probe.presentationActive }
 })QML",QUrl("qrc:/TrainerOS/CompanionIntegrationProbe.qml"));
             auto* probe=qobject_cast<QQuickItem*>(component.createWithInitialProperties({{"liveShell",QVariant::fromValue(&shell)}}));
             check(probe,component.errorString());
@@ -727,9 +728,13 @@ Item {
             check(!shell.dashboard()->widgetPicking() && shell.dashboard()->widget()["id"]=="crates:home-companion:pet",
                   "QML lifecycle cannot reopen picker or discard package selection");
             check(shell.dashboard()->companion()->active(),"Replacement renderer reactivates care");
-            if(auto* probe=itemNamed("companion-integration-probe"))probe->setVisible(false);break;
+            if(auto* probe=itemNamed("companion-integration-probe"))probe->setProperty("presentationActive",false);break;
         case 95:
-            check(!shell.dashboard()->companion()->active(),"Hidden widget stops care");
+            check(!shell.dashboard()->companion()->active()&&!itemNamed("home-companion"),"Inactive Home presentation destroys the whole widget and stops care");
+            if(auto* probe=itemNamed("companion-integration-probe"))probe->setProperty("presentationActive",true);break;
+        case 96:
+            check(shell.dashboard()->companion()->active()&&itemNamed("home-companion"),"Home return creates one selected companion");
+            check(!shell.dashboard()->allowsStartWidgets("home-companion"),"Home contribution cannot be registered in Start");
             if(auto* probe=itemNamed("companion-integration-probe"))probe->deleteLater();
             shell.dashboard()->setInstalledWidgets({},{});shell.goToPage(0);break;
         default:

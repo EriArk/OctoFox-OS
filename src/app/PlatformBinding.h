@@ -33,6 +33,12 @@ public:
             qEnvironmentVariable("TRAINEROS_RECORD_HELPER",root+"/secure-channel.py"));
         host_.setNetwork(network_.get());
         host_.setBackend(shell_.backendAccount());
+        host_.permitsStartWidgets=[this](const QString& app){return shell_.dashboard()->allowsStartWidgets(app);};
+        connect(shell_.crates()->installer(),&CratesInstaller::inventoryChanged,this,[this]{
+            // Refresh from committed receipts before changing live SDK contributions.
+            shell_.dashboard()->setInstalledWidgets(shell_.crates()->installer()->root(),shell_.crates()->installer()->installed());
+            host_.refreshWidgetPolicy();
+        });
         host_.selectHomeWidget=[this](const QString& app,const QString& widget)->QString {
             if(launch_.active() || shell_.runtimeChangeBlocked())return "session_busy";
             if(!shell_.dashboard()->selectPackageWidget(app,widget))return "widget_unavailable";

@@ -4,6 +4,7 @@ Item {
     id: root
     required property var shell
     property bool selected: false
+    property bool presentationActive: true
     readonly property var flow: shell.dashboard
     readonly property bool picking: flow.widgetPicking
     readonly property bool storageVisible: visible && !picking && flow.widget.id==="storage"
@@ -38,8 +39,9 @@ Item {
         }
     }
     Loader {
+        objectName: "home-companion-loader"
         anchors.fill:parent
-        active:root.visible && !root.picking && root.flow.widget.renderer==="avatar-care-v1"
+        active:root.visible && root.presentationActive && !root.picking && root.flow.widget.renderer==="avatar-care-v1"
         sourceComponent:HomeCompanionWidget {shell:root.shell;selected:root.selected;assetBase:root.flow.widget.assetBase || ""}
     }
     Rectangle {

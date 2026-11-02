@@ -206,6 +206,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         for (const auto& other : peers_) if (other.authenticated && other.app == app) { fail("app_in_use"); return; }
         peer.authenticated = true; peer.app = app;peer.playChannel=QUuid::createUuid().toString(QUuid::WithoutBraces);
         auto caps=capabilities();
+        if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}
         if(backend_)caps["play.scorecards"]=1;
@@ -282,6 +283,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         return;
     }
     if (method == "widget.put") {
+        if(permitsStartWidgets&&!permitsStartWidgets(peer.app)){fail("home_only_app");return;}
         if (context_["profile"].toString().isEmpty()) { fail("no_profile"); return; }
         if (args["revision"].toString() != QString::number(revision_)) { fail("stale_context"); return; }
         const auto widget = args["id"].toString();
@@ -308,6 +310,10 @@ void PlatformHost::publishWidgets() {
         return a.toMap()["id"].toString() < b.toMap()["id"].toString();
     });
     dashboard_.setExternalWidgets(widgets);
+}
+void PlatformHost::refreshWidgetPolicy() {
+    if(permitsStartWidgets)for(auto& peer:peers_)if(!permitsStartWidgets(peer.app))peer.widgets={};
+    publishWidgets();
 }
 void PlatformHost::activate(const QString& key) {
     for (auto* socket : peers_.keys()) {

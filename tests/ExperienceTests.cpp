@@ -73,6 +73,8 @@ private slots:
         QTemporaryDir packages;const auto first=homeWidgetPackage(packages.path());
         QVERIFY(!dashboard->selectPackageWidget("home-companion"));
         dashboard->setInstalledWidgets(packages.path(),{first});
+        QVERIFY(!dashboard->allowsStartWidgets("home-companion"));QVERIFY(dashboard->allowsStartWidgets("session-timer"));
+        for(const auto& row:shell.controls()->available())QVERIFY(!row.toMap()["id"].toString().contains("companion"));
         QVERIFY(dashboard->selectPackageWidget("home-companion","pet"));
         QVERIFY(!dashboard->selectPackageWidget("other-app","pet"));
         const auto assets=dashboard->widget()["assetBase"];
@@ -89,6 +91,9 @@ private slots:
         auto bad=second;bad["object"]="../outside";QVERIFY(installedHomeWidgets(packages.path(),{bad}).isEmpty());
         const auto manifest=packages.path()+"/objects/"+second["object"].toString()+"/home-widgets.json";
         QFile f(manifest);QVERIFY(f.open(QIODevice::ReadOnly));auto bytes=f.readAll();f.close();
+        auto optIn=QJsonDocument::fromJson(bytes).object();optIn["allowStartWidgets"]=true;
+        QVERIFY(f.open(QIODevice::WriteOnly));f.write(QJsonDocument(optIn).toJson());f.close();
+        dashboard->setInstalledWidgets(packages.path(),{second});QVERIFY(dashboard->allowsStartWidgets("home-companion"));
         QVERIFY(f.open(QIODevice::WriteOnly));f.write(bytes.replace("avatar-care-v1","downloaded-code.qml"));f.close();
         QVERIFY(installedHomeWidgets(packages.path(),{second}).isEmpty());
         homeWidgetPackage(packages.path(),QString(64,'b'));

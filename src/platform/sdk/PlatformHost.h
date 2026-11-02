@@ -33,6 +33,8 @@ public:
     QJsonObject context() const { return context_; }
     // Returns an SDK error code, or empty on selection. Unbound hosts omit capability.
     std::function<QString(const QString& app,const QString& widget)> selectHomeWidget;
+    std::function<bool(const QString& app)> permitsStartWidgets;
+    void refreshWidgetPolicy();
 private:
     struct Peer {
         QByteArray input;

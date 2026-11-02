@@ -8,6 +8,7 @@
 #include <QElapsedTimer>
 #include <qqmlregistration.h>
 #include <memory>
+#include <atomic>
 
 namespace trainer {
 // Trusted, resolved SDK GLB only. Shared native presenter, independent of care logic.
@@ -27,6 +28,10 @@ class AvatarScene : public QObject {
     Q_PROPERTY(QVariantMap sockets READ sockets NOTIFY frameChanged)
     Q_PROPERTY(QVariantMap face READ face WRITE setFace NOTIFY changed)
     Q_PROPERTY(int vertexCount READ vertexCount NOTIFY modelChanged)
+    Q_PROPERTY(bool gpuSkinning READ gpuSkinning WRITE setGpuSkinning NOTIFY modelChanged)
+    Q_PROPERTY(QVariantList rigs READ rigs NOTIFY modelChanged)
+    Q_PROPERTY(QVariantList nodePoses READ nodePoses NOTIFY frameChanged)
+    Q_PROPERTY(int geometryUploads READ geometryUploads NOTIFY frameChanged)
 public:
     explicit AvatarScene(QObject* parent=nullptr);
     ~AvatarScene() override;
@@ -43,6 +48,10 @@ public:
     QVariantMap sockets() const{return sockets_;}
     QVariantMap face() const{return face_;} void setFace(const QVariantMap&);
     int vertexCount() const;
+    bool gpuSkinning() const{return gpuSkinning_;} void setGpuSkinning(bool);
+    QVariantList rigs() const;
+    QVariantList nodePoses() const{return nodePoses_;}
+    int geometryUploads() const{return geometryUploads_;}
     Q_INVOKABLE bool supportsExpression(const QString&) const;
     Q_INVOKABLE bool supportsClip(const QString&) const;
 signals:
@@ -53,9 +62,13 @@ private:
     void frame();
     struct Data;
     std::shared_ptr<Data> d_;
+    std::shared_ptr<std::atomic_bool> cancelled_;
     quint64 loadGeneration_=0;
     QUrl source_;
     QVariantList parts_;
+    QVariantList nodePoses_;
+    bool gpuSkinning_=false; // CPU reference remains available to native consumers/tests.
+    int geometryUploads_=0;
     QString expression_="neutral",clip_,error_;
     qreal clipPosition_=-1;
     QVariantMap pose_;

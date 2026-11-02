@@ -67,6 +67,23 @@ class PlatformHostTests final: public QObject {
     Q_OBJECT
     QTemporaryDir settings_;
 private slots:
+    void homeOnlyAppsCannotPopulateStartAndOtherAppsRemainAvailable() {
+        Fixture f;bool restricted=false;
+        f.host.permitsStartWidgets=[&](const QString& app){return !restricted||app!="home-companion";};
+        QVERIFY(f.start());Client client(f.endpoint);auto hello=client.hello("home-companion")["result"].toObject();
+        const auto revision=hello["context"].toObject().value("revision");
+        client.send("widget.put",f.widget(revision.toString(),"pet"));QVERIFY(client.receive().contains("result"));
+        restricted=true;f.host.refreshWidgetPolicy();
+        for(const auto& row:f.board.available())QVERIFY(!row.toMap()["id"].toString().contains("home-companion"));
+        for(const auto& row:f.board.widgets())QVERIFY(!row.toMap()["id"].toString().contains("home-companion"));
+        client.send("widget.put",f.widget(revision.toString(),"pet"));QCOMPARE(client.receive()["error"].toObject()["code"],"home_only_app");
+        Client timer(f.endpoint);auto timerHello=timer.hello("session-timer")["result"].toObject();
+        QCOMPARE(timerHello["capabilities"].toObject()["ui.start.widget"].toInt(),1);
+        timer.send("widget.put",f.widget(revision.toString(),"timer"));QVERIFY(timer.receive().contains("result"));
+        Fixture initial;initial.host.permitsStartWidgets=[](const QString&){return false;};QVERIFY(initial.start());
+        Client homeOnly(initial.endpoint);
+        QVERIFY(!homeOnly.hello("home-companion")["result"].toObject()["capabilities"].toObject().contains("ui.start.widget"));
+    }
     void installedHomeSelectionRequiresBoundCapabilityAndCurrentProfile() {
         Fixture f;QVERIFY(f.start());Client unbound(f.endpoint);
         QVERIFY(!unbound.hello()["result"].toObject()["capabilities"].toObject().contains("ui.home.widget"));

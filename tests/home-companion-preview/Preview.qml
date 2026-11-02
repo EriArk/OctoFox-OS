@@ -3,7 +3,9 @@ import QtQuick.Window
 import TrainerOS
 Window {
     id: root
-    width:600;height:470;visible:true;color:"#c2cabc"
+    width:600;height:470;visible:true;color:dark?"#121c20":"#c2cabc"
+    property bool dark:false
+    onDarkChanged:Theme.themeId=dark?"dark":"light"
     property real uiScale:2
     property bool compact:false
     QtObject {
@@ -21,6 +23,6 @@ Window {
         anchors.centerIn:parent;width:root.compact?216:269;height:root.compact?121:208;scale:2
         Component.onCompleted:setSource(sourceRoot+"/src/qml/HomeCompanionWidget.qml",{"shell":mockShell,"selected":true,"assetBase":packageAssets})
     }
-    function hideScene(){mockShell.unobstructed=false}
-    function showScene(){mockShell.unobstructed=true}
+    function hideScene(){mockShell.unobstructed=false;slot.active=false}
+    function showScene(){mockShell.unobstructed=true;slot.active=true}
 }

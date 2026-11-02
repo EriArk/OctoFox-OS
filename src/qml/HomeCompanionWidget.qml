@@ -1,4 +1,6 @@
 import QtQuick
+import QtQuick.Effects
+import QtQuick.Window
 import TrainerOS
 
 Item {
@@ -12,10 +14,33 @@ Item {
     readonly property var labels: ["Feed", "Playtime · 60 min = 100%", pet.activity === "rest" ? "Wake up" : "Rest"]
     objectName: "home-companion"
     clip: true
+    // One bounded surface for the background, 3D render and overlays. The static
+    // mask never follows animation; the whole effect dies with the Home loader.
+    layer.enabled: true
+    property size surfaceSize: Qt.size(width,height)
+    function syncSurfaceSize() {
+        var a=mapToItem(null,0,0), b=mapToItem(null,width,height)
+        surfaceSize=Qt.size(Math.max(1,Math.ceil(Math.abs(b.x-a.x)*Screen.devicePixelRatio)),
+                            Math.max(1,Math.ceil(Math.abs(b.y-a.y)*Screen.devicePixelRatio)))
+    }
+    layer.textureSize: surfaceSize
+    layer.smooth: true
+    onWidthChanged:Qt.callLater(syncSurfaceSize)
+    onHeightChanged:Qt.callLater(syncSurfaceSize)
+    Connections {
+        target:root.Window.window
+        function onWidthChanged(){Qt.callLater(root.syncSurfaceSize)}
+        function onHeightChanged(){Qt.callLater(root.syncSurfaceSize)}
+    }
+    layer.effect: MultiEffect { maskEnabled:true; maskSource:roundedMask }
+    Rectangle {
+        id:roundedMask; anchors.fill:parent; radius:10; color:"white"
+        visible:false; layer.enabled:true; layer.textureSize:root.surfaceSize; layer.smooth:true; antialiasing:true
+    }
     function updateLive() { pet.active = live; if (live) pet.setNotifications(shell.notifications) }
     function use(index) { shell.dashboard.select("widget"); pet.perform(index) }
     onLiveChanged: updateLive()
-    Component.onCompleted: updateLive()
+    Component.onCompleted: {updateLive();Qt.callLater(syncSurfaceSize)}
     Component.onDestruction: pet.active = false
     Connections { target:root.shell; function onNotificationsChanged(){if(root.live)root.pet.setNotifications(root.shell.notifications)} }
     Image { anchors.fill:parent; source:root.assetBase+"backgrounds/"+root.pet.background+".png"; sourceSize:Qt.size(768,576); fillMode:Image.PreserveAspectCrop; asynchronous:true }
