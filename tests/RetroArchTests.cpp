@@ -40,6 +40,45 @@ class RetroArchTests final : public QObject {
         );
     }
 private slots:
+    void neoCdNetplayUsesSealedCoreAndPrivateFirmware() {
+        QTemporaryDir dir;std::atomic_bool cancel{false};
+        const auto write=[&](QString p,QByteArray b){QFile f(p);QVERIFY(f.open(QIODevice::WriteOnly));QCOMPARE(f.write(b),qint64(b.size()));};
+        QVERIFY(QDir().mkpath(dir.filePath("neocd")));
+        const auto bios=dir.filePath("neocd/owned.bin"),core=dir.filePath("core.so");touch(bios);touch(core);
+        const auto cfg=dir.filePath("retroarch.cfg");write(cfg,("system_directory = \""+dir.path()+"\"\n").toUtf8());
+        RetroArchInstallation i;i.configFile=cfg;i.runtimeFile=probe();i.cores={{"neocd",probe()},{"neocd_netplay",core}};
+        const auto digest=retroarch::fileDigest(core,1024,cancel);
+        i.discFirmware["neogeocd"]={{"neocd/owned.bin",digest}};
+        QJsonObject manifest{{"source","b1e04c738cb48a1dae0574b8877f6a116d270ca1"},
+            {"settings","neocd-two-pad-private-bios-aslr-v1"},{"protocol",1},{"core",digest}};
+        write(dir.filePath("manifest.json"),QJsonDocument(manifest).toJson());
+        AdventureRegistration r;r.adventure.platformId="neogeocd";r.adventure.adapterId="retroarch";
+        r.adventure.title="Unlisted title";r.integrationConfig["core"]="neocd";r.contentPath=dir.filePath("disc.cue");
+        touch(dir.filePath("track.bin"));write(r.contentPath,"FILE \"track.bin\" BINARY\n TRACK 01 MODE1/2352\n INDEX 01 00:00:00\n");
+        retroarch::NetplayDigestCache cache;const auto identity=retroarch::netplayIdentity(r,i,cancel,&cache);
+        QVERIFY(!identity.isEmpty());QCOMPARE(identity["players"].toInt(),2);QVERIFY(!identity["lateJoin"].toBool(true));
+        QVERIFY(cache.dependencies.contains(bios));QVERIFY(cache.dependencies.contains(dir.filePath("track.bin")));
+        QVERIFY(cache.dependencies.contains(dir.filePath("manifest.json")));
+        auto absent=i;absent.cores.remove("neocd_netplay");QVERIFY(retroarch::netplayIdentity(r,absent,cancel).isEmpty());
+        auto changed=i;changed.discFirmware["neogeocd"]["neocd/owned.bin"]=QString(64,'0');
+        QVERIFY(retroarch::netplayIdentity(r,changed,cancel).isEmpty());
+        retroarch::NetplayRequest request;request.expected=identity;request.host=true;request.slot=1;
+        request.password="secret";request.nickname="Player1";request.port=55435;
+        ProcessCommand command;command.program=probe();command.arguments={"--libretro",probe(),r.contentPath};
+        QVERIFY2(retroarch::prepareNetplay(command,r,i,request,cancel).isEmpty(),"NeoCD preparation failed");
+        QCOMPARE(command.arguments[1],core);
+        const auto index=command.arguments.indexOf("--appendconfig");QVERIFY(index>=0);
+        const auto session=command.arguments[index+1];const auto folder=QFileInfo(session).absolutePath();
+        QFile privateBios(folder+"/system/neocd/owned.bin");QVERIFY(privateBios.open(QIODevice::ReadOnly));
+        QCOMPARE(privateBios.readAll(),QByteArray("original test fixture"));
+        QFile options(folder+"/core.opt");QVERIFY(options.open(QIODevice::ReadOnly));
+        QVERIFY(options.readAll().contains("neocd_cpu_overclock = \"100%\""));
+        write(dir.filePath("track.bin"),"changed track");QVERIFY(retroarch::netplayIdentity(r,i,cancel)!=identity);
+        ProcessCommand stale;stale.arguments={"--libretro",probe(),r.contentPath};
+        QVERIFY(!retroarch::prepareNetplay(stale,r,i,request,cancel).isEmpty());
+        write(core,"modified core");QVERIFY(retroarch::netplayIdentity(r,i,cancel).isEmpty());
+        QCOMPARE(retroarch::fileDigest(bios,1024,cancel),digest);
+    }
     void appearanceCategoriesRetainValuesAndOperations() {
         const auto id=QUuid::createUuid().toString();
         const auto original=retroarch::appearanceActions(id);
@@ -756,7 +795,7 @@ private slots:
         QCOMPARE(retroarch::netplayIdentity(retroarch::netplayRegistration(standalone),i,cancel),identity);
         QCOMPARE(standalone.adventure.adapterId,QString("duckstation"));
         QVERIFY(standalone.integrationConfig.isEmpty());
-        auto wrongPlatform=standalone;wrongPlatform.adventure.platformId="neogeocd";
+        auto wrongPlatform=standalone;wrongPlatform.adventure.platformId="unsupported-test-system";
         QCOMPARE(retroarch::netplayRegistration(wrongPlatform).adventure.adapterId,QString("duckstation"));
         QVERIFY(retroarch::netplayIdentity(r,i,cancel,nullptr,4).isEmpty()); // No inferred Multitap.
         QVERIFY(write("bios/unknown.bin",QByteArray(512*1024,'u')));
@@ -1218,7 +1257,11 @@ private slots:
         QSet<QString> ids,folders;
         for(const auto& p:romPlatforms()) {
             QVERIFY(!ids.contains(p.id));QVERIFY(!folders.contains(p.folder));ids.insert(p.id);folders.insert(p.folder);
-            QVERIFY(!p.name.isEmpty());QVERIFY(!p.extensions.isEmpty());QVERIFY(!p.folder.contains('/'));
+            QVERIFY(!p.name.isEmpty());QVERIFY(!p.folder.contains('/'));
+            if(p.id=="steam") {
+                QVERIFY(p.core.isEmpty());QVERIFY(p.extensions.isEmpty());
+                QVERIFY(!romContentSupported(p.id,"steam","exe")); // Steam AppIDs, not ROM files.
+            } else QVERIFY(!p.extensions.isEmpty());
             QCOMPARE(romPlatformId(p.folder),p.id);
             if(!p.core.isEmpty())QVERIFY(romContentSupported(p.id,p.core,p.extensions.first()));
         }

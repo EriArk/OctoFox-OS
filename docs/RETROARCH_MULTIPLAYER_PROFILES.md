@@ -1,5 +1,15 @@
 # Shared RetroArch multiplayer profiles
 
+## Neo Geo CD — 2 November 2026
+
+Separate sealed `neocd_netplay` core, two controller ports, CUE/CHD with all
+dependencies and verified private BIOS. Shared Lobby/relay/session lifecycle;
+no tested-title allowlist, no late join in this profile. The ordinary solo
+core remains unchanged. Canonical process-independent states, exact HLE RAM
+restore and backup RAM rollback are patched in the isolated runtime.
+[Maintenance and delivery](emulators/neogeo-multiplayer.md). NGPC cable is a
+different mechanism and remains unintegrated.
+
 ## Cross-family content formats — 25 October 2026
 
 [Единый проход по форматам](MULTIPLAYER_CONTENT_FORMATS.md) расширил PS1

@@ -14,7 +14,7 @@ inline AdventureRegistration multiplayerRegistration(AdventureRegistration r) {
         {"ps2","armsx2"},{"model3","supermodel"},{"doom","odamex"},{"n64","retroarch"},{"dreamcast","retroarch"}};
     static const QSet<QString> libretro{
         "nes","fds","snes","sg1000","mastersystem","megadrive","segacd","sega32x",
-        "pcengine","pcenginecd","supergrafx","atari2600","psx","fbneo","neogeo","mame",
+        "pcengine","pcenginecd","supergrafx","atari2600","psx","fbneo","neogeo","neogeocd","mame",
         "gb","gbc","gba"};
     const auto platform=r.adventure.platformId;
     if(native.contains(platform))r.adventure.adapterId=native.value(platform);

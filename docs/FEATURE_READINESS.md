@@ -271,7 +271,9 @@ Lobby устраняет зависимость от solo-эмулятора; н
 блокируются. Сетевые пакеты и проверенные BIOS выровнены на Odin/Flip с
 сохранением патченного PSP и личных данных. Metal Slug X автоматически найден
 на Odin; Lobby → два игрока в уровне → Quit проверены на устройствах.
-Neo Geo CD ещё требует отдельного профиля в picker; физические кнопки,
+На дату этой записи Neo Geo CD ещё требовал профиля в picker; этот пробел
+закрыт в исходниках 2 ноября отдельным [NeoCD-профилем](emulators/neogeo-multiplayer.md),
+его поставка ещё открыта. Физические кнопки,
 разные сети и оставшиеся платформенные проверки открыты.
 [Доказательства](LOBBY_RUNTIME_ALIGNMENT.md).
 
@@ -395,7 +397,7 @@ R-ID не перенумеровывать; новая функция получ
 | ☐ | <a id="r046"></a>**R046** Wii U native online | **[S03]**; [S06], [S07], [S08] | Недоделано | Нужны собственные console/account данные и парная интеграция; [Cemu](emulators/cemu.md). |
 | ☑ | <a id="r047"></a>**R047** Vita: exact vitaQuake LAN | **[S03]**; [S06], [S07], [S08] | Сделано | Discovery и парный ввод с собственными данными; [Vita3K](emulators/vita3k.md). |
 | ☐ | <a id="r048"></a>**R048** Vita: commercial AdHoc/PSN | **[S03]**; [S06], [S07], [S08] | Не проверено | Нужна проверка поддержки runtime; vitaQuake её не доказывает. |
-| ☐ | <a id="r049"></a>**R049** Xbox System Link, Model 3, Doom, Neo Geo CD/NGPC | **[S03]**; [S06], [S07], [S08] | Частично | [Xbox System Link](emulators/xemu.md): Lobby/2–4/native Ethernet установлены на Flip/Odin (`7220e65b`, shell `207bc511…`); native NIC, транспорт и сохранность данных проверены. [Model 3 Cabinet Link](emulators/supermodel.md): Lobby/2–4/native ring и свои NVRAM; [проверки и поставка](evidence/model3-link-20261101/README.md). Игровая совместимость отдельно. [Doom / Odamex](emulators/odamex.md): маршрут Lobby/2–4/native UDP установлен на Flip, native проверки 2/4 прошли; Odin не обновляется во время проверки карты владельцем. Native link Neo Geo CD/NGPC остаётся без завершённого маршрута. |
+| ☐ | <a id="r049"></a>**R049** Xbox System Link, Model 3, Doom, Neo Geo CD/NGPC | **[S03]**; [S06], [S07], [S08] | Частично | [Xbox System Link](emulators/xemu.md): Lobby/2–4/native Ethernet установлены на Flip/Odin (`7220e65b`, shell `207bc511…`); native NIC, транспорт и сохранность данных проверены. [Model 3 Cabinet Link](emulators/supermodel.md): Lobby/2–4/native ring и свои NVRAM; [проверки и поставка](evidence/model3-link-20261101/README.md). Игровая совместимость отдельно. [Doom / Odamex](emulators/odamex.md): маршрут Lobby/2–4/native UDP установлен на Flip, native проверки 2/4 прошли; Odin не обновляется во время проверки карты владельцем. [Neo Geo CD](emulators/neogeo-multiplayer.md): два порта через RetroArch, отдельное исправленное ядро и production-сборка готовы; native state/двухпроцессный handshake проверены. Установка на Flip остановлена защитой версии до изменений: требуется объединение с текущим account-recovery другого чата. NGPC mirror исследован и проверен native, но связка с Lobby/lifecycle ещё не реализована. |
 | ☐ | <a id="r050"></a>**R050** PS3/Switch multiplayer | **[S03]**; [S06], [S07], [S08] | Не проверено | Требуется исследование режимов/runtime. Пометка «отложено» снята; homebrew solo не является multiplayer. |
 | ☐ | <a id="r051"></a>**R051** Live Hotseat и полный каталог передачи контроллера | **[S06]**; [S03], [S04] | Недоделано | Есть старые механизмы; полный #126/каталог и живой цикл не приняты. Отдельно от simultaneous pads. |
 | ☐ | <a id="r052"></a>**R052** Общий стандарт runtime/core/build/protocol | **[S03]**; [S07], [S08], [S13] | Недоделано | Pins/bindings есть; admission/подготовка/миграции всех семейств не завершены; [стандарт](EMULATOR_STANDARD.md). |

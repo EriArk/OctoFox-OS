@@ -75,6 +75,8 @@ RetroArchInstallation RetroArchInstallation::fromJson(const QJsonObject& object)
     }
     const auto cbin=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/pcsx-rearmed-cbin/core.so";
     if(QFileInfo(cbin).isFile())result.cores.insert("pcsx_rearmed_cbin",cbin);
+    const auto neoCdNetplay=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/neocd-netplay/core.so";
+    if(QFileInfo(neoCdNetplay).isFile())result.cores.insert("neocd_netplay",neoCdNetplay);
     if (QFileInfo(object.value("runtimeFile").toString()).isAbsolute())
         result.runtimeFile = object.value("runtimeFile").toString();
     if (object.value("resumeProtocol").toString() == "mgba-entry-v1") {

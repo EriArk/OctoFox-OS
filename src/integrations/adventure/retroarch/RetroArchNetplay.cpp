@@ -2,6 +2,7 @@
 #include "integrations/adventure/MultiplayerRoute.h"
 #include "RetroArchConfiguration.h"
 #include "RetroArchDisc.h"
+#include "NeoCdNetplay.h"
 #include "RetroArchHandheldLink.h"
 #include "FBNeoRomSets.h"
 #include "core/model/GamePlayers.h"
@@ -41,6 +42,7 @@ const CoreProfile cores[] = {
     {"mednafen_pce_fast","pcengine|pcenginecd","syscard3.pce|syscard2.pce|syscard1.pce|gexpress.pce"},
     {"mednafen_supergrafx","supergrafx|pcengine|pcenginecd","syscard3.pce|syscard2.pce|syscard1.pce|gexpress.pce"},
     {"stella","atari2600",""},
+    {"neocd","neogeocd",""},
     {"pcsx_rearmed","psx",""},
     {"pcsx2","ps2",""},
     {"fbneo","fbneo|neogeo","neogeo.zip|pgm.zip|skns.zip|decocass.zip|isgsm.zip|midssio.zip|nmk004.zip|ym2608.zip|cchip.zip|bubsys.zip|namcoc69.zip|namcoc70.zip|namcoc75.zip|qsound.zip|qsound_hle.zip"},
@@ -445,6 +447,8 @@ QJsonObject netplayProfile(QString platform,QString core,QString content,int pla
         {"settings","pcsx-two-digital-private-bios-no-sram-v2"},{"players",2}};
     if(core=="pcsx2")return {{"id","runtime.retroarch.ps2.pcsx2.v1"},{"content",content},
         {"settings","lrps2-two-digital-private-bios-no-cards-v1"},{"players",2}};
+    if(core=="neocd")return {{"id","runtime.retroarch.neogeocd.neocd.v1"},{"content",content},
+        {"settings","neocd-two-pad-private-bios-aslr-v1"},{"players",2},{"lateJoin",false}};
     return {{"id","runtime.retroarch."+platform+'.'+core+".v1"},{"content",content},
             {"settings",core+'-'+layout+"-no-sram-v1"},{"players",players}};
 }
@@ -521,6 +525,14 @@ QJsonObject netplayIdentity(const AdventureRegistration& r,const RetroArchInstal
     for(const auto& core:i.cores)observe(cache,core);
     observe(cache,i.linkedSaveHelper);observe(cache,i.linkedSavePython);observe(cache,i.ps2Bios);
     auto coreId=r.integrationConfig["core"].toString();
+    if(r.adventure.platformId=="neogeocd") {
+        if(players!=2)return {};
+        auto identity=neoCdIdentity(r,i,cancel,cache);
+        const auto content=identity.isEmpty()?QString():contentDigest(r.contentPath,cancel,cache);
+        if(content.isEmpty())return {};
+        identity["content"]=content;
+        return identity;
+    }
     const auto cartridgeImage=QStringList{"gb","gbc","gba"}.contains(r.adventure.platformId)
         ?cartridge::read(r.contentPath,r.adventure.platformId,cancel):cartridge::Image{};
     auto handheld=handheldLinkProfile(r,cartridgeImage);
@@ -702,6 +714,12 @@ QString prepareNetplay(ProcessCommand& cmd,const AdventureRegistration& r,const 
     QByteArray options=identityLayout(identity)=="sgx-multitap"?QByteArray("sgx_multitap = \"enabled\"\n"):QByteArray();
     const bool playStation=r.integrationConfig["core"]=="pcsx_rearmed";
     const bool ps2=r.integrationConfig["core"]=="pcsx2";
+    const bool neoCd=r.adventure.platformId=="neogeocd";
+    if(neoCd) {
+        const auto error=prepareNeoCd(cmd,i,identity,path,cancel);if(!error.isEmpty())return error;
+        options="neocd_region = \"Japan\"\nneocd_cdspeedhack = \"Off\"\nneocd_loadskip = \"Off\"\n"
+            "neocd_cpu_overclock = \"100%\"\nneocd_per_content_saves = \"On\"\n";
+    }
     if(playStation) {
         const auto bios=playStationBios(i);
         QJsonObject firmware;
@@ -789,6 +807,7 @@ QString prepareNetplay(ProcessCommand& cmd,const AdventureRegistration& r,const 
                "netplay_input_latency_frames_range = \"6\"\n";
     }
     if(playStation)bytes+="system_directory = \""+path.toUtf8()+"/bios\"\ninitial_disk_change_enable = \"false\"\n";
+    if(neoCd)bytes+="system_directory = \""+path.toUtf8()+"/system\"\ninitial_disk_change_enable = \"false\"\n";
     if(ps2)bytes+="system_directory = \""+path.toUtf8()+"/system\"\nvideo_driver = \"vulkan\"\nvideo_shader_enable = \"false\"\nstdin_cmd_enable = \"true\"\n";
 #ifdef Q_OS_LINUX
     // The existing classic profiles use InputPlumber's virtual pad

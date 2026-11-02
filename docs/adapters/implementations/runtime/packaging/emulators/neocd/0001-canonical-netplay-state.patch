@@ -1,0 +1,83 @@
+diff --git a/src/libretro.cpp b/src/libretro.cpp
+index 2717ee0..0ee8101 100644
+--- a/src/libretro.cpp
++++ b/src/libretro.cpp
+@@ -85,7 +85,7 @@ void retro_get_system_info(struct retro_system_info *info)
+ #ifndef GIT_VERSION
+ #define GIT_VERSION ""
+ #endif
+-    info->library_version = "2022" GIT_VERSION;
++    info->library_version = "2022-traineros-netplay1";
+     info->valid_extensions = "cue|chd";
+     info->need_fullpath = true;
+ }
+@@ -142,12 +142,8 @@ bool retro_unserialize(const void *data, size_t size)
+ 
+     if (neocd->restoreState(state))
+     {
+-        // The disc's track times describe what is in the drive, not
+-        // where the machine has got to, and a state restores the memory
+-        // they live in. A state saved before they were written down
+-        // would otherwise put the empty table back.
+-        if (neocd->usingHleBios)
+-            HleBios::buildTrackTable();
++        // Restore the exact emulated RAM. Rebuilding the HLE track table here
++        // changes a pre-boot snapshot and makes rollback diverge.
+ 
+         // The fix character usage map describes fix memory, and fix
+         // memory was just replaced wholesale; recompute rather than
+diff --git a/src/memory.cpp b/src/memory.cpp
+index 53c83ae..c62da02 100644
+--- a/src/memory.cpp
++++ b/src/memory.cpp
+@@ -657,6 +657,7 @@ DataPacker& operator<<(DataPacker& out, const Memory& memory)
+     out.push(reinterpret_cast<const char*>(memory.videoRam), Memory::VIDEORAM_SIZE);
+     out.push(reinterpret_cast<const char*>(memory.paletteRam), Memory::PALETTERAM_SIZE);
+     out.push(reinterpret_cast<const char*>(memory.z80Ram), Memory::Z80RAM_SIZE);
++    out.push(reinterpret_cast<const char*>(memory.backupRam), Memory::BACKUPRAM_SIZE);
+ 
+     return out;
+ }
+@@ -688,6 +689,7 @@ DataPacker& operator>>(DataPacker& in, Memory& memory)
+     in.pop(reinterpret_cast<char*>(memory.videoRam), Memory::VIDEORAM_SIZE);
+     in.pop(reinterpret_cast<char*>(memory.paletteRam), Memory::PALETTERAM_SIZE);
+     in.pop(reinterpret_cast<char*>(memory.z80Ram), Memory::Z80RAM_SIZE);
++    in.pop(reinterpret_cast<char*>(memory.backupRam), Memory::BACKUPRAM_SIZE);
+ 
+     neocd->video.convertPalette();
+     neocd->video.updateFixUsageMap();
+diff --git a/src/neogeocd.cpp b/src/neogeocd.cpp
+index 49b12e4..606a2c2 100644
+--- a/src/neogeocd.cpp
++++ b/src/neogeocd.cpp
+@@ -299,10 +299,28 @@ bool NeoGeoCD::saveState(DataPacker& out) const
+     HleBios::saveState(out);
+ 
+     // M68K
+-    out << m68ki_cpu;
++    // Host addresses vary with ASLR and are rebuilt on restore. They are not
++    // emulated state and must not participate in netplay state checksums.
++    auto cpuState = m68ki_cpu;
++    cpuState.cyc_instruction = nullptr;
++    cpuState.cyc_exception = nullptr;
++    cpuState.int_ack_callback = nullptr;
++    cpuState.bkpt_ack_callback = nullptr;
++    cpuState.reset_instr_callback = nullptr;
++    cpuState.cmpild_instr_callback = nullptr;
++    cpuState.rte_instr_callback = nullptr;
++    cpuState.tas_instr_callback = nullptr;
++    cpuState.illg_instr_callback = nullptr;
++    cpuState.pc_changed_callback = nullptr;
++    cpuState.set_fc_callback = nullptr;
++    cpuState.instr_hook_callback = nullptr;
++    out << cpuState;
+ 
+     // Z80
+-    out << Z80;
++    auto z80State = Z80;
++    z80State.daisy = nullptr;
++    z80State.irq_callback = nullptr;
++    out << z80State;
+ 
+     // Timers
+     out << timers;

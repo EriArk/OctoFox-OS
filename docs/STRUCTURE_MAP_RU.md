@@ -1,5 +1,12 @@
 # Структура TrainerOS: владельцы, контракты и связи
 
+**2 ноября — S03/S06/S08, Neo Geo CD.** `NeoCdNetplay` проверяет manifest
+отдельного ядра, образ со всеми треками и BIOS; `RetroArchNetplay` готовит
+приватный system/save и два порта через существующие Lobby и реле. S06 не
+получает списка названий или новой модели комнат. Обычный `neocd` сохраняется.
+`packaging/emulators/neocd` владеет патчем, сборкой, native state probe и
+manifest; код включён в adapter export. [Контракт и NGPC-план](emulators/neogeo-multiplayer.md).
+
 **1 ноября — S03/S06/S07/S08, Doom.** `DoomNetplay` допускает точный
 IWAD/набор зависимостей и запускает Odamex через общий жизненный цикл.
 S06 сохраняет Seats/Ready/явный Start; S07 повторно использует `cabinet`
