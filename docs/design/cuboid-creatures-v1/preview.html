@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TrainerOS — кубические существа · образец v1</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f2e8;color:#193c3a;font:16px system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:28px}h1{font-size:28px;margin:0 0 10px}p{line-height:1.5;margin:10px 0 20px;color:#526863}button{font:inherit;border:1px solid #9db4a9;border-radius:10px;padding:9px 14px;background:transparent;color:inherit;cursor:pointer}button:focus-visible{outline:3px solid #dc9e39}button[aria-pressed=true]{background:#d3e5d7}header{display:flex;gap:12px;align-items:center;flex-wrap:wrap}header h1{flex:1}table{width:100%;border-collapse:collapse;table-layout:fixed}th{font-size:14px;font-weight:600;padding:12px 4px}th:first-child{width:72px}td{padding:12px 2px;border-top:1px solid #cfd9ce;text-align:center}td:first-child{font-size:13px;color:#526863}.thumb{position:relative;margin:auto;display:block;overflow:hidden;background:#fff7eb}.crop{position:absolute;overflow:hidden}.crop img,.sprite img{position:absolute;max-width:none;pointer-events:none}.trays{display:flex;gap:16px;flex-wrap:wrap;margin-top:20px}.tray{flex:1;min-width:240px;border-radius:18px;padding:20px;background:#fffdf5;color:#193c3a}.tray.dark{background:#0a1418;color:#e3e9df}.sprites{display:flex;gap:28px;align-items:end;min-height:150px}.sprite{position:relative;overflow:hidden;flex:none}.caption{font-size:12px;opacity:.75}h2{font-size:20px;margin:24px 0 8px}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}details{margin-top:24px}summary{cursor:pointer;font-weight:600}details img{width:100%;margin-top:16px}a{color:inherit}body.dark{background:#091317;color:#e3e9df}body.dark p,body.dark td:first-child{color:#a7b8ae}body.dark td{border-color:#29403f}body.dark button[aria-pressed=true]{background:#284441}@media(max-width:700px){main{padding:14px}table{min-width:740px}.scroll{overflow:auto}}
+</style>
+<main><header><h1>Кубические существа · v1</h1><button id="theme" aria-pressed="false">Тёмное окружение</button></header>
+<p>Художественный образец #161. Пять разных силуэтов; настоящие рамки 32, 48, 96 и 160 CSS px. Это уменьшенные фрагменты концепта, ещё не готовые прозрачные иконки.</p>
+<div class="scroll"><table><thead><tr><th>Рамка</th><th>Маленький</th><th>Широкий</th><th>Высокий</th><th>Летающий</th><th>Общий</th></tr></thead><tbody id="sizes"></tbody></table></div>
+<h2>Проба Idle / моргания</h2><p>Только бирюзовый вариант. Прозрачная проба ещё имеет цветную кайму и небольшую нестабильность формы: для поставки не принята. Можно остановить цикл и сравнить кадры.</p>
+<div class="controls"><button id="play" aria-pressed="false">Воспроизвести</button><button id="next">Следующий кадр</button><span id="frame" aria-live="polite">Кадр 1 / 4</span></div>
+<div class="trays"><section class="tray"><b>Светлый фон</b><div class="sprites" data-background="light"></div></section><section class="tray dark"><b>Тёмный фон</b><div class="sprites" data-background="dark"></div></section></div>
+<details><summary>Исходный концепт целиком</summary><img src="concept.png" alt="Пять оригинальных геометрических существ: жёлтое, зелёное, оранжевое, сиреневое и бирюзовое"></details>
+<p class="caption">Без привязки к видам и без изменения установленной оболочки. <a href="README.md">Статус и происхождение</a> · <a href="prompts.txt">Промпты генерации</a>.</p></main>
+<script>
+const regions=[[0,90,345,510],[350,90,352,510],[705,90,305,510],[1012,90,446,510],[1465,90,309,510]];
+const sizes=document.getElementById('sizes');
+for(const size of [32,48,96,160]){const tr=document.createElement('tr');tr.innerHTML=`<td>${size} px</td>`;for(const [x,y,w,h]of regions){const k=size/Math.max(w,h),td=document.createElement('td');td.innerHTML=`<span class="thumb" style="width:${size}px;height:${size}px"><span class="crop" style="width:${w*k}px;height:${h*k}px;left:${(size-w*k)/2}px;top:${(size-h*k)/2}px"><img alt="Образец ${size} px" src="concept.png" style="width:${1774*k}px;height:${887*k}px;left:${-x*k}px;top:${-y*k}px"></span></span>`;tr.append(td)}sizes.append(tr)}
+for(const tray of document.querySelectorAll('.sprites'))for(const size of [32,64,128]){const box=document.createElement('div');box.innerHTML=`<div class="sprite" style="width:${size}px;height:${size}px"><img src="idle-study.png" alt="Кадр анимации" data-size="${size}"></div><span class="caption">${size} px</span>`;tray.append(box)}
+let current=0,running=false,timer;const timings=[1400,250,120,1000];
+function draw(){for(const img of document.querySelectorAll('.sprite img')){const k=Number(img.dataset.size)/424;Object.assign(img.style,{width:2172*k+'px',height:724*k+'px',left:-(current*543+74)*k+'px',top:-180*k+'px'})}document.getElementById('frame').textContent=`Кадр ${current+1} / 4`}
+function schedule(){clearTimeout(timer);if(running)timer=setTimeout(()=>{current=(current+1)%4;draw();schedule()},timings[current])}
+function playState(){const b=document.getElementById('play');b.textContent=running?'Остановить':'Воспроизвести';b.setAttribute('aria-pressed',running)}
+document.getElementById('play').onclick=()=>{running=!running;playState();schedule()};document.getElementById('next').onclick=()=>{running=false;playState();clearTimeout(timer);current=(current+1)%4;draw()};
+document.getElementById('theme').onclick=e=>{const dark=document.body.classList.toggle('dark');e.target.setAttribute('aria-pressed',dark)};
+document.addEventListener('visibilitychange',()=>{if(document.hidden){running=false;playState();clearTimeout(timer)}});draw();
+const query=new URLSearchParams(location.search);
+if(query.get('theme')==='dark')document.getElementById('theme').click();
+if(query.has('frame')){current=Math.max(0,Math.min(3,Number(query.get('frame'))||0));draw()}
+if(query.has('play'))document.getElementById('play').click();
+if(query.has('study'))requestAnimationFrame(()=>document.querySelector('h2').scrollIntoView());
+</script></html>
