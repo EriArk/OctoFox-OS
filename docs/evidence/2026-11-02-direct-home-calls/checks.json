@@ -1,8 +1,8 @@
 {
-  "source_base": "b44f1a2d",
-  "installed_sha256": "25df255c2d68f886ccd14019deaddd1e84457381df498770b3da23dbf8a405e5",
-  "source_inventory_sha256": "270cc803f6b3e0d374917a23cd767c00962b4b4eafa9f6af937f03c26b6b4617",
-  "source_files": 1566,
+  "source_base": "0dabec03",
+  "installed_sha256": "9635cb113b9929f2e7b3c6cdb22955f19d64e09a18ea879021fafef81159ce8b",
+  "source_inventory_sha256": "e79ee919b0e9eac28014b6b49681af2ff5f58d7e42b6b9e013aa73bae34bdae7",
+  "source_files": 1568,
   "windows_tests": {
     "device": {
       "passed": 24
@@ -24,27 +24,39 @@
   },
   "devices": {
     "flip": {
-      "running_sha256": "25df255c2d68f886ccd14019deaddd1e84457381df498770b3da23dbf8a405e5",
+      "running_sha256": "9635cb113b9929f2e7b3c6cdb22955f19d64e09a18ea879021fafef81159ce8b",
       "helpers_verified": 181,
       "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
       "existing_rows_preserved": true,
       "avatar_pack_preserved": true,
       "settings_unchanged": true,
       "volume": "Volume: 0.20",
-      "inbox_upper_lower_and_direct_home": "visually checked"
+      "inbox_upper_lower_and_direct_home": "checked on preceding same-UI core build; new theme build startup and process hash verified"
     },
     "odin": {
-      "running_sha256": "25df255c2d68f886ccd14019deaddd1e84457381df498770b3da23dbf8a405e5",
+      "running_sha256": "9635cb113b9929f2e7b3c6cdb22955f19d64e09a18ea879021fafef81159ce8b",
       "helpers_verified": 154,
       "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
       "existing_rows_preserved": true,
       "avatar_pack_preserved": true,
       "settings_unchanged": true,
       "volume": "Volume: 0.00",
-      "inbox_upper_lower_and_direct_home": "visually checked"
+      "inbox_upper_lower_and_direct_home": "checked on preceding same-UI core build; new theme build startup and process hash verified"
     }
   },
   "live_call_acceptance": false,
-  "toast_restyle": "source only; owner rejected earlier yellow surface",
-  "companion": "awaiting Crates publication"
+  "toast_restyle": "passed: actual QML rendered and reviewed in both themes, zero QML warnings; installed on both devices",
+  "companion": "owner deferred installation until Crates publication",
+  "previous_installed_sha256": "25df255c2d68f886ccd14019deaddd1e84457381df498770b3da23dbf8a405e5",
+  "includes_parallel_source": "6da4ee7f",
+  "post_merge_tests": {
+    "interaction": {
+      "passed": 59
+    },
+    "social": {
+      "passed": 208,
+      "skipped": 1
+    },
+    "production_arm_build": "passed"
+  }
 }

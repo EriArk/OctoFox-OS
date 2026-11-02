@@ -12,6 +12,8 @@ Keep the upper account bell and duplicate it immediately to the right of the
 footer clock. Each bell opens the same narrow inbox **beside itself**: below the
 upper bell, above the lower bell. Switching bells relocates that same panel.
 Ordinary toasts and incoming-call banners always appear at the bottom right.
+Toast surfaces follow the shared light/dark paper and divider colors; the owner
+rejected the fixed yellow surface and brown border.
 A call banner has direct Answer/Decline actions; swipe or Back hides it without
 rejecting. The still-ringing call stays in the inbox with direct Answer/Decline.
 No intermediate Now menu or implicit microphone consent. Keep state across a
@@ -24,6 +26,8 @@ authentication errors/retry. Drawer ears use the selected controller's glyphs
 without round backgrounds; keyboard fallback uses real X/Y shortcuts.
 These decisions supersede the earlier clock-rightmost and fixed inbox alignment.
 See [current delivery](docs/evidence/2026-11-02-direct-home-calls/README.md).
+Companion installation is explicitly deferred until its Crates publication;
+preserve the other chat's package/host preparation for that later delivery.
 
 **Owner Home boundary correction, 2 November:** the left Home area belongs to
 the shell and the user's selected widget. An active game adapter must not reduce
