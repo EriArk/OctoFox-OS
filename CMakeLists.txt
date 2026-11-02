@@ -91,6 +91,7 @@ add_library(trainer_core STATIC
     src/features/library/LibraryToolsController.cpp
     src/features/library/ScrapeController.cpp
     src/features/home/HomeDashboardController.cpp
+    src/features/home/HomeCompanion.cpp
     src/features/home/ScreensController.cpp
     src/features/home/PlayerStory.cpp
     src/features/files/FilesController.cpp
@@ -386,6 +387,9 @@ qt_add_resources(traineros genre_art PREFIX "/genres" BASE assets/genres
     FILES assets/genres/fighting.png assets/genres/brawlers.png assets/genres/shooters.png assets/genres/racing.png assets/genres/sports.png assets/genres/rpg.png assets/genres/strategy.png assets/genres/platform.png assets/genres/puzzle.png assets/genres/party.png assets/genres/adventure.png assets/genres/music.png)
 qt_add_resources(traineros home_backdrops PREFIX "/home-backdrops" BASE assets/home-backdrops
     FILES assets/home-backdrops/turquoise.png assets/home-backdrops/red.png assets/home-backdrops/green.png assets/home-backdrops/blue.png assets/home-backdrops/orange.png)
+file(GLOB_RECURSE companion_assets CONFIGURE_DEPENDS assets/home-pet/*.glb assets/home-pet/backgrounds/*.png assets/home-pet/ui/*.svg)
+qt_add_resources(traineros companion_assets PREFIX "/home-pet" BASE assets/home-pet FILES ${companion_assets})
+install(DIRECTORY assets/home-pet DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros)
 qt_add_resources(traineros cover_fallbacks PREFIX "/cover-fallbacks" BASE assets/cover-fallbacks
     FILES assets/cover-fallbacks/fantasy-0.png assets/cover-fallbacks/fantasy-1.png assets/cover-fallbacks/fantasy-2.png assets/cover-fallbacks/fantasy-3.png assets/cover-fallbacks/fantasy-4.png assets/cover-fallbacks/fantasy-5.png assets/cover-fallbacks/racing-0.png assets/cover-fallbacks/racing-1.png assets/cover-fallbacks/sports-0.png assets/cover-fallbacks/sports-1.png assets/cover-fallbacks/scifi-0.png assets/cover-fallbacks/scifi-1.png assets/cover-fallbacks/puzzle-0.png assets/cover-fallbacks/puzzle-1.png assets/cover-fallbacks/action-0.png assets/cover-fallbacks/action-1.png assets/cover-fallbacks/neutral-0.png assets/cover-fallbacks/neutral-1.png)
 qt_add_resources(traineros crt_texture PREFIX "/textures" BASE assets/textures FILES assets/textures/crt.svg)
@@ -432,12 +436,18 @@ foreach(qml_file IN LISTS trainer_qml_sources)
     set_source_files_properties("${qml_file}" PROPERTIES QT_RESOURCE_ALIAS "${qml_name}")
 endforeach()
 target_include_directories(traineros PRIVATE src/platform/media)
+set_source_files_properties(sdk/qt/AvatarView3D.qml PROPERTIES QT_RESOURCE_ALIAS AvatarView3D.qml)
+if(TRAINER_AVATAR_PREVIEW)
+    set(avatar_scene_sources sdk/qt/AvatarScene.h sdk/qt/AvatarScene.cpp)
+    target_include_directories(traineros PRIVATE sdk/qt)
+endif()
 qt_add_qml_module(traineros
     URI TrainerOS
     VERSION 1.0
     RESOURCE_PREFIX /
-    SOURCES src/platform/media/GameStreamView.h src/platform/media/GameStreamView.cpp
+    SOURCES src/platform/media/GameStreamView.h src/platform/media/GameStreamView.cpp ${avatar_scene_sources}
     QML_FILES
+        sdk/qt/AvatarView3D.qml
         src/qml/BrowserPane.qml
         src/qml/BrowserEngine.qml
         src/qml/AdventureArtwork.qml
@@ -495,6 +505,8 @@ qt_add_qml_module(traineros
         src/qml/ExperienceHost.qml
         src/qml/GenericExperiencePage.qml
         src/qml/HomeDashboard.qml
+        src/qml/HomeCompanionWidget.qml
+        src/qml/HomeCompanionScene.qml
         src/qml/HomeWidgetSlot.qml
     src/qml/GameHubPage.qml
     src/qml/OnlinePage.qml
@@ -921,6 +933,17 @@ if(BUILD_TESTING)
     add_test(NAME interactions COMMAND trainer_interaction_tests)
     set_tests_properties(interactions PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software")
     qt_add_executable(trainer_experience_tests tests/ExperienceTests.cpp)
+    qt_add_executable(trainer_home_companion_tests tests/HomeCompanionTests.cpp src/features/home/HomeCompanion.cpp)
+    target_include_directories(trainer_home_companion_tests PRIVATE src)
+    target_link_libraries(trainer_home_companion_tests PRIVATE Qt6::Core Qt6::Test)
+    add_test(NAME home_companion COMMAND trainer_home_companion_tests)
+    if(TRAINER_AVATAR_PREVIEW)
+        qt_add_executable(trainer_avatar_scene_tests tests/AvatarSceneTests.cpp sdk/qt/AvatarScene.cpp
+            src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp)
+        target_include_directories(trainer_avatar_scene_tests PRIVATE src sdk/qt)
+        target_link_libraries(trainer_avatar_scene_tests PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick3D Qt6::Test Qt6::Concurrent)
+        add_test(NAME avatar_scene COMMAND trainer_avatar_scene_tests)
+    endif()
     target_link_libraries(trainer_experience_tests PRIVATE trainer_core Qt6::Test)
     add_test(NAME experience COMMAND trainer_experience_tests)
     qt_add_executable(trainer_worlds_tests tests/WorldsTests.cpp)

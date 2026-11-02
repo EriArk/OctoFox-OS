@@ -1,0 +1,114 @@
+[
+    {
+        "path":  "assets/home-pet/ui/food.svg",
+        "sha256":  "a73de37e15a8a560c5e52ab4a8664ad0e03a0fed2f2462471ac584ade920b1d8"
+    },
+    {
+        "path":  "assets/home-pet/ui/game.svg",
+        "sha256":  "6bbff06713f8fde9ac75b83f2f8f94927c1b48651a1f3c7c8b7e9fbd9745bf5a"
+    },
+    {
+        "path":  "assets/home-pet/ui/menu.svg",
+        "sha256":  "07bcb1bfbef09524d2c17082a203b1b59458ee6cf1be1c9f236418ed13dbee87"
+    },
+    {
+        "path":  "assets/home-pet/ui/rest.svg",
+        "sha256":  "e4bbf0dc7b05a6e9c91999c2e8d65f1e617e66aaf5b7e6d1c4cfd0421e9879b6"
+    },
+    {
+        "path":  "CMakeLists.txt",
+        "sha256":  "79884c0fe64f5358201447fb28340ec63de6b8413b3d4fb43090000e49638743"
+    },
+    {
+        "path":  "sdk/qt/AvatarScene.cpp",
+        "sha256":  "420b56a15bcde86d2225e5f52df834ea2770c527ef43151bc284abd9966cd560"
+    },
+    {
+        "path":  "sdk/qt/AvatarScene.h",
+        "sha256":  "18d87505f419ff20b14f17fb4d6e62696f19d9981d809aa3c3f03e3b6564b856"
+    },
+    {
+        "path":  "sdk/qt/AvatarView3D.qml",
+        "sha256":  "b488b94839ffd173f02819b0698f7b9fa2bca79a345dab2f37b2433f15861617"
+    },
+    {
+        "path":  "src/app/Main.cpp",
+        "sha256":  "515a4258a0b2a4cb5acb95a8945bfb5410470bbfb5d41b136ea4d1f26c7029b8"
+    },
+    {
+        "path":  "src/core/navigation/ShellController.cpp",
+        "sha256":  "fc98a89f6c8a7aad74542d0f0e6344012307931da9a1ec622cbb7df8bd5faab5"
+    },
+    {
+        "path":  "src/features/home/HomeCompanion.cpp",
+        "sha256":  "5db7664147624ff56c603282bb60e1be4f493d269b22524de011600067ae78bb"
+    },
+    {
+        "path":  "src/features/home/HomeCompanion.h",
+        "sha256":  "2d109f56b24c3d66089c9186d1efcc2052d875b9474bddad429d9912b847c0e6"
+    },
+    {
+        "path":  "src/features/home/HomeDashboardController.cpp",
+        "sha256":  "c31568c0fb8cb065685dea003f1a5fd5775ab5c9b95c70bb4867be534a35537d"
+    },
+    {
+        "path":  "src/features/home/HomeDashboardController.h",
+        "sha256":  "f9e02b74fdf4e8ed04ad52704e3c08e6cb63b8bbb9e4ddd8a238c19ed3a073d0"
+    },
+    {
+        "path":  "src/features/home/PlayHistoryController.cpp",
+        "sha256":  "d14b34bb9817d389767174839f9e4c5d6a69dff1cd4029e32fa19bf2170f6f13"
+    },
+    {
+        "path":  "src/features/home/PlayHistoryController.h",
+        "sha256":  "6c840bbd23dd94641b8964f70e1f6f21c1bfc7eb510accdbfa019e329ac03993"
+    },
+    {
+        "path":  "src/features/trainer/TrainerController.h",
+        "sha256":  "22f6bbccea34da8a1be65ab3b045b78d512c96f08b1be395611a1b7c407d5a12"
+    },
+    {
+        "path":  "src/qml/HomeCompanionScene.qml",
+        "sha256":  "0fd3fc140fdf5c22dd75c7502744a364dc2b77efeb0923f6950331a8df34f180"
+    },
+    {
+        "path":  "src/qml/HomeCompanionWidget.qml",
+        "sha256":  "6a633672324836313e4e54d2b07ddd6b634c928412a0b0597b2ecd1f530ed5f8"
+    },
+    {
+        "path":  "src/qml/HomeDashboard.qml",
+        "sha256":  "ab51b93e7184532643edce1006fc212313279ca2dca72c7a33b9c09c64d1ff21"
+    },
+    {
+        "path":  "src/qml/HomeWidgetSlot.qml",
+        "sha256":  "686d2b6a90412c1cb62c8054c76ae256e358dc18381fdbb9780f0bdda1f81de8"
+    },
+    {
+        "path":  "tests/AvatarSceneTests.cpp",
+        "sha256":  "72590c074df06bc544828f67b028b7fa3e0ce7d61326e7602880efb13dbc7dec"
+    },
+    {
+        "path":  "tests/ExperienceTests.cpp",
+        "sha256":  "9deedf6bf608831a19ce57ff87808a9ed70b313bfd432c98a15f566308e55839"
+    },
+    {
+        "path":  "tests/home-companion-preview/CMakeLists.txt",
+        "sha256":  "eab699990c2d1a49b84ead768fc1b57ae90fdd50724e520be08917ef8ff144c5"
+    },
+    {
+        "path":  "tests/home-companion-preview/main.cpp",
+        "sha256":  "87a2f11393b1249a00785a9249c7c2b6aa2e585f43990bab9cad24675a3603c3"
+    },
+    {
+        "path":  "tests/home-companion-preview/Preview.qml",
+        "sha256":  "75c8c2b0833fe9358f5ce0100277adee45084d66188ec9c63291febfb1ce58ec"
+    },
+    {
+        "path":  "tests/HomeCompanionTests.cpp",
+        "sha256":  "7ecb68e5762610049581907cb2a08bfcd230b8b444a8a98efcd7552a391dcc77"
+    },
+    {
+        "path":  "tests/PlayHistoryTests.cpp",
+        "sha256":  "ae05369bd6d4145eaf000f6d7d7b1c667135eecee29de28b9d30022745304c5e"
+    }
+]

@@ -1,6 +1,7 @@
 # Home companion art preparation
 
-Prepared 2026-11-02; not yet connected to the Home widget.
+Prepared 2026-11-02. Food, lounge chair and the three backgrounds are connected
+to the Home companion source implementation; other props remain prepared assets.
 
 `manifest.json` records the 14 selected Kenney props, original archive/file hashes,
 output hashes and triangle counts. Source licenses remain in each pack directory.
@@ -27,5 +28,12 @@ no avatar, UI, food or central movable furniture is baked into the plates.
 Use a bounded QML Image sourceSize for the widget's physical display size and
 load only the selected background. Match the live avatar camera, lighting and
 contact shadow to the background. Do not use the room as a free-rotation 3D
-environment. Wide/compact widget composition and real-avatar integration still
-need visual review; the pictures alone are not proof of that integration.
+environment. Wide/compact real-avatar screenshots are retained in
+[companion evidence](../../docs/evidence/2026-11-02-home-companion/README.md);
+handheld acceptance remains separate.
+
+## UI icons
+
+`ui/*.svg` are original TrainerOS vector source icons, GPL-3.0-or-later.
+They are not part of the Kenney CC0 asset packs. The gamepad is a read-only
+playtime indicator; there is no Play action.

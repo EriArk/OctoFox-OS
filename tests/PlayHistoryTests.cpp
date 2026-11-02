@@ -363,6 +363,7 @@ private slots:
         QTemporaryDir dir; const auto path = content(dir);
         LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending()); addAdventure(store, path); profile(store);
         ProcessService process; AdventureLaunchController launch(process); PlayHistoryController history(launch, store);
+        QSignalSpy gameplay(&history,&PlayHistoryController::gameplayElapsed);
         history.setMediaSource([&](const QString& id) -> std::optional<ExitMediaSource> { return ExitMediaSource{"owner", "pokemon", *store.registration(id)}; });
         connect(&launch, &AdventureLaunchController::checkpointRequested, this, [&](quint64 token, const QJsonObject&) { launch.checkpointCompleted(token, {}); });
         const auto probe = QDir(QCoreApplication::applicationDirPath()).filePath(
@@ -374,6 +375,9 @@ private slots:
         );
         QVERIFY(launch.launch({probe, {"controlled", dir.filePath("command"), dir.filePath("pid")}, {}}, {}, "journey"));
         QTRY_COMPARE(launch.state(), "running"); QTRY_COMPARE(store.pending(), 0);
+        QTRY_VERIFY_WITH_TIMEOUT(!gameplay.isEmpty(),3000);
+        QVERIFY(launch.setMinimized(true));gameplay.clear();QTest::qWait(1150);QVERIFY(gameplay.isEmpty());
+        QVERIFY(launch.setMinimized(false));QTRY_VERIFY_WITH_TIMEOUT(!gameplay.isEmpty(),3000);
         auto& exit = launch.exitController(); exit.setAvailable(true);
         QImage frame(48, 32, QImage::Format_RGB32); frame.fill(Qt::yellow);
         QVERIFY(exit.requestExit()); exit.captureCompleted(exit.attempt(), frame); QVERIFY(exit.cancel());

@@ -15,17 +15,21 @@ HomeDashboardController::HomeDashboardController(LibraryRepository& library,Achi
         emit changed();
     });
     connect(&provider_,&AchievementProvider::snapshotChanged,this,[this]{achievementsCached_=false;emit changed();});
+    connect(&provider_,&AchievementProvider::achievementsEarned,&companion_,&HomeCompanion::celebrate);
+    connect(&companion_,&HomeCompanion::changed,this,&HomeDashboardController::changed);
+    connect(&companion_,&HomeCompanion::widgetChangeRequested,this,&HomeDashboardController::editWidget);
 }
 void HomeDashboardController::setContext(QString adventure,bool generic) {
     if(adventure_==adventure && generic_==generic)return;
-    adventure_=std::move(adventure);generic_=generic;focus_="play";widgetPicking_=false;achievementsCached_=false;emit changed();
+    companion_.end();adventure_=std::move(adventure);generic_=generic;focus_="play";widgetPicking_=false;achievementsCached_=false;emit changed();
 }
 QVariantList HomeDashboardController::widgetChoices() const {
     return {QVariantMap{{"id",""},{"title","No widget"}},
         QVariantMap{{"id","downloads"},{"title","Downloads"}},
         QVariantMap{{"id","storage"},{"title","Storage"}},
         QVariantMap{{"id","clock"},{"title","Clock"}},
-        QVariantMap{{"id","battery"},{"title","Battery"}}};
+        QVariantMap{{"id","battery"},{"title","Battery"}},
+        QVariantMap{{"id","companion"},{"title","Companion"}}};
 }
 QVariantMap HomeDashboardController::widget() const {
     if(widgetId_.isEmpty())return {};
@@ -35,6 +39,7 @@ QVariantMap HomeDashboardController::widget() const {
     return {};
 }
 void HomeDashboardController::setOwner(const QString& owner) {
+    companion_.setOwner(owner);
     const auto key=owner.isEmpty()?QString():"home/widget/v1/"+QString::fromLatin1(QCryptographicHash::hash(owner.toUtf8(),QCryptographicHash::Sha256).toHex());
     if(key==ownerKey_)return;
     ownerKey_=key;widgetId_=key.isEmpty()?QString():QSettings().value(key).toString();
@@ -43,6 +48,7 @@ void HomeDashboardController::setOwner(const QString& owner) {
 }
 void HomeDashboardController::editWidget() {
     if(ownerKey_.isEmpty())return;
+    companion_.end();
     focus_="widget";widgetPicking_=true;widgetChoiceIndex_=0;
     const auto rows=widgetChoices();for(int i=0;i<rows.size();++i)if(rows[i].toMap()["id"]==widgetId_)widgetChoiceIndex_=i;
     emit changed();
@@ -55,7 +61,8 @@ void HomeDashboardController::chooseWidget(const QString& id) {
 }
 void HomeDashboardController::closeWidgetPicker() {if(widgetPicking_){widgetPicking_=false;emit changed();}}
 void HomeDashboardController::activateWidget() {
-    if(widgetId_.isEmpty())editWidget();else emit widgetActivated(widgetId_);
+    if(widgetId_=="companion") {if(companion_.interacting())companion_.perform(companion_.focus());else companion_.begin();}
+    else if(widgetId_.isEmpty())editWidget();else emit widgetActivated(widgetId_);
 }
 QVariantList HomeDashboardController::people() const {
     auto rows=social_.quickPeople();
@@ -106,7 +113,7 @@ QVariantMap HomeDashboardController::target(const QString& key) const {
     for(const auto& rows:{people(),achievements()})for(const auto& row:rows)if(row.toMap()["key"]==key)return row.toMap();
     return {}; // An expired focused item never becomes a new row at its old index.
 }
-void HomeDashboardController::select(const QString& key) {if(!target(key).isEmpty()){focus_=key;emit changed();}}
+void HomeDashboardController::select(const QString& key) {if(!target(key).isEmpty()){if(key!="widget")companion_.end();focus_=key;emit changed();}}
 void HomeDashboardController::move(Action action) {
     if(widgetPicking_) {
         if(action==Action::Back || action==Action::Home || action==Action::SystemMenu)closeWidgetPicker();
@@ -115,6 +122,11 @@ void HomeDashboardController::move(Action action) {
         return;
     }
     if(focus_=="widget") {
+        if(widgetId_=="companion"&&companion_.interacting()) {
+            if(action==Action::NextFace || action==Action::PreviousFace)reset();
+            else companion_.dispatch(action);
+            return;
+        }
         if(action==Action::Up)select(people().isEmpty()?"lobbies":people().last().toMap()["key"].toString());
         else if(action==Action::Right || action==Action::Back || action==Action::NextFace || action==Action::PreviousFace)reset();
         return;

@@ -12,8 +12,15 @@ public:
     void setMediaSource(std::function<std::optional<ExitMediaSource>(const QString&)> source) { mediaSource_ = std::move(source); }
 signals:
     void writeFailed(const QString& error);
+    // Live, foreground local gameplay only; independent of stored session totals.
+    // No credit for launch preparation, minimized shell time or a suspended event loop.
+    void gameplayElapsed(qint64 seconds);
 private:
     void save(const PlaySession&);
+    void sampleGameplay();
+    QTimer gameplayTimer_;
+    QElapsedTimer gameplayClock_;
+    qint64 gameplayRemainder_=0;
     PlayHistoryRepository& repository_;
     std::optional<PlaySession> active_;
     QElapsedTimer clock_;

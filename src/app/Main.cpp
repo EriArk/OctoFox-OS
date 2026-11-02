@@ -1083,6 +1083,8 @@ int main(int argc, char* argv[]) {
         }
         std::unique_ptr<PlayHistoryController> playHistory;
         if (personalLibrary) playHistory = std::make_unique<PlayHistoryController>(adventureLaunch, *store);
+        if (playHistory) bindings.connect(playHistory.get(),&PlayHistoryController::gameplayElapsed,
+            shell.dashboard()->companion(),&HomeCompanion::addGameplaySeconds);
         if (playHistory) playHistory->setMediaSource([&](const QString& id) -> std::optional<ExitMediaSource> {
             const auto profile = store->load();
             const auto record = activeLibrary.registration(id);

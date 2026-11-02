@@ -60,6 +60,23 @@ private slots:
         QTRY_VERIFY(shell.device()->status()[1].toMap()["value"].toString().contains("20.0"));
         const int observed=reads.load();dashboard->reset();dashboard->select("widget");QCOMPARE(reads.load(),observed);
     }
+    void companionControllerMenuAndExistingInbox() {
+        const auto owner="companion-test-"+QUuid::createUuid().toString();
+        MockLibraryRepository library;MockTrainerRepository profiles(TrainerProfile{owner,"Companion test","compass",{},QDateTime::currentDateTimeUtc()});MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        auto* dashboard=shell.dashboard();auto* pet=dashboard->companion();
+        dashboard->editWidget();dashboard->chooseWidget("companion");pet->setActive(true);
+        QSignalSpy launches(&shell,&ShellController::homeLaunchPressed);
+        shell.dispatch(Action::Confirm);QVERIFY(pet->interacting());
+        shell.dispatch(Action::Right);QCOMPARE(pet->focus(),2);
+        shell.dispatch(Action::Confirm);QCOMPARE(pet->activity(),QString("rest"));
+        shell.dispatch(Action::Up);shell.dispatch(Action::Confirm);QVERIFY(pet->menuOpen());
+        shell.dispatch(Action::Down);shell.dispatch(Action::Confirm);QVERIFY(pet->quiet());
+        shell.dispatch(Action::Back);QVERIFY(!pet->menuOpen());QVERIFY(pet->interacting());
+        pet->perform(5);QVERIFY(shell.notificationsOpen());QVERIFY(launches.isEmpty());
+        shell.dispatch(Action::Back);dashboard->select("widget");pet->perform(7);QVERIFY(dashboard->widgetPicking());
+    }
     void shellDisconnectsServiceAndModuleCallbacksBeforeTeardown() {
         class ClosingExperience final : public ExperienceModule {
         public:

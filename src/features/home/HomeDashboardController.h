@@ -4,6 +4,7 @@
 #include "integrations/achievements/AchievementProvider.h"
 #include "features/social/SocialController.h"
 #include <QObject>
+#include "HomeCompanion.h"
 
 namespace trainer {
 // Read-only game projections; shared Home focus and per-profile widget choice.
@@ -17,12 +18,14 @@ class HomeDashboardController final : public QObject {
     Q_PROPERTY(QVariantList widgetChoices READ widgetChoices NOTIFY changed)
     Q_PROPERTY(bool widgetPicking READ widgetPicking NOTIFY changed)
     Q_PROPERTY(int widgetChoiceIndex READ widgetChoiceIndex NOTIFY changed)
+    Q_PROPERTY(trainer::HomeCompanion* companion READ companion CONSTANT)
 public:
     HomeDashboardController(LibraryRepository&,AchievementProvider&,SocialController&,QObject* parent=nullptr);
     QVariantList people() const;
     QVariantList achievements() const;
     void setContext(QString adventure,bool generic);
     void setOwner(const QString& owner);
+    HomeCompanion* companion(){return &companion_;}
     QVariantMap widget() const;
     QVariantList widgetChoices() const;
     bool widgetPicking() const {return widgetPicking_;}
@@ -36,7 +39,7 @@ public:
     void select(const QString&);
     void move(Action);
     QVariantMap target(const QString&) const;
-    void reset(){focus_="play";emit changed();}
+    void reset(){companion_.end();focus_="play";emit changed();}
 signals:
     void changed();
     void scrollRequested(int direction);
@@ -46,6 +49,7 @@ private:
     LibraryRepository& library_;
     AchievementProvider& provider_;
     SocialController& social_;
+    HomeCompanion companion_{this};
     QString focus_="play",adventure_;
     QString ownerKey_,widgetId_;
     bool widgetPicking_=false;

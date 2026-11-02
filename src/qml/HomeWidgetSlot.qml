@@ -31,11 +31,16 @@ Item {
     }
     Loader {
         anchors.fill: parent
-        active: root.visible && !root.picking && !!root.flow.widget.id
+        active: root.visible && !root.picking && !!root.flow.widget.id && root.flow.widget.id!=="companion"
         sourceComponent: ControlWidget {
             shell: root.shell; board: homeBoard
             modelData: ({ id: root.flow.widget.id || "", title: root.flow.widget.title || "", w: 4, h: root.height >= 180 ? 4 : 2 })
         }
+    }
+    Loader {
+        anchors.fill:parent
+        active:root.visible && !root.picking && root.flow.widget.id==="companion"
+        sourceComponent:HomeCompanionWidget {shell:root.shell;selected:root.selected}
     }
     Rectangle {
         anchors.fill: parent
@@ -58,7 +63,7 @@ Item {
     SocialIconButton {
         objectName: "home-widget-edit"
         anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 4
-        visible: !!root.flow.widget.id && !root.picking
+        visible: !!root.flow.widget.id && root.flow.widget.id!=="companion" && !root.picking
         icon: "dots-three"; label: "Change widget"
         onClicked: root.shell.editHomeWidget()
     }

@@ -422,6 +422,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         if(service_=="profile") { settings_.communication()->leave(); trainer_.beginAvatarEdit(); }
     });
     connect(&controls_,&ControlsDashboard::actionRequested,this,&ShellController::systemAction);
+    connect(dashboard_.companion(),&HomeCompanion::inboxRequested,this,&ShellController::openNotifications);
     connect(&dashboard_,&HomeDashboardController::widgetActivated,this,[this](const QString& id){
         if(id=="downloads")downloads_.begin();
         else if(id=="battery")systemAction("power");
