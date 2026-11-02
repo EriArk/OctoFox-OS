@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "base": "51140203",
+  "sha256": "5110839cdf20e420d6f441eb3636e70e7a45547d5c0c1a21a150a1df6b9c675e",
+  "package_sha256": "a5fd980de2eafdd372a40d192e980de8978016d39b7f575277ad0dd20ec77eeb",
+  "source_files": 1318,
+  "source_manifest_sha256": "60048055e79488c040cfea41307469e004e45abe84e7037a6377e01e3cf00f6b",
+  "runtime": "4244adc23360a88dd0735f239175044374f375d9581d2035f987cc3543322f61",
+  "fingerprint": "19:p71ed3b6b04c86e97",
+  "tests": {
+    "ngpc-admission.txt": "Totals: 3 passed, 0 failed, 0 skipped, 0 blacklisted, 1058ms",
+    "cartridge.txt": "Totals: 18 passed, 0 failed, 0 skipped, 0 blacklisted, 303ms",
+    "runtime.txt": "Totals: 106 passed, 0 failed, 0 skipped, 0 blacklisted, 124857ms",
+    "lobby.txt": "Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 860ms"
+  }
+}

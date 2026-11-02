@@ -1,0 +1,60 @@
+{
+  "installed": {
+    "flip": {
+      "sha256": "5110839cdf20e420d6f441eb3636e70e7a45547d5c0c1a21a150a1df6b9c675e",
+      "ngpc": [
+        [
+          [
+            "retroarch",
+            24
+          ]
+        ]
+      ],
+      "old_protected_rows_preserved": true,
+      "other_runtime_manifests_preserved": true,
+      "avatar_preserved": true,
+      "ordinary_integration_preserved": true,
+      "settings_unchanged": true,
+      "volume": "Volume: 0.20",
+      "running_sessions": 0
+    },
+    "odin": {
+      "sha256": "5110839cdf20e420d6f441eb3636e70e7a45547d5c0c1a21a150a1df6b9c675e",
+      "ngpc": [
+        [
+          [
+            "retroarch",
+            17
+          ]
+        ]
+      ],
+      "old_protected_rows_preserved": true,
+      "other_runtime_manifests_preserved": true,
+      "avatar_preserved": true,
+      "ordinary_integration_preserved": true,
+      "settings_unchanged": true,
+      "volume": "Volume: 0.00",
+      "running_sessions": 0
+    }
+  },
+  "startup": {
+    "flip": {
+      "sha256": "5110839cdf20e420d6f441eb3636e70e7a45547d5c0c1a21a150a1df6b9c675e",
+      "qml_error_count": 0,
+      "startup_window_logged": true,
+      "package_hashes_verified": true,
+      "native_libraries_loaded": true,
+      "helper_verified": true,
+      "volume": "Volume: 0.20"
+    },
+    "odin": {
+      "sha256": "5110839cdf20e420d6f441eb3636e70e7a45547d5c0c1a21a150a1df6b9c675e",
+      "qml_error_count": 0,
+      "startup_window_logged": true,
+      "package_hashes_verified": true,
+      "native_libraries_loaded": true,
+      "helper_verified": true,
+      "volume": "Volume: 0.00"
+    }
+  }
+}

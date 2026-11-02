@@ -1,4 +1,5 @@
 #include "RuntimeIdentity.h"
+#include "integrations/adventure/standalone/NgpcNetplay.h"
 #include "integrations/adventure/standalone/Model3Netplay.h"
 #include "integrations/adventure/standalone/DoomNetplay.h"
 #include "integrations/adventure/standalone/XboxLan.h"
@@ -17,6 +18,7 @@ QJsonObject runtimeIdentity(const AdventureRegistration& original,const RetroArc
  const std::atomic_bool& cancel,int capacity,retroarch::NetplayDigestCache* digests) {
     const auto r=retroarch::netplayRegistration(original);
     const auto platform=r.adventure.platformId;
+    if(platform=="ngp"||platform=="ngpc")return ngpc::netplayIdentity(r,cancel,[digests](const QString& path){if(digests)digests->observe(path);});
     if(platform=="ps2") {
         const auto native=ps2lan::netplayIdentity(r,cancel,[digests](const QString& path){if(digests)digests->observe(path);});
         return native.isEmpty()?ps2::netplayIdentity(r,installation,cancel):native;

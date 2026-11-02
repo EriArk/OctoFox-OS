@@ -565,6 +565,30 @@
       "savePolicy": "Isolated own SRAM; protected normal-exit return with preimage backup. Gen II uses the patched Gambatte-compatible eight-byte RTC bridge and a recoverable two-file intent. Conflicts or crash retain original files and recovery copies; unrelated RTC remains untouched. The DoubleCherryGB generic volatile-pair route accepts only non-battery cartridges and never imports or returns personal SRAM/RTC. Generic supported battery cartridges use the patched SameBoy subsystem, authenticated opaque guest SRAM preparation and host state replication; only the assigned local SRAM returns with the same preimage/conflict/crash protection. Existing volatile profiles remain no-save; generic GB/GBC RTC and special cartridges remain excluded. Generic GBA parties of 2-4 use mGBA Splitscreen with private per-member authenticated preparation, a frozen contiguous roster and protected own-slot return. Recognized raw battery sizes are padded only in private sessions and restored to the original size; unknown trailers are rejected.",
       "implementation": "implementations/runtime",
       "profile": "implementations/runtime/profiles/runtime.handheld.json"
+    },
+    {
+      "id": "runtime.ngpc.link.v1",
+      "platform": "ngp/ngpc",
+      "romSha256": "",
+      "state": "partial",
+      "record": "../emulators/neogeo-multiplayer.md",
+      "persistentSaveWrites": true,
+      "evidence": [
+        "pinned-upstream-mirror-reuse",
+        "own-linked-flash-rtc-atomic-checkpoint",
+        "four-native-consoles-over-cabinet-ice-dtls",
+        "two-real-sdl-processes-restart-and-loss",
+        "installed-flip-odin-with-current-core",
+        "host-x11-owned-window-and-normal-close"
+      ],
+      "remaining": [
+        "wide-game-hle-wan-and-cross-architecture-acceptance"
+      ],
+      "implementationSource": "src/integrations/adventure/standalone/NgpcNetplay.cpp",
+      "implementation": "implementations/runtime",
+      "savePolicy": "Own opaque linked flash/battery/RTC per local Trainer and exact cartridge, backup and atomic CAS. Peer seed is memory-only; no ordinary solo import, no ROM writes, no semantic authority.",
+      "profile": "implementations/runtime/profiles/runtime.ngpc.link.v1.json",
+      "recipe": "packaging/emulators/ngpc/build.sh"
     }
   ],
   "builds": [

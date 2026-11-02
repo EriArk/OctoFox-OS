@@ -6,6 +6,7 @@
 #include "integrations/adventure/standalone/XboxLan.h"
 #include "integrations/adventure/standalone/Model3Netplay.h"
 #include "integrations/adventure/standalone/DoomNetplay.h"
+#include "integrations/adventure/standalone/NgpcNetplay.h"
 #include "integrations/adventure/standalone/CabinetConnection.h"
 #include "integrations/adventure/standalone/NativeLanConnection.h"
 #include "integrations/adventure/standalone/AzaharNetplay.h"
@@ -48,6 +49,46 @@ class StandaloneTests final : public QObject {
         QFile file(path); QVERIFY(file.open(QIODevice::WriteOnly)); QCOMPARE(file.write(data), data.size());
     }
 private slots:
+    void ngpcPackageOwnProgressAndArchives() {
+#ifdef Q_OS_WIN
+        QSKIP("Native Linux package preparation");
+#else
+        const auto source=qEnvironmentVariable("TRAINEROS_NGPC_TEST_BUNDLE");
+        if(source.isEmpty())QSKIP("Supply the sealed NGPC package");
+        QTemporaryDir dir;const auto old=qgetenv("XDG_DATA_HOME");const bool oldMode=QStandardPaths::isTestModeEnabled();
+        QStandardPaths::setTestModeEnabled(false);qputenv("XDG_DATA_HOME",dir.filePath("data").toUtf8());
+        const auto restore=qScopeGuard([&]{if(old.isNull())qunsetenv("XDG_DATA_HOME");else qputenv("XDG_DATA_HOME",old);QStandardPaths::setTestModeEnabled(oldMode);});
+        const auto root=ngpc::bundleRoot();QVERIFY(QDir().mkpath(root));
+        QFile manifest(source+"/manifest.json");QVERIFY(manifest.open(QIODevice::ReadOnly));
+        const auto m=QJsonDocument::fromJson(manifest.readAll()).object();const auto files=m["files"].toObject();
+        for(auto it=files.begin();it!=files.end();++it){QVERIFY(QDir().mkpath(QFileInfo(root+'/'+it.key()).absolutePath()));QVERIFY(QFile::copy(source+'/'+it.key(),root+'/'+it.key()));}
+        write(root+"/manifest.json",QJsonDocument(m).toJson());
+        AdventureRegistration r;r.adventure.id="pocket-fixture";r.adventure.platformId="ngpc";r.adventure.title="Arbitrary renamed game";r.adventure.adapterId="retroarch";
+        const QByteArray rom(32768,'x');r.contentPath=dir.filePath("game.ngc");write(r.contentPath,rom);
+        std::atomic_bool cancel=false;const auto profile=ngpc::netplayIdentity(r,cancel);QVERIFY(!profile.isEmpty());
+        QCOMPARE(profile["players"].toInt(),2);QVERIFY(!profile["lateJoin"].toBool());
+        QVERIFY(localLobbyRuntime(profile));QVERIFY(permitsMultiplayer({{"players","1"}},profile));
+        QCOMPARE(multiplayerPresentation(profile)["id"].toString(),"link");
+        for(const auto& format:QStringList{"zip","7z"}) {
+            r.contentPath=dir.filePath("renamed."+format);write(r.contentPath,cartridgeArchive(format,{{"nested/other.NGC",rom}}));
+            QVERIFY(sameMultiplayerGame(profile,ngpc::netplayIdentity(r,cancel)));
+        }
+        const auto connection=dir.filePath("connection.json");
+        flycast::CabinetConnection c{1,2,{{2,dir.filePath("peer/cabinet.sock")}}};
+        write(connection,c.encode());QFile::setPermissions(connection,QFile::ReadOwner|QFile::WriteOwner);
+        auto own=ngpc::command(r,profile,connection,true,"trainer-a",{});QCOMPARE(own.prepare(own,cancel),QString());
+        QCOMPARE(own.program,"/usr/bin/env");QVERIFY(own.arguments.contains("-I"));
+        write(own.workingDirectory+"/state.json","own prior progress");
+        auto duplicate=ngpc::command(r,profile,connection,true,"trainer-a",{});QVERIFY(!duplicate.prepare(duplicate,cancel).isEmpty());
+        auto other=ngpc::command(r,profile,connection,true,"trainer-b",{});QCOMPARE(other.prepare(other,cancel),QString());
+        QVERIFY(other.workingDirectory!=own.workingDirectory);other.settled({});own.settled({});
+        auto wrongSeat=ngpc::command(r,profile,connection,false,"trainer-a",{});QVERIFY(!wrongSeat.prepare(wrongSeat,cancel).isEmpty());
+        auto changed=profile;changed["content"]=QString(64,'0');
+        auto stale=ngpc::command(r,changed,connection,true,"trainer-a",{});QVERIFY(!stale.prepare(stale,cancel).isEmpty());
+        QFile saved(own.workingDirectory+"/state.json");QVERIFY(saved.open(QIODevice::ReadOnly));QCOMPARE(saved.readAll(),QByteArray("own prior progress"));
+        write(root+"/channel.py","changed runtime");QVERIFY(ngpc::netplayIdentity(r,cancel).isEmpty());
+#endif
+    }
     void doomNativePackageAdmissionAndProtectedSolo() {
 #ifdef Q_OS_WIN
         QSKIP("Native Linux package preparation");

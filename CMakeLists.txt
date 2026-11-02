@@ -179,6 +179,7 @@ add_library(trainer_core STATIC
     src/integrations/adventure/standalone/DolphinLan.cpp
     src/integrations/adventure/standalone/XboxLan.cpp
     src/integrations/adventure/standalone/DoomNetplay.cpp
+    src/integrations/adventure/standalone/NgpcNetplay.cpp
     src/integrations/adventure/standalone/Model3Netplay.cpp
     src/integrations/adventure/standalone/RmgNetplay.cpp
     src/integrations/adventure/standalone/FlycastNetplay.cpp
@@ -709,6 +710,7 @@ if(BUILD_TESTING)
         add_test(NAME lobby_input_lease COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/LobbyInputLeaseTests.py)
         add_test(NAME remote_play_group COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/RemotePlayGroupTests.py)
         add_test(NAME overlay_helper COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/OverlayHelperTests.py)
+        add_test(NAME ngpc_link COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/NgpcLinkTests.py)
         add_test(NAME apps_service COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/test_apps_service.py)
         add_test(NAME emulator_support_install COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/EmulatorSupportInstallTests.py)
         add_test(NAME emulator_core_bundle COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/EmulatorCoreBundleTests.py)

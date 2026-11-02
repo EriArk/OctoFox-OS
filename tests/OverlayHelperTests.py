@@ -229,6 +229,18 @@ class OverlayHelperTests(unittest.TestCase):
                     self.assertEqual(supported_emulator_process(42, root), expected)
                 executable.unlink()
 
+    def test_ngpc_close_requires_managed_isolated_launcher(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);process=root/'42';process.mkdir()
+            (process/'exe').symlink_to('/usr/bin/python3.14')
+            good=b'python3\0-I\0/home/u/.local/share/TrainerOS/emulators/ngpc/launch.py\0rom\0content\0state\0connection\0'
+            for env,args,expected in ((b'TRAINEROS_NGPC_MANAGED=1\0',good,True),
+                                      (b'',good,False),
+                                      (b'TRAINEROS_NGPC_MANAGED=1\0',good.replace(b'-I',b'-c'),False),
+                                      (b'TRAINEROS_NGPC_MANAGED=1\0',good.replace(b'/ngpc/',b'/other/'),False)):
+                (process/'environ').write_bytes(env);(process/'cmdline').write_bytes(args)
+                self.assertEqual(supported_emulator_process(42,root),expected)
+
     def test_doom_close_requires_managed_launch(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); process = root / '42'; process.mkdir()

@@ -20,8 +20,9 @@ Image read(const QString& path,const QString& platform,const std::atomic_bool& c
     const QStringList extensions=platform=="gba"?QStringList{"gba"}:
         platform=="gb"||platform=="gbc"?QStringList{"gb","gbc"}:
         platform=="n64"?QStringList{"z64","v64","n64","bin","u1"}:
-        platform=="nds"?QStringList{"nds","srl"}:QStringList{};
-    const qint64 limit=(platform=="nds"?512:platform=="gba"?32:platform=="n64"?64:8)*1024LL*1024;
+        platform=="nds"?QStringList{"nds","srl"}:
+        platform=="ngp"||platform=="ngpc"?QStringList{"ngp","ngc"}:QStringList{};
+    const qint64 limit=(platform=="nds"?512:platform=="gba"?32:platform=="n64"?64:platform=="ngp"||platform=="ngpc"?4:8)*1024LL*1024;
     const qint64 inputLimit=archived(path)?limit+16*1024*1024:limit;
     const auto extension=QFileInfo(path).suffix().toLower();
     if(cancel||extensions.isEmpty()||(!archived(path)&&!extensions.contains(extension)))return {};

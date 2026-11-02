@@ -17,6 +17,7 @@ source-only/not-delivered labels for these formats below.
 
 | Record | Exact targets | Current boundary |
 |---|---|---|
+| [NGPC Link](../emulators/neogeo-multiplayer.md) | Pinned NgpCraft mirror/HLE and identical raw/ZIP/7z cartridge | Two-seat Lobby with own SDL screen/input/audio and protected separate linked flash/RTC; peer data only in memory, no solo migration or semantic save authority. Installation and native evidence tracked separately |
 | [Arcade cabinet link](../emulators/flycast-cabinet.md) | Pinned Dojo native capability, matching ROM/BIOS and three package executables | Installed on Flip/Odin: two independent cabinets through common Lobby/ICE/DTLS; private temporary EEPROM/NVRAM. Build/namespace/transport and installation checks are separate from native matches; no semantic save capability |
 | [GameCube native BBA LAN](../emulators/dolphin.md) | Pinned Dolphin, GM4/GKY/GTE LAN families across regions | Source integration, two consoles, bounded ICE/DTLS frame checks; native match and delivery open; temporary cards only |
 | [Vita native LAN runtime](../emulators/vita3k.md) | Pinned Vita3K ARM64 and exact rebuilt vitaQuake 2.1 | Installed invitation/native discovery, paired gameplay, own native progress, Home and bounded close/loss. Commercial AdHoc/PSN and wider compatibility open; no semantic save capability |

@@ -1,5 +1,13 @@
 # Common emulator set
 
+**2 ноября — NGPC Link:** отдельный NgpCraft
+`d0acb0874cc07735d7fa978539bb2471b2c1e71a`, upstream MirrorSession без патча,
+clean-room HLE и `ngpc-mirror-own-flash-v1`. Sealed bundle проверяет хеши
+локальных файлов; сетевой identity использует pin/settings/portable fingerprint
+`19:p71ed3b6b04c86e97`. Подтверждена ARM64-сборка; совпадение fingerprint
+не объявляет другой CPU проверенным. Обычный solo NeoPop сохраняется,
+linked progress хранится отдельно. [Рецепт и границы](emulators/neogeo-multiplayer.md).
+
 **24 октября 2026:** единый сетевой маршрут теперь применяется к временной копии
 регистрации игры независимо от её solo-привязки. Общий admission сохраняет
 проверки runtime/core; разные бинарники больше не принимаются только по имени

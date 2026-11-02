@@ -129,6 +129,11 @@ def supported_emulator_process(pid, proc=Path('/proc')):
         if executable == 'odamex':
             env = (proc / str(pid) / 'environ').read_bytes().split(b'\0')
             return b'TRAINEROS_DOOM_MANAGED=1' in env
+        if executable == 'python3' or executable.startswith('python3.'):
+            env = (proc / str(pid) / 'environ').read_bytes().split(b'\0')
+            args = (proc / str(pid) / 'cmdline').read_bytes().split(b'\0')
+            return (b'TRAINEROS_NGPC_MANAGED=1' in env and len(args) >= 7
+                    and args[1] == b'-I' and args[2].endswith(b'/TrainerOS/emulators/ngpc/launch.py'))
         if executable == 'dolphin-emu':
             # Only our batch launch suppresses Dolphin's second desktop prompt.
             args = (proc / str(pid) / 'cmdline').read_bytes().split(b'\0')

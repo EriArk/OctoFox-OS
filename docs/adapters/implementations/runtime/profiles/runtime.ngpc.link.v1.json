@@ -1,0 +1,25 @@
+{
+  "id": "runtime.ngpc.link.v1",
+  "platform": "ngp/ngpc",
+  "romSha256": "",
+  "state": "partial",
+  "record": "../emulators/neogeo-multiplayer.md",
+  "persistentSaveWrites": true,
+  "evidence": [
+    "pinned-upstream-mirror-reuse",
+    "own-linked-flash-rtc-atomic-checkpoint",
+    "four-native-consoles-over-cabinet-ice-dtls",
+    "two-real-sdl-processes-restart-and-loss",
+    "installed-flip-odin-with-current-core",
+    "host-x11-owned-window-and-normal-close"
+  ],
+  "remaining": [
+    "wide-game-hle-wan-and-cross-architecture-acceptance"
+  ],
+  "implementationSource": "src/integrations/adventure/standalone/NgpcNetplay.cpp",
+  "implementation": "implementations/runtime",
+  "savePolicy": "Own opaque linked flash/battery/RTC per local Trainer and exact cartridge, backup and atomic CAS. Peer seed is memory-only; no ordinary solo import, no ROM writes, no semantic authority.",
+  "profile": "implementations/runtime/profiles/runtime.ngpc.link.v1.json",
+  "recipe": "packaging/emulators/ngpc/build.sh",
+  "evidenceBase": "../../../"
+}

@@ -9,6 +9,13 @@ Batocera и допускает только явный запуск discovery; S
 фоновой runtime inventory; его неизменный результат не пересканирует ROM.
 [Аудит и проверки](evidence/2026-11-02-catalogue-performance/README.md).
 
+**2 ноября — S03/S06/S07/S08, NGPC Link.** `NgpcNetplay` проверяет sealed bundle
+и распакованный картридж; S06 использует два места и обычный Start, S07 — прежний
+cabinet transport. `packaging/emulators/ngpc` соединяет upstream MirrorSession
+с SDL presentation и собственным хранилищем linked progress. Peer state остаётся
+в памяти; solo save не мигрируется. Общий process/overlay владеет Home/выходом.
+[Контракт и границы](emulators/neogeo-multiplayer.md#связка-ngpc-с-lobby--2-ноября-2026).
+
 **2 ноября — S04/S15, диалоги Browser.** S04 удерживает один настоящий запрос
 WebEngine и его tab/Trainer lifetime; отмена/ответ завершают его один раз.
 S15 предоставляет прежние FileCatalog/FilePicker с дополнительными multi-select

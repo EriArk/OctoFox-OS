@@ -10,8 +10,8 @@ class CartridgeContentTests final:public QObject {
 private slots:
     void rawAndPackedIdentityAndStaging_data() {
         QTest::addColumn<QString>("platform");QTest::addColumn<QString>("extension");QTest::addColumn<QString>("format");
-        for(const auto& p:QStringList{"gb","gbc","gba","n64","nds"})for(const auto& f:QStringList{"zip","7z"})
-            QTest::newRow(qPrintable(p+'-'+f))<<p<<(p=="n64"?QString("v64"):p)<<f;
+        for(const auto& p:QStringList{"gb","gbc","gba","n64","nds","ngp","ngpc"})for(const auto& f:QStringList{"zip","7z"})
+            QTest::newRow(qPrintable(p+'-'+f))<<p<<(p=="n64"?QString("v64"):p=="ngpc"?QString("ngc"):p)<<f;
     }
     void rawAndPackedIdentityAndStaging() {
         QFETCH(QString,platform);QFETCH(QString,extension);QFETCH(QString,format);

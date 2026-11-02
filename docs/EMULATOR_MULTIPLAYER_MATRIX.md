@@ -5,7 +5,8 @@
 Форматы CUE/CHD и проверенный BIOS, без title allowlist. Общая сборка с новым
 восстановлением входа и отдельное ядро установлены на Flip/Odin.
 Это два порта одной консоли, не кабель между CD-консолями. NGPC требует двух
-машин: готовый NgpCraft mirror проверен native, но пока не связан с Lobby.
+машин: готовый NgpCraft mirror теперь связан с Lobby, отдельными экраном/вводом
+и собственным linked progress. [NGPC: проверки и поставка](evidence/ngpc-link-20261102/README.md).
 Предыдущий статус «Neo Geo CD без профиля» заменён; поставка NeoCD завершена.
 
 **1 ноября — Doom / Odamex.** Добавлен [native клиент-серверный маршрут](emulators/odamex.md)
@@ -51,6 +52,7 @@ runtime и не увеличивает число мест. Полные фай�
 | --- | --- | --- |
 | Классические RetroArch | Общие профили NES/FDS/SNES, SG-1000/SMS/MD/Sega CD/32X, PCE/PCE CD/SuperGrafx, Atari 2600, FBNeo/Neo Geo/MAME. Старые exact-хеши — специальные совместимые профили, после них есть общий путь | Установленные core/firmware, determinism, реальные порты; CUE/arcade сравниваются с зависимыми файлами |
 | GB/GBC/GBA | Общие linked-профили по аппаратным данным ROM; ZIP/7z с одним картриджем проходят идентификацию/подготовку; solo-фильтр исправлен | Оболочка установлена 25.10; RTC/особые mapper/save layouts и RFU зависят от core. Сохранено отрицательное exact-исключение отказавшего Hnefatafl |
+| NGP/NGPC Link | Общий NgpCraft MirrorSession, два места, NGP/NGC/ZIP/7z, отдельный собственный прогресс; без title allowlist | Установленный sealed bundle и одинаковый картридж; наличие кабельного режима/HLE-совместимость определяется игрой. Solo save автоматически не импортируется |
 | PS1 | Общий PCSX-ReARMed, CUE/CHD/PBP/M3U/ISO и BIN/IMG/MDF/EXE/CCD/TOC/MDS с зависимостями, без списка названий; оболочка установлена 25.10 | CBN/CBIN native index fix, ограничения TOC и смена диска в живом сеансе отдельно |
 | PS2 | Все 56 строк LAN-каталога / 164 serial; ISO/CHD/CSO/ZSO/GZ/BIN/IMG/MDF/NRG, исправлен solo-фильтр | SYSTEM.CNF/ELF, поддержанный layout, DEV9-пакет и новый Python reader; ZSO требует liblz4. Каталог обозначает наличие LAN, не только проверенные матчи |
 | PSP | Общий Ad Hoc без списка названий; ISO/CSO/PBP/CHD через native reader, исправлен solo-фильтр; helper/оболочка установлены 25.10 | Wrappers и PBP без корректного PSP DISC_ID остаются открыты |
