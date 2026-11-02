@@ -15,6 +15,7 @@
 #include "core/repository/BatoceraLibrary.h"
 #include "core/storage/LibraryFileMove.h"
 #include "features/crates/CratesLibrary.h"
+#include "core/model/MultiplayerPreference.h"
 
 using namespace trainer;
 namespace {
@@ -40,6 +41,44 @@ public:
 class LibraryTests final : public QObject {
     Q_OBJECT
 private slots:
+    void manualMultiplayerSurvivesRestartAndScanAndRejectsForeignModes() {
+        QTemporaryDir dir;QVERIFY(QDir().mkpath(dir.filePath("roms/gc")));
+        const auto rom=dir.filePath("roms/gc/game.iso");fixtureFile(rom);QString id;
+        const QJsonObject preference{{"availability","multiplayer"},{"mode","lan"}};
+        {
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());
+            auto record=candidate(rom);id=record.adventure.id;record.adventure.platformId="gc";
+            record.integrationConfig={{"kept","original-setting"}};bool done=false;
+            store.saveAdventureAsync(record,this,[&](auto r){QVERIFY(r.success);done=true;});QTRY_VERIFY(done);
+            LibraryToolsController tools(store);tools.beginGame(id);tools.activate(1);
+            QCOMPARE(tools.route(),QString("multiplayer"));
+            int lan=-1;const auto options=tools.rows();
+            for(int i=0;i<options.size();++i)if(options[i].toMap()["id"]=="mode:lan")lan=i;
+            QVERIFY(lan>=0);tools.activate(lan);QTRY_VERIFY(!tools.busy());QVERIFY2(tools.error().isEmpty(),qPrintable(tools.error()));
+            QCOMPARE(tools.route(),QString("multiplayer"));
+            QCOMPARE(multiplayerPreference(*store.registration(id)),preference);
+            QCOMPARE(store.registration(id)->integrationConfig["kept"].toString(),QString("original-setting"));
+            QString error;done=false;
+            LibraryEdit stale{LibraryEditKind::MultiplayerPreference,id,1};stale.text=QString::fromUtf8(QJsonDocument(preference).toJson());
+            store.editLibraryAsync(stale,this,[&](QString e){error=e;done=true;});QTRY_VERIFY(done);QVERIFY(!error.isEmpty());
+            stale.revision=store.registration(id)->revision;stale.text=R"({"availability":"multiplayer","mode":"wireless"})";done=false;
+            store.editLibraryAsync(stale,this,[&](QString e){error=e;done=true;});QTRY_VERIFY(done);QVERIFY(!error.isEmpty());
+            QCOMPARE(multiplayerPreference(*store.registration(id)),preference);
+        }
+        LocalStateStore reopened(dir.path());reopened.open();QTRY_VERIFY(reopened.ready());
+        const auto saved=*reopened.registration(id);QCOMPARE(multiplayerPreference(saved),preference);
+        BatoceraLibrary display(reopened,dir.filePath("roms"));
+        QCOMPARE(gamePlayers(display.artwork(id)).label(),QString("Multiplayer"));
+        const auto scan=scanBatoceraLibrary(dir.filePath("roms"),reopened.registrations());
+        QCOMPARE(scan.entries.size(),1);QCOMPARE(multiplayerPreference(scan.entries[0].record),preference);
+        const QVariantMap single{{"players","1"}};
+        const QJsonObject lan{{"id","runtime.dolphin.bba.v1"}},netplay{{"id","runtime.dolphin.gc.v1"}};
+        QVERIFY(permitsMultiplayer(saved,single,lan));QVERIFY(!permitsMultiplayer(saved,single,netplay));
+        auto manual=saved;manual.integrationConfig["multiplayerPreference"]=QJsonObject{{"availability","multiplayer"},{"mode","netplay"}};
+        QVERIFY(permitsMultiplayer(manual,single,netplay));
+        manual.integrationConfig["multiplayerPreference"]=QJsonObject{{"availability","solo"},{"mode","auto"}};
+        QVERIFY(!permitsMultiplayer(manual,{},lan));QVERIFY(QFile::exists(rom));
+    }
     void availabilityIsAStoredCatalogueUntilExplicitRefresh() {
         QTemporaryDir dir;const auto path=dir.filePath("game.rom");fixtureFile(path);QString id;
         {LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());
@@ -88,7 +127,7 @@ private slots:
             return cancel?QString("Installation cancelled."):QString("Cancellation was not received");
         };
         tools.installGuard=[]{return QString("Game is running");};
-        tools.beginGame(record.adventure.id);tools.activate(3);QVERIFY(!called);
+        tools.beginGame(record.adventure.id);tools.selectSection(1);tools.activate(3);QVERIFY(!called);
         tools.activate(tools.rows().size()-2);QVERIFY(!tools.busy());QCOMPARE(tools.error(),"Game is running");QVERIFY(!called);
         tools.installGuard=[]{return QString();};QSignalSpy saved(&tools,&LibraryToolsController::saved);
         tools.activate(tools.rows().size()-2);QVERIFY(tools.busy());QVERIFY(tools.canCancel());
@@ -222,7 +261,7 @@ private slots:
         const auto id=record.adventure.id;
         BatoceraLibrary folders(store,dir.filePath("roms"));
         LocalFileCatalog files;LibraryToolsController tools(folders);tools.setCatalog(&files);
-        tools.beginGame(id);tools.activate(1);QTRY_VERIFY(!tools.busy());QCOMPARE(tools.route(),"folder");
+        tools.beginGame(id);tools.selectSection(1);tools.activate(4);QTRY_VERIFY(!tools.busy());QCOMPARE(tools.route(),"folder");
         tools.activate(3);QTRY_VERIFY(!tools.busy()); // GBA platform folder.
         tools.activate(1);tools.applyText("../outside");QVERIFY(!tools.error().isEmpty());QCOMPARE(tools.route(),"folder");
         tools.applyText("Favorites");QCOMPARE(tools.route(),"move-file");
@@ -312,9 +351,10 @@ private slots:
         shell.dispatch(Action::ContextMenu);QVERIFY(shell.libraryTools()->isOpen());QVERIFY(!shell.canHoldConfirm());
         const auto collection=shell.multiverse()->collection();
         shell.dispatch(Action::NextFace);QVERIFY(shell.multiverseFace());QCOMPARE(shell.multiverse()->collection(),collection);
+        shell.dispatch(Action::Right);shell.dispatch(Action::Down);
         shell.dispatch(Action::Confirm);QVERIFY(shell.keyboard()->isOpen());
         shell.dispatch(Action::Back);QVERIFY(!shell.keyboard()->isOpen());QVERIFY(shell.libraryTools()->isOpen());
-        shell.dispatch(Action::Down);shell.dispatch(Action::Down);shell.dispatch(Action::Confirm);
+        for(int i=0;i<4;++i)shell.dispatch(Action::Down);shell.dispatch(Action::Confirm);
         QCOMPARE(shell.libraryTools()->route(),"remove");
         shell.dispatch(Action::Confirm);QCOMPARE(shell.libraryTools()->route(),"game"); // Default is non-destructive.
         shell.dispatch(Action::Back);QVERIFY(!shell.libraryTools()->isOpen());QVERIFY(shell.canHoldConfirm());

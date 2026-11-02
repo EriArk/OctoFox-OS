@@ -23,6 +23,9 @@ class LibraryToolsController final : public QObject {
     Q_PROPERTY(QString error READ error NOTIFY changed)
     Q_PROPERTY(QVariantList rows READ rows NOTIFY changed)
     Q_PROPERTY(int focusIndex READ focusIndex NOTIFY changed)
+    Q_PROPERTY(QVariantMap gameSummary READ gameSummary NOTIFY changed)
+    Q_PROPERTY(int section READ section NOTIFY changed)
+    Q_PROPERTY(bool hasView READ hasView NOTIFY changed)
     Q_PROPERTY(QVariantMap selectedReview READ selectedReview NOTIFY changed)
     Q_PROPERTY(bool reviewReportAvailable READ reviewReportAvailable NOTIFY changed)
 public:
@@ -36,13 +39,18 @@ public:
     QString error() const {return error_;}
     QVariantList rows() const;
     int focusIndex() const {return focus_;}
+    QVariantMap gameSummary() const;
+    int section() const {return section_;}
+    bool hasView() const {return browserActions_;}
+    Q_INVOKABLE void selectSection(int section);
+    Q_INVOKABLE void back() {dispatch(Action::Back);}
     void beginGame(const QString& id);
     void beginBrowsing(const QString& id, const QString& view = {});
     void beginWorld(const QString& id, bool enabled);
     void beginTrash();
-    void close();
+    Q_INVOKABLE void close();
     void dispatch(Action);
-    void activate(int);
+    Q_INVOKABLE void activate(int);
     void applyText(const QString&);
     void setCatalog(FileCatalog* catalog) {catalog_=catalog;}
     std::function<QString()> editGuard;
@@ -86,6 +94,7 @@ private:
     QList<World> destinations_;
     QList<AdventureRegistration> trash_;
     int focus_=0;
+    int section_=0;
     bool busy_=false;
     bool browserActions_=false;
     QString browserView_;

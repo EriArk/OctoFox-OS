@@ -65,8 +65,8 @@ private slots:
         QCOMPARE(library.records[0].revision,2);QCOMPARE(library.records[0].adventure.title,"Personal title");
         steam.reconcile({});QCOMPARE(library.records.size(),1);QVERIFY(!library.records[0].removed);
         steam.reconcile({game});QCOMPARE(library.records[0].revision,2);
-        LibraryToolsController tools(library);tools.beginGame("steam:100");
-        QVERIFY(!tools.rows()[2].toMap()["enabled"].toBool());
+        LibraryToolsController tools(library);tools.beginGame("steam:100");tools.selectSection(1);
+        QVERIFY(!tools.rows()[5].toMap()["enabled"].toBool());
     }
     void liveProfileUsesActualGameAndOwnerAndIgnoresStaleReplies() {
         QTemporaryDir d;PcLibrary library;AdventureRegistration r;r.adventure.id="live";library.records<<r;
@@ -96,8 +96,8 @@ private slots:
     void universalGameSettingsPreservesBrowserContextActions() {
         PcLibrary library;AdventureRegistration r;r.adventure.id="emulator:game";r.adventure.title="Game";library.records<<r;
         LibraryToolsController tools(library);QSignalSpy settings(&tools,&LibraryToolsController::gameSettingsRequested),browser(&tools,&LibraryToolsController::browserActionRequested);
-        tools.beginBrowsing(r.adventure.id,"grid");tools.activate(6);QCOMPARE(settings.size(),1);QCOMPARE(settings[0][0].toString(),r.adventure.id);
-        tools.beginBrowsing(r.adventure.id,"grid");tools.activate(7);QCOMPARE(browser.size(),1);QCOMPARE(browser[0][0].toString(),QString("search"));
+        tools.beginBrowsing(r.adventure.id,"grid");tools.activate(2);QCOMPARE(settings.size(),1);QCOMPARE(settings[0][0].toString(),r.adventure.id);
+        tools.beginBrowsing(r.adventure.id,"grid");tools.selectSection(2);tools.activate(0);QCOMPARE(browser.size(),1);QCOMPARE(browser[0][0].toString(),QString("search"));
     }
     void gameProfilesAreOwnerScopedAndWrapTheActualCommand() {
         QTemporaryDir d;PcLibrary library;AdventureRegistration r;r.adventure.id="pc:profile";r.adventure.adapterId="pc-local";r.integrationConfig={{"runner","proton"}};library.records<<r;

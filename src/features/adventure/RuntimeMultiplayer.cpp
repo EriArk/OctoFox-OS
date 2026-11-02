@@ -87,7 +87,7 @@ RuntimeMultiplayer::RuntimeMultiplayer(LibraryRepository& lib,RetroArchAdapter& 
     // This admits local verification only; exact runtime/content checks still gate play.
     connect(&social_,&SocialController::changed,this,[this]{
         const auto mode=social_.lobbyCoordinator()->state()["game"].toObject()["mode"].toString();
-        const QStringList prefixes{"runtime.retroarch.","runtime.handheld.","runtime.fceumm.","runtime.snes9x.","runtime.genesis.","runtime.ppsspp.","runtime.dolphin.","runtime.rmg.","runtime.flycast-dojo.","runtime.flycast.","runtime.melonds.","runtime.azahar.","runtime.vita3k.","runtime.armsx2.","runtime.xemu.","runtime.supermodel.","runtime.odamex.","runtime.ngpc."};
+        const QStringList prefixes{"runtime.retroarch.","runtime.handheld.","runtime.fceumm.","runtime.snes9x.","runtime.genesis.","runtime.ppsspp.","runtime.dolphin.","runtime.rmg.","runtime.flycast-dojo.","runtime.flycast.","runtime.melonds.","runtime.azahar.","runtime.vita3k.","runtime.armsx2.","runtime.xemu.","runtime.supermodel.","runtime.odamex.","runtime.ngpc.","runtime.nintendo."};
         for(const auto& prefix:prefixes)if(mode.startsWith(prefix)){social_.lobbyRuntime()->registerService(mode,this);break;}
     });
     identity_=QSettings().value("runtimeMultiplayer/device").toString();
@@ -137,6 +137,14 @@ RuntimeMultiplayer::RuntimeMultiplayer(LibraryRepository& lib,RetroArchAdapter& 
         if(expected["game"].toObject().isEmpty()||offered["game"]!=expected["game"]||offered["party"]!=expected["party"]) {
             emit notice("The game changed. Reopen Together before joining.");return;
         }
+        const auto candidate=candidateFor(offered["game"].toObject());
+        if(!candidate.isEmpty()&&localProfile(candidate,offered["game"].toObject()).isEmpty()&&!availableGames().contains(candidate)) {
+            const auto account=social_.accountGeneration();
+            requestGameScan(candidate,"join",[this,peer,expected,account](bool ok,QString error){
+                if(account!=social_.accountGeneration())return;
+                if(ok)emit social_.partyJoin(peer,expected);else emit notice(error);
+            });return;
+        }
         party_.requestJoin("online:"+peer);
         if(party_.state()["joining"].toBool()||party_.active()){socialSurface_=true;show("multiplayer-party");}
     });
@@ -178,6 +186,7 @@ RuntimeMultiplayer::RuntimeMultiplayer(LibraryRepository& lib,RetroArchAdapter& 
         const auto pending=party_.pending();const auto request=pending["request"].toString();
         if(!request.isEmpty()&&request!=lastRequest_&&lifecycle_.active()&&!social_.account()["doNotDisturb"].toBool())
             emit social_.backgroundNotification("Incoming activity",social_.account()["privatePreviews"].toBool()?QString("Open Home to answer."):invitation()+" Open Home to answer.");
+        if(scanOwner_.startsWith("invitation:")&&scanOwner_!="invitation:"+request)cancelGameScan();
         lastRequest_=request;
         social_.setRuntimeInvitation(pending.toVariantMap());
         social_.setGameParty(party_.state().toVariantMap());
@@ -227,9 +236,9 @@ RuntimeMultiplayer::RuntimeMultiplayer(LibraryRepository& lib,RetroArchAdapter& 
     });
     connect(&scanPublish_,&QTimer::timeout,this,[this]{refresh(installation_,trainer_,allowed_);});
     connect(&scan_,&QFutureWatcherBase::resultReadyAt,this,[this](int index){
-        if(scan_.isCanceled())return;
+        if(scan_.isCanceled()||!allowed_||!scanCancel_||scanCancel_->load()||scanAccount_!=social_.accountGeneration())return;
         auto result=scan_.resultAt(index);
-        if(result.stale){invalidateScan();return;}
+        if(result.stale){scanError_="The game changed while checking. Retry.";return;}
         scanResults_.insert(result.first,result);
         for(auto it=result.dependencies.cbegin();it!=result.dependencies.cend();++it)
             if(!scanDependencies_.contains(it.key()))scanDependencies_.insert(it.key(),it.value());
@@ -240,9 +249,24 @@ RuntimeMultiplayer::RuntimeMultiplayer(LibraryRepository& lib,RetroArchAdapter& 
     });
     connect(&scan_,&QFutureWatcherBase::finished,this,[this]{
         scanPublish_.stop();
+        const bool cancelled=scan_.isCanceled()||!scanCancel_||scanCancel_->load()||scanAccount_!=social_.accountGeneration();
+        auto done=scanRequested_?Completion{}:std::exchange(scanCompletion_,{});
+        const auto game=scanPriority_;
+        if(!scanRequested_)scanOwner_.clear();
         refresh(installation_,trainer_,allowed_);
+        if(done) {
+            const bool ok=!cancelled&&availableGames().contains(game);
+            if(!ok&&scanError_.isEmpty())scanError_="No compatible multiplayer setup found. Check this game's emulator, BIOS and multiplayer settings, then retry.";
+            refresh(installation_,trainer_,allowed_);
+            done(ok,ok?QString():scanError_);
+        }
     });
+    connect(&social_,&SocialController::lobbyGameCheckRequested,this,[this](QString game){requestGameScan(game,"picker",[](bool,QString){});});
+    connect(&social_,&SocialController::lobbyGameCheckCancelled,this,[this]{cancelGameScan("picker");refresh(installation_,trainer_,allowed_);});
+    party_.canPrepare=[this](const QJsonObject& offered){return allowed_&&!candidateFor(offered).isEmpty();};
     connect(&social_,&SocialController::changed,this,[this]{
+        if(!scanOwner_.isEmpty()&&scanAccount_!=social_.accountGeneration())cancelGameScan();
+        if(scanOwner_=="picker"&&!social_.lobbyPickerOpen())cancelGameScan("picker");
         if(!socialSurface_&&(overlay_.panel()=="multiplayer-online"||overlay_.panel()=="multiplayer-people"))show(overlay_.panel());
         emit changed();
     });
@@ -350,8 +374,41 @@ RuntimeMultiplayer::RuntimeMultiplayer(LibraryRepository& lib,RetroArchAdapter& 
         if(active_&&host_&&online_&&!restarting_&&!launchPending_&&!query_&&!relaySent_)pollRelay();
     });timer_.setInterval(3000);
 }
+void RuntimeMultiplayer::cancelGameScan(const QString& owner) {
+    if(!owner.isEmpty()&&owner!=scanOwner_)return;
+    if(scanCancel_)scanCancel_->store(true);
+    scan_.cancel();scanRequested_=false;scanOwner_.clear();
+    auto done=std::exchange(scanCompletion_,{});
+    if(done)QTimer::singleShot(0,this,[done]{done(false,"Game check cancelled. Choose the game again when ready.");});
+}
+void RuntimeMultiplayer::requestGameScan(QString game,QString owner,Completion done) {
+    refresh(installation_,trainer_,allowed_);
+    if(!allowed_||!candidates_.contains(game)) {if(done)done(false,"This game is unavailable.");return;}
+    const auto cached=scanResults_.value(game);
+    for(auto it=cached.dependencies.cbegin();it!=cached.dependencies.cend();++it)
+        if(retroarch::netplayFileRevision(it.key())!=it.value()){invalidateScan();break;}
+    if(!scanOwner_.isEmpty()&&(scanOwner_!=owner||scanPriority_!=game))cancelGameScan();
+    if(availableGames().contains(game)) {if(done)done(true,{});return;}
+    if(scanOwner_==owner&&scanPriority_==game&&(scanRequested_||scan_.isRunning()))return;
+    cancelGameScan();scanPriority_=std::move(game);scanOwner_=std::move(owner);scanError_.clear();
+    scanCompletion_=std::move(done);scanRequested_=true;scanAccount_=social_.accountGeneration();
+    refresh(installation_,trainer_,allowed_);
+}
+QString RuntimeMultiplayer::candidateFor(const QJsonObject& offered,const QString& platform) const {
+    // A label is a lookup hint, never compatibility evidence. Ambiguous matches
+    // use the existing explicit local-file chooser instead of scanning a library.
+    const auto title=offered["label"].toString().trimmed();if(title.isEmpty())return {};
+    QString found;
+    for(const auto& record:library_.registrations()) {
+        if(record.removed||!record.contentAvailable||(!platform.isEmpty()&&record.adventure.platformId!=platform)
+            ||record.adventure.title.trimmed().compare(title,Qt::CaseInsensitive)!=0||!candidates_.contains(record.adventure.id))continue;
+        if(!found.isEmpty())return {};
+        found=record.adventure.id;
+    }
+    return found;
+}
 void RuntimeMultiplayer::pollScanDependencies() {
-    if(!allowed_||dependencyScan_.isRunning()||scanDependencies_.isEmpty())return;
+    if(!allowed_||scan_.isRunning()||dependencyScan_.isRunning()||scanDependencies_.isEmpty())return;
     // Only stat the exact observed files. No ROM reads or directory traversal on
     // the UI thread, and no repeated full identity scan while storage is idle.
     dependencyScan_.setFuture(QtConcurrent::run([files=scanDependencies_,generation=dependencyGeneration_](QPromise<quint64>& result){
@@ -364,17 +421,16 @@ void RuntimeMultiplayer::pollScanDependencies() {
 }
 void RuntimeMultiplayer::invalidateScan() {
     ++dependencyGeneration_;scanRevision_=0;
-    if(scanCancel_)scanCancel_->store(true);
-    scan_.cancel();profiles_.clear();lanProfiles_.clear();
+    cancelGameScan();scanResults_.clear();scanDependencies_.clear();profiles_.clear();lanProfiles_.clear();
     refresh(installation_,trainer_,allowed_);
 }
 void RuntimeMultiplayer::refresh(const RetroArchInstallation& installation,QString trainer,bool allowed) {
     PerformanceTrace::Scope perf("RuntimeMultiplayer::refresh");
-    if(trainer_!=trainer)party_.reset();
+    if(trainer_!=trainer){cancelGameScan();party_.reset();}
     trainer_=std::move(trainer);allowed_=allowed;
     installation_=installation;
     if(!allowed_) {
-        dependencyPoll_.stop();dependencyScan_.cancel();++dependencyGeneration_;
+        cancelGameScan();candidates_.clear();dependencyPoll_.stop();dependencyScan_.cancel();++dependencyGeneration_;
         games_.clear();lanGames_.clear();
         if(!multiplayerGames_.isEmpty() || !gameModes_.isEmpty()){gameModes_.clear();onlineGames_.clear();nearbyGames_.clear();multiplayerGames_.clear();emit availabilityChanged();}
         update();return;
@@ -400,90 +456,69 @@ void RuntimeMultiplayer::refresh(const RetroArchInstallation& installation,QStri
         retroarch::netplaySupported(r.adventure.platformId,r.integrationConfig["core"].toString());};
     QMap<QString,int> capacities;
     QMap<QString,QVariantMap> metadata;
-    for(const auto& r:records)if(candidate(r)) {
+    for(const auto& r:records)if(candidate(r)&&!r.removed&&r.contentAvailable&&multiplayerPreference(r)["availability"]!="solo") {
         const auto core=r.integrationConfig["core"].toString();
         const auto info=library_.artwork(r.adventure.id);metadata.insert(r.adventure.id,info);
         const int capacity=(r.adventure.platformId=="gc"||r.adventure.platformId=="wii"||r.adventure.platformId=="n64")?qBound(2,gamePlayers(info).maximum,4):
             retroarch::netplayCapacity(r.adventure.platformId,core,info,r.contentPath);
         capacities.insert(r.adventure.id,capacity);
-        revision=qHashMulti(revision,r.adventure.id,stamp(r.contentPath),r.revision,core,capacity);
+        // Unchecked catalogue entries must not touch every ROM on slow storage.
+        // Checked files have their own dependency stamps and are revalidated
+        // before reuse; catalogue edits carry a revision/path change.
+        revision=qHashMulti(revision,r.adventure.id,r.contentPath,r.revision,core,capacity);
     }
     for(auto it=scanResults_.begin();it!=scanResults_.end();)
         if(!capacities.contains(it.key()))it=scanResults_.erase(it);else ++it;
-    const auto playing=process_.runtimeControls()["game"].toString();
-    if(scan_.isRunning()&&!playing.isEmpty()&&playing!=scanPriority_&&capacities.contains(playing)&&!profiles_.contains(playing)) {
-        if(scanCancel_)scanCancel_->store(true);
-        scan_.cancel();scanRevision_=0;
-    }
+    candidates_=capacities.keys();
     if(!revision)revision=1;
-    // Library discovery can finish while an older disc scan is still running.
-    // Retire it at the next cancellable read instead of hashing the obsolete list.
-    if(scan_.isRunning()&&scanRevision_!=revision) {if(scanCancel_)scanCancel_->store(true);scan_.cancel();}
-    if(!scan_.isRunning() && (scanRevision_!=revision||!scanRevision_)) {
-        scanRevision_=revision;scanPriority_=playing;
-        ++dependencyGeneration_;scanDependencies_.clear();
-        profiles_.clear();lanProfiles_.clear();
-        auto ordered=records;
-        std::stable_sort(ordered.begin(),ordered.end(),[&](const auto& a,const auto& b){
-            if((a.adventure.id==playing)!=(b.adventure.id==playing))return a.adventure.id==playing;
-            return QFileInfo(a.contentPath).size()<QFileInfo(b.contentPath).size();
-        });
-        // Publish verified titles in small batches, without waiting for a large
-        // disc image or rebuilding the entire picker once per small cartridge.
-        scanCancel_=std::make_shared<std::atomic_bool>(false);
-        scan_.setFuture(QtConcurrent::run([ordered,installation,installationRevision,nintendoSetups,previous=scanResults_,pspInstallation,dolphinInstallation,candidate,capacities,cancel=scanCancel_](QPromise<ScannedGame>& promise){
-            retroarch::NetplayDigestCache digests;
-            const auto requestRevision=[&](const AdventureRegistration& r) {
-                return qHashMulti(installationRevision,r.adventure.id,r.adventure.platformId,r.adventure.title,
-                    r.contentPath,r.revision,r.integrationConfig["core"].toString(),capacities.value(r.adventure.id,2));
-            };
-            QList<AdventureRegistration> pending;
-            // Republish unchanged results first, before hashing any changed large
-            // image. Failed identities are reusable until an observed file changes.
-            for(const auto& r:ordered)if(candidate(r)) {
+    if(scanRevision_!=revision) {
+        // A catalogue/runtime change invalidates evidence, never starts I/O.
+        if(scanRevision_)cancelGameScan();
+        scanRevision_=revision;++dependencyGeneration_;
+        scanDependencies_.clear();scanResults_.clear();profiles_.clear();lanProfiles_.clear();
+    }
+    if(scanRequested_&&!scan_.isRunning()) {
+        scanRequested_=false;
+        const auto selected=library_.registration(scanPriority_);
+        if(selected&&capacities.contains(scanPriority_)) {
+            const auto r=retroarch::netplayRegistration(*selected);
+            scanCancel_=std::make_shared<std::atomic_bool>(false);
+            scan_.setFuture(QtConcurrent::run([r,installation,installationRevision,nintendoSetups,pspInstallation,dolphinInstallation,capacity=capacities.value(r.adventure.id,2),cancel=scanCancel_](QPromise<ScannedGame>& promise){
                 if(promise.isCanceled()||cancel->load())return;
-                const auto found=previous.constFind(r.adventure.id);
-                // Alternate native runtimes do not yet report all dependencies;
-                // retain their full checks instead of caching partial evidence.
-                bool reusable=r.adventure.platformId!="ps2"&&
-                    retroarch::netplaySupported(r.adventure.platformId,r.integrationConfig["core"].toString())&&
-                    found!=previous.cend()&&found->requestRevision==requestRevision(r);
-                if(reusable)for(auto it=found->dependencies.cbegin();it!=found->dependencies.cend();++it) {
-                    if(promise.isCanceled()||cancel->load())return;
-                    if(retroarch::netplayFileRevision(it.key())!=it.value()){reusable=false;break;}
-                }
-                if(reusable)promise.addResult(*found);else pending.append(r);
-            }
-            for(const auto& r:pending) {
-                if(promise.isCanceled()||cancel->load())break;
-                digests.dependencies.clear();digests.observe(r.contentPath);
-                auto identity=runtimeIdentity(r,installation,pspInstallation,dolphinInstallation,*cancel,capacities.value(r.adventure.id,2),&digests);
-                const auto lan=flycast::arcadePlatform(r.adventure.platformId)
-                    ?flycast::cabinetIdentity(retroarch::netplayRegistration(r),*cancel,[&digests](const QString& path){digests.observe(path);})
+                retroarch::NetplayDigestCache digests;digests.observe(r.contentPath);
+                const auto mode=multiplayerPreference(r)["mode"].toString();
+                const bool secondaryOnly=mode=="online"||(mode=="lan"&&(r.adventure.platformId=="gc"||flycast::arcadePlatform(r.adventure.platformId)));
+                auto identity=secondaryOnly?QJsonObject{}:runtimeIdentity(r,installation,pspInstallation,dolphinInstallation,*cancel,capacity,&digests);
+                const auto lan=(mode!="auto"&&mode!="lan"&&mode!="online")?QJsonObject{}:flycast::arcadePlatform(r.adventure.platformId)
+                    ?flycast::cabinetIdentity(r,*cancel,[&digests](const QString& path){digests.observe(path);})
                     :nintendoSetups.contains(r.adventure.platformId)?nintendoOnline::identity(r,nintendoSetups.value(r.adventure.platformId),*cancel,[&digests](const QString& path){digests.observe(path);})
                     :r.adventure.platformId=="nds"?dswfc::identity(r,installation,*cancel,[&digests](const QString& path){digests.observe(path);})
-                    :r.adventure.platformId=="dreamcast"?flycast::onlineIdentity(retroarch::netplayRegistration(r),*cancel,[&digests](const QString& path){digests.observe(path);}):dolphinlan::netplayIdentity(retroarch::netplayRegistration(r),dolphinInstallation,*cancel);
+                    :r.adventure.platformId=="dreamcast"?flycast::onlineIdentity(r,*cancel,[&digests](const QString& path){digests.observe(path);}):dolphinlan::netplayIdentity(r,dolphinInstallation,*cancel);
                 if(!lan.isEmpty())identity["nativeLanProfile"]=lan;
                 bool stale=false;
                 for(auto it=digests.dependencies.cbegin();it!=digests.dependencies.cend();++it) {
                     if(promise.isCanceled()||cancel->load())return;
                     if(retroarch::netplayFileRevision(it.key())!=it.value()){stale=true;break;}
                 }
-                // Failed identities also own dependencies: a missing track/BIOS
-                // becoming available must restore the game without restarting.
-                if(!promise.isCanceled()&&!cancel->load())
-                    promise.addResult(ScannedGame{r.adventure.id,identity,digests.dependencies,stale,requestRevision(r)});
-            }
-        }));
+                if(!promise.isCanceled()&&!cancel->load())promise.addResult(ScannedGame{r.adventure.id,identity,digests.dependencies,stale,installationRevision});
+            }));
+        }
     }
     games_.clear();lanGames_.clear();
     for(auto it=profiles_.cbegin();it!=profiles_.cend();++it)
-        if(metadata.contains(it.key())&&permitsMultiplayer(metadata.value(it.key()),it.value()))games_.insert(it.key(),it.value());
+        if(metadata.contains(it.key())&&permits(it.key(),it.value()))games_.insert(it.key(),it.value());
     for(auto it=lanProfiles_.cbegin();it!=lanProfiles_.cend();++it)
-        if(metadata.contains(it.key())&&permitsMultiplayer(metadata.value(it.key()),it.value()))lanGames_.insert(it.key(),it.value());
+        if(metadata.contains(it.key())&&permits(it.key(),it.value()))lanGames_.insert(it.key(),it.value());
     const auto available=availableGames();
     QVariantList lobbyGames;
     if(allowed_)for(const auto& record:records) {
+        if(candidates_.contains(record.adventure.id)&&!available.contains(record.adventure.id)) {
+            const bool checking=record.adventure.id==scanPriority_&&(!scanOwner_.isEmpty()||scanRequested_);
+            lobbyGames.append(QVariantMap{{"key",record.adventure.id+"#prepare"},{"adventure",record.adventure.id},
+                {"title",record.adventure.title},{"platform",record.adventure.platformId},{"cover",metadata.value(record.adventure.id).value("cover")},
+                {"requiresPreparation",true},{"enabled",!checking},{"modeLabel",checking?"Checking selected game…":"Check multiplayer setup"},
+                {"modeDetail",checking?"Only this game is being checked. Back cancels.":record.adventure.id==scanPriority_&&!scanError_.isEmpty()?scanError_:QString("Choose to check this game's available play modes.")}});
+        }
         for(const auto& profile:available.values(record.adventure.id)) {
         const auto content=profile["content"].toString();const int capacity=profile["players"].toInt(2);
         if(content.isEmpty()||capacity<1||capacity>16||(!multiplayerConnectionAllowed(profile,"online")&&!localLobbyRuntime(profile)))continue;
@@ -510,7 +545,7 @@ void RuntimeMultiplayer::refresh(const RetroArchInstallation& installation,QStri
     }
     if(gameModes_!=modes){gameModes_=modes;emit availabilityChanged();}
     social_.setLobbyGames(lobbyGames);
-    auto visible=allowed_?available.uniqueKeys():QStringList{};
+    auto visible=allowed_?candidates_:QStringList{};
     QStringList online,nearby;
     for(const auto& id:visible) {
         if(multiplayerConnectionAllowed(games_.value(id),"online")||multiplayerConnectionAllowed(lanGames_.value(id),"online"))online.append(id);
@@ -524,7 +559,7 @@ void RuntimeMultiplayer::refresh(const RetroArchInstallation& installation,QStri
 QString RuntimeMultiplayer::menuLabel() const {return !invitationId().isEmpty()?"Incoming activity":!social_.lobbyState().isEmpty()?"My lobby":party_.active()?"Game party":"Play together";}
 bool RuntimeMultiplayer::canInvite() const {
     if(allowed_&&party_.active())return true;
-    return allowed_&&games_.contains(process_.runtimeControls()["game"].toString())&&!active_
+    return allowed_&&(games_.contains(process_.runtimeControls()["game"].toString())||candidates_.contains(process_.runtimeControls()["game"].toString()))&&!active_
         &&!process_.runtimeControls().contains("netplay");
 }
 void RuntimeMultiplayer::leaveParty(){
@@ -591,6 +626,17 @@ QString RuntimeMultiplayer::invitation() const {
     return pending["name"].toString()+(pending["joining"].toBool()?" wants to join ":" invites you to play ")+game["label"].toString()+"."+(usesSharedController(game)?" Take turns with one controller.":QString())+(game["privateProgress"].toBool()?" Save copies are shared with this session's players. Only your own progress returns.":game["temporaryProgress"].toBool()?" This session starts fresh. Progress isn't kept.":QString());
 }
 void RuntimeMultiplayer::answer(bool accept) {
+    if(!accept)cancelGameScan("invitation:"+invitationId());
+    if(accept&&!party_.pending()["joining"].toBool()) {
+        const auto offered=party_.pending()["game"].toObject();const auto candidate=candidateFor(offered);
+        if(!candidate.isEmpty()&&localProfile(candidate,offered).isEmpty()&&!availableGames().contains(candidate)) {
+            const auto request=invitationId();const auto account=social_.accountGeneration();
+            requestGameScan(candidate,"invitation:"+request,[this,request,account](bool ok,QString error){
+                if(request!=invitationId()||account!=social_.accountGeneration())return;
+                if(ok)answer(true);else if(!error.startsWith("Game check cancelled")) {show("multiplayer-request");emit notice(error);}
+            });return;
+        }
+    }
     if(accept && lifecycle_.active() && !party_.pending()["joining"].toBool() && !canJoinRunning(party_.pending()["game"].toObject())) {
         if(!allowed_ || invitationId().isEmpty() || !exitingInvitation_.isEmpty())return;
         if(!overlay_.menuOpen() || lifecycle_.minimized()){openInvitation(invitationId());return;}
@@ -614,7 +660,7 @@ void RuntimeMultiplayer::update() {
     }
     // Receiving an invitation is independent of the current game's netplay
     // support. An unrelated single-player game may keep running while saving.
-    const bool available=allowed_&&(!games_.isEmpty()||!lanGames_.isEmpty());
+    const bool available=allowed_&&(!candidates_.isEmpty()||!games_.isEmpty()||!lanGames_.isEmpty());
     QJsonArray caps;
     if(available)for(const auto& descriptor:availableGames())if(!caps.contains(descriptor))caps.append(descriptor);
     const bool rooms=allowed_&&social_.account()["state"]=="connected";
@@ -644,6 +690,10 @@ void RuntimeMultiplayer::show(QString panel) {
             rows={row("multiplayer-accept:"+request,close?"Saved — join":"Accept",close?"Close this game, then join your friend":QString()),
                   row("multiplayer-later:"+request,"Keep for later",close?"Continue playing and save first":"Keep the invitation in the corner"),
                   row("multiplayer-decline:"+request,"Decline")};
+            if(scanOwner_.startsWith("invitation:")) {
+                caption="Checking the invited game… You can keep the invitation for later.";
+                auto checking=rows[0].toMap();checking["label"]="Checking…";checking["readOnly"]=true;rows[0]=checking;
+            }
         }
     } else if(panel=="multiplayer-party") {
         const auto state=party_.state();caption=state["game"].toObject()["label"].toString()+" · "+QString::number(state["members"].toArray().size())+" / "+QString::number(state["capacity"].toInt())+" players";
@@ -710,11 +760,20 @@ void RuntimeMultiplayer::show(QString panel) {
 bool RuntimeMultiplayer::action(const QString& id,bool fromSocial) {
     if(!id.startsWith("multiplayer"))return false;
     if(preparation_.action(id))return true;
+    if(id=="multiplayer-cancel")cancelGameScan("live-menu");
     if(id=="multiplayer"&&social_.account()["state"]=="connected") {
         if(!invitationId().isEmpty())openInvitation(invitationId());
         else if(!social_.lobbyState().isEmpty())social_.openLobby();
         else beginTogether(lifecycle_.adventureId());
         return true;
+    }
+    if(id=="multiplayer"&&!party_.active()&&invitationId().isEmpty()&&canInvite()&&games_.value(process_.runtimeControls()["game"].toString()).isEmpty()) {
+        const auto game=process_.runtimeControls()["game"].toString();const auto pid=process_.processId();
+        overlay_.setPanel("multiplayer-check","Checking selected game… Back cancels.",{row("multiplayer-cancel","Back")},"multiplayer-cancel");
+        requestGameScan(game,"live-menu",[this,pid,game,fromSocial](bool ok,QString error){
+            if(pid!=process_.processId()||game!=process_.runtimeControls()["game"].toString())return;
+            if(ok)action("multiplayer",fromSocial);else {overlay_.setPanel({}, {}, {});emit notice(error);}
+        });return true;
     }
     if(id=="multiplayer-party"&&!lobbyTicket_.isEmpty()) {social_.chooseMyLobby(social_.lobbyCoordinator()->state()["id"].toString());return true;}
     socialSurface_=fromSocial;
@@ -740,6 +799,7 @@ bool RuntimeMultiplayer::action(const QString& id,bool fromSocial) {
     }
     if(id.startsWith("multiplayer-later:")) {
         if(id.section(':',1)==invitationId()) {
+            cancelGameScan("invitation:"+invitationId());
             if(socialSurface_){socialSurface_=false;social_.closeMenu();}
             else overlay_.dismissMenu();
         }
@@ -791,7 +851,7 @@ void RuntimeMultiplayer::startParty(bool host,const QJsonObject& endpoint) {
             &&record->contentPath==lobbyPath_&&localProfile(lobbyGame_,lobbyDescriptor_)==lobbyDescriptor_
             &&supportsMultiplayerSession(lobbyDescriptor_,selected)?lobbyGame_:QString();
     }
-    if(!allowed_||game.isEmpty()||!permitsMultiplayer(library_.artwork(game),selected)) {
+    if(!allowed_||game.isEmpty()||!permits(game,selected)) {
         party_.leave();emit notice("Multiplayer isn't available for this game.");return;
     }
     if(!host&&lifecycle_.active()) {
@@ -914,7 +974,7 @@ void RuntimeMultiplayer::launch() {
     auto record=library_.registration(game_);
     if(record)*record=retroarch::netplayRegistration(*record);
     if(!record){fail("The game is no longer in your library.");return;}
-    if(!permitsMultiplayer(library_.artwork(game_),descriptor_)){fail("Multiplayer isn't available for this game.");return;}
+    if(!permits(game_,descriptor_)){fail("Multiplayer isn't available for this game.");return;}
     if(nativeLan()) {
         if(!requestRuntimeLaunch||!nativeLanConnection_||nativeLanConfig_.isEmpty()) {fail("The LAN connection is unavailable.");return;}
         QStringList inputPrefix;const auto end=installation_.prefixArguments.indexOf("--");

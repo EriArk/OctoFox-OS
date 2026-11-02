@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QTimer>
 #include <QSet>
+#include <functional>
 
 namespace trainer {
 // Runtime-only coordination. The transport supplies the authenticated peer key;
@@ -12,6 +13,9 @@ namespace trainer {
 class GameParty final : public QObject {
     Q_OBJECT
 public:
+    // Discovery hint only: allows an invitation to be shown before local content
+    // verification. Answer, admission and launch still require exact supports().
+    std::function<bool(const QJsonObject&)> canPrepare;
     explicit GameParty(QObject* parent=nullptr);
     void configure(QString name,QJsonArray games,QJsonObject current,bool available);
     // Read-only activity projection. Membership/admission stays in LobbyCoordinator.

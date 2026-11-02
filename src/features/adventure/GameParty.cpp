@@ -59,7 +59,8 @@ QJsonObject GameParty::state() const {
 QJsonObject GameParty::offer(const QString& peer) const {
     const auto p=peers_.value(peer);if(p.expires<now())return {};
     auto result=p.offer;
-    if(!result.isEmpty()&&result["lobby"].toString().isEmpty()&&!supports(result["game"].toObject(),peer))result["joinable"]=false;
+    if(!result.isEmpty()&&result["lobby"].toString().isEmpty()&&!supports(result["game"].toObject(),peer)
+       &&!(canPrepare&&canPrepare(result["game"].toObject())))result["joinable"]=false;
     return result;
 }
 QJsonObject GameParty::pending() const {
@@ -98,7 +99,7 @@ QJsonArray GameParty::companyOffers() const {
     for(auto it=peers_.cbegin();it!=peers_.cend();++it) {
         if(companyOf(it.key()).isEmpty()||it->expires<now()||it->offer["party"].toString().isEmpty()||it->offer["game"].toObject().isEmpty())continue;
         auto row=it->offer;row["peer"]=it.key().mid(7);row["name"]=it->name;
-        row["joinable"]=row["joinable"].toBool()&&(!row["lobby"].toString().isEmpty()||supports(row["game"].toObject(),it.key()))&&!active()&&joiningId_.isEmpty();rows.append(row);
+        row["joinable"]=row["joinable"].toBool()&&(!row["lobby"].toString().isEmpty()||supports(row["game"].toObject(),it.key())||(canPrepare&&canPrepare(row["game"].toObject())))&&!active()&&joiningId_.isEmpty();rows.append(row);
     }
     return rows;
 }
@@ -360,7 +361,7 @@ void GameParty::receive(QString peer,QString name,const QJsonObject& p) {
         const bool join=kind=="join";
         const auto route=[](const QString& key){return key.contains(':')?key.section(':',0,0):QString();};
         if(join&&!members_.isEmpty()&&route(members_.firstKey())!=route(peer)){packet(peer,"decline",{{"party",party},{"request",id}});return;}
-        if(!supports(g,peer)||(join&&(sameMember(peer)||access_=="closed"||(!company.isEmpty()&&company!=company_)))||(!join&&(active()||!joiningId_.isEmpty()||!uuid(party)))||
+        if((!supports(g,peer)&&(join||!canPrepare||!canPrepare(g)))||(join&&(sameMember(peer)||access_=="closed"||(!company.isEmpty()&&company!=company_)))||(!join&&(active()||!joiningId_.isEmpty()||!uuid(party)))||
             (join&&((active()&&(!host()||party!=party_||!freeSlot()))||(!active()&&(!party.isEmpty()||current_!=g))))) {
             packet(peer,"decline",{{"party",party},{"request",id}});return;
         }

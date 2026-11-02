@@ -133,13 +133,15 @@ void SocialController::openLobbyForPeople(QString peer,QString conversation) {
     openLobby();
 }
 void SocialController::openLobbyForGame(const QString& key) {
-    if(snapshot_["state"]!="connected") {openLobby();return;}
+    const bool offline=snapshot_["state"]!="connected";
+    if(offline&&!localLobbyAvailable()) {openLobby();return;}
+    if(offline)setLobbyScope("local");
     QVariantMap selected;for(const auto& v:lobbyGames_)if(v.toMap()["key"]==key||v.toMap()["adventure"]==key) {selected=v.toMap();break;}
     if(selected.isEmpty()) {
         toastTitle_="Play together";toastText_="This game's multiplayer runtime is not available yet.";
         toastTimer_.start();emit presentationChanged();return;
     }
-    if(viewedLobby().state().isEmpty())createAnotherLobby();
+    if(viewedLobby().state().isEmpty()||(offline&&!viewedLobby().local()))createAnotherLobby();
     else {
         openLobby();
         const auto phase=viewedLobby().state()["phase"].toString();
@@ -233,13 +235,15 @@ void SocialController::setLobbyGames(QVariantList games) {
     runtimeLobbyGames_=games;
     games.append(activityLobbyGames_);
     if(lobbyGames_==games)return;
-    const auto focusedMode=lobbyPicker()["modes"].toList().value(lobbyPickerModeFocus_).toMap()["key"].toString();
+    const auto focusedRow=lobbyPicker()["modes"].toList().value(lobbyPickerModeFocus_).toMap();
+    const auto focusedMode=focusedRow["key"].toString();
     lobbyGames_=std::move(games);
     refreshLobbyPicker();
     if(!focusedMode.isEmpty()&&!lobbyPickerModeGame_.isEmpty()) {
         const auto modes=lobbyPicker()["modes"].toList();int index=-1;
         for(int i=0;i<modes.size();++i)if(modes[i].toMap()["key"]==focusedMode){index=i;break;}
         if(index>=0)lobbyPickerModeFocus_=index;
+        else if(focusedRow["requiresPreparation"].toBool()&&!modes.isEmpty())lobbyPickerModeFocus_=0;
         else {lobbyPickerModeGame_.clear();lobbyCreationError_="This play mode is no longer available. Choose a mode again.";}
     }
     if(lobbyRuntime_.problem()=="local-content") {
@@ -391,6 +395,7 @@ void SocialController::lobbyAction(QString action) {
     if(action.startsWith("game:")) {
         for(const auto& v:availableLobbyGames()) {
             const auto g=v.toMap();if(g["key"]!=action.mid(5))continue;
+            if(g["requiresPreparation"].toBool()){openLobbyPicker();lobbyPickerAction("game:"+g["adventure"].toString());return;}
             viewedLobby().selectGame({g["id"].toString(),g["title"].toString(),g["platform"].toString(),g["mode"].toString(),g["seats"].toInt(),QJsonObject::fromVariantMap(g["runtime"].toMap())});break;
         }
         return;

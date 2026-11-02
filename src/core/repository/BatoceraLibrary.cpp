@@ -1,5 +1,6 @@
 #include "core/PerformanceTrace.h"
 #include "BatoceraLibrary.h"
+#include "core/model/MultiplayerPreference.h"
 #include "CollectionRepository.h"
 #include "RomPlatforms.h"
 #include <QCryptographicHash>
@@ -394,7 +395,13 @@ QString BatoceraLibrary::storageRootFor(const QString& id) const {
 }
 QVariantMap BatoceraLibrary::artwork(const QString& id) const {
     auto result=media_.value(id);
-    if(const auto record=library_.registration(id);record&&(record->adventure.adapterId=="pc-local"||record->adventure.adapterId=="steam")) {
+    const auto record=library_.registration(id);
+    if(record) {
+        const auto preference=multiplayerPreference(*record);
+        result["multiplayerAvailability"]=preference["availability"].toString();
+        result["preferredMultiplayerMode"]=preference["mode"].toString();
+    }
+    if(record&&(record->adventure.adapterId=="pc-local"||record->adventure.adapterId=="steam")) {
         const auto cover=record->integrationConfig["artwork"].toString();
         if(!cover.isEmpty())result["cover"]=cover;
         if(record->adventure.adapterId=="steam") {

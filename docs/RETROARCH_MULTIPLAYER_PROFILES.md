@@ -1,5 +1,17 @@
 # Shared RetroArch multiplayer profiles
 
+## Selected-game preparation — 2 November 2026
+
+The owner rejected startup/background hashing of the entire library. The current
+source separates lightweight catalogue candidates from verified runtime profiles.
+Only deliberate selected-game preparation starts a content check. Dependency
+changes retire evidence without scheduling another read; launch checks remain
+authoritative. This supersedes the automatic scan/republication behavior in the
+dated 25 October section below, not its disc/BIOS integrity rules or retained tests.
+Local per-game intent can override missing/incorrect scraper player metadata and
+restrict the offered platform mode; it cannot certify runtime/content compatibility.
+[Current source, checks and installation status](evidence/2026-11-02-demand-multiplayer/README.md).
+
 ## Neo Geo CD — 2 November 2026
 
 Separate sealed `neocd_netplay` core, two controller ports, CUE/CHD with all

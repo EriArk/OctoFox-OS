@@ -1,6 +1,8 @@
 #include "SqliteLibrary.h"
 #include "LibraryFileMove.h"
 #include "core/input/TextEntryController.h"
+#include "core/model/MultiplayerPreference.h"
+#include <QJsonDocument>
 #include <QSqlQuery>
 #include <QDir>
 #include <QFile>
@@ -70,7 +72,20 @@ QString editLibrary(QSqlDatabase& db, const LibraryEdit& edit, const QString& ow
         const auto path=q.value(1).toString(),domain=q.value(2).toString(),trash=q.value(4).toString();
         const bool removed=!q.value(3).isNull();q.finish();
         if(removed!=(edit.kind==LibraryEditKind::RestoreGame))return fail("This game changed. Reopen its menu.");
-        if(edit.kind==LibraryEditKind::RenameGame || edit.kind==LibraryEditKind::MoveGame) {
+        if(edit.kind==LibraryEditKind::MultiplayerPreference) {
+            const auto preference=QJsonDocument::fromJson(edit.text.toUtf8()).object();
+            q.prepare("SELECT platform_id,config FROM adventures WHERE id=?");q.addBindValue(edit.id);
+            if(!q.exec()||!q.next()||!validMultiplayerPreference(q.value(0).toString(),preference))return fail("Choose a multiplayer mode supported by this platform.");
+            auto config=QJsonDocument::fromJson(q.value(1).toByteArray()).object();q.finish();
+            if(preference["availability"]=="auto"&&preference["mode"]=="auto")config.remove("multiplayerPreference");
+            else config["multiplayerPreference"]=preference;
+            q.prepare("UPDATE adventures SET config=?,revision=revision+1 WHERE id=?");
+            q.addBindValue(QJsonDocument(config).toJson(QJsonDocument::Compact));q.addBindValue(edit.id);
+            if(!q.exec())return fail(failure());
+            q.prepare("UPDATE exit_media SET registration_revision=? WHERE adventure_id=? AND registration_revision=?");
+            q.addBindValue(edit.revision+1);q.addBindValue(edit.id);q.addBindValue(edit.revision);
+            if(!q.exec())return fail(failure());
+        } else if(edit.kind==LibraryEditKind::RenameGame || edit.kind==LibraryEditKind::MoveGame) {
             if(edit.kind==LibraryEditKind::RenameGame) {
                 if(!labelValid(edit.text,96))return fail("Use a game name of 1–96 characters.");
                 q.prepare("UPDATE adventures SET title=?,revision=revision+1 WHERE id=?");q.addBindValue(edit.text.trimmed());q.addBindValue(edit.id);

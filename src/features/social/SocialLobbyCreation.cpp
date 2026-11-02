@@ -27,6 +27,7 @@ QVariantMap SocialController::lobbyDraft() const {
     return result;
 }
 void SocialController::cancelLobbyDraft() {
+    emit lobbyGameCheckCancelled();
     lobbyVoteOpen_=false;lobbyCreateOpen_=false;lobbyPickerOpen_=false;lobbyDraft_.clear();lobbyChoices_.clear();lobbyCreationError_.clear();
     lobbyDraftAccount_.clear();lobbyDraftPeer_.clear();lobbyDraftConversation_.clear();
     myLobbiesOpen_=lobbyDraftReturn_;lobbyDraftReturn_=false;syncLocalLobby();emit changed();
@@ -177,7 +178,7 @@ bool SocialController::validateLobbyChoices() {
     for(const auto& c:lobbyChoices_){
         const auto choice=c.toMap();bool found=false;
         for(const auto& v:availableLobbyGames()){const auto g=v.toMap();
-            if(sameCandidate(choice,g)&&g.value("enabled",true).toBool()
+            if(!g["requiresPreparation"].toBool()&&sameCandidate(choice,g)&&g.value("enabled",true).toBool()
                 &&choice["runtime"]==g["runtime"]&&choice["seats"]==g["seats"]){fresh.append(g);found=true;break;}
         }
         if(!found){lobbyCreationError_="A selected game or mode changed. Choose it again.";return false;}
@@ -199,8 +200,8 @@ void SocialController::lobbyPickerAction(QString action) {
     if(action=="vote-close"){lobbyVoteOpen_=false;emit changed();return;}
     if(!lobbyPickerOpen_)return;
     lobbyCreationError_.clear();
-    if(action=="mode-cancel"){lobbyPickerModeGame_.clear();emit changed();return;}
-    if(action=="cancel"){lobbyPickerModeGame_.clear();lobbyPickerOpen_=false;lobbyChoices_=lobbyPickerOriginalChoices_;emit changed();return;}
+    if(action=="mode-cancel"){emit lobbyGameCheckCancelled();lobbyPickerModeGame_.clear();emit changed();return;}
+    if(action=="cancel"){emit lobbyGameCheckCancelled();lobbyPickerModeGame_.clear();lobbyPickerOpen_=false;lobbyChoices_=lobbyPickerOriginalChoices_;emit changed();return;}
     if(action=="search"){textPurpose_="lobby-picker-search";emit textRequested("Find a game",lobbyPickerSearch_,100);return;}
     if(action=="clear"){lobbyChoices_.clear();refreshLobbyPicker();emit changed();return;}
     if(action.startsWith("focus:")) {
@@ -208,13 +209,16 @@ void SocialController::lobbyPickerAction(QString action) {
         if(index>=0){lobbyPickerGame_=key;lobbyPickerFocus_=index;lobbyPickerRailFocused_=lobbyPickerPinsFocused_=false;}
     } else if(action.startsWith("game:")) {
         const auto key=action.mid(5);
+        if(!lobbyPickerModeGame_.isEmpty()&&lobbyPickerModeGame_!=key)emit lobbyGameCheckCancelled();
         for(const auto& v:availableLobbyGames())if(gameKey(v.toMap())==key){lobbyPickerModeGame_=key;lobbyPickerModeFocus_=0;
-            const auto index=lobbyPickerModel_.indexOf(key);if(index>=0){lobbyPickerGame_=key;lobbyPickerFocus_=index;}break;}
+            const auto index=lobbyPickerModel_.indexOf(key);if(index>=0){lobbyPickerGame_=key;lobbyPickerFocus_=index;}
+            if(v.toMap()["requiresPreparation"].toBool())emit lobbyGameCheckRequested(key);break;}
     } else if(action.startsWith("category:")){lobbyPickerCategory_=action.mid(9);lobbyPickerRailFocused_=lobbyPickerPinsFocused_=false;const auto rows=lobbyPickerCategories();for(int i=0;i<rows.size();++i)if(rows[i].toMap()["id"]==lobbyPickerCategory_)lobbyPickerRail_=i;refreshLobbyPicker();}
     else if(action.startsWith("mode:")) {
         if(lobbyPickerModeGame_.isEmpty())return;
         for(const auto& v:availableLobbyGames())if(v.toMap()["key"]==action.mid(5)){
             if(gameKey(v.toMap())!=lobbyPickerModeGame_||!v.toMap().value("enabled",true).toBool())return;
+            if(v.toMap()["requiresPreparation"].toBool()){emit lobbyGameCheckRequested(lobbyPickerModeGame_);return;}
             int selected=-1;for(int i=0;i<lobbyChoices_.size();++i)if(lobbyChoices_[i].toMap()["id"]==v.toMap()["id"]&&lobbyChoices_[i].toMap()["mode"]==v.toMap()["mode"])selected=i;
             if(selected>=0)lobbyChoices_.removeAt(selected);
             else if(lobbyChoices_.size()<4)lobbyChoices_.append(v);else lobbyCreationError_="Choose up to four game and mode combinations.";

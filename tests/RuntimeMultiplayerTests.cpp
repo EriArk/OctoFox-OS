@@ -108,6 +108,8 @@ class RuntimeMultiplayerTests final : public QObject {
     }
     QJsonObject inviteWhilePlaying(Fixture& f,GameParty& host) {
         const QJsonObject game{{"id","runtime.test"},{"label","Another game"},{"content","exact"},{"players",2}};
+        AdventureRegistration record;record.adventure.id="ordinary";record.adventure.platformId="nes";
+        f.library.records={record};
         f.runtime.allowed_=true;f.runtime.games_={{"ordinary",game}};f.runtime.update();
         host.configure("host",{game},game,true);
         connect(&host,&GameParty::outgoing,&f.runtime,[&f](QString,QJsonObject packet){f.runtime.party_.receive("host","host",packet);});
@@ -141,6 +143,17 @@ class RuntimeMultiplayerTests final : public QObject {
         return result;
     }
 private slots:
+    void liveJoinCanPrepareOneCandidateWithoutGrantingAdmission() {
+        Fixture f;AdventureRegistration game;game.adventure.id="live";game.adventure.title="Same game";game.adventure.platformId="nes";
+        f.library.records={game};f.runtime.refresh({},"test-trainer",true);
+        const QJsonObject offered{{"id","runtime.retroarch.nes.fceumm.v1"},{"label","Same game"},{"content",QString(64,'a')},
+            {"core","1b13b00d4680394dad8000d5175f97be727107e0945bc9b412da91d70c07b267"},
+            {"runtime","8d57b47c88d416c05145187c8c906b7ab0013edb7e45af69d9b6bb841aea4a24"}};
+        QVERIFY(f.runtime.canPrepareLive(offered));QVERIFY(!f.runtime.supportsLive(offered));QVERIFY(!f.runtime.scan_.isRunning());
+        auto unreviewed=offered;unreviewed["core"]="another build";QVERIFY(!f.runtime.canPrepareLive(unreviewed));
+        f.runtime.games_["live"]=offered;QVERIFY(f.runtime.supportsLive(offered));
+        auto changed=offered;changed["content"]=QString(64,'b');QVERIFY(!f.runtime.supportsLive(changed));
+    }
     void lobbyRoutesIgnoreOrdinaryEmulatorPreferences() {
         const QHash<QString,QString> routes{{"psp","ppsspp"},{"gc","dolphin"},{"wii","dolphin"},
             {"nds","melonds"},{"n3ds","azahar"},{"psvita","vita3k"},{"ps2","armsx2"},{"model3","supermodel"},{"doom","odamex"},
@@ -493,7 +506,7 @@ private slots:
         QVERIFY(!f.runtime.games_.contains("gc"));QVERIFY(!f.runtime.games_.contains("nes"));
         QVERIFY(f.runtime.lanGames_.contains("gc"));
         QVERIFY(f.runtime.lanGames_.contains("nds"));
-        QCOMPARE(f.social.lobbyPickerRows().size(),6); // One game row, two DS modes.
+        QCOMPARE(f.social.lobbyPickerRows().size(),7); // Unverified NES remains a candidate, never a verified mode.
         bool wfcVisible=false;
         for(const auto& row:f.social.lobbyPickerRows())if(row.toMap()["adventure"]=="nds") {
             const auto modes=row.toMap()["modes"].toList();QCOMPARE(modes.size(),2);
@@ -1033,49 +1046,59 @@ private slots:
         QVERIFY(!f.runtime.active_);QVERIFY(f.runtime.linkedTransfers_.isEmpty());
         QVERIFY(f.runtime.request_.ownSram.isEmpty());QVERIFY(f.runtime.request_.peerSrams.isEmpty());
     }
-    void verifiedGameIsAvailableWhileOtherGamesAreStillScanning() {
-        Fixture f;
-        AdventureRegistration first;first.adventure.id="verified";first.adventure.platformId="nes";
-        first.integrationConfig["core"]="fceumm";
-        auto pending=first;pending.adventure.id="not-yet-checked";
-        f.library.records={first,pending};
-        // Keep the worker unfinished to exercise result delivery rather than
-        // relying on the relative speed of small and large files on this host.
-        f.runtime.refresh({},"test-trainer",true);QTRY_VERIFY(!f.runtime.scan_.isRunning());
-        QPromise<RuntimeMultiplayer::ScannedGame> scan;
-        scan.start();f.runtime.scan_.setFuture(scan.future());
-        f.runtime.refresh({},"test-trainer",true);
-        QVERIFY(f.runtime.onlineGames().isEmpty());
-        const auto profile=retroarch::netplayProfile("nes","fceumm",QString(64,'a'));
-        QVERIFY(!profile.isEmpty());
-        scan.addResult({first.adventure.id,profile});
-        QTRY_COMPARE(f.runtime.onlineGames(),QStringList{"verified"});
-        QCOMPARE(f.runtime.nearbyGames(),QStringList{"verified"});
-        QCOMPARE(f.runtime.multiplayerGames(),QStringList{"verified"});
-        QVERIFY(f.runtime.scan_.isRunning());
-        auto nearby=profile;nearby["connections"]=QJsonArray{"nearby"};
-        scan.addResult({pending.adventure.id,nearby});
-        QTRY_COMPARE(f.runtime.nearbyGames().size(),2);
-        QCOMPARE(f.runtime.onlineGames(),QStringList{"verified"});
-        QCOMPARE(f.runtime.multiplayerGames().size(),2);
-        f.runtime.refresh({},"test-trainer",false);
-        QVERIFY(f.runtime.onlineGames().isEmpty());
-        QVERIFY(f.runtime.nearbyGames().isEmpty());QVERIFY(f.runtime.multiplayerGames().isEmpty());
-        scan.addResult({pending.adventure.id,profile});
-        QCoreApplication::processEvents();
-        QVERIFY(f.runtime.onlineGames().isEmpty());
-        scan.finish();QTRY_VERIFY(!f.runtime.scan_.isRunning());
-    }
-    void launchedUncheckedGameMovesAheadOfPendingLibraryScan() {
-        Fixture f;AdventureRegistration game;game.adventure.id="newly-launched";game.adventure.platformId="nes";
-        game.integrationConfig["core"]="fceumm";f.library.records={game};
-        f.runtime.refresh({},"test-trainer",true);QTRY_VERIFY(!f.runtime.scan_.isRunning());
-        QPromise<RuntimeMultiplayer::ScannedGame> scan;scan.start();f.runtime.scan_.setFuture(scan.future());
-        f.runtime.refresh({},"test-trainer",true);QVERIFY(!scan.isCanceled());
+    void startupRefreshAndSoloLaunchDoNotVerifyLibrary() {
+        Fixture f;AdventureRegistration game;game.adventure.id="unchecked";game.adventure.platformId="nes";
+        game.adventure.title="Test game";game.integrationConfig["core"]="fceumm";f.library.records={game};
+        for(int i=0;i<4;++i)f.runtime.refresh({},"test-trainer",true);
+        QVERIFY(!f.runtime.scan_.isRunning());QVERIFY(!f.runtime.scanCancel_);
+        QVERIFY(f.runtime.scanResults_.isEmpty());QVERIFY(f.runtime.scanDependencies_.isEmpty());
+        QVERIFY(f.runtime.onlineGames().isEmpty());QVERIFY(f.runtime.gameModes().isEmpty());
+        QCOMPARE(f.runtime.multiplayerGames(),QStringList{"unchecked"});
+        const auto rows=f.social.availableLobbyGames();QCOMPARE(rows.size(),1);
+        QVERIFY(rows[0].toMap()["requiresPreparation"].toBool());
+        QVERIFY(rows[0].toMap()["runtime"].toMap().isEmpty());
         QVERIFY(f.start(false,game.adventure.id));QTRY_COMPARE(f.lifecycle.state(),"running");
-        f.runtime.refresh({},"test-trainer",true);QVERIFY(scan.isCanceled());scan.finish();
-        QTRY_COMPARE(f.runtime.scanPriority_,game.adventure.id);QTRY_VERIFY(!f.runtime.scan_.isRunning());
+        f.runtime.refresh({},"test-trainer",true);
+        QVERIFY(!f.runtime.scan_.isRunning());QVERIFY(!f.runtime.scanCancel_);
         finishOrdinary(f);
+    }
+    void selectedCheckNeverIncludesAnotherGameAndCancelDoesNotRestart() {
+        Fixture f;AdventureRegistration first;first.adventure.id="first";first.adventure.platformId="nes";
+        first.adventure.title="Same title";first.integrationConfig["core"]="fceumm";
+        auto other=first;other.adventure.id="other";f.library.records={first,other};
+        f.runtime.refresh({},"test-trainer",true);
+        QVERIFY(f.runtime.candidateFor({{"label","Same title"}}).isEmpty()); // Ambiguity is never first-match admission.
+        bool completed=false;f.runtime.requestGameScan("first","test",[&](bool,QString){completed=true;});
+        QTRY_VERIFY(completed);QVERIFY(f.runtime.scanResults_.contains("first"));
+        QVERIFY(!f.runtime.scanResults_.contains("other"));
+        QPromise<RuntimeMultiplayer::ScannedGame> pending;pending.start();
+        f.runtime.scanCancel_=std::make_shared<std::atomic_bool>(false);
+        f.runtime.scan_.setFuture(pending.future());f.runtime.scanOwner_="picker";
+        f.runtime.cancelGameScan("picker");QVERIFY(pending.isCanceled());
+        QVERIFY(!pending.addResult({"other",retroarch::netplayProfile("nes","fceumm",QString(64,'a'))}));
+        pending.finish();QTRY_VERIFY(!f.runtime.scan_.isRunning());
+        f.runtime.refresh({},"test-trainer",true);QVERIFY(!f.runtime.scan_.isRunning());
+        QVERIFY(!f.runtime.profiles_.contains("other"));
+    }
+    void unselectedFileChangesDoNotRetireCheckedGame() {
+        Fixture f;
+        const auto write=[&](QString name,QByteArray bytes){QFile file(f.dir.filePath(name));return file.open(QIODevice::WriteOnly)&&file.write(bytes)==bytes.size();};
+        QVERIFY(write("runtime","runtime"));QVERIFY(write("core","core"));
+        QVERIFY(write("first.nes","first game"));QVERIFY(write("other.nes","other game"));
+        AdventureRegistration first;first.adventure.id="first";first.adventure.title="First";first.adventure.platformId="nes";
+        first.integrationConfig["core"]="fceumm";first.contentPath=f.dir.filePath("first.nes");
+        auto other=first;other.adventure.id="other";other.contentPath=f.dir.filePath("other.nes");f.library.records={first,other};
+        RetroArchInstallation installation;installation.runtimeFile=f.dir.filePath("runtime");installation.cores["fceumm"]=f.dir.filePath("core");
+        f.runtime.refresh(installation,"test-trainer",true);
+        bool done=false;f.runtime.requestGameScan("first","test",[&](bool ok,QString){QVERIFY(ok);done=true;});QTRY_VERIFY(done);
+        const auto profile=f.runtime.profiles_.value("first");QVERIFY(!profile.isEmpty());
+        QVERIFY(write("other.nes","a changed unselected edition"));
+        f.runtime.refresh(installation,"test-trainer",true);
+        QCOMPARE(f.runtime.profiles_.value("first"),profile);QVERIFY(!f.runtime.scan_.isRunning());
+        QVERIFY(!f.runtime.scanDependencies_.contains(other.contentPath));
+        QVERIFY(write("first.nes","a changed selected edition"));
+        f.runtime.pollScanDependencies();QTRY_VERIFY(f.runtime.profiles_.isEmpty());
+        QVERIFY(!f.runtime.scan_.isRunning());
     }
     void discDependenciesRefreshWithoutLibraryEvents_data() {
         QTest::addColumn<bool>("ps1");
@@ -1102,12 +1125,14 @@ private slots:
         installation.runtimeFile=f.dir.filePath("runtime");installation.cores[core]=f.dir.filePath("core");
         f.runtime.dependencyPoll_.setInterval(50);
         f.runtime.refresh(installation,"test-trainer",true);
-        QTRY_VERIFY(!f.runtime.scan_.isRunning());QVERIFY(f.runtime.multiplayerGames().isEmpty());
+        QVERIFY(!f.runtime.scan_.isRunning());QVERIFY(f.runtime.profiles_.isEmpty());
+        f.runtime.requestGameScan("disc","test",[](bool,QString){});QTRY_VERIFY(!f.runtime.scan_.isRunning());
         QVERIFY(f.runtime.scanDependencies_.contains(f.dir.filePath("track.bin")));
-        // Restore a missing required track, without changing the descriptor or
-        // notifying the library. The timer must make the game available.
+        // Restore a missing track. The timer invalidates evidence, but only a
+        // deliberate request may read the content again.
         QVERIFY(write("track.bin","first track"));
-        QTRY_COMPARE(f.runtime.multiplayerGames(),QStringList{"disc"});
+        f.runtime.invalidateScan();QVERIFY(!f.runtime.scan_.isRunning());
+        f.runtime.requestGameScan("disc","test",[](bool,QString){});
         QTRY_VERIFY(!f.runtime.scan_.isRunning());
         const auto first=f.runtime.profiles_.value("disc");QVERIFY(!first.isEmpty());
         const auto generation=f.runtime.dependencyGeneration_;
@@ -1115,20 +1140,26 @@ private slots:
         f.runtime.pollScanDependencies();QTRY_VERIFY(!f.runtime.dependencyScan_.isRunning());
         QCOMPARE(f.runtime.dependencyGeneration_,generation); // Idle/unrelated writes do not rehash ROMs.
         QVERIFY(write("track.bin","second longer track"));
+        f.runtime.invalidateScan();QVERIFY(!f.runtime.scan_.isRunning());f.runtime.requestGameScan("disc","test",[](bool,QString){});
         QTRY_VERIFY(!f.runtime.profiles_.value("disc").isEmpty()&&f.runtime.profiles_.value("disc")!=first);
         QTRY_VERIFY(!f.runtime.scan_.isRunning());
         const auto second=f.runtime.profiles_.value("disc");
         if(ps1) {
             QVERIFY(write("game.sbi","new optional subchannel"));
+        f.runtime.invalidateScan();QVERIFY(!f.runtime.scan_.isRunning());f.runtime.requestGameScan("disc","test",[](bool,QString){});
             QTRY_VERIFY(!f.runtime.profiles_.value("disc").isEmpty()&&f.runtime.profiles_.value("disc")!=second);
             QVERIFY(QFile::remove(f.dir.filePath("game.sbi")));
+        f.runtime.invalidateScan();QVERIFY(!f.runtime.scan_.isRunning());f.runtime.requestGameScan("disc","test",[](bool,QString){});
             QTRY_COMPARE(f.runtime.profiles_.value("disc"),second);
             QVERIFY(write("game.ccd","overriding descriptor"));
-            QTRY_VERIFY(f.runtime.multiplayerGames().isEmpty());QTRY_VERIFY(!f.runtime.scan_.isRunning());
+        f.runtime.invalidateScan();QVERIFY(!f.runtime.scan_.isRunning());f.runtime.requestGameScan("disc","test",[](bool,QString){});
+            QTRY_VERIFY(f.runtime.profiles_.isEmpty());QTRY_VERIFY(!f.runtime.scan_.isRunning());
             QVERIFY(QFile::remove(f.dir.filePath("game.ccd")));
+        f.runtime.invalidateScan();QVERIFY(!f.runtime.scan_.isRunning());f.runtime.requestGameScan("disc","test",[](bool,QString){});
             QTRY_COMPARE(f.runtime.profiles_.value("disc"),second);
         }
         QVERIFY(write(bios,QByteArray(512*1024,'c')));
+        f.runtime.invalidateScan();QVERIFY(!f.runtime.scan_.isRunning());f.runtime.requestGameScan("disc","test",[](bool,QString){});
         QTRY_VERIFY(!f.runtime.profiles_.value("disc").isEmpty()&&f.runtime.profiles_.value("disc")!=second);
         QTRY_VERIFY(!f.runtime.scan_.isRunning());
         const auto current=f.runtime.profiles_.value("disc");
@@ -1140,7 +1171,7 @@ private slots:
         const auto party=f.runtime.party_.state().value("party");
         const auto pid=f.process.processId();
         QVERIFY(QFile::remove(f.dir.filePath("track.bin")));
-        QTRY_VERIFY(f.runtime.multiplayerGames().isEmpty());QTRY_VERIFY(!f.runtime.scan_.isRunning());
+        QTRY_VERIFY(f.runtime.profiles_.isEmpty());QTRY_VERIFY(!f.runtime.scan_.isRunning());
         QCOMPARE(f.runtime.party_.state()["party"],party);QVERIFY(f.runtime.active_);
         QCOMPARE(f.process.processId(),pid);QVERIFY(f.lifecycle.active());
         QCOMPARE(f.library.writes,0); // Catalog refresh grants no save/library write.
@@ -1154,7 +1185,7 @@ private slots:
         f.runtime.dependencyPoll_.stop();
         QPromise<RuntimeMultiplayer::ScannedGame> scan;scan.start();f.runtime.scan_.setFuture(scan.future());
         f.runtime.scanDependencies_.insert(path,retroarch::netplayFileRevision(path));
-        QVERIFY(write("changed bytes"));f.runtime.pollScanDependencies();
+        QVERIFY(write("changed bytes"));f.runtime.invalidateScan();
         QTRY_VERIFY(scan.isCanceled());QVERIFY(f.runtime.profiles_.isEmpty());
         QVERIFY(!scan.addResult({"stale",retroarch::netplayProfile("nes","fceumm",QString(64,'a'))}));
         scan.finish();QTRY_VERIFY(!f.runtime.scan_.isRunning());
@@ -1178,7 +1209,7 @@ private slots:
         f.runtime.refresh({},"test-trainer",true);QVERIFY(scan.isCanceled());
         QVERIFY(!scan.addResult({"old",retroarch::netplayProfile("nes","fceumm",QString(64,'a'))}));
         scan.finish();QTRY_VERIFY(f.runtime.scanRevision_!=revision);
-        QTRY_VERIFY(!f.runtime.scan_.isRunning());QVERIFY(f.runtime.multiplayerGames().isEmpty());
+        QTRY_VERIFY(!f.runtime.scan_.isRunning());QVERIFY(f.runtime.profiles_.isEmpty());
     }
     void initTestCase() {
         QVERIFY(settings_.isValid());

@@ -13,7 +13,7 @@
 namespace trainer {
 bool RuntimeMultiplayer::opening() const {return active_&&!lifecycle_.active();}
 void RuntimeMultiplayer::cancelOpening() {if(opening())fail("Opening cancelled.");}
-bool RuntimeMultiplayer::supportsLive(const QJsonObject& game) const {
+bool RuntimeMultiplayer::reviewedLiveProfile(const QJsonObject& game) const {
     // Reviewed ARM64 RetroArch shared-console builds. Never trust a peer's
     // capability flag or infer support for other cores from their platform.
     if(!allowed_||game.value("lateJoin")==false||game["transport"]=="netpacket"||game["playMode"].toString("separate")!="separate")return false;
@@ -39,8 +39,14 @@ bool RuntimeMultiplayer::supportsLive(const QJsonObject& game) const {
         {"fbneo","ffb37315a609317e1a00bf32c0e3d66c5a848d052d1260f4ab7f42da0f9fb9c3"}};
     const auto core=reviewed.value(name);
     if(core.isEmpty())return false;
-    for(const auto& local:games_)if(local["runtime"]=="8d57b47c88d416c05145187c8c906b7ab0013edb7e45af69d9b6bb841aea4a24"
-        &&local["core"]==core&&supportsMultiplayerSession(local,game))return true;
+    return game["runtime"]=="8d57b47c88d416c05145187c8c906b7ab0013edb7e45af69d9b6bb841aea4a24"&&game["core"]==core;
+}
+bool RuntimeMultiplayer::canPrepareLive(const QJsonObject& game) const {
+    return supportsLive(game)||(reviewedLiveProfile(game)&&!candidateFor(game).isEmpty());
+}
+bool RuntimeMultiplayer::supportsLive(const QJsonObject& game) const {
+    if(!reviewedLiveProfile(game))return false;
+    for(const auto& local:games_)if(supportsMultiplayerSession(local,game))return true;
     return false;
 }
 bool RuntimeMultiplayer::admitLive(QString ticket,QString peer,QString operation,int seat) {
@@ -51,12 +57,14 @@ bool RuntimeMultiplayer::admitLive(QString ticket,QString peer,QString operation
 }
 void RuntimeMultiplayer::releaseLive(QString peer,QString operation) {party_.releaseLobby((lobbyContext_["type"]=="local"?"local:":"online:")+peer,operation);}
 void RuntimeMultiplayer::prepare(QString operation,QJsonObject context,Completion done) {
+    prepareChecked(std::move(operation),std::move(context),std::move(done),false);
+}
+void RuntimeMultiplayer::prepareChecked(QString operation,QJsonObject context,Completion done,bool checked) {
     lobbyProblem_.clear();
     if(!allowed_||active_||party_.active()) {done(false,"Finish the current game party before preparing this lobby.");return;}
     if(context["type"]=="local"?(context["self"]!=social_.lobbyCoordinator()->self()||!social_.lobbyCoordinator()->activeRoom()->local()):context["self"]!=social_.account()["userId"].toString()) {done(false,"The account changed. Reopen the lobby.");return;}
     const auto wanted=context["game"].toObject();QString local;QJsonObject profile;
     const auto offered=wanted["runtime"].toObject();
-    if(context.contains("liveAdmission")&&!supportsLive(offered)) {done(false,"This installed runtime cannot join a running game.");return;}
     if(!offered.isEmpty()) {
         const auto digest=QString::fromLatin1(QCryptographicHash::hash((offered["id"].toString()+"/"+offered["content"].toString()).toUtf8(),QCryptographicHash::Sha256).toHex());
         if(digest!=wanted["id"]||offered["id"]!=wanted["mode"]) {done(false,"The selected game identity changed. Choose the game again.");return;}
@@ -73,13 +81,27 @@ void RuntimeMultiplayer::prepare(QString operation,QJsonObject context,Completio
             if(offered.isEmpty()||p["content"]==offered["content"])break;
         }
     }
+    if(local.isEmpty()&&!checked) {
+        const auto candidate=candidateFor(offered,wanted["platform"].toString());
+        if(!candidate.isEmpty()) {
+            lobbyOperation_=operation;
+            const auto account=social_.accountGeneration();
+            requestGameScan(candidate,"lobby:"+operation,[this,operation,context,done,account](bool ok,QString error){
+                if(lobbyOperation_!=operation||account!=social_.accountGeneration())return;
+                if(ok)prepareChecked(operation,context,done,true);
+                else {lobbyProblem_="local-content";done(false,error+" Choose your local file to verify it.");}
+            });
+            return;
+        }
+    }
+    if(context.contains("liveAdmission")&&!supportsLive(offered)) {done(false,"This installed runtime cannot join a running game.");return;}
     const auto record=library_.registration(local);
     if(!record&&installedContent) {
         lobbyProblem_="runtime-mismatch";
         done(false,"Your game is installed, but the multiplayer emulator, BIOS or settings differ. Update the play setup on both devices and retry.");return;
     }
     if(!record||record->removed||!record->contentAvailable) {lobbyProblem_="local-content";done(false,"This game is missing or differs from the lobby's edition. Choose your local file to verify it.");return;}
-    if(!permitsMultiplayer(library_.artwork(local),profile)){done(false,"This local game's metadata excludes multiplayer.");return;}
+    if(!permits(local,profile)){done(false,"This local game's metadata excludes multiplayer.");return;}
     int players=0;QSet<int> seats;bool hostReady=false;
     const int capacity=qMin(4,(offered.isEmpty()?profile:offered)["players"].toInt(2));
     for(const auto& v:context["members"].toArray()) {
@@ -213,6 +235,7 @@ void RuntimeMultiplayer::stopNativeConnection() {
 }
 void RuntimeMultiplayer::cancel(QString operation) {
     if(operation!=lobbyOperation_)return;
+    cancelGameScan("lobby:"+operation);
     stopNativeConnection();
     relaySelector_.stop();relayStarted_=relayWaiting_=false;relayTicket_.clear();selectedRelay_.clear();selectedRelayEndpoint_.clear();
     preparation_.cancel(operation);

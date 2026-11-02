@@ -9,6 +9,7 @@
 #include <QSysInfo>
 #include "features/pc/PcGamesController.h"
 #include "features/settings/GamePerformance.h"
+#include "features/library/LibraryToolsController.h"
 #include <QJsonArray>
 #include "core/input/TextEntryController.h"
 #include "platform/input/InvitationOverlayService.h"
@@ -26,6 +27,32 @@ public:
 class PcImportUiTests : public QObject {
     Q_OBJECT
 private slots:
+    void selectedGameMenuAtTwoSizes() {
+        QTemporaryDir temp;const QDir source(QString(TRAINER_SOURCE_DIR)+"/src/qml");
+        for(const auto& name:source.entryList({"*.qml"},QDir::Files))QVERIFY(QFile::copy(source.filePath(name),temp.filePath(name)));
+        QFile dir(temp.filePath("qmldir"));QVERIFY(dir.open(QIODevice::WriteOnly));dir.write("singleton Theme 1.0 Theme.qml\n");dir.close();
+        QFile scene(temp.filePath("Probe.qml"));QVERIFY(scene.open(QIODevice::WriteOnly));
+        scene.write("import QtQuick\nItem { width: 960; height: 540; property bool dark: false; onDarkChanged: Theme.themeId=dark?'dark':'light'; QtObject { id: bridge; property var libraryTools: probeTools; property var keyboard: ({open:false}); property bool menuOpen: false; property string notice: ''; function activate(index) { probeTools.activate(index) } } LibraryToolsPanel { anchors.fill: parent; shell: bridge } }");scene.close();
+        UiLibrary library;library.record.adventure.id="fixture";library.record.adventure.title="A very long adventure name for a small handheld";library.record.adventure.platformId="gc";
+        LibraryToolsController tools(library);tools.multiplayerAvailable=[](const QString&){return true;};tools.beginBrowsing("fixture","grid");
+        QQuickView view;QStringList warnings;connect(view.engine(),&QQmlEngine::warnings,this,[&](const QList<QQmlError>& errors){for(const auto& e:errors)warnings<<e.toString();});
+        view.rootContext()->setContextProperty("probeTools",&tools);view.setResizeMode(QQuickView::SizeRootObjectToView);view.setSource(QUrl::fromLocalFile(scene.fileName()));
+        QVERIFY2(view.status()==QQuickView::Ready,qPrintable(warnings.join('\n')));view.resize(960,540);view.show();QTest::qWait(150);
+        QDir().mkpath("screenshots/game-menu");QVERIFY(view.grabWindow().save("screenshots/game-menu/game-light-960.png"));
+        tools.dispatch(Action::Right);QCOMPARE(tools.section(),1);QCOMPARE(tools.focusIndex(),0);
+        QTest::qWait(100);QVERIFY(view.grabWindow().save("screenshots/game-menu/library-light-960.png"));
+        tools.selectSection(0);tools.dispatch(Action::Down);QCOMPARE(tools.focusIndex(),1);QTest::qWait(50);
+        auto* focused=view.activeFocusItem();QVERIFY(focused&&focused->isVisible());
+        // Touch and controller use the same selected game's captured action.
+        QTest::mouseClick(&view,Qt::LeftButton,Qt::NoModifier,focused->mapToScene(QPointF(focused->width()/2,focused->height()/2)).toPoint());
+        QCOMPARE(tools.route(),QString("multiplayer"));QTest::qWait(100);QVERIFY(view.grabWindow().save("screenshots/game-menu/multiplayer-light-960.png"));
+        view.rootObject()->setProperty("dark",true);view.resize(800,450);tools.dispatch(Action::Down);QTest::qWait(120);
+        QVERIFY(view.grabWindow().save("screenshots/game-menu/multiplayer-dark-800.png"));
+        tools.dispatch(Action::Back);QCOMPARE(tools.route(),QString("game"));QTest::qWait(100);
+        QVERIFY(view.grabWindow().save("screenshots/game-menu/game-dark-800.png"));
+        tools.close();QVERIFY(!tools.isOpen());
+        QVERIFY2(warnings.isEmpty(),qPrintable(warnings.join('\n')));
+    }
     void perGamePerformanceAtTwoSizes() {
         QTemporaryDir temp;const QDir source(QString(TRAINER_SOURCE_DIR)+"/src/qml");
         for(const auto& name:source.entryList({"*.qml"},QDir::Files))QVERIFY(QFile::copy(source.filePath(name),temp.filePath(name)));

@@ -6,6 +6,7 @@
 #include "features/social/LobbyRuntime.h"
 #include "features/social/LobbyConnection.h"
 #include "core/model/GamePlayers.h"
+#include "core/model/MultiplayerPreference.h"
 #include "integrations/adventure/retroarch/RetroArchNetplay.h"
 #include "integrations/adventure/retroarch/RetroArchNetplayClient.h"
 #include "integrations/adventure/retroarch/NetplayRelaySelector.h"
@@ -64,6 +65,7 @@ public:
     void launch(QString operation,QString ticket,QJsonObject context,Completion done) override;
     void cancel(QString operation) override;
     bool supportsLive(const QJsonObject& game) const override;
+    bool canPrepareLive(const QJsonObject& game) const override;
     bool supportsRejoin(const QJsonObject& game) const override {return supportsLive(game);}
     bool admitLive(QString ticket,QString peer,QString operation,int seat) override;
     void releaseLive(QString peer,QString operation) override;
@@ -87,7 +89,7 @@ public:
     void beginTogether(QString game={},QString peer={},bool company=false);
     bool contextAction(const QString&);
     void resumeLiveInvocation();
-    void cancelInvocation() { liveInvocation_=false;++invocationGeneration_; }
+    void cancelInvocation() { liveInvocation_=false;++invocationGeneration_; cancelGameScan("invocation"); }
     // Optional trusted runtime integration. Both checks are LOCAL capabilities;
     // a peer descriptor or matching title never grants an in-place join.
     struct RunningJoin {
@@ -192,6 +194,20 @@ private:
     };
     QFutureWatcher<ScannedGame> scan_{this};
     QMap<QString,ScannedGame> scanResults_;
+    QStringList candidates_;
+    QString scanOwner_, scanError_;
+    Completion scanCompletion_;
+    bool scanRequested_=false;
+    quint64 scanAccount_=0;
+    void requestGameScan(QString game,QString owner,Completion done={});
+    void cancelGameScan(const QString& owner={});
+    QString candidateFor(const QJsonObject& offered,const QString& platform={}) const;
+    bool permits(const QString& game,const QJsonObject& profile) const {
+        const auto record=library_.registration(game);
+        return record&&permitsMultiplayer(*record,library_.artwork(game),profile);
+    }
+    void prepareChecked(QString operation,QJsonObject context,Completion done,bool checked);
+    bool reviewedLiveProfile(const QJsonObject& game) const;
     std::shared_ptr<std::atomic_bool> scanCancel_;
     QTimer scanPublish_{this};
     void pollScanDependencies();
@@ -239,6 +255,7 @@ private:
     int invocationRevision_=0;
     QJsonObject invocationDescriptor_;
     void showInvocation();
+    void prepareInvocation();
     void resumeInvitation();
     void cancelInvitationExit();
     bool canJoinRunning(const QJsonObject&) const;

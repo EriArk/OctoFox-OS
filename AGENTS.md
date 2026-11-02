@@ -1,5 +1,15 @@
 # TrainerOS — active agent / developer contract
 
+**Owner on-demand multiplayer and Select, 2 November (latest):** no startup or
+background library-wide content hashing. Cached catalogue candidates are not
+verified multiplayer profiles; check only a deliberately selected game for a
+lobby/invitation, retain cancellation and exact admission/launch/save guards.
+Dependency invalidation must not start another bulk read. Allow a local per-game
+multiplayer flag and platform-supported mode independently of ScreenScraper;
+this expresses user intent, never proof of compatibility. Select uses a compact
+game card and Game / Library / View groups, not a long stack of heavy buttons.
+See [current implementation and delivery status](docs/evidence/2026-11-02-demand-multiplayer/README.md).
+
 **Owner combined delivery, 2 November (latest):** handheld access resumed.
 Profile polish, game preparation and Companion host changes through `5420614a`
 are installed together on Flip/Odin with signed Companion 0.1.1. See

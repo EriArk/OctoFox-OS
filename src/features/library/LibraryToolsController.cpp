@@ -1,5 +1,7 @@
 ﻿#include "LibraryToolsController.h"
 #include "core/repository/CollectionRepository.h"
+#include "core/model/MultiplayerPreference.h"
+#include <QJsonDocument>
 #include <QFileInfo>
 #include <QDir>
 #include <algorithm>
@@ -11,7 +13,7 @@ void LibraryToolsController::beginGame(const QString& id) {
     if(busy_ || !repository_.editable())return;
     const auto record=repository_.registration(id);
     if(!record || record->removed)return;
-    browserActions_=false;game_=*record;route_="game";focus_=0;error_.clear();installNotice_.clear();emit changed();
+    browserActions_=false;game_=*record;route_="game";section_=0;focus_=0;error_.clear();installNotice_.clear();emit changed();
 }
 void LibraryToolsController::beginBrowsing(const QString& id, const QString& view) {
     if(busy_)return;
@@ -31,8 +33,21 @@ void LibraryToolsController::beginTrash() {
     route_="trash";focus_=0;error_.clear();emit changed();
 }
 void LibraryToolsController::close() {if(!busy_){emit reviewRequested("reviews-close",{});++browseGeneration_;route_.clear();error_.clear();emit changed();}}
+QVariantMap LibraryToolsController::gameSummary() const {
+    const auto art=repository_.artwork(game_.adventure.id),preference=multiplayerPreference(game_).toVariantMap();
+    const auto choice=preference["availability"].toString();
+    return {{"id",game_.adventure.id},{"title",game_.adventure.title},{"platform",platformLabel(game_.adventure.platformId).name},
+        {"cover",art.value("cover",art.value("displayPicture"))},{"description",game_.adventure.description},
+        {"multiplayer",choice=="multiplayer"?"Multiplayer · your choice":choice=="solo"?"Single-player · your choice":gamePlayers(art).label()},
+        {"available",game_.contentAvailable}};
+}
+void LibraryToolsController::selectSection(int section) {
+    if(busy_||route_!="game"||section<0||section>(browserActions_?2:1))return;
+    section_=section;focus_=0;error_.clear();emit changed();
+}
 QString LibraryToolsController::title() const {
     if(route_=="browse")return "Games";
+    if(route_=="multiplayer")return "Multiplayer";
     if(route_.startsWith("reviews"))return "Reviews · "+game_.adventure.title;
     if(route_=="trash")return "Game trash";
     if(route_=="world")return world_.name;
@@ -45,6 +60,7 @@ QString LibraryToolsController::title() const {
     return game_.adventure.title;
 }
 QString LibraryToolsController::detail() const {
+    if(route_=="multiplayer")return "Your choice is saved for this game and kept when artwork is refreshed. Game files and emulator compatibility are checked when you prepare multiplayer.";
     if(route_=="install-content")return "Installing package… You can cancel before it is applied.";
     if(route_=="reviews-edit")return reviewDraft_.isEmpty()?"A few words about your adventure…":reviewDraft_;
     if(route_=="reviews-delete")return "Delete your review?";
@@ -89,7 +105,42 @@ QVariantList LibraryToolsController::rows() const {
     }
     const auto viewRows=[&] { return QVariantList{row("View: Wheel"+(browserView_=="wheel"?QString(" ✓"):QString())),row("View: List"+(browserView_=="list"?QString(" ✓"):QString())),row("View: Shelves"+(browserView_=="shelves"?QString(" ✓"):QString())),row("View: Grid"+(browserView_=="grid"?QString(" ✓"):QString()))}; };
     if(route_=="browse") { QVariantList result{row("Search library"),row("Change filter")};if(!browserView_.isEmpty())result.append(viewRows());result.append(row("Back"));return result; }
-    if(route_=="game"){const bool steam=game_.adventure.adapterId=="steam";QVariantList result{row("Rename"),row("Move",!steam && catalog_ && !repository_.storageRootFor(game_.adventure.id).isEmpty()),row(steam?"Uninstall in Steam":"Удалить",!steam),row("Properties"),row("Download information & artwork",!steam && !repository_.storageRootFor(game_.adventure.id).isEmpty()),row("Add to collection")};result.append(row("Game settings"));if(browserActions_){result.append(row("Search library"));result.append(row("Change filter"));if(!browserView_.isEmpty())result.append(viewRows());}return result;}
+    if(route_=="multiplayer") {
+        const auto preference=multiplayerPreference(game_);QVariantList result;
+        const auto option=[&](QString id,QString label,QString detail,QString field,QString value,bool enabled=true){
+            result.append(QVariantMap{{"id",id},{"label",label},{"detail",detail},{"enabled",enabled},{"checked",preference[field]==value},
+                {"glyph","game-controller"},{"group",field=="availability"?"Game support":"Play mode"}});
+        };
+        option("availability:auto","Automatic","Use game information when available","availability","auto");
+        option("availability:multiplayer","This game has multiplayer","Your choice overrides missing or incorrect metadata","availability","multiplayer");
+        option("availability:solo","Single-player only","Hide multiplayer invitations for this game","availability","solo");
+        const bool enabled=preference["availability"]!="solo";
+        option("mode:auto","All supported modes","Choose a mode when preparing a lobby","mode","auto",enabled);
+        for(const auto& v:multiplayerModeOptions(game_.adventure.platformId)) {
+            const auto mode=v.toMap();option("mode:"+mode["id"].toString(),mode["label"].toString(),mode["detail"].toString(),"mode",mode["id"].toString(),enabled);
+        }
+        return result;
+    }
+    if(route_=="game") {
+        const bool steam=game_.adventure.adapterId=="steam";
+        const auto action=[](QString id,QString label,QString detail,QString glyph,bool enabled=true){return QVariantMap{{"id",id},{"label",label},{"detail",detail},{"glyph",glyph},{"enabled",enabled}};};
+        if(section_==0)return {
+            action("together","Play together","Choose a lobby and play mode","party",multiplayerAvailable&&multiplayerAvailable(game_.adventure.id)&&multiplayerPreference(game_)["availability"]!="solo"),
+            action("multiplayer","Multiplayer setup",multiplayerModeOptions(game_.adventure.platformId).isEmpty()?"Managed by the game or its package":"Game support and your preferred mode","game-controller",!multiplayerModeOptions(game_.adventure.platformId).isEmpty()),
+            action("settings","Game settings","Performance, power and compatibility","settings"),
+            action("reviews","Reviews","Players' impressions and your review","chat")};
+        if(section_==1)return {
+            action("collection","Add to collection","Organize your library","boxes"),
+            action("rename","Rename","Change the display name","pencil"),
+            action("artwork","Information & artwork","Choose and download game information","pictures",!steam&&!repository_.storageRootFor(game_.adventure.id).isEmpty()),
+            action("properties","File information","Platform, location and supported features","info"),
+            action("move","Move game","Choose another platform folder","folder",!steam&&catalog_&&!repository_.storageRootFor(game_.adventure.id).isEmpty()),
+            action("remove",steam?"Manage in Steam":"Delete game",steam?"Steam manages this installation":"Saves and history are kept","storage",!steam)};
+        QVariantList result{action("search","Search library","Find another game","guide"),action("filter","Filter library","Choose what to show","boxes")};
+        if(!browserView_.isEmpty())for(const auto& view:QStringList{"wheel","list","shelves","grid"})
+            result.append(action("view:"+view,view.left(1).toUpper()+view.mid(1),browserView_==view?"Current view":"Change the library layout","desktop"));
+        return result;
+    }
     if(route_=="move-kind")return {row("Platform / folder",catalog_ && !repository_.storageRootFor(game_.adventure.id).isEmpty()),row("Another World")};
     if(route_=="move-file")return {row("Cancel"),row("Move")};
     if(route_=="world")return {row("Rename World"),row("Done"),row("Scrape this collection")};
@@ -129,10 +180,11 @@ void LibraryToolsController::dispatch(Action action) {
         }
         if(route_=="move-file"){browse(directory_.path,directory_.page);return;}
         if(route_=="folder" && directory_.path!=root_){browse(QFileInfo(directory_.path).absolutePath());return;}
-        if(route_=="folder" || route_=="move-kind" || route_=="move" || route_=="properties" || route_=="remove") {route_="game";focus_=0;error_.clear();emit changed();}
+        if(route_=="folder" || route_=="move-kind" || route_=="move" || route_=="properties" || route_=="remove" || route_=="multiplayer") {route_="game";focus_=0;error_.clear();emit changed();}
         else if(route_=="restore")beginTrash();else close();
         return;
     }
+    if(route_=="game"&&(action==Action::Left||action==Action::Right)){selectSection(qBound(0,section_+(action==Action::Right?1:-1),browserActions_?2:1));return;}
     if(action==Action::Up)focus_=std::max(0,focus_-1);
     if(action==Action::Down)focus_=std::min(std::max(0,int(rows().size())-1),focus_+1);
     if(action==Action::Confirm){activate(focus_);return;}emit changed();
@@ -141,14 +193,28 @@ void LibraryToolsController::activate(int index) {
     if(busy_&&installCancel_&&index==0){*installCancel_=true;emit changed();return;}
     const auto values=rows();if(busy_ || index<0 || index>=values.size())return;
     focus_=index;if(!values[index].toMap().value("enabled").toBool())return;
-    if(route_=="game"&&index==6){const auto id=game_.adventure.id;close();emit gameSettingsRequested(id);return;}
-    const int browserOffset=7;
-    if(route_=="browse" || (route_=="game" && browserActions_ && index>=browserOffset)) {
-        const auto command=(route_=="browse"?index:index-browserOffset);
-        const bool hasView=!browserView_.isEmpty();
-        close();if(command<2)emit browserActionRequested(command==0?"search":"filter");
-        else if(hasView && command<6)emit browserActionRequested(command==2?"view:wheel":command==3?"view:list":command==4?"view:shelves":"view:grid");
-        return;
+    if(route_=="multiplayer") {
+        auto preference=multiplayerPreference(game_);const auto id=values[index].toMap()["id"].toString();
+        preference[id.section(':',0,0)]=id.section(':',1);
+        if(id.startsWith("mode:")&&id!="mode:auto")preference["availability"]="multiplayer";
+        if(id=="availability:auto")preference["mode"]="auto";
+        LibraryEdit edit{LibraryEditKind::MultiplayerPreference,game_.adventure.id,game_.revision};
+        edit.text=QString::fromUtf8(QJsonDocument(preference).toJson(QJsonDocument::Compact));submit(edit);return;
+    }
+    if(route_=="game") {
+        const auto id=values[index].toMap()["id"].toString();
+        if(id=="settings"){const auto game=game_.adventure.id;close();emit gameSettingsRequested(game);return;}
+        if(id=="together"){const auto game=game_.adventure.id;close();emit togetherRequested(game);return;}
+        if(id=="multiplayer"){route_="multiplayer";focus_=0;emit changed();return;}
+        if(id=="reviews"){openReviews();return;}
+        if(id=="search"||id=="filter"||id.startsWith("view:")){close();emit browserActionRequested(id);return;}
+        // Preserve existing filesystem/rename/review guards behind named actions.
+        index=QStringList{"rename","move","remove","properties","artwork","collection"}.indexOf(id);
+        if(index<0)return;
+    }
+    if(route_=="browse") {
+        close();if(index<2)emit browserActionRequested(index==0?"search":"filter");
+        else if(!browserView_.isEmpty()&&index<6)emit browserActionRequested(QStringList{"view:wheel","view:list","view:shelves","view:grid"}[index-2]);return;
     }
     if(route_=="game"&&index==5){emit collectionsRequested(game_.adventure.id);return;}
     if(route_=="game"&&index==4){const auto id=game_.adventure.id;close();emit scrapeRequested(id,{});return;}
@@ -262,7 +328,10 @@ void LibraryToolsController::submit(LibraryEdit edit) {
         busy_=false;error_=error;
         if(error.isEmpty()) {
             emit saved();
-            if(edit.kind==LibraryEditKind::RestoreGame)beginTrash();else close();
+            if(edit.kind==LibraryEditKind::MultiplayerPreference) {
+                const auto updated=repository_.registration(game_.adventure.id);
+                if(updated)game_=*updated;
+            } else if(edit.kind==LibraryEditKind::RestoreGame)beginTrash();else close();
         }
         emit changed();
     });

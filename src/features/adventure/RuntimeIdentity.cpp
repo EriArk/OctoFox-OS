@@ -1,4 +1,5 @@
 #include "RuntimeIdentity.h"
+#include "core/model/MultiplayerPreference.h"
 #include "integrations/adventure/standalone/NgpcNetplay.h"
 #include "integrations/adventure/standalone/Model3Netplay.h"
 #include "integrations/adventure/standalone/DoomNetplay.h"
@@ -20,7 +21,9 @@ QJsonObject runtimeIdentity(const AdventureRegistration& original,const RetroArc
     const auto platform=r.adventure.platformId;
     if(platform=="ngp"||platform=="ngpc")return ngpc::netplayIdentity(r,cancel,[digests](const QString& path){if(digests)digests->observe(path);});
     if(platform=="ps2") {
+        if(multiplayerPreference(r)["mode"]=="netplay")return ps2::netplayIdentity(r,installation,cancel);
         const auto native=ps2lan::netplayIdentity(r,cancel,[digests](const QString& path){if(digests)digests->observe(path);});
+        if(multiplayerPreference(r)["mode"]=="lan")return native;
         return native.isEmpty()?ps2::netplayIdentity(r,installation,cancel):native;
     }
     if(platform=="doom")return doom::netplayIdentity(r,cancel,[digests](const QString& path){if(digests)digests->observe(path);});

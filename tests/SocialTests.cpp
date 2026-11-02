@@ -1168,6 +1168,27 @@ private slots:
         QCOMPARE(c.lobby_.state()["game"].toObject()["id"].toString(),QString("remote"));
         c.openLobbyForGame("a");QCOMPARE(c.lobby_.state()["id"].toString(),room);QCOMPARE(c.lobby_.state()["game"].toObject()["id"].toString(),"remote");
     }
+    void candidatePickerRequestsOnlySelectedGameAndNeverPinsUnverifiedRows() {
+        SocialController c;c.receive(0,{{"state","connected"},{"userId","1"},{"name","Host"}});
+        QVariantMap candidate{{"key","a#prepare"},{"adventure","a"},{"title","Game"},{"platform","gc"},{"requiresPreparation",true},{"enabled",true}};
+        c.setLobbyGames({candidate});c.createAnotherLobby();c.openLobbyPicker();
+        QSignalSpy requested(&c,&SocialController::lobbyGameCheckRequested),cancelled(&c,&SocialController::lobbyGameCheckCancelled);
+        c.lobbyPickerAction("focus:a");QCOMPARE(requested.size(),0);
+        c.lobbyPickerAction("game:a");QCOMPARE(requested.size(),1);QCOMPARE(requested[0][0].toString(),QString("a"));
+        c.lobbyPickerAction("mode:a#prepare");QVERIFY(c.lobbyChoices_.isEmpty());
+        candidate["enabled"]=false;c.setLobbyGames({candidate});c.lobbyPickerAction("mode:a#prepare");QCOMPARE(requested.size(),2);
+        QVariantMap checked{{"key","a"},{"adventure","a"},{"id","verified"},{"mode","runtime.dolphin.gc.v1"},{"title","Game"},{"platform","gc"},{"seats",2}};
+        c.setLobbyGames({checked});QVERIFY(c.lobbyPicker()["modeOpen"].toBool());QVERIFY(c.lobbyPicker()["error"].toString().isEmpty());
+        c.lobbyPickerAction("mode:a");QCOMPARE(c.lobbyChoices_.size(),1);
+        c.lobbyPickerAction("cancel");QCOMPARE(cancelled.size(),1);QVERIFY(c.lobbyChoices_.isEmpty());
+    }
+    void offlineSelectedGameOpensTheLocalPickerWithoutHashEvidence() {
+        QTemporaryDir dir;SocialController c;c.owner_="offline-owner";c.configureLocalLobby(dir.path(),"Local trainer");
+        c.setLobbyGames({QVariantMap{{"key","game#prepare"},{"adventure","game"},{"title","Game"},{"platform","gc"},{"requiresPreparation",true},{"enabled",true}}});
+        QSignalSpy requested(&c,&SocialController::lobbyGameCheckRequested);
+        c.openLobbyForGame("game");QVERIFY(c.lobbyPickerOpen());QCOMPARE(c.lobbyDraft()["type"].toString(),QString("local"));
+        QCOMPARE(requested.size(),1);QVERIFY(c.lobbyChoices_.isEmpty());c.cancelLobbyDraft();
+    }
     void pickerKeepsIdentityAcrossHeartbeatReorderRenameAndRemoval() {
         SocialController c;c.receive(0,{{"state","connected"},{"userId","1"},{"name","Host"}});
         QVariantList games;

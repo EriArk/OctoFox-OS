@@ -16,6 +16,8 @@ public:
     virtual void cancel(QString operation)=0;
     virtual QString preparationProblem() const {return {};}
     virtual bool supportsLive(const QJsonObject&) const {return false;}
+    // May offer preparation before content is checked; this never grants admission.
+    virtual bool canPrepareLive(const QJsonObject& game) const {return supportsLive(game);}
     virtual bool supportsRejoin(const QJsonObject&) const {return false;}
     virtual bool admitLive(QString,QString,QString,int) {return false;}
     virtual void releaseLive(QString,QString) {}

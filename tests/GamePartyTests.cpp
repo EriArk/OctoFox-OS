@@ -36,6 +36,16 @@ class GamePartyTests : public QObject {
         }
     };
 private slots:
+    void unverifiedCandidateCanReceiveButCannotAcceptUntilExactCheck() {
+        Room room;room.b.configure("b",{},{},true);room.b.canPrepare=[](const QJsonObject&){return true;};
+        room.a.invite("b");QVERIFY(!room.b.pending().isEmpty());
+        room.b.answer(true);QVERIFY(!room.b.active()); // A hint grants no admission.
+        room.a.invite("b");QVERIFY(!room.b.pending().isEmpty());
+        auto changed=game();changed["content"]="different bytes";room.b.configure("b",{changed},{},true);
+        room.b.answer(true);QVERIFY(!room.b.active());
+        room.a.invite("b");room.b.configure("b",{game()},{},true);room.b.answer(true);QVERIFY(room.b.active());
+    }
+
     void emulatorAdmissionLocksEveryBuildAndSyncSetting() {
         for(const auto& id:QStringList{"runtime.retroarch.psx.pcsx_rearmed.v1","runtime.handheld.gba.v1",
                 "runtime.ppsspp.psp.v1","runtime.dolphin.gc.v1","runtime.rmg.n64.v1","runtime.flycast-dojo.dc.v1",

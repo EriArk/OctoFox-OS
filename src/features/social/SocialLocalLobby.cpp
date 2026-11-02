@@ -50,7 +50,7 @@ QVariantList SocialController::availableLobbyGames() const {
     for(const auto& value:lobbyGames_) {
         const auto g=value.toMap();
         const auto profile=QJsonObject::fromVariantMap(g["runtime"].toMap());
-        if(local?localLobbyRuntime(profile):(!profile.contains("connections")||multiplayerConnectionAllowed(profile,"online")))result.append(value);
+        if(g["requiresPreparation"].toBool()||(local?localLobbyRuntime(profile):(!profile.contains("connections")||multiplayerConnectionAllowed(profile,"online"))))result.append(value);
     }
     return result;
 }

@@ -78,7 +78,8 @@ bool LobbyRuntime::setLiveJoining(bool enabled) {
     return (!enabled||liveSupported())&&lobby_.setLiveJoining(enabled);
 }
 bool LobbyRuntime::liveAvailable() const {
-    return !playing_&&!busy_&&online_&&liveSupported()&&lobby_.activeRoom()->canJoinLive();
+    const auto game=lobby_.state()["game"].toObject();const auto service=services_.value(game["mode"].toString());
+    return !playing_&&!busy_&&online_&&service&&service->canPrepareLive(game["runtime"].toObject())&&lobby_.activeRoom()->canJoinLive();
 }
 bool LobbyRuntime::joinLive() {
     if(!liveAvailable())return false;

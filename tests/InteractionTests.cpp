@@ -370,7 +370,7 @@ private slots:
         shell.dispatch(Action::SystemMenu);shell.controls()->activate("downloads");QVERIFY(shell.downloads()->isOpen());
         shell.dispatch(Action::Back);QVERIFY(flow->busy());
         QVERIFY(!shell.libraryTools()->editGuard().isEmpty());QVERIFY(shell.runtimeChangeBlocked());
-        shell.libraryTools()->beginGame("fixture");shell.libraryTools()->activate(2);shell.libraryTools()->activate(1);
+        shell.libraryTools()->beginGame("fixture");shell.libraryTools()->selectSection(1);shell.libraryTools()->activate(5);shell.libraryTools()->activate(1);
         QCOMPARE(library.edits,0);QVERIFY(shell.libraryTools()->error().contains("downloads"));
         flow->downloadCommand({},"cancel-all");QTRY_VERIFY(!flow->busy());
         QVERIFY(shell.libraryTools()->editGuard().isEmpty());

@@ -175,6 +175,7 @@ public:
     void configureLocalLobby(QString directory,QString name);
     bool sendLocalParty(QString peer,QJsonObject packet);
     QString localPeerAddress(QString peer) const {return localLobby_.addressOf(peer);}
+    bool localLobbyAvailable() const {return !owner_.isEmpty()&&!localLobby_.identity().isEmpty();}
     QString localSocketAddress(QString peer) const {return localLobby_.localAddressFor(peer);}
     QVariantList lobbyRows() const;
     QVariantList lobbyActions() const;
@@ -371,6 +372,8 @@ public:
     void dismissNotificationAt(int index);
     void dismissNotifications();
 signals:
+    void lobbyGameCheckRequested(QString adventure);
+    void lobbyGameCheckCancelled();
     void lobbyPickerCatalogueChanged();
     void lobbyPickerNavigate(int index);
     void gameMessage(QVariantMap message);
