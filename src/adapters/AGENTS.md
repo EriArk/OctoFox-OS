@@ -22,7 +22,9 @@
   owner/game/module context. Descriptor v2 exposes `adapter.screens` with stable
   IDs, labels, icons and views; `show(screenId)` never receives a primary slot.
   Overview, RetroAchievements and Lobby belong to the host, not the adapter.
-  Screens inside Adapter use its left menu, not the host L2/R2 peer cycle.
+  Adapters may declare screen groups. The host L2/R2 cycle selects these categories;
+  a compact section row selects screens within the current category. Ungrouped
+  adapters retain one category. There is no empty Game spaces peer.
   A collection is not an adapter identity. Titles never grant capabilities.
 - Keep UI presentation distinct from exact-build semantic readers/writers and
   emulator launch/netplay adapters. Reuse their existing services and authorization;

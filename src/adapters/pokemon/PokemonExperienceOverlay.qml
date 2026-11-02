@@ -12,7 +12,7 @@ Item {
         Rectangle {
             id: merchantToast; property string message: ""
             anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 12
-            width: Math.min(440, parent.width-24); height: 54; radius: 8; color: "#f8e5a9"; border.color: "#b28b42"; z: 1
+            width: Math.min(440, parent.width-24); height: 54; radius: 8; color: Theme.surfaceColor("#f8e5a9"); border.color: Theme.surfaceColor("#b28b42"); z: 1
             visible: toastTimer.running && shell.experienceModel.centerFace && !shell.menuOpen && !shell.drawerOpen && !shell.serviceOpen
             Text { anchors.fill: parent; anchors.margins: 10; text: merchantToast.message; font.pixelSize: 16; color: Theme.ink; wrapMode: Text.WordWrap; verticalAlignment: Text.AlignVCenter }
             Timer { id: toastTimer; interval: 4500 }

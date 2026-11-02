@@ -204,7 +204,7 @@ private slots:
         const auto pokemon=shell.currentAdventureId();shell.openGameHubFace("adapter");shell.selectAdapterScreen("boxes");
         QCOMPARE(pokemonModule(shell).face(),"boxes");
         auto state=shell.navigationState();state["homeAdventure"]="generic";state["page"]="home";shell.restoreNavigation(state);
-        QCOMPARE(shell.homeView(),"game-home");QCOMPARE(shell.primaryNames()[2],"GameHub");QCOMPARE(shell.primaryNames()[3],"Online");
+        QCOMPARE(shell.homeView(),"game-home");QVERIFY(shell.primaryNames()[2].isEmpty());QCOMPARE(shell.primaryNames()[3],"Online");
         shell.openGameHubFace("overview");QCOMPARE(shell.service(),"profile");QCOMPARE(shell.profileRoute(),"story");QVERIFY(!(shell.page()==2 && shell.experienceModel()==shell.module("pokemon") && pokemonModule(shell).centerFace()));
         shell.showOverview("timeline");QCOMPARE(shell.overviewFace(),"timeline");
         shell.setLiveGame({{"id",pokemon},{"title","Running Pokemon"}});
@@ -597,8 +597,10 @@ private slots:
         DevelopmentPlatformService platform;MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
         shell.openGameHubFace("spaces");
-        const QStringList peers{"spaces","adapter"};
-        for(int i=0;i<8;++i){QCOMPARE(shell.hubFace(),peers[i%2]);shell.dispatch(Action::NextFace);}
+        const QStringList categories{"Team","Field Guide","Center","Trainer"};
+        QCOMPARE(shell.faceNames(),categories);
+        shell.selectFace(0);
+        for(int i=0;i<8;++i){QCOMPARE(shell.faceIndex(),i%4);QCOMPARE(shell.hubFace(),"adapter");shell.dispatch(Action::NextFace);}
         shell.openGameHubFace("adapter");shell.selectAdapterScreen("party");
         pokemonModule(shell).party()->dispatch(Action::Right);QCOMPARE(pokemonModule(shell).party()->focusIndex(),1);
         shell.selectAdapterScreen("boxes");pokemonModule(shell).party()->changeBox(1);pokemonModule(shell).party()->dispatch(Action::Right);
@@ -663,7 +665,7 @@ private slots:
         MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;
         DevelopmentPlatformService platform;MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
-        QCOMPARE(shell.primaryNames(),QStringList({"Home","Games","GameHub","Online","Apps"}));
+        QCOMPARE(shell.primaryNames(),QStringList({"Home","Games","Pokémon","Online","Apps"}));
         shell.goToTrainerFace("profile");shell.dispatch(Action::Confirm);QVERIFY(pokemonModule(shell).persona()->editing());
         shell.openOnlineFace("chats");QCOMPARE(shell.primaryId(),"gamehub");
         shell.dispatch(Action::Back);shell.goToTrainerFace("hall");shell.dispatch(Action::Confirm);
@@ -1221,6 +1223,7 @@ private slots:
         pokemonModule(shell).center()->configure(&service);
         QSignalSpy launched(&shell,&ShellController::homeLaunchPressed);
         shell.openGameHubFace("adapter");shell.selectAdapterScreen("dex");shell.dispatch(Action::Down);
+        if(service.busy())service.finish(); // The initial Team category has already requested its selected save.
         const auto dexState=pokemonModule(shell).pokedex()->navigationState();
         shell.dispatch(Action::ToggleContinue); QVERIFY(shell.drawerOpen());
         shell.dispatch(Action::Right); QCOMPARE(shell.focusIndex(),1);
@@ -1235,7 +1238,7 @@ private slots:
         // never show the old shelf under the new game's name.
         shell.dispatch(Action::ToggleContinue); shell.activate(1);
         const auto chosen=shell.currentAdventureId(); QVERIFY(chosen!="emerald-demo");
-        // New games start on their own default face; explicitly open their Party.
+        // The returning game restores its own guide; explicitly open its Party.
         QCOMPARE(shell.experienceView(),"pokemon-guide");shell.selectAdapterScreen("party");
         service.finish(); QTRY_VERIFY(service.busy()); QCOMPARE(service.inspected,chosen);
         QVERIFY(pokemonModule(shell).center()->rows().isEmpty()); service.finish();
@@ -1272,7 +1275,7 @@ private slots:
         QCOMPARE(shell.currentAdventureId(),chosen); QVERIFY(shell.home()["adventureId"].toString().isEmpty());
         shell.restoreNavigation(state); QCOMPARE(shell.currentAdventureId(),chosen);
         shell.dispatch(Action::NextFace); QVERIFY(!(shell.page()==2 && shell.experienceModel()==shell.module("pokemon") && pokemonModule(shell).centerFace())); QCOMPARE(shell.homeView(),"game-home");
-        QCOMPARE(shell.primaryNames()[2],"GameHub");QVERIFY(launched.isEmpty());
+        QVERIFY(shell.primaryNames()[2].isEmpty());QVERIFY(launched.isEmpty());
         const auto pairedState=shell.navigationState();
         shell.goToPage(0); shell.restoreNavigation(pairedState);
         QVERIFY(!(shell.page()==2 && shell.experienceModel()==shell.module("pokemon") && pokemonModule(shell).centerFace())); QCOMPARE(shell.currentAdventureId(),chosen);

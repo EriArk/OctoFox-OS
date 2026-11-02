@@ -25,6 +25,34 @@ private slots:
         QSettings::setDefaultFormat(QSettings::IniFormat);
         QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settingsDir_.path());
     }
+    void selectOpensSelectedAdapterWithoutLaunch() {
+        class Library final : public LibraryRepository {
+        public:
+            MockLibraryRepository sample;
+            bool editable() const override { return true; }
+            QList<World> worlds() const override { return sample.worlds(); }
+            QList<Adventure> adventures() const override { return sample.adventures(); }
+            QList<ResumePoint> resumePoints() const override { return sample.resumePoints(); }
+            HomeSnapshot home() const override { return sample.home(); }
+            std::optional<AdventureRegistration> registration(const QString& id) const override {
+                for(const auto& a:adventures())if(a.id==id){AdventureRegistration r;r.adventure=a;r.revision=1;return r;}return {};
+            }
+        } library;MockTrainerRepository profiles;MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        QSignalSpy launches(&shell,&ShellController::homeLaunchPressed);
+        shell.libraryTools()->beginGame("emerald-demo");
+        const auto actions=shell.libraryTools()->rows();int entry=-1;
+        for(int i=0;i<actions.size();++i)if(actions[i].toMap()["id"]=="experience")entry=i;
+        QVERIFY(entry>=0);shell.libraryTools()->activate(entry);
+        QCOMPARE(shell.page(),2);QCOMPARE(shell.currentAdventureId(),QString("emerald-demo"));
+        QVERIFY(shell.adapterActive());QVERIFY(!shell.libraryTools()->isOpen());QVERIFY(launches.isEmpty());
+        QCOMPARE(shell.faceNames(),QStringList({"Team","Field Guide","Center","Trainer"}));
+        shell.selectAdapterScreen("boxes");shell.selectFace(1);shell.selectFace(0);
+        QCOMPARE(shell.adapterScreen(),QString("boxes"));
+        auto saved=shell.navigationState();saved["hubFace"]="spaces";
+        shell.goToPage(0);shell.restoreNavigation(saved);QVERIFY(shell.adapterActive());
+    }
     void homeWidgetBelongsToProfileNotAdapterAndPickerConsumesInput() {
         const auto owner="widget-test-"+QUuid::createUuid().toString();
         MockLibraryRepository library;MockTrainerRepository profiles(TrainerProfile{owner,"Widget test","compass",{},QDateTime::currentDateTimeUtc()});MockAdventureAdapter adapter;DevelopmentPlatformService platform;
@@ -623,7 +651,7 @@ private slots:
         reopened.select("alice","emerald",pokemonExperienceDescriptor(),5);reopened.restore(saved);
         QCOMPARE(reopened.screen(),"boxes");
         reopened.select("bob","emerald",pokemonExperienceDescriptor(),5);reopened.restore(saved);
-        QCOMPARE(reopened.screen(),"dex");QVERIFY(reopened.navigation().isEmpty());
+        QCOMPARE(reopened.screen(),"party");QVERIFY(reopened.navigation().isEmpty());
     }
     void materiallyDifferentFixturesDriveContentWithoutTitleRules() {
         const ExperienceDescriptor rpg{"fixture-rpg",2,"fixture-character-home",
@@ -665,19 +693,38 @@ private slots:
         QVERIFY(navigation.show(navigation.legacyScreen(1)));QCOMPARE(navigation.screen(),"hall");
         QCOMPARE(navigation.state()["version"].toInt(),2);
     }
-    void fiveRootsAndGameFreeHubDoNotDependOnAnAdapter() {
+    void adapterCategoriesRememberScreensAndRejectInvalidGroups() {
+        ExperienceNavigation nav;nav.select("owner","emerald",pokemonExperienceDescriptor());
+        QCOMPARE(nav.groupLabels(),QStringList({"Team","Field Guide","Center","Trainer"}));
+        QVERIFY(nav.show("boxes"));QCOMPARE(nav.group(),"team");
+        QVERIFY(nav.showGroup("guide"));QCOMPARE(nav.screen(),"dex");
+        QVERIFY(nav.showGroup("team"));QCOMPARE(nav.screen(),"boxes");
+        QVERIFY(nav.show("shops"));QCOMPARE(nav.group(),"center");
+        const auto state=nav.state();ExperienceNavigation reopened;
+        reopened.select("owner","emerald",pokemonExperienceDescriptor());reopened.restore(state);
+        QVERIFY(reopened.showGroup("team"));QCOMPARE(reopened.screen(),"boxes");
+        QVERIFY(reopened.showGroup("center"));QCOMPARE(reopened.screen(),"shops");
+        QVERIFY(!reopened.showGroup("unknown"));QCOMPARE(reopened.screen(),"shops");
+        reopened.select("another","emerald",pokemonExperienceDescriptor());
+        QVERIFY(reopened.showGroup("team"));QCOMPARE(reopened.screen(),"party");
+        auto invalid=pokemonExperienceDescriptor();invalid.adapter.screens[1].groupLabel="Different label";
+        QVERIFY(!ExperienceNavigation::valid(invalid));
+    }
+    void gamesWithoutAdapterSkipEmptyHubButKeepOnlineAndApps() {
         MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;DevelopmentPlatformService platform;
         MockHallOfFameRepository archive;MockAchievementProvider achievements;
         ExperienceFactory factory=[](ExperienceServices services){ExperienceModules result;result.push_back(std::make_unique<GenericExperience>(services));return result;};
         ShellController shell(library,profiles,adapter,platform,factory,archive,achievements);
-        QCOMPARE(shell.primaryNames(),QStringList({"Home","Games","GameHub","Online","Apps"}));
+        QCOMPARE(shell.primaryNames(),QStringList({"Home","Games","","Online","Apps"}));
         shell.openGameHubFace("lobby");
         QCOMPARE(shell.primaryId(),"online");QCOMPARE(shell.onlineFace(),"lobby");
         shell.restoreNavigation({{"version",3},{"page","home"},{"socialFace","lobby"}});
         QCOMPARE(shell.primaryId(),"home");QCOMPARE(shell.hubFace(),"spaces");
         shell.goToSection("social");QCOMPARE(shell.socialSurface(),"chats");
         QCOMPARE(shell.faceNames(),QStringList({"Lobby","Bazaar","Crates","Chats"}));
-        shell.goToSection("gamehub");QCOMPARE(shell.faceNames(),QStringList({"Game spaces"}));
+        shell.goToSection("gamehub");QCOMPARE(shell.primaryId(),"home");
+        shell.goToSection("games");shell.dispatch(Action::NextPage);QCOMPARE(shell.primaryId(),"online");
+        shell.dispatch(Action::PreviousPage);QCOMPARE(shell.primaryId(),"games");
         shell.goToSection("apps");QCOMPARE(shell.faceNames(),QStringList({"Apps","Browser","Files"}));
         shell.selectFace(2);QCOMPARE(shell.appsFace(),"files");
         shell.goToSection("social");QCOMPARE(shell.onlineFace(),"chats");
@@ -757,11 +804,11 @@ private slots:
         shell.dispatch(Action::Confirm);QCOMPARE(rpg->count,1);
         shell.activate(7);QCOMPARE(shell.home()["fixtureValue"].toInt(),7);
         shell.selectAdapterScreen("second");QCOMPARE(rpg->lastFace,"second");
-        shell.dispatch(Action::NextFace);QCOMPARE(shell.hubFace(),"spaces");QCOMPARE(rpg->lastFace,"second");
+        shell.dispatch(Action::NextFace);QCOMPARE(shell.hubFace(),"adapter");QCOMPARE(rpg->lastFace,"second");
         shell.openGameHubFace("adapter");
         const auto oldToken=rpg->token();
         auto state=shell.navigationState();state["homeAdventure"]="racing";shell.restoreNavigation(state);
-        QCOMPARE(shell.homeView(),"racing-home");QCOMPARE(shell.primaryNames()[2],"GameHub");
+        QCOMPARE(shell.homeView(),"racing-home");QCOMPARE(shell.primaryNames()[2],"racing tools");
         QCOMPARE(shell.home()["fixtureGame"].toString(),"racing");QCOMPARE(shell.focusIndex(),0);
         rpg->requestFace();QCOMPARE(shell.experienceView(),"racing-counter");
         const auto live=shell.liveExperienceActions("rpg","123:1");QCOMPARE(live.size(),1);
@@ -774,7 +821,7 @@ private slots:
         rpg->requestText();QVERIFY(shell.keyboard()->isOpen());
         rpg->setEnabled(false);QCOMPARE(shell.homeView(),"game-home");QVERIFY(shell.dashboard()->genericLayout());QVERIFY(!shell.keyboard()->isOpen());
         rpg->applyText("late");QVERIFY(rpg->lastText.isEmpty());
-        rpg->setEnabled(true);QCOMPARE(shell.homeView(),"rpg-home");QVERIFY(!shell.dashboard()->genericLayout());QCOMPARE(shell.hubFace(),"spaces");
+        rpg->setEnabled(true);QCOMPARE(shell.homeView(),"rpg-home");QVERIFY(!shell.dashboard()->genericLayout());QCOMPARE(shell.hubFace(),"adapter");
         shell.openGameHubFace("adapter");shell.selectAdapterScreen("second");QCOMPARE(shell.focusIndex(),7);
         rpg->version=99;emit rpg->changed();QCOMPARE(shell.homeView(),"game-home");
         QCOMPARE(shell.currentAdventureId(),"rpg");

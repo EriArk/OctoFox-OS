@@ -13,10 +13,14 @@ bool ExperienceNavigation::valid(const ExperienceDescriptor& descriptor) {
     if(descriptor.adapter.screens.isEmpty())return true;
     if(descriptor.adapter.label.isEmpty() || descriptor.adapter.icon.isEmpty())return false;
     QSet<QString> ids;
+    QHash<QString,QString> groups;
     for(const auto& screen:descriptor.adapter.screens) {
         if(screen.id.isEmpty() || screen.label.isEmpty() || screen.view.isEmpty()
             || screen.icon.isEmpty() || ids.contains(screen.id))return false;
         ids.insert(screen.id);
+        if(screen.group.isEmpty()!=screen.groupLabel.isEmpty())return false;
+        if(groups.contains(screen.group) && groups[screen.group]!=screen.groupLabel)return false;
+        groups.insert(screen.group,screen.groupLabel);
     }
     return true;
 }
@@ -42,6 +46,37 @@ QString ExperienceNavigation::key() const {
 QStringList ExperienceNavigation::screenIds() const {
     QStringList result;for(const auto& screen:descriptor_.adapter.screens)result.append(screen.id);return result;
 }
+QStringList ExperienceNavigation::groupIds() const {
+    QStringList ids;for(const auto& s:descriptor_.adapter.screens) {
+        const auto id=s.group.isEmpty()?QString("adapter"):s.group;
+        if(!ids.contains(id))ids.append(id);
+    }return ids;
+}
+QStringList ExperienceNavigation::groupLabels() const {
+    QStringList ids,labels;for(const auto& s:descriptor_.adapter.screens) {
+        const auto id=s.group.isEmpty()?QString("adapter"):s.group;
+        if(!ids.contains(id)){ids.append(id);labels.append(s.groupLabel.isEmpty()?descriptor_.adapter.label:s.groupLabel);}
+    }return labels;
+}
+QString ExperienceNavigation::group() const {
+    for(const auto& s:descriptor_.adapter.screens)if(s.id==screen())return s.group.isEmpty()?QString("adapter"):s.group;
+    return {};
+}
+QStringList ExperienceNavigation::groupScreens() const {
+    QStringList ids;for(const auto& s:descriptor_.adapter.screens)
+        if((s.group.isEmpty()?QString("adapter"):s.group)==group())ids.append(s.id);
+    return ids;
+}
+bool ExperienceNavigation::showGroup(const QString& requested) {
+    if(!groupIds().contains(requested))return false;
+    const auto remembered=states_.value(key())["groups"].toObject()[requested].toString();
+    QString first;
+    for(const auto& s:descriptor_.adapter.screens)if((s.group.isEmpty()?QString("adapter"):s.group)==requested) {
+        if(first.isEmpty())first=s.id;
+        if(s.id==remembered)return show(s.id);
+    }
+    return show(first);
+}
 QString ExperienceNavigation::screen() const {
     const auto saved=states_.value(key())["screen"].toString();
     const auto ids=screenIds();return ids.contains(saved)?saved:ids.value(0);
@@ -52,7 +87,9 @@ QString ExperienceNavigation::view() const {
 }
 bool ExperienceNavigation::show(const QString& screenId) {
     if(!screenIds().contains(screenId))return false;
-    states_[key()].insert("screen",screenId);return true;
+    states_[key()].insert("screen",screenId);
+    auto groups=states_[key()]["groups"].toObject();groups[group()]=screenId;
+    states_[key()].insert("groups",groups);return true;
 }
 QJsonObject ExperienceNavigation::navigation() const {return states_.value(key())["navigation"].toObject();}
 void ExperienceNavigation::rememberNavigation(const QJsonObject& navigation) {
@@ -75,6 +112,8 @@ void ExperienceNavigation::restore(const QJsonObject& state) {
         if(identity[2].toInt()!=1 && identity[2].toInt()!=2)continue;
         identity[2]=2;
         const auto object=it.value().toObject();QJsonObject saved;
+        const auto groups=object["groups"].toObject();
+        if(!groups.isEmpty() && QJsonDocument(groups).toJson(QJsonDocument::Compact).size()<=8192)saved["groups"]=groups;
         for(const auto& name:{QString("screen"),QString("0"),QString("1")}) {
             if(!object.value(name).isString())continue;
             const auto value=object[name].toString();if(value.size()<=128)saved.insert(name,value);

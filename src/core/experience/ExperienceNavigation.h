@@ -7,6 +7,7 @@ namespace trainer {
 // Trusted view keys resolve through a compiled presenter; never save authority.
 struct ExperienceScreen {
     QString id, label, view, icon;
+    QString group, groupLabel;
     bool operator==(const ExperienceScreen&) const = default;
 };
 struct ExperienceSurface {
@@ -33,6 +34,11 @@ public:
     bool current(const QString& owner, const QString& adventure, quint64 generation) const;
     bool hasAdapter() const { return !descriptor_.adapter.screens.isEmpty(); }
     QStringList screenIds() const;
+    QStringList groupIds() const;
+    QStringList groupLabels() const;
+    QString group() const;
+    QStringList groupScreens() const;
+    bool showGroup(const QString& group);
     QString screen() const;
     QString view() const;
     int index() const;

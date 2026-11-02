@@ -5,26 +5,26 @@ Item {
     required property var shell
     readonly property var hall: shell.hall
     enabled: !shell.drawerOpen
-    readonly property bool takesFocus: visible && !shell.drawerOpen && !hall.editor.open && !hall.account.open && !shell.menuOpen && !shell.keyboard.open && shell.notice.length === 0
+    readonly property bool takesFocus: visible && !shell.adapterMenuOpen && !shell.drawerOpen && !hall.editor.open && !hall.account.open && !shell.menuOpen && !shell.keyboard.open && shell.notice.length === 0
     readonly property bool detailOpen: hall.route === "archive-detail" || hall.route === "achievement-detail"
     Item {
     anchors.fill: parent; visible: !root.hall.overview
     PageHeader { id: hallHeader; title: root.hall.archive ? "Hall of Fame" : "RetroAchievements"; trailing: root.hall.archive ? "Every journey leaves a story" : "Your account's achievements" }
     MountedPanel {
-        x: 0; y: hallHeader.height; width: parent.width; height: 68; color: Theme.surfaceColor("#d2dcd6")
+        x: 0; y: hallHeader.height; width: parent.width; height: root.height < 350 ? 52 : 68; visible: !root.detailOpen; color: Theme.surfaceColor("#d2dcd6")
         Rectangle { x: 0; y: -parent.y; width: 6; height: parent.y; color: parent.color }
         Rectangle { anchors.right: parent.right; y: -parent.y; width: 6; height: parent.y; color: parent.color }
-        Text { x: 24; y: 11; text: root.hall.archive ? "Adventure memories" : "Account collection · All matched Adventures"; color: Theme.ink; font.pixelSize: 21; font.weight: Font.DemiBold }
-        Text { x: 24; y: 39; width: 495; text: root.hall.status; elide: Text.ElideRight; color: Theme.muted; font.pixelSize: 14 }
+        Text { x: 24; y: 5; text: root.hall.archive ? "Adventure memories" : "Account collection · All matched Adventures"; color: Theme.ink; font.pixelSize: 21; font.weight: Font.DemiBold }
+        Text { x: 24; y: 30; width: 495; text: root.hall.status; elide: Text.ElideRight; color: Theme.muted; font.pixelSize: 14 }
     }
     Item {
         anchors.fill: parent; visible: !root.detailOpen
         Rectangle {
-            x: 0; y: hallHeader.height + 68; width: 538; height: Math.max(0, root.height - 71 - y); color: Theme.surfaceColor("#e2e7de")
+            x: 0; y: hallHeader.height + (root.height < 350 ? 52 : 68); width: root.width * .57; height: Math.max(0, root.height - 71 - y); color: Theme.surfaceColor("#e2e7de")
             // Reveal the complete focused row above the attached action panel.
             ControllerList {
                 objectName: "hall-list"
-                x: 19; y: 0; width: 482; height: parent.height
+                x: 19; y: 0; width: parent.width - 38; height: parent.height
                 model: root.hall.rows; currentIndex: root.hall.rowIndex
                 rowTints: !root.hall.archive
                 namePrefix: "hall-row-"; tint: root.hall.archive ? "#c6b4df" : Theme.green
@@ -32,38 +32,38 @@ Item {
                 onActivated: row => root.shell.activate(row, "list")
             }
             Text {
-                x: 28; y: 34; width: 463; text: root.hall.emptyMessage; textFormat: Text.PlainText
+                x: 28; y: 34; width: parent.width - 56; text: root.hall.emptyMessage; textFormat: Text.PlainText
                 wrapMode: Text.WordWrap; color: Theme.ink; font.pixelSize: 21
                 visible: root.hall.rows.length === 0
             }
         }
         Rectangle {
-            x: 538; y: hallHeader.height + 68; width: parent.width - x; height: Math.max(0, root.height - 71 - y); color: Theme.surfaceColor("#edf0df")
-            TrainerEmblem { x: 23; y: 19; width: 97; height: 97; emblem: "compass" }
-            Text { x: 136; y: 39; width: parent.width - 154; text: root.hall.archive ? "A JOURNEY\nREMEMBERED" : "ACHIEVEMENT\nRECORDS"; color: Theme.muted; font.pixelSize: 13; font.letterSpacing: 1.3 }
-            Text { x: 23; y: 123; width: parent.width - 46; text: root.hall.detail.title; textFormat: Text.PlainText; color: Theme.ink; font.pixelSize: 22; font.weight: Font.DemiBold; elide: Text.ElideRight }
-            Text { x: 23; y: 160; width: parent.width - 46; text: root.hall.detail.summary; wrapMode: Text.WordWrap; color: Theme.muted; font.pixelSize: 15 }
+            x: root.width * .57; y: hallHeader.height + (root.height < 350 ? 52 : 68); width: parent.width - x; height: Math.max(0, root.height - 71 - y); color: Theme.surfaceColor("#edf0df")
+            TrainerEmblem { x: 18; y: 12; width: 66; height: 66; emblem: "compass" }
+            Text { x: 96; y: 22; width: parent.width - 110; wrapMode: Text.WordWrap; text: root.hall.archive ? "A JOURNEY\nREMEMBERED" : "ACHIEVEMENT\nRECORDS"; color: Theme.muted; font.pixelSize: 13; font.letterSpacing: 1.3 }
+            Text { x: 18; y: 84; width: parent.width - 46; text: root.hall.detail.title; textFormat: Text.PlainText; color: Theme.ink; font.pixelSize: 22; font.weight: Font.DemiBold; elide: Text.ElideRight }
+            Text { x: 18; y: 115; width: parent.width - 46; text: root.hall.detail.summary; wrapMode: Text.WordWrap; maximumLineCount: 1; elide: Text.ElideRight; color: Theme.muted; font.pixelSize: 15 }
         }
     }
     Item {
         anchors.fill: parent; visible: root.detailOpen
-        Text { x: 28; y: 135; width: parent.width - 56; text: root.hall.detail.title; textFormat: Text.PlainText; color: Theme.ink; font.pixelSize: 27; font.weight: Font.DemiBold; elide: Text.ElideRight }
+        Text { x: 28; y: hallHeader.height + 8; width: parent.width - 56; text: root.hall.detail.title; textFormat: Text.PlainText; color: Theme.ink; font.pixelSize: 27; font.weight: Font.DemiBold; elide: Text.ElideRight }
         Rectangle {
-            x: 0; y: 172; width: 493; height: 138; color: Theme.surfaceColor("#e2e7de")
+            x: 0; y: hallHeader.height + 51; width: root.width * .55; height: Math.max(0,root.height-y-76); color: Theme.surfaceColor("#e2e7de")
             Grid {
-                x: 25; y: 12; columns: 3; spacing: 9; visible: root.hall.archive
+                id: teamGrid; x: 12; y: 8; width: parent.width-24; columns: 3; spacing: 9; visible: root.hall.archive
                 Repeater {
                     model: root.hall.team
                     delegate: Rectangle {
                         required property int index
                         required property var modelData
-                        width: 141; height: 51; radius: 12; color: Theme.surfaceColor("#f5f4e9"); border.color: Theme.surfaceColor("#bacbbd")
+                        width: (teamGrid.width-18)/3; height: Math.min(51,(teamGrid.parent.height-25)/2); radius: 12; color: Theme.surfaceColor("#f5f4e9"); border.color: Theme.surfaceColor("#bacbbd")
                         Rectangle {
                             x: 8; y: 8; width: 22; height: 22; radius: 11; color: modelData.known ? Theme.yellow : Theme.surfaceColor("#d6dfd5")
                             Text { anchors.centerIn: parent; text: index + 1; color: Theme.ink; font.pixelSize: 12; font.bold: true }
                         }
-                        Text { x: 35; y: 9; width: 101; text: modelData.name; color: Theme.ink; font.pixelSize: 14; elide: Text.ElideRight }
-                        Text { x: 35; y: 32; text: modelData.level; color: Theme.muted; font.pixelSize: 12 }
+                        Text { x: 35; y: 6; width: parent.width-41; text: modelData.name; color: Theme.ink; font.pixelSize: 14; elide: Text.ElideRight }
+                        Text { x: 35; y: parent.height-17; text: modelData.level; color: Theme.muted; font.pixelSize: 12 }
                     }
                 }
             }
@@ -80,7 +80,7 @@ Item {
             }
         }
         Column {
-            x: 519; y: 183; width: 365; spacing: 9
+            x: root.width * .55 + 18; y: hallHeader.height + 51; width: root.width-x-18; spacing: 5
             Text { width: parent.width; text: root.hall.detail.world + (root.hall.archive ? " · " + root.hall.detail.time : ""); color: Theme.ink; font.pixelSize: 17; elide: Text.ElideRight }
             Text { width: parent.width; text: root.hall.detail.date; color: Theme.muted; font.pixelSize: 13; elide: Text.ElideRight }
             Text { width: parent.width; text: root.hall.detail.description; textFormat: Text.PlainText; color: Theme.ink; font.pixelSize: 15; wrapMode: Text.WordWrap; maximumLineCount: 3; elide: Text.ElideRight }

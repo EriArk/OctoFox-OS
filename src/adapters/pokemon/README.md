@@ -36,3 +36,12 @@ remain available. No files are copied, removed or publicly bundled.
 Both families declare no extraction sources yet. Pack Studio, installable external
 packs/adapters, and ROM-native extraction/cache/migration keep their #59/#92/#95–97
 acceptance; changing the manifest is not an implementation of a decoder.
+
+## Workspace categories (2 November 2026)
+
+The descriptor owns Team (Party/Boxes), Field Guide, Center (Care Center/Shops/
+Playroom), and Trainer (Trainer Card/Journey/Hall of Fame). The shared host keeps
+per-category screen history, with no game-specific routing branches. Select can
+open this registered workspace without launching the game. Exact save admission
+and installed private pack precedence are unchanged. [Evidence and unfinished
+cuboid fallback #161](../../../docs/evidence/2026-11-02-emerald-workspace/README.md).

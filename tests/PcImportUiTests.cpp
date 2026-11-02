@@ -13,6 +13,9 @@
 #include <QJsonArray>
 #include "core/input/TextEntryController.h"
 #include "platform/input/InvitationOverlayService.h"
+#include "adapters/pokemon/PokemonExperience.h"
+#include "core/navigation/ShellController.h"
+#include "integrations/adventure/mock/MockAdventureAdapter.h"
 using namespace trainer;
 class UiLibrary : public LibraryRepository {
 public:
@@ -27,6 +30,51 @@ public:
 class PcImportUiTests : public QObject {
     Q_OBJECT
 private slots:
+    void pokemonWorkspacesAtHandheldSizes() {
+        QTemporaryDir temp;const QString module=temp.filePath("TrainerOS");QVERIFY(QDir().mkpath(module));
+        QStringList files;
+        for(const auto& folder:{QString("src/qml"),QString("src/adapters/pokemon")}) {
+            const QDir source(QString(TRAINER_SOURCE_DIR)+"/"+folder);
+            for(const auto& name:source.entryList({"*.qml","*.js"},QDir::Files)) {
+                QVERIFY(QFile::copy(source.filePath(name),module+"/"+name));
+                if(name.endsWith(".qml") && name!="Theme.qml")files<<name;
+            }
+        }
+        QFile qmldir(module+"/qmldir");QVERIFY(qmldir.open(QIODevice::WriteOnly));
+        qmldir.write("module TrainerOS\nsingleton Theme 1.0 Theme.qml\n");
+        for(const auto& name:files)qmldir.write((name.chopped(4)+" 1.0 "+name+"\n").toUtf8());qmldir.close();
+        QFile scene(temp.filePath("Probe.qml"));QVERIFY(scene.open(QIODevice::WriteOnly));
+        scene.write("import QtQuick\nimport TrainerOS\nItem { width:912; height:354; property bool dark:false; property url pageUrl; onDarkChanged:Theme.themeId=dark?'dark':'light'; onPageUrlChanged: loader.setSource(pageUrl,{shell:probeShell}); Rectangle { anchors.fill:parent; color:Theme.paper } Loader { id:loader; anchors.fill:parent } }");scene.close();
+        MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        QQuickView view;QStringList warnings;
+        connect(view.engine(),&QQmlEngine::warnings,this,[&](const QList<QQmlError>& errors){for(const auto& e:errors) {
+            // No private artwork is bundled in the fixture; missing optional images exercise the fallback.
+            if(!e.description().contains("Cannot open:") && !e.description().contains("Cannot open file:") && !e.description().contains("Cannot read:"))warnings<<e.toString();
+        }});
+        view.engine()->addImportPath(temp.path());view.rootContext()->setContextProperty("probeShell",&shell);
+        view.setResizeMode(QQuickView::SizeRootObjectToView);view.setSource(QUrl::fromLocalFile(scene.fileName()));QVERIFY(view.status()==QQuickView::Ready);view.show();
+        const QList<QPair<QString,QString>> pages{{"party","PartyPanel"},{"boxes","PartyPanel"},{"dex","PokedexPage"},{"center","PokemonClinic"},{"shops","PokemonShop"},{"playroom","CenterActivitiesPanel"},{"profile","TrainerPage"},{"journey","HallOfFamePage"},{"hall","HallOfFamePage"}};
+        QDir().mkpath("screenshots/emerald");
+        for(bool dark:{false,true})for(const QSize size:{QSize(912,354),QSize(760,310)}) {
+            view.resize(size);view.rootObject()->setProperty("dark",dark);
+            for(const auto& page:pages) {
+                view.rootObject()->setProperty("pageUrl",QUrl());
+                shell.goToTrainerFace(page.first);
+                view.rootObject()->setProperty("pageUrl",QUrl::fromLocalFile(module+"/"+page.second+".qml"));
+                QTest::qWait(100);
+                QVERIFY(view.grabWindow().save(QString("screenshots/emerald/%1-%2-%3.png").arg(page.first,dark?"dark":"light").arg(size.width())));
+                QVERIFY2(warnings.isEmpty(),qPrintable(warnings.join('\n')));
+                if(page.first=="hall" || page.first=="party") {
+                    shell.dispatch(Action::Confirm);QTest::qWait(50);
+                    QVERIFY(view.grabWindow().save(QString("screenshots/emerald/%1-actions-%2-%3.png").arg(page.first,dark?"dark":"light").arg(size.width())));
+                    QVERIFY2(warnings.isEmpty(),qPrintable(warnings.join('\n')));
+                    shell.dispatch(Action::Back);
+                }
+            }
+        }
+    }
     void selectedGameMenuAtTwoSizes() {
         QTemporaryDir temp;const QDir source(QString(TRAINER_SOURCE_DIR)+"/src/qml");
         for(const auto& name:source.entryList({"*.qml"},QDir::Files))QVERIFY(QFile::copy(source.filePath(name),temp.filePath(name)));

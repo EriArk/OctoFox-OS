@@ -17,13 +17,13 @@ Item {
         Rectangle {
             id: desk
             anchors.top: heading.bottom; anchors.bottom: parent.bottom; width: parent.width
-            color: "#f8f3dd"; clip: true
+            color: Theme.surfaceColor("#f8f3dd"); clip: true
             // A fixed counter: activities on the left, partners and terms on the
             // right. Choosing a Pokemon or price never replaces the whole room.
             Rectangle {
                 id: rail; width: 205; height: parent.height; visible: !root.arena
-                color: "#c4d9cd"
-                Rectangle { anchors.right: parent.right; width: 3; height: parent.height; color: "#839e8b" }
+                color: Theme.surfaceColor("#c4d9cd")
+                Rectangle { anchors.right: parent.right; width: 3; height: parent.height; color: Theme.surfaceColor("#839e8b") }
                 Text { x: 17; y: 16; text: "TOGETHER"; font.family: Theme.brandFamily; font.pixelSize: 17; color: Theme.ink }
                 Column {
                     x: 13; y: 52; width: parent.width-28; spacing: 12
@@ -50,19 +50,19 @@ Item {
                     id: terminal
                     anchors.horizontalCenter: parent.horizontalCenter; y: 63; width: 280; height: 195
                     visible: root.stage === "browse" && !root.controller.rows.length
-                    Rectangle { x: -120; y: 155; width: 520; height: 80; color: "#e7e2c6" }
+                    Rectangle { x: -120; y: 155; width: 520; height: 80; color: Theme.surfaceColor("#e7e2c6") }
                     Repeater { model: 5
-                        Rectangle { required property int index; x: -120+index*104; y: 157; width: 2; height: 78; color: "#d6d2b9" }
+                        Rectangle { required property int index; x: -120+index*104; y: 157; width: 2; height: 78; color: Theme.surfaceColor("#d6d2b9") }
                     }
                     Rectangle { x: 54; y: 166; width: 184; height: 20; radius: 10; color: "#33466554" }
                     Rectangle { x: 71; y: 33; width: 144; height: 144; radius: 9; color: "#48776d"; border.width: 3; border.color: "#315a55" }
-                    Rectangle { x: 60; y: 18; width: 160; height: 108; radius: 11; color: "#8cc1b0"; border.width: 4; border.color: "#315a55"
+                    Rectangle { x: 60; y: 18; width: 160; height: 108; radius: 11; color: Theme.surfaceColor("#8cc1b0"); border.width: 4; border.color: "#315a55"
                         Rectangle { x: 12; y: 12; width: parent.width-24; height: 78; radius: 5; color: "#183e41"
                             Repeater { model: 3
                                 Rectangle {
                                     required property int index
                                     anchors.centerIn: parent; width: 28+index*23; height: width; radius: width/2
-                                    color: "transparent"; border.width: 2; border.color: "#8ce3c4"; opacity: 0.55
+                                    color: "transparent"; border.width: 2; border.color: Theme.surfaceColor("#8ce3c4"); opacity: 0.55
                                     SequentialAnimation on opacity {
                                         running: terminal.visible && root.takesFocus && root.controller.searching && !Theme.reducedMotion; loops: Animation.Infinite
                                         PauseAnimation { duration: index*190 }
@@ -72,12 +72,12 @@ Item {
                                     }
                                 }
                             }
-                            Rectangle { anchors.centerIn: parent; width: 10; height: 10; radius: 5; color: root.controller.searching ? "#ffe58d" : "#70958b" }
+                            Rectangle { anchors.centerIn: parent; width: 10; height: 10; radius: 5; color: root.controller.searching ? Theme.surfaceColor("#ffe58d") : Theme.surfaceColor("#70958b") }
                         }
                     }
-                    Rectangle { x: 59; y: 127; width: 162; height: 27; radius: 5; color: "#b2d5bd"; border.width: 3; border.color: "#315a55"
+                    Rectangle { x: 59; y: 127; width: 162; height: 27; radius: 5; color: Theme.surfaceColor("#b2d5bd"); border.width: 3; border.color: "#315a55"
                         Row { x: 17; y: 9; spacing: 9
-                            Repeater { model: ["#f5cb66", "#a3d4e4", "#ec9696", "#a6c771"]
+                            Repeater { model: [Theme.surfaceColor("#f5cb66"), Theme.surfaceColor("#a3d4e4"), Theme.surfaceColor("#ec9696"), Theme.surfaceColor("#a6c771")]
                                 Rectangle { required property string modelData; width: 24; height: 7; color: modelData; radius: 2 }
                             }
                         }
@@ -115,7 +115,7 @@ Item {
                             LinkPortrait { required property int index; required property var modelData; width: Math.min(72,(parent.parent.width-50)/6); height: width; member: modelData; tint: [Theme.blue,Theme.green,Theme.yellow][index%3] }
                         }
                     }
-                    Text { y: 151; width: parent.width; text: root.controller.online ? "A new partner,\nor a gift for someone special." : "A friendly match, a new partner,\nor a gift for someone special."; font.family: Theme.displayFamily; font.pixelSize: 24; color: "#517d6a"; lineHeight: 1.2 }
+                    Text { y: 151; width: parent.width; text: root.controller.online ? "A new partner,\nor a gift for someone special." : "A friendly match, a new partner,\nor a gift for someone special."; font.family: Theme.displayFamily; font.pixelSize: 24; color: Theme.surfaceColor("#517d6a"); lineHeight: 1.2 }
                 }
                 Item {
                     y: 59; width: parent.width; height: parent.height-y-12
@@ -143,7 +143,7 @@ Item {
                         anchors.horizontalCenter: parent.horizontalCenter; y: 18
                         width: 96; height: 96; radius: 48
                         visible: root.stage === "finished" && !root.fighters.some(function(member) { return !!member.name || !!member.payment })
-                        color: Theme.green; border.width: 3; border.color: "#73965e"
+                        color: Theme.green; border.width: 3; border.color: Theme.surfaceColor("#73965e")
                         Text { anchors.centerIn: parent; text: "✓"; font.pixelSize: 58; color: Theme.ink }
                     }
                     Row {
@@ -159,8 +159,8 @@ Item {
                             }
                         }
                     }
-                    Text { y: 156; width: parent.width; visible: root.stage === "price"; text: "₽ " + root.controller.priceText; font.family: Theme.brandFamily; font.pixelSize: 36; color: "#946218"; horizontalAlignment: Text.AlignHCenter }
-                    Text { y: 153; width: parent.width; visible: root.controller.mode === "battle" && root.stage !== "price"; text: root.controller.stakeText; font.pixelSize: 19; font.bold: true; color: "#946218"; horizontalAlignment: Text.AlignHCenter }
+                    Text { y: 156; width: parent.width; visible: root.stage === "price"; text: "₽ " + root.controller.priceText; font.family: Theme.brandFamily; font.pixelSize: 36; color: Theme.surfaceColor("#946218"); horizontalAlignment: Text.AlignHCenter }
+                    Text { y: 153; width: parent.width; visible: root.controller.mode === "battle" && root.stage !== "price"; text: root.controller.stakeText; font.pixelSize: 19; font.bold: true; color: Theme.surfaceColor("#946218"); horizontalAlignment: Text.AlignHCenter }
                     CapButton {
                         anchors.bottom: parent.bottom; width: parent.width; height: 43; centered: true; deferredFocus: true
                         visible: ["review","price","finished"].indexOf(root.stage)>=0
@@ -173,7 +173,7 @@ Item {
                 id: arena; anchors.fill: parent; visible: root.arena
                 Rectangle {
                     width: parent.width; height: parent.height-137
-                    gradient: Gradient { GradientStop { position: 0; color: "#cee5b6" } GradientStop { position: 1; color: "#93be8b" } }
+                    gradient: Gradient { GradientStop { position: 0; color: Theme.surfaceColor("#cee5b6") } GradientStop { position: 1; color: Theme.surfaceColor("#93be8b") } }
                     Rectangle { anchors.centerIn: parent; width: parent.width*0.57; height: parent.height*0.84; radius: height/2; color: "transparent"; border.width: 3; border.color: "#79ffffff" }
                     Rectangle { anchors.centerIn: parent; width: 3; height: parent.height; color: "#65ffffff" }
                     Text { anchors.horizontalCenter: parent.horizontalCenter; y: 14; text: root.controller.battleTurn ? "TURN " + root.controller.battleTurn : "LINK"; font.family: Theme.brandFamily; font.pixelSize: 18; color: Theme.ink }
@@ -181,7 +181,7 @@ Item {
                     PracticeFighter { anchors.right: parent.right; anchors.rightMargin: 18; y: 17; width: parent.width*0.40; height: parent.height-27; fighter: root.fighters[1] || ({}); opponent: true; playing: root.takesFocus }
                 }
                 Rectangle {
-                    id: controls; anchors.bottom: parent.bottom; width: parent.width; height: 137; color: "#f6efd7"; border.color: "#7a9784"; border.width: 2
+                    id: controls; anchors.bottom: parent.bottom; width: parent.width; height: 137; color: Theme.surfaceColor("#f6efd7"); border.color: Theme.surfaceColor("#7a9784"); border.width: 2
                     Column {
                         x: 14; y: 9; width: parent.width*0.40; spacing: 7
                         Text { width: parent.width; text: root.stage === "concede" ? root.controller.message : root.controller.turnSummary || "Make your move!"; color: Theme.ink; font.pixelSize: 14; wrapMode: Text.WordWrap; maximumLineCount: 3; elide: Text.ElideRight }

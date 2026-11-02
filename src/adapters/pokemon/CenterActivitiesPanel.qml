@@ -23,7 +23,7 @@ Item {
             subtitle: root.activity.sample ? "Development rehearsal · no game, save or connection changes" : root.shell.experienceModel.party.title || "Choose an Adventure"
         }
         MountedPanel {
-            y: heading.height; width: parent.width; height: parent.height - y; color: "#dce6dc"
+            y: heading.height; width: parent.width; height: parent.height - y; color: Theme.surfaceColor("#dce6dc")
             Text { x: 24; y: 15; width: parent.width - 48; text: root.activity.page.message; color: Theme.muted; font.pixelSize: 16; wrapMode: Text.WordWrap }
             Column {
                 x: 24; y: 52; spacing: 9; visible: root.activity.route === "menu"

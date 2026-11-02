@@ -19,7 +19,7 @@ Item {
     property bool depressed: false
     // Optional stable target for asynchronous rows (for example an incoming call).
     property string actionIdentity: ""
-    readonly property color capTint: enabled ? tint : "#c4cdc7"
+    readonly property color capTint: Theme.surfaceColor(enabled ? tint : "#c4cdc7")
     function pressFeedback() {
         if (enabled && visible) { depressed = true; release.restart(); }
     }

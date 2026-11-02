@@ -33,7 +33,7 @@ Item {
                     Rectangle {
                         required property var modelData
                         width: (parent.width - 24) / 3; height: 70; radius: 10
-                        color: modelData.tint; border.color: Theme.surfaceColor("#a2b3a1")
+                        color: Theme.surfaceColor(modelData.tint); border.color: Theme.surfaceColor("#a2b3a1")
                         Text { x: 16; y: 10; text: modelData.label; color: Theme.muted; font.pixelSize: 11; font.bold: true; font.letterSpacing: 1.5 }
                         Text { x: 16; y: 29; text: modelData.value || "—"; color: Theme.ink; font.pixelSize: 27; font.bold: true }
                     }

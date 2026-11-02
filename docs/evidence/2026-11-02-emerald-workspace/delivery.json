@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-03",
+  "base_commit": "daaf009312db07d68e44f49ce5a3fc8be834950f",
+  "build": "ARM Release, BUILD_TESTING=OFF",
+  "devices": {
+    "flip": {
+      "sha256": "43a5ccf58a0f32c8300edcda15ba4f1faa3ba45e38281b0a4de1e5ab991b3019",
+      "previous": "d75cfb077cd4ebafbdfc0583ac96bc3857cf04f490ffe364c792456b380552cd",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "volume": "Volume: 0.20"
+    },
+    "odin": {
+      "sha256": "43a5ccf58a0f32c8300edcda15ba4f1faa3ba45e38281b0a4de1e5ab991b3019",
+      "previous": "499c01b6f8106ab8d0ac4efc3355768f31ec3b908ae34033667b004fc52366ee",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "volume": "Volume: 0.00"
+    }
+  },
+  "tests": {
+    "suites": [
+      "experience",
+      "interactions"
+    ],
+    "ui": [
+      "pokemonWorkspacesAtHandheldSizes",
+      "selectedGameMenuAtTwoSizes"
+    ],
+    "ui_frames": 44
+  },
+  "scope": "Adapter navigation, theme and layout; no new creature art or semantic save-write acceptance"
+}

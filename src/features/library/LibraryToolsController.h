@@ -55,6 +55,8 @@ public:
     void setCatalog(FileCatalog* catalog) {catalog_=catalog;}
     std::function<QString()> editGuard;
     std::function<bool(const QString&)> multiplayerAvailable;
+    std::function<QString(const QString&)> experienceLabel;
+    std::function<void(const QString&)> openExperience;
     std::function<bool(const AdventureRegistration&)> contentPackage;
     std::function<QString(const AdventureRegistration&,const std::atomic_bool&)> installPackage;
     std::function<QString()> installGuard;

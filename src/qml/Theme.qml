@@ -96,7 +96,7 @@ QtObject {
     readonly property int adventureTabHeight: 36
     readonly property int drawerHandleOverlap: 32
     // Both compact drawer handles are mounted at the lower-left screen lip.
-    readonly property int adventureCutoutWidth: adventureTabWidth - screenBevel - screenBounds.x - panelInset + 16
+    readonly property int adventureCutoutWidth: 2 * adventureTabWidth - drawerHandleOverlap - panelInset + 8
     readonly property int adventureCutoutHeight: screenBounds.y + screenBounds.height - panelInset - (footerTop - adventureTabHeight) + 8
     readonly property rect screenBounds: Qt.rect(12, screenTop, viewportWidth - 24, footerTop - 5 - screenTop)
 }

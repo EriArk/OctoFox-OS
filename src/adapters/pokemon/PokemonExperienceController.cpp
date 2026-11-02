@@ -10,11 +10,15 @@
 namespace trainer {
 const ExperienceDescriptor& pokemonExperienceDescriptor() {
     static const ExperienceDescriptor value{"pokemon",2,"pokemon-home",
-        {"Pokémon","companion",{{"dex","Field Guide","pokemon-guide","guide"},
-            {"party","Party","pokemon-party","party"},{"boxes","Boxes","pokemon-boxes","boxes"},
-            {"center","Care Center","pokemon-center","care"},{"playroom","Playroom","pokemon-playroom","play"},
-            {"shops","Shops","pokemon-shops","shop"},{"profile","Trainer Card","pokemon-persona","profile"},
-            {"journey","Journey","pokemon-journey","journey"},{"hall","Hall of Fame","pokemon-hall","trophy"}}}};
+        {"Pokémon","companion",{{"party","Party","pokemon-party","party","team","Team"},
+            {"boxes","Boxes","pokemon-boxes","boxes","team","Team"},
+            {"dex","Field Guide","pokemon-guide","guide","guide","Field Guide"},
+            {"center","Care Center","pokemon-center","care","center","Center"},
+            {"shops","Shops","pokemon-shops","shop","center","Center"},
+            {"playroom","Playroom","pokemon-playroom","play","center","Center"},
+            {"profile","Trainer Card","pokemon-persona","profile","trainer","Trainer"},
+            {"journey","Journey","pokemon-journey","journey","trainer","Trainer"},
+            {"hall","Hall of Fame","pokemon-hall","trophy","trainer","Trainer"}}}};
     return value;
 }
 

@@ -124,11 +124,16 @@ QVariantList LibraryToolsController::rows() const {
     if(route_=="game") {
         const bool steam=game_.adventure.adapterId=="steam";
         const auto action=[](QString id,QString label,QString detail,QString glyph,bool enabled=true){return QVariantMap{{"id",id},{"label",label},{"detail",detail},{"glyph",glyph},{"enabled",enabled}};};
-        if(section_==0)return {
+        if(section_==0) {
+            QVariantList result{
             action("together","Play together","Choose a lobby and play mode","party",multiplayerAvailable&&multiplayerAvailable(game_.adventure.id)&&multiplayerPreference(game_)["availability"]!="solo"),
             action("multiplayer","Multiplayer setup",multiplayerModeOptions(game_.adventure.platformId).isEmpty()?"Managed by the game or its package":"Game support and your preferred mode","game-controller",!multiplayerModeOptions(game_.adventure.platformId).isEmpty()),
             action("settings","Game settings","Performance, power and compatibility","settings"),
             action("reviews","Reviews","Players' impressions and your review","chat")};
+            const auto label=experienceLabel?experienceLabel(game_.adventure.id):QString();
+            if(!label.isEmpty())result.prepend(action("experience",label,"Open this game's companion space","companion"));
+            return result;
+        }
         if(section_==1)return {
             action("collection","Add to collection","Organize your library","boxes"),
             action("rename","Rename","Change the display name","pencil"),
@@ -206,6 +211,7 @@ void LibraryToolsController::activate(int index) {
         if(id=="settings"){const auto game=game_.adventure.id;close();emit gameSettingsRequested(game);return;}
         if(id=="together"){const auto game=game_.adventure.id;close();emit togetherRequested(game);return;}
         if(id=="multiplayer"){route_="multiplayer";focus_=0;emit changed();return;}
+        if(id=="experience" && openExperience){const auto game=game_.adventure.id;close();openExperience(game);return;}
         if(id=="reviews"){openReviews();return;}
         if(id=="search"||id=="filter"||id.startsWith("view:")){close();emit browserActionRequested(id);return;}
         // Preserve existing filesystem/rename/review guards behind named actions.

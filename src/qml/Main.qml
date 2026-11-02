@@ -161,7 +161,9 @@ Window {
                     required property int index
                     required property string modelData
                     objectName: "primary-tab-" + index
-                    width: Theme.tabWidth
+                    visible: modelData.length > 0
+                    readonly property int visibleTabs: shell.primaryNames.filter(name => name.length > 0).length
+                    width: visible ? (Theme.viewportWidth - 12 - Theme.brandWidth - (visibleTabs-1)*Theme.tabSpacing) / visibleTabs : 0
                     height: Theme.tabBaseline + (shell.page === index ? Theme.activeTabOverlap : 0)
                     Behavior on height { NumberAnimation { duration: Theme.motion(130); easing.type: Easing.OutCubic } }
                     function outline(offset, spread) {

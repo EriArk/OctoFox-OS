@@ -1,5 +1,8 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Emerald workspace correction, 2 November (latest):** adapter-owned categories replace the empty Game spaces peer and long screen sidebar. Emerald uses Team / Field Guide / Center / Trainer, L2/R2 and touch; each category remembers its screen. Games without adapter screens have no empty primary tab. Select opens the chosen adapter without launching; preserve active game context and protected saves. Support light/dark themes and compact layouts. The original cuboid creature fallback remains #161: preserve species names/data, user-pack precedence and #116 review; private installed art is not a shipped fallback. See [implementation/evidence](docs/evidence/2026-11-02-emerald-workspace/README.md).
+
+
 **Owner on-demand multiplayer and Select, 2 November (latest):** no startup or
 background library-wide content hashing. Cached catalogue candidates are not
 verified multiplayer profiles; check only a deliberately selected game for a

@@ -113,8 +113,8 @@ Item {
                 }
             }
             MountedPanel {
-                x: parent.width*0.64; y: 30; width: parent.width-x-22; height: parent.height-60; color: "#fff3da"
-                Text { x: 22; y: 18; text: "Welcome!"; color: "#a34e68"; font.family: Theme.displayFamily; font.pixelSize: 28 }
+                x: parent.width*0.64; y: 30; width: parent.width-x-22; height: parent.height-60; color: Theme.surfaceColor("#fff3da")
+                Text { x: 22; y: 18; text: "Welcome!"; color: Theme.textColor("#a34e68"); font.family: Theme.displayFamily; font.pixelSize: 28 }
                 Text { objectName: "clinic-message"; x: 22; y: 63; width: parent.width-44; height: 104; text: root.clinic.clinicMessage; wrapMode: Text.WordWrap; color: Theme.ink; font.pixelSize: 18 }
                 Text { x: 22; anchors.bottom: action.top; anchors.bottomMargin: 15; width: parent.width-44; text: root.clinic.treatment==="ready" && root.clinic.canHeal ? "HP · status · move PP\nA backup is kept before treatment." : ""; color: Theme.muted; font.pixelSize: 12; wrapMode: Text.WordWrap }
                 CapButton {

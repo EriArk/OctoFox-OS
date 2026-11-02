@@ -24,7 +24,7 @@ Item {
                     required property int index; required property var modelData
                     width: (categories.width-6*(root.shop.shopCategories.length-1))/Math.max(1,root.shop.shopCategories.length); height: 35
                     label: modelData.name; textSize: 14
-                    tint: ["#b4d8e8","#d5bce7","#cdddab","#efce9b","#efaeb0","#c8cfce"][index%6]
+                    tint: [Theme.surfaceColor("#b4d8e8"),Theme.surfaceColor("#d5bce7"),Theme.surfaceColor("#cdddab"),Theme.surfaceColor("#efce9b"),Theme.surfaceColor("#efaeb0"),Theme.surfaceColor("#c8cfce")][index%6]
                     selected: root.browsing && root.shop.shopCategory === modelData.id
                     claimsFocus: false
                     enabled: root.browsing && !root.shop.busy
@@ -33,7 +33,7 @@ Item {
             }
         }
         Rectangle {
-            id: room; y: categories.y+categories.height; width: parent.width; height: parent.height-y; color: "#e7f1eb"; clip: true
+            id: room; y: categories.y+categories.height; width: parent.width; height: parent.height-y; color: Theme.surfaceColor("#e7f1eb"); clip: true
             Canvas {
                 id: scene; x: 272; width: parent.width-x; height: 80
                 onWidthChanged: requestPaint()
@@ -60,7 +60,7 @@ Item {
                     b(mid+18,22,12,6,"#566d80");b(mid+20,23,8,2,"#a5e2cd")
                 }
             }
-            Rectangle { x: 0; width: 264; height: parent.height; color: "#d1e0dc"; border.color: "#95b0ad" }
+            Rectangle { x: 0; width: 264; height: parent.height; color: Theme.surfaceColor("#d1e0dc"); border.color: Theme.surfaceColor("#95b0ad") }
             ListView {
                 id: stores; objectName: "shop-merchants"; x: 12; y: 12; width: 240; height: parent.height-24; clip: true
                 model: root.shop.merchants; currentIndex: root.shop.merchantIndex; spacing: 7
@@ -68,7 +68,7 @@ Item {
                 delegate: CapButton {
                     required property int index; required property var modelData
                     objectName: "shop-merchant-"+index; width: stores.width; height: 51; label: modelData.name.replace(" Poké Mart", ""); detail: modelData.detail
-                    textSize: root.browsing && !root.shop.shopGroup.length ? 15 : 17; tint: modelData.discovered ? Theme.blue : "#c8cfce"
+                    textSize: root.browsing && !root.shop.shopGroup.length ? 15 : 17; tint: modelData.discovered ? Theme.blue : Theme.surfaceColor("#c8cfce")
                     selected: root.active && root.browsing && index===root.shop.merchantIndex
                     onActivated: if(root.browsing)root.shop.shopActivate(index)
                 }
@@ -85,18 +85,18 @@ Item {
                 delegate: CapButton {
                     required property int index; required property var modelData
                     objectName: "shop-stock-"+index; width: stock.width; height: 48; label: modelData.name; detail: modelData.payment || (root.choice.currency || "₽")+" "+modelData.price
-                    tint: modelData.pocket === "Poké Balls" ? "#afd5e8" : index%2 ? "#cdddab" : "#efce9b"
+                    tint: modelData.pocket === "Poké Balls" ? Theme.surfaceColor("#afd5e8") : index%2 ? Theme.surfaceColor("#cdddab") : Theme.surfaceColor("#efce9b")
                     selected: root.active && root.shop.shopRoute==="stock" && index===root.shop.stockIndex
                     onActivated: if(!root.browsing)root.shop.shopActivate(index)
                 }
             }
             MountedPanel {
                 x: stock.x+stock.width+15; y: stock.y; width: parent.width-x-15; height: parent.height-y-17
-                color: "#fff1d2"; visible: !!root.choice.item && !root.lessonChoice
+                color: Theme.surfaceColor("#fff1d2"); visible: !!root.choice.item && !root.lessonChoice
                 Text { x: 14; y: 13; width: parent.width-28; text: root.choice.item || ""; font.family: Theme.displayFamily; font.pixelSize: 21; color: Theme.ink; wrapMode: Text.WordWrap }
-                Text { x: 14; y: 64; visible: !root.tutor && !root.choice.payment && !root.shop.shopMessage.length; text: (root.choice.kind === "coins" ? "In Coin Case  " : root.choice.kind === "decoration" ? "Owned  " : "In Bag  ") + (root.choice.owned || 0); font.pixelSize: 14; color: Theme.muted }
-                Text { x: 14; y: 91; visible: (!root.shop.shopMessage.length || root.shop.shopMessage === "Added to basket") && !root.choice.payment; text: root.tutor ? (root.choice.payment ? "Move reminder" : "BP lesson") : "× " + root.shop.quantity; font.family: Theme.displayFamily; font.pixelSize: root.tutor ? 23 : 31; color: "#527a83" }
-                Text { x: 14; y: root.choice.payment ? 65 : 128; width: parent.width-28; visible: !root.shop.shopMessage.length || root.shop.shopMessage === "Added to basket"; text: root.choice.payment ? "Give  " + root.choice.payment : "Total   " + (root.choice.currency || "₽") + " " + (root.choice.total || 0); font.pixelSize: 17; font.bold: true; color: Theme.ink; wrapMode: Text.WordWrap }
+                Text { x: 14; y: 48; visible: !root.tutor && !root.choice.payment && !root.shop.shopMessage.length; text: (root.choice.kind === "coins" ? "In Coin Case  " : root.choice.kind === "decoration" ? "Owned  " : "In Bag  ") + (root.choice.owned || 0); font.pixelSize: 14; color: Theme.muted }
+                Text { x: 14; y: 72; visible: (!root.shop.shopMessage.length || root.shop.shopMessage === "Added to basket") && !root.choice.payment; text: root.tutor ? (root.choice.payment ? "Move reminder" : "BP lesson") : "× " + root.shop.quantity; font.family: Theme.displayFamily; font.pixelSize: root.tutor ? 20 : 25; color: Theme.accent }
+                Text { x: 14; y: root.choice.payment ? 48 : 110; width: parent.width-28; visible: !root.shop.shopMessage.length || root.shop.shopMessage === "Added to basket"; text: root.choice.payment ? "Give  " + root.choice.payment : "Total   " + (root.choice.currency || "₽") + " " + (root.choice.total || 0); font.pixelSize: 17; font.bold: true; color: Theme.ink; wrapMode: Text.WordWrap }
                 Text { x: 14; y: 65; width: parent.width-28; height: parent.height-y-8; visible: root.shop.shopMessage !== "Added to basket"; text: root.shop.shopMessage; font.pixelSize: 14; color: Theme.muted; wrapMode: Text.WordWrap }
             }
             ListView {
@@ -108,7 +108,7 @@ Item {
                 delegate: CapButton {
                     required property int index; required property var modelData
                     width: recipients.width; height: 51; label: modelData.name; detail: modelData.detail
-                    tint: modelData.available ? ["#cdddab","#afd5e8","#efce9b"][index%3] : "#c8cfce"
+                    tint: modelData.available ? [Theme.surfaceColor("#cdddab"),Theme.surfaceColor("#afd5e8"),Theme.surfaceColor("#efce9b")][index%3] : Theme.surfaceColor("#c8cfce")
                     selected: root.active && recipients.currentIndex === index
                     onActivated: root.shop.shopActivate(index)
                 }
@@ -126,7 +126,7 @@ Item {
                 onActivated:root.shop.refresh()
             }
             MountedPanel {
-                anchors.fill: parent; visible: root.basket || root.locations; color: "#e7f1eb"
+                anchors.fill: parent; visible: root.basket || root.locations; color: Theme.surfaceColor("#e7f1eb")
                 Text { x: 20; y: 12; text: root.basket ? "Your basket · " + root.shop.basketCount : "Choose a place"; font.family: Theme.displayFamily; font.pixelSize: 24; color: Theme.ink }
                 ListView {
                     id: basketList; x: 20; y: 51; width: root.basket ? parent.width*0.62 : parent.width-40; height: parent.height-y-18; spacing: 7; clip: true
@@ -136,7 +136,7 @@ Item {
                     delegate: CapButton {
                         required property int index; required property var modelData
                         width: basketList.width; height: 57; label: root.basket ? modelData.name : modelData; detail: root.basket ? modelData.detail : ""
-                        tint: index%2 ? Theme.blue : "#cdddab"; selected: root.active && basketList.currentIndex === index
+                        tint: index%2 ? Theme.blue : Theme.surfaceColor("#cdddab"); selected: root.active && basketList.currentIndex === index
                         onActivated: root.shop.shopActivate(index)
                     }
                 }
@@ -146,7 +146,7 @@ Item {
                     onActivated:root.shop.shopActivate(0)
                 }
                 MountedPanel {
-                    visible: root.basket; x: basketList.x+basketList.width+14; y: 51; width: parent.width-x-20; height: parent.height-y-18; color: "#fff1d2"
+                    visible: root.basket; x: basketList.x+basketList.width+14; y: 51; width: parent.width-x-20; height: parent.height-y-18; color: Theme.surfaceColor("#fff1d2")
                     Text { x: 14; y: 12; text: "Total"; font.family: Theme.displayFamily; font.pixelSize: 22; color: Theme.ink }
                     Text { x: 14; y: 48; width: parent.width-28; height: parent.height-60; text: root.shop.shopMessage || root.shop.basketTotal || "Your basket is empty."; color: Theme.ink; font.pixelSize: 16; wrapMode: Text.WordWrap }
                 }
@@ -154,7 +154,7 @@ Item {
             Rectangle {
                 anchors.fill: parent; color: "#690f303a"; visible: root.checkout
                 MountedPanel {
-                    anchors.centerIn: parent; width: Math.min(490,parent.width-20); height: Math.min(root.tutor || root.choice.payment ? 300 : 238,parent.height-12); color: "#fff1d2"
+                    anchors.centerIn: parent; width: Math.min(490,parent.width-20); height: Math.min(root.tutor || root.choice.payment ? 300 : 238,parent.height-12); color: Theme.surfaceColor("#fff1d2")
                     Text { x: 24; y: 20; width: parent.width-48; text: root.tutor ? "Your lesson" : "Your purchase"; font.family: Theme.displayFamily; font.pixelSize: 27; color: Theme.ink }
                     Text { x: 24; y: 70; width: parent.width-48; height: root.tutor || root.choice.payment ? 165 : 96; text: root.shop.shopRoute === "confirm" ? (root.tutor ? root.choice.recipient+" learns "+root.choice.item+"\nReplace: "+root.choice.oldMove : root.shop.quantity+" × "+root.choice.item)+ (root.choice.payment ? "\nGive  "+root.choice.payment+"\n"+root.choice.paymentRemaining : "\nTotal  "+root.choice.currency+" "+root.choice.total+"\nRemaining  "+(root.shop.shopBalance-root.choice.total)) : root.shop.shopMessage; font.pixelSize: 21; color: Theme.ink; wrapMode: Text.WordWrap }
                     CapButton { objectName: "shop-checkout"; x: 24; y: parent.height-61; width: parent.width-48; height: 43; label: root.shop.busy ? (root.tutor ? "Teaching…" : "Packing your purchase…") : root.shop.shopRoute === "confirm" ? (root.tutor ? "Confirm lesson" : root.choice.payment ? "Confirm exchange" : "Confirm purchase") : "Continue"; tint: Theme.yellow; selected: root.active; enabled: !root.shop.busy; onActivated: root.shop.shopActivate(0) }

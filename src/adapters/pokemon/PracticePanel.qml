@@ -15,11 +15,11 @@ Item {
         Rectangle {
             id: field
             y: heading.height; width: parent.width; height: parent.height - y
-            clip: true; color: "#bbd993"
+            clip: true; color: Theme.surfaceColor("#bbd993")
             gradient: Gradient {
-                GradientStop { position: 0; color: "#c4dea1" }
-                GradientStop { position: 0.68; color: "#96c67c" }
-                GradientStop { position: 1; color: "#6c9e67" }
+                GradientStop { position: 0; color: Theme.surfaceColor("#c4dea1") }
+                GradientStop { position: 0.68; color: Theme.surfaceColor("#96c67c") }
+                GradientStop { position: 1; color: Theme.surfaceColor("#6c9e67") }
             }
             // Original, lightweight meadow geometry; no cartridge graphics.
             Repeater {
@@ -27,11 +27,11 @@ Item {
                 Rectangle {
                     required property int index
                     x: (index * 157 % 977) / 977 * field.width; y: (index * 73 % 241) / 241 * field.height
-                    width: 4; height: 8; rotation: index % 2 ? 22 : -22; color: "#54864f"; opacity: 0.18
+                    width: 4; height: 8; rotation: index % 2 ? 22 : -22; color: Theme.surfaceColor("#54864f"); opacity: 0.18
                 }
             }
-            Rectangle { y: 12; width: parent.width; height: 6; color: "#709867"; opacity: 0.35 }
-            Rectangle { y: 22; width: parent.width; height: 3; color: "#ecedbb"; opacity: 0.6 }
+            Rectangle { y: 12; width: parent.width; height: 6; color: Theme.surfaceColor("#709867"); opacity: 0.35 }
+            Rectangle { y: 22; width: parent.width; height: 3; color: Theme.surfaceColor("#ecedbb"); opacity: 0.6 }
             Item {
                 visible: root.choosing; anchors.fill: parent
                 Text { x: 20; y: 16; width: parent.width - 40; text: root.controller.message; color: Theme.ink; font.pixelSize: 21; font.bold: true; wrapMode: Text.WordWrap }
@@ -87,7 +87,7 @@ Item {
                 anchors.bottom: parent.bottom; width: parent.width
                 height: 135
                 visible: !root.choosing
-                color: "#e7edcf"; border.color: "#779579"; border.width: 2
+                color: Theme.surfaceColor("#e7edcf"); border.color: Theme.surfaceColor("#779579"); border.width: 2
                 Text {
                     x: 19; y: 10; width: parent.width - 38; text: root.controller.message
                     color: Theme.ink; font.pixelSize: 18; font.bold: true; wrapMode: Text.WordWrap

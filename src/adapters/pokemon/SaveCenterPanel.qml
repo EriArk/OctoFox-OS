@@ -14,10 +14,10 @@ Item {
         anchors.bottomMargin: 0
         PageHeader { id: centerHeader; compact: true; title: root.center.title; trailing: "Care Center"; subtitle: root.center.message; multilineStatus: true }
         MountedPanel {
-            x: 0; y: centerHeader.height; width: parent.width; height: 320 - y; color: "#d8e5d8"
+            x: 0; y: centerHeader.height; width: parent.width; height: parent.height - 88 - y; color: Theme.surfaceColor("#d8e5d8")
             ListView {
                 id: list
-                x: 25; y: 9; width: parent.width - 50; height: 196
+                x: 25; y: 9; width: parent.width - 50; height: parent.height-18
                 model: root.center.rows; currentIndex: root.center.focusIndex
                 clip: true; interactive: false; keyNavigationEnabled: false
                 function reveal() {
@@ -37,7 +37,7 @@ Item {
                     CapButton {
                         id: button; objectName: "center-row-"+index
                         x: 5; y: 5; width: parent.width - 10; height: 51
-                        label: modelData.title; detail: modelData.detail; tint: modelData.available?Theme.blue:"#c4cdc7"
+                        label: modelData.title; detail: modelData.detail; tint: modelData.available?Theme.blue:Theme.surfaceColor("#c4cdc7")
                         selected: root.takesFocus && !root.center.confirming && !root.center.busy && root.center.focusIndex===index
                         onActivated: root.center.activate(index)
                     }
@@ -47,21 +47,24 @@ Item {
         }
         MountedPanel {
             anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-            height: 88; color: "#c6dcca"
+            id: saveFooter
+            readonly property real actionLeft: root.shell.chooseAdventureAvailable ? Theme.adventureCutoutWidth : 30
+            readonly property real actionWidth: Math.min(270,(width-actionLeft-44)/2)
+            height: 88; color: Theme.surfaceColor("#c6dcca")
             Text { x: 31; y: 7; width: parent.width-62; objectName: "center-action-hint"; text: root.center.route==="adventures"?(root.center.query?"Search · "+root.center.query:""):root.center.busy ? "Checking saves…" : ""; textFormat: Text.PlainText; elide: Text.ElideRight; color: Theme.muted; font.pixelSize: 12 }
-            CapButton { objectName: "center-check"; x: root.shell.chooseAdventureAvailable ? Theme.adventureCutoutWidth : 30; y: 34; width: 270; height: 40; label: root.center.busy?"Checking saves…":root.center.route==="adventures"?"Search Adventures":"Check again"; tint: Theme.blue; selected: root.takesFocus && !root.center.confirming && (root.center.busy || list.count===0); onActivated: root.center.route==="adventures" ? root.center.search() : root.center.refresh() }
-            CapButton { x: (root.shell.chooseAdventureAvailable ? Theme.adventureCutoutWidth : 30) + 294; y: 34; width: 270; height: 40; visible: root.center.route==="copies"; enabled: root.center.canCreate; label: root.center.canCreate?"New backup":"No save to copy"; tint: root.center.canCreate?Theme.yellow:"#c4cdc7"; onActivated: root.center.create() }
+            CapButton { objectName: "center-check"; x: saveFooter.actionLeft; y: 34; width: saveFooter.actionWidth; height: 40; label: root.center.busy?"Checking saves…":root.center.route==="adventures"?"Search Adventures":"Check again"; tint: Theme.blue; selected: root.takesFocus && !root.center.confirming && (root.center.busy || list.count===0); onActivated: root.center.route==="adventures" ? root.center.search() : root.center.refresh() }
+            CapButton { x: saveFooter.actionLeft + saveFooter.actionWidth + 24; y: 34; width: saveFooter.actionWidth; height: 40; visible: root.center.route==="copies"; enabled: root.center.canCreate; label: root.center.canCreate?"New backup":"No save to copy"; tint: root.center.canCreate?Theme.yellow:Theme.surfaceColor("#c4cdc7"); onActivated: root.center.create() }
         }
         Rectangle {
             anchors.fill: parent; visible: root.center.confirming; color: Theme.paper
             MouseArea { anchors.fill: parent }
-            Rectangle { width: parent.width; height: 104; color: "#e6cecb" }
+            Rectangle { width: parent.width; height: 104; color: Theme.surfaceColor("#e6cecb") }
             Text { x: 30; y: 29; text: "Restore this in-game save?"; color: Theme.ink; font.pixelSize: 30; font.weight: Font.DemiBold }
             Text { x: 31; y: 135; width: parent.width-62; text: root.center.title+"\n"+root.center.restoreLabel; textFormat: Text.PlainText; color: Theme.ink; font.pixelSize: 23; wrapMode: Text.WordWrap }
             Text { x: 31; y: 235; width: parent.width-62; text: "The current save will be copied first, then replaced.\nYou can restore that protected copy afterward."; color: Theme.muted; font.pixelSize: 18; wrapMode: Text.WordWrap }
             MountedPanel {
                 anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                height: 88;color:"#c6dcca"
+                height: 88;color:Theme.surfaceColor("#c6dcca")
                 CapButton { objectName:"center-confirm";x:30;y:24;width:420;height:43;label:"Protect current save and restore";tint:Theme.pink;selected:root.takesFocus&&root.center.confirming;onActivated:root.center.activate(0) }
                 CapButton { x:480;y:24;width:405;height:43;label:"Cancel";tint:Theme.blue;onActivated:root.center.back() }
             }
