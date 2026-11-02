@@ -5,6 +5,7 @@ Item {
     id: root
     required property var shell
     property bool selected: false
+    property string assetBase: "qrc:/home-pet/"
     readonly property var pet: shell.dashboard.companion
     readonly property bool live: visible && shell.unobstructed && !shell.quickAppsOpen && !shell.drawerOpen && !shell.keyboard.open
     readonly property bool compact: height < 170
@@ -17,7 +18,7 @@ Item {
     Component.onCompleted: updateLive()
     Component.onDestruction: pet.active = false
     Connections { target:root.shell; function onNotificationsChanged(){if(root.live)root.pet.setNotifications(root.shell.notifications)} }
-    Image { anchors.fill:parent; source:"qrc:/home-pet/backgrounds/"+root.pet.background+".png"; sourceSize:Qt.size(768,576); fillMode:Image.PreserveAspectCrop; asynchronous:true }
+    Image { anchors.fill:parent; source:root.assetBase+"backgrounds/"+root.pet.background+".png"; sourceSize:Qt.size(768,576); fillMode:Image.PreserveAspectCrop; asynchronous:true }
     Rectangle { x:parent.width*.39; y:parent.height*.88; width:parent.width*.24; height:root.compact?3:5; radius:height/2; color:"#26000000" }
     Loader {
         id:actor
@@ -26,6 +27,7 @@ Item {
         source:"HomeCompanionScene.qml"
         onLoaded: {
             item.pet=root.pet
+            item.assetBase=Qt.binding(function(){return root.assetBase})
             item.modelSource=Qt.binding(function(){return root.shell.trainer.avatarModel})
             item.animate=Qt.binding(function(){return root.live})
         }

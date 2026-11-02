@@ -28,6 +28,8 @@ public:
     HomeCompanion* companion(){return &companion_;}
     QVariantMap widget() const;
     QVariantList widgetChoices() const;
+    void setInstalledWidgets(const QString& root,const QVariantList& receipts);
+    bool selectPackageWidget(const QString& package,const QString& localId={});
     bool widgetPicking() const {return widgetPicking_;}
     int widgetChoiceIndex() const {return widgetChoiceIndex_;}
     void editWidget();
@@ -52,6 +54,7 @@ private:
     HomeCompanion companion_{this};
     QString focus_="play",adventure_;
     QString ownerKey_,widgetId_;
+    QVariantList installedWidgets_;
     bool widgetPicking_=false;
     int widgetChoiceIndex_=0;
     bool generic_=false;

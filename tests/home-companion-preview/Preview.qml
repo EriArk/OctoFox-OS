@@ -19,7 +19,7 @@ Window {
     Loader {
         id: slot
         anchors.centerIn:parent;width:root.compact?216:269;height:root.compact?121:208;scale:2
-        Component.onCompleted:setSource(sourceRoot+"/src/qml/HomeCompanionWidget.qml",{"shell":mockShell,"selected":true})
+        Component.onCompleted:setSource(sourceRoot+"/src/qml/HomeCompanionWidget.qml",{"shell":mockShell,"selected":true,"assetBase":packageAssets})
     }
     function hideScene(){mockShell.unobstructed=false}
     function showScene(){mockShell.unobstructed=true}

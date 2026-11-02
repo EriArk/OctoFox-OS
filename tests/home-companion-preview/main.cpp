@@ -1,5 +1,6 @@
 #include "AvatarScene.h"
 #include "features/home/HomeCompanion.h"
+#include "features/home/HomeWidgetPackages.h"
 #include "features/trainer/AvatarAssets.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -14,6 +15,7 @@
 #include <QUuid>
 #include <QFile>
 #include <QTest>
+#include <QScopeGuard>
 using namespace trainer;
 int main(int argc,char** argv){
     QGuiApplication app(argc,argv);app.setOrganizationName("TrainerOS-tests");app.setApplicationName("Companion-preview");
@@ -32,13 +34,25 @@ int main(int argc,char** argv){
     QQmlApplicationEngine engine;QStringList warnings;
     QObject::connect(&engine,&QQmlEngine::warnings,&app,[&](const QList<QQmlError>& errors){for(const auto& e:errors)warnings.append(e.toString());});
     engine.rootContext()->setContextProperty("care",&care);
+    QString assetBase="qrc:/home-pet/";
+    const auto packageRoot=qEnvironmentVariable("COMPANION_PACKAGE_ROOT");
+    if(!packageRoot.isEmpty()){
+        QFile receipt(packageRoot+"/active/home-companion.json");if(!receipt.open(QIODevice::ReadOnly))return 7;
+        const auto widgets=installedHomeWidgets(packageRoot,{QJsonDocument::fromJson(receipt.readAll()).object().toVariantMap()});
+        if(widgets.size()!=1)return 8;
+        assetBase=widgets.first().toMap()["assetBase"].toString();
+    }
+    engine.rootContext()->setContextProperty("packageAssets",assetBase);
     engine.rootContext()->setContextProperty("resolvedModel",QUrl::fromLocalFile(avatar["glb"].toString()));
     engine.rootContext()->setContextProperty("sourceRoot",QUrl::fromLocalFile(SOURCE_ROOT).toString());
     engine.load(QUrl::fromLocalFile(QString(SOURCE_ROOT)+"/tests/home-companion-preview/Preview.qml"));
     if(engine.rootObjects().isEmpty())return 3;
     auto* window=qobject_cast<QQuickWindow*>(engine.rootObjects().first());if(!window)return 4;
-    int step=0;QTimer timer;timer.setInterval(1800);
+    int step=0;QTimer timer;timer.setInterval(1800);timer.setSingleShot(true);
     QObject::connect(&timer,&QTimer::timeout,&app,[&]{
+        // grabWindow and QTest can process events; never re-enter a preview step
+        // while a slow software frame is being captured on a busy build server.
+        const auto restart=qScopeGuard([&]{timer.start();});
         auto capture=[&](const QString& name){const auto image=window->grabWindow();if(image.isNull()||!image.save(output+"/"+name+".png"))warnings.append("Screenshot failed: "+name);};
         if(argc>2&&QString::fromUtf8(argv[2])=="foods"){
             if(step<18){if(step%3==0)care.perform(0);if(step%3==1)capture(QFileInfo(care.prop()).baseName());++step;return;}

@@ -6,6 +6,7 @@ import TrainerOS
 View3D {
     id: root
     property url modelSource
+    property string assetBase: "qrc:/home-pet/"
     property var pet
     property bool animate: true
     // Kenney props use different source dimensions; scale to hand-sized food.
@@ -43,7 +44,7 @@ View3D {
               : root.pet && root.pet.activity==="idle"
                 ? ({"chest":Qt.vector3d(Math.sin(root.breathe)*1.1,0,0),"head":Qt.vector3d(0,Math.sin(root.breathe*.5)*4,0)}) : ({})
         RuntimeLoader {
-            source: root.pet && root.pet.prop ? "qrc:/home-pet/"+root.pet.prop : ""
+            source: root.pet && root.pet.prop ? root.assetBase+root.pet.prop : ""
             position: !root.pet?Qt.vector3d(0,0,0):root.pet.activity==="feed" && presenter.sockets["hand.R"] ? presenter.sockets["hand.R"].position.plus(Qt.vector3d(0,-.02,.02))
                       : root.pet.activity==="rest" ? Qt.vector3d(-.233,0,-.10) : Qt.vector3d(.18,.015,.23)
             scale: root.pet && root.pet.activity==="feed" ? Qt.vector3d(root.foodScale,root.foodScale,root.foodScale)

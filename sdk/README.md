@@ -152,3 +152,8 @@ version требует отдельной версии, не молчаливо�
 [PLATFORM_SDK](../docs/PLATFORM_SDK.md) и документах конкретных служб.
 Проверка локального протокола, визуальный игровой прогон, физический ввод и
 разные сети — отдельные результаты; наличие capability не заменяет их.
+
+## Installed Home widgets
+
+See [Home contributions and optional selection API](HOME_WIDGETS.md) for durable
+Crates-installed widgets in the Home slot. This is separate from ephemeral Start widgets.

@@ -209,6 +209,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}
         if(backend_)caps["play.scorecards"]=1;
+        if(selectHomeWidget)caps["ui.home.widget"]=1;
         ok({{"protocol", 1}, {"capabilities", caps}, {"context", snapshot()}});
         return;
     }
@@ -269,6 +270,15 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         QJsonObject result;
         const auto error=network_->request(peer.app,method,args,result);
         if(error.isEmpty())ok(result);else fail(error);
+        return;
+    }
+    if (method == "home.widget.select" && selectHomeWidget) {
+        if(context_["profile"].toString().isEmpty()){fail("no_profile");return;}
+        if(args["revision"].toString()!=QString::number(revision_)){fail("stale_context");return;}
+        const auto widget=args["id"].toString();
+        if(!identifier(widget)){fail("invalid_widget");return;}
+        const auto error=selectHomeWidget(peer.app,widget);
+        if(error.isEmpty())ok({{"id",widget}});else fail(error);
         return;
     }
     if (method == "widget.put") {

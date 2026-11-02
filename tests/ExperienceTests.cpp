@@ -11,6 +11,8 @@
 #include <QBuffer>
 #include <QSettings>
 #include "fixtures/HomeSocialFixture.h"
+#include "fixtures/HomeWidgetPackage.h"
+#include "features/home/HomeWidgetPackages.h"
 
 using namespace trainer;
 class ExperienceTests : public QObject {
@@ -60,13 +62,47 @@ private slots:
         QTRY_VERIFY(shell.device()->status()[1].toMap()["value"].toString().contains("20.0"));
         const int observed=reads.load();dashboard->reset();dashboard->select("widget");QCOMPARE(reads.load(),observed);
     }
+    void installedHomeWidgetLifecycleAndValidation() {
+        const auto owner="package-"+QUuid::createUuid().toString();
+        MockLibraryRepository library;MockAchievementProvider achievements;
+        MockTrainerRepository profiles(TrainerProfile{owner,"Package test","compass",{},QDateTime::currentDateTimeUtc()});
+        MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;MockHallOfFameRepository archive;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        auto* dashboard=shell.dashboard();
+        QTemporaryDir packages;const auto first=homeWidgetPackage(packages.path());
+        QVERIFY(!dashboard->selectPackageWidget("home-companion"));
+        dashboard->setInstalledWidgets(packages.path(),{first});
+        QVERIFY(dashboard->selectPackageWidget("home-companion","pet"));
+        QVERIFY(!dashboard->selectPackageWidget("other-app","pet"));
+        const auto assets=dashboard->widget()["assetBase"];
+        dashboard->companion()->setActive(true);dashboard->companion()->perform(0);
+        const auto food=dashboard->companion()->needs()["food"];QVERIFY(food.toInt()>80);
+        auto second=homeWidgetPackage(packages.path(),QString(64,'b'));second["version"]="0.1.1";
+        dashboard->setInstalledWidgets(packages.path(),{second});
+        QCOMPARE(dashboard->widget()["version"],"0.1.1");QVERIFY(dashboard->widget()["assetBase"]!=assets);
+        QVERIFY(dashboard->companion()->active());
+        dashboard->setInstalledWidgets(packages.path(),{});QVERIFY(dashboard->widget().isEmpty());
+        QVERIFY(!dashboard->companion()->active());QVERIFY(!dashboard->selectPackageWidget("home-companion"));
+        dashboard->setInstalledWidgets(packages.path(),{second});QCOMPARE(dashboard->widget()["id"],"crates:home-companion:pet");
+        QCOMPARE(dashboard->companion()->needs()["food"],food);
+        auto bad=second;bad["object"]="../outside";QVERIFY(installedHomeWidgets(packages.path(),{bad}).isEmpty());
+        const auto manifest=packages.path()+"/objects/"+second["object"].toString()+"/home-widgets.json";
+        QFile f(manifest);QVERIFY(f.open(QIODevice::ReadOnly));auto bytes=f.readAll();f.close();
+        QVERIFY(f.open(QIODevice::WriteOnly));f.write(bytes.replace("avatar-care-v1","downloaded-code.qml"));f.close();
+        QVERIFY(installedHomeWidgets(packages.path(),{second}).isEmpty());
+        homeWidgetPackage(packages.path(),QString(64,'b'));
+        QFile::remove(packages.path()+"/objects/"+second["object"].toString()+"/assets/food-kit/apple.glb");
+        QVERIFY(installedHomeWidgets(packages.path(),{second}).isEmpty());
+    }
     void companionControllerMenuAndExistingInbox() {
         const auto owner="companion-test-"+QUuid::createUuid().toString();
         MockLibraryRepository library;MockTrainerRepository profiles(TrainerProfile{owner,"Companion test","compass",{},QDateTime::currentDateTimeUtc()});MockAdventureAdapter adapter;DevelopmentPlatformService platform;
         MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
         auto* dashboard=shell.dashboard();auto* pet=dashboard->companion();
-        dashboard->editWidget();dashboard->chooseWidget("companion");pet->setActive(true);
+        QTemporaryDir packages;dashboard->setInstalledWidgets(packages.path(),{homeWidgetPackage(packages.path())});
+        dashboard->editWidget();dashboard->chooseWidget("crates:home-companion:pet");pet->setActive(true);
         QSignalSpy launches(&shell,&ShellController::homeLaunchPressed);
         shell.dispatch(Action::Confirm);QVERIFY(pet->interacting());
         shell.dispatch(Action::Right);QCOMPARE(pet->focus(),2);

@@ -387,9 +387,8 @@ qt_add_resources(traineros genre_art PREFIX "/genres" BASE assets/genres
     FILES assets/genres/fighting.png assets/genres/brawlers.png assets/genres/shooters.png assets/genres/racing.png assets/genres/sports.png assets/genres/rpg.png assets/genres/strategy.png assets/genres/platform.png assets/genres/puzzle.png assets/genres/party.png assets/genres/adventure.png assets/genres/music.png)
 qt_add_resources(traineros home_backdrops PREFIX "/home-backdrops" BASE assets/home-backdrops
     FILES assets/home-backdrops/turquoise.png assets/home-backdrops/red.png assets/home-backdrops/green.png assets/home-backdrops/blue.png assets/home-backdrops/orange.png)
-file(GLOB_RECURSE companion_assets CONFIGURE_DEPENDS assets/home-pet/*.glb assets/home-pet/backgrounds/*.png assets/home-pet/ui/*.svg)
+file(GLOB companion_assets CONFIGURE_DEPENDS assets/home-pet/ui/*.svg)
 qt_add_resources(traineros companion_assets PREFIX "/home-pet" BASE assets/home-pet FILES ${companion_assets})
-install(DIRECTORY assets/home-pet DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros)
 qt_add_resources(traineros cover_fallbacks PREFIX "/cover-fallbacks" BASE assets/cover-fallbacks
     FILES assets/cover-fallbacks/fantasy-0.png assets/cover-fallbacks/fantasy-1.png assets/cover-fallbacks/fantasy-2.png assets/cover-fallbacks/fantasy-3.png assets/cover-fallbacks/fantasy-4.png assets/cover-fallbacks/fantasy-5.png assets/cover-fallbacks/racing-0.png assets/cover-fallbacks/racing-1.png assets/cover-fallbacks/sports-0.png assets/cover-fallbacks/sports-1.png assets/cover-fallbacks/scifi-0.png assets/cover-fallbacks/scifi-1.png assets/cover-fallbacks/puzzle-0.png assets/cover-fallbacks/puzzle-1.png assets/cover-fallbacks/action-0.png assets/cover-fallbacks/action-1.png assets/cover-fallbacks/neutral-0.png assets/cover-fallbacks/neutral-1.png)
 qt_add_resources(traineros crt_texture PREFIX "/textures" BASE assets/textures FILES assets/textures/crt.svg)
@@ -421,7 +420,7 @@ qt_add_resources(traineros crates_projects PREFIX "/crates" BASE assets/crates
           assets/crates/projects/minesweeper-race.png
           assets/crates/projects/chain-reaction.png
           assets/crates/projects/mini-racing.png
-          assets/crates/projects/tanks.png)
+          assets/crates/projects/tanks.png assets/crates/projects/home-companion.png assets/crates/projects/home-companion-rest.png)
 set_source_files_properties(src/qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 file(GLOB profile_avatars CONFIGURE_DEPENDS assets/avatars/*.png)
 file(GLOB wardrobe_icons CONFIGURE_DEPENDS assets/avatar/wardrobe-icons/*.png)

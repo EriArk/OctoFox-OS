@@ -64,6 +64,13 @@ class Client:
         """Public server identity only; sign-in and credentials belong to the host."""
         return self.call("account.get")["account"]
 
+    def select_home_widget(self, widget_id):
+        """Select this installed app's Home contribution after an explicit user action.
+
+        Requires ui.home.widget:1. No installation, launch or stale-context retry.
+        """
+        return self.call("home.widget.select", id=widget_id, revision=self.context["revision"])
+
     def play_open(self, ruleset_id):
         """Host owns credentials. Use timeout >=20 for backend calls."""
         return self.call("play.open", ruleset_id=ruleset_id)

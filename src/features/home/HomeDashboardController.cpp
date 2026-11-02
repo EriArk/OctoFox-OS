@@ -1,4 +1,5 @@
 #include "HomeDashboardController.h"
+#include "HomeWidgetPackages.h"
 #include <QCryptographicHash>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -24,12 +25,28 @@ void HomeDashboardController::setContext(QString adventure,bool generic) {
     companion_.end();adventure_=std::move(adventure);generic_=generic;focus_="play";widgetPicking_=false;achievementsCached_=false;emit changed();
 }
 QVariantList HomeDashboardController::widgetChoices() const {
-    return {QVariantMap{{"id",""},{"title","No widget"}},
+    return QVariantList{QVariantMap{{"id",""},{"title","No widget"}},
         QVariantMap{{"id","downloads"},{"title","Downloads"}},
         QVariantMap{{"id","storage"},{"title","Storage"}},
         QVariantMap{{"id","clock"},{"title","Clock"}},
-        QVariantMap{{"id","battery"},{"title","Battery"}},
-        QVariantMap{{"id","companion"},{"title","Companion"}}};
+        QVariantMap{{"id","battery"},{"title","Battery"}}} + installedWidgets_;
+}
+void HomeDashboardController::setInstalledWidgets(const QString& root,const QVariantList& receipts) {
+    const auto rows=installedHomeWidgets(root,receipts);
+    if(rows==installedWidgets_)return;
+    companion_.end();installedWidgets_=rows;
+    if(widget().isEmpty())companion_.setActive(false);
+    // Keep the saved identity across removal/reinstall, but never render a removed object.
+    widgetPicking_=false;widgetChoiceIndex_=0;emit changed();
+}
+bool HomeDashboardController::selectPackageWidget(const QString& package,const QString& localId) {
+    if(ownerKey_.isEmpty())return false;
+    for(const auto& value:installedWidgets_){const auto row=value.toMap();
+        if(row["package"]==package && (localId.isEmpty() || row["localId"]==localId)){
+            editWidget();chooseWidget(row["id"].toString());return true;
+        }
+    }
+    return false;
 }
 QVariantMap HomeDashboardController::widget() const {
     if(widgetId_.isEmpty())return {};
@@ -43,7 +60,7 @@ void HomeDashboardController::setOwner(const QString& owner) {
     const auto key=owner.isEmpty()?QString():"home/widget/v1/"+QString::fromLatin1(QCryptographicHash::hash(owner.toUtf8(),QCryptographicHash::Sha256).toHex());
     if(key==ownerKey_)return;
     ownerKey_=key;widgetId_=key.isEmpty()?QString():QSettings().value(key).toString();
-    if(widget().isEmpty())widgetId_.clear();
+    if(widgetId_=="companion")widgetId_="crates:home-companion:pet";
     widgetPicking_=false;widgetChoiceIndex_=0;emit changed();
 }
 void HomeDashboardController::editWidget() {
@@ -61,8 +78,8 @@ void HomeDashboardController::chooseWidget(const QString& id) {
 }
 void HomeDashboardController::closeWidgetPicker() {if(widgetPicking_){widgetPicking_=false;emit changed();}}
 void HomeDashboardController::activateWidget() {
-    if(widgetId_=="companion") {if(companion_.interacting())companion_.perform(companion_.focus());else companion_.begin();}
-    else if(widgetId_.isEmpty())editWidget();else emit widgetActivated(widgetId_);
+    if(widget()["renderer"]=="avatar-care-v1") {if(companion_.interacting())companion_.perform(companion_.focus());else companion_.begin();}
+    else if(widget().isEmpty())editWidget();else emit widgetActivated(widgetId_);
 }
 QVariantList HomeDashboardController::people() const {
     auto rows=social_.quickPeople();
@@ -122,7 +139,7 @@ void HomeDashboardController::move(Action action) {
         return;
     }
     if(focus_=="widget") {
-        if(widgetId_=="companion"&&companion_.interacting()) {
+        if(widget()["renderer"]=="avatar-care-v1"&&companion_.interacting()) {
             if(action==Action::NextFace || action==Action::PreviousFace)reset();
             else companion_.dispatch(action);
             return;

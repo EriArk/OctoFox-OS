@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QPointer>
 #include <memory>
+#include <functional>
 
 class QLockFile;
 class QTcpSocket;
@@ -30,6 +31,8 @@ public:
     void setBackend(BackendAccount*);
     void setAvatar(const QJsonObject& descriptor, bool available);
     QJsonObject context() const { return context_; }
+    // Returns an SDK error code, or empty on selection. Unbound hosts omit capability.
+    std::function<QString(const QString& app,const QString& widget)> selectHomeWidget;
 private:
     struct Peer {
         QByteArray input;
