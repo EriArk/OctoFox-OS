@@ -350,7 +350,7 @@ QVariantMap SocialController::incomingCall() const {
     if(snapshot_["state"]!="connected" || snapshot_["doNotDisturb"].toBool() || snapshot_["callsSuppressed"].toBool())return {};
     for(const auto& value:notifications()) {
         const auto row=value.toMap();
-        if(!row["ringing"].toBool())continue;
+        if(!row["ringing"].toBool() || hiddenIncomingCalls_.contains(row["id"].toString()))continue;
         bool blocked=false;
         for(const auto& friendValue:snapshot_["friends"].toList()) {
             const auto person=friendValue.toMap();if(person["type"].toInt()!=2)continue;
@@ -368,8 +368,16 @@ void SocialController::respondToIncomingCall(const QString& channel,bool accept)
 bool SocialController::dispatchIncomingCall(Action action) {
     const auto call=incomingCall();if(call.isEmpty())return false;
     if(action==Action::Confirm)respondToIncomingCall(call["id"].toString(),true);
-    else if(action==Action::Back)respondToIncomingCall(call["id"].toString(),false);
+    else if(action==Action::Secondary)respondToIncomingCall(call["id"].toString(),false);
+    else if(action==Action::Back)dismissIncomingCall(call["id"].toString());
+    else if(action==Action::Home || action==Action::SystemMenu || action==Action::ToggleNotifications) {
+        dismissIncomingCall(call["id"].toString());return false;
+    }
     return true;
+}
+void SocialController::dismissIncomingCall(const QString& channel) {
+    if(channel.isEmpty() || incomingCall()["id"]!=channel)return;
+    hiddenIncomingCalls_.insert(channel);emit changed();
 }
 bool SocialController::answerCall(const QString& channel,bool accept,bool allowOngoing) {
     if(snapshot_["state"]!="connected")return false;
@@ -385,7 +393,7 @@ bool SocialController::answerCall(const QString& channel,bool accept,bool allowO
     }
     for(const auto& value:notifications()) {
         const auto row=value.toMap();
-        if(row["id"]!=channel||!row["ringing"].toBool())continue;
+        if(row["id"]!=channel||!row["ringing"].toBool()||row["callBusy"].toBool())continue;
         if(accept&&!row["answerable"].toBool())return false;
         if(accept)media_.clear();
         emit commandRequested(accept?"voice-join":"voice-decline",{{"channel",channel}});
@@ -538,6 +546,16 @@ void SocialController::receive(quint64 generation,QVariantMap snapshot) {
         ||newVoice["channel"]!=oldVoice["channel"]||newVoice["state"].toString().isEmpty()))stream_.close();
     const bool switchingAccount=snapshot_["userId"]!=snapshot["userId"];
     snapshot_=std::move(snapshot);
+    // Hiding a banner is local presentation state, never a declined call.
+    // Retain it across reconnect snapshots; a confirmed end allows the next ring.
+    const auto callOwner=snapshot_["userId"].toString();
+    if(snapshot_["state"]=="signed-out" || (!callOwner.isEmpty() && callOwner!=hiddenCallsOwner_))hiddenIncomingCalls_.clear();
+    if(!callOwner.isEmpty())hiddenCallsOwner_=callOwner;
+    if(snapshot_["state"]=="connected") {
+        QSet<QString> ringing;
+        for(const auto& value:snapshot_["chats"].toList())if(value.toMap()["ringing"].toBool())ringing.insert(value.toMap()["id"].toString());
+        hiddenIncomingCalls_.intersect(ringing);
+    }
     restoreSocialPreferences();
     if(contactsChanged||conversationAdmitted)lobbyChatKey_.clear();
     lobbyRuntime_.configure(snapshot_["userId"].toString(),snapshot_["state"]=="connected");

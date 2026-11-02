@@ -118,9 +118,6 @@ class ShellController final : public QObject {
     Q_PROPERTY(bool controlsNetworkOpen READ controlsNetworkOpen NOTIFY changed)
     Q_PROPERTY(bool menuOpen READ menuOpen NOTIFY changed)
     Q_PROPERTY(bool homeMenuOpen READ homeMenuOpen NOTIFY changed)
-    Q_PROPERTY(int homeMenuFocus READ homeMenuFocus NOTIFY changed)
-    Q_PROPERTY(QVariantList homeMenuActions READ homeMenuActions NOTIFY changed)
-    Q_PROPERTY(QString homeMenuCaption READ homeMenuCaption NOTIFY changed)
     Q_PROPERTY(bool notificationsOpen READ notificationsOpen NOTIFY changed)
     Q_PROPERTY(int notificationFocus READ notificationFocus NOTIFY changed)
     Q_PROPERTY(QString achievementToast READ achievementToast NOTIFY changed)
@@ -294,7 +291,6 @@ public:
     Q_INVOKABLE void returnToLiveGame(bool options=false) { if(!liveGame_.isEmpty())emit liveGameRequested(options); }
     Q_INVOKABLE void openContext(const QString& type={}, const QString& id={});
     Q_INVOKABLE void pressButton(const QString& button);
-    Q_INVOKABLE void activateHomeAction(const QString& id);
     QString trainerFace() const;
     QString socialFace() const { return socialFace_; }
     int focusIndex() const;
@@ -307,16 +303,13 @@ public:
     QString currentAdventureId() const;
     bool menuOpen() const { return menuOpen_; }
     bool homeMenuOpen() const { return homeMenuOpen_; }
-    int homeMenuFocus() const;
-    QVariantList homeMenuActions() const;
-    QString homeMenuCaption() const;
     bool notificationsOpen() const { return homeMenuOpen_ && notificationsOpen_; }
     int notificationFocus() const;
     Q_INVOKABLE void activateNotification(int index);
+    Q_INVOKABLE void answerNotificationCall(const QString& id, bool accept);
     Q_INVOKABLE void openNotificationById(const QString& id);
     Q_INVOKABLE void dismissNotifications();
     Q_INVOKABLE void dismissNotificationById(const QString& id);
-    Q_INVOKABLE void activateHomeMenu(int index);
     Q_INVOKABLE void openSocialNotification();
     Q_INVOKABLE void closeHomeMenu();
     Q_INVOKABLE void openNotifications();
@@ -479,10 +472,8 @@ private:
     bool homeMenuOpen_ = false;
     bool optionsReturn_ = false;
     bool notificationsOpen_ = false;
-    bool homeCallOpen_ = false;
     int notificationFocus_ = 0;
     QString notificationSelection_;
-    QString homeMenuSelection_ = "home";
     bool powerMenu_ = false;
     bool libraryFromWorlds_ = false;
     QString notice_;

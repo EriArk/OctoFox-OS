@@ -2,24 +2,28 @@
 
 **Current owner-approved direction: 21 October 2026.** This is the short, **active** entrypoint for Codex and other development agents. The previous 84 KB collection of dated requirements was preserved in full (with relative links rebased) in [historical AGENTS archive](docs/archive/AGENTS_2026-10-14.md). It contains valuable implementation evidence and older decisions, but its superseded page names, priorities and button assignments are **not active instructions**.
 
-**Owner header/inbox correction, 2 November:** notifications belong in the bell
-popover, not Home or the Home-button menu. Place the compact level immediately
-after the name, Sparks under the name and the bell at the right edge of the
-slightly wider panel. This supersedes the rejected large condensed level column.
-Footer button hints belong on the left; clock, network and battery on the right.
-The clock is rightmost. Tapping Wi-Fi opens the shared connection popover above
-its icon, without opening Start or centering the popup on the screen.
-Drawer ears use the selected controller's glyphs without circular key backgrounds.
-For keyboard/unknown-pad fallback, show the actual X/Y keyboard shortcuts, not arrows.
-Keep the popover narrow: its right edge aligns with the Home game card's left edge.
-The bell uses equal top, right and bottom insets inside the account panel.
-Wi-Fi needs persistent authentication feedback and re-enter password through the
-shared connection flow. See [current contract/evidence](docs/evidence/2026-11-02-bell-wifi/README.md).
+**Owner direct Home and phone-style notifications, 2 November (latest):** without
+an active game, Home returns directly to the Home screen; already there it opens
+nothing. Remove the rejected Now/Shell Options modal. With an active/minimized
+game, Home still opens that session's existing game menu directly. Start remains
+the widget/system panel. Preserve protected editing, input and exit boundaries.
 
-**Owner minimized-game Home correction, 2 November:** while a game is running,
-Home opens its existing in-game menu directly, including from the minimized shell.
-Do not insert Shell Options or a second Game Options step. Continue retains the
-same process; minimize, protected exit and the shell return route stay intact.
+Keep the upper account bell and duplicate it immediately to the right of the
+footer clock. Each bell opens the same narrow inbox **beside itself**: below the
+upper bell, above the lower bell. Switching bells relocates that same panel.
+Ordinary toasts and incoming-call banners always appear at the bottom right.
+A call banner has direct Answer/Decline actions; swipe or Back hides it without
+rejecting. The still-ringing call stays in the inbox with direct Answer/Decline.
+No intermediate Now menu or implicit microphone consent. Keep state across a
+transient reconnect, isolate accounts and reject stale/busy call actions.
+
+Level remains after the name, Sparks under it. The upper bell retains equal
+insets. Footer hints stay left; Wi-Fi, battery, clock and bell are on the right
+in that order. Wi-Fi opens shared connections above its own icon, with persistent
+authentication errors/retry. Drawer ears use the selected controller's glyphs
+without round backgrounds; keyboard fallback uses real X/Y shortcuts.
+These decisions supersede the earlier clock-rightmost and fixed inbox alignment.
+See [current delivery](docs/evidence/2026-11-02-direct-home-calls/README.md).
 
 **Owner Home boundary correction, 2 November:** the left Home area belongs to
 the shell and the user's selected widget. An active game adapter must not reduce
@@ -209,8 +213,8 @@ TrainerOS is a **controller-first native Linux shell / operating environment** w
 - **Online replaces Social:** Lobby / Bazaar / Crates / Chats. Chats retain people, groups, communities, discovery and voice through the existing provider. Preserve independent lifecycles and route/focus return; do not build replacement services.
 - **Apps:** Apps / Browser / Files. Installed applications remain here; the Crates catalogue moves to Online. Ordinary Linux apps remain ordinary apps; Crates is a curated opt-in source, not a second package manager.
 - **X** globally toggles Quick Apps dock and **Y** globally toggles Recent Games/Favorites in the **shell**; do not steal them in inner pages. Select targets the focused object; Browser/Files toolbar exceptions and long-A context action follow their specific issue contracts.
-- Physical **Home** opens the current-activity menu (game, notifications and game settings); gameplay controls belong to the **actual running session**. Selected game, live PID/session and foreground/input owner are different facts.
-- Physical **Start** in the shell is the unified widget dashboard with quick actions, Settings and Power. Native Start during unmodified gameplay belongs to the game. Home → Game Options → Start opens the same dashboard in-game. Game settings belong to Home; system Settings/Power belong to Start.
+- Physical **Home** opens the actual running game menu, or returns directly to Home when no game is running. Notifications use the bells. Selected game, live PID/session and foreground/input owner remain separate facts.
+- Physical **Start** in the shell is the unified widget dashboard with quick actions, Settings and Power. Native Start during unmodified gameplay belongs to the game. Home → Start opens the same dashboard in-game. Selected-game settings use its context menu; running-game settings use the actual game menu. System Settings/Power belong to Start.
 - Opening Home alone is not auto-pause, auto-minimize or Exit. Preserve explicit Minimize/Return, input leases, neutral barriers, a predictable focus return and protected exit/save workflow.
 - The **only** ordinary multiplayer destination is **Online Lobby**. Special game-specific semantic interactions can remain in the Adapter; do not create a parallel Social/GameParty or NetPlay/Remote Play UI. Existing route names must migrate safely; this target does not claim new installed navigation.
 

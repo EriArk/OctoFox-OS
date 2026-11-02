@@ -5,18 +5,21 @@ Item {
     required property var shell
     property real anchorX: 320
     property real anchorY: 74
+    property bool above: false
     visible: shell.notificationsOpen
     property var originFocus: null
     onVisibleChanged: {
         if(visible) { originFocus=root.Window.window ? root.Window.window.activeFocusItem : null; forceActiveFocus() }
         else if(originFocus && originFocus.visible) originFocus.forceActiveFocus()
     }
-    MouseArea { anchors.fill: parent; onClicked: root.shell.closeHomeMenu(); onWheel: wheel => wheel.accepted=true }
+    MouseArea { x: 0; y: Theme.brandHeight; width: parent.width; height: parent.height-y; onClicked: root.shell.closeHomeMenu(); onWheel: wheel => wheel.accepted=true }
     Rectangle { x: card.x; y: card.y+3; width: card.width; height: card.height; radius: card.radius; color: "#20000000" }
     Rectangle {
         id: card; objectName: "notification-popover"
-        x: 12; y: root.anchorY
-        width: Math.min(root.width-24,root.anchorX-x); height: Math.min(root.height-y-12,Math.max(186,100+notices.contentHeight))
+        width: Math.min(330,root.width-24)
+        height: Math.min(root.above ? root.anchorY-12 : root.height-root.anchorY-12,Math.max(186,100+notices.contentHeight))
+        x: Math.max(12,Math.min(root.width-width-12,root.anchorX-width))
+        y: root.above ? root.anchorY-height : root.anchorY
         radius: 16; color: Theme.paper; border.color: Theme.divider; border.width: 1
         MouseArea { anchors.fill: parent }
         MenuGlyph { x: 18; y: 20; width: 22; height: 22; glyph: "bell"; ink: Theme.muted }
@@ -34,13 +37,27 @@ Item {
             onCurrentIndexChanged: if(currentIndex>=0)positionViewAtIndex(currentIndex,ListView.Contain)
             delegate: Item {
                 required property int index; required property var modelData
-                width: notices.width; height: 64
-                ActivityRow { width: parent.width-34; height: parent.height
-                    label: modelData.name; detail: modelData.detail || ""
-                    glyph: modelData.request?"party":modelData.provider==="achievements"?"bell":"chat"
+                width: notices.width; height: modelData.ringing ? 112 : 64
+                ActivityRow { width: parent.width-(modelData.ringing?0:34); height: 64
+                    label: modelData.name; detail: modelData.ringing ? modelData.callError || (modelData.callBusy ? "Declining…" : modelData.answerable ? "Incoming call" : (root.shell.social.account.voice || {}).channel ? "Already in another call" : "Voice is unavailable") : modelData.detail || ""
+                    glyph: modelData.ringing?"bell":modelData.request?"party":modelData.provider==="achievements"?"bell":"chat"
                     accent: modelData.request?Theme.pink:Theme.blue
+                    person: !!modelData.ringing; avatar: modelData.avatar || ""; drillDown: !modelData.ringing
                     selected: root.shell.notificationFocus===index
                     onActivated: root.shell.openNotificationById(modelData.id)
+                }
+                Row {
+                    x: 10; y: 68; spacing: 10; visible: !!modelData.ringing
+                    CapButton { objectName: "notification-call-answer"; width: (notices.width-30)/2; height: 36; label: "Answer"; centered: true; textSize: 16; tint: Theme.green; claimsFocus: false
+                        actionIdentity: modelData.id || ""
+                        enabled: !!modelData.answerable && !modelData.callBusy
+                        onActivated: root.shell.answerNotificationCall(modelData.id,true)
+                    }
+                    CapButton { objectName: "notification-call-decline"; width: (notices.width-30)/2; height: 36; label: "Decline"; centered: true; textSize: 16; tint: Theme.pink; claimsFocus: false
+                        actionIdentity: modelData.id || ""
+                        enabled: !modelData.callBusy
+                        onActivated: root.shell.answerNotificationCall(modelData.id,false)
+                    }
                 }
                 SocialIconButton { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; icon: "x"; label: "Remove notification"
                     visible: !modelData.ringing && !modelData.pending && modelData.provider!=="traineros-prizes"

@@ -548,7 +548,8 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
                 && hints->mapRectToScene(hints->boundingRect()).right()<status->mapRectToScene(status->boundingRect()).left(),
                 "Footer hints stay left of clock, network and battery");
             auto* clock=itemNamed("footer-clock");
-            check(clock && status && qAbs(clock->x()+clock->width()-status->width())<1,"Clock is the rightmost footer item");
+            auto* bell=itemNamed("footer-notification-bell");
+            check(clock && bell && status && clock->x()+clock->width()<bell->x() && qAbs(bell->x()+bell->width()-status->width())<1,"Footer bell follows clock at right edge");
             auto* name=itemNamed("header-account-name");check(name && name->property("lineCount").toInt()==1,"Short profile name stays on one line");capture("header-short-name-960");
             shell.trainer()->beginEdit();shell.trainer()->setDraftName("VLADISLAV TVTIKAUSHI");shell.trainer()->activate(shell.trainer()->editRows().size()-2);break;
         }
@@ -622,6 +623,56 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
         }
         case 80:
             check(!shell.controlsNetworkOpen()&&!shell.menuOpen(),"Second Wi-Fi press closes popover without navigation");break;
+        case 81:
+            shell.goToPage(1);shell.dispatch(Action::Home);
+            check(shell.page()==0 && !shell.homeMenuOpen(),"Home returns directly from Games");
+            shell.dispatch(Action::Home);check(!shell.homeMenuOpen() && !itemNamed("shell-home-menu"),"Repeated Home has no Now overlay");
+            QMetaObject::invokeMethod(itemNamed("notification-bell"),"pressAction");break;
+        case 82: {
+            auto* popup=itemNamed("notification-popover");auto* bell=itemNamed("notification-bell");
+            check(shell.notificationsOpen() && popup && popup->isVisible(),"Upper bell opens shared inbox");
+            if(popup&&bell)check(popup->mapRectToScene(popup->boundingRect()).top()>bell->mapRectToScene(bell->boundingRect()).bottom(),"Upper bell anchors inbox below itself");
+            capture("inbox-upper-960");QMetaObject::invokeMethod(itemNamed("footer-notification-bell"),"pressAction");break;
+        }
+        case 83: {
+            auto* popup=itemNamed("notification-popover");auto* bell=itemNamed("footer-notification-bell");
+            check(shell.notificationsOpen(),"Other bell relocates the same open inbox");
+            if(popup&&bell)check(popup->mapRectToScene(popup->boundingRect()).bottom()<bell->mapRectToScene(bell->boundingRect()).top() && popup->x()>500,"Lower bell anchors inbox above itself on right");
+            capture("inbox-lower-960");window->resize(800,450);break;
+        }
+        case 84: {
+            auto* popup=itemNamed("notification-popover");
+            check(popup && popup->x()>=0 && popup->x()+popup->width()<=800 && popup->y()>=0,"Lower inbox fits compact screen");
+            capture("inbox-lower-800");shell.closeHomeMenu();
+            auto chat=HomeSocialFixture::chat("call-fixture","peer-fixture","Mika");chat["ringing"]=true;chat["call"]=true;
+            HomeSocialFixture::publish(*shell.social(),{{"state","connected"},{"userId","profile-fixture"},{"notificationSound",false},{"voice",QVariantMap{{"available",true}}},{"chats",QVariantList{chat}}});break;
+        }
+        case 85: {
+            check(itemNamed("footer-hint-X") && itemNamed("footer-hint-X")->isVisible(),"Incoming call shows the Decline controller shortcut");
+            auto* card=itemNamed("incoming-call-card");auto* bell=itemNamed("footer-notification-bell");
+            check(card && card->isVisible() && card->height()<170 && card->x()>400,"Incoming call is a compact bottom-right banner");
+            if(card&&bell)check(card->mapRectToScene(card->boundingRect()).bottom()<bell->mapRectToScene(bell->boundingRect()).top(),"Call banner stays above footer");
+            capture("incoming-call-800");
+            check(QMetaObject::invokeMethod(itemNamed("incoming-call-banner"),"dismiss"),"Call banner offers hide independently from decline");break;
+        }
+        case 86:
+            check(shell.social()->incomingCall().isEmpty(),"Hidden call no longer blocks shell input");
+            QMetaObject::invokeMethod(itemNamed("footer-notification-bell"),"pressAction");break;
+        case 87:
+            check(itemNamed("footer-hint-X") && itemNamed("footer-hint-X")->isVisible(),"Inbox shows the Decline controller shortcut");            check(shell.notificationsOpen() && itemNamed("notification-call-answer") && itemNamed("notification-call-answer")->isVisible(),"Hidden call retains direct Answer action in bell");
+            check(itemNamed("notification-call-decline") && itemNamed("notification-call-decline")->isVisible(),"Hidden call retains direct Decline action in bell");
+            capture("incoming-call-inbox-800");window->resize(960,540);break;
+        case 88:
+            capture("incoming-call-inbox-960");shell.closeHomeMenu();
+            HomeSocialFixture::publish(*shell.social(),{{"state","connected"},{"userId","profile-fixture"},{"notificationSound",false},{"chats",QVariantList{}}});
+            shell.showAchievements("Adventure complete",{"First steps"});break;
+        case 89: {
+            auto* toast=itemNamed("passive-notification");auto* bell=itemNamed("footer-notification-bell");
+            if(toast&&bell)check(toast->x()>500 && toast->mapRectToScene(toast->boundingRect()).bottom()<bell->mapRectToScene(bell->boundingRect()).top(),"Ordinary notification originates above lower bell");
+            capture("notification-toast-960");shell.settings()->cycleTheme();break;
+        }
+        case 90:
+            capture("notification-toast-alternate-theme-960");shell.settings()->cycleTheme();shell.dismissPassiveNotice();break;
         default:
             check(warnings == 0, "QML warnings"); completed = true; timer->stop();
             if (!screenshotDir.isEmpty()) {

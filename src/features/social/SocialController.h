@@ -352,6 +352,7 @@ public:
     bool answerCall(const QString& channel,bool accept,bool allowOngoing=false);
     QVariantMap incomingCall() const;
     Q_INVOKABLE void respondToIncomingCall(const QString& channel, bool accept);
+    Q_INVOKABLE void dismissIncomingCall(const QString& channel);
     bool dispatchIncomingCall(Action action);
     QVariantList incomingCallActions(const QString& retainedChannel={}) const;
     void reviewCommand(const QString& operation,const QVariantMap& args){emit commandRequested(operation,args);}
@@ -539,6 +540,8 @@ private:
     void publishOnlineContext();
     QVariantList onlineCapabilities_;
     QVariantMap snapshot_;
+    QSet<QString> hiddenIncomingCalls_;
+    QString hiddenCallsOwner_;
     QHash<QString,QString> drafts_;
     QString owner_, face_ = "chats", textPurpose_, textChannel_;
     QString directConversationLease_;

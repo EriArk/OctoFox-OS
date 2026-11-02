@@ -516,7 +516,6 @@ qt_add_qml_module(traineros
         src/qml/ProfileOutfits.qml
         src/qml/AvatarEditor.qml
         src/qml/AvatarPreview3D.qml
-        src/qml/ShellOptions.qml
         src/qml/NotificationPopover.qml
         src/qml/GameOptions.qml
         src/qml/GameActivity.qml

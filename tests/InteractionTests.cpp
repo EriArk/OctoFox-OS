@@ -251,8 +251,25 @@ private slots:
             QVERIFY(!shell.homeMenuOpen());QCOMPARE(shell.navigationState(),origin);QVERIFY(launches.isEmpty());
         }
         shell.setLiveGame({});shell.dispatch(Action::Home);
-        QVERIFY(shell.homeMenuOpen());QVERIFY(returns.isEmpty());
+        QVERIFY(!shell.homeMenuOpen());QCOMPARE(shell.page(),0);QVERIFY(returns.isEmpty());
+        for(int page=0;page<shell.primaryNames().size();++page) {
+            shell.goToPage(page);const auto selected=shell.currentAdventureId();
+            shell.dispatch(Action::Home);QCOMPARE(shell.page(),0);QVERIFY(!shell.homeMenuOpen());
+            const auto origin=shell.navigationState();shell.dispatch(Action::Home);
+            QCOMPARE(shell.navigationState(),origin);QCOMPARE(shell.currentAdventureId(),selected);
+        }
         shell.dispatch(Action::Back);QVERIFY(!shell.homeMenuOpen());
+        shell.goToPage(1);shell.dispatch(Action::SystemMenu);QVERIFY(shell.menuOpen());
+        shell.dispatch(Action::Home);QCOMPARE(shell.page(),0);QVERIFY(!shell.menuOpen());
+    }
+    void homeDoesNotDiscardAnUnfinishedProfileEditor() {
+        TrainerProfile profile;profile.id="home-editor";profile.name="Alice";profile.createdAt=QDateTime::currentDateTimeUtc();
+        MockLibraryRepository library;MockTrainerRepository profiles(profile);MockAdventureAdapter adapter;
+        DevelopmentPlatformService platform;MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        shell.goToPage(1);shell.openProfile();shell.trainer()->beginEdit();shell.trainer()->setDraftName("Draft name");
+        QVERIFY(shell.trainer()->editing());const auto origin=shell.navigationState();shell.dispatch(Action::Home);
+        QVERIFY(shell.trainer()->editing());QCOMPARE(shell.navigationState(),origin);QVERIFY(!shell.homeMenuOpen());
     }
     void quickLooksDuringLiveGamePreserveSessionAndReturn() {
         TrainerProfile profile;profile.id="looks-owner";profile.name="Alice";profile.createdAt=QDateTime::currentDateTimeUtc();
@@ -995,7 +1012,7 @@ private slots:
         shell.dispatch(Action::NextFace);QCOMPARE(shell.multiverse()->detail()["id"],id);shell.dispatch(Action::Back);
         shell.goToPage(0);shell.dispatch(Action::ToggleContinue);QVERIFY(shell.drawerOpen());
         const auto chosen=shell.currentAdventureId();shell.dispatch(Action::NextFace);QCOMPARE(shell.currentAdventureId(),chosen);
-        shell.dispatch(Action::Back);shell.dispatch(Action::Home);QVERIFY(shell.homeMenuOpen());shell.dispatch(Action::Back);
+        shell.dispatch(Action::Back);shell.dispatch(Action::Home);QVERIFY(!shell.homeMenuOpen());QCOMPARE(shell.page(),0);
         QCOMPARE(shell.currentAdventureId(),chosen);QVERIFY(shell.faceNames().isEmpty());
     }
     void realMultiverseSelectionLaunchAndMissingContent() {

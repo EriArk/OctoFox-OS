@@ -1,0 +1,50 @@
+{
+  "source_base": "b44f1a2d",
+  "installed_sha256": "25df255c2d68f886ccd14019deaddd1e84457381df498770b3da23dbf8a405e5",
+  "source_inventory_sha256": "270cc803f6b3e0d374917a23cd767c00962b4b4eafa9f6af937f03c26b6b4617",
+  "source_files": 1566,
+  "windows_tests": {
+    "device": {
+      "passed": 24
+    },
+    "interaction": {
+      "passed": 59
+    },
+    "social": {
+      "passed": 208,
+      "skipped": 1,
+      "skip_reason": "Linux libfm backend required"
+    }
+  },
+  "native_ui": {
+    "home": "passed",
+    "home_reopen": "passed",
+    "exit_process": "passed",
+    "qml_warnings": 0
+  },
+  "devices": {
+    "flip": {
+      "running_sha256": "25df255c2d68f886ccd14019deaddd1e84457381df498770b3da23dbf8a405e5",
+      "helpers_verified": 181,
+      "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "volume": "Volume: 0.20",
+      "inbox_upper_lower_and_direct_home": "visually checked"
+    },
+    "odin": {
+      "running_sha256": "25df255c2d68f886ccd14019deaddd1e84457381df498770b3da23dbf8a405e5",
+      "helpers_verified": 154,
+      "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "volume": "Volume: 0.00",
+      "inbox_upper_lower_and_direct_home": "visually checked"
+    }
+  },
+  "live_call_acceptance": false,
+  "toast_restyle": "source only; owner rejected earlier yellow surface",
+  "companion": "awaiting Crates publication"
+}

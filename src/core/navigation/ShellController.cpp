@@ -471,7 +471,6 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(settings_.updates(),&SoftwareUpdateController::changed,this,&ShellController::notificationsChanged);
     connect(&social_, &SocialController::changed, this, [this]{
         emit notificationsChanged();
-        if(homeMenuOpen_)homeMenuSelection_=homeMenuActions().value(homeMenuFocus()).toMap()["id"].toString();
         if(socialActive()||homeMenuOpen_)emit changed();
     });
     connect(&social_, &SocialController::textRequested, this, [this](QString title, QString text, int limit) {
@@ -1255,7 +1254,11 @@ void ShellController::closeControlsNetwork(){
     controlsNetworkOpen_=false;network_.setActive(false);emit changed();
 }
 void ShellController::dispatchControls(Action action){
-    if(action==Action::SystemMenu||action==Action::Home){closeControls();return;}
+    if(action==Action::SystemMenu||action==Action::Home){
+        const bool inGame=gameControlsOpen_;closeControls();
+        if(action==Action::Home&&!inGame)dispatch(action);
+        return;
+    }
     if(device_.audioOpen()){device_.dispatchAudio(action);return;}
     if(controlsNetworkOpen_){
         if(keyboard_.isOpen()){
@@ -1725,7 +1728,8 @@ void ShellController::closeHomeMenu() {
 void ShellController::openNotifications() {
     if(notificationsOpen()){closeHomeMenu();return;}
     if(!canReceiveNearby() || quickAppsOpen_ || moduleWriting() || !apps_.menu().isEmpty())return;
-    homeMenuOpen_=notificationsOpen_=true;homeCallOpen_=false;
+    social_.dismissIncomingCall(social_.incomingCall()["id"].toString());
+    homeMenuOpen_=notificationsOpen_=true;
     notificationFocus_=0;notificationSelection_=notifications().value(0).toMap()["id"].toString();
     emit changed();
 }
@@ -1978,75 +1982,6 @@ void ShellController::dispatchProfile(Action action) {
     }
     emit changed();
 }
-int ShellController::homeMenuFocus() const {
-    const auto actions=homeMenuActions();
-    for(int i=0;i<actions.size();++i)if(actions[i].toMap()["id"]==homeMenuSelection_)return i;
-    return 0;
-}
-QVariantList ShellController::homeMenuActions() const {
-    const auto voice=social_.account()["voice"].toMap();
-    if(homeCallOpen_) {
-        QVariantList rows;
-        if(!voice["channel"].toString().isEmpty())rows={
-            QVariantMap{{"id","voice-mute"},{"label",voice["muted"].toBool()?"Turn microphone on":"Mute microphone"}},
-            QVariantMap{{"id","voice-output"},{"label",voice["deaf"].toBool()?"Enable call sound":"Silence call sound"}},
-            QVariantMap{{"id","voice-leave"},{"label","Leave call"}}};
-        rows.append(QVariantMap{{"id","back"},{"label","Back"}});return rows;
-    }
-    QVariantList rows;
-    if(!social_.homeLobby()["id"].toString().isEmpty())rows.append(QVariantMap{{"id","lobby"},{"label","My lobby"}});
-    if(trainer_.exists()&&trainer_.avatarAvailable())rows.append(QVariantMap{{"id","outfits"},{"label","Looks"},{"detail","Quick wardrobe"}});
-    if(liveGame_.isEmpty())if(const auto r=repository_.registration(currentAdventureId());r)rows.append(QVariantMap{{"id","pc-settings"},{"label","Game settings"},{"detail",r->adventure.title}});
-    if(!liveGame_.isEmpty()) {
-        rows.prepend(QVariantMap{{"id","live-options"},{"label","Game Options"},{"detail",liveGame_.value("title")}});
-        rows.prepend(QVariantMap{{"id","live-return"},{"label","Return to game"},{"detail","Still running · "+liveGame_.value("title").toString()}});
-    }
-    if(!voice["channel"].toString().isEmpty())rows.append(QVariantMap{{"id","call"},{"label","Voice call"},{"detail",voice["name"]}});
-    const bool answering=homeMenuSelection_.startsWith("answer-call:");
-    const bool declining=homeMenuSelection_.startsWith("decline-call:");
-    rows.append(social_.incomingCallActions(answering?homeMenuSelection_.section(':',1):QString()));
-    if(homeMenuOpen_&&!homeMenuSelection_.isEmpty()) {
-        const bool present=std::any_of(rows.cbegin(),rows.cend(),[this](const QVariant& row){return row.toMap()["id"]==homeMenuSelection_;});
-        // Never redirect a pending A press onto Home when an asynchronous
-        // update removes the selected invitation. Navigation clears this row.
-        if(!present)rows.append(QVariantMap{{"id",homeMenuSelection_},{"label",answering||declining?"Call no longer ringing":"Action no longer available"},{"enabled",false}});
-    }
-    return rows;
-}
-QString ShellController::homeMenuCaption() const {
-    if(!homeCallOpen_)return profileAccount()["name"].toString();
-    const auto voice=social_.account()["voice"].toMap();
-    return voice["summary"].toString().isEmpty()?voice["status"].toString():voice["summary"].toString();
-}
-void ShellController::activateHomeMenu(int index) {
-    if (!homeMenuOpen_ || navigationLocked() || index < 0 || index >= homeMenuActions().size()) return;
-    const auto selected=homeMenuActions()[index].toMap();
-    if(!selected.value("enabled",true).toBool())return;
-    const auto id=selected["id"].toString();
-    if(id=="pc-settings"){closeHomeMenu();gamePerformance_.begin(currentAdventureId());return;}
-    if(id=="together"){emit togetherRequested(liveGame_.value("id").toString());return;}
-    if(id=="lobby"){if(liveGame_.isEmpty())social_.openLobby();else social_.openLobbyForGame(liveGame_.value("id").toString());return;}
-    if(id=="live-return"||id=="live-options"){returnToLiveGame(id=="live-options");return;}
-    if(id=="profile"){openProfile();return;}
-    if(id=="outfits"){systemAction(id);return;}
-    if(id=="game-party"){closeHomeMenu();openOnlineFace("lobby");emit social_.runtimeAction("multiplayer-party");return;}
-    if(id.startsWith("answer-call:")||id.startsWith("decline-call:")) {
-        const bool accept=id.startsWith("answer-call:");
-        if(social_.answerCall(id.section(':',1),accept,true)&&accept)closeHomeMenu();
-        emit changed();return;
-    }
-    if(homeCallOpen_){if(id=="back"){homeCallOpen_=false;homeMenuSelection_="call";}else social_.controlCall(id);emit changed();return;}
-    if(id=="call"){homeCallOpen_=true;homeMenuSelection_="voice-mute";emit changed();return;}
-    if(id=="chats"&&!social_.notificationFace().isEmpty()){openSocialNotification();return;}
-    if (id!="home") socialFace_ = "chats";
-    social_.setFace(socialFace_);
-    if(id=="home")goToPage(HomePage);else openOnlineFace("chats");
-    if(id=="friends")social_.showContacts();
-}
-void ShellController::activateHomeAction(const QString& id) {
-    const auto actions=homeMenuActions();
-    for(int i=0;i<actions.size();++i)if(actions[i].toMap()["id"].toString()==id){activateHomeMenu(i);return;}
-}
 int ShellController::notificationFocus() const {
     const auto rows=notifications();
     for(int i=0;i<rows.size();++i)if(rows[i].toMap()["id"].toString()==notificationSelection_)return i;
@@ -2059,10 +1994,7 @@ void ShellController::activateNotification(int index) {
     if(row["provider"]=="traineros-prizes"){closeHomeMenu();openProfile();activateProfile(11);backendAccount_.celebratePrizes();return;}
     if(row["provider"]=="traineros-software"){settings_.updates()->dismissNotification();closeHomeMenu();service_="settings";settings_.openUpdates();emit changed();return;}
     if(row["provider"]=="achievements"){dismissNotificationById(row["id"].toString());showNotice(row["name"].toString()+"\n"+row["detail"].toString());closeHomeMenu();return;}
-    if(row["answerable"].toBool()) {
-        notificationsOpen_=false;homeCallOpen_=false;homeMenuSelection_="answer-call:"+row["id"].toString();emit changed();
-        return;
-    }
+    if(row["ringing"].toBool()) {answerNotificationCall(row["id"].toString(),true);return;}
     const auto face=social_.notificationFaceAt(index);if(face.isEmpty())return;
     if(face=="lobby")openGameHubFace("lobby");else {socialFace_=face;openOnlineFace("chats");}
     social_.openNotificationAt(index);emit changed();
@@ -2071,7 +2003,19 @@ void ShellController::openNotificationById(const QString& id) {
     if(!homeMenuOpen_ || navigationLocked() || id.isEmpty())return;
     const auto rows=notifications();
     for(int index=0;index<rows.size();++index)if(rows[index].toMap()["id"].toString()==id) {
-        notificationsOpen_=true;notificationFocus_=index;notificationSelection_=id;activateNotification(index);emit changed();return;
+        notificationsOpen_=true;notificationFocus_=index;notificationSelection_=id;
+        if(!rows[index].toMap()["ringing"].toBool())activateNotification(index);
+        emit changed();return;
+    }
+}
+void ShellController::answerNotificationCall(const QString& id,bool accept) {
+    if(!notificationsOpen() || navigationLocked() || id.isEmpty())return;
+    // Revalidate the captured channel, never the current row index.
+    for(const auto& value:notifications()) {
+        const auto row=value.toMap();
+        if(row["id"]!=id || !row["ringing"].toBool() || row["callBusy"].toBool())continue;
+        if(social_.answerCall(id,accept) && accept)closeHomeMenu();
+        emit changed();return;
     }
 }
 void ShellController::dismissNotifications() {
@@ -2103,7 +2047,7 @@ void ShellController::openSocialNotification() {
 }
 void ShellController::dispatch(Action action) {
     if(controlsNetworkOpen_&&!menuOpen_&&!gameControlsOpen_&&notice_.isEmpty()){
-        if(action==Action::Home||action==Action::SystemMenu)closeControlsNetwork();
+        if(action==Action::Home||action==Action::SystemMenu){closeControlsNetwork();if(action==Action::Home)dispatch(action);}
         else dispatchControls(action);
         return;
     }
@@ -2208,12 +2152,12 @@ void ShellController::dispatch(Action action) {
     }
     if (homeMenuOpen_) {
         if(notificationsOpen_) {
-            if(action==Action::Home)closeHomeMenu();
+            if(action==Action::Home){closeHomeMenu();dispatch(action);}
             else if(action==Action::Back)closeHomeMenu();
             else if(action==Action::Confirm)activateNotification(notificationFocus());
             else if(action==Action::Secondary) {
                 const auto row=notifications().value(notificationFocus()).toMap();
-                if(row["ringing"].toBool())social_.answerCall(row["id"].toString(),false);
+                if(row["ringing"].toBool())answerNotificationCall(row["id"].toString(),false);
                 else dismissNotificationById(row["id"].toString());
                 emit changed();
             }
@@ -2222,21 +2166,7 @@ void ShellController::dispatch(Action action) {
             else if(action==Action::Up||action==Action::Down){notificationFocus_=std::clamp(notificationFocus()+(action==Action::Up?-1:1),0,std::max(0,int(notifications().size())-1));notificationSelection_=notifications().value(notificationFocus_).toMap()["id"].toString();emit changed();}
             return;
         }
-        if(action==Action::Back&&homeCallOpen_){homeCallOpen_=false;homeMenuSelection_="call";emit changed();}
-        else if (action == Action::Home || action == Action::Back) closeHomeMenu();
-        else if (action == Action::Confirm) activateHomeMenu(homeMenuFocus());
-        else if (action == Action::Up || action == Action::Down) {
-            const auto actions=homeMenuActions();
-            const int direction=action==Action::Up?-1:1;
-            bool hasAction=false;for(const auto& row:actions)if(row.toMap().value("enabled",true).toBool())hasAction=true;
-            if(!hasAction)homeMenuSelection_.clear();
-            else for(int index=homeMenuFocus()+direction;index>=0&&index<actions.size();index+=direction)
-                if(actions[index].toMap().value("enabled",true).toBool()){homeMenuSelection_=actions[index].toMap()["id"].toString();break;}
-            emit changed();
-        } else if (action == Action::SystemMenu) {
-            homeMenuOpen_=false;optionsReturn_=true;dispatch(action);
-        }
-        return;
+        closeHomeMenu();return;
     }
     if(service_=="account-profile" && !menuOpen_ && notice_.isEmpty() && action!=Action::SystemMenu && action!=Action::Home) {
         if(action==Action::Back && accountProfileReturn_ && !keyboard_.isOpen() && !settings_.communication()->choosingAvatar()) {
@@ -2287,10 +2217,12 @@ void ShellController::dispatch(Action action) {
         // A running session owns Home even while the shell has foreground focus.
         // Open its existing overlay directly, preserving the current shell route.
         if(!liveGame_.isEmpty()){returnToLiveGame(true);return;}
-        homeMenuSelection_.clear();homeMenuOpen_ = true; notificationsOpen_=homeCallOpen_=false; homeMenuSelection_ = homeMenuActions().value(0).toMap()["id"].toString();
-        const auto actions=homeMenuActions();
-        for(const auto& action:actions)if(action.toMap()["id"].toString().startsWith("answer-call:")){homeMenuSelection_=action.toMap()["id"].toString();break;}
-        emit changed();return;
+        // Do not discard an unfinished editor or text entry on a global key.
+        if(keyboard_.isOpen() || localModalOpen()
+           || ((service_=="account-profile"||service_=="settings")&&settings_.communication()->profileEditing()))return;
+        if(page_!=HomePage || serviceOpen() || drawerOpen_)goToPage(HomePage);
+        else emit changed();
+        return;
     }
     if (action == Action::PreviousPage || action == Action::NextPage) {
         goToPage(page_ + (action == Action::NextPage ? 1 : -1));

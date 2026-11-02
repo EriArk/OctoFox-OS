@@ -198,10 +198,10 @@ void startExitSmoke(QQuickWindow* shellWindow, ShellController& shell, Adventure
             press(SDL_CONTROLLER_BUTTON_LEFTSHOULDER); check(shell.page() == 0, "L1 works after return");
             shell.goToPage(1); const auto beforeMenu = shell.navigationState();
             press(SDL_CONTROLLER_BUTTON_GUIDE);
-            check(shell.homeMenuOpen() && shell.navigationState() == beforeMenu, "Shell Home retains origin route");
+            check(!shell.homeMenuOpen() && shell.page()==0, "Shell Home returns directly to Home without Now");
             input.poll(); // Home changes the input epoch on release; sample neutral before Back.
-            press(static_cast<SDL_GameControllerButton>(input.backButton()));
-            check(!shell.homeMenuOpen() && shell.navigationState() == beforeMenu, "Shell B retains origin route");
+            press(SDL_CONTROLLER_BUTTON_GUIDE);
+            check(!shell.homeMenuOpen() && shell.page()==0, "Repeated Home opens no extra menu");
             shell.goToPage(0);
             input.setEnabled(false);
             check(QFile::remove(state->files.filePath("command")) && QFile::remove(state->files.filePath("pid")), "Remove finished fixture controls");

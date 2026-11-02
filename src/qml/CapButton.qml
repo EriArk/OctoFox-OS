@@ -17,6 +17,8 @@ Item {
     property string platformShape: "console"
     property bool warning: false
     property bool depressed: false
+    // Optional stable target for asynchronous rows (for example an incoming call).
+    property string actionIdentity: ""
     readonly property color capTint: enabled ? tint : "#c4cdc7"
     function pressFeedback() {
         if (enabled && visible) { depressed = true; release.restart(); }
@@ -116,5 +118,9 @@ Item {
     }
     Rectangle { x: 0; y: 7; width: 2; height: parent.height-14; visible: root.flat && root.selected; color: Theme.surfaceColor("#65967d") }
     Rectangle { x: 10; y: parent.height-1; width: parent.width-20; height: 1; visible: root.flat; color: Theme.surfaceColor("#e0e6dc") }
-    MouseArea { id: pointer; anchors.fill: parent; onClicked: { root.pressFeedback(); root.activated(); } }
+    MouseArea { id: pointer; anchors.fill: parent
+        property string pressedIdentity
+        onPressed: pressedIdentity=root.actionIdentity
+        onClicked: { if(pressedIdentity!==root.actionIdentity)return; root.pressFeedback(); root.activated(); }
+    }
 }

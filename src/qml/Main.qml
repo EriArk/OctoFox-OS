@@ -10,6 +10,12 @@ Window {
     visible: true
     title: "TrainerOS"
     color: Theme.chassisDark
+    property bool notificationsAtFooter: true
+    function openNotificationsAt(footer) {
+        const relocate = shell.notificationsOpen && notificationsAtFooter !== footer
+        notificationsAtFooter = footer
+        if (!relocate) shell.openNotifications()
+    }
     readonly property real uiScale: shell.settings.displayDensity(Screen.width, Screen.height,
         width, height, shell.settings.displayProfile, shell.settings.interfaceScale)
     Binding { target: controllerInput; property: "pointerMode"; value: !shell.social.incomingCall.id && (filesPane.takesFocus || browserPane.takesFocus) && (!adventureLaunch.active || adventureLaunch.minimized) && !sessionState.blocked }
@@ -110,12 +116,13 @@ Window {
                 id: notificationBell
                 objectName: "notification-bell"; anchors.right: parent.right; anchors.rightMargin: (parent.height-height)/2
                 anchors.verticalCenter: parent.verticalCenter; width: 44; height: 44
+                function pressAction() { window.openNotificationsAt(false) }
                 Rectangle { anchors.fill: parent; radius: 12; color: "#18ffffff"; visible: bellPointer.containsMouse || shell.notificationsOpen }
                 MenuGlyph { anchors.centerIn: parent; width: 22; height: 22; glyph: "bell"; ink: "#fffef9" }
                 Rectangle { anchors.right: parent.right; anchors.rightMargin: 4; y: 5; width: 7; height: width; radius: width/2; color: Theme.yellow; visible: shell.notifications.length>0 }
-                MouseArea { id: bellPointer; anchors.fill: parent; hoverEnabled: true; enabled: shell.unobstructed || shell.notificationsOpen; onClicked: shell.openNotifications() }
+                MouseArea { id: bellPointer; anchors.fill: parent; hoverEnabled: true; enabled: shell.unobstructed || shell.notificationsOpen; onClicked: window.openNotificationsAt(false) }
                 Accessible.role: Accessible.Button; Accessible.name: "Notifications, "+shell.notifications.length+" updates. Home + "+Theme.buttonLabel(Theme.controller?.family==="nintendo"?"west":"north")
-                Accessible.onPressAction: shell.openNotifications()
+                Accessible.onPressAction: window.openNotificationsAt(false)
             }
             Item {
                 id: headerLevel
@@ -245,8 +252,8 @@ Window {
             objectName: "passive-notification"
             notice: shell.passiveNotice
             onDismissed: shell.dismissPassiveNotice()
-            visible: !!notice.title && window.active && !sessionState.blocked && !shell.homeMenuOpen && (!adventureLaunch.active || adventureLaunch.minimized)
-            z: 30; x: parent.width - width - 26; y: Theme.brandHeight + 21
+            visible: !!notice.title && !shell.social.incomingCall.id && window.active && !sessionState.blocked && !shell.homeMenuOpen && (!adventureLaunch.active || adventureLaunch.minimized)
+            z: 30; x: parent.width - width - 14; y: Theme.footerTop - height - 8
         }
         Row {
             id: faceNavigation
@@ -364,7 +371,7 @@ Window {
             x: Theme.screenBounds.x
             anchors.bottom: footer.top
             shell: shellController; z: 3
-            visible: !shell.serviceOpen && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
+            visible: !shell.social.incomingCall.id && !shell.notificationsOpen && !shell.serviceOpen && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
             handlesRecessed: shell.quickAppsOpen || shell.drawerOpen || panelVisible || drawer.panelVisible
             otherPanelVisible: drawer.panelVisible
         }
@@ -374,7 +381,7 @@ Window {
             x: Theme.screenBounds.x + (expandedWidth-width)/(expandedWidth-closedWidth)*(closedWidth-Theme.drawerHandleOverlap)
             anchors.bottom: footer.top; shell: shellController
             z: 2
-            visible: !shell.serviceOpen && (shell.chooseAdventureAvailable || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
+            visible: !shell.social.incomingCall.id && !shell.serviceOpen && (shell.chooseAdventureAvailable || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
             handlesRecessed: shell.quickAppsOpen || shell.drawerOpen || panelVisible || quickDrawer.panelVisible
             otherPanelVisible: quickDrawer.panelVisible
         }
@@ -430,6 +437,17 @@ Window {
                     Timer { interval: 1000; repeat: true; triggeredOnStart: true; running: footer.visible && window.visible; onTriggered: footerClock.text=Qt.formatTime(new Date(),"hh:mm") }
                     Accessible.role: Accessible.StaticText; Accessible.name: text
                 }
+                Item {
+                    id: footerBell; objectName: "footer-notification-bell"; width: 28; height: 27
+                    function pressAction() { window.openNotificationsAt(true) }
+                    enabled: shell.unobstructed || shell.notificationsOpen
+                    Rectangle { anchors.fill: parent; radius: 7; color: "#18ffffff"; visible: footerBellPointer.containsMouse || shell.notificationsOpen }
+                    MenuGlyph { anchors.centerIn: parent; width: 20; height: 20; glyph: "bell"; ink: "#b7c8c1" }
+                    Rectangle { anchors.right: parent.right; y: 1; width: 5; height: width; radius: width/2; color: Theme.yellow; visible: shell.notifications.length>0 }
+                    Accessible.role: Accessible.Button; Accessible.name: "Notifications, "+shell.notifications.length+" updates"
+                    Accessible.onPressAction: pressAction()
+                    MouseArea { id: footerBellPointer; anchors.fill: parent; hoverEnabled: true; onClicked: footerBell.pressAction() }
+                }
             }
             Text {
                 id: controllerWarning
@@ -442,15 +460,14 @@ Window {
             function hint(button, label) { return {button:button, label:label} }
             readonly property var localActions: {
                 const h = hint
-                if (shell.social.incomingCall.id) return [h("A","Answer"),h("B","Decline")]
+                if (shell.social.incomingCall.id) return [h("A","Answer"),h("X","Decline"),h("B","Hide")]
                 if (shell.social.lobbyCreateOpen || shell.social.lobbyPickerOpen || shell.social.lobbyVoteOpen) return [h("↑↓","Choose"),h("A","Select"),h("B","Close")]
                 if (shell.social.myLobbiesOpen) return [h("\u2191\u2193","Choose"),h("A","Open"),h("B","Back")]
                 if (shell.social.online.open) return shell.social.online.incoming ? [h("A","Accept"),h("B","Decline")] : [h("B","Cancel")]
                 if (shell.moduleInvitation.open) return shell.moduleInvitation.incoming ? [h("A","Accept"),h("B","Decline")] : [h("B","Cancel")]
                 if (shell.homeMenuOpen) {
-                    if (!shell.notificationsOpen) return [h("↑↓","Choose"),h("A","Select"),h("B","Back")]
                     const selectedNotice = shell.notifications[shell.notificationFocus] || {}
-                    const noticeHints = [h("↑↓","Choose"),h("A","Open")]
+                    const noticeHints = [h("↑↓","Choose"),h("A",selectedNotice.ringing ? "Answer" : "Open")]
                     if (!selectedNotice.pending) noticeHints.push(h("X",selectedNotice.ringing ? "Decline" : "Remove"))
                     return noticeHints.concat([h("Select","Clear updates"),h("B","Back")])
                 }
@@ -524,6 +541,7 @@ Window {
                 return [h("A",shell.trainer.editing ? "Select" : "Edit Trainer"),h("B",shell.trainer.editing ? "Cancel" : "Back")]
             }
             readonly property var actions: {
+                if(shell.social.incomingCall.id) return localActions
                 if(shell.apps.menu.length) return [hint("??","Choose"),hint("A","Select"),hint("B","Back")]
                 if(shell.quickAppsOpen && !shell.apps.menu.length) return [hint("←→","Apps"),hint("A","Open"),hint("Select","Options"),hint("X","Close"),hint("Y","Recent games")]
                 if(shell.keyboard.open || shell.menuOpen || shell.homeMenuOpen || shell.notice.length || !shell.chooseAdventureAvailable) return localActions
@@ -540,7 +558,7 @@ Window {
                 scale: Math.min(1,Math.max(0,(controllerWarning.visible?controllerWarning.x:footerStatus.x)-x-14)/Math.max(1,implicitWidth))
 
 
-                Repeater { model: footer.actions.filter(function(item) { return item.button !== "X" && item.button !== "Y" })
+                Repeater { model: footer.actions.filter(function(item) { return shell.social.incomingCall.id || shell.notificationsOpen || (item.button !== "X" && item.button !== "Y") })
                     delegate: Hint {
                         required property var modelData
                         objectName: "footer-hint-" + modelData.button
@@ -551,7 +569,7 @@ Window {
                         tint: button === "B" ? Theme.pink : button === "X" || button === "←→" ? Theme.blue : button === "Y" ? Theme.yellow : Theme.green
                     }
                 }
-                Hint { button: "Home"; label: "Options"; subtle: true; interactive: true; onClicked: shell.pressButton("Home"); visible: !shell.controlsNetworkOpen && !shell.moduleControlsBlocked && !shell.social.online.open }
+                Hint { button: "Home"; label: shell.liveGame.id ? "Game menu" : "Home"; subtle: true; interactive: true; onClicked: shell.pressButton("Home"); visible: !shell.controlsNetworkOpen && !shell.moduleControlsBlocked && !shell.social.online.open }
                 Hint { button: "Start"; label: "System"; subtle: true; tint: Theme.yellow; interactive: true; onClicked: shell.pressButton("Start"); visible: !shell.controlsNetworkOpen && !shell.moduleControlsBlocked && !shell.social.online.open }
             }
         }
@@ -620,29 +638,12 @@ Window {
             visible: shell.controlsNetworkOpen && !shell.menuOpen && !shell.gameControlsOpen
             origin: Qt.point(footerStatus.x+footerNetwork.x+footerNetwork.width/2,footer.y+footerNetwork.y)
         }
-        Item {
-            objectName: "shell-home-menu"
-            width: parent.width; height: Theme.footerTop; z: 5
-            visible: shell.homeMenuOpen && !shell.notificationsOpen
-            property var originFocus: null
-            onVisibleChanged: {
-                if (visible) originFocus = window.activeFocusItem
-                else if (originFocus && originFocus.visible && originFocus.enabled) originFocus.forceActiveFocus()
-            }
-            Rectangle { anchors.fill: parent; color: Theme.surfaceColor("#88102324") }
-            MouseArea { anchors.fill: parent; acceptedButtons: Qt.AllButtons; onWheel: wheel => wheel.accepted = true }
-            Loader {
-                anchors.centerIn: parent
-                width: Math.min(620,parent.width * 0.80); height: Math.min(400,parent.height * 0.84)
-                active: shell.homeMenuOpen && !shell.notificationsOpen
-                sourceComponent: ShellOptions { shell: shellController }
-            }
-        }
         NotificationPopover {
             width: parent.width; height: Theme.footerTop; z: 5
             shell: shellController
-            anchorX: Theme.screenBounds.x+Theme.panelInset+experienceHost.gameCardLeft
-            anchorY: Theme.brandHeight+6
+            anchorX: window.notificationsAtFooter ? parent.width-14 : notificationBell.mapToItem(viewport,notificationBell.width,0).x
+            anchorY: window.notificationsAtFooter ? Theme.footerTop-8 : Theme.brandHeight+6
+            above: window.notificationsAtFooter
         }
         Item {
             id: nearbyInvitation
@@ -702,7 +703,7 @@ Window {
         LobbyImportPanel { anchors.fill: parent; visible: lobbyImport.open; importer: lobbyImport }
         LaunchPanel { anchors.fill: parent; visible: launchPresentation.state.visible; launch: launchPresentation }
         IncomingCall {
-            anchors.fill: parent; z: 100; social: shell.social
+            anchors.fill: parent; z: 100; social: shell.social; bottomEdge: Theme.footerTop-8
             visible: !!call.id && !sessionState.blocked && (!adventureLaunch.active || adventureLaunch.minimized)
         }
     }
