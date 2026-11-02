@@ -29,7 +29,7 @@ private slots:
         p.perform(2);QCOMPARE(p.activity(),QString("idle"));p.setActive(false);QVERIFY(!p.interacting());
     }
     void newEventsOnlyAndQuietMode(){
-        HomeCompanion p;p.setOwner("a");p.celebrate("Game",{"One","Two"});QVERIFY(p.bubble().isEmpty());p.setActive(true);QCOMPARE(p.activity(),QString("celebrate"));QVERIFY(p.bubble().startsWith("2"));
+        HomeCompanion p;p.setOwner("a");p.celebrate("Game",{"One","Two"});QVERIFY(p.bubble().isEmpty());p.setActive(true);QCOMPARE(p.activity(),QString("celebrate"));QCOMPARE(p.bubble(),QString("One"));
         p.setOwner("b");QVERIFY(p.bubble().isEmpty());QCOMPARE(p.activity(),QString("idle"));p.perform(4);QVERIFY(p.quiet());p.celebrate("Game",{"Old"});QVERIFY(p.bubble().isEmpty());
     }
     void hintRoutesAndController(){
@@ -47,6 +47,34 @@ private slots:
         p.addGameplaySeconds(3600);QCOMPARE(p.needs()["mood"].toInt(),100);
         p.setOwner("b");QCOMPARE(p.needs()["mood"].toInt(),80);
         p.setOwner("a");QCOMPARE(p.needs()["mood"].toInt(),100);
+    }
+    void notificationGestureDefersAndCarePreemptsIt(){
+        HomeCompanion p;p.setOwner("notice");p.setActive(true);p.perform(2);
+        const QVariantList unread{QVariantMap{{"id","new"},{"unread",true}}};p.setNotifications(unread);
+        QCOMPARE(p.activity(),QString("rest"));QVERIFY(p.bubble().isEmpty());
+        p.perform(2);QTRY_COMPARE_WITH_TIMEOUT(p.activity(),QString("notify"),1500);
+        QCOMPARE(p.expression(),QString("surprised"));QCOMPARE(p.bubbleKind(),QString("notifications"));
+        p.perform(0);QCOMPARE(p.activity(),QString("feed"));QVERIFY(p.bubble().isEmpty());
+        p.setActive(false);p.setActive(true);p.setNotifications(unread);QVERIFY(p.bubble().isEmpty());
+        p.setOwner("other");p.setNotifications(unread);QCOMPARE(p.activity(),QString("notify"));
+        p.setNotifications({});QCOMPARE(p.activity(),QString("idle"));QVERIFY(p.bubble().isEmpty());
+    }
+    void awardIdentityArtQueueAndRevocation(){
+        HomeCompanion p;p.setOwner("awards");
+        const QVariantList rows{QVariantMap{{"id","7"},{"title","First"},{"icon","https://media.retroachievements.org/Badge/12345.png"}},
+            QVariantMap{{"id","8"},{"title","Second"},{"icon","file:///private.png"}}};
+        p.celebrateAwards("set",rows);p.celebrateAwards("set",rows);QVERIFY(p.achievement().isEmpty());
+        p.setActive(true);QCOMPARE(p.achievement()["title"].toString(),"First");QVERIFY(p.achievement()["icon"].toString().startsWith("https://"));
+        p.setActive(false);p.setActive(true);QCOMPARE(p.achievement()["title"].toString(),"Second");QVERIFY(p.achievement()["icon"].toString().isEmpty());
+        p.setActive(false);p.setActive(true);QVERIFY(p.achievement().isEmpty()); // no duplicate queue entries
+        p.celebrateAwards("next",rows);QVERIFY(!p.achievement().isEmpty());p.clearAchievements();QVERIFY(p.achievement().isEmpty());QCOMPARE(p.activity(),QString("idle"));
+        p.setOwner("new-owner");p.setActive(true);QVERIFY(p.achievement().isEmpty());
+    }
+    void queuedAwardsHaveSeparateCeremonies(){
+        HomeCompanion p;p.setOwner("ceremonies");p.setActive(true);p.celebrate("Fixture",{"First","Second"});
+        QCOMPARE(p.achievement()["title"].toString(),"First");
+        QTRY_COMPARE_WITH_TIMEOUT(p.activity(),QString("idle"),8000);QVERIFY(p.achievement().isEmpty());
+        QTRY_COMPARE_WITH_TIMEOUT(p.activity(),QString("celebrate"),1600);QCOMPARE(p.achievement()["title"].toString(),"Second");
     }
 };
 QTEST_GUILESS_MAIN(HomeCompanionTests)

@@ -1,5 +1,11 @@
 # Companion: GPU skinning, Home lifecycle and rounded surface
 
+**Позднейшая доставка 2 ноября:** запрет на устройства снят. Эта реализация
+включена в общую ARM Release-поставку Flip/Odin вместе с Companion 0.1.1.
+[Фактические проверки и оставшиеся ограничения](../2026-11-02-profile-polish/README.md#final-delivery).
+Серверные проверки ниже остаются отдельным прежним слоем доказательств;
+первоначальный список следующей доставки теперь частично выполнен.
+
 2 ноября 2026. Задачи [Crates #3](https://github.com/EriArk/crates/issues/3)
 и [#2](https://github.com/EriArk/crates/issues/2). Основа `a6724c60`; изменения
 оболочки и общего Qt SDK. Опубликованный пакет Companion 0.1.0 не перепаковывался.

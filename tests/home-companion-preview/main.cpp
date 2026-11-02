@@ -18,12 +18,15 @@
 #include <QScopeGuard>
 #include <QPointer>
 #include <QQuick3DGeometry>
+#include <QQmlProperty>
+#include <QQuickItem>
+#include <QSignalSpy>
 using namespace trainer;
 int main(int argc,char** argv){
     QGuiApplication app(argc,argv);app.setOrganizationName("TrainerOS-tests");app.setApplicationName("Companion-preview");
     const QString output=argc>1?argv[1]:".";QDir().mkpath(output);
     QTemporaryDir cache;auto appearance=AvatarAssets::defaults();
-    if(argc>2&&QString::fromUtf8(argv[2])=="racing"){
+    if(argc>2&&(QString::fromUtf8(argv[2])=="racing"||QString::fromUtf8(argv[2])=="idle"||QString::fromUtf8(argv[2])=="reactions")){
         appearance["top"]="rose-racing-suit";appearance["shoes"]="rose-racing-boots";
         appearance["hair"]="bob";appearance["eyes"]="determined-feminine";
     }
@@ -32,6 +35,8 @@ int main(int argc,char** argv){
     HomeCompanion care;care.setOwner("preview-"+QUuid::createUuid().toString());
     qmlRegisterType<AvatarScene>("TrainerOS",1,0,"AvatarScene");
     qmlRegisterType(QUrl::fromLocalFile(QString(SOURCE_ROOT)+"/sdk/qt/AvatarView3D.qml"),"TrainerOS",1,0,"AvatarView3D");
+    qmlRegisterType(QUrl::fromLocalFile(QString(SOURCE_ROOT)+"/sdk/qt/AvatarIdleDirector.qml"),"TrainerOS",1,0,"AvatarIdleDirector");
+    qmlRegisterType(QUrl::fromLocalFile(QString(SOURCE_ROOT)+"/src/qml/HomeWidgetShutter.qml"),"TrainerOS",1,0,"HomeWidgetShutter");
     qmlRegisterSingletonType(QUrl::fromLocalFile(QString(SOURCE_ROOT)+"/src/qml/Theme.qml"),"TrainerOS",1,0,"Theme");
     QQmlApplicationEngine engine;QStringList warnings;
     QObject::connect(&engine,&QQmlEngine::warnings,&app,[&](const QList<QQmlError>& errors){for(const auto& e:errors)warnings.append(e.toString());});
@@ -51,11 +56,16 @@ int main(int argc,char** argv){
     if(engine.rootObjects().isEmpty())return 3;
     auto* window=qobject_cast<QQuickWindow*>(engine.rootObjects().first());if(!window)return 4;
     QList<QPointer<AvatarScene>> retiredScenes;QList<QPointer<QQuick3DGeometry>> retiredGeometry;
-    int step=0;QTimer timer;timer.setInterval(1800);timer.setSingleShot(true);
+    QSignalSpy inbox(&care,&HomeCompanion::inboxRequested);
+    int step=argc>2&&QString::fromUtf8(argv[2])=="reactions"?24:0,readyWait=0;QTimer timer;timer.setInterval(1800);timer.setSingleShot(true);
     QObject::connect(&timer,&QTimer::timeout,&app,[&]{
         // grabWindow and QTest can process events; never re-enter a preview step
         // while a slow software frame is being captured on a busy build server.
         const auto restart=qScopeGuard([&]{timer.start();});
+        if(window->property("sceneRequested").toBool()&&!window->property("sceneReady").toBool()){
+            if(++readyWait>20){qCritical()<<"Presentation did not become ready at step"<<step;app.exit(10);}return;
+        }
+        readyWait=0;
         auto capture=[&](const QString& name){
             const auto image=window->grabWindow();if(image.isNull()||!image.save(output+"/"+name+".png")){warnings.append("Screenshot failed: "+name);return;}
             // Check all four corners of the complete rendered surface, including
@@ -73,6 +83,7 @@ int main(int argc,char** argv){
             }
             if(retiredScenes.size()!=1 || retiredGeometry.isEmpty())warnings.append("Expected one live avatar with geometry");
             QMetaObject::invokeMethod(window,"hideScene");
+            for(const auto& scene:retiredScenes)if(!scene)warnings.append("Avatar released before doors closed");
         };
         auto restore=[&]{
             if(care.active())warnings.append("Hidden care timer remained active");
@@ -80,6 +91,45 @@ int main(int argc,char** argv){
             for(const auto& geometry:retiredGeometry)if(geometry)warnings.append("Hidden owned geometry retained");
             QMetaObject::invokeMethod(window,"showScene");
         };
+        if(argc>2&&(QString::fromUtf8(argv[2])=="idle"||QString::fromUtf8(argv[2])=="reactions")){
+            auto* idle=window->findChild<QObject*>("companion-idle-director");
+            if(!idle){warnings.append("Idle director missing");app.exit(9);return;}
+            const QStringList behaviors{"look","watch","hands","sway","stretch","wave","sit"};
+            if(step<behaviors.size()*3){
+                const auto name=behaviors[step/3];
+                if(step%3==0)QMetaObject::invokeMethod(idle,"start",Q_ARG(QVariant,name));
+                else {capture(name+(step%3==2?"-compact":"-normal"));window->setProperty("compact",step%3==1);}
+                if(care.activity()!="idle")warnings.append("Autonomous behavior changed care activity");
+                ++step;return;
+            }
+            switch(step++){
+            case 21:care.perform(0);return;
+            case 22:
+                if(care.activity()!="feed"||idle->property("enabled").toBool())warnings.append("Feed did not preempt autonomy");
+                capture("feed-interrupt");return;
+            case 23:return;
+            case 24:care.setNotifications({QVariantMap{{"id","preview-unread"},{"unread",true}}});return;
+            case 25:
+                if(care.activity()!="notify"||idle->property("enabled").toBool())warnings.append("Notification did not preempt autonomy");
+                capture("notification-normal");window->setProperty("compact",true);return;
+            case 26:
+                capture("notification-compact");
+                if(auto* bubble=window->findChild<QQuickItem*>("companion-notice-bubble"))
+                    QTest::mouseClick(window,Qt::LeftButton,Qt::NoModifier,bubble->mapToScene(QPointF(bubble->width()/2,bubble->height()/2)).toPoint());
+                if(inbox.size()!=1)warnings.append("Speech bubble did not open inbox");
+                window->setProperty("compact",false);
+                care.celebrateAwards("preview",{QVariantMap{{"id","fixture-1"},{"title","Original fixture award"}}});
+                // Local original artwork exercises the Image path without a network
+                // or pretending this preview earned a real provider achievement.
+                if(auto* icon=window->findChild<QObject*>("companion-award-icon"))QQmlProperty::write(icon,"source",QUrl::fromLocalFile(QString(SOURCE_ROOT)+"/tests/home-companion-preview/award.svg"));
+                else warnings.append("Award image item missing");
+                return;
+            case 27:capture("award-normal");window->setProperty("compact",true);return;
+            case 28:capture("award-compact");return;
+            }
+            QFile report(output+"/result.json");if(!report.open(QIODevice::WriteOnly)){app.exit(6);return;}
+            report.write(QJsonDocument(QJsonObject{{"warnings",QJsonArray::fromStringList(warnings)},{"needs",QJsonObject::fromVariantMap(care.needs())}}).toJson());app.exit(warnings.isEmpty()?0:5);return;
+        }
         if(argc>2&&QString::fromUtf8(argv[2])=="foods"){
             if(step<18){if(step%3==0)care.perform(0);if(step%3==1)capture(QFileInfo(care.prop()).baseName());++step;return;}
             QFile report(output+"/result.json");if(!report.open(QIODevice::WriteOnly)){app.exit(6);return;}
@@ -97,13 +147,19 @@ int main(int argc,char** argv){
         case 8:capture("celebrate");break;
         case 9:care.perform(3);window->setProperty("compact",true);break;
         case 10:capture("compact");care.openHint();retire();break;
-        case 11:restore();break;
+        case 11:capture("doors-closed");restore();break;
         case 12:window->setProperty("dark",true);break;
         case 13:capture("compact-dark");window->setProperty("compact",false);break;
         case 14:capture("normal-dark");retire();break;
         case 15:restore();break;
         case 16:retire();break;
         case 17:restore();break;
+        case 18:
+            QMetaObject::invokeMethod(window,"hideScene");
+            QTimer::singleShot(75,window,[window,output]{window->grabWindow().save(output+"/doors-closing.png");QMetaObject::invokeMethod(window,"showScene");});break;
+        case 19:
+            if(window->findChildren<AvatarScene*>().size()!=1||!care.active())warnings.append("Interrupted door close duplicated or lost avatar");
+            capture("doors-return");break;
         default:{
             if(window->findChildren<AvatarScene*>().size()!=1)warnings.append("Home return did not restore exactly one avatar");
             QFile report(output+"/result.json");if(!report.open(QIODevice::WriteOnly)){app.exit(6);break;}report.write(QJsonDocument(QJsonObject{{"warnings",QJsonArray::fromStringList(warnings)},{"activeAfterReturn",care.active()}}).toJson());app.exit(warnings.isEmpty()&&care.active()?0:5);break;}

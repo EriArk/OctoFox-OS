@@ -36,7 +36,22 @@ Item {
         onExited: root.tooltipSuppressed = false
     }
     onHighlightedChanged: tooltipSuppressed = false
-    ToolTip.visible: (mouse.containsMouse || highlighted) && !root.tooltipSuppressed && root.visible
-    ToolTip.delay: 650
-    ToolTip.text: label
+    ToolTip {
+        id: hint
+        parent: root
+        visible: (mouse.containsMouse || root.highlighted) && !root.tooltipSuppressed && root.visible && root.enabled
+        delay: 650
+        text: root.label
+        x: (root.width-width)/2; y: root.height+5
+        margins: 8
+        width: Math.min(240, hintText.implicitWidth+16)
+        height: hintText.implicitHeight+12
+        leftPadding: 8; rightPadding: 8; topPadding: 6; bottomPadding: 6
+        contentItem: Text {
+            id: hintText
+            text: hint.text; textFormat: Text.PlainText
+            color: Theme.ink; font.pixelSize: 11; wrapMode: Text.WordWrap
+        }
+        background: Rectangle { radius: 6; color: Theme.paper; border.color: Theme.divider; border.width: 1 }
+    }
 }

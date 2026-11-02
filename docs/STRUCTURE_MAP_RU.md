@@ -1,5 +1,12 @@
 # Структура TrainerOS: владельцы, контракты и связи
 
+**2 ноября — S04 / общий Qt SDK, реакция и lifecycle Companion.**
+`AvatarIdleDirector` выбирает движения без записи игрового/экономического состояния;
+`AchievementProvider` передаёт подтверждённые ID/art, `HomeCompanion` хранит очередь
+и очищает её при смене владельца. `HomeWidgetShutter` удерживает Loader только до
+закрытия и открывается после ready/error. Пакет 0.1.1 приносит ассеты/manifest,
+доверенный renderer остаётся в оболочке. [Установленная общая версия](evidence/2026-11-02-profile-polish/README.md#final-delivery).
+
 **2 ноября — S03/S15/S13/S04, подготовка игр.** S03 `platform/emulation/GamePreparation` владеет требованиями, проверкой, безопасным импортом и подбором из архивов; Nintendo Online предоставляет native-файлы. S15 `GamePreparationController` переиспользует `FilePickerController`; S13 Downloads показывает фоновую задачу. S04 обеспечивает вход/возврат и блокирует конфликтующий запуск/смену профиля. Сейвы S08 и Lobby-идентичность не меняются. [Контракт](GAME_PREPARATION.md).
 
 **2 ноября — S03/S06/S07/S08/S15, Nintendo native Online.** S15 хранит выбор

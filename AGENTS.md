@@ -1,5 +1,15 @@
 # TrainerOS — active agent / developer contract
 
+**Owner combined delivery, 2 November (latest):** handheld access resumed.
+Profile polish, game preparation and Companion host changes through `5420614a`
+are installed together on Flip/Odin with signed Companion 0.1.1. See
+[delivery evidence](docs/evidence/2026-11-02-profile-polish/README.md#final-delivery).
+Preserve their data and approved avatars. Earlier no-device/no-install notes are
+historical. Actual new achievement, physical input and performance acceptance
+remain open; whole-process CPU samples were contaminated by startup multiplayer
+image verification. Track that separate cost in CURRENT_TASKS, without weakening
+exact-content launch/compatibility checks or claiming every tab triggers a scan.
+
 **Current owner-approved direction: 21 October 2026.** This is the short, **active** entrypoint for Codex and other development agents. The previous 84 KB collection of dated requirements was preserved in full (with relative links rebased) in [historical AGENTS archive](docs/archive/AGENTS_2026-10-14.md). It contains valuable implementation evidence and older decisions, but its superseded page names, priorities and button assignments are **not active instructions**.
 
 **Owner direct Home and phone-style notifications, 2 November (latest):** without

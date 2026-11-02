@@ -164,6 +164,7 @@ private slots:
         QVERIFY(writeAchievementAccount(dir.filePath("integrations/retroachievements-account.json"),account));
         RetroAchievementsProvider provider(store,dir.path(),response);QTRY_VERIFY(!provider.accountBusy());
         AchievementCelebration live(&store,provider);
+        QSignalSpy companionAwards(&provider,&AchievementProvider::achievementAwardsEarned);
         QSignalSpy notices(&live,&AchievementCelebration::notice);
         const QVariantMap controls{{"directory",dir.path()},{"account",account.username},{"session","fresh"}};
         const QByteArray identity="[INFO] [RCHEEVOS] Hardcore disabled\n[INFO] [RCHEEVOS] Identified game: 42 (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)\n[INFO] [RCHEEVOS] Game 42 loaded, hardcore disabled\n";
@@ -171,14 +172,18 @@ private slots:
         QImage frame(160,144,QImage::Format_RGB32);frame.fill(Qt::darkBlue);QVERIFY(frame.save(dir.filePath("original-cheevo-103.png")));
         live.begin(record.adventure.id,123,controls);live.feed(identity);QTRY_VERIFY(!provider.accountBusy());
         QVERIFY(store.achievementMoments().isEmpty()); // Definitions and old unlocks never capture.
+        QCOMPARE(companionAwards.size(),0);
         live.feed(award);QTRY_VERIFY(!store.achievementMoments().isEmpty() || !notices.isEmpty());
         QVERIFY2(notices.isEmpty(),notices.isEmpty()?"":qPrintable(notices.first().first().toString()));
         QCOMPARE(store.achievementMoments().size(),1);
+        QTRY_COMPARE(companionAwards.size(),1);
+        QCOMPARE(companionAwards[0][0].toString(),"42");
+        QCOMPARE(companionAwards[0][1].toList().first().toMap()["id"].toString(),"103");
         QCOMPARE(store.screenMedia()->size(),1);QVERIFY(!store.achievementMoments().first().toMap()["source"].toString().isEmpty());
         QVERIFY(live.current().isEmpty());live.setPresentable(true);QCOMPARE(live.current()["id"].toString(),"103");
         QVERIFY(live.current()["played"].toBool());live.setPresentable(false);QVERIFY(live.current().isEmpty());
         live.setPresentable(true);QCOMPARE(live.current()["id"].toString(),"103");
-        live.feed(award);QTest::qWait(100);QCOMPARE(store.achievementMoments().size(),1);
+        live.feed(award);QTest::qWait(100);QCOMPARE(store.achievementMoments().size(),1);QCOMPARE(companionAwards.size(),1);
         live.end();live.begin(record.adventure.id,124,controls);live.feed(identity+award);QTest::qWait(150);QCOMPARE(store.achievementMoments().size(),1);
         live.end();live.begin(record.adventure.id,125,controls);live.feed(identity);
         live.feed("[INFO] [RCHEEVOS] Awarding achievement 102: Late\n[INFO] [RCHEEVOS] Captured screenshot for achievement 102\n");
@@ -273,10 +278,14 @@ private slots:
         };
         {
             RetroAchievementsProvider provider(library,dir.path(),transport);QSignalSpy notices(&provider,&AchievementProvider::achievementsEarned);
+            QSignalSpy awards(&provider,&AchievementProvider::achievementAwardsEarned);
             QTRY_VERIFY(!provider.accountBusy());provider.refreshAdventure(library.value.adventure.id,true);QTRY_VERIFY(!provider.accountBusy());
             QCOMPARE(notices.size(),0); // First observation establishes a baseline, never old rewards.
+            QCOMPARE(awards.size(),0);
             earned.store(true);provider.refreshAdventure(library.value.adventure.id,true);QTRY_VERIFY(!provider.accountBusy());
             QCOMPARE(notices.size(),1);QCOMPARE(notices[0][1].toStringList(),QStringList{"Original test goal 2"});
+            QCOMPARE(awards.size(),1);QCOMPARE(awards[0][0].toString(),"42");
+            QCOMPARE(awards[0][1].toList().first().toMap()["id"].toString(),"103");
             provider.refreshAdventure(library.value.adventure.id,true);QTRY_VERIFY(!provider.accountBusy());QCOMPARE(notices.size(),1);
         }
         {

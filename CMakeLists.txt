@@ -442,6 +442,7 @@ foreach(qml_file IN LISTS trainer_qml_sources)
 endforeach()
 target_include_directories(traineros PRIVATE src/platform/media)
 set_source_files_properties(sdk/qt/AvatarView3D.qml PROPERTIES QT_RESOURCE_ALIAS AvatarView3D.qml)
+set_source_files_properties(sdk/qt/AvatarIdleDirector.qml PROPERTIES QT_RESOURCE_ALIAS AvatarIdleDirector.qml)
 if(TRAINER_AVATAR_PREVIEW)
     set(avatar_scene_sources sdk/qt/AvatarScene.h sdk/qt/AvatarScene.cpp)
     target_include_directories(traineros PRIVATE sdk/qt)
@@ -453,6 +454,7 @@ qt_add_qml_module(traineros
     SOURCES src/platform/media/GameStreamView.h src/platform/media/GameStreamView.cpp ${avatar_scene_sources}
     QML_FILES
         sdk/qt/AvatarView3D.qml
+        sdk/qt/AvatarIdleDirector.qml
         src/qml/BrowserPane.qml
         src/qml/BrowserEngine.qml
         src/qml/AdventureArtwork.qml
@@ -513,6 +515,7 @@ qt_add_qml_module(traineros
         src/qml/HomeCompanionWidget.qml
         src/qml/HomeCompanionScene.qml
         src/qml/HomeWidgetSlot.qml
+        src/qml/HomeWidgetShutter.qml
     src/qml/GameHubPage.qml
     src/qml/OnlinePage.qml
         src/qml/AlbumPhoto.qml
@@ -947,6 +950,7 @@ if(BUILD_TESTING)
         qt_add_executable(trainer_avatar_scene_tests tests/AvatarSceneTests.cpp sdk/qt/AvatarScene.cpp
             src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp)
         target_include_directories(trainer_avatar_scene_tests PRIVATE src sdk/qt)
+        target_compile_definitions(trainer_avatar_scene_tests PRIVATE TRAINER_AVATAR_IDLE_QML="${CMAKE_CURRENT_SOURCE_DIR}/sdk/qt/AvatarIdleDirector.qml")
         target_link_libraries(trainer_avatar_scene_tests PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick3D Qt6::Test Qt6::Concurrent)
         add_test(NAME avatar_scene COMMAND trainer_avatar_scene_tests)
     endif()

@@ -1,0 +1,82 @@
+{
+  "shell_sha256": "ea50351ae2931a4013fd5f3934909d8a6fddbb3ae72e624f79d1ad194f12762a",
+  "source_includes": [
+    "7b95a1a0",
+    "5420614a"
+  ],
+  "package_version": "0.1.1",
+  "package_sha256": "12718ee2ddf875694209f8af74679ceb643fafad4247c422e566c6b15f8d9432",
+  "devices": {
+    "flip": {
+      "sha256": "ea50351ae2931a4013fd5f3934909d8a6fddbb3ae72e624f79d1ad194f12762a",
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "volume": "Volume: 0.20"
+    },
+    "odin": {
+      "sha256": "ea50351ae2931a4013fd5f3934909d8a6fddbb3ae72e624f79d1ad194f12762a",
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "volume": "Volume: 0.00"
+    }
+  },
+  "signed_package_checks": {
+    "flip": {
+      "success": true,
+      "previous": "0.1.0",
+      "version": "0.1.1",
+      "sha256": "12718ee2ddf875694209f8af74679ceb643fafad4247c422e566c6b15f8d9432",
+      "catalogue_revision": 42,
+      "selection_preserved": true,
+      "care_records_preserved": true,
+      "settings_identical": true
+    },
+    "odin": {
+      "success": true,
+      "previous": "0.1.0",
+      "version": "0.1.1",
+      "sha256": "12718ee2ddf875694209f8af74679ceb643fafad4247c422e566c6b15f8d9432",
+      "catalogue_revision": 42,
+      "selection_preserved": true,
+      "care_records_preserved": true,
+      "settings_identical": true
+    }
+  },
+  "flip_cpu_samples": {
+    "before-home": {
+      "sha256": "38dc7dd8dfb44f026630f8c6db0ab99020c2d5bd7e2f05ba664e00d83f8ffe8b",
+      "sample_seconds": 12.0,
+      "cpu_percent_one_core": 100.33,
+      "rss_start_kib": 573580,
+      "rss_end_kib": 573580
+    },
+    "before-apps": {
+      "sha256": "38dc7dd8dfb44f026630f8c6db0ab99020c2d5bd7e2f05ba664e00d83f8ffe8b",
+      "sample_seconds": 12.0,
+      "cpu_percent_one_core": 12.92,
+      "rss_start_kib": 580836,
+      "rss_end_kib": 580548
+    },
+    "after-home": {
+      "sha256": "ea50351ae2931a4013fd5f3934909d8a6fddbb3ae72e624f79d1ad194f12762a",
+      "sample_seconds": 12.0,
+      "cpu_percent_one_core": 73.92,
+      "rss_start_kib": 828872,
+      "rss_end_kib": 829128
+    },
+    "after-apps": {
+      "sha256": "ea50351ae2931a4013fd5f3934909d8a6fddbb3ae72e624f79d1ad194f12762a",
+      "sample_seconds": 12.0,
+      "cpu_percent_one_core": 38.92,
+      "rss_start_kib": 829628,
+      "rss_end_kib": 829632
+    }
+  },
+  "cpu_comparison_valid": false,
+  "cpu_comparison_limitation": "Post-restart multiplayer content verification was still reading large disc images; these are whole-process observations, not an isolated Companion benchmark.",
+  "apps_render_thread_cpu_percent": 0.25,
+  "physical_acceptance": false,
+  "live_achievement_acceptance": false
+}
