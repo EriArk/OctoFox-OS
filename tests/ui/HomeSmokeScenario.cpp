@@ -194,8 +194,10 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             check(history->error().isEmpty(), "History writes succeeded");
             HomeSocialFixture::publish(*shell.social(),{{"state","connected"},{"userId","home-fixture"},{"chats",QVariantList{HomeSocialFixture::chat("home-chat","home-peer","Test friend")}}});
             press(SDL_CONTROLLER_BUTTON_DPAD_UP);
+            check(shell.dashboard()->focus()=="lobbies","D-pad reaches the lobby row");
+            press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
             check(shell.dashboard()->focus()=="person:home-peer","D-pad reaches the Home conversation without launch");
-            press(SDL_CONTROLLER_BUTTON_B);check(shell.primaryId()=="social" && *starts==1,"A opens selected conversation, not game");
+            press(SDL_CONTROLLER_BUTTON_B);check(shell.primaryId()=="online" && *starts==1,"A opens selected conversation, not game");
             press(SDL_CONTROLLER_BUTTON_A);check(shell.primaryId()=="home" && shell.dashboard()->focus()=="person:home-peer","Back preserves exact Home target");
             press(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
             check(shell.dashboard()->focus()=="play","Right returns to Play");
@@ -206,10 +208,9 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             check(focusIs("home-launch"), "Cancel restores the fixed page action");
             press(SDL_CONTROLLER_BUTTON_START);
             if (auto* party = itemNamed("home-party")) check(!party->property("playing").toBool(), "Home Party pauses behind the system menu");
-            for (int i = 0; i < 2; ++i) press(SDL_CONTROLLER_BUTTON_DPAD_DOWN); // Desktop, skipping retired action IDs.
-            press(SDL_CONTROLLER_BUTTON_B);
-            check(!shell.notice().isEmpty() && *starts == 2, "A in the system menu cannot launch Home's Adventure");
-            press(SDL_CONTROLLER_BUTTON_A); press(SDL_CONTROLLER_BUTTON_A);
+            shell.activate(0); // The Start Settings action, independent of widget order.
+            check(shell.service()=="settings" && *starts == 2, "Start opens Settings without launching Home's Adventure");
+            shell.dispatch(Action::Back);
             press(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER); press(SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
             check(shell.primaryId()=="home" && shell.home()["adventureId"] == "home-0", "Shoulders retain the selected Home Adventure");
             progress->selected = "another-adventure"; progress->publish();
@@ -221,15 +222,15 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             break;
         case 9:
             check(focusIs("home-launch"), "Home focus is restored after the page transition settles");
-            check(shell.home()["exitPreview"] == "image://exit-media/seed-0", "Canonical clean exit image survives newer uncaptured sessions and restart");
+            check(shell.home()["exitPreview"] == (reopen?QString():QString("image://exit-media/seed-0")), "Home uses only its selected game's clean exit image");
             {
                 bool found = false;
                 for (const auto& row : shell.resumePoints()) if (row.toMap()["id"] == "recent:home-0") {
-                    found = row.toMap()["preview"] == shell.home()["exitPreview"];
+                    found = row.toMap()["preview"] == "image://exit-media/seed-0";
                 }
-                check(found, "Home and Choose Adventure share the same media handle");
+                check(found, "Canonical clean exit image survives newer uncaptured sessions and restart");
             }
-            check(shell.navigationState()["homeAdventure"] == "home-0" && shell.home()["adventureId"] == "home-0", "Explicit Home choice survives restart");
+            check(shell.navigationState()["homeAdventure"] == (reopen?"home-generic":"home-0") && shell.home()["adventureId"] == (reopen?"home-generic":"home-0"), "Last explicit Home choice survives restart, including the later generic-card fixture");
             check(store.recentSessions().size() == 5 && store.recordedSeconds("home-0").has_value(), "History survives restart");
             check(!reopen || *starts == 0, "Reopening the journal does not launch anything");
             capture(reopen ? "home-reopened" : "home-return");
@@ -325,18 +326,19 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
         case 25:
             shell.activateDashboard("screens");break;
         case 26:
-            check(shell.primaryId()=="gamehub" && shell.overviewFace()=="screens","Collage opens the existing Screens route");
+            check(shell.service()=="profile" && shell.profileRoute()=="story" && shell.overviewFace()=="screens","Collage opens Screens in the profile");
             shell.dispatch(Action::Back);break;
         case 27:
             check(shell.primaryId()=="home" && shell.dashboard()->focus()=="screens","Back restores the Home collage focus");
             check(focusIs("home-screens"),"Collage owns visual controller focus");capture("home-collage-focus");break;
         case 28: {
+            if (store.registration("home-generic")) break; // Reopen reuses the persisted fixture.
             AdventureRegistration record;record.adventure.id="home-generic";
             record.adventure.title="A long adventure across the valley";record.adventure.domain="multiverse";
             record.adventure.platformId="gba";record.adventure.adapterId="test-process";
             record.adventure.description="Explore the valley, meet your friends and discover a new story together. A long description should stay in its own readable column beside the photo album.";
             record.contentPath=program;
-            store.saveAdventureAsync(record,window,[failed](LibraryWriteResult r){if(!r.success)*failed=true;});break;
+            store.saveAdventureAsync(record,window,[failed,&diagnostics](LibraryWriteResult r){if(!r.success){*failed=true;diagnostics.append("Generic Home fixture: "+r.error);}});break;
         }
         case 29: {
             shell.refreshLibrary();auto state=shell.navigationState();state["homeAdventure"]="home-generic";shell.restoreNavigation(state);
@@ -400,9 +402,9 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             capture("home-five-achievements-960");shell.dispatch(Action::NextFace);break;
         }
         case 38:
-            check(shell.dashboard()->focus()=="person:aa","R2 reaches people");shell.dispatch(Action::NextFace);break;
+            check(shell.dashboard()->focus()=="lobbies","R2 reaches people and lobby");shell.dispatch(Action::NextFace);break;
         case 39:
-            check(shell.dashboard()->focus().startsWith("event:"),"R2 reaches notifications");capture("home-notification-focus");shell.dispatch(Action::NextFace);break;
+            check(shell.dashboard()->focus()=="play","R2 returns directly to game");shell.openNotifications();capture("header-notifications");shell.closeHomeMenu();break;
         case 40: {
             check(shell.dashboard()->focus()=="play","R2 returns to game card");break;
         }
@@ -476,7 +478,7 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             shell.goToPage(4);break;
         case 53: {
             auto* previous=itemNamed("face-previous");auto* next=itemNamed("face-next");
-            auto* first=itemNamed("face-tab-0");auto* last=itemNamed("face-tab-3");
+            auto* first=itemNamed("face-tab-0");auto* last=itemNamed("face-tab-2");
             check(previous && next && first && last,"Apps has separate shoulder hints around its faces");
             if(previous && next && first && last) {
                 check(previous->mapRectToScene(previous->boundingRect()).right()<=first->mapRectToScene(first->boundingRect()).left() &&
@@ -486,7 +488,7 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             break;
         }
         case 54:
-            check(shell.appsFace()=="crates","Touch R2 advances the same Apps faces as the controller");
+            check(shell.appsFace()=="browser","Touch R2 advances the same Apps faces as the controller");
             if(auto* previous=itemNamed("face-previous"))QMetaObject::invokeMethod(previous,"activated");break;
         case 55:
             check(shell.appsFace()=="apps","Touch L2 returns to Apps");capture("navigation-apps-1080p");shell.goToPage(3);break;
@@ -522,7 +524,7 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
         }
         case 64: {
             if(shell.trainer()->saving()){--*stage;break;}
-            auto* name=itemNamed("header-account-name");check(name && name->property("lineCount").toInt()==2,"Two-word profile name occupies two lines");capture("header-two-word-name-960");
+            auto* name=itemNamed("header-account-name");check(name && name->property("lineCount").toInt()==1,"Two-word profile name stays above the Sparks row");capture("header-two-word-name-960");
             shell.trainer()->beginEdit();shell.trainer()->setDraftName("ExtraordinarilyLongName");shell.trainer()->activate(shell.trainer()->editRows().size()-2);break;
         }
         case 65: {

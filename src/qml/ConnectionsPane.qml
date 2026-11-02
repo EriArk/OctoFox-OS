@@ -28,12 +28,12 @@ Item {
             onActivated: { root.enter();root.network.toggleRadio() }
         }
     }
-    // One list and one inline question; no stack of device/detail/action menus.
+    // Shared Wi-Fi flow in Settings, Start and first run; Bluetooth keeps its pairing prompt.
     ListView {
         id: list; objectName: "connection-list"
-        x: 0; y: root.quick?52:68; width: parent.width; height: parent.height-y-(root.quick?82:49)
-        clip: true; spacing: 7; model: root.network.rows
-        visible: !root.network.prompt.length
+        x: 0; y: root.quick?52:68; width: parent.width; height: parent.height-y-(root.network.status.length || root.shell.device.error.length ? 88 : 48)
+        clip: true; spacing: 7; model: root.visible && visible ? root.network.rows : []
+        visible: !root.network.prompt.length && !root.network.detailsOpen
         currentIndex: root.network.focusIndex
         onCurrentIndexChanged: positionViewAtIndex(currentIndex,ListView.Contain)
         onCountChanged: positionViewAtIndex(currentIndex,ListView.Contain)
@@ -43,17 +43,16 @@ Item {
             objectName: "connection-"+index
             width: list.width-5; height: root.quick?48:57
             enabled: !root.network.busy
-            ActivityRow { anchors.fill: parent; visible: root.quick
+            ActivityRow { width: parent.width-(root.network.bluetooth?0:36); height: parent.height; visible: true
                 label: entry.modelData.title; detail: entry.modelData.detail; glyph: root.network.bluetooth ? "bluetooth" : "wifi"
                 accent: entry.modelData.connected?Theme.green:entry.modelData.saved?Theme.blue:Theme.paper
                 selected: root.focused && root.network.focusIndex===entry.index
                 onActivated: {root.enter();root.network.activate(entry.index)}
             }
-            CapButton { flat: root.flat; anchors.fill: parent; visible: !root.quick; textSize: 18
-                label: entry.modelData.title; detail: entry.modelData.detail
-                tint: entry.modelData.connected?Theme.green:entry.modelData.saved?Theme.blue:"#e4eddf"
-                selected: root.focused && root.network.focusIndex===entry.index
-                onActivated: {root.enter();root.network.activate(entry.index)}
+            SocialIconButton {
+                anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                visible: !root.network.bluetooth; glyph: "info"; label: "Network details"
+                onClicked: {root.enter();root.network.showDetails(entry.index)}
             }
         }
         Text {
@@ -63,8 +62,36 @@ Item {
             color: Theme.muted; font.pixelSize: 18
         }
     }
+    Item {
+        id: details; objectName: "wifi-details"
+        x: 0; y: root.quick?52:68; width: parent.width; height: parent.height-y-12
+        visible: root.network.detailsOpen && !root.network.prompt.length
+        readonly property var info: root.network.networkInfo
+        SocialIconButton { x: 0; y: 0; glyph: "back"; label: "Back to networks"; onClicked: root.network.back() }
+        Text { x: 40; y: 0; width: parent.width-46; text: details.info.title || "Network"; textFormat: Text.PlainText; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 22; elide: Text.ElideRight }
+        Text { x: 40; y: 28; width: parent.width-46; text: [details.info.detail || "Hidden network",details.info.address || ""].filter(Boolean).join(" · "); textFormat: Text.PlainText; color: Theme.muted; font.pixelSize: 12; elide: Text.ElideRight }
+        Text {
+            id: connectionError; x: 8; y: 51; width: parent.width-16
+            text: root.network.failed || root.network.busy ? root.network.status : ""; textFormat: Text.PlainText
+            color: root.network.failed ? Theme.ink : Theme.muted; font.pixelSize: 13; wrapMode: Text.WordWrap
+        }
+        ListView {
+            id: detailList; objectName: "wifi-detail-actions"
+            x: 0; y: 56+connectionError.height; width: parent.width; height: parent.height-y; clip: true; spacing: 2
+            model: root.visible && details.visible ? root.network.detailActions : []; currentIndex: root.network.detailFocus
+            onCurrentIndexChanged: if(currentIndex>=0)positionViewAtIndex(currentIndex,ListView.Contain)
+            delegate: ActivityRow {
+                required property var modelData; required property int index
+                width: detailList.width-4; height: 46; label: modelData.title; detail: modelData.detail
+                glyph: modelData.id==="autojoin"?"wifi":modelData.id==="password"?"key":modelData.id==="forget"?"close":"chevron"
+                accent: modelData.id==="forget"?Theme.pink:Theme.blue
+                selected: root.focused && index===root.network.detailFocus; enabled: !root.network.busy
+                onActivated: root.network.activateDetail(modelData.id)
+            }
+        }
+    }
     Rectangle {
-        x: 0; y: root.quick?52:68; width: parent.width; height: parent.height-y-(root.quick?82:49)
+        x: 0; y: root.quick?52:68; width: parent.width; height: parent.height-y-88
         visible: root.network.prompt.length>0; radius: 12; color: root.flat ? "transparent" : Theme.surfaceColor("#edf2e7"); border.color: Theme.divider
         Text {
             x: 22; y: root.quick?12:24; width: parent.width-44; height: parent.height-(root.quick?70:110)
@@ -86,18 +113,23 @@ Item {
         }
     }
     Text {
-        x: 4; anchors.bottom: parent.bottom; anchors.bottomMargin: root.quick?42:8
-        width: parent.width-8; height: 34; wrapMode: Text.WordWrap; elide: Text.ElideRight
-        text: root.network.status || root.shell.device.error || (root.quick ? Theme.buttonLabel("A")+" "+root.network.actionLabel+" · "+Theme.buttonLabel("X")+" Radio · "+Theme.buttonLabel("Y")+" Search" : ""); textFormat: Text.PlainText
-        color: Theme.muted; font.pixelSize: 14
+        x: 4; anchors.bottom: parent.bottom; anchors.bottomMargin: 42
+        width: parent.width-8; height: 40; wrapMode: Text.WordWrap; elide: Text.ElideRight
+        text: root.network.detailsOpen ? "" : root.network.status || root.shell.device.error; textFormat: Text.PlainText
+        color: root.network.failed ? Theme.ink : Theme.muted; font.pixelSize: 13
     }
-    CapButton { flat: root.flat; visible: root.quick && !root.network.prompt.length; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.bottomMargin: 12
+    CapButton { flat: root.flat; visible: !root.network.prompt.length && !root.network.detailsOpen; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.bottomMargin: 12
         objectName: "connection-search"
         width: 100; height: 30; textSize: 13; label: root.network.busy ? "Cancel" : "Search"; centered: true; tint: Theme.paper
         enabled: !root.network.prompt.length
         onActivated: root.network.busy ? root.network.back() : root.network.search()
     }
-    CapButton { flat: root.flat; visible: root.quick && root.network.canForget && !root.network.prompt.length
+    CapButton { flat: true; visible: !root.network.bluetooth && !root.network.prompt.length && !root.network.detailsOpen
+        objectName: "connection-hidden"; anchors.left: parent.left; anchors.bottom: parent.bottom; anchors.bottomMargin: 12
+        width: 205; height: 30; textSize: 13; label: "Other network · "+Theme.buttonLabel("L3"); tint: Theme.paper; enabled: !root.network.busy
+        onActivated: {root.enter();root.network.otherNetwork()}
+    }
+    CapButton { flat: root.flat; visible: root.quick && root.network.bluetooth && root.network.canForget && !root.network.prompt.length
         objectName: "connection-forget"; anchors.left: parent.left; anchors.bottom: parent.bottom; anchors.bottomMargin: 12
         width: 160; height: 30; textSize: 13; label: root.network.bluetooth ? "Forget device" : "Forget network"; tint: Theme.paper
         enabled: !root.network.busy

@@ -332,10 +332,9 @@ private slots:
         QSignalSpy launches(&shell,&ShellController::homeLaunchPressed);
         shell.dispatch(Action::NextFace);QCOMPARE(dashboard->focus(),"lobbies");
         shell.dispatch(Action::Down);QCOMPARE(dashboard->focus(),"person:11");
-        shell.dispatch(Action::NextFace);QVERIFY(dashboard->focus().startsWith("event:"));
         shell.dispatch(Action::NextFace);QCOMPARE(dashboard->focus(),"play");
-        shell.dispatch(Action::PreviousFace);QVERIFY(dashboard->focus().startsWith("event:"));
         shell.dispatch(Action::PreviousFace);QCOMPARE(dashboard->focus(),"lobbies");
+        QVERIFY(dashboard->target("event:one").isEmpty());
         shell.dispatch(Action::Down);QCOMPARE(dashboard->focus(),"person:11");QVERIFY(launches.isEmpty());
         // Recency updates do not replace the selected person with another row.
         second["lastInteraction"]=9000;snapshot["chats"]=QVariantList{first,second};HomeSocialFixture::publish(*social,snapshot);

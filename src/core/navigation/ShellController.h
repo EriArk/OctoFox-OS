@@ -86,7 +86,7 @@ class ShellController final : public QObject {
     Q_PROPERTY(QVariantList storyMedia READ storyMedia NOTIFY changed)
     Q_PROPERTY(trainer::ScreensController* album READ album CONSTANT)
     Q_PROPERTY(QVariantMap liveGame READ liveGame NOTIFY changed)
-    Q_PROPERTY(QVariantList notifications READ notifications NOTIFY changed)
+    Q_PROPERTY(QVariantList notifications READ notifications NOTIFY notificationsChanged)
     Q_PROPERTY(QVariantMap passiveNotice READ passiveNotice NOTIFY changed)
     Q_PROPERTY(QString trainerFace READ trainerFace NOTIFY changed)
     Q_PROPERTY(trainer::SocialController* social READ social CONSTANT)
@@ -318,6 +318,7 @@ public:
     Q_INVOKABLE void activateHomeMenu(int index);
     Q_INVOKABLE void openSocialNotification();
     Q_INVOKABLE void closeHomeMenu();
+    Q_INVOKABLE void openNotifications();
     Q_INVOKABLE void openProfile(bool loadOwn=true);
     Q_INVOKABLE void openAccountProfile();
     bool powerMenu() const { return powerMenu_; }
@@ -340,6 +341,7 @@ public:
     Q_INVOKABLE void goToTrainerFace(const QString& face);
     Q_INVOKABLE void activate(int index, const QString& area = {});
 signals:
+    void notificationsChanged();
     void gameControlsClosed(bool resumeGame);
     void gameSystemRequested(QString id);
     void drawerSourceChanged();

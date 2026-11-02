@@ -111,11 +111,12 @@ private slots:
         shell.dispatch(Action::Home); QVERIFY(!shell.homeMenuOpen());
         QCOMPARE(shell.navigationState(), origin);
         shell.dispatch(Action::Home);shell.dispatch(Action::Right);
-        QVERIFY(shell.notificationsOpen());
+        QVERIFY(!shell.notificationsOpen());
+        shell.dispatch(Action::Home);shell.dispatch(Action::ToggleNotifications);QVERIFY(shell.notificationsOpen());
         shell.dispatch(Action::Confirm);QCOMPARE(shell.navigationState(),origin);
         shell.dispatch(Action::NextPage);QCOMPARE(shell.navigationState(),origin);
-        shell.dispatch(Action::Back);QVERIFY(!shell.notificationsOpen());QVERIFY(shell.homeMenuOpen());
-        shell.dispatch(Action::Home);QVERIFY(!shell.homeMenuOpen());
+        shell.dispatch(Action::Back);QVERIFY(!shell.notificationsOpen());QVERIFY(!shell.homeMenuOpen());
+        QCOMPARE(shell.navigationState(),origin);
         shell.goToSection("home");
         QCOMPARE(shell.page(), 0); QVERIFY(!shell.homeMenuOpen());
         shell.goToPage(1); shell.dispatch(Action::SystemMenu);

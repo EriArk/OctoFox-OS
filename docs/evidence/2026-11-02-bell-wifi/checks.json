@@ -1,0 +1,88 @@
+{
+  "date": "2026-11-02",
+  "source_base": "b4399f49",
+  "installed": {
+    "flip": {
+      "running_sha256": "90bcf3270e3c04ceb3381cd6e2a05700c7f3513f9d0002e1c8d17114420e1e4e",
+      "helpers_verified": 181,
+      "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true
+    },
+    "odin": {
+      "running_sha256": "90bcf3270e3c04ceb3381cd6e2a05700c7f3513f9d0002e1c8d17114420e1e4e",
+      "helpers_verified": 154,
+      "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true
+    }
+  },
+  "checks": {
+    "windows_qt": {
+      "core": 8,
+      "device": 22,
+      "social": 207,
+      "social_platform_skips": 1,
+      "input_profiles": 11,
+      "home_targeted": 4
+    },
+    "arm_linux_qt": {
+      "core": 8,
+      "device": 22,
+      "social": 208,
+      "input_profiles": 11,
+      "home_targeted": 4
+    },
+    "network_helper_linux": {
+      "passed": 10,
+      "skipped": 0
+    },
+    "network_helper_windows": {
+      "passed": 9,
+      "skipped": 1
+    },
+    "settings_qml": {
+      "passed": true,
+      "warnings": 0,
+      "geometry_asserted": true,
+      "widths": [
+        960,
+        1280
+      ]
+    },
+    "home_qml": {
+      "passed": true,
+      "warnings": 0
+    },
+    "home_reopen_qml": {
+      "passed": true,
+      "warnings": 0
+    }
+  },
+  "live_flip_wifi": {
+    "same_network": true,
+    "same_uuid": true,
+    "password_unchanged": true,
+    "autojoin_restored": true,
+    "connected": true,
+    "wrong_password_error_visible": true,
+    "retry_keyboard_and_cancel": true,
+    "autojoin_roundtrip": true
+  },
+  "visual_device_checks": {
+    "flip": "dark header and narrow bell popover",
+    "odin": "light header and narrow bell popover"
+  },
+  "odin_volume_left_zero": true,
+  "retained_acceptance": [
+    "physical controller and touch",
+    "real hidden network and successful router password replacement",
+    "captive portal browser flow",
+    "manual Settings library scan and restart",
+    "NGPC gameplay acceptance retained from its workstream"
+  ]
+}

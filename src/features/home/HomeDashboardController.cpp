@@ -24,11 +24,6 @@ QVariantList HomeDashboardController::people() const {
     for(auto& value:rows){auto row=value.toMap();row["key"]="person:"+row["id"].toString();row["type"]="person";value=row;}
     return rows;
 }
-QVariantList HomeDashboardController::activities() const {
-    auto rows=social_.notifications();
-    for(auto& value:rows){auto row=value.toMap();row["key"]="event:"+row["id"].toString();row["type"]="event";value=row;}
-    return rows;
-}
 QVariantList HomeDashboardController::achievements() const {
     QVariantList rows;const auto context=provider_.context();
     if(context.accountId.isEmpty()){achievementsCached_=false;achievementsCache_.clear();return rows;}
@@ -63,14 +58,14 @@ QVariantList HomeDashboardController::achievements() const {
     return rows;
 }
 QList<QStringList> HomeDashboardController::zones() const {
-    QList<QStringList> result;for(const auto& rows:{people(),activities(),achievements()}) {
+    QList<QStringList> result;for(const auto& rows:{people(),achievements()}) {
         QStringList keys;for(const auto& row:rows)keys.append(row.toMap()["key"].toString());result.append(keys);
     }result[0].prepend("lobbies");return result;
 }
 QVariantMap HomeDashboardController::target(const QString& key) const {
     if(key=="lobbies")return {{"type","lobbies"},{"key",key}};
     if(key=="play" || key=="screens")return {{"type",key},{"key",key}};
-    for(const auto& rows:{people(),activities(),achievements()})for(const auto& row:rows)if(row.toMap()["key"]==key)return row.toMap();
+    for(const auto& rows:{people(),achievements()})for(const auto& row:rows)if(row.toMap()["key"]==key)return row.toMap();
     return {}; // An expired focused item never becomes a new row at its old index.
 }
 void HomeDashboardController::select(const QString& key) {if(!target(key).isEmpty()){focus_=key;emit changed();}}
@@ -80,32 +75,27 @@ void HomeDashboardController::move(Action action) {
     if(focus_.startsWith("person:")&&action==Action::Up){select("lobbies");return;}
     for(int i=0;i<groups.size();++i)if(groups[i].contains(focus_)){zone=i;index=groups[i].indexOf(focus_);break;}
     if(action==Action::PreviousFace || action==Action::NextFace) {
-        // Three Home blocks; trophies and Screens belong to the game context.
-        const int current=focus_=="lobbies"||focus_.startsWith("person:")?0:focus_.startsWith("event:")?1:2;
-        const int direction=action==Action::NextFace?1:-1;
-        for(int step=1;step<=3;++step) {
-            const int next=(current+direction*step+6)%3;
-            if(next==2){reset();return;}
-            if(!groups[next].isEmpty()){select(groups[next].first());return;}
-        }
+        // Two visible blocks: people/lobby, and the current game.
+        if(focus_=="lobbies" || focus_.startsWith("person:"))reset();
+        else select("lobbies");
         return;
     }
     if(action==Action::Back){reset();return;}
     if(generic_) {
         if(focus_=="play") {
             if(action==Action::Up){select("screens");return;}
-            if(action==Action::Left){for(int i:{2,1,0})if(!groups[i].isEmpty()){select(groups[i].last());return;}return;}
+            if(action==Action::Left){for(int i:{1,0})if(!groups[i].isEmpty()){select(groups[i].last());return;}return;}
             return;
         }
         if(focus_=="screens") {
             if(action==Action::Down){reset();return;}
-            if(action==Action::Left){for(int i:{0,1})if(!groups[i].isEmpty()){select(groups[i].first());return;}return;}
+            if(action==Action::Left){for(int i:{0})if(!groups[i].isEmpty()){select(groups[i].first());return;}return;}
             return;
         }
-        if(zone==2 && action==Action::Up){select("screens");return;}
-        if(zone==2 && action==Action::Left && index==0){for(int i:{1,0})if(!groups[i].isEmpty()){select(groups[i].last());return;}return;}
-        if(zone==2 && action==Action::Down)return;
-        if((zone==1 || (zone==0 && index==groups[0].size()-1)) && action==Action::Right){select(zone==0?"screens":groups[2].isEmpty()?"play":groups[2].first());return;}
+        if(zone==1 && action==Action::Up){select("screens");return;}
+        if(zone==1 && action==Action::Left && index==0){for(int i:{0})if(!groups[i].isEmpty()){select(groups[i].last());return;}return;}
+        if(zone==1 && action==Action::Down)return;
+        if((zone==0 && index==groups[0].size()-1) && action==Action::Right){select(zone==0?"screens":groups[1].isEmpty()?"play":groups[1].first());return;}
     }
     if(!generic_ && focus_=="play" && action==Action::Left){select("screens");return;}
     if(!generic_ && focus_=="screens" && action==Action::Right){select("play");return;}
@@ -116,13 +106,12 @@ void HomeDashboardController::move(Action action) {
         if(action==Action::Left || action==Action::Up || action==Action::Down)for(const auto& group:groups)if(!group.isEmpty()){select(group.first());return;}
         return;
     }
-    if((zone==1 && action==Action::Right) || (zone!=1 && action==Action::Right && index==groups[zone].size()-1)) {reset();return;}
-    if(zone!=1 && (action==Action::Left || action==Action::Right)) {
+    if(action==Action::Right && index==groups[zone].size()-1) {reset();return;}
+    if(action==Action::Left || action==Action::Right) {
         select(groups[zone][std::clamp(index+(action==Action::Right?1:-1),0,int(groups[zone].size())-1)]);return;
     }
     if(action==Action::Up || action==Action::Down) {
         const int delta=action==Action::Down?1:-1;
-        if(zone==1 && index+delta>=0 && index+delta<groups[zone].size()){select(groups[zone][index+delta]);return;}
         for(int next=zone+delta;next>=0 && next<groups.size();next+=delta)if(!groups[next].isEmpty()){select(delta>0?groups[next].first():groups[next].last());return;}
     }
 }

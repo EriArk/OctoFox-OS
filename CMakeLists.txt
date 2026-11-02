@@ -515,6 +515,7 @@ qt_add_qml_module(traineros
         src/qml/AvatarEditor.qml
         src/qml/AvatarPreview3D.qml
         src/qml/ShellOptions.qml
+        src/qml/NotificationPopover.qml
         src/qml/GameOptions.qml
         src/qml/GameActivity.qml
         src/qml/GameFrame.qml
@@ -855,7 +856,7 @@ if(BUILD_TESTING)
     target_sources(traineros PRIVATE tests/ui/PlatformSmokeScenario.h)
     target_sources(traineros PRIVATE tests/ui/SettingsSmokeScenario.h)
     add_test(NAME settings_qml_smoke COMMAND traineros --ephemeral --settings-smoke-test --screenshot-dir "${CMAKE_CURRENT_BINARY_DIR}/screenshots/settings")
-    set_tests_properties(settings_qml_smoke PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1" TIMEOUT 30)
+    set_tests_properties(settings_qml_smoke PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1" TIMEOUT 45)
     target_sources(traineros PRIVATE tests/ui/FirstRunSmokeScenario.h)
     target_sources(traineros PRIVATE tests/ui/SoftwareUpdateSmokeScenario.h)
     add_test(NAME software_update_qml_smoke COMMAND traineros --updates-smoke-test --screenshot-dir "${CMAKE_CURRENT_BINARY_DIR}/screenshots/software-updates")

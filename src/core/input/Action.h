@@ -5,7 +5,7 @@ namespace trainer {
 enum class Action {
     Up, Down, Left, Right, Confirm, Back, SystemMenu,
     PreviousPage, NextPage, ToggleContinue, Secondary, Home,
-    PreviousFace, NextFace, LocalAction, ContextMenu, ScrollUp, ScrollDown, ChangeView, ToggleFavorite, ToggleKeyboard
+    PreviousFace, NextFace, LocalAction, ContextMenu, ScrollUp, ScrollDown, ChangeView, ToggleFavorite, ToggleKeyboard, ToggleNotifications
 };
 }
 Q_DECLARE_METATYPE(trainer::Action)

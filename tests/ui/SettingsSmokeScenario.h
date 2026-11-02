@@ -1,6 +1,7 @@
 #pragma once
 #include "core/navigation/ShellController.h"
 #include "core/input/ControllerInput.h"
+#include "../fixtures/HomeSocialFixture.h"
 #include <QQuickWindow>
 #include <QQuickItem>
 #include <QtTest/QTest>
@@ -12,6 +13,23 @@
 #include <QDir>
 #include <memory>
 #include <functional>
+#include <QJsonArray>
+class SettingsNetworkFixture final : public trainer::NetworkService {
+public:
+    using NetworkService::NetworkService;
+    QJsonArray rows{
+        QJsonObject{{"id","saved:home"},{"title","Home network"},{"detail","Connected · 92%"},{"address","192.0.2.8"},{"connected",true},{"saved",true},{"available",true},{"security","wpa-psk"},{"autoconnect",true}},
+        QJsonObject{{"id","saved:guest"},{"title","Guest network"},{"detail","Saved · 74%"},{"connected",false},{"saved",true},{"available",true},{"security","wpa-psk"}},
+        QJsonObject{{"id","ap:cafe"},{"title","Cafe Wi-Fi"},{"detail","Open network · 56%"},{"connected",false},{"saved",false},{"available",true},{"security","open"}}
+    };
+    void request(const QJsonObject& value) override {
+        QTimer::singleShot(20,this,[this,value]{
+            emit event({{"event","snapshot"},{"rows",rows}});
+            emit finished(value["op"]=="connect"?"Wi-Fi authentication failed. The password may be incorrect. Re-enter it and try again.":QString());
+        });
+    }
+    void cancel() override {emit finished("Cancelled");}
+};
 class SettingsInputLibrary final : public trainer::LibraryRepository {
 public:
     QList<trainer::World> worlds() const override{return {};}
@@ -24,6 +42,7 @@ public:
 inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& shell,
     trainer::ControllerInput& input,const QString& directory,bool& completed,int& warnings,QStringList& diagnostics) {
     auto folder=std::make_shared<QTemporaryDir>();auto library=std::make_shared<SettingsInputLibrary>();
+    auto network=new SettingsNetworkFixture(window);
     QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,folder->path());
     auto step=std::make_shared<int>(0);auto timer=new QTimer(window);timer->setInterval(450);
     QObject::connect(timer,&QTimer::timeout,window,[=,&shell,&input,&completed,&warnings,&diagnostics]{
@@ -116,6 +135,30 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
             capture("settings-account-waiting");shell.dispatch(trainer::Action::Confirm);
             check(shell.backendAccount()->detail().contains("cancelled"),"Controller cancels browser sign-in");
             shell.backendAccount()->configure({});break;
+        case 27: shell.network()->configure(network);settings->selectPage("connections",true);break;
+        case 28: capture("wifi-networks-960");shell.network()->activate(1);break;
+        case 29: check(shell.network()->failed()&&shell.network()->detailsOpen(),"Failed Wi-Fi opens persistent error with retry");capture("wifi-password-error-960");shell.network()->activateDetail("password");break;
+        case 30: check(shell.keyboard()->isOpen(),"Retry opens shared password keyboard");capture("wifi-password-keyboard");shell.dispatch(trainer::Action::Back);shell.network()->back();shell.network()->showDetails(0);break;
+        case 31: check(shell.network()->detailsOpen(),"Connected network details open after cancelling password");capture("wifi-connected-960");settings->cycleTheme(1);break;
+        case 32: capture("wifi-connected-dark");shell.network()->back();shell.network()->otherNetwork();shell.dispatch(trainer::Action::Back);shell.network()->otherNetwork();shell.network()->applyText("Hidden home");shell.keyboard()->cancel();break;
+        case 33: capture("wifi-hidden-dark");shell.network()->back();shell.goToSection("home");break;
+        case 34: tap(visibleItem(window->contentItem(),"notification-bell"));break;
+        case 35: check(shell.notificationsOpen(),"Header bell opens popover by touch");check(!visibleItem(window->contentItem(),"shell-home-menu"),"Bell does not show Home menu");capture("notifications-dark-960");shell.dispatch(trainer::Action::Back);settings->cycleTheme(1);window->resize(1280,720);break;
+        case 36: shell.openNotifications();break;
+        case 37: capture("notifications-light-1280");shell.closeHomeMenu();shell.dispatch(trainer::Action::Home);break;
+        case 38: check(shell.homeMenuOpen()&&!shell.notificationsOpen(),"Home menu stays independent");capture("home-menu-no-inbox");shell.closeHomeMenu();break;
+        case 39: {
+            trainer::HomeSocialFixture::isolateProvider(*shell.social());
+            QVariantList chats;for(int i=0;i<8;++i)chats.append(QVariantMap{{"id",QString::number(5000+i)},{"name","Player "+QString::number(i+1)},{"kind","chats"},{"unread",1},{"last","123"}});
+            trainer::HomeSocialFixture::publish(*shell.social(),{{"state","connected"},{"userId","fixture"},{"chats",chats}});shell.openNotifications();break;
+        }
+        case 40: {
+            check(shell.notifications().size()>=8,"Popover has a scrollable inbox");
+            auto* popup=visibleItem(window->contentItem(),"notification-popover");auto* game=visibleItem(window->contentItem(),"home-game-card");
+            check(popup&&game&&qAbs(popup->mapToScene(QPointF(popup->width(),0)).x()-game->mapToScene(QPointF(0,0)).x())<2,"Popover right edge follows game card left edge");
+            capture("notifications-many-1280");shell.dismissNotifications();break;
+        }
+        case 41: check(shell.notifications().isEmpty(),"Clear updates empties ordinary messages");shell.closeHomeMenu();break;
         default:timer->stop();completed=true;qInfo()<<"Settings UI checks"<<diagnostics<<"warnings"<<warnings;QCoreApplication::exit(diagnostics.isEmpty()&&warnings==0?0:1);break;
         }
     });timer->start();

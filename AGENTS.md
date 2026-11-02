@@ -2,6 +2,13 @@
 
 **Current owner-approved direction: 21 October 2026.** This is the short, **active** entrypoint for Codex and other development agents. The previous 84 KB collection of dated requirements was preserved in full (with relative links rebased) in [historical AGENTS archive](docs/archive/AGENTS_2026-10-14.md). It contains valuable implementation evidence and older decisions, but its superseded page names, priorities and button assignments are **not active instructions**.
 
+**Owner header/inbox correction, 2 November:** notifications belong in the bell
+popover, not Home or the Home-button menu. Place level at the avatar's top-right,
+Sparks under the name and the bell at the right edge of the slightly wider panel.
+Keep the popover narrow: its right edge aligns with the Home game card's left edge.
+Wi-Fi needs persistent authentication feedback and re-enter password through the
+shared connection flow. See [current contract/evidence](docs/evidence/2026-11-02-bell-wifi/README.md).
+
 ## Current working mode — owner correction, 21 October 2026
 
 **Owner primary identity, 1 November (latest):** the verified Fluxer subject is

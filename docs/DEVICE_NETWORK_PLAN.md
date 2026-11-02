@@ -1,5 +1,10 @@
 # Odin 2 and network controls
 
+**2 November 2026 — Wi-Fi follow-up.** Network details, persistent authentication
+errors/re-enter password, auto-join and hidden SSIDs now use the shared flow.
+The older no-details/hidden-network-in-Desktop statements below are superseded;
+their dated device evidence is retained. See [implementation and current checks](evidence/2026-11-02-bell-wifi/README.md).
+
 ## Актуальная системная организация — 16 октября 2026
 
 [Контракт](https://github.com/EriArk/TrainerOS/blob/c6aaac25ba4f55262f3f6418e8d29cac7cdc9aec/docs/UX_CONTRACT_20261016_RU.md), #77/#233/#234: аппаратные параметры и

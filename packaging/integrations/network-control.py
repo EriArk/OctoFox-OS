@@ -11,7 +11,7 @@ import uuid
 NM = 'org.freedesktop.NetworkManager'
 BLUEZ = 'org.bluez'
 PROPS = 'org.freedesktop.DBus.Properties'
-OPS = {'list', 'scan', 'connect', 'disconnect', 'forget', 'pair'}
+OPS = {'list', 'scan', 'connect', 'disconnect', 'forget', 'pair', 'autojoin'}
 
 
 def read_message():
@@ -29,7 +29,7 @@ def emit(event, **value):
 
 
 def validate(value):
-    if set(value) - {'op', 'kind', 'id', 'password'} or value.get('op') not in OPS or value.get('kind') not in ('wifi', 'bluetooth'):
+    if set(value) - {'op', 'kind', 'id', 'password', 'ssid', 'security', 'enabled'} or value.get('op') not in OPS or value.get('kind') not in ('wifi', 'bluetooth'):
         raise ValueError('Invalid request')
     if not isinstance(value.get('id', ''), str) or len(value.get('id', '')) > 256:
         raise ValueError('Invalid target')
@@ -38,6 +38,19 @@ def validate(value):
         raise ValueError('Invalid password')
     if value['kind'] == 'wifi' and value['op'] == 'pair':
         raise ValueError('Invalid operation')
+    if value['op'] == 'autojoin':
+        if value['kind'] != 'wifi' or type(value.get('enabled')) is not bool:
+            raise ValueError('Invalid auto-join setting')
+    elif 'enabled' in value:
+        raise ValueError('Invalid operation')
+    if 'ssid' in value or 'security' in value:
+        ssid = value.get('ssid')
+        if (value['kind'] != 'wifi' or value['op'] != 'connect' or value.get('id')
+                or not isinstance(ssid, str) or not 1 <= len(ssid.encode('utf8')) <= 32 or '\0' in ssid
+                or value.get('security') not in ('open', 'wpa-psk', 'sae')):
+            raise ValueError('Invalid hidden network')
+    if 'password' in value and (value['kind'] != 'wifi' or value['op'] != 'connect'):
+        raise ValueError('Invalid password operation')
     return value
 
 
@@ -64,6 +77,47 @@ def wifi_security(ap):
     if flags & 0x400:
         return 'sae'
     return 'unsupported' if int(ap.get('Flags', 0)) & 1 else 'open'
+
+
+def wifi_failure(reason, needs_auth=False):
+    # NO_SECRETS can also mean a missing secret agent: do not assert a proven
+    # incorrect password when the provider only reports authentication failure.
+    if reason == 7:
+        return 'Wi-Fi authentication failed. The password may be incorrect. Re-enter it and try again.'
+    if reason in (8, 9, 10, 11):
+        return 'Wi-Fi authentication did not complete. Check the password and signal, then try again.'
+    if reason in (5, 6, 15, 16, 17):
+        return 'Connected to Wi-Fi, but could not obtain a network address. Check the router and try again.'
+    if reason == 53:
+        return 'Network no longer found. Move closer and search again.'
+    if needs_auth:
+        return 'Wi-Fi authentication failed. The password may be incorrect. Re-enter it and try again.'
+    return 'Could not connect to Wi-Fi. Check the signal and try again.'
+
+
+class WifiStateMonitor:
+    def __init__(self, bus, device):
+        from gi.repository import GLib
+        self.reason = 0
+        self.needs_auth = False
+        self.context = GLib.MainContext.default()
+        self.signal = bus.add_signal_receiver(self.observe, signal_name='StateChanged',
+            dbus_interface=NM+'.Device', bus_name=NM, path=device)
+
+    def observe(self, new_state, old_state, reason):
+        self.needs_auth = self.needs_auth or int(new_state) == 60
+        if int(new_state) == 120:
+            self.reason = int(reason)
+
+    def drain(self):
+        # FAILED -> DISCONNECTED may happen between polls. Retain the reason
+        # from the provider signal instead of losing it to the next snapshot.
+        for _ in range(128):
+            if not self.context.pending(): break
+            self.context.iteration(False)
+
+    def close(self):
+        self.signal.remove()
 
 
 class Platform:
@@ -99,6 +153,7 @@ class Platform:
             ssid = bytes(data.get('802-11-wireless', {}).get('ssid', []))
             security = str(data.get('802-11-wireless-security', {}).get('key-mgmt', 'open'))
             profiles.append({'id': str(data['connection']['uuid']), 'path': str(path), 'ssid': ssid,
+                             'autoconnect': bool(data['connection'].get('autoconnect', True)),
                              'security': security, 'title': ssid.decode('utf8', 'replace') or str(data['connection']['id'])})
         found = {}
         for path in self.iface(NM, device, NM+'.Device.Wireless').GetAllAccessPoints(timeout=4):
@@ -111,11 +166,14 @@ class Platform:
                 continue
             security = wifi_security(ap)
             saved = next((p for p in profiles if p['ssid'] == ssid and
+                          p['path'] == active_profile), None) if str(path) == active_ap else None
+            saved = saved or next((p for p in profiles if p['ssid'] == ssid and
                           (p['security'] == security or security == 'unsupported' and p['security'] in ('wpa-eap', 'ieee8021x'))), None)
             key = (ssid, security)
             row = {'id': 'saved:'+saved['id'] if saved else 'ap:'+str(path), 'title': ssid.decode('utf8', 'replace'),
                    'saved': bool(saved), 'connected': str(path) == active_ap and active_profile != '/',
                    'strength': int(ap['Strength']), 'security': security, 'available': True,
+                   'autoconnect': saved['autoconnect'] if saved else True,
                    '_ap': str(path), '_ssid': ssid, '_profile': saved['path'] if saved else None}
             previous = found.get(key)
             if not previous or row['connected'] or not previous['connected'] and row['strength'] > previous['strength']:
@@ -125,12 +183,24 @@ class Platform:
             if not any(r['id'] == 'saved:'+saved['id'] for r in rows):
                 rows.append({'id': 'saved:'+saved['id'], 'title': saved['title'], 'saved': True,
                              'connected': saved['path'] == active_profile, 'strength': 0, 'security': saved['security'],
+                             'autoconnect': saved['autoconnect'],
                              'available': False, '_ap': '/', '_ssid': saved['ssid'], '_profile': saved['path']})
         rows.sort(key=lambda r: (not r['connected'], not r['available'], not r['saved'], -r['strength'], r['title'].casefold()))
         for row in rows:
             row['detail'] = 'Connected' if row['connected'] else 'Saved · out of range' if not row['available'] else 'Saved' if row['saved'] else 'Open network' if row['security'] == 'open' else 'Secured network'
             if row['available']:
                 row['detail'] += ' · '+str(row['strength'])+'%'
+            if row['connected']:
+                connectivity = (int(devprops.get('Ip4Connectivity', 0)), int(devprops.get('Ip6Connectivity', 0)))
+                if 4 not in connectivity:
+                    if 2 in connectivity: row['detail'] = 'Connected · sign-in required'
+                    elif 3 in connectivity: row['detail'] = 'Connected · no internet access'
+                ip4 = str(devprops.get('Ip4Config', '/'))
+                if ip4 != '/':
+                    try:
+                        addresses = self.props(NM, ip4, NM+'.IP4Config').get('AddressData', [])
+                        row['address'] = ', '.join(str(a['address']) for a in addresses if 'address' in a)
+                    except self.d.DBusException: pass
         return manager, device, active_path, rows
 
     def bluetooth(self):
@@ -167,8 +237,26 @@ class Platform:
                 check_cancel(); time.sleep(.2)
             return
         row = next((r for r in rows if r['id'] == request.get('id')), None)
+        if request.get('ssid'):
+            ssid = request['ssid'].encode('utf8')
+            # Reuse an existing identity instead of accumulating duplicate profiles.
+            row = next((r for r in rows if r['_ssid'] == ssid and r['security'] == request['security']), None)
+            if row:
+                row = dict(row, available=True, _ap='/')
+            else:
+                row = {'id': 'hidden', 'title': request['ssid'], 'security': request['security'],
+                       '_ssid': ssid, '_ap': '/', '_profile': None, 'available': True, 'connected': False, 'hidden': True}
         if not row:
             raise UserError('This network changed. Refresh and choose it again.')
+        if operation == 'autojoin':
+            if not row['_profile']:
+                raise UserError('Join this network before changing auto-join.')
+            profile = self.iface(NM, row['_profile'], NM+'.Settings.Connection')
+            config = profile.GetSettings(timeout=4)
+            config['connection']['autoconnect'] = self.d.Boolean(request['enabled'])
+            # NM preserves existing secrets when they are omitted from Update.
+            profile.Update(config, timeout=5)
+            return
         if operation == 'forget':
             if not row['_profile']:
                 raise UserError('This network is not saved.')
@@ -179,21 +267,49 @@ class Platform:
                 raise UserError('This network is no longer connected.')
             self.iface(NM, device, NM+'.Device').Disconnect(timeout=5)
             return
-        if row['connected']:
+        if row['connected'] and not request.get('password'):
             return
         if not row['available']:
             raise UserError('This network is out of range. Refresh and try again.')
         password = request.pop('password', '')
         if not row['_profile'] and row['security'] == 'unsupported':
             raise UserError('Set up this network in Desktop Mode first.')
-        if not row['_profile'] and row['security'] != 'open':
+        if (not row['_profile'] or password) and row['security'] != 'open':
             if not (8 <= len(password.encode('utf8')) <= 63 or row['security'] == 'wpa-psk' and re.fullmatch('[0-9a-fA-F]{64}', password)):
                 raise UserError('Check the Wi-Fi password and try again.')
         # NM restores the previous connection even if this helper/application dies.
         checkpoint = manager.CheckpointCreate(self.d.Array([self.d.ObjectPath(device)], signature='o'), self.d.UInt32(90), self.d.UInt32(2), timeout=5)
         created = None
+        original = None
+        profile = None
+        persisted = False
+        monitor = None
         try:
+            monitor = WifiStateMonitor(self.bus, device)
             if row['_profile']:
+                if password:
+                    if row['security'] not in ('wpa-psk', 'sae'):
+                        raise UserError('Change enterprise credentials in Desktop Mode.')
+                    profile = self.iface(NM, row['_profile'], NM+'.Settings.Connection')
+                    candidate = profile.GetSettings(timeout=4)
+                    security = '802-11-wireless-security'
+                    secrets = profile.GetSecrets(security, timeout=4)
+                    candidate.setdefault(security, {}).update(secrets.get(security, {}))
+                    if int(candidate[security].get('psk-flags', 0)) != 0 or not candidate[security].get('psk'):
+                        raise UserError('This password is managed by Desktop Mode. Change it there, or forget and join again.')
+                    original = candidate
+                    # deepcopy drops dbus-python container signatures, so empty
+                    # address/route arrays can no longer be marshalled. Copy only
+                    # the two maps we modify; retain every typed value verbatim.
+                    config = self.d.Dictionary(original, signature='sa{sv}')
+                    config[security] = self.d.Dictionary(original[security], signature='sv')
+                    config[security]['psk'] = password
+                    profile.UpdateUnsaved(config, timeout=5)
+                    password = ''; config = None
+                    if row['connected']:
+                        # An already-active profile is not proof that the new
+                        # password works. Force a fresh handshake inside the checkpoint.
+                        manager.DeactivateConnection(active, timeout=5)
                 activation = manager.ActivateConnection(row['_profile'], device, row['_ap'], timeout=10)
             else:
                 config = {'connection': {'id': row['title'], 'uuid': str(uuid.uuid4()), 'type': '802-11-wireless', 'autoconnect': self.d.Boolean(True)},
@@ -201,30 +317,57 @@ class Platform:
                           'ipv4': {'method': 'auto'}, 'ipv6': {'method': 'auto'}}
                 if row['security'] != 'open':
                     config['802-11-wireless-security'] = {'key-mgmt': row['security'], 'psk': password}
+                if row.get('hidden'):
+                    config['802-11-wireless']['hidden'] = self.d.Boolean(True)
                 config = self.d.Dictionary({k: self.d.Dictionary(v, signature='sv') for k, v in config.items()}, signature='sa{sv}')
                 created, activation, _ = manager.AddAndActivateConnection2(config, device, row['_ap'], self.d.Dictionary({'persist': 'memory'}, signature='sv'), timeout=10)
                 password = ''; config = None
             deadline = time.monotonic()+65
+            last_phase = None
+            reason = 0
+            needs_auth = False
             while time.monotonic() < deadline:
                 check_cancel()
-                state = int(self.props(NM, activation, NM+'.Connection.Active')['State'])
+                device_state = self.props(NM, device, NM+'.Device')
+                stage = int(device_state.get('State', 0))
+                monitor.observe(stage, 0, device_state.get('StateReason', (0, 0))[1])
+                monitor.drain()
+                reason = monitor.reason or int(device_state.get('StateReason', (0, 0))[1])
+                needs_auth = monitor.needs_auth
+                phase = 'Obtaining network address...' if stage in (70, 80, 90) else 'Authenticating...' if stage in (50, 60) else 'Connecting...'
+                if phase != last_phase:
+                    emit('progress', text=phase); last_phase = phase
+                try:
+                    state = int(self.props(NM, activation, NM+'.Connection.Active')['State'])
+                except self.d.DBusException:
+                    monitor.drain()
+                    raise UserError(wifi_failure(monitor.reason or reason, monitor.needs_auth)) from None
                 if state == 2:
                     if created:
                         self.iface(NM, created, NM+'.Settings.Connection').Save(timeout=5)
+                    if original:
+                        profile.Save(timeout=5)
+                        persisted = True
                     manager.CheckpointDestroy(checkpoint, timeout=5)
                     checkpoint = None
                     return
-                if state in (3, 4):
+                if state in (3, 4) or stage == 120:
                     break
                 time.sleep(.25)
-            raise UserError('Could not connect. Check the password or signal and try again.')
+            raise UserError(wifi_failure(reason, needs_auth))
         finally:
+            if monitor: monitor.close()
             if checkpoint:
                 try:
-                    manager.CheckpointRollback(checkpoint, timeout=5)
+                    if original:
+                        if persisted: profile.Update(original, timeout=5)
+                        else: profile.UpdateUnsaved(original, timeout=5)
                 finally:
-                    try: manager.CheckpointDestroy(checkpoint, timeout=5)
-                    except self.d.DBusException: pass
+                    try:
+                        manager.CheckpointRollback(checkpoint, timeout=5)
+                    finally:
+                        try: manager.CheckpointDestroy(checkpoint, timeout=5)
+                        except self.d.DBusException: pass
                 if created:
                     try: self.iface(NM, created, NM+'.Settings.Connection').Delete(timeout=5)
                     except self.d.DBusException: pass

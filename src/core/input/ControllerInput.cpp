@@ -308,9 +308,11 @@ void ControllerInput::poll() {
     // including the face button, so neither navigation nor text receives X.
     const bool home=buttons[SDL_CONTROLLER_BUTTON_GUIDE];
     const int keyboardButton=family()=="nintendo"?SDL_CONTROLLER_BUTTON_Y:SDL_CONTROLLER_BUTTON_X;
+    const int inboxButton=family()=="nintendo"?SDL_CONTROLLER_BUTTON_X:SDL_CONTROLLER_BUTTON_Y;
     if(home) {
         homeHeld_=true;
         if(buttons[keyboardButton]&&!homeChord_) {homeChord_=true;deliver(Action::ToggleKeyboard,true);}
+        if(buttons[inboxButton]&&!homeChord_) {homeChord_=true;deliver(Action::ToggleNotifications,true);}
         previous_=buttons;confirmPending_=false;heldDirection_.reset();return;
     }
     if(homeHeld_) {

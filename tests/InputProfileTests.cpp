@@ -50,6 +50,12 @@ private slots:
                 // A context switch mid-chord must not produce Home on return.
                 SDL_JoystickSetVirtualButton(pad,SDL_CONTROLLER_BUTTON_GUIDE,1);input.poll();input.setEnabled(false);input.setEnabled(true);
                 SDL_JoystickSetVirtualButton(pad,SDL_CONTROLLER_BUTTON_GUIDE,0);input.poll();input.poll();QCOMPARE(actions.size(),2);
+                const auto y=family=="nintendo"?SDL_CONTROLLER_BUTTON_X:SDL_CONTROLLER_BUTTON_Y;
+                actions.clear();SDL_JoystickSetVirtualButton(pad,SDL_CONTROLLER_BUTTON_GUIDE,1);input.poll();
+                SDL_JoystickSetVirtualButton(pad,y,1);input.poll();input.poll();
+                QCOMPARE(actions.size(),1);QCOMPARE(qvariant_cast<Action>(actions[0][0]),Action::ToggleNotifications);
+                SDL_JoystickSetVirtualButton(pad,y,0);input.poll();SDL_JoystickSetVirtualButton(pad,SDL_CONTROLLER_BUTTON_GUIDE,0);input.poll();input.poll();
+                QCOMPARE(actions.size(),1);
             }
         }
         SDL_JoystickClose(pad);SDL_JoystickDetachVirtual(device);SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);

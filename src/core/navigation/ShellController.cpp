@@ -306,7 +306,17 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&keyboard_, &TextEntryController::textCommitted,&browser_,&BrowserController::commitPageText);
     connect(&keyboard_, &TextEntryController::keyRequested,&browser_,&BrowserController::pageKey);
     connect(&keyboard_, &TextEntryController::keyStroke,&browser_,&BrowserController::pageKeyStroke);
-    connect(&keyboard_, &TextEntryController::changed,this,[this]{if(!keyboard_.isOpen())browser_.stopPageInput();});
+    connect(&keyboard_, &TextEntryController::changed,this,[this]{
+        if(!keyboard_.isOpen())browser_.stopPageInput();
+        // Native Escape also closes the keyboard directly. Acceptance emits
+        // synchronously after close, so defer cancellation until its target is resolved.
+        if(!keyboard_.isOpen() && !keyboard_.hidden() && textTarget_==TextTarget::Network)
+            QTimer::singleShot(0,this,[this]{
+                if(textTarget_==TextTarget::Network && !keyboard_.isOpen() && !keyboard_.hidden()) {
+                    textTarget_=TextTarget::None;network_.cancelText();
+                }
+            });
+    });
     connect(&browser_, &BrowserController::textRequested, this, [this](QString title,QString text,int limit,bool secret){
         textTarget_=TextTarget::Browser;keyboard_.begin(title,text,limit,secret,browser_.dialog().isEmpty()?"Go":"Apply");
         keyboard_.select(0,text.size());
@@ -450,7 +460,10 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&outfits_,&OutfitController::editRequested,this,[this]{trainer_.beginAvatarEdit();});
     connect(&outfits_,&OutfitController::nameRequested,this,[this](const QString& initial){textTarget_=TextTarget::OutfitName;keyboard_.begin("Name this look",initial,32,false,"Save");});
     connect(this,&ShellController::changed,this,[this]{if(service_!="profile")outfits_.close();});
+    connect(this,&ShellController::changed,this,&ShellController::notificationsChanged);
+    connect(settings_.updates(),&SoftwareUpdateController::changed,this,&ShellController::notificationsChanged);
     connect(&social_, &SocialController::changed, this, [this]{
+        emit notificationsChanged();
         if(homeMenuOpen_)homeMenuSelection_=homeMenuActions().value(homeMenuFocus()).toMap()["id"].toString();
         if(socialActive()||homeMenuOpen_)emit changed();
     });
@@ -1391,9 +1404,7 @@ void ShellController::editCollection(int index) {
 }
 void ShellController::openContext(const QString& type,const QString& target) {
     if(navigationLocked() || homeMenuOpen_ || menuOpen_ || serviceOpen() || keyboard_.isOpen() || localModalOpen() || !notice_.isEmpty())return;
-    if(type.isEmpty() && page_==HomePage && dashboard_.focus().startsWith("event:")){
-        homeMenuOpen_=notificationsOpen_=true;notificationSelection_=dashboard_.focus().mid(6);emit changed();return;
-    }
+
     if(type.isEmpty() && page_==HomePage && dashboard_.focus()!="play")return;
     if(type.isEmpty() && page_==GamesPage && collectionsRoot_) {
         if(gamesRootZone_=="collections") {
@@ -1677,7 +1688,14 @@ void ShellController::confirm() {
 }
 void ShellController::closeHomeMenu() {
     if (!homeMenuOpen_ || navigationLocked()) return;
-    homeMenuOpen_ = false; emit changed();
+    homeMenuOpen_ = notificationsOpen_ = false; emit changed();
+}
+void ShellController::openNotifications() {
+    if(notificationsOpen()){closeHomeMenu();return;}
+    if(!canReceiveNearby() || quickAppsOpen_ || moduleWriting() || !apps_.menu().isEmpty())return;
+    homeMenuOpen_=notificationsOpen_=true;homeCallOpen_=false;
+    notificationFocus_=0;notificationSelection_=notifications().value(0).toMap()["id"].toString();
+    emit changed();
 }
 void ShellController::openAccountProfile() {
     if(!canReceiveNearby() || quickAppsOpen_ || moduleWriting() || !apps_.menu().isEmpty())return;
@@ -1987,7 +2005,6 @@ void ShellController::activateHomeMenu(int index) {
     }
     if(homeCallOpen_){if(id=="back"){homeCallOpen_=false;homeMenuSelection_="call";}else social_.controlCall(id);emit changed();return;}
     if(id=="call"){homeCallOpen_=true;homeMenuSelection_="voice-mute";emit changed();return;}
-    if(id=="notifications"){notificationsOpen_=true;notificationFocus_=0;notificationSelection_=notifications().value(0).toMap()["id"].toString();emit changed();return;}
     if(id=="chats"&&!social_.notificationFace().isEmpty()){openSocialNotification();return;}
     if (id!="home") socialFace_ = "chats";
     social_.setFace(socialFace_);
@@ -2053,6 +2070,7 @@ void ShellController::openSocialNotification() {
     social_.openNotification();emit changed();
 }
 void ShellController::dispatch(Action action) {
+    if(action==Action::ToggleNotifications){openNotifications();return;}
     if(page_==AppsPage && appsFace_=="browser" && !browser_.dialog().isEmpty() && !keyboard_.isOpen()
         && service_.isEmpty() && !menuOpen_ && !homeMenuOpen_ && notice_.isEmpty()
         && !drawerOpen_ && !quickAppsOpen_ && !localModalOpen() && social_.incomingCall().isEmpty()) {
@@ -2150,7 +2168,7 @@ void ShellController::dispatch(Action action) {
     if (homeMenuOpen_) {
         if(notificationsOpen_) {
             if(action==Action::Home)closeHomeMenu();
-            else if(action==Action::Back){notificationsOpen_=false;emit changed();}
+            else if(action==Action::Back)closeHomeMenu();
             else if(action==Action::Confirm)activateNotification(notificationFocus());
             else if(action==Action::Secondary) {
                 const auto row=notifications().value(notificationFocus()).toMap();
@@ -2160,7 +2178,6 @@ void ShellController::dispatch(Action action) {
             }
             else if(action==Action::ContextMenu||action==Action::LocalAction)dismissNotifications();
             else if(action==Action::SystemMenu){homeMenuOpen_=false;optionsReturn_=true;dispatch(action);}
-            else if(action==Action::Left){notificationsOpen_=false;emit changed();}
             else if(action==Action::Up||action==Action::Down){notificationFocus_=std::clamp(notificationFocus()+(action==Action::Up?-1:1),0,std::max(0,int(notifications().size())-1));notificationSelection_=notifications().value(notificationFocus_).toMap()["id"].toString();emit changed();}
             return;
         }
@@ -2171,12 +2188,10 @@ void ShellController::dispatch(Action action) {
             const auto actions=homeMenuActions();
             const int direction=action==Action::Up?-1:1;
             bool hasAction=false;for(const auto& row:actions)if(row.toMap().value("enabled",true).toBool())hasAction=true;
-            if(!hasAction){homeMenuSelection_.clear();notificationsOpen_=true;notificationSelection_=notifications().value(0).toMap()["id"].toString();}
+            if(!hasAction)homeMenuSelection_.clear();
             else for(int index=homeMenuFocus()+direction;index>=0&&index<actions.size();index+=direction)
                 if(actions[index].toMap().value("enabled",true).toBool()){homeMenuSelection_=actions[index].toMap()["id"].toString();break;}
             emit changed();
-        } else if(action==Action::Right && !homeCallOpen_) {
-            notificationsOpen_=true;notificationSelection_=notifications().value(0).toMap()["id"].toString();emit changed();
         } else if (action == Action::SystemMenu) {
             homeMenuOpen_=false;optionsReturn_=true;dispatch(action);
         }

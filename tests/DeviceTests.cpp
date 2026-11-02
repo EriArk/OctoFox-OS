@@ -137,6 +137,8 @@ private slots:
         QCOMPARE(service.requestValue["op"].toString(),"list");QCOMPARE(service.requestValue["kind"].toString(),"wifi");
         service.list({secure});shell.dispatch(Action::Confirm);QVERIFY(shell.keyboard()->isOpen());
         shell.dispatch(Action::Back);QVERIFY(!shell.keyboard()->isOpen());QVERIFY(shell.controlsNetworkOpen());QCOMPARE(service.requests,1);
+        shell.dispatch(Action::Confirm);shell.keyboard()->cancel();QCoreApplication::processEvents();
+        shell.network()->showDetails(0);QVERIFY(shell.network()->detailsOpen());shell.network()->back();
         shell.dispatch(Action::Confirm);shell.keyboard()->insertText("test password");
         for(int k=0;k<shell.keyboard()->keys().size();++k)if(shell.keyboard()->keys()[k].toMap()["id"]=="apply"){shell.keyboard()->activate(k);break;}
         QCOMPARE(service.requestValue["id"].toString(),"ap:secure");QCOMPARE(service.requestValue["op"].toString(),"connect");
@@ -171,9 +173,9 @@ private slots:
         network.dispatch(Action::Back);QCOMPARE(service.cancellations,1);QVERIFY(network.busy());
         service.list({first,second});network.dispatch(Action::Down);QCOMPARE(network.focusIndex(),1);
         service.list({second,first});QCOMPARE(network.focusIndex(),0);QVERIFY(network.canForget());
-        network.dispatch(Action::LocalAction);QVERIFY(!network.prompt().isEmpty());
+        network.dispatch(Action::LocalAction);QVERIFY(network.detailsOpen());network.activateDetail("forget");QVERIFY(!network.prompt().isEmpty());
         const int requests=service.requests;network.dispatch(Action::Back);QCOMPARE(service.requests,requests);
-        network.dispatch(Action::LocalAction);network.dispatch(Action::Confirm);
+        network.activateDetail("forget");network.dispatch(Action::Confirm);
         QCOMPARE(service.requestValue["op"].toString(),"forget");QCOMPARE(service.requestValue["id"].toString(),"saved:two");
         network.setActive(false);QCOMPARE(service.cancellations,2);
     }
@@ -195,6 +197,40 @@ private slots:
         network.setActive(false);
         emit service.event({{"event","prompt"},{"kind","passkey"}});
         QCOMPARE(keyboard.size(),1);QCOMPARE(service.cancellations,2);
+    }
+    void wifiAuthenticationFailureKeepsNetworkAndAllowsNewPassword() {
+        NetworkProbe service;NetworkController network;network.configure(&service);
+        QJsonObject row{{"id","saved:one"},{"title","Home"},{"saved",true},{"security","wpa-psk"},{"available",true},{"autoconnect",true}};
+        network.openWifi();service.list({row});network.activate(0);
+        emit service.event({{"event","progress"},{"text","Authenticating..."}});
+        QCOMPARE(network.status(),"Authenticating...");
+        emit service.finished("Wi-Fi authentication failed. The password may be incorrect.");
+        QVERIFY(network.failed());QVERIFY(network.detailsOpen());QCOMPARE(network.networkInfo()["id"].toString(),"saved:one");
+        const auto failure=network.status();emit service.event({{"event","snapshot"},{"rows",QJsonArray{row}}});QCOMPARE(network.status(),failure);
+        QSignalSpy text(&network,&NetworkController::textRequested);
+        network.activateDetail("password");QCOMPARE(text.size(),1);QVERIFY(text.first()[0].toString().contains("Home"));QVERIFY(text.first()[2].toBool());
+        network.applyText(QString(64,'z'));QVERIFY(network.failed());QVERIFY(!network.busy());QCOMPARE(service.requests,2);
+        network.activateDetail("password");network.applyText("replacement-password");
+        QCOMPARE(service.requestValue["id"].toString(),"saved:one");QCOMPARE(service.requestValue["password"].toString(),"replacement-password");
+        QVERIFY(!network.failed());row["connected"]=true;service.list({row});QVERIFY(!network.failed());
+        network.activateDetail("autojoin");QCOMPARE(service.requestValue["op"].toString(),"autojoin");QVERIFY(!service.requestValue["enabled"].toBool());
+        service.list({row});network.back();QVERIFY(!network.detailsOpen());
+        network.activate(0);QVERIFY(network.detailsOpen());QVERIFY(network.prompt().isEmpty());
+        network.activateDetail("disconnect");QCOMPARE(network.confirmLabel(),"Disconnect");network.back();QVERIFY(network.detailsOpen());
+        network.setActive(false);QVERIFY(!network.detailsOpen());QVERIFY(network.status().isEmpty());
+    }
+    void hiddenWifiAndStaleDetailsNeverTargetDifferentNetwork() {
+        NetworkProbe service;NetworkController network;network.configure(&service);
+        network.openWifi();service.list({});network.otherNetwork();network.applyText("Hidden home");
+        QVERIFY(network.detailsOpen());network.activateDetail("connect");network.applyText("hidden-password");
+        QCOMPARE(service.requestValue["ssid"].toString(),"Hidden home");QCOMPARE(service.requestValue["security"].toString(),"wpa-psk");
+        QVERIFY(!service.requestValue.contains("id"));emit service.finished("Cancelled");network.back();
+        const QJsonObject first{{"id","ap:one"},{"title","One"},{"security","open"},{"available",true}};
+        const QJsonObject second{{"id","ap:two"},{"title","Two"},{"security","open"},{"available",true}};
+        service.list({first});network.showDetails(0);service.list({second});
+        const int count=service.requests;network.activateDetail("connect");QCOMPARE(service.requests,count);
+        QCOMPARE(network.networkInfo()["id"].toString(),"ap:one");QVERIFY(!network.networkInfo()["available"].toBool());
+        network.setActive(false);
     }
     void radioControlsReadBackAndDoNotInventSuccessfulWrites() {
         DeviceSnapshot value; value.wifi=1;value.bluetooth=0;value.airplane=0;

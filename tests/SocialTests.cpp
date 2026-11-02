@@ -251,7 +251,7 @@ private slots:
             {"chats",QVariantList{QVariantMap{{"id",channel},{"name","Friend"},{"kind","chats"},{"unread",1},{"last","123"}}}}});
         c->activityNotifications_.append(QVariantMap{{"id","pending"},{"session","invite"},{"runtime",true}});
         c->runtimeInvitation_={{"request","invite"}};
-        shell.dispatch(Action::Home);shell.dispatch(Action::Right);
+        shell.openNotifications();
         QVERIFY(shell.notificationsOpen());QCOMPARE(shell.notifications().size(),2);
         QSignalSpy commands(c,&SocialController::commandRequested);shell.dispatch(Action::LocalAction);
         QCOMPARE(shell.notifications().size(),1);QVERIFY(shell.notifications().first().toMap()["pending"].toBool());QVERIFY(commands.isEmpty());
@@ -1946,8 +1946,9 @@ private slots:
         QCOMPARE(shell.homeMenuActions()[shell.homeMenuFocus()].toMap()["id"].toString(),decline);
         QVERIFY(!shell.homeMenuActions()[shell.homeMenuFocus()].toMap()["enabled"].toBool());
         shell.dispatch(Action::Confirm);QVERIFY(shell.homeMenuOpen());QVERIFY(commands.isEmpty());
-        // No generic Home shortcut remains. Explicit navigation leaves the stale action for the inbox.
-        shell.dispatch(Action::Up);QVERIFY(shell.notificationsOpen());
+        // Empty/stale Home actions must not enter an invisible notification column.
+        shell.dispatch(Action::Up);QVERIFY(!shell.notificationsOpen());
+        shell.closeHomeMenu();shell.openNotifications();QVERIFY(shell.notificationsOpen());
         chat["ringing"]=true;state["chats"]=QVariantList{chat};social->receive(0,state);
         QVERIFY(shell.notificationsOpen());QVERIFY(commands.isEmpty());
     }
@@ -2016,7 +2017,7 @@ private slots:
         shell.goToPage(3);const auto origin=shell.navigationState();
         social->receive(0,{{"callsSuppressed",true},{"state","connected"},{"userId","self"},{"voice",QVariantMap{{"available",true}}},
             {"chats",QVariantList{QVariantMap{{"id",channel},{"name","Friend"},{"kind","chats"},{"ringing",true}}}}});
-        shell.dispatch(Action::Home);shell.dispatch(Action::Right);QVERIFY(shell.notificationsOpen());
+        shell.openNotifications();QVERIFY(shell.notificationsOpen());
         QVERIFY(social->notifications().first().toMap()["answerable"].toBool());
         commands.clear();shell.activateNotification(0);QVERIFY(shell.homeMenuOpen());QVERIFY(!shell.notificationsOpen());
         QCOMPARE(shell.navigationState(),origin);QVERIFY(commands.isEmpty());

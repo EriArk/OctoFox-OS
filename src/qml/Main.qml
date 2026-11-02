@@ -90,38 +90,49 @@ Window {
             Text {
                 id: headerName; objectName: "header-account-name"
                 readonly property string fullName: shell.profileAccount.name
-                readonly property var words: fullName.split(/\s+/)
-                readonly property bool twoLines: words.length === 2
                 x: headerAvatar.x + headerAvatar.width + 14
-                y: headerAvatar.y + (headerAvatar.height-height)/2
-                width: parent.width-x-88; height: twoLines ? 40 : 36
-                text: twoLines ? words.join("\n") : fullName
-                color: "#fffef9"; font.family: Theme.displayFamily; font.pixelSize: 26
+                y: 8; width: parent.width-x-47; height: 27
+                text: fullName
+                color: "#fffef9"; font.family: Theme.displayFamily; font.pixelSize: 25
                 minimumPixelSize: 16; fontSizeMode: Text.Fit
-                maximumLineCount: twoLines ? 2 : 1
+                maximumLineCount: 1
                 elide: Text.ElideRight; textFormat: Text.PlainText; verticalAlignment: Text.AlignVCenter
             }
             MouseArea {
-                objectName: "account-profile-toggle"; anchors.fill: parent
+                objectName: "account-profile-toggle"; anchors.fill: parent; anchors.rightMargin: 40
                 enabled: shell.unobstructed && !shell.quickAppsOpen
                 onClicked: shell.openProfile()
                 Accessible.role: Accessible.Button; Accessible.name: "Your player profile"
                 Accessible.onPressAction: shell.openProfile()
             }
-            Column {
+            Item {
+                objectName: "notification-bell"; anchors.right: parent.right; anchors.rightMargin: 4
+                anchors.verticalCenter: parent.verticalCenter; width: 36; height: 44
+                Rectangle { anchors.fill: parent; radius: 12; color: "#18ffffff"; visible: bellPointer.containsMouse || shell.notificationsOpen }
+                MenuGlyph { anchors.centerIn: parent; width: 22; height: 22; glyph: "bell"; ink: "#fffef9" }
+                Rectangle { anchors.right: parent.right; anchors.rightMargin: 4; y: 5; width: 7; height: width; radius: width/2; color: Theme.yellow; visible: shell.notifications.length>0 }
+                MouseArea { id: bellPointer; anchors.fill: parent; hoverEnabled: true; enabled: shell.unobstructed || shell.notificationsOpen; onClicked: shell.openNotifications() }
+                Accessible.role: Accessible.Button; Accessible.name: "Notifications, "+shell.notifications.length+" updates. Home + "+Theme.buttonLabel(Theme.controller?.family==="nintendo"?"west":"north")
+                Accessible.onPressAction: shell.openNotifications()
+            }
+            Rectangle {
+                objectName: "header-account-level"
+                x: headerAvatar.x+headerAvatar.width-15; y: headerAvatar.y-3
+                width: Math.max(23,Math.min(38,levelNumber.implicitWidth+10)); height: 18; radius: 9
+                color: "#f2d38b"; border.color: "#fff1c8"; border.width: 1
+                Text { id: levelNumber; anchors.centerIn: parent; width: parent.width-6; text: shell.profileAccount.levelText; color: "#343d32"; font.pixelSize: 11; font.bold: true; horizontalAlignment: Text.AlignHCenter; fontSizeMode: Text.HorizontalFit; minimumPixelSize: 8 }
+                Accessible.name: "Level " + shell.profileAccount.levelText
+            }
+            Row {
                 objectName: "header-account-progress"
-                anchors.right: parent.right; anchors.rightMargin: 13; y: 17; width: 66; spacing: 3
-                Text { width: parent.width; text: "Lv " + shell.profileAccount.levelText; color: "#d6e8c2"; font.pixelSize: 12; elide: Text.ElideRight }
-                Row {
-                    width: parent.width; spacing: 4
-                    SparkIcon { width: 18; height: 18 }
-                    Text { width: parent.width-22; text: shell.profileAccount.sparksText; color: "#f2d38b"; font.pixelSize: 12; elide: Text.ElideRight; Accessible.name: "Sparks: " + text }
-                }
+                x: headerName.x; y: 36; width: shell.liveGame.id ? Math.min(110,headerName.width) : headerName.width; spacing: 5
+                SparkIcon { width: 18; height: 18 }
+                Text { width: parent.width-23; height: 18; verticalAlignment: Text.AlignVCenter; text: shell.profileAccount.sparksText; color: "#f2d38b"; font.pixelSize: 14; elide: Text.ElideRight; Accessible.name: "Sparks: " + text }
             }
             Text {
-                x: headerName.x; y: 51; width: parent.width-x-16
-                visible: !!shell.liveGame.id; text: "Still running · Home to return"
-                horizontalAlignment: Text.AlignHCenter; color: Theme.textColor("#ffe3a4"); font.pixelSize: 9
+                x: headerName.x+114; y: 39; width: Math.max(0,headerName.width-114)
+                visible: !!shell.liveGame.id; text: "Game running · Home"
+                horizontalAlignment: Text.AlignRight; color: Theme.textColor("#ffe3a4"); font.pixelSize: 9
                 fontSizeMode: Text.HorizontalFit; minimumPixelSize: 7
             }
         }
@@ -432,8 +443,10 @@ Window {
                 if (shell.service === "settings" && shell.settings.category===10 && shell.settings.controlsFocused) {
                     if(shell.network.prompt.length) return shell.network.confirmLabel==="Wait" ? [h("B","Cancel")] : [h("A",shell.network.confirmLabel),h("B","Cancel")]
                     if(shell.network.busy) return [h("B","Cancel")]
+                    if(shell.network.detailsOpen) return [h("UpDown","Select"),h("A","Choose"),h("B","Networks")]
+                    if(!shell.network.bluetooth) return [h("UpDown","Networks"),h("A",shell.network.actionLabel),h("Select","Details"),h("Y","Search"),h("B","Categories")]
                     let controls = [h("←→","Wi-Fi / Bluetooth"),h("X","Radio"),h("Y","Search")]
-                    if(shell.network.canForget) controls.push(h("Select","Forget"))
+                    if(shell.network.bluetooth && shell.network.canForget) controls.push(h("Select","Forget"))
                     if(shell.network.rows.length) controls.push(h("A",shell.network.actionLabel))
                     controls.push(h("B","Categories")); return controls
                 }
@@ -571,7 +584,7 @@ Window {
         Item {
             objectName: "shell-home-menu"
             width: parent.width; height: Theme.footerTop; z: 5
-            visible: shell.homeMenuOpen
+            visible: shell.homeMenuOpen && !shell.notificationsOpen
             property var originFocus: null
             onVisibleChanged: {
                 if (visible) originFocus = window.activeFocusItem
@@ -581,10 +594,16 @@ Window {
             MouseArea { anchors.fill: parent; acceptedButtons: Qt.AllButtons; onWheel: wheel => wheel.accepted = true }
             Loader {
                 anchors.centerIn: parent
-                width: parent.width * 0.92; height: parent.height * 0.90
-                active: shell.homeMenuOpen
+                width: Math.min(620,parent.width * 0.80); height: Math.min(400,parent.height * 0.84)
+                active: shell.homeMenuOpen && !shell.notificationsOpen
                 sourceComponent: ShellOptions { shell: shellController }
             }
+        }
+        NotificationPopover {
+            width: parent.width; height: Theme.footerTop; z: 5
+            shell: shellController
+            anchorX: Theme.screenBounds.x+Theme.panelInset+experienceHost.gameCardLeft
+            anchorY: Theme.brandHeight+6
         }
         Item {
             id: nearbyInvitation

@@ -6,6 +6,10 @@ Item {
     property string glyph: ""
     property color ink: Theme.ink
     readonly property var paths: ({
+        "bell": "M4 17 H20 L18 14 V9 Q18 3 12 3 Q6 3 6 9 V14 Z M9 20 Q12 24 15 20 M12 1 V3",
+        "back": "M16 4 L8 12 L16 20",
+        "key": "M3 8 A5 5 0 1 0 13 8 A5 5 0 1 0 3 8 M12 11 L22 21 M17 16 L20 13 M20 19 L23 16",
+        "info": "M2 12 A10 10 0 1 0 22 12 A10 10 0 1 0 2 12 M12 7 V8 M12 11 V17",
         "chevron": "M8 4 L16 12 L8 20",
         "settings": "M9 2 H15 V5 L18 7 L21 6 L23 11 L20 13 V16 L22 18 L18 22 L15 20 H12 L10 22 L5 19 L6 16 L4 13 L1 12 L3 7 H6 L9 5 Z M8 12 A4 4 0 1 0 16 12 A4 4 0 1 0 8 12",
         "power": "M12 2 V11 M6 5 A9 9 0 1 0 18 5",
