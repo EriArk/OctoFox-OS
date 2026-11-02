@@ -204,7 +204,7 @@ void DiagnosticsController::healthAction(int index) {
         service_->saveSupport({{"systems",systems},{"controllerConnected",input_&&input_->connected()}});status_="Saving a private-data-free support archive…";
     }
     if(index==2&&service_)emit reportsRequested(service_->reportDirectory());
-    if(index==3)status_="Offline help: reconnect removable game storage; place your own BIOS files in the library BIOS folder using Files; then refresh and check again. A configured emulator is not proof of game compatibility. Use game Properties to inspect its setup. ROMs and saves are never changed by checks.";
+    if(index==3)emit preparationRequested();
     if(index==4){health_=false;emit closeRequested();return;}
     emit changed();
 }

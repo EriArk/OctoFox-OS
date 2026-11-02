@@ -156,6 +156,7 @@ QVariantList SettingsController::controls() const {
         result.append(row("ScreenScraper","action","Account, downloads and artwork display"));
         if(legacyTrash_)result.append(row("Previous game trash","action","Restore games removed by an earlier version"));
         result.append(row("Library scanning","action",scanLibraryAtStartup()?"Once at startup · manual scan also available":"Manual only · use the saved catalogue"));
+        result.append(row("Game preparation","action","Missing BIOS, firmware and Online files · choose and import"));
         return result;
     }
     case 9: return {row("Read-only saves",savePolicy_?"toggle":"unavailable",readOnlySaves()?"On - reading and backups only":"Off - allow confirmed save changes")};
@@ -170,15 +171,29 @@ QVariantList SettingsController::controls() const {
         return {row("Apps","action","Open installed applications"),row("Crates","action","Manage installed Crates and their data"),automatic};
     }
     case 16: return gameInput_.rows();
-    case 17: {
-        const auto s=nintendoOnline::setup(nintendoPlatform_,nintendoDirectory_);
-        return {row("Console","action",nintendoPlatform_=="wii"?"Wii":nintendoPlatform_=="n3ds"?"Nintendo 3DS":"Wii U"),
-            row("Online service","action",s.service),row("Provider setup guide","action","Use your own console data and native emulator account"),
-            row("Preparation confirmed","action",s.prepared?"Yes · emulator and game patches prepared by you":"No · complete the provider guide first"),
-            row("Check local setup","action","Recheck files and settings; this does not log in")};
-    }
+    case 17: return onlineControls();
     default: return {};
     }
+}
+QVariantList SettingsController::onlineControls() const {
+    const auto s=nintendoOnline::setup(nintendoPlatform_,nintendoDirectory_);
+    const auto row=[](QString title,QString detail){return QVariantMap{{"title",title},{"kind","action"},{"detail",detail}};};
+    return {row("Console",nintendoPlatform_=="wii"?"Wii":nintendoPlatform_=="n3ds"?"Nintendo 3DS":"Wii U"),
+        row("Online service",s.service=="off"?"Not selected":s.service),row("Set up Online","Open the service's setup guide"),
+        row("Preparation confirmed",s.prepared?"Yes":"Not prepared"),row("Check Online setup","Check files and account settings")};
+}
+void SettingsController::selectOnlinePlatform(const QString& platform){if(!QStringList{"wii","n3ds","wiiu"}.contains(platform)||nintendoPlatform_==platform)return;nintendoPlatform_=platform;nintendoStatus_.clear();emit changed();}
+void SettingsController::onlineAction(int index) {
+    index=std::clamp(index,0,4);
+    auto s=nintendoOnline::setup(nintendoPlatform_,nintendoDirectory_);QSettings preferences;
+    const auto key="nintendo-online/"+nintendoPlatform_;
+    if(index==0){const QStringList platforms{"wii","n3ds","wiiu"};nintendoPlatform_=platforms[(platforms.indexOf(nintendoPlatform_)+1)%3];nintendoStatus_.clear();}
+    if(index==1){const auto values=nintendoOnline::services(nintendoPlatform_);preferences.setValue(key+"/service",values[(values.indexOf(s.service)+1)%values.size()]);nintendoStatus_.clear();}
+    if(index==2)emit onlineGuideRequested(nintendoOnline::guide(nintendoPlatform_,s.service));
+    if(index==3&&s.service!="off"){preferences.setValue(key+"/prepared/"+s.service,!s.prepared);nintendoStatus_.clear();}
+    if(index==4){nintendoStatus_=nintendoOnline::check(s);if(nintendoStatus_.isEmpty())nintendoStatus_="Files prepared. Service sign-in is not verified in this session.";}
+    preferences.sync();if(preferences.status()!=QSettings::NoError)nintendoStatus_="Could not save Online service preferences.";
+    if(index==1||index==3||index==4)emit onlineServicesChanged();emit changed();
 }
 void SettingsController::selectCategory(int index, bool enter) {
     if(storage_.busy() || clock_.busy())return;
@@ -200,17 +215,7 @@ void SettingsController::activateRow(int index) {
     if(category_==11){clock_.activate(index);return;}
     if(category_==17) {
         pane_=true;row_=std::clamp(index,0,4);
-        auto s=nintendoOnline::setup(nintendoPlatform_,nintendoDirectory_);QSettings preferences;
-        const auto key="nintendo-online/"+nintendoPlatform_;
-        if(row_==0){const QStringList platforms{"wii","n3ds","wiiu"};nintendoPlatform_=platforms[(platforms.indexOf(nintendoPlatform_)+1)%3];nintendoStatus_.clear();}
-        if(row_==1){const auto values=nintendoOnline::services(nintendoPlatform_);preferences.setValue(key+"/service",values[(values.indexOf(s.service)+1)%values.size()]);nintendoStatus_.clear();}
-        if(row_==2)emit onlineGuideRequested(nintendoOnline::guide(nintendoPlatform_,s.service));
-        if(row_==3&&s.service!="off"){preferences.setValue(key+"/prepared/"+s.service,!s.prepared);nintendoStatus_.clear();}
-        if(row_==4){nintendoStatus_=nintendoOnline::check(s);if(nintendoStatus_.isEmpty())nintendoStatus_="Local prerequisites found. Login, game patches and server compatibility remain unverified.";}
-        preferences.sync();
-        if(preferences.status()!=QSettings::NoError)nintendoStatus_="Could not save Online service preferences.";
-        if(row_==1||row_==3||row_==4)emit onlineServicesChanged();
-        emit changed();return;
+        onlineAction(row_);return;
     }
     if(storage_.isOpen()){storage_.activate(index);return;}
     if(saving_)return;
@@ -239,6 +244,7 @@ void SettingsController::activateRow(int index) {
         QSettings settings;settings.setValue("library/scanAtStartup",!scanLibraryAtStartup());settings.sync();
         error_=settings.status()==QSettings::NoError?QString():QString("Could not save scanning preference");
     }
+    else if(category_==8 && row_==(legacyTrash_?6:5))emit gamePreparationRequested();
     else if(category_==9 && savePolicy_) {
         saving_=true;error_.clear();
         savePolicy_->setReadOnly(!readOnlySaves(),this,[this](const QString& error){saving_=false;error_=error;emit changed();});

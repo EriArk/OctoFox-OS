@@ -95,6 +95,7 @@
 #include "AppsSmokeScenario.h"
 #include "PlatformSmokeScenario.h"
 #include "SettingsSmokeScenario.h"
+#include "GamePreparationSmokeScenario.h"
 #include "AvatarSmokeScenario.h"
 #include "FirstRunSmokeScenario.h"
 #include "SoftwareUpdateSmokeScenario.h"
@@ -219,6 +220,7 @@ int main(int argc, char* argv[]) {
     parser.addOption({"smoke-test", "Verify the QML shell with an isolated SDL virtual controller, then exit."});
 #ifdef TRAINEROS_UI_TESTS
     parser.addOption({"settings-smoke-test", "Verify Settings and game input editor with isolated data."});
+    parser.addOption({"game-preparation-smoke-test", "Verify firmware preparation, shared picker and background import with synthetic files."});
     parser.addOption({"avatar-smoke-test", "Verify local avatar editor and preview with isolated data."});
     parser.addOption({"platform-smoke-test", "Render and exercise the host-owned SDK widget with isolated data."});
     parser.addOption({"first-run-smoke-test", "Exercise first setup with disposable profiles and local service fixtures."});
@@ -269,7 +271,7 @@ int main(int argc, char* argv[]) {
     artSmoke = parser.isSet("art-smoke-test");
     hallSmoke = parser.isSet("hall-smoke-test") || parser.isSet("achievement-gallery-smoke-test");
     diagnosticsSmoke = parser.isSet("diagnostics-smoke-test");
-    settingsSmoke = parser.isSet("settings-smoke-test");
+    settingsSmoke = parser.isSet("settings-smoke-test") || parser.isSet("game-preparation-smoke-test");
     persistencePhase = parser.value("persistence-smoke-test");
     if (parser.isSet("persistence-smoke-test") && (!QStringList{"seed", "verify", "error", "library-seed", "library-verify", "library-final", "library-launch", "library-home", "library-home-reopen", "library-center", "collection"}.contains(persistencePhase)
             || parser.value("data-dir").isEmpty() || parser.isSet("ephemeral"))) return 2;
@@ -428,6 +430,7 @@ int main(int argc, char* argv[]) {
                               personalLibrary && !smoke ? static_cast<HallOfFameRepository&>(*store) : shellArchive,
                               realAchievements ? static_cast<AchievementProvider&>(*realAchievements) : shellAchievements);
         shell.configureServices(&files, store.get());
+        shell.gamePreparation()->configure(stateDirectory,discovered.profiles);
         shell.settings()->configureNearby(pokemonModule(shell).party()->activities()->link());
         shell.social()->setLink(pokemonModule(shell).party()->activities()->link());
         if(personalLibrary && !smoke) {
@@ -518,6 +521,7 @@ int main(int argc, char* argv[]) {
         if(personalLibrary && !smoke) {
             session.firstRun()->configure(stateDirectory,libraryRoot);
             const auto applyLibraryRoot=[&](const QString& root)->QString {
+                if(shell.gamePreparation()->busy())return "Finish or cancel game preparation before changing storage.";
                 if(shell.scraper()->busy())return "Finish or cancel downloads before changing library storage.";
                 if(folders.busy() || folders.writing() || store->pending() || store->opening())return "The library is busy. Wait a moment and try again.";
                 const auto error=saveLibraryRoot(stateDirectory,root);
@@ -536,7 +540,7 @@ int main(int argc, char* argv[]) {
             };
             shell.libraryManager()->setInitialFolder(libraryRoot);
         }
-        session.setTrainerSwitchGuard([&]{return !shell.pcGames()->busy() && !shell.scraper()->busy() && !shell.moduleServiceBusy() && (!realAchievements || !realAchievements->accountBusy());});
+        session.setTrainerSwitchGuard([&]{return !shell.gamePreparation()->busy() && !shell.pcGames()->busy() && !shell.scraper()->busy() && !shell.moduleServiceBusy() && (!realAchievements || !realAchievements->accountBusy());});
         session.setTrainerRemovalPreparation([&]() -> QString {
             if(!realAchievements)return {};
             return realAchievements->disconnectForRemoval()?QString():"Could not remove the saved sign-in. Try again.";
@@ -734,13 +738,13 @@ int main(int argc, char* argv[]) {
               for(const auto& task:shell.files()->service()->tasks())if(!task.toMap()["terminal"].toBool()){
                   done("Finish the current file operation before sleeping.");return;
               }
-            if(shell.pcGames()->busy()||session.blocked()||shell.moduleServiceBusy()||folders.writing()||shell.settings()->storage()->busy()
+            if(shell.gamePreparation()->busy()||shell.pcGames()->busy()||session.blocked()||shell.moduleServiceBusy()||folders.writing()||shell.settings()->storage()->busy()
                ||(saveBackups&&saveBackups->busy())){done("Finish the current save or file operation before sleeping.");return;}
             session.flushForSleep();
             auto* wait=new QTimer(&session);wait->setInterval(50);
             auto ticks=std::make_shared<int>(0);
             bindings.connect(wait,&QTimer::timeout,&session,[&,wait,ticks,done]{
-                  bool guarded=shell.pcGames()->busy()||adventureLaunch.active()||session.blocked()||shell.moduleServiceBusy()||folders.writing()
+                  bool guarded=shell.gamePreparation()->busy()||shell.pcGames()->busy()||adventureLaunch.active()||session.blocked()||shell.moduleServiceBusy()||folders.writing()
                     ||shell.settings()->storage()->busy()||(saveBackups&&saveBackups->busy());
                   for(const auto& task:shell.files()->service()->tasks())guarded|=!task.toMap()["terminal"].toBool();
                 if(!guarded&&!session.writesPending()){wait->stop();wait->deleteLater();done({});}
@@ -1117,6 +1121,7 @@ int main(int argc, char* argv[]) {
                     emulatorRefresh->request(folders.root(), scanLibrary); return;
                 }
                 const auto prepared = prepareEmulators(environment);
+                shell.gamePreparation()->configure(stateDirectory,prepared.profiles);
                 for (const auto& notice : prepared.notices) qWarning().noquote() << "Emulator refresh:" << notice;
                 auto next = RetroArchInstallation::fromJson(prepared.profiles.value("retroarch"));
                 next.saves = retroarchInstallation.saves;
@@ -1149,6 +1154,7 @@ int main(int argc, char* argv[]) {
             };
             const auto refreshEmulators = [&] { emulatorRefresh->request(folders.root(), true); };
             bindings.connect(shell.settings(), &SettingsController::libraryRefreshRequested, emulatorRefresh.get(), refreshEmulators);
+            bindings.connect(shell.gamePreparation(), &GamePreparationController::installed, emulatorRefresh.get(), [&]{emulatorRefresh->request(folders.root(),false);refreshMultiplayer();});
             bindings.connect(&app, &QGuiApplication::applicationStateChanged, emulatorRefresh.get(), [&](Qt::ApplicationState state) {
                 if (state == Qt::ApplicationActive) emulatorRefresh->request(folders.root());
             });
@@ -1159,15 +1165,22 @@ int main(int argc, char* argv[]) {
             emulatorPoll.start();
         }
         shell.scraper()->canStart = [&] {
-            return personalLibrary && !smoke && !adventureLaunch.active() && !session.blocked()
+            return !shell.gamePreparation()->busy() && personalLibrary && !smoke && !adventureLaunch.active() && !session.blocked()
                 && !folders.busy() && store && !store->pending() && !store->opening()
                 && !shell.libraryManager()->saving() && !shell.libraryTools()->busy()
                 && !shell.settings()->storage()->busy() && !(saveBackups && saveBackups->busy());
         };
         auto* softwareUpdates=shell.settings()->updates();
+        shell.gamePreparation()->canImport=[&]{
+            if(!personalLibrary||smoke||!store||adventureLaunch.active()||session.blocked()||shell.runtimeChangeBlocked()
+               ||folders.busy()||store->pending()||store->opening()||shell.libraryManager()->saving()
+               ||shell.settings()->storage()->busy()||(saveBackups&&saveBackups->busy()))return false;
+            for(const auto& task:shell.files()->service()->tasks())if(!task.toMap()["terminal"].toBool())return false;
+            return true;
+        };
         if(!smoke && personalLibrary && qEnvironmentVariable("TRAINEROS_SOFTWARE_MANAGED")=="1") {
             softwareUpdates->maintenanceGuard=[&]() -> QString {
-                if(adventureLaunch.active() || session.blocked() || shell.launchPreparation().busy()
+                if(shell.gamePreparation()->busy() || adventureLaunch.active() || session.blocked() || shell.launchPreparation().busy()
                     || shell.moduleServiceBusy() || folders.busy() || folders.writing() || !store || store->pending() || store->opening()
                     || session.writesPending() || shell.scraper()->busy() || shell.libraryManager()->saving() || shell.libraryTools()->busy()
                     || shell.settings()->storage()->busy() || deviceService.busy() || shell.network()->busy()
@@ -1234,6 +1247,7 @@ int main(int argc, char* argv[]) {
         bool softwareRestart=false;
         if(!smoke)bindings.connect(softwareUpdates,&SoftwareUpdateController::restartRequested,&session,[&]{softwareRestart=true;session.requestExit();});
         bindings.connect(&shell, &ShellController::modeRequested, &session, [&](const QString& mode) {
+            if(shell.gamePreparation()->busy()){shell.showNotice("Finish or cancel game preparation before restarting or powering off.");return;}
             if (adventureLaunch.active()) return;
             pendingMode = mode; session.requestExit();
         });
@@ -1393,6 +1407,7 @@ int main(int argc, char* argv[]) {
                 auto returnFullscreen = std::make_shared<bool>(false);
                 auto returnedAdventure=std::make_shared<QString>();
                 const auto requestAdventure = [&, window, returnFullscreen, returnedAdventure](const ProcessCommand& command, const QString& id) -> AdventureResult {
+                    if(shell.gamePreparation()->busy())return {false,"Finish or cancel game preparation before starting a game."};
                     if(shell.pcGames()->installing())return {false,"Finish or cancel the game installer before starting a game."};
                     if(steamLibrary.writing())return {false,"Your Steam library is being updated. Try again in a moment."};
                     if(adventureLaunch.minimized()) {
@@ -1581,7 +1596,8 @@ int main(int argc, char* argv[]) {
                 } else if(persistencePhase=="library-center") {
                     startCenterSmoke(window,shell,session,*store,input,joystick,stateDirectory,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);
                 } else if (settingsSmoke) {
-                    startSettingsSmoke(window,shell,input,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);
+                    if(parser.isSet("game-preparation-smoke-test"))startGamePreparationSmoke(window,shell,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);
+                    else startSettingsSmoke(window,shell,input,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);
                 } else if (diagnosticsSmoke) {
                     startDiagnosticsSmoke(window, shell, session, input, deviceReports, joystick, screenshotDir,
                                           smokeCompleted, qmlWarnings, diagnostics);

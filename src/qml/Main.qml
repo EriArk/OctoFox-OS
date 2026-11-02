@@ -590,6 +590,7 @@ Window {
         Loader { anchors.fill: screen; active: shell.service === "trainer-setup"; visible: active; sourceComponent: TrainerSetupPanel { shell: shellController } }
         Loader { anchors.fill: screen; active: shell.service === "device"; visible: active; sourceComponent: DevicePanel { shell: shellController } }
         Loader { anchors.fill: screen; active: shell.service === "diagnostics"; visible: active; sourceComponent: DiagnosticsPanel { shell: shellController } }
+        Loader { anchors.fill: screen; active: shell.service === "game-preparation"; visible: active; sourceComponent: GamePreparationPanel { shell: shellController } }
         Loader { anchors.fill: screen; z: 2.8; active: shell.primaryId === "online" && shell.onlineFace === "crates" && shell.crates.detailOpen && !shell.serviceOpen && !shell.quickAppsOpen && !shell.drawerOpen; visible: active; sourceComponent: CratesProjectPopup { flow: shell.crates } }
         Loader { anchors.fill: screen; z: shell.menuOpen ? 4.2 : 3.1; active: shell.scraper.open && !shell.keyboard.open; visible: active; sourceComponent: ScrapePanel { shell: shellController } }
         Loader { anchors.fill: screen; z: shell.menuOpen ? 4.2 : 3.2; active: shell.downloads.open; visible: active; sourceComponent: DownloadsPanel { flow: shell.downloads } }

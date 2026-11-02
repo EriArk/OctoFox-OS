@@ -108,7 +108,7 @@ Item {
         Text { x: 16; y: 8; text: "System health"; font.family: Theme.displayFamily; font.pixelSize: 26; color: Theme.ink }
         Text { x: 16; y: 45; width: parent.width-32; text: root.checks.healthSummary; font.pixelSize: 12; color: Theme.muted; wrapMode: Text.Wrap; maximumLineCount: 3; elide: Text.ElideRight }
         ListView { id: health; x: 10; y: 102; width: parent.width*0.43; height: parent.height-y-12; clip: true
-            model: ["Refresh setup",root.checks.saving ? "Saving…" : "Export support archive","Open reports in Files","Offline help","Back"].concat(root.checks.healthRows)
+            model: ["Refresh setup",root.checks.saving ? "Saving…" : "Export support archive","Open reports in Files","Game preparation","Back"].concat(root.checks.healthRows)
             currentIndex: root.checks.focusIndex
             onCurrentIndexChanged: if(currentIndex>=0) positionViewAtIndex(currentIndex,ListView.Contain)
             delegate: SettingControl { required property int index; required property var modelData
