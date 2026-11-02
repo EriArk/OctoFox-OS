@@ -16,6 +16,7 @@
 #include "integrations/adventure/standalone/RmgNetplay.h"
 #include "integrations/adventure/standalone/FlycastNetplay.h"
 #include "integrations/adventure/standalone/MelonDsNetplay.h"
+#include "integrations/adventure/standalone/MelonDsWfc.h"
 #include "integrations/adventure/standalone/AzaharNetplay.h"
 #include "integrations/adventure/standalone/VitaNetplay.h"
 #include "integrations/adventure/standalone/Ps2LanNetplay.h"
@@ -125,6 +126,8 @@ private:
     bool azahar() const { return descriptor_["id"]=="runtime.azahar.3ds.v1"; }
     bool vita() const { return descriptor_["id"]=="runtime.vita3k.lan.v1"; }
     bool gcLan() const { return descriptor_["id"]=="runtime.dolphin.bba.v1"; }
+    bool dsWfc() const { return descriptor_["id"]=="runtime.melonds.wfc.v1"; }
+    bool nativeOnline() const { return dcOnline()||dsWfc(); }
     bool dcOnline() const { return descriptor_["id"]=="runtime.flycast.online.v1"; }
     bool cabinetLan() const { return descriptor_["id"]=="runtime.flycast.cabinet.v1"; }
     bool nativeLan() const { return ngpcLink()||doomLan()||ps2Lan()||gcLan()||xboxLan()||model3Lan()||cabinetLan(); }

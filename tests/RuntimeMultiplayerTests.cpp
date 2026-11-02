@@ -487,11 +487,23 @@ private slots:
         for(auto it=modes.cbegin();it!=modes.cend();++it)
             f.runtime.profiles_[it.key()]={{"id",it.value()},{"content",it.key()},{"players",2}};
         f.runtime.lanProfiles_["gc"]={{"id","runtime.dolphin.bba.v1"},{"content","gc"},{"players",2}};
+        f.runtime.lanProfiles_["nds"]={{"id","runtime.melonds.wfc.v1"},{"content","nds"},{"players",4},{"connections",QJsonArray{"online"}}};
         f.runtime.refresh({},"test-trainer",true);
-        QCOMPARE(f.runtime.availableGames().size(),6);
+        QCOMPARE(f.runtime.availableGames().size(),7);
         QVERIFY(!f.runtime.games_.contains("gc"));QVERIFY(!f.runtime.games_.contains("nes"));
         QVERIFY(f.runtime.lanGames_.contains("gc"));
-        QCOMPARE(f.social.lobbyPickerRows().size(),6);
+        QVERIFY(f.runtime.lanGames_.contains("nds"));
+        QCOMPARE(f.social.lobbyPickerRows().size(),6); // One game row, two DS modes.
+        bool wfcVisible=false;
+        for(const auto& row:f.social.lobbyPickerRows())if(row.toMap()["adventure"]=="nds") {
+            const auto modes=row.toMap()["modes"].toList();QCOMPARE(modes.size(),2);
+            for(const auto& mode:modes)wfcVisible|=mode.toMap()["mode"]=="runtime.melonds.wfc.v1";
+        }
+        QVERIFY(wfcVisible);
+        f.social.lobbyCreateOpen_=true;f.social.lobbyDraft_["type"]="local";
+        for(const auto& row:f.social.lobbyPickerRows())for(const auto& mode:row.toMap()["modes"].toList())
+            QVERIFY(mode.toMap()["mode"]!="runtime.melonds.wfc.v1");
+        f.social.lobbyCreateOpen_=false;f.social.lobbyDraft_.clear();
         f.library.metadata["nes"]["players"]="unknown";f.runtime.refresh({},"test-trainer",true);
         QVERIFY(f.runtime.games_.contains("nes"));QCOMPARE(f.social.lobbyPickerRows().size(),7);
     }
@@ -500,6 +512,7 @@ private slots:
         QTest::newRow("gamecube")<<QString("runtime.dolphin.gc.v1")<<QString("runtime.dolphin.bba.v1");
         QTest::newRow("arcade")<<QString("runtime.flycast-dojo.arcade.v1")<<QString("runtime.flycast.cabinet.v1");
         QTest::newRow("dreamcast-online")<<QString("runtime.flycast-dojo.dc.v1")<<QString("runtime.flycast.online.v1");
+        QTest::newRow("ds-wfc")<<QString("runtime.melonds.nds.v1")<<QString("runtime.melonds.wfc.v1");
     }
     void gameCubeLanAndNetplayKeepSeparateLocalProfiles() {
         QFETCH(QString,shared);QFETCH(QString,linked);Fixture f;
@@ -521,31 +534,35 @@ private slots:
         QVERIFY(prepared);QCOMPARE(f.runtime.lobbyDescriptor_,lan);
         f.runtime.lanGames_.clear();QVERIFY(f.runtime.localProfile("gc",lan).isEmpty());
         QCOMPARE(f.runtime.localProfile("gc",netplay),netplay);
-        f.runtime.descriptor_=lan;QCOMPARE(f.runtime.nativeLan(),linked!="runtime.flycast.online.v1");QVERIFY(!f.runtime.dolphin());QVERIFY(!f.runtime.supportsLive(lan));
+        f.runtime.descriptor_=lan;QCOMPARE(f.runtime.nativeLan(),linked!="runtime.flycast.online.v1"&&linked!="runtime.melonds.wfc.v1");QVERIFY(!f.runtime.dolphin());QVERIFY(!f.runtime.supportsLive(lan));
     }
     void nativeReadyIsBoundToEachAssignedSeat() {
-        for(const auto& mode:{QString("runtime.flycast.online.v1"),QString("runtime.flycast.cabinet.v1"),QString("runtime.armsx2.lan.v1"),QString("runtime.dolphin.bba.v1"),QString("runtime.xemu.lan.v1"),QString("runtime.supermodel.link.v1"),QString("runtime.odamex.doom.v1"),QString("runtime.ngpc.link.v1")})
+        for(const auto& mode:{QString("runtime.melonds.wfc.v1"),QString("runtime.flycast.online.v1"),QString("runtime.flycast.cabinet.v1"),QString("runtime.armsx2.lan.v1"),QString("runtime.dolphin.bba.v1"),QString("runtime.xemu.lan.v1"),QString("runtime.supermodel.link.v1"),QString("runtime.odamex.doom.v1"),QString("runtime.ngpc.link.v1")})
         for(int slot=2;slot<=4;++slot)for(int received:{1,2,3,4,5}) {
             Fixture f;f.runtime.active_=true;f.runtime.host_=false;f.runtime.request_.slot=slot;
             f.runtime.descriptor_={{"id",mode},{"players",4}};
             int inspected=0;f.library.inspect=[&]{++inspected;};
-            f.runtime.frame({{"kind",mode.contains("online")?"dc-online-ready":mode.contains("armsx2")?"ps2-ready":mode.contains("dolphin")?"bba-ready":mode.contains("ngpc")?"ngpc-ready":mode.contains("odamex")?"doom-ready":mode.contains("supermodel")?"model3-ready":mode.contains("xemu")?"xbox-ready":"cabinet-ready"},{"identity",f.runtime.descriptor_},{"slot",received}});
+            f.runtime.frame({{"kind",mode.contains("wfc")?"ds-wfc-ready":mode.contains("online")?"dc-online-ready":mode.contains("armsx2")?"ps2-ready":mode.contains("dolphin")?"bba-ready":mode.contains("ngpc")?"ngpc-ready":mode.contains("odamex")?"doom-ready":mode.contains("supermodel")?"model3-ready":mode.contains("xemu")?"xbox-ready":"cabinet-ready"},{"identity",f.runtime.descriptor_},{"slot",received}});
             // The valid seat reaches local content verification. Another seat
             // must fail before looking up or launching any game.
             QCOMPARE(inspected>0,received==slot);
             QVERIFY(!f.process.active());
         }
     }
+    void dreamcastOnlineLaunchIsNotAMatchAndLobbyLossKeepsTheGame_data() {
+        QTest::addColumn<bool>("wfc");QTest::newRow("dcnet")<<false;QTest::newRow("ds-wfc")<<true;
+    }
     void dreamcastOnlineLaunchIsNotAMatchAndLobbyLossKeepsTheGame() {
+        QFETCH(bool,wfc);
         Fixture f;QVERIFY(f.start());QTRY_COMPARE(f.lifecycle.state(),"running");
         const auto pid=f.process.processId();f.runtime.active_=true;f.runtime.host_=true;f.runtime.online_=true;
-        f.runtime.descriptor_={{"id","runtime.flycast.online.v1"},{"lateJoin",false},{"connections",QJsonArray{"online"}}};
+        f.runtime.descriptor_={{"id",wfc?"runtime.melonds.wfc.v1":"runtime.flycast.online.v1"},{"lateJoin",false},{"connections",QJsonArray{"online"}}};
         f.runtime.deadline_=1;
         emit f.lifecycle.adventureStarted(f.lifecycle.adventureId());
-        QCOMPARE(f.runtime.deadline_,0);QCOMPARE(f.runtime.status_,"Choose Online and the same room in the game");
+        QCOMPARE(f.runtime.deadline_,0);QCOMPARE(f.runtime.status_,wfc?"Choose Nintendo WFC and the same room in the game":"Choose Online and the same room in the game");
         QVERIFY(!f.runtime.supportsRejoin(f.runtime.descriptor_));QVERIFY(!f.runtime.nativeLanConnection_);
         f.runtime.fail("Lobby connection ended");QCOMPARE(f.process.processId(),pid);
-        f.runtime.frame({{"kind","dc-online-ready"},{"identity",f.runtime.descriptor_},{"slot",2}});
+        f.runtime.frame({{"kind",wfc?"ds-wfc-ready":"dc-online-ready"},{"identity",f.runtime.descriptor_},{"slot",2}});
         QCOMPARE(f.process.processId(),pid);QVERIFY(!f.runtime.active_);finishOrdinary(f);
     }
     void lobbyReadyRunsBothOwnedChildrenAndReturnsToTheSameRoom_data() {

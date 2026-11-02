@@ -117,6 +117,7 @@ S08 защищает личные сохранения. Существующие
 | Dreamcast Dojo | CHD v5, GDI/CDI/CUE/M3U | Хешируются все дорожки/диски. Dojo получает первый диск M3U; штатного standalone M3U decoder нет. Живая синхронная смена диска отдельно |
 | GameCube NetPlay/BBA | ISO/GCM/RVZ/WIA/GCZ/CISO/TGC; split `.part0.iso` | Штатный Dolphin reader определяет платформу. BBA остаётся LAN-механизмом соответствующих игр; общий NetPlay не ограничен ими |
 | Wii NetPlay | ISO/GCM/RVZ/WIA/GCZ/CISO/WBFS, split ISO/WBFS и WAD каналов | WAD требует нового manifest-маркера и Wiimote bridge; IOS/system WAD не запускается как игра. Изолированный NAND/сейвы сохранены |
+| DS WFC | NDS/SRL/ZIP/7z с одним картриджем, DS unit 0/2 | Отдельный [WFC runtime](emulators/melonds-wfc.md) и собственный постоянный прогресс; DSi-only не допускается, список названий не нужен; source без текущей поставки |
 | DS wireless | NDS/SRL/ZIP/7z с одним картриджем | ROM извлекается в приватный сеанс; собственный SAV ищется по имени ROM внутри архива, как в melonDS, а не по имени контейнера |
 | 3DS wireless | 3DS/CCI/CXI/APP/3DSX/ELF/AXF/ZCCI/ZCXI/Z3DSX | Z3DS v1 проходит проверку структуры и seek table; декодирует штатный Azahar. Это не установка CIA/ZCIA и не идентичность updates/DLC |
 | Vita, Wii U, Xbox и иные незавершённые сетевые механизмы | Прежние standalone регистрации и exact vitaQuake LAN сохранены | Коммерческий Vita AdHoc/PSN, Wii U native online и Xbox System Link требуют самой интеграции; добавление расширений её не заменяет |

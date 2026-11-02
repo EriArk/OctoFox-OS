@@ -12,6 +12,7 @@
 #include "integrations/adventure/standalone/AzaharNetplay.h"
 #include "integrations/adventure/standalone/VitaNetplay.h"
 #include "integrations/adventure/standalone/MelonDsNetplay.h"
+#include "integrations/adventure/standalone/MelonDsWfc.h"
 #include "integrations/adventure/DiscPlaylist.h"
 #include "integrations/adventure/retroarch/RetroArchAdapter.h"
 #include "core/storage/LocalStateStore.h"
@@ -49,6 +50,69 @@ class StandaloneTests final : public QObject {
         QFile file(path); QVERIFY(file.open(QIODevice::WriteOnly)); QCOMPARE(file.write(data), data.size());
     }
 private slots:
+
+    void dsWfcOwnIdentityProgressAndFailures() {
+        const bool mode=QStandardPaths::isTestModeEnabled();QStandardPaths::setTestModeEnabled(true);
+        const auto root=dswfc::bundleRoot();QVERIFY2(!QFileInfo::exists(root),"Test package path must be unused");
+        const auto cleanup=qScopeGuard([&]{QDir(root).removeRecursively();QStandardPaths::setTestModeEnabled(mode);});
+        QVERIFY(QDir().mkpath(root));
+#ifdef Q_OS_WIN
+        const QString core="melondsds_libretro.dll";
+#else
+        const QString core="melondsds_libretro.so";
+#endif
+        const auto sha=[](QByteArray b){return QString::fromLatin1(QCryptographicHash::hash(b,QCryptographicHash::Sha256).toHex());};
+        write(root+'/'+core,"sealed test core");
+        write(root+"/manifest.json",QJsonDocument(QJsonObject{{"protocol",1},{"source",dswfc::Source},{"coreSource",dswfc::CoreSource},
+            {"settings",dswfc::Settings},{"core",core},{"sha256",sha("sealed test core")}}).toJson());
+        QTemporaryDir dir;QVERIFY(dir.isValid());
+        RetroArchInstallation installed;installed.program=probe();installed.runtimeFile=probe();
+        AdventureRegistration r;r.adventure.id="any-ds";r.adventure.title="Any title";r.adventure.platformId="nds";r.adventure.adapterId="melonds";
+        QByteArray rom(32768,'x');rom[0x12]=0;r.contentPath=dir.filePath("cartridge.nds");write(r.contentPath,rom);
+        const auto original=r.contentPath;std::atomic_bool cancel=false;
+        const auto profile=dswfc::identity(r,installed,cancel);QVERIFY(!profile.isEmpty());QCOMPARE(profile["players"].toInt(),4);
+        QVERIFY(!profile["privateProgress"].toBool()); // No save copies are sent to peers.
+        QVERIFY(!localLobbyRuntime(profile));QVERIFY(permitsMultiplayer({{"players","1"}},profile));
+        QVERIFY(!multiplayerConnectionAllowed(profile,"nearby"));QVERIFY(multiplayerConnectionAllowed(profile,"online"));
+        for(const auto& format:QStringList{"zip","7z"}) {
+            r.contentPath=dir.filePath("other."+format);write(r.contentPath,cartridgeArchive(format,{{"renamed.SRL",rom}}));
+            QVERIFY(sameMultiplayerGame(profile,dswfc::identity(r,installed,cancel)));
+        }
+        const auto backups=dir.filePath("backups");QVERIFY(QDir().mkpath(backups));
+        auto a=dswfc::command(r,installed,profile,"owner-a",backups);QCOMPARE(a.prepare(a,cancel),QString());
+        QFile config(a.workingDirectory+"/session.cfg");QVERIFY(config.open(QIODevice::ReadOnly));const auto cfg=config.readAll();
+        QVERIFY(cfg.contains("netplay_start_as_server = \"false\""));QVERIFY(cfg.contains("netplay_start_as_client = \"false\""));
+        QVERIFY(!a.arguments.contains("--host"));QVERIFY(!a.arguments.contains("--connect"));
+        auto read=[](const QString& p){QFile f(p);return f.open(QIODevice::ReadOnly)?f.readAll():QByteArray();};
+        const auto mac=read(a.workingDirectory+"/system/melonDS DS/console.txt");QCOMPARE(mac.size(),18);
+        auto duplicate=dswfc::command(r,installed,profile,"owner-a",backups);QVERIFY(!duplicate.prepare(duplicate,cancel).isEmpty());
+        auto b=dswfc::command(r,installed,profile,"owner-b",backups);QCOMPARE(b.prepare(b,cancel),QString());
+        QVERIFY(read(b.workingDirectory+"/system/melonDS DS/console.txt")!=mac);
+        write(a.workingDirectory+"/saves/game.srm",QByteArray(512,'a'));write(a.workingDirectory+"/system/melonDS DS/wfcsettings.bin",QByteArray(2304,'w'));
+        write(b.workingDirectory+"/saves/game.srm",QByteArray(512,'b'));write(b.workingDirectory+"/system/melonDS DS/wfcsettings.bin",QByteArray(2304,'z'));
+        ProcessOutcome ok;ok.started=true;ok.exitCode=0;
+        QCOMPARE(a.finalize(ok),QString());a.settled(ok);QCOMPARE(b.finalize(ok),QString());b.settled(ok);
+        auto again=dswfc::command(r,installed,profile,"owner-a",backups);QCOMPARE(again.prepare(again,cancel),QString());
+        QCOMPARE(read(again.workingDirectory+"/saves/game.srm"),QByteArray(512,'a'));
+        QCOMPARE(read(again.workingDirectory+"/system/melonDS DS/wfcsettings.bin"),QByteArray(2304,'w'));
+        QCOMPARE(read(again.workingDirectory+"/system/melonDS DS/console.txt"),mac);
+        const auto persistent=QFileInfo(again.workingDirectory).dir().filePath("progress.bin");const auto prior=read(persistent);
+        write(again.workingDirectory+"/saves/game.srm",QByteArray(512,'c'));
+        ProcessOutcome crash=ok;crash.crashed=true;
+        QVERIFY(!again.finalize(crash).isEmpty());again.settled(crash);QCOMPARE(read(persistent),prior);QVERIFY(QFileInfo::exists(again.workingDirectory));
+        auto missing=dswfc::command(r,installed,profile,"owner-a",backups);QCOMPARE(missing.prepare(missing,cancel),QString());
+        QVERIFY(QFile::remove(missing.workingDirectory+"/saves/game.srm"));
+        QVERIFY(!missing.finalize(ok).isEmpty());missing.settled(ok);QCOMPARE(read(persistent),prior);
+        auto stale=dswfc::command(r,installed,profile,"owner-a",backups);QCOMPARE(stale.prepare(stale,cancel),QString());
+        auto changed=prior;changed[9]='x';write(persistent,changed);
+        write(stale.workingDirectory+"/saves/game.srm",QByteArray(512,'d'));
+        QVERIFY(!stale.finalize(ok).isEmpty());stale.settled(ok);QCOMPARE(read(persistent),changed);
+        write(persistent,"broken");auto bad=dswfc::command(r,installed,profile,"owner-a",backups);QVERIFY(!bad.prepare(bad,cancel).isEmpty());
+        QCOMPARE(read(persistent),QByteArray("broken"));
+        r.contentPath=original;QCOMPARE(read(original),rom);rom[0x12]=3;write(original,rom);QVERIFY(dswfc::identity(r,installed,cancel).isEmpty());
+        rom[0x12]=2;write(original,rom);QVERIFY(!dswfc::identity(r,installed,cancel).isEmpty());
+        write(root+'/'+core,"unreviewed replacement");QVERIFY(dswfc::identity(r,installed,cancel).isEmpty());
+    }
     void ngpcPackageOwnProgressAndArchives() {
 #ifdef Q_OS_WIN
         QSKIP("Native Linux package preparation");
@@ -150,6 +214,7 @@ private slots:
         r.adventure.adapterId="supermodel";r.adventure.platformId="model3";r.contentPath=rom;
         std::atomic_bool cancel=false;const auto profile=model3::netplayIdentity(r,cancel);
         QVERIFY(!profile.isEmpty());QCOMPARE(profile["players"].toInt(),4);
+        QVERIFY(!profile["privateProgress"].toBool()); // No save copies are sent to peers.
         QVERIFY(localLobbyRuntime(profile));QCOMPARE(multiplayerPresentation(profile)["label"].toString(),"Cabinet Link");
         const auto name=profile["set"].toString();write(nvram+'/'+name+".nv","own progress");
         for(int seat=1;seat<=4;++seat){
@@ -240,6 +305,7 @@ private slots:
         AdventureRegistration r;r.adventure.id="xbox-fixture";r.adventure.title="Xbox fixture";r.adventure.adapterId="xemu";r.adventure.platformId="xbox";
         r.contentPath=dir.filePath("game.iso");write(r.contentPath,QByteArray(512,'i'));std::atomic_bool cancel{false};
         const auto profile=xboxlan::netplayIdentity(r,cancel);QVERIFY(!profile.isEmpty());QCOMPARE(profile["players"].toInt(),4);
+        QVERIFY(!profile["privateProgress"].toBool()); // No save copies are sent to peers.
         QCOMPARE(multiplayerPresentation(profile)["label"].toString(),"System Link");QVERIFY(localLobbyRuntime(profile));
         for(int seat=1;seat<=4;++seat) {
             NativeLanConnection group{"xbox","abcdef123456",seat,4,{}};

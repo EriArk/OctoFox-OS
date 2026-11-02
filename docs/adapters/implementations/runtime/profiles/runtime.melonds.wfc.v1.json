@@ -1,0 +1,27 @@
+{
+  "id": "runtime.melonds.wfc.v1",
+  "platform": "nds",
+  "romSha256": "",
+  "state": "partial",
+  "record": "../emulators/melonds-wfc.md",
+  "sourceRevision": "f394adbacb5722ee97c1b37c8064da9a25818310",
+  "recipe": "packaging/emulators/melonds-wfc/build.py",
+  "persistentSaveWrites": true,
+  "savePolicy": "Separate own SRAM and WFC identity in one opaque envelope; protected backup/atomic return. No solo-save import, peer-save sharing or semantic access.",
+  "evidence": [
+    "native-windows-core-build",
+    "builtin-firmware-ap-dns-and-stable-mac",
+    "wfc-identity-reopened-in-fresh-process",
+    "archive-and-own-save-return-failure-tests",
+    "lobby-independent-process-lifecycle"
+  ],
+  "remaining": [
+    "arm64-build-and-device-delivery",
+    "actual-wfc-service-gameplay-and-nat",
+    "wider-game-service-and-performance-acceptance"
+  ],
+  "implementationSource": "src/integrations/adventure/standalone/MelonDsWfc.cpp",
+  "implementation": "implementations/runtime",
+  "profile": "implementations/runtime/profiles/runtime.melonds.wfc.v1.json",
+  "evidenceBase": "../../../"
+}

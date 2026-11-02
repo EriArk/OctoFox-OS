@@ -1,0 +1,14 @@
+diff --git a/src/libretro/config/config.cpp b/src/libretro/config/config.cpp
+index 641ce91..0d3caae 100644
+--- a/src/libretro/config/config.cpp
++++ b/src/libretro/config/config.cpp
+@@ -1016,6 +1016,9 @@ bool MelonDsDs::RegisterCoreOptions(CoreConfig& config) noexcept {
+                     struct stat statbuf;
+                     stat(d.path, &statbuf);
+                     firmware.emplace_back(FirmwareEntry {d.path, header, statbuf});
++                } else if (auto address = ParseMacAddressFile(d)) {
++                    // Register the existing parser's value so frontends accept it.
++                    macAddresses.push_back({"Private WFC console", fmt::format("{:02x}", fmt::join(*address, ":"))});
+                 }
+             }
+         }

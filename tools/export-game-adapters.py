@@ -83,6 +83,7 @@ for relative in ("src/integrations/adventure/standalone/AzaharNetplay.cpp",
                  "src/integrations/adventure/standalone/DolphinNetplay.cpp",
                  "src/integrations/adventure/standalone/DolphinLan.cpp",
                  "src/integrations/adventure/standalone/MelonDsSession.cpp",
+                 "src/integrations/adventure/standalone/MelonDsWfc.cpp",
                  "src/integrations/adventure/standalone/MelonDsSave.cpp",
                  "src/platform/process/ProcessService.cpp",
                  "src/integrations/adventure/standalone/MelonDsNetplay.cpp",
@@ -120,7 +121,7 @@ for name in ("ps2_sockets.hpp", "cabinet_channel.hpp", "bba_channel.hpp", "check
 for path in sorted((root / "tools/ppsspp-content").iterdir()):
     if path.is_file():
         files[path.relative_to(root).as_posix()] = path.read_text(encoding="utf-8").encode("utf-8")
-for directory in ("dolphin", "handheld", "rmg", "flycast", "flycast-lan", "melonds", "azahar", "xemu", "supermodel", "odamex", "neocd", "ngpc", "vita3k", "native-lan", "lrps2", "pcsx-rearmed"):
+for directory in ("dolphin", "handheld", "rmg", "flycast", "flycast-lan", "melonds", "melonds-wfc", "azahar", "xemu", "supermodel", "odamex", "neocd", "ngpc", "vita3k", "native-lan", "lrps2", "pcsx-rearmed"):
     for path in sorted((root / "packaging/emulators" / directory).iterdir()):
         if path.is_file():
             files[path.relative_to(root).as_posix()] = path.read_text(encoding="utf-8").encode("utf-8")
