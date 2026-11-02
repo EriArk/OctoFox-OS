@@ -33,6 +33,13 @@ assets/credits and exact-form targets. Their new default roots are
 family has not been installed. Explicit `--art-dir` / `--sprite-dir` overrides
 remain available. No files are copied, removed or publicly bundled.
 
+Cuboid v1 is now the built-in lowest-priority presentation fallback: exact-key
+recipes cover the offline catalogue; unknown keys use a neutral symbolic cube.
+ClassicArt fills missing illustrations; SpriteArt supplements missing kind/action
+pairs without replacing user clips. The original renderer shares one canvas
+across actions and uses the existing asynchronous image provider/cache. It is
+not an installed pack and grants no save capability. [Contract and delivery](../../../docs/CUBOID_CREATURES.md).
+
 Both families declare no extraction sources yet. Pack Studio, installable external
 packs/adapters, and ROM-native extraction/cache/migration keep their #59/#92/#95–97
 acceptance; changing the manifest is not an implementation of a decoder.

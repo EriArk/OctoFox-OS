@@ -1,4 +1,6 @@
 #include "SpriteArt.h"
+#include "CuboidArt.h"
+#include <QSet>
 #include <QBuffer>
 #include <QCryptographicHash>
 #include <QDir>
@@ -41,12 +43,12 @@ SpriteArt::SpriteArt(const QString& directory)
 }
 QString SpriteArt::status() const {
     if (!error_.isEmpty()) return error_;
-    return targets_.isEmpty() ? "Sprites not installed" : "No confirmed sprite or portrait for this form";
+    return targets_.isEmpty() ? "Built-in cuboid creatures" : "User sprites with built-in cuboid fallback";
 }
 QVariantList SpriteArt::choices(const QString& exactForm) const {
     QVariantList result;
     const auto rows = targets_[exactForm].toArray();
-    if (rows.size() > 8) return result;
+    if (rows.size() > 8) return CuboidArt::choices(exactForm);
     for (const auto& value : rows) {
         const auto row = value.toObject(); const auto id = row["asset"].toString();
         if (!assets_.contains(id)) continue;
@@ -55,6 +57,10 @@ QVariantList SpriteArt::choices(const QString& exactForm) const {
         item["url"] = "image://sprite-detail/" + id;
         result.append(item);
     }
+    QSet<QString> provided;
+    for(const auto& value:result) {const auto row=value.toMap();provided.insert(row["kind"].toString()+"/"+row["action"].toString());}
+    for(const auto& value:CuboidArt::choices(exactForm)) {const auto row=value.toMap();
+        if(!provided.contains(row["kind"].toString()+"/"+row["action"].toString())) result.append(value);}
     return result;
 }
 QImage SpriteArt::requestImage(const QString& requestedId, QSize* size, const QSize&) {
@@ -63,6 +69,12 @@ QImage SpriteArt::requestImage(const QString& requestedId, QSize* size, const QS
     QMutexLocker guard(&mutex_);
     QImage image;
     if (const auto* cached = cache_.object(requestedId)) image = *cached;
+    else if (id.startsWith("cuboid/")) {
+        image=CuboidArt::render(id);
+        // Built-ins deliberately keep one common canvas across every action.
+        // Per-sheet trimming would make an actor jump when switching direction.
+        if(!image.isNull())cache_.insert(requestedId,new QImage(image),int(image.sizeInBytes()));
+    }
     else if (assets_.contains(id)) {
         const QFileInfo info(QDir(directory_).filePath(assets_[id].toObject()["file"].toString()));
         // Recheck canonical containment on each uncached read, including symlinks.

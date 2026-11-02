@@ -118,6 +118,8 @@ add_library(trainer_core STATIC
     src/core/repository/BatoceraLibrary.h
     src/core/storage/TrainerPin.cpp
     src/features/trainer/TrainerAccessController.cpp
+    src/adapters/pokemon/pokedex/CuboidArt.h
+    src/adapters/pokemon/pokedex/CuboidArt.cpp
     src/adapters/pokemon/pokedex/SpriteArt.h
     src/adapters/pokemon/pokedex/SpriteArt.cpp
     src/adapters/pokemon/pokedex/ClassicArt.h
@@ -360,6 +362,7 @@ qt_add_resources(trainer_core badge_assets PREFIX "/badges" BASE assets/badges
 qt_add_resources(trainer_core collection PREFIX "/collection" BASE data FILES data/catalogue.json)
 qt_add_resources(trainer_core rom_platforms PREFIX "/library" BASE data FILES data/rom-platforms.json)
 qt_add_resources(trainer_core game_preparation PREFIX "/preparation" BASE data/firmware FILES data/firmware/firmware.json)
+qt_add_resources(trainer_core cuboid_creatures PREFIX "/cuboids" BASE data FILES data/cuboid-creatures.json)
 qt_add_resources(trainer_core pokedex_reference PREFIX "/pokedex" BASE data FILES data/pokedex.json)
 qt_add_resources(trainer_core emerald_reference PREFIX "/progress" BASE data FILES data/emerald-reference.json)
 qt_add_resources(trainer_core emerald_shops PREFIX "/progress" BASE data FILES data/emerald-shops.json)

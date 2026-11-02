@@ -91,12 +91,14 @@ Item {
             Item {
                 id: summary; objectName: "party-summary"; x: tray.width + 18; width: parent.width - x; height: parent.height
                 readonly property bool known: root.selected.kind === "known"
+                readonly property real statsTop: Math.min(190, height - 113)
                 Text { textFormat: Text.PlainText; id: name; width: parent.width - 82; text: root.selected.name || "Pokémon Center"; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 25; font.bold: true; elide: Text.ElideRight }
                 Text { textFormat: Text.PlainText; anchors.right: parent.right; y: 6; text: summary.known ? "Lv. " + root.selected.level : ""; color: Theme.ink; font.pixelSize: 19; font.bold: true }
                 Text { textFormat: Text.PlainText; y: 33; width: parent.width; text: (root.selected.types || "") + (summary.known && root.selected.condition && root.selected.condition !== "Healthy" ? " · " + root.selected.condition : ""); color: Theme.muted; font.pixelSize: 14; elide: Text.ElideRight }
-                ClassicIllustration { x: 0; y: 58; width: 131; height: 123; visible: summary.known; art: root.selected.art || ({}) }
+                ClassicIllustration { x: 0; y: 58; width: 131; height: Math.min(123, summary.statsTop - y - 6); visible: summary.known; art: root.selected.art || ({}) }
                 Column {
-                    x: 147; y: 56; width: parent.width - x; spacing: 6; visible: summary.known
+                    id: facts
+                    x: 147; y: 56; width: parent.width - x; spacing: summary.height < 290 ? 3 : 6; visible: summary.known
                     Repeater {
                         model: (root.storage ? [] : [{label:"HP",value:root.selected.hp,tint:Theme.surfaceColor("#c3dfa7")}]).concat([
                             {label:"Ability",value:root.selected.ability,tint:Theme.surfaceColor("#bfdbeb")},
@@ -105,14 +107,14 @@ Item {
                         ])
                         Rectangle {
                             required property var modelData
-                            width: parent.width; height: root.storage ? 35 : 25; radius: 5; color: Theme.surfaceColor(modelData.tint)
+                            width: parent.width; height: Math.min(root.storage ? 35 : 25, (summary.statsTop - facts.y - 4 - facts.spacing * (root.storage ? 2 : 3)) / (root.storage ? 3 : 4)); radius: 5; color: Theme.surfaceColor(modelData.tint)
                             Text { textFormat: Text.PlainText; x: 8; anchors.verticalCenter: parent.verticalCenter; text: modelData.label; color: Theme.muted; font.pixelSize: 11 }
                             Text { textFormat: Text.PlainText; x: 60; width: parent.width - 68; anchors.verticalCenter: parent.verticalCenter; text: modelData.value || "—"; color: Theme.ink; font.pixelSize: 13; font.bold: true; elide: Text.ElideRight }
                         }
                     }
                 }
                 Row {
-                    y: Math.min(190, summary.height - 113); width: parent.width; spacing: 5; visible: summary.known
+                    y: summary.statsTop; width: parent.width; spacing: 5; visible: summary.known
                     Repeater {
                         model: ["HP", "Attack", "Defense", "Sp. Atk", "Sp. Def", "Speed"]
                         Rectangle {

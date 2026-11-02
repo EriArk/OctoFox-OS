@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TrainerOS Cuboids — встроенный набор</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f1e5;color:#23433e;font:16px system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:24px}h1{font-size:28px;margin-bottom:8px}p{line-height:1.5}button,select{font:inherit;border:1px solid #8ca59c;border-radius:9px;padding:8px 12px;background:transparent;color:inherit}select option{background:#f5f1e5;color:#23433e}button:focus-visible,select:focus-visible{outline:3px solid #d7a33e}.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:24px 0}.cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:18px}.card{border-bottom:1px solid #a7b7a7;padding:16px;text-align:center}.sprite{position:relative;overflow:hidden;margin:8px auto}.sprite img{position:absolute;max-width:none}.caption{font-size:13px;opacity:.75}.gallery{max-width:100%;height:auto;border-radius:14px}a{color:inherit}body.dark{background:#0b171b;color:#dce6d9}details{margin:24px 0}summary{cursor:pointer;font-weight:600}
+</style>
+<main><h1>Кубические существа</h1><p>Рабочие кадры встроенного renderer. Символические образы; настоящие имена и данные видов сохраняются. Все кадры одного действия имеют общую геометрию и холст.</p>
+<div class="controls"><select id="action" aria-label="Действие"><option value="Idle">Покой / моргание</option value="WalkLeft">Влево</option><option value="WalkRight">Вправо</option><option value="WalkUp">От нас</option><option value="WalkDown">К нам</option><option value="Sleep">Сон</option></select><button id="play">Остановить</button><button id="step">Следующий кадр</button><button id="theme" aria-pressed="false">Тёмный фон</button><span id="frame"></span></div>
+<div class="cast" id="cast"></div>
+<details><summary>Представители набора</summary><img class="gallery" src="representatives.png" alt="Десять символических существ и их маленькие версии"></details>
+<details><summary>Все 386 стандартных видов Emerald</summary><p class="caption">По национальному номеру, слева направо, по 24 записи в строке. Масштабируется шириной окна.</p><img class="gallery" src="emerald-386.png" alt="Образы 386 видов"></details>
+<p><a href="../../CUBOID_CREATURES.md">Покрытие, приоритет пользовательских пакетов и проверка</a></p></main>
+<script>
+const cast=document.getElementById('cast'),action=document.getElementById('action');
+for(const [key,name] of [['pikachu','Pikachu'],['bulbasaur','Bulbasaur'],['charmander','Charmander'],['zubat','Zubat'],['unknown','Общий образ']]){
+ const card=document.createElement('section');card.className='card';card.innerHTML=`<b>${name}</b>`;
+ for(const size of [96,48])card.innerHTML+=`<div class="sprite" style="width:${size}px;height:${size}px"><img data-key="${key}" data-size="${size}" alt="${name}"></div><span class="caption">${size} px</span>`;
+ cast.append(card);
+}
+let frame=0,playing=true,timer;
+function draw(){for(const image of document.querySelectorAll('.sprite img')){const size=Number(image.dataset.size);image.src=`clips/${image.dataset.key}-${action.value}.png`;Object.assign(image.style,{width:4*size+'px',height:size+'px',left:-frame*size+'px'})}document.getElementById('frame').textContent=`Кадр ${frame+1} / 4`}
+function schedule(){clearTimeout(timer);document.getElementById('play').textContent=playing?'Остановить':'Воспроизвести';if(!playing||document.hidden)return;const times=action.value==='Idle'?[1200,150,120,900]:action.value==='Sleep'?[500,500,500,500]:[120,120,120,120];timer=setTimeout(()=>{frame=(frame+1)%4;draw();schedule()},times[frame])}
+action.onchange=()=>{frame=0;draw();schedule()};document.getElementById('play').onclick=()=>{playing=!playing;schedule()};document.getElementById('step').onclick=()=>{playing=false;frame=(frame+1)%4;draw();schedule()};document.getElementById('theme').onclick=e=>{const dark=document.body.classList.toggle('dark');e.target.setAttribute('aria-pressed',dark)};
+document.addEventListener('visibilitychange',()=>{if(document.hidden){playing=false;schedule()}});draw();schedule();
+</script></html>

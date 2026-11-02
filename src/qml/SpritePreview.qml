@@ -25,7 +25,7 @@ Item {
         Image {
             id: sheet
             source: root.visible && root.asset.url ? root.asset.url + (root.trimTransparentMargins ? "/trimmed" : "") : ""
-            asynchronous: true; cache: false; smooth: false
+            asynchronous: true; cache: false; smooth: !!root.asset.builtin
             width: sourceSize.width * root.scaleFactor; height: sourceSize.height * root.scaleFactor
             x: -root.frame * root.cellWidth * root.scaleFactor
         }

@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-03",
+  "base_commit": "a5ca19412beca2d689e258f9d3353b11a0f14023",
+  "build": "ARM Release; BUILD_TESTING=OFF",
+  "source_manifest_entries": 1674,
+  "source_manifest_matches": true,
+  "tests": [
+    "sprite_art",
+    "classic_art",
+    "pc_import_ui::pokemonWorkspacesAtHandheldSizes"
+  ],
+  "ui_captures": 48,
+  "devices": {
+    "flip": {
+      "sha256": "a979ee148ade5b6305f7477c29dc4cc0d1b0653e2887a8a0db4ace9c3e8a41b3",
+      "previous": "43a5ccf58a0f32c8300edcda15ba4f1faa3ba45e38281b0a4de1e5ab991b3019",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "one_shell": true,
+      "preview_closed": true,
+      "preview_error_counts": {
+        "ReferenceError": 0,
+        "TypeError": 0,
+        "Binding loop": 0,
+        "Cannot assign": 0,
+        "Unable to assign": 0,
+        "Error decoding": 0,
+        "Failed to get image": 0
+      },
+      "volume": "Volume: 0.20",
+      "private_pack_indices_and_choices_preserved": true,
+      "home_party_boxes_playroom_sample_viewed": true,
+      "ordinary_shell_restored_and_viewed": true
+    },
+    "odin": {
+      "sha256": "a979ee148ade5b6305f7477c29dc4cc0d1b0653e2887a8a0db4ace9c3e8a41b3",
+      "previous": "43a5ccf58a0f32c8300edcda15ba4f1faa3ba45e38281b0a4de1e5ab991b3019",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "one_shell": true,
+      "preview_closed": true,
+      "preview_error_counts": {
+        "ReferenceError": 0,
+        "TypeError": 0,
+        "Binding loop": 0,
+        "Cannot assign": 0,
+        "Unable to assign": 0,
+        "Error decoding": 0,
+        "Failed to get image": 0
+      },
+      "volume": "Volume: 0.00",
+      "private_pack_indices_and_choices_preserved": true,
+      "home_party_boxes_playroom_sample_viewed": true,
+      "ordinary_shell_restored_and_viewed": true
+    }
+  },
+  "limits": [
+    "Device preview uses isolated sample data, not new real save or network battle acceptance.",
+    "Full-set owner visual review and broader #116 remain open.",
+    "Existing user packs retain priority; no new pack-selection UI."
+  ]
+}

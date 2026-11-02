@@ -11,8 +11,8 @@ Item {
         source: root.visible && root.art && root.art.url ? root.art.url : ""
         asynchronous: true; cache: false
         fillMode: Image.PreserveAspectFit
-        // The provider only exposes validated, pre-sized PNG derivatives.
-        // Runtime never loads the source corpus or crops opaque backgrounds.
+        // Validated user derivatives or adapter-owned geometric built-ins.
+        // Runtime never loads a raw source corpus or removes opaque backgrounds.
     }
     Rectangle {
         anchors.centerIn: parent

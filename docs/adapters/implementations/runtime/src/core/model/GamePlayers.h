@@ -115,6 +115,7 @@ struct GamePlayers {
     QString mode;
     bool solo() const { return maximum==1; }
     QString label() const {
+        if(mode=="User-marked")return "Multiplayer";
         if(!maximum)return {};
         if(solo())return "1 player";
         return (minimum==maximum?QString::number(maximum):QString::number(minimum)+QStringLiteral("–")+QString::number(maximum))+" players";
@@ -124,6 +125,14 @@ struct GamePlayers {
     }
 };
 inline GamePlayers gamePlayers(const QVariantMap& metadata) {
+    const auto manual=metadata.value("multiplayerAvailability").toString();
+    if(manual=="solo")return {1,1,{}};
+    if(manual=="multiplayer") {
+        auto facts=metadata;facts.remove("multiplayerAvailability");
+        const auto players=gamePlayers(facts);
+        // A user flag says that multiplayer exists, never invents a player cap.
+        return players.maximum>1?players:GamePlayers{0,0,"User-marked"};
+    }
     const auto text=metadata.value("players").toString().simplified().toLower();
     if(text=="single player"||text=="single-player"||text=="solo")return {1,1,{}};
     static const QRegularExpression pattern(QStringLiteral(

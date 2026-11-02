@@ -1,5 +1,9 @@
 # Game-adapter knowledge base
 
+**3 November:** the Pokemon adapter owns the [Cuboid artwork fallback](../CUBOID_CREATURES.md).
+It changes presentation only, with exact-form recipes and independent user-art/
+sprite precedence. No semantic reader, writer, ROM gate or save format changed.
+
 **26 October:** PS2 LAN and GameCube BBA now share the 2?4-console group launch
 owner. [Contract and delivery evidence](../emulators/native-lan-groups.md)
 supersede their pair-only capacity below. Native game limits and save boundaries

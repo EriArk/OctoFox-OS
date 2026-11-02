@@ -1,4 +1,5 @@
 #include "ClassicArt.h"
+#include "CuboidArt.h"
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -64,7 +65,7 @@ QString ClassicArt::selected(const QString& target) const {
 }
 QString ClassicArt::coverage() const {
     if (!error_.isEmpty()) return error_;
-    if (targets_.isEmpty()) return "Illustrations not installed";
+    if (targets_.isEmpty()) return "Built-in cuboid illustrations";
     return QString("Illustrations · %1 / %2 forms").arg(mapped_).arg(targets_.size());
 }
 QVariantMap ClassicArt::candidate(const QString& id, const QString& profile) const {
@@ -79,6 +80,7 @@ QVariantMap ClassicArt::candidate(const QString& id, const QString& profile) con
 }
 QVariantMap ClassicArt::image(const QString& target, const QString& profile) const {
     auto result = candidate(selected(target), profile);
+    if (!result["available"].toBool()) return CuboidArt::illustration(target, profile);
     const auto row = targets_[target].toObject();
     result["status"] = result["available"].toBool() ? "Illustration" : row.isEmpty() ? "No illustration installed"
         : row["status"].toString() == "review-required" ? "Illustration awaiting review" : "No confirmed illustration";

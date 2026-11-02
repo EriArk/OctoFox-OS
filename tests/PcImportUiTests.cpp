@@ -14,6 +14,8 @@
 #include "core/input/TextEntryController.h"
 #include "platform/input/InvitationOverlayService.h"
 #include "adapters/pokemon/PokemonExperience.h"
+#include "adapters/pokemon/pokedex/SpriteImages.h"
+#include "core/repository/OfflinePokedex.h"
 #include "core/navigation/ShellController.h"
 #include "integrations/adventure/mock/MockAdventureAdapter.h"
 using namespace trainer;
@@ -46,9 +48,13 @@ private slots:
         QFile scene(temp.filePath("Probe.qml"));QVERIFY(scene.open(QIODevice::WriteOnly));
         scene.write("import QtQuick\nimport TrainerOS\nItem { width:912; height:354; property bool dark:false; property url pageUrl; onDarkChanged:Theme.themeId=dark?'dark':'light'; onPageUrlChanged: loader.setSource(pageUrl,{shell:probeShell}); Rectangle { anchors.fill:parent; color:Theme.paper } Loader { id:loader; anchors.fill:parent } }");scene.close();
         MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;DevelopmentPlatformService platform;
-        MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
-        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
-        QQuickView view;QStringList warnings;
+        MockPokedexRepository dex;OfflinePokedex reference;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(reference,dex),archive,achievements);
+        ClassicArt builtins("");SpriteArt sprites("");
+        auto* pokemon=dynamic_cast<PokemonExperience*>(shell.module("pokemon"));
+        QVERIFY(pokemon);pokemon->pokedex()->configureArtwork(&builtins);pokemon->pokedex()->configureSprites(&sprites);
+        pokemon->party()->configureArtwork(&builtins,&sprites);
+        QQuickView view;view.engine()->addImageProvider("sprite-detail",new SpriteImages(sprites));QStringList warnings;
         connect(view.engine(),&QQmlEngine::warnings,this,[&](const QList<QQmlError>& errors){for(const auto& e:errors) {
             // No private artwork is bundled in the fixture; missing optional images exercise the fallback.
             if(!e.description().contains("Cannot open:") && !e.description().contains("Cannot open file:") && !e.description().contains("Cannot read:"))warnings<<e.toString();
@@ -62,8 +68,26 @@ private slots:
             for(const auto& page:pages) {
                 view.rootObject()->setProperty("pageUrl",QUrl());
                 shell.goToTrainerFace(page.first);
+                if(page.first=="dex")QVERIFY(pokemon->pokedex()->detail()["art"].toMap()["builtin"].toBool());
                 view.rootObject()->setProperty("pageUrl",QUrl::fromLocalFile(module+"/"+page.second+".qml"));
                 QTest::qWait(100);
+                if(page.first=="dex") {
+                    auto* art=view.rootObject()->findChild<QObject*>("dex-detail-art");QVERIFY(art);
+                    QTRY_VERIFY(art->property("ready").toBool());
+                }
+                if(page.first=="playroom") {
+                    std::function<QQuickItem*(QQuickItem*)> findSprite=[&](QQuickItem* item)->QQuickItem* {
+                        if(item->objectName()=="playroom-sprite-0")return item;
+                        for(auto* child:item->childItems())if(auto* found=findSprite(child))return found;
+                        return nullptr;
+                    };
+                    auto* sprite=findSprite(view.rootObject());QVERIFY(sprite);
+                    QTRY_VERIFY(sprite->property("ready").toBool());
+                    QCOMPARE(sprite->property("frames").toInt(),4);
+                    sprite->setProperty("playing",false);sprite->setProperty("frame",2);QTest::qWait(50);
+                    QVERIFY(view.grabWindow().save(QString("screenshots/emerald/playroom-blink-%1-%2.png").arg(dark?"dark":"light").arg(size.width())));
+                    sprite->setProperty("frame",0);
+                }
                 QVERIFY(view.grabWindow().save(QString("screenshots/emerald/%1-%2-%3.png").arg(page.first,dark?"dark":"light").arg(size.width())));
                 QVERIFY2(warnings.isEmpty(),qPrintable(warnings.join('\n')));
                 if(page.first=="hall" || page.first=="party") {

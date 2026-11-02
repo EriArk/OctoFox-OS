@@ -33,8 +33,8 @@ private slots:
     void exactIdentityChoicePersistenceAndMissingFallback() {
         QTemporaryDir dir; fixture(dir.path()); ClassicArt art(dir.path());
         QVERIFY(art.image("vulpix/37","pokedexListArt")["available"].toBool());
-        QVERIFY(!art.image("vulpix/10205","pokedexDetailArt")["available"].toBool());
-        QVERIFY(!art.image("unknown/1","pokedexDetailArt")["available"].toBool());
+        QVERIFY(art.image("vulpix/10205","pokedexDetailArt")["fallback"].toBool());
+        QVERIFY(art.image("unknown/1","pokedexDetailArt")["fallback"].toBool());
         QCOMPARE(art.choices("vulpix/37").size(),2);
         QVERIFY(!art.select("vulpix/10205","first").isEmpty());
         QVERIFY(art.select("vulpix/37","second").isEmpty());
@@ -43,11 +43,11 @@ private slots:
     }
     void escapedOrMissingFilesNeverLoadAndFailurePreservesChoice() {
         QTemporaryDir dir; fixture(dir.path(),true); ClassicArt art(dir.path());
-        QVERIFY(!art.image("vulpix/37","pokedexListArt")["available"].toBool());
+        QVERIFY(art.image("vulpix/37","pokedexListArt")["fallback"].toBool());
         QCOMPARE(art.choices("vulpix/37").size(),1);
         QDir(dir.path()).mkdir("choices.json");
         QVERIFY(!art.select("vulpix/37","second").isEmpty());
-        QVERIFY(!art.image("vulpix/37","pokedexListArt")["available"].toBool());
+        QVERIFY(art.image("vulpix/37","pokedexListArt")["fallback"].toBool());
     }
     void controllerDraftCancelAndFormIsolation() {
         QTemporaryDir dir; fixture(dir.path()); ClassicArt art(dir.path());
@@ -59,7 +59,7 @@ private slots:
         QCOMPARE(art.image("vulpix/37","pokedexDetailArt")["id"].toString(),"first");
         dex.activateControl("rail",7); dex.dispatch(Action::Right); dex.dispatch(Action::Confirm);
         QCOMPARE(dex.zone(),"list"); QCOMPARE(art.image("vulpix/37","pokedexDetailArt")["id"].toString(),"second");
-        dex.cycleForm(); QVERIFY(!dex.detail()["art"].toMap()["available"].toBool());
+        dex.cycleForm(); QVERIFY(dex.detail()["art"].toMap()["fallback"].toBool());
         dex.openArtwork(); QCOMPARE(dex.artChoices().size(),0); dex.cancelTransient(); QCOMPARE(dex.zone(),"list");
     }
 };

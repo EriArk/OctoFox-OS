@@ -113,7 +113,7 @@ Item {
             Image {
                 id: face; anchors.centerIn: parent; width: 40; height: 40
                 source: bubble.visible ? root.portrait.url || "" : ""
-                asynchronous: true; smooth: false; fillMode: Image.PreserveAspectFit
+                asynchronous: true; smooth: !!root.portrait.builtin; fillMode: Image.PreserveAspectFit
             }
             Text { anchors.centerIn: parent; visible: face.status !== Image.Ready; text: root.symbol; color: "#bc5973"; font.pixelSize: 25; font.bold: true }
         }
