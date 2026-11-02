@@ -1,11 +1,11 @@
 {
   "success": true,
-  "base": "cce39034",
-  "sha256": "64d695d9da57ca5ef3eee31e2563ece3e0ad2398973a557f71cd02dda7f57bdf",
+  "base": "94b923a0",
+  "sha256": "bec90bc319032d9888bf158fc08c11f09ea9342900ee85064aa9ef2e46466147",
   "package_sha256": "a1d05f5e52477ffc0cc77b5d3dec4b3ae03c2d55cb25e7a72699ca2bba880954",
   "core_sha256": "b27bc11deadcdde1d31451149094795b5b417c1e28a8e4dc74a096c567149031",
   "source_files": 1305,
-  "source_manifest_sha256": "5de359e51a29b08543905bbb297f0bdb54fbfef82dea3a46a3b1defb21b0feff",
+  "source_manifest_sha256": "fe7be0d12dae81d7429874e4aa78d4c82072d02d13ad54b36373b1873b873614",
   "qt": "6.11.2",
   "production": true,
   "retroarch_tests": 77,
@@ -19,17 +19,105 @@
   "native_retroarch_two_players": true,
   "native_probe_content": "synthetic empty disc without game or external BIOS",
   "ngpc_integrated": false,
-  "installed_devices": [],
-  "odin_accessed": false,
-  "backup_ram_restore_checked": true,
+  "validation_reused": "NeoCD/native and multiplayer tests unchanged; account source matches published 94b923a0 with 41 passed and one Windows-only skip",
+  "installed_devices": [
+    "Flip",
+    "Odin"
+  ],
   "installation": {
-    "attempted": "Flip",
-    "changed_device_files": false,
-    "result": "previous-shell-hash-mismatch-before-mutation",
-    "expected_previous": "abae6ffe44c3340884e52bd882057c01b8da6d3661d1530970f3c1b38eb1c712",
-    "observed_previous": "cd15a8a5364d3cade8ec27094f352bdb1d766a1843f63c70f98759a98b84c765",
-    "next": "merge published account-recovery sources and rebuild before delivery"
+    "flip": {
+      "sha256": "bec90bc319032d9888bf158fc08c11f09ea9342900ee85064aa9ef2e46466147",
+      "old_protected_rows_preserved": true,
+      "other_runtime_manifests_preserved": true,
+      "avatar_preserved": true,
+      "ordinary_neocd_preserved": true,
+      "settings_unchanged": true,
+      "running_sessions": 0,
+      "post_start": {
+        "sha256": "bec90bc319032d9888bf158fc08c11f09ea9342900ee85064aa9ef2e46466147",
+        "qml_error_count": 0,
+        "startup_logged": true,
+        "separate_core_hash_verified": true,
+        "retroarch_core_dependencies_resolved": true,
+        "ordinary_launch_prefix_core_visible": true,
+        "dependencies_resolved_without_extra_filesystem_grants": true
+      }
+    },
+    "odin": {
+      "sha256": "bec90bc319032d9888bf158fc08c11f09ea9342900ee85064aa9ef2e46466147",
+      "old_protected_rows_preserved": true,
+      "other_runtime_manifests_preserved": true,
+      "avatar_preserved": true,
+      "ordinary_neocd_preserved": true,
+      "settings_unchanged": true,
+      "running_sessions": 0,
+      "post_start": {
+        "sha256": "bec90bc319032d9888bf158fc08c11f09ea9342900ee85064aa9ef2e46466147",
+        "qml_error_count": 0,
+        "startup_logged": true,
+        "separate_core_hash_verified": true,
+        "retroarch_core_dependencies_resolved": true,
+        "ordinary_launch_prefix_core_visible": true,
+        "dependencies_resolved_without_extra_filesystem_grants": true
+      },
+      "rollback_storage": "internal gzip verified against previous binary SHA; partial SD backup not used",
+      "sd_prepare_attempts_stopped_before_activation": 2
+    }
   },
+  "ordinary_core_preserved": true,
+  "retained_original_tests": true,
+  "initial_build_and_stopped_installation": {
+    "success": true,
+    "base": "cce39034",
+    "sha256": "64d695d9da57ca5ef3eee31e2563ece3e0ad2398973a557f71cd02dda7f57bdf",
+    "package_sha256": "a1d05f5e52477ffc0cc77b5d3dec4b3ae03c2d55cb25e7a72699ca2bba880954",
+    "core_sha256": "b27bc11deadcdde1d31451149094795b5b417c1e28a8e4dc74a096c567149031",
+    "source_files": 1305,
+    "source_manifest_sha256": "5de359e51a29b08543905bbb297f0bdb54fbfef82dea3a46a3b1defb21b0feff",
+    "qt": "6.11.2",
+    "production": true,
+    "retroarch_tests": 77,
+    "runtime_tests": 105,
+    "state_probe": {
+      "independent_processes": 3,
+      "cross_process_equal": true,
+      "repeat_replay_equal": true,
+      "state_size": 8240131
+    },
+    "native_retroarch_two_players": true,
+    "native_probe_content": "synthetic empty disc without game or external BIOS",
+    "ngpc_integrated": false,
+    "installed_devices": [],
+    "odin_accessed": false,
+    "backup_ram_restore_checked": true,
+    "installation": {
+      "attempted": "Flip",
+      "changed_device_files": false,
+      "result": "previous-shell-hash-mismatch-before-mutation",
+      "expected_previous": "abae6ffe44c3340884e52bd882057c01b8da6d3661d1530970f3c1b38eb1c712",
+      "observed_previous": "cd15a8a5364d3cade8ec27094f352bdb1d766a1843f63c70f98759a98b84c765",
+      "next": "merge published account-recovery sources and rebuild before delivery"
+    },
+    "ngpc_native_mirror": [
+      {
+        "delay_pumps": 0,
+        "frames_each": 240,
+        "native_consoles": 4,
+        "matched_memory": true,
+        "peer_pad_received": true,
+        "wall_seconds": 2.483
+      },
+      {
+        "delay_pumps": 6,
+        "frames_each": 236,
+        "native_consoles": 4,
+        "matched_memory": true,
+        "peer_pad_received": true,
+        "wall_seconds": 2.261
+      }
+    ]
+  },
+  "odin_accessed": true,
   "ngpc_native_mirror": [
     {
       "delay_pumps": 0,
@@ -47,5 +135,6 @@
       "peer_pad_received": true,
       "wall_seconds": 2.261
     }
-  ]
+  ],
+  "backup_ram_restore_checked": true
 }
