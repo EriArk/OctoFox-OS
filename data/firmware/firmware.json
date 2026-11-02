@@ -1,0 +1,5972 @@
+{
+  "00_example": {
+    "title": "00_example_libretro",
+    "files": []
+  },
+  "2048": {
+    "title": "2048",
+    "files": []
+  },
+  "3dengine": {
+    "title": "Test Core - 3D Engine",
+    "files": []
+  },
+  "81": {
+    "title": "Sinclair - ZX 81 (EightyOne)",
+    "files": []
+  },
+  "a5200": {
+    "title": "Atari - 5200 (a5200)",
+    "files": [
+      {
+        "path": "5200.rom",
+        "title": "5200.rom (5200 BIOS)",
+        "optional": true,
+        "md5": "281f20ea4320404ec820fb7ec0693b38"
+      }
+    ]
+  },
+  "advanced_tests": {
+    "title": "Test Core - Advanced Test",
+    "files": []
+  },
+  "amiarcadia": {
+    "title": "Arcadia 2001 / Interton VC 4000 (AmiArcadia)",
+    "files": []
+  },
+  "amiberry": {
+    "title": "Commodore - Amiga (Amiberry)",
+    "files": [
+      {
+        "path": "kick34005.A500",
+        "title": "A500 Kickstart v1.3 r34.5",
+        "optional": true
+      },
+      {
+        "path": "kick37350.A600",
+        "title": "A600 Kickstart v2.05 r37.350",
+        "optional": true
+      },
+      {
+        "path": "kick40068.A1200",
+        "title": "A1200 Kickstart v3.1 r40.68",
+        "optional": true
+      },
+      {
+        "path": "kick33180.A500",
+        "title": "A500 Kickstart v1.2 r33.180",
+        "optional": true
+      },
+      {
+        "path": "kick40068.A4000",
+        "title": "A4000 Kickstart v3.1 r40.68",
+        "optional": true
+      },
+      {
+        "path": "kick40060.CD32",
+        "title": "CD32 Kickstart v3.1 r40.60",
+        "optional": true
+      },
+      {
+        "path": "kick40060.CD32.ext",
+        "title": "CD32 Extended-ROM r40.60",
+        "optional": true
+      }
+    ]
+  },
+  "anarch": {
+    "title": "Anarch",
+    "files": []
+  },
+  "anybor": {
+    "title": "OpenBOR (AnyBOR)",
+    "files": []
+  },
+  "anygm": {
+    "title": "GameMaker (AnyGM)",
+    "files": []
+  },
+  "applewin": {
+    "title": "Apple II (AppleWin)",
+    "files": []
+  },
+  "ardens": {
+    "title": "Arduboy (Ardens)",
+    "files": []
+  },
+  "arduous": {
+    "title": "Arduboy (Arduous)",
+    "files": []
+  },
+  "armsx2": {
+    "title": "Sony - PlayStation 2 (ARMSX2)",
+    "files": [
+      {
+        "path": "pcsx2/bios",
+        "title": "'pcsx2/bios' folder (any valid PS2 BIOS dump, e.g. scph39001.bin)",
+        "optional": false,
+        "directory": true
+      },
+      {
+        "path": "pcsx2/resources",
+        "title": "'pcsx2/resources' folder (shaders, GameIndex.yaml, fonts)",
+        "optional": false,
+        "directory": true
+      }
+    ]
+  },
+  "atari800": {
+    "title": "Atari - 400/800/600XL/800XL/130XE/5200 (Atari800)",
+    "files": [
+      {
+        "path": "5200.rom",
+        "title": "5200.rom (Atari 5200 BIOS)",
+        "optional": true,
+        "md5": "281f20ea4320404ec820fb7ec0693b38"
+      },
+      {
+        "path": "ATARIBAS.ROM",
+        "title": "ATARIBAS.ROM (Atari BASIC)",
+        "optional": true,
+        "md5": "0bac0c6a50104045d902df4503a4c30b"
+      },
+      {
+        "path": "ATARIOSA.ROM",
+        "title": "ATARIOSA.ROM (Atari 400/800 OS A)",
+        "optional": true,
+        "md5": "eb1f32f5d9f382db1bbfb8d7f9cb343a"
+      },
+      {
+        "path": "ATARIOSB.ROM",
+        "title": "ATARIOSB.ROM (Atari 400/800 OS B)",
+        "optional": true,
+        "md5": "4177f386a3bac989a981d3fe3388cb6c"
+      },
+      {
+        "path": "ATARIXL.ROM",
+        "title": "ATARIXL.ROM (Atari XL/XE OS)",
+        "optional": true,
+        "md5": "06daac977823773a3eea3422fd26a703"
+      },
+      {
+        "path": "BB01R4_OS.ROM",
+        "title": "BB01R4_OS.ROM (Atari XL/XE/XEGS OS v4)",
+        "optional": true,
+        "md5": "b7a2a04677d34f069eeb643d5238bf86"
+      },
+      {
+        "path": "XEGAME.ROM",
+        "title": "XEGAME.ROM (Atari XEGS Missile Command)",
+        "optional": true,
+        "md5": "d7eb37aec6960cba36bc500e0e5d00bc"
+      }
+    ]
+  },
+  "azahar": {
+    "title": "Nintendo - 3DS (Azahar)",
+    "files": []
+  },
+  "b2": {
+    "title": "Acorn - BBC Micro (b2)",
+    "files": []
+  },
+  "bbkemu": {
+    "title": "BBKEmu (BBK Electronic Dictionary)",
+    "files": [
+      {
+        "path": "BBKEmu/A4980/8.BIN",
+        "title": "8.BIN (Font ROM)",
+        "optional": true
+      },
+      {
+        "path": "BBKEmu/A4980/E.BIN",
+        "title": "E.BIN (OS ROM)",
+        "optional": true
+      }
+    ]
+  },
+  "beetle_saturn": {
+    "title": "Sega - Saturn (Beetle Saturn Super)",
+    "files": [
+      {
+        "path": "sega_101.bin",
+        "title": "sega_101.bin (Saturn JP BIOS)",
+        "optional": false,
+        "md5": "85ec9ca47d8f6807718151cbcca8b964"
+      },
+      {
+        "path": "mpr-17933.bin",
+        "title": "mpr-17933.bin (Saturn US/EU BIOS)",
+        "optional": false,
+        "md5": "3240872c70984b6cbfda1586cab68dbe"
+      },
+      {
+        "path": "mpr-18811-mx.ic1",
+        "title": "mpr-18811-mx.ic1 (The King of Fighters '95 ROM Cartridge)",
+        "optional": true,
+        "md5": "255113ba943c92a54facd25a10fd780c"
+      },
+      {
+        "path": "mpr-19367-mx.ic1",
+        "title": "mpr-19367-mx.ic1 (Ultraman: Hikari no Kyojin Densetsu ROM Cartridge)",
+        "optional": true,
+        "md5": "1cd19988d1d72a3e7caa0b73234c96b4"
+      }
+    ]
+  },
+  "bennugd": {
+    "title": "Bennu Game Development",
+    "files": []
+  },
+  "bk": {
+    "title": "Elektronika - BK-0010/BK-0011(M)",
+    "files": [
+      {
+        "path": "bk/B11M_BOS.ROM",
+        "title": "bk/B11M_BOS.ROM",
+        "optional": true
+      },
+      {
+        "path": "bk/B11M_EXT.ROM",
+        "title": "bk/B11M_EXT.ROM",
+        "optional": true
+      },
+      {
+        "path": "bk/BAS11M_0.ROM",
+        "title": "bk/BAS11M_0.ROM",
+        "optional": true
+      },
+      {
+        "path": "bk/BAS11M_1.ROM",
+        "title": "bk/BAS11M_1.ROM",
+        "optional": true
+      },
+      {
+        "path": "bk/DISK_327.ROM",
+        "title": "bk/DISK_327.ROM",
+        "optional": true
+      },
+      {
+        "path": "bk/BASIC10.ROM",
+        "title": "bk/BASIC10.ROM",
+        "optional": true
+      },
+      {
+        "path": "bk/FOCAL10.ROM",
+        "title": "bk/FOCAL10.ROM",
+        "optional": true
+      },
+      {
+        "path": "bk/MONIT10.ROM",
+        "title": "bk/MONIT10.ROM",
+        "optional": true
+      }
+    ]
+  },
+  "blastem": {
+    "title": "Sega - MS/GG/MD/CD/32X (BlastEm)",
+    "files": [
+      {
+        "path": "rom.db",
+        "title": "rom.db (ROM feature database)",
+        "optional": true
+      },
+      {
+        "path": "bios_CD_U.bin",
+        "title": "bios_CD_U.bin (Sega CD US BIOS, required for Sega CD games)",
+        "optional": true,
+        "md5": "2efd74e3232ff260e371b99f84024f7f"
+      },
+      {
+        "path": "bios_CD_E.bin",
+        "title": "bios_CD_E.bin (Mega-CD EU BIOS, required for Sega CD games)",
+        "optional": true,
+        "md5": "e66fa1dc5820d254611fdcdba0662372"
+      },
+      {
+        "path": "bios_CD_J.bin",
+        "title": "bios_CD_J.bin (Mega-CD JP BIOS, required for Sega CD games)",
+        "optional": true,
+        "md5": "278a9397d192149e84e820ac621a8edd"
+      },
+      {
+        "path": "32X_M_BIOS.bin",
+        "title": "32X_M_BIOS.bin (32X Master SH2 BIOS, required for 32X games)",
+        "optional": true
+      },
+      {
+        "path": "32X_S_BIOS.bin",
+        "title": "32X_S_BIOS.bin (32X Slave SH2 BIOS, required for 32X games)",
+        "optional": true
+      },
+      {
+        "path": "32X_G_BIOS.bin",
+        "title": "32X_G_BIOS.bin (32X 68000 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_MD.bin",
+        "title": "bios_MD.bin (Mega Drive TMSS ROM, also read as tmss.md)",
+        "optional": true
+      },
+      {
+        "path": "colecovision.rom",
+        "title": "colecovision.rom (ColecoVision BIOS)",
+        "optional": true,
+        "md5": "2c66f5911e5b42b8ebe113403548eee7"
+      },
+      {
+        "path": "laseractive_dyw_1322a.bin",
+        "title": "laseractive_dyw_1322a.bin (LaserActive uPD ROM)",
+        "optional": true
+      }
+    ]
+  },
+  "bluemsx": {
+    "title": "MSX/SVI/ColecoVision/SG-1000 (blueMSX)",
+    "files": [
+      {
+        "path": "Databases/msxromdb.xml",
+        "title": "'Databases' folder",
+        "optional": false
+      },
+      {
+        "path": "Machines/Shared Roms/MSX.rom",
+        "title": "'Machines' folder",
+        "optional": false
+      }
+    ]
+  },
+  "bnes": {
+    "title": "Nintendo - NES / Famicom (bnes)",
+    "files": []
+  },
+  "boom3": {
+    "title": "Doom 3 (boom3)",
+    "files": []
+  },
+  "boytacean": {
+    "title": "Nintendo - Game Boy / Color (Boytacean)",
+    "files": []
+  },
+  "bsnes-jg": {
+    "title": "Nintendo - SNES / SFC (bsnes-jg)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      }
+    ]
+  },
+  "bsnes2014_accuracy": {
+    "title": "Nintendo - SNES / SFC (bsnes 2014 Accuracy)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "cx4.data.rom",
+        "title": "cx4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "sgb.boot.rom",
+        "title": "sgb.boot.rom (SGB Boot Image)",
+        "optional": true
+      }
+    ]
+  },
+  "bsnes2014_balanced": {
+    "title": "Nintendo - SNES / SFC (bsnes 2014 Balanced)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "cx4.data.rom",
+        "title": "cx4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "sgb.boot.rom",
+        "title": "sgb.boot.rom (SGB Boot Image)",
+        "optional": true
+      }
+    ]
+  },
+  "bsnes2014_performance": {
+    "title": "Nintendo - SNES / SFC (bsnes 2014 Performance)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "sgb.boot.rom",
+        "title": "sgb.boot.rom (SGB Boot Image)",
+        "optional": true
+      }
+    ]
+  },
+  "bsnes_cplusplus98": {
+    "title": "Nintendo - SNES / SFC (bsnes C++98 (v085))",
+    "files": []
+  },
+  "bsnes_hd_beta": {
+    "title": "Nintendo - SNES / SFC (bsnes-hd beta)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "cx4.data.rom",
+        "title": "cx4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "SGB1.sfc",
+        "title": "SGB1.sfc (SGB Boot Image)",
+        "optional": true,
+        "md5": "b15ddb15721c657d82c5bab6db982ee9"
+      },
+      {
+        "path": "SGB2.sfc",
+        "title": "SGB2.sfc (SGB Boot Image)",
+        "optional": true,
+        "md5": "8ecd73eb4edf7ed7e81aef1be80031d5"
+      }
+    ]
+  },
+  "bsnes": {
+    "title": "Nintendo - SNES / SFC (bsnes)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "cx4.data.rom",
+        "title": "cx4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "SGB1.sfc",
+        "title": "SGB1.sfc (SGB Boot Image)",
+        "optional": true,
+        "md5": "b15ddb15721c657d82c5bab6db982ee9"
+      },
+      {
+        "path": "SGB2.sfc",
+        "title": "SGB2.sfc (SGB Boot Image)",
+        "optional": true,
+        "md5": "8ecd73eb4edf7ed7e81aef1be80031d5"
+      },
+      {
+        "path": "BS-X.bin",
+        "title": "BS-X.bin (BS-X - Sore wa Namae o Nusumareta Machi no Monogatari (Japan) (Rev 1))",
+        "optional": true,
+        "md5": "fed4d8242cfbed61343d53d48432aced"
+      }
+    ]
+  },
+  "bsnes_mercury_accuracy": {
+    "title": "Nintendo - SNES / SFC (bsnes-mercury Accuracy)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "cx4.data.rom",
+        "title": "cx4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "sgb.boot.rom",
+        "title": "sgb.boot.rom (SGB Boot Image)",
+        "optional": true
+      }
+    ]
+  },
+  "bsnes_mercury_balanced": {
+    "title": "Nintendo - SNES / SFC (bsnes-mercury Balanced)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "cx4.data.rom",
+        "title": "cx4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "sgb.boot.rom",
+        "title": "sgb.boot.rom (SGB Boot Image)",
+        "optional": true
+      }
+    ]
+  },
+  "bsnes_mercury_performance": {
+    "title": "Nintendo - SNES / SFC (bsnes-mercury Performance)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "sgb.boot.rom",
+        "title": "sgb.boot.rom (SGB Boot Image)",
+        "optional": true
+      }
+    ]
+  },
+  "cannonball": {
+    "title": "Cannonball",
+    "files": []
+  },
+  "cap32": {
+    "title": "Amstrad - CPC/GX4000 (Caprice32)",
+    "files": []
+  },
+  "cdi2015": {
+    "title": "Philips CDi (CDi 2015)",
+    "files": [
+      {
+        "path": "cdimono1.zip",
+        "title": "cdimono1.zip",
+        "optional": false
+      }
+    ]
+  },
+  "cemu": {
+    "title": "Nintendo - Wii U (Cemu)",
+    "files": []
+  },
+  "chailove": {
+    "title": "ChaiLove",
+    "files": []
+  },
+  "chimerasnes": {
+    "title": "Nintendo - SNES / SFC (ChimeraSNES)",
+    "files": []
+  },
+  "citra2018": {
+    "title": "Nintendo - 3DS (Citra 2018)",
+    "files": []
+  },
+  "citra_canary": {
+    "title": "Nintendo - 3DS (Citra Canary/Experimental)",
+    "files": []
+  },
+  "citra": {
+    "title": "Nintendo - 3DS (Citra)",
+    "files": []
+  },
+  "clownmdemu": {
+    "title": "Sega - MD/CD (ClownMDEmu)",
+    "files": []
+  },
+  "coolbaremu": {
+    "title": "Coolbar (CoolbarEmu)",
+    "files": []
+  },
+  "craft": {
+    "title": "Minecraft (Craft)",
+    "files": []
+  },
+  "crocods": {
+    "title": "Amstrad - CPC (CrocoDS)",
+    "files": []
+  },
+  "cruzes": {
+    "title": "Cruzes",
+    "files": []
+  },
+  "daphne": {
+    "title": "Arcade (Daphne)",
+    "files": []
+  },
+  "desmume2015": {
+    "title": "Nintendo - DS (DeSmuME 2015)",
+    "files": [
+      {
+        "path": "firmware.bin",
+        "title": "firmware.bin (NDS Firmware)",
+        "optional": true
+      },
+      {
+        "path": "bios7.bin",
+        "title": "bios7.bin (ARM7 BIOS)",
+        "optional": true,
+        "md5": "df692a80a5b1bc90728bc3dfc76cd948"
+      },
+      {
+        "path": "bios9.bin",
+        "title": "bios9.bin (ARM9 BIOS)",
+        "optional": true,
+        "md5": "a392174eb3e572fed6447e956bde4b25"
+      }
+    ]
+  },
+  "desmume": {
+    "title": "Nintendo - DS (DeSmuME)",
+    "files": [
+      {
+        "path": "firmware.bin",
+        "title": "firmware.bin (NDS Firmware)",
+        "optional": true
+      },
+      {
+        "path": "bios7.bin",
+        "title": "bios7.bin (ARM7 BIOS)",
+        "optional": true,
+        "md5": "df692a80a5b1bc90728bc3dfc76cd948"
+      },
+      {
+        "path": "bios9.bin",
+        "title": "bios9.bin (ARM9 BIOS)",
+        "optional": true,
+        "md5": "a392174eb3e572fed6447e956bde4b25"
+      }
+    ]
+  },
+  "dice": {
+    "title": "Arcade (DICE)",
+    "files": []
+  },
+  "dingooemu": {
+    "title": "Dingoo A320 / Gemei A330 (DingooEmu)",
+    "files": []
+  },
+  "dinothawr": {
+    "title": "Dinothawr",
+    "files": []
+  },
+  "directxbox": {
+    "title": "Microsoft - Xbox (DirectXbox)",
+    "files": []
+  },
+  "dirksimple": {
+    "title": "Laserdisc arcade game (DirkSimple)",
+    "files": []
+  },
+  "dolphin_launcher": {
+    "title": "Nintendo - GameCube / Wii (Dolphin Launcher)",
+    "files": []
+  },
+  "dolphin": {
+    "title": "Nintendo - GameCube / Wii (Dolphin)",
+    "files": [
+      {
+        "path": "dolphin-emu/Sys/codehandler.bin",
+        "title": "Dolphin 'Sys' folder with dolphin-emu/Sys/codehandler.bin",
+        "optional": false
+      },
+      {
+        "path": "dolphin-emu/Sys/GC/JAP/IPL.bin",
+        "title": "dolphin-emu/Sys/GC/JAP/IPL.bin (GameCube JP BIOS)",
+        "optional": true
+      },
+      {
+        "path": "dolphin-emu/Sys/GC/USA/IPL.bin",
+        "title": "dolphin-emu/Sys/GC/USA/IPL.bin (GameCube US BIOS)",
+        "optional": true
+      },
+      {
+        "path": "dolphin-emu/Sys/GC/EUR/IPL.bin",
+        "title": "dolphin-emu/Sys/GC/EUR/IPL.bin (GameCube EU BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "dosbox_core": {
+    "title": "DOS (DOSBox-core)",
+    "files": [
+      {
+        "path": "MT32_CONTROL.ROM",
+        "title": "MT32_CONTROL.ROM (MT-32 Control ROM v1.07)",
+        "optional": true,
+        "md5": "5626206284b22c2734f3e9efefcd2675"
+      },
+      {
+        "path": "MT32_PCM.ROM",
+        "title": "MT32_PCM.ROM (MT-32 PCM ROM)",
+        "optional": true,
+        "md5": "89e42e386e82e0cacb4a2704a03706ca"
+      },
+      {
+        "path": "CM32L_CONTROL.ROM",
+        "title": "CM32L_CONTROL.ROM (CM-32L/LAPC-I Control ROM v1.02)",
+        "optional": true,
+        "md5": "bfff32b6144c1d706109accb6e6b1113"
+      },
+      {
+        "path": "CM32L_PCM.ROM",
+        "title": "CM32L_PCM.ROM (CM-32L/CM-64/LAPC-I PCM ROM)",
+        "optional": true,
+        "md5": "08cdcfa0ed93e9cb16afa76e6ac5f0a4"
+      },
+      {
+        "path": "libbass.so",
+        "title": "libbass.so (BASS Linux library)",
+        "optional": true
+      },
+      {
+        "path": "libbassmidi.so",
+        "title": "libbassmidi.so (BASSMIDI Linux library)",
+        "optional": true
+      },
+      {
+        "path": "bass.dll",
+        "title": "bass.dll (BASS Windows library)",
+        "optional": true
+      },
+      {
+        "path": "bassmidi.dll",
+        "title": "bassmidi.dll (BASSMIDI Windows library)",
+        "optional": true
+      },
+      {
+        "path": "libbass.dylib",
+        "title": "libbass.dylib (BASS macOS library)",
+        "optional": true
+      },
+      {
+        "path": "libbassmidi.dylib",
+        "title": "libbassmidi.dylib (BASSMIDI macOS library)",
+        "optional": true
+      }
+    ]
+  },
+  "dosbox": {
+    "title": "DOS (DOSBox)",
+    "files": []
+  },
+  "dosbox_pure": {
+    "title": "DOS (DOSBox-Pure)",
+    "files": []
+  },
+  "dosbox_svn_ce": {
+    "title": "DOS (DOSBox-SVN CE)",
+    "files": []
+  },
+  "dosbox_svn": {
+    "title": "DOS (DOSBox-SVN)",
+    "files": []
+  },
+  "DoubleCherryGB": {
+    "title": "Nintendo - Game Boy / Color (DoubleCherryGB)",
+    "files": []
+  },
+  "doukutsu_rs": {
+    "title": "Cave Story (drs)",
+    "files": []
+  },
+  "duckstation": {
+    "title": "Sony - PlayStation (DuckStation)",
+    "files": [
+      {
+        "path": "scph5500.bin",
+        "title": "scph5500.bin (PS1 JP BIOS)",
+        "optional": false,
+        "md5": "8dd7d5296a650fac7319bce665a6a53c"
+      },
+      {
+        "path": "scph5501.bin",
+        "title": "scph5501.bin (PS1 US BIOS)",
+        "optional": false,
+        "md5": "490f666e1afb15b7362b406ed1cea246"
+      },
+      {
+        "path": "scph5502.bin",
+        "title": "scph5502.bin (PS1 EU BIOS)",
+        "optional": false,
+        "md5": "32736f17079d0b2b7024407c39bd3050"
+      }
+    ]
+  },
+  "easyrpg": {
+    "title": "RPG Maker 2000/2003 (EasyRPG)",
+    "files": []
+  },
+  "ecwolf": {
+    "title": "Wolfenstein 3D (ECWolf)",
+    "files": [
+      {
+        "path": "ecwolf.pk3",
+        "title": "ecwolf.pk3 (ECWolf System File)",
+        "optional": false,
+        "md5": "c011b428819eea4a80b455c245a5a04d"
+      }
+    ]
+  },
+  "eka2l1": {
+    "title": "Nokia - Symbian / N-Gage (EKA2L1)",
+    "files": [
+      {
+        "path": "eka2l1/firmware",
+        "title": "'eka2l1/firmware' folder (a device firmware dump: an RPKG, or a ROM together with its ROFS)",
+        "optional": false,
+        "directory": true
+      }
+    ]
+  },
+  "emucv": {
+    "title": "EPOCH - Cassette Vision (EmuCV)",
+    "files": []
+  },
+  "emuscv": {
+    "title": "EPOCH/YENO Super Cassette Vision (EmuSCV)",
+    "files": [
+      {
+        "path": "upd7801g.s01",
+        "title": "upd7801g.s01 (Super Cassette Vision BIOS)",
+        "optional": false,
+        "md5": "635a978fd40db9a18ee44eff449fc126"
+      }
+    ]
+  },
+  "emux_chip8": {
+    "title": "CHIP-8 (Emux CHIP-8)",
+    "files": []
+  },
+  "emux_gb": {
+    "title": "Nintendo - Game Boy / Color (Emux GB)",
+    "files": [
+      {
+        "path": "dmg_boot.bin",
+        "title": "dmg_boot.bin (Game Boy Boot ROM)",
+        "optional": false,
+        "md5": "32fbbd84168d3482956eb3c5051637f5"
+      }
+    ]
+  },
+  "emux_nes": {
+    "title": "Nintendo - NES / Famicom (Emux NES)",
+    "files": []
+  },
+  "emux_sms": {
+    "title": "Sega - Master System (Emux SMS)",
+    "files": [
+      {
+        "path": "bios.sms",
+        "title": "bios.sms (Master System BIOS)",
+        "optional": false,
+        "md5": "840481177270d5642a14ca71ee72844c"
+      }
+    ]
+  },
+  "ep128emu_core": {
+    "title": "Enterprise - 64/128 (ep128emu)",
+    "files": [
+      {
+        "path": "ep128emu/roms/exos21.rom",
+        "title": "exos21.rom (Enterprise 128 Expandible OS 2.1)",
+        "optional": true,
+        "md5": "f36f24cbb87745fbd2714e4df881db09"
+      },
+      {
+        "path": "ep128emu/roms/basic21.rom",
+        "title": "basic21.rom (Enterprise 128 BASIC Interpreter v2.1)",
+        "optional": true,
+        "md5": "e972fe42b398c9ff1d93ff014786aec6"
+      },
+      {
+        "path": "ep128emu/roms/exdos13.rom",
+        "title": "exdos13.rom (Enterprise 128 Disk Controller v1.3)",
+        "optional": true,
+        "md5": "ddff70c014d1958dc75378b6c9aab6f8"
+      },
+      {
+        "path": "ep128emu/roms/exos20.rom",
+        "title": "exos20.rom (Enterprise 64 Expandible OS 2.0)",
+        "optional": true,
+        "md5": "5ad3baaad3b5156d6b60b34229a676fb"
+      },
+      {
+        "path": "ep128emu/roms/basic20.rom",
+        "title": "basic20.rom (Enterprise 64 BASIC Interpreter v2.0)",
+        "optional": true,
+        "md5": "8e18edce4a7acb2c33cc0ab18f988482"
+      },
+      {
+        "path": "ep128emu/roms/epfileio.rom",
+        "title": "epfileio.rom (Enterprise 128 Direct File I/O)",
+        "optional": true,
+        "md5": "a68ebcbc73a4d2178d755b7755bf18fe"
+      },
+      {
+        "path": "ep128emu/roms/exos24uk.rom",
+        "title": "exos24uk.rom (Enterprise 128 Expandible OS 2.4)",
+        "optional": true,
+        "md5": "55af78f877a21ca45eb2df68a74fcc60"
+      },
+      {
+        "path": "ep128emu/roms/hun.rom",
+        "title": "hun.rom (Enterprise 128 Hungarian language extension)",
+        "optional": true,
+        "md5": "22167938f142c222f40992839aa21a06"
+      },
+      {
+        "path": "ep128emu/roms/epd19hft.rom",
+        "title": "epd19hft.rom (Enterprise 128 EP-DOS with Hungarian language extension)",
+        "optional": true,
+        "md5": "12cfc9c7e48c8a16c2e09edbd926d467"
+      },
+      {
+        "path": "ep128emu/roms/zt19hfnt.rom",
+        "title": "zt19hfnt.rom (Enterprise 128 ZozoTools with Hungarian language extension 1.9)",
+        "optional": true,
+        "md5": "653daaf7b9b29c2c4e577f489580f247"
+      },
+      {
+        "path": "ep128emu/roms/brd.rom",
+        "title": "brd.rom (Enterprise 128 German language extension)",
+        "optional": true,
+        "md5": "6af0402906944fd134004b85097c8524"
+      },
+      {
+        "path": "ep128emu/roms/zt19uk.rom",
+        "title": "zt19uk.rom (Enterprise 128 ZozoTools extension)",
+        "optional": true,
+        "md5": "228540b6be83ae2acd7569c8ff0f91d0"
+      },
+      {
+        "path": "ep128emu/roms/tvc22_sys.rom",
+        "title": "tvc22_sys.rom (Videoton TVC system BIOS)",
+        "optional": true,
+        "md5": "8c54285f541930cde766069942bad0f2"
+      },
+      {
+        "path": "ep128emu/roms/tvc22_ext.rom",
+        "title": "tvc22_ext.rom (Videoton TVC extension BIOS)",
+        "optional": true,
+        "md5": "5ce95a26ceed5bec73995d83568da9cf"
+      },
+      {
+        "path": "ep128emu/roms/tvcfileio.rom",
+        "title": "tvcfileio.rom (Videoton TVC Direct File I/O)",
+        "optional": true,
+        "md5": "a2cf86ba8e7fc58b242137fe59036832"
+      },
+      {
+        "path": "ep128emu/roms/tvc_dos12d.rom",
+        "title": "tvc_dos12d.rom (Videoton TVC disk BIOS)",
+        "optional": true,
+        "md5": "88dc7876d584f90e4106f91444ab23b7"
+      },
+      {
+        "path": "ep128emu/roms/cpc464.rom",
+        "title": "cpc464.rom (Amstrad CPC 464 BIOS)",
+        "optional": true,
+        "md5": "a993f85b88ac4350cf4d41554e87fe4f"
+      },
+      {
+        "path": "ep128emu/roms/cpc664.rom",
+        "title": "cpc664.rom (Amstrad CPC 664 BIOS)",
+        "optional": true,
+        "md5": "5a384a2310f472c7857888371c00ed66"
+      },
+      {
+        "path": "ep128emu/roms/cpc6128.rom",
+        "title": "cpc6128.rom (Amstrad CPC 6128 BIOS)",
+        "optional": true,
+        "md5": "b96280dc6c95a48857b4b8eb931533ae"
+      },
+      {
+        "path": "ep128emu/roms/cpc_amsdos.rom",
+        "title": "cpc_amsdos.rom (Amstrad CPC AMSDOS BIOS)",
+        "optional": true,
+        "md5": "25629dfe870d097469c217b95fdc1c95"
+      },
+      {
+        "path": "ep128emu/roms/zx128.rom",
+        "title": "zx128.rom (ZX Spectrum 128 BIOS)",
+        "optional": true,
+        "md5": "85fede415f4294cc777517d7eada482e"
+      },
+      {
+        "path": "ep128emu/roms/zx48.rom",
+        "title": "zx48.rom (ZX Spectrum 48 BIOS)",
+        "optional": true,
+        "md5": "4c42a2f075212361c3117015b107ff68"
+      }
+    ]
+  },
+  "eternal": {
+    "title": "Eternal Computer",
+    "files": []
+  },
+  "fake08": {
+    "title": "PICO-8 (FAKE-08)",
+    "files": []
+  },
+  "fbalpha2012_cps1": {
+    "title": "Arcade (FB Alpha 2012 CPS-1)",
+    "files": []
+  },
+  "fbalpha2012_cps2": {
+    "title": "Arcade (FB Alpha 2012 CPS-2)",
+    "files": []
+  },
+  "fbalpha2012_cps3": {
+    "title": "Arcade (FB Alpha 2012 CPS-3)",
+    "files": []
+  },
+  "fbalpha2012": {
+    "title": "Arcade (FB Alpha 2012)",
+    "files": []
+  },
+  "fbalpha2012_neogeo": {
+    "title": "Arcade (FB Alpha 2012 Neo Geo)",
+    "files": []
+  },
+  "fbneo_cps12": {
+    "title": "Arcade (FinalBurn Neo) (CPS-1 / CPS-2)",
+    "files": [
+      {
+        "path": "fbneo/hiscore.dat",
+        "title": "fbneo/hiscore.dat (High Score support database)",
+        "optional": true
+      }
+    ]
+  },
+  "fbneo": {
+    "title": "Arcade (FinalBurn Neo)",
+    "files": [
+      {
+        "path": "fbneo/neogeo.zip",
+        "title": "fbneo/neogeo.zip (Neo Geo BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/neocdz.zip",
+        "title": "fbneo/neocdz.zip (Neo Geo CDZ System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/decocass.zip",
+        "title": "fbneo/decocass.zip (DECO Cassette System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/isgsm.zip",
+        "title": "fbneo/isgsm.zip (ISG Selection Master Type 2006 System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/midssio.zip",
+        "title": "fbneo/midssio.zip (Midway SSIO Sound Board Internal ROM)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/nmk004.zip",
+        "title": "fbneo/nmk004.zip (NMK004 Internal ROM)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/pgm.zip",
+        "title": "fbneo/pgm.zip (PGM System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/skns.zip",
+        "title": "fbneo/skns.zip (Super Kaneko Nova System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/ym2608.zip",
+        "title": "fbneo/ym2608.zip (YM2608 Internal ROM)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/cchip.zip",
+        "title": "fbneo/cchip.zip (C-Chip Internal ROM)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/bubsys.zip",
+        "title": "fbneo/bubsys.zip (Bubble System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/namcoc69.zip",
+        "title": "fbneo/namcoc69.zip (Namco C69 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/namcoc70.zip",
+        "title": "fbneo/namcoc70.zip (Namco C70 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/namcoc75.zip",
+        "title": "fbneo/namcoc75.zip (Namco C75 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/coleco.zip",
+        "title": "fbneo/coleco.zip (ColecoVision System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/fdsbios.zip",
+        "title": "fbneo/fdsbios.zip (FDS System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/msx.zip",
+        "title": "fbneo/msx.zip (MSX1 System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/ngp.zip",
+        "title": "fbneo/ngp.zip (NeoGeo Pocket BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/spectrum.zip",
+        "title": "fbneo/spectrum.zip (ZX Spectrum BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/spec128.zip",
+        "title": "fbneo/spec128.zip (ZX Spectrum 128 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/spec1282a.zip",
+        "title": "fbneo/spec1282a.zip (ZX Spectrum 128 +2a BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/channelf.zip",
+        "title": "fbneo/channelf.zip (Fairchild Channel F BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/hiscore.dat",
+        "title": "fbneo/hiscore.dat (High Score support database)",
+        "optional": true
+      }
+    ]
+  },
+  "fbneo_neogeo": {
+    "title": "Arcade (FinalBurn Neo) (Neo-Geo)",
+    "files": [
+      {
+        "path": "fbneo/neogeo.zip",
+        "title": "fbneo/neogeo.zip (Neo Geo BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/neocdz.zip",
+        "title": "fbneo/neocdz.zip (Neo Geo CDZ System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "fbneo/hiscore.dat",
+        "title": "fbneo/hiscore.dat (High Score support database)",
+        "optional": true
+      }
+    ]
+  },
+  "fceumm": {
+    "title": "Nintendo - NES / Famicom (FCEUmm)",
+    "files": [
+      {
+        "path": "disksys.rom",
+        "title": "disksys.rom (Family Computer Disk System BIOS)",
+        "optional": true,
+        "md5": "ca30b50f880eb660a320674ed365ef7a"
+      },
+      {
+        "path": "nes.pal",
+        "title": "nes.pal (custom NES Palette)",
+        "optional": true
+      },
+      {
+        "path": "gamegenie.nes",
+        "title": "gamegenie.nes (Game Genie add-on cartridge)",
+        "optional": true,
+        "md5": "7f98d77d7a094ad7d069b74bd553ec98"
+      }
+    ]
+  },
+  "ffmpeg": {
+    "title": "FFmpeg",
+    "files": []
+  },
+  "fixgb": {
+    "title": "Nintendo - Game Boy / Color (fixGB)",
+    "files": [
+      {
+        "path": "gbc_bios.bin",
+        "title": "gbc_bios.bin (Game Boy Color BIOS)",
+        "optional": true,
+        "md5": "dbfce9db9deaa2567f6a84fde55f9680"
+      }
+    ]
+  },
+  "fixnes": {
+    "title": "Nintendo - NES / Famicom (fixNES)",
+    "files": [
+      {
+        "path": "disksys.rom",
+        "title": "disksys.rom (Family Computer Disk System BIOS)",
+        "optional": true,
+        "md5": "ca30b50f880eb660a320674ed365ef7a"
+      }
+    ]
+  },
+  "flycast_gles2": {
+    "title": "Sega - Dreamcast/Naomi (Flycast GLES2)",
+    "files": [
+      {
+        "path": "dc/dc_boot.bin",
+        "title": "dc/dc_boot.bin (Dreamcast BIOS)",
+        "optional": true,
+        "md5": "e10c53c2f8b90bab96ead2d368858623"
+      },
+      {
+        "path": "dc/naomi.zip",
+        "title": "dc/naomi.zip (Naomi Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/naomi2.zip",
+        "title": "dc/naomi2.zip (Naomi2 Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/hod2bios.zip",
+        "title": "dc/hod2bios.zip (Naomi The House of the Dead 2 Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/f355dlx.zip",
+        "title": "dc/f355dlx.zip (Naomi Ferrari F355 Challenge deluxe Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/f355bios.zip",
+        "title": "dc/f355bios.zip (Naomi Ferrari F355 Challenge twin/deluxe Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/airlbios.zip",
+        "title": "dc/airlbios.zip (Naomi Airline Pilots deluxe Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/awbios.zip",
+        "title": "dc/awbios.zip (Atomiswave BIOS from MAME)",
+        "optional": true
+      }
+    ]
+  },
+  "flycast": {
+    "title": "Sega - Dreamcast/Naomi (Flycast)",
+    "files": [
+      {
+        "path": "dc/dc_boot.bin",
+        "title": "dc/dc_boot.bin (Dreamcast BIOS)",
+        "optional": true,
+        "md5": "e10c53c2f8b90bab96ead2d368858623"
+      },
+      {
+        "path": "dc/naomi.zip",
+        "title": "dc/naomi.zip (Naomi Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/naomi2.zip",
+        "title": "dc/naomi2.zip (Naomi2 Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/hod2bios.zip",
+        "title": "dc/hod2bios.zip (Naomi The House of the Dead 2 Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/f355dlx.zip",
+        "title": "dc/f355dlx.zip (Naomi Ferrari F355 Challenge deluxe Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/f355bios.zip",
+        "title": "dc/f355bios.zip (Naomi Ferrari F355 Challenge twin/deluxe Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/airlbios.zip",
+        "title": "dc/airlbios.zip (Naomi Airline Pilots deluxe Bios from MAME)",
+        "optional": true
+      },
+      {
+        "path": "dc/awbios.zip",
+        "title": "dc/awbios.zip (Atomiswave BIOS from MAME)",
+        "optional": true
+      }
+    ]
+  },
+  "fmsx": {
+    "title": "Microsoft - MSX (fMSX)",
+    "files": [
+      {
+        "path": "MSX.ROM",
+        "title": "MSX.ROM (MSX BIOS)",
+        "optional": false,
+        "md5": "364a1a579fe5cb8dba54519bcfcdac0d"
+      },
+      {
+        "path": "MSX2.ROM",
+        "title": "MSX2.ROM (MSX2 BIOS)",
+        "optional": false,
+        "md5": "ec3a01c91f24fbddcbcab0ad301bc9ef"
+      },
+      {
+        "path": "MSX2EXT.ROM",
+        "title": "MSX2EXT.ROM (MSX2 ExtROM)",
+        "optional": false,
+        "md5": "2183c2aff17cf4297bdb496de78c2e8a"
+      },
+      {
+        "path": "MSX2P.ROM",
+        "title": "MSX2P.ROM (MSX2+ BIOS)",
+        "optional": false,
+        "md5": "847cc025ffae665487940ff2639540e5"
+      },
+      {
+        "path": "MSX2PEXT.ROM",
+        "title": "MSX2PEXT.ROM (MSX2+ ExtROM)",
+        "optional": false
+      },
+      {
+        "path": "DISK.ROM",
+        "title": "DISK.ROM (DiskROM/BDOS)",
+        "optional": true
+      },
+      {
+        "path": "FMPAC.ROM",
+        "title": "FMPAC.ROM (FMPAC BIOS)",
+        "optional": true
+      },
+      {
+        "path": "MSXDOS2.ROM",
+        "title": "MSXDOS2.ROM (MSX-DOS 2)",
+        "optional": true
+      },
+      {
+        "path": "PAINTER.ROM",
+        "title": "PAINTER.ROM (Yamaha Painter)",
+        "optional": true
+      },
+      {
+        "path": "KANJI.ROM",
+        "title": "KANJI.ROM (Kanji Font)",
+        "optional": true,
+        "md5": "febe8782b466d7c3b16de6d104826b34"
+      }
+    ]
+  },
+  "freechaf": {
+    "title": "Fairchild - ChannelF (FreeChaF)",
+    "files": [
+      {
+        "path": "sl31253.bin",
+        "title": "sl31253.bin",
+        "optional": false,
+        "md5": "ac9804d4c0e9d07e33472e3726ed15c3"
+      },
+      {
+        "path": "sl31254.bin",
+        "title": "sl31254.bin",
+        "optional": false,
+        "md5": "da98f4bb3242ab80d76629021bb27585"
+      },
+      {
+        "path": "sl90025.bin",
+        "title": "sl90025.bin",
+        "optional": false,
+        "md5": "95d339631d867c8f1d15a5f2ec26069d"
+      }
+    ]
+  },
+  "freeintv": {
+    "title": "Mattel - Intellivision (FreeIntv)",
+    "files": [
+      {
+        "path": "exec.bin",
+        "title": "exec.bin",
+        "optional": false,
+        "md5": "62e761035cb657903761800f4437b8af"
+      },
+      {
+        "path": "grom.bin",
+        "title": "grom.bin",
+        "optional": false,
+        "md5": "0cd5946c6473e42e8e4c2137785e427f"
+      }
+    ]
+  },
+  "FreeIntvTSOverlay": {
+    "title": "Mattel Intellivision (FreeIntvTSOverlay)",
+    "files": [
+      {
+        "path": "exec.bin",
+        "title": "exec.bin (Intellivision Exec BIOS)",
+        "optional": false
+      },
+      {
+        "path": "grom.bin",
+        "title": "grom.bin (Intellivision Graphic Rom BIOS)",
+        "optional": false
+      }
+    ]
+  },
+  "freej2me": {
+    "title": "Mobile - J2ME (FreeJ2ME)",
+    "files": [
+      {
+        "path": "freej2me-lr.jar",
+        "title": "freej2me-lr.jar",
+        "optional": false
+      }
+    ]
+  },
+  "freej2me_plus": {
+    "title": "Mobile - J2ME (FreeJ2ME-Plus)",
+    "files": [
+      {
+        "path": "freej2me_plus-lr.jar",
+        "title": "freej2me_plus-lr.jar (Main Application)",
+        "optional": false
+      }
+    ]
+  },
+  "frodo": {
+    "title": "Commodore - C64 (Frodo)",
+    "files": []
+  },
+  "fsuae": {
+    "title": "Commodore - Amiga (FS-UAE)",
+    "files": []
+  },
+  "fuse": {
+    "title": "Sinclair - ZX Spectrum (Fuse)",
+    "files": [
+      {
+        "path": "fuse/128p-0.rom",
+        "title": "128p-0.rom (Pentagon machines)",
+        "optional": true
+      },
+      {
+        "path": "fuse/128p-1.rom",
+        "title": "128p-1.rom (Pentagon machines)",
+        "optional": true
+      },
+      {
+        "path": "fuse/trdos.rom",
+        "title": "trdos.rom (Pentagon machines)",
+        "optional": true
+      },
+      {
+        "path": "fuse/gluck.rom",
+        "title": "gluck.rom (Pentagon 512K / 1024)",
+        "optional": true
+      },
+      {
+        "path": "fuse/256s-0.rom",
+        "title": "256s-0.rom (Scorpion 256K)",
+        "optional": true
+      },
+      {
+        "path": "fuse/256s-1.rom",
+        "title": "256s-1.rom (Scorpion 256K)",
+        "optional": true
+      },
+      {
+        "path": "fuse/256s-2.rom",
+        "title": "256s-2.rom (Scorpion 256K)",
+        "optional": true
+      },
+      {
+        "path": "fuse/256s-3.rom",
+        "title": "256s-3.rom (Scorpion 256K)",
+        "optional": true
+      }
+    ]
+  },
+  "galaksija": {
+    "title": "Elektronika Inženjering - Galaksija (Galaksija)",
+    "files": [
+      {
+        "path": "galaksija/CHRGEN.BIN",
+        "title": "CHRGEN.BIN (Character ROM)",
+        "optional": true
+      },
+      {
+        "path": "galaksija/ROM1.BIN",
+        "title": "ROM1.BIN (Base ROM)",
+        "optional": true
+      },
+      {
+        "path": "galaksija/ROM2.BIN",
+        "title": "ROM2.BIN (Extensions)",
+        "optional": true
+      }
+    ]
+  },
+  "gam4980": {
+    "title": "GAM4980",
+    "files": []
+  },
+  "gambatte": {
+    "title": "Nintendo - Game Boy / Color (Gambatte)",
+    "files": [
+      {
+        "path": "gb_bios.bin",
+        "title": "gb_bios.bin (Game Boy BIOS)",
+        "optional": true,
+        "md5": "32fbbd84168d3482956eb3c5051637f5"
+      },
+      {
+        "path": "gbc_bios.bin",
+        "title": "gbc_bios.bin (Game Boy Color BIOS)",
+        "optional": true,
+        "md5": "dbfce9db9deaa2567f6a84fde55f9680"
+      }
+    ]
+  },
+  "gametank": {
+    "title": "Clydeware - GameTank (GameTank)",
+    "files": []
+  },
+  "gearboy": {
+    "title": "Nintendo - Game Boy / Color / Super Game Boy (Gearboy)",
+    "files": [
+      {
+        "path": "dmg_boot.bin",
+        "title": "dmg_boot.bin (Game Boy boot ROM)",
+        "optional": true,
+        "md5": "32fbbd84168d3482956eb3c5051637f5"
+      },
+      {
+        "path": "cgb_boot.bin",
+        "title": "cgb_boot.bin (Game Boy Color boot ROM)",
+        "optional": true,
+        "md5": "dbfce9db9deaa2567f6a84fde55f9680"
+      }
+    ]
+  },
+  "gearcoleco": {
+    "title": "Coleco - ColecoVision / ADAM (Gearcoleco)",
+    "files": [
+      {
+        "path": "colecovision.rom",
+        "title": "colecovision.rom (ColecoVision / ADAM OS-7 BIOS)",
+        "optional": false
+      },
+      {
+        "path": "eos.rom",
+        "title": "eos.rom (required for ADAM)",
+        "optional": true
+      },
+      {
+        "path": "writer.rom",
+        "title": "writer.rom (required for ADAM)",
+        "optional": true
+      }
+    ]
+  },
+  "geargrafx": {
+    "title": "NEC - PC Engine / SuperGrafx / CD / LaserActive (Geargrafx)",
+    "files": [
+      {
+        "path": "syscard3.pce",
+        "title": "syscard3.pce (Super CD-ROM2 System V3.xx)",
+        "optional": true,
+        "md5": "38179df8f4ac870017db21ebcbf53114"
+      },
+      {
+        "path": "syscard2.pce",
+        "title": "syscard2.pce (CD-ROM System V2.xx)",
+        "optional": true
+      },
+      {
+        "path": "syscard1.pce",
+        "title": "syscard1.pce (CD-ROM System V1.xx)",
+        "optional": true,
+        "md5": "2b7ccb3d86baa18f6402c176f3065082"
+      },
+      {
+        "path": "gexpress.pce",
+        "title": "gexpress.pce (Game Express CD Card)",
+        "optional": true,
+        "md5": "6d2cb14fc3e1f65ceb135633d1694122"
+      },
+      {
+        "path": "pac-n1.bin",
+        "title": "pac-n1.bin (LaserActive PAC-N1, Japan)",
+        "optional": true,
+        "md5": "f69f173b251d8bf7649b10a9167a10bf"
+      },
+      {
+        "path": "pce-lp1.bin",
+        "title": "pce-lp1.bin (LaserActive PCE-LP1, Japan)",
+        "optional": true,
+        "md5": "761fea207d0eafd4cfd78da7c44cac88"
+      },
+      {
+        "path": "pac-n10.bin",
+        "title": "pac-n10.bin (LaserActive PAC-N10, USA)",
+        "optional": true,
+        "md5": "f0fb8a4605ac7eefbafd4f2d5a793cc8"
+      }
+    ]
+  },
+  "gearlynx": {
+    "title": "Atari - Lynx (Gearlynx)",
+    "files": [
+      {
+        "path": "lynxboot.img",
+        "title": "lynxboot.img (Lynx Boot Image)",
+        "optional": false,
+        "md5": "fcd403db69f54290b51035d82f835e7b"
+      }
+    ]
+  },
+  "gearsystem": {
+    "title": "Sega - MS/GG/SG-1000 (Gearsystem)",
+    "files": [
+      {
+        "path": "bios.sms",
+        "title": "bios.sms (Master System BIOS)",
+        "optional": true,
+        "md5": "840481177270d5642a14ca71ee72844c"
+      },
+      {
+        "path": "bios.gg",
+        "title": "bios.gg (Game Gear BIOS)",
+        "optional": true,
+        "md5": "672e104c3be3a238301aceffc3b23fd6"
+      }
+    ]
+  },
+  "geartowns": {
+    "title": "Fujitsu - FM Towns (Geartowns)",
+    "files": [
+      {
+        "path": "geartowns/FMT_SYS.ROM",
+        "title": "FMT_SYS.ROM (FM Towns System ROM)",
+        "optional": false,
+        "md5": "feaf8c5675151e00cfe3ad27673bff29"
+      },
+      {
+        "path": "geartowns/FMT_DOS.ROM",
+        "title": "FMT_DOS.ROM (FM Towns OS ROM)",
+        "optional": false,
+        "md5": "0585b19930d4a7f4c71bcc8a33746588"
+      },
+      {
+        "path": "geartowns/FMT_FNT.ROM",
+        "title": "FMT_FNT.ROM (FM Towns Font ROM)",
+        "optional": false,
+        "md5": "eb44f2093f51eb7159f03e170b13af76"
+      },
+      {
+        "path": "geartowns/FMT_DIC.ROM",
+        "title": "FMT_DIC.ROM (FM Towns Dictionary ROM)",
+        "optional": false,
+        "md5": "34847786d7de94b5d1133c956ab1d75d"
+      },
+      {
+        "path": "geartowns/FMT_F20.ROM",
+        "title": "FMT_F20.ROM (FM Towns 20-dot Font ROM)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtowns/fmt_sys.rom",
+        "title": "fmtowns/fmt_sys.rom (FM Towns Model 1/2 set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtowns/fmt_dos.rom",
+        "title": "fmtowns/fmt_dos.rom (FM Towns Model 1/2 set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtowns/fmt_fnt.rom",
+        "title": "fmtowns/fmt_fnt.rom (FM Towns Model 1/2 set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtowns/fmt_dic.rom",
+        "title": "fmtowns/fmt_dic.rom (FM Towns Model 1/2 set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtowns.zip",
+        "title": "fmtowns.zip (FM Towns Model 1/2 set, MAME zip)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsux/fmt_sys_a.rom",
+        "title": "fmtownsux/fmt_sys_a.rom (FM Towns II UX set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsux/fmt_dos_a.rom",
+        "title": "fmtownsux/fmt_dos_a.rom (FM Towns II UX set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsux/fmt_fnt.rom",
+        "title": "fmtownsux/fmt_fnt.rom (FM Towns II UX set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsux/fmt_dic.rom",
+        "title": "fmtownsux/fmt_dic.rom (FM Towns II UX set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsux/mytownsux.rom",
+        "title": "fmtownsux/mytownsux.rom (FM Towns II UX set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsux.zip",
+        "title": "fmtownsux.zip (FM Towns II UX set, MAME zip)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtmarty/mrom.m36",
+        "title": "fmtmarty/mrom.m36 (FM Towns Marty set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtmarty/mrom.m37",
+        "title": "fmtmarty/mrom.m37 (FM Towns Marty set, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtmarty.zip",
+        "title": "fmtmarty.zip (FM Towns Marty set, MAME zip)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownshr/fmthr_sys.rom",
+        "title": "fmtownshr/fmthr_sys.rom (FM Towns II HR set for the HG, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownshr/fmt_dos.rom",
+        "title": "fmtownshr/fmt_dos.rom (FM Towns II HR set for the HG, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownshr/fmt_fnt.rom",
+        "title": "fmtownshr/fmt_fnt.rom (FM Towns II HR set for the HG, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownshr/fmt_dic.rom",
+        "title": "fmtownshr/fmt_dic.rom (FM Towns II HR set for the HG, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownshr/mytownshr.rom",
+        "title": "fmtownshr/mytownshr.rom (FM Towns II HR set for the HG, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownshr.zip",
+        "title": "fmtownshr.zip (FM Towns II HR set for the HG, MAME zip)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsftv/fmt_sys.rom",
+        "title": "fmtownsftv/fmt_sys.rom (FM Towns II Fresh TV set, the HG's second choice, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsftv/fmt_dos.rom",
+        "title": "fmtownsftv/fmt_dos.rom (FM Towns II Fresh TV set, the HG's second choice, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsftv/fmt_fnt.rom",
+        "title": "fmtownsftv/fmt_fnt.rom (FM Towns II Fresh TV set, the HG's second choice, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsftv/fmt_dic.rom",
+        "title": "fmtownsftv/fmt_dic.rom (FM Towns II Fresh TV set, the HG's second choice, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsftv/fmt_f20.rom",
+        "title": "fmtownsftv/fmt_f20.rom (FM Towns II Fresh TV set, the HG's second choice, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsftv/mytownsftv.rom",
+        "title": "fmtownsftv/mytownsftv.rom (FM Towns II Fresh TV set, the HG's second choice, MAME names)",
+        "optional": true
+      },
+      {
+        "path": "geartowns/fmtownsftv.zip",
+        "title": "fmtownsftv.zip (FM Towns II Fresh TV set, the HG's second choice, MAME zip)",
+        "optional": true
+      }
+    ]
+  },
+  "genesis_plus_gx": {
+    "title": "Sega - MS/GG/MD/CD (Genesis Plus GX)",
+    "files": [
+      {
+        "path": "bios_MD.bin",
+        "title": "bios_MD.bin (Mega Drive startup ROM)",
+        "optional": true
+      },
+      {
+        "path": "bios_CD_E.bin",
+        "title": "bios_CD_E.bin (MegaCD EU BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_CD_U.bin",
+        "title": "bios_CD_U.bin (SegaCD US BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_CD_J.bin",
+        "title": "bios_CD_J.bin (MegaCD JP BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_E.sms",
+        "title": "bios_E.sms (MasterSystem EU BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_U.sms",
+        "title": "bios_U.sms (MasterSystem US BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_J.sms",
+        "title": "bios_J.sms (MasterSystem JP BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios.gg",
+        "title": "bios.gg (GameGear BIOS)",
+        "optional": true
+      },
+      {
+        "path": "sk.bin",
+        "title": "sk.bin (Sonic & Knuckles ROM)",
+        "optional": true,
+        "md5": "4ea493ea4e9f6c9ebfccbdb15110367e"
+      },
+      {
+        "path": "sk2chip.bin",
+        "title": "sk2chip.bin (Sonic & Knuckles UPMEM ROM)",
+        "optional": true,
+        "md5": "b4e76e416b887f4e7413ba76fa735f16"
+      },
+      {
+        "path": "areplay.bin",
+        "title": "areplay.bin (Action Replay ROM)",
+        "optional": true
+      },
+      {
+        "path": "ggenie.bin",
+        "title": "ggenie.bin (Game Genie ROM)",
+        "optional": true
+      }
+    ]
+  },
+  "genesis_plus_gx_wide": {
+    "title": "Sega - MS/GG/MD/CD (Genesis Plus GX Wide)",
+    "files": [
+      {
+        "path": "bios_MD.bin",
+        "title": "bios_MD.bin (Mega Drive startup ROM)",
+        "optional": true
+      },
+      {
+        "path": "bios_CD_E.bin",
+        "title": "bios_CD_E.bin (MegaCD EU BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_CD_U.bin",
+        "title": "bios_CD_U.bin (SegaCD US BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_CD_J.bin",
+        "title": "bios_CD_J.bin (MegaCD JP BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_E.sms",
+        "title": "bios_E.sms (MasterSystem EU BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_U.sms",
+        "title": "bios_U.sms (MasterSystem US BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios_J.sms",
+        "title": "bios_J.sms (MasterSystem JP BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios.gg",
+        "title": "bios.gg (GameGear BIOS)",
+        "optional": true
+      },
+      {
+        "path": "sk.bin",
+        "title": "sk.bin (Sonic & Knuckles ROM)",
+        "optional": true,
+        "md5": "4ea493ea4e9f6c9ebfccbdb15110367e"
+      },
+      {
+        "path": "sk2chip.bin",
+        "title": "sk2chip.bin (Sonic & Knuckles UPMEM ROM)",
+        "optional": true,
+        "md5": "b4e76e416b887f4e7413ba76fa735f16"
+      },
+      {
+        "path": "areplay.bin",
+        "title": "areplay.bin (Action Replay ROM)",
+        "optional": true
+      },
+      {
+        "path": "ggenie.bin",
+        "title": "ggenie.bin (Game Genie ROM)",
+        "optional": true
+      }
+    ]
+  },
+  "geolith": {
+    "title": "SNK - Neo Geo AES/MVS/CD (Geolith)",
+    "files": [
+      {
+        "path": "aes.zip",
+        "title": "aes.zip (Neo Geo AES System ROM)",
+        "optional": false
+      },
+      {
+        "path": "neogeo.zip",
+        "title": "neogeo.zip (Neo Geo MVS System ROM)",
+        "optional": false
+      },
+      {
+        "path": "neocd.zip",
+        "title": "neocd.zip (Neo Geo CD System ROM)",
+        "optional": false
+      },
+      {
+        "path": "neocdz.zip",
+        "title": "neocdz.zip (Neo Geo CDZ System ROM)",
+        "optional": false
+      },
+      {
+        "path": "irrmaze.zip",
+        "title": "irrmaze.zip (The Irritating Maze)",
+        "optional": true
+      }
+    ]
+  },
+  "gme": {
+    "title": "Game Music Emu",
+    "files": []
+  },
+  "gong": {
+    "title": "Gong",
+    "files": []
+  },
+  "gpsp": {
+    "title": "Nintendo - Game Boy Advance (gpSP)",
+    "files": [
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (Game Boy Advance BIOS)",
+        "optional": false,
+        "md5": "a860e8c0b6d573d191e4ec7db1b1e4f6"
+      }
+    ]
+  },
+  "gw": {
+    "title": "Handheld Electronic (GW)",
+    "files": []
+  },
+  "handy": {
+    "title": "Atari - Lynx (Handy)",
+    "files": [
+      {
+        "path": "lynxboot.img",
+        "title": "lynxboot.img (Lynx Boot Image)",
+        "optional": true,
+        "md5": "fcd403db69f54290b51035d82f835e7b"
+      }
+    ]
+  },
+  "hatari2014": {
+    "title": "Atari - ST / STE / TT / Falcon (Hatari 2014)",
+    "files": [
+      {
+        "path": "tos.img",
+        "title": "tos.img (TOS 1.02 US aka Mega TOS)",
+        "optional": false,
+        "md5": "c1c57ce48e8ee4135885cee9e63a68a2"
+      }
+    ]
+  },
+  "hatari": {
+    "title": "Atari - ST / STE / TT / Falcon (Hatari)",
+    "files": [
+      {
+        "path": "tos.img",
+        "title": "tos.img (TOS 1.02 US aka Mega TOS)",
+        "optional": false,
+        "md5": "c1c57ce48e8ee4135885cee9e63a68a2"
+      }
+    ]
+  },
+  "hatarib": {
+    "title": "Atari - ST / STE / TT / Falcon (hatariB)",
+    "files": [
+      {
+        "path": "tos.img",
+        "title": "tos.img (Default TOS)",
+        "optional": true
+      }
+    ]
+  },
+  "hbmame": {
+    "title": "Arcade (HBMAME)",
+    "files": []
+  },
+  "higan_sfc": {
+    "title": "Nintendo - SNES / Famicom (higan Accuracy)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "cx4.data.rom",
+        "title": "cx4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "SGB1.sfc/sgb1.boot.rom",
+        "title": "SGB1.sfc/sgb1.boot.rom (SGB Boot BIOS)",
+        "optional": true
+      },
+      {
+        "path": "SGB1.sfc/program.rom",
+        "title": "SGB1.sfc/program.rom (SGB Boot Image)",
+        "optional": true
+      },
+      {
+        "path": "SGB2.sfc/sgb2.boot.rom",
+        "title": "SGB2.sfc/sgb2.boot.rom (SGB Boot BIOS)",
+        "optional": true
+      },
+      {
+        "path": "SGB2.sfc/program.rom",
+        "title": "SGB2.sfc/program.rom (SGB Boot Image)",
+        "optional": true
+      }
+    ]
+  },
+  "holani": {
+    "title": "Atari - Lynx (Holani)",
+    "files": [
+      {
+        "path": "lynxboot.img",
+        "title": "lynxboot.img (Lynx Boot Image)",
+        "optional": true
+      }
+    ]
+  },
+  "hyperscanemu": {
+    "title": "HyperScan (HyperScanEmu)",
+    "files": []
+  },
+  "hypseushw": {
+    "title": "Arcade (Daphne HypseusHW)",
+    "files": []
+  },
+  "imageviewer": {
+    "title": "Imageviewer",
+    "files": []
+  },
+  "irogb": {
+    "title": "Nintendo - Game Boy / Color (IroGB)",
+    "files": [
+      {
+        "path": "dmg_boot.bin",
+        "title": "dmg_boot.bin (DMG-BIOS)",
+        "optional": true
+      },
+      {
+        "path": "cgb_bios.bin",
+        "title": "cgb_bios.bin (CGB-BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "ishiiruka": {
+    "title": "Nintendo - GameCube / Wii (Ishiiruka)",
+    "files": []
+  },
+  "jaxe": {
+    "title": "CHIP-8/S-CHIP/XO-CHIP (JAXE)",
+    "files": []
+  },
+  "jollycv": {
+    "title": "ColecoVision/CreatiVision/My Vision (JollyCV)",
+    "files": [
+      {
+        "path": "coleco.rom",
+        "title": "coleco.rom (ColecoVision BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bioscv.rom",
+        "title": "bioscv.rom (CreatiVision BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "jumpnbump": {
+    "title": "Jump 'n Bump",
+    "files": []
+  },
+  "kronos": {
+    "title": "Sega - Saturn/ST-V (Kronos)",
+    "files": [
+      {
+        "path": "kronos/saturn_bios.bin",
+        "title": "kronos/saturn_bios.bin (Saturn BIOS)",
+        "optional": false,
+        "md5": "af5828fdff51384f99b3c4926be27762"
+      },
+      {
+        "path": "kronos/stvbios.zip",
+        "title": "kronos/stvbios.zip (ST-V BIOS from MAME)",
+        "optional": false
+      },
+      {
+        "path": "mpr-18811-mx.ic1",
+        "title": "mpr-18811-mx.ic1 (The King of Fighters '95 ROM Cartridge)",
+        "optional": true,
+        "md5": "255113ba943c92a54facd25a10fd780c"
+      },
+      {
+        "path": "mpr-19367-mx.ic1",
+        "title": "mpr-19367-mx.ic1 (Ultraman: Hikari no Kyojin Densetsu ROM Cartridge)",
+        "optional": true,
+        "md5": "1cd19988d1d72a3e7caa0b73234c96b4"
+      }
+    ]
+  },
+  "lowresnx": {
+    "title": "LowRes NX",
+    "files": []
+  },
+  "lutro": {
+    "title": "Lua Engine (Lutro)",
+    "files": []
+  },
+  "m2000": {
+    "title": "Philips - P2000T (M2000)",
+    "files": []
+  },
+  "mame2000": {
+    "title": "Arcade (MAME 2000)",
+    "files": []
+  },
+  "mame2003": {
+    "title": "Arcade (MAME 2003)",
+    "files": []
+  },
+  "mame2003_midway": {
+    "title": "Arcade (MAME 2003 Midway)",
+    "files": []
+  },
+  "mame2003_plus": {
+    "title": "Arcade (MAME 2003-Plus)",
+    "files": []
+  },
+  "mame2009": {
+    "title": "Arcade (MAME 2009)",
+    "files": []
+  },
+  "mame2010": {
+    "title": "Arcade (MAME 2010)",
+    "files": []
+  },
+  "mame2015": {
+    "title": "Arcade (MAME 2015)",
+    "files": []
+  },
+  "mame2016": {
+    "title": "Arcade (MAME 2016)",
+    "files": []
+  },
+  "mame": {
+    "title": "Arcade (MAME)",
+    "files": []
+  },
+  "mamearcade": {
+    "title": "Arcade (MAME/Arcade)",
+    "files": []
+  },
+  "mamemess": {
+    "title": "Multi (MAME/MESS)",
+    "files": []
+  },
+  "mcsoftserve": {
+    "title": "McSoftServe",
+    "files": []
+  },
+  "mednafen_gba": {
+    "title": "Nintendo - Game Boy Advance (Beetle GBA)",
+    "files": [
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (Game Boy Advance BIOS)",
+        "optional": true,
+        "md5": "a860e8c0b6d573d191e4ec7db1b1e4f6"
+      }
+    ]
+  },
+  "mednafen_lynx": {
+    "title": "Atari - Lynx (Beetle Lynx)",
+    "files": [
+      {
+        "path": "lynxboot.img",
+        "title": "lynxboot.img (Lynx Boot Image)",
+        "optional": false,
+        "md5": "fcd403db69f54290b51035d82f835e7b"
+      }
+    ]
+  },
+  "mednafen_ngp": {
+    "title": "SNK - Neo Geo Pocket / Color (Beetle NeoPop)",
+    "files": []
+  },
+  "mednafen_pce_fast": {
+    "title": "NEC - PC Engine / CD (Beetle PCE FAST)",
+    "files": [
+      {
+        "path": "syscard3.pce",
+        "title": "syscard3.pce (PCE-CD BIOS)",
+        "optional": true,
+        "md5": "38179df8f4ac870017db21ebcbf53114"
+      },
+      {
+        "path": "syscard2.pce",
+        "title": "syscard2.pce (PCE-CD BIOS)",
+        "optional": true
+      },
+      {
+        "path": "syscard1.pce",
+        "title": "syscard1.pce (PCE-CD BIOS)",
+        "optional": true
+      },
+      {
+        "path": "gexpress.pce",
+        "title": "gexpress.pce (PCE-CD BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "mednafen_pce": {
+    "title": "NEC - PC Engine / SuperGrafx / CD (Beetle PCE)",
+    "files": [
+      {
+        "path": "syscard3.pce",
+        "title": "syscard3.pce (Super CD-ROM2 System V3.xx)",
+        "optional": true,
+        "md5": "38179df8f4ac870017db21ebcbf53114"
+      },
+      {
+        "path": "syscard2.pce",
+        "title": "syscard2.pce (CD-ROM System V2.xx)",
+        "optional": true
+      },
+      {
+        "path": "syscard1.pce",
+        "title": "syscard1.pce (CD-ROM System V1.xx)",
+        "optional": true
+      },
+      {
+        "path": "gexpress.pce",
+        "title": "gexpress.pce (Game Express CD Card)",
+        "optional": true
+      }
+    ]
+  },
+  "mednafen_pcfx": {
+    "title": "NEC - PC-FX (Beetle PC-FX)",
+    "files": [
+      {
+        "path": "pcfx.rom",
+        "title": "pcfx.rom (PC-FX BIOS v1.00 - 2 Sep 1994)",
+        "optional": false,
+        "md5": "08e36edbea28a017f79f8d4f7ff9b6d7"
+      }
+    ]
+  },
+  "mednafen_psx_hw": {
+    "title": "Sony - PlayStation (Beetle PSX HW)",
+    "files": [
+      {
+        "path": "scph5500.bin",
+        "title": "scph5500.bin (PS1 JP BIOS)",
+        "optional": false,
+        "md5": "8dd7d5296a650fac7319bce665a6a53c"
+      },
+      {
+        "path": "scph5501.bin",
+        "title": "scph5501.bin (PS1 US BIOS)",
+        "optional": false,
+        "md5": "490f666e1afb15b7362b406ed1cea246"
+      },
+      {
+        "path": "scph5502.bin",
+        "title": "scph5502.bin (PS1 EU BIOS)",
+        "optional": false,
+        "md5": "32736f17079d0b2b7024407c39bd3050"
+      },
+      {
+        "path": "psxonpsp660.bin",
+        "title": "psxonpsp660.bin (PSP PS1 BIOS)",
+        "optional": true,
+        "md5": "c53ca5908936d412331790f4426c6c33"
+      },
+      {
+        "path": "ps1_rom.bin",
+        "title": "ps1_rom.bin (PS3 PS1 BIOS)",
+        "optional": true,
+        "md5": "81bbe60ba7a3d1cea1d48c14cbcc647b"
+      }
+    ]
+  },
+  "mednafen_psx": {
+    "title": "Sony - PlayStation (Beetle PSX)",
+    "files": [
+      {
+        "path": "scph5500.bin",
+        "title": "scph5500.bin (PS1 JP BIOS)",
+        "optional": false,
+        "md5": "8dd7d5296a650fac7319bce665a6a53c"
+      },
+      {
+        "path": "scph5501.bin",
+        "title": "scph5501.bin (PS1 US BIOS)",
+        "optional": false,
+        "md5": "490f666e1afb15b7362b406ed1cea246"
+      },
+      {
+        "path": "scph5502.bin",
+        "title": "scph5502.bin (PS1 EU BIOS)",
+        "optional": false,
+        "md5": "32736f17079d0b2b7024407c39bd3050"
+      },
+      {
+        "path": "psxonpsp660.bin",
+        "title": "psxonpsp660.bin (PSP PS1 BIOS)",
+        "optional": true,
+        "md5": "c53ca5908936d412331790f4426c6c33"
+      },
+      {
+        "path": "ps1_rom.bin",
+        "title": "ps1_rom.bin (PS3 PS1 BIOS)",
+        "optional": true,
+        "md5": "81bbe60ba7a3d1cea1d48c14cbcc647b"
+      }
+    ]
+  },
+  "mednafen_saturn": {
+    "title": "Sega - Saturn (Beetle Saturn)",
+    "files": [
+      {
+        "path": "sega_101.bin",
+        "title": "sega_101.bin (Saturn JP BIOS)",
+        "optional": false,
+        "md5": "85ec9ca47d8f6807718151cbcca8b964"
+      },
+      {
+        "path": "mpr-17933.bin",
+        "title": "mpr-17933.bin (Saturn US/EU BIOS)",
+        "optional": false,
+        "md5": "3240872c70984b6cbfda1586cab68dbe"
+      },
+      {
+        "path": "mpr-18811-mx.ic1",
+        "title": "mpr-18811-mx.ic1 (The King of Fighters '95 ROM Cartridge)",
+        "optional": true,
+        "md5": "255113ba943c92a54facd25a10fd780c"
+      },
+      {
+        "path": "mpr-19367-mx.ic1",
+        "title": "mpr-19367-mx.ic1 (Ultraman: Hikari no Kyojin Densetsu ROM Cartridge)",
+        "optional": true,
+        "md5": "1cd19988d1d72a3e7caa0b73234c96b4"
+      }
+    ]
+  },
+  "mednafen_snes": {
+    "title": "Nintendo - SNES / SFC (Beetle bsnes)",
+    "files": []
+  },
+  "mednafen_supafaust": {
+    "title": "Nintendo - SNES / SFC (Beetle Supafaust)",
+    "files": []
+  },
+  "mednafen_supergrafx": {
+    "title": "NEC - PC Engine SuperGrafx (Beetle SuperGrafx)",
+    "files": [
+      {
+        "path": "syscard3.pce",
+        "title": "syscard3.pce (Super CD-ROM2 System V3.xx)",
+        "optional": true,
+        "md5": "38179df8f4ac870017db21ebcbf53114"
+      },
+      {
+        "path": "syscard2.pce",
+        "title": "syscard2.pce (CD-ROM System V2.xx)",
+        "optional": true
+      },
+      {
+        "path": "syscard1.pce",
+        "title": "syscard1.pce (CD-ROM System V1.xx)",
+        "optional": true
+      },
+      {
+        "path": "gexpress.pce",
+        "title": "gexpress.pce (Game Express CD Card)",
+        "optional": true
+      }
+    ]
+  },
+  "mednafen_vb": {
+    "title": "Nintendo - Virtual Boy (Beetle VB)",
+    "files": []
+  },
+  "mednafen_wswan": {
+    "title": "Bandai - WonderSwan/Color (Beetle Wonderswan)",
+    "files": []
+  },
+  "melonds": {
+    "title": "Nintendo - DS (melonDS)",
+    "files": [
+      {
+        "path": "firmware.bin",
+        "title": "firmware.bin (NDS Firmware)",
+        "optional": true
+      },
+      {
+        "path": "bios7.bin",
+        "title": "bios7.bin (ARM7 BIOS)",
+        "optional": true,
+        "md5": "df692a80a5b1bc90728bc3dfc76cd948"
+      },
+      {
+        "path": "bios9.bin",
+        "title": "bios9.bin (ARM9 BIOS)",
+        "optional": true,
+        "md5": "a392174eb3e572fed6447e956bde4b25"
+      },
+      {
+        "path": "dsi_firmware.bin",
+        "title": "dsi_firmware.bin (DSi Firmware)",
+        "optional": true
+      },
+      {
+        "path": "dsi_bios7.bin",
+        "title": "dsi_bios7.bin (DSi ARM7 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "dsi_bios9.bin",
+        "title": "dsi_bios9.bin (DSi ARM9 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "dsi_nand.bin",
+        "title": "dsi_nand.bin (DSi NAND)",
+        "optional": true
+      },
+      {
+        "path": "dsi_sd_card.bin",
+        "title": "dsi_sd_card.bin (DSi SD card)",
+        "optional": true
+      }
+    ]
+  },
+  "melondsds": {
+    "title": "Nintendo - DS (melonDS DS)",
+    "files": [
+      {
+        "path": "firmware.bin",
+        "title": "firmware.bin (NDS Firmware)",
+        "optional": true
+      },
+      {
+        "path": "bios7.bin",
+        "title": "bios7.bin (ARM7 BIOS)",
+        "optional": true,
+        "md5": "df692a80a5b1bc90728bc3dfc76cd948"
+      },
+      {
+        "path": "bios9.bin",
+        "title": "bios9.bin (ARM9 BIOS)",
+        "optional": true,
+        "md5": "a392174eb3e572fed6447e956bde4b25"
+      },
+      {
+        "path": "dsi_firmware.bin",
+        "title": "dsi_firmware.bin (DSi Firmware)",
+        "optional": true
+      },
+      {
+        "path": "dsi_bios7.bin",
+        "title": "dsi_bios7.bin (DSi ARM7 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "dsi_bios9.bin",
+        "title": "dsi_bios9.bin (DSi ARM9 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "dsi_nand.bin",
+        "title": "dsi_nand.bin (DSi NAND)",
+        "optional": true
+      }
+    ]
+  },
+  "mesen-s": {
+    "title": "Nintendo - SNES / SFC / Game Boy / Color (Mesen-S)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dmg_boot.bin",
+        "title": "dmg_boot.bin (GB Boot Image)",
+        "optional": true
+      },
+      {
+        "path": "cgb_boot.bin",
+        "title": "cgb_boot.bin (GBC Boot Image)",
+        "optional": true
+      },
+      {
+        "path": "sgb_boot.bin",
+        "title": "sgb_boot.bin (SGB Boot Image)",
+        "optional": true
+      },
+      {
+        "path": "sgb2_boot.bin",
+        "title": "sgb2_boot.bin (SGB2 Boot Image)",
+        "optional": true
+      },
+      {
+        "path": "SGB1.sfc",
+        "title": "SGB1.sfc (SGB ROM)",
+        "optional": true
+      },
+      {
+        "path": "SGB2.sfc",
+        "title": "SGB2.sfc (SGB2 ROM)",
+        "optional": true
+      },
+      {
+        "path": "BS-X.bin",
+        "title": "BS-X.bin (Satellaview Boot ROM)",
+        "optional": true
+      }
+    ]
+  },
+  "mesen2": {
+    "title": "Nintendo - NES / FC / FDS / SNES / SFC / GB / GBC / GBA / NEC - PCE / PCE-CD / Sega - SMS / GG / Bandai - Wswan (MesenCE)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dmg_boot.bin",
+        "title": "dmg_boot.bin (GB Boot Image)",
+        "optional": true
+      },
+      {
+        "path": "cgb_boot.bin",
+        "title": "cgb_boot.bin (GBC Boot Image)",
+        "optional": true
+      },
+      {
+        "path": "syscard3.pce",
+        "title": "syscard3.pce (Super CD-ROM2 System V3.xx)",
+        "optional": true
+      },
+      {
+        "path": "syscard2.pce",
+        "title": "syscard2.pce (CD-ROM System V2.xx)",
+        "optional": true
+      },
+      {
+        "path": "syscard1.pce",
+        "title": "syscard1.pce (CD-ROM System V1.xx)",
+        "optional": true
+      },
+      {
+        "path": "gexpress.pce",
+        "title": "gexpress.pce (Game Express CD Card)",
+        "optional": true
+      },
+      {
+        "path": "bios.sms",
+        "title": "bios.sms (Master System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "bios.gg",
+        "title": "bios.gg (Game Gear BIOS)",
+        "optional": true
+      },
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (Game Boy Advance BIOS)",
+        "optional": true
+      },
+      {
+        "path": "gb_bios.bin",
+        "title": "gb_bios.bin (Game Boy BIOS)",
+        "optional": true
+      },
+      {
+        "path": "gbc_bios.bin",
+        "title": "gbc_bios.bin (Game Boy Color BIOS)",
+        "optional": true
+      },
+      {
+        "path": "sgb_bios.bin",
+        "title": "sgb_bios.bin (Super Game Boy BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "mesen": {
+    "title": "Nintendo - NES / Famicom (Mesen)",
+    "files": [
+      {
+        "path": "disksys.rom",
+        "title": "disksys.rom (Family Computer Disk System BIOS)",
+        "optional": true,
+        "md5": "ca30b50f880eb660a320674ed365ef7a"
+      }
+    ]
+  },
+  "mess2015": {
+    "title": "Multi (MESS 2015)",
+    "files": []
+  },
+  "meteor": {
+    "title": "Nintendo - Game Boy Advance (Meteor)",
+    "files": []
+  },
+  "mgba": {
+    "title": "Nintendo - Game Boy Advance (mGBA)",
+    "files": [
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (Game Boy Advance BIOS)",
+        "optional": true,
+        "md5": "a860e8c0b6d573d191e4ec7db1b1e4f6"
+      },
+      {
+        "path": "gb_bios.bin",
+        "title": "gb_bios.bin (Game Boy BIOS)",
+        "optional": true,
+        "md5": "32fbbd84168d3482956eb3c5051637f5"
+      },
+      {
+        "path": "gbc_bios.bin",
+        "title": "gbc_bios.bin (Game Boy Color BIOS)",
+        "optional": true,
+        "md5": "dbfce9db9deaa2567f6a84fde55f9680"
+      },
+      {
+        "path": "sgb_bios.bin",
+        "title": "sgb_bios.bin (Super Game Boy BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "mgba_splitscreen": {
+    "title": "mGBA Splitscreen",
+    "files": [
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (Game Boy Advance BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "minivmac": {
+    "title": "Mac II (minivmac)",
+    "files": [
+      {
+        "path": "MacII.ROM",
+        "title": "MacII.ROM",
+        "optional": false,
+        "md5": "66223be1497460f1e60885eeb35e03cc"
+      }
+    ]
+  },
+  "mkxp-z": {
+    "title": "RPG Maker XP/VX/VX Ace (mkxp-z)",
+    "files": [
+      {
+        "path": "mkxp-z/RTP/Standard",
+        "title": "mkxp-z/RTP/Standard/... (RPG Maker XP Run Time Package)",
+        "optional": true
+      },
+      {
+        "path": "mkxp-z/RTP/RPGVX",
+        "title": "mkxp-z/RTP/RPGVX/... (RPG Maker VX Run Time Package)",
+        "optional": true
+      },
+      {
+        "path": "mkxp-z/RTP/RPGVXAce",
+        "title": "mkxp-z/RTP/RPGVXAce/... (RPG Maker VX Ace Run Time Package)",
+        "optional": true
+      }
+    ]
+  },
+  "mojozork": {
+    "title": "Infocom Z-Machine (MojoZork)",
+    "files": []
+  },
+  "moonlight": {
+    "title": "Moonlight",
+    "files": []
+  },
+  "mpv": {
+    "title": "MPV",
+    "files": []
+  },
+  "mrboom": {
+    "title": "Mr.Boom (Bomberman)",
+    "files": []
+  },
+  "mu": {
+    "title": "Palm OS (Mu)",
+    "files": [
+      {
+        "path": "palmos40-en-m500.rom",
+        "title": "palmos40-en-m500.rom (Palm OS 4.0)",
+        "optional": true
+      },
+      {
+        "path": "palmos41-en-m515.rom",
+        "title": "palmos41-en-m515.rom (Palm OS 4.1)",
+        "optional": false
+      },
+      {
+        "path": "palmos52-en-t3.rom",
+        "title": "palmos52-en-t3.rom (Palm OS 5.2.1)",
+        "optional": true
+      },
+      {
+        "path": "palmos60-en-t3.rom",
+        "title": "palmos60-en-t3.rom (Palm OS 6.0)",
+        "optional": true
+      },
+      {
+        "path": "bootloader-dbvz.rom",
+        "title": "bootloader-dbvz.rom (MC68VZ328 UART Bootloader)",
+        "optional": true
+      }
+    ]
+  },
+  "mupen64plus_next_develop": {
+    "title": "Nintendo - Nintendo 64 (Mupen64Plus-Next Develop)",
+    "files": [
+      {
+        "path": "Mupen64plus/IPL.n64",
+        "title": "Mupen64plus/IPL.n64 (64DD BIOS)",
+        "optional": true,
+        "md5": "8d3d9f294b6e174bc7b1d2fd1c727530"
+      }
+    ]
+  },
+  "mupen64plus_next_gles2": {
+    "title": "Nintendo - Nintendo 64 (Mupen64Plus-Next GLES2)",
+    "files": [
+      {
+        "path": "Mupen64plus/IPL.n64",
+        "title": "Mupen64plus/IPL.n64 (64DD BIOS)",
+        "optional": true,
+        "md5": "8d3d9f294b6e174bc7b1d2fd1c727530"
+      }
+    ]
+  },
+  "mupen64plus_next_gles3": {
+    "title": "Nintendo - Nintendo 64 (Mupen64Plus-Next GLES3)",
+    "files": [
+      {
+        "path": "Mupen64plus/IPL.n64",
+        "title": "Mupen64plus/IPL.n64 (64DD BIOS)",
+        "optional": true,
+        "md5": "8d3d9f294b6e174bc7b1d2fd1c727530"
+      }
+    ]
+  },
+  "mupen64plus_next": {
+    "title": "Nintendo - Nintendo 64 (Mupen64Plus-Next)",
+    "files": [
+      {
+        "path": "Mupen64plus/IPL.n64",
+        "title": "Mupen64plus/IPL.n64 (64DD BIOS)",
+        "optional": true,
+        "md5": "8d3d9f294b6e174bc7b1d2fd1c727530"
+      }
+    ]
+  },
+  "native32emu": {
+    "title": "Native32 (Native32Emu)",
+    "files": []
+  },
+  "nekop2": {
+    "title": "NEC - PC-98 (Neko Project II)",
+    "files": []
+  },
+  "neocd": {
+    "title": "SNK - Neo Geo CD (NeoCD)",
+    "files": [
+      {
+        "path": "neocd/neocd_f.rom",
+        "title": "neocd/neocd_f.rom (Front Loader BIOS)",
+        "optional": true
+      },
+      {
+        "path": "neocd/neocd_sf.rom",
+        "title": "neocd/neocd_sf.rom (Front Loader BIOS (SMKDAN))",
+        "optional": true
+      },
+      {
+        "path": "neocd/front-sp1.bin",
+        "title": "neocd/front-sp1.bin (Front Loader BIOS (MAME))",
+        "optional": true
+      },
+      {
+        "path": "neocd/neocd_t.rom",
+        "title": "neocd/neocd_t.rom (Top Loader BIOS))",
+        "optional": true
+      },
+      {
+        "path": "neocd/neocd_st.rom",
+        "title": "neocd/neocd_st.rom (Top Loader BIOS (SMKDAN))",
+        "optional": true
+      },
+      {
+        "path": "neocd/top-sp1.bin",
+        "title": "neocd/top-sp1.bin (Top Loader BIOS (MAME))",
+        "optional": true
+      },
+      {
+        "path": "neocd/neocd_z.rom",
+        "title": "neocd/neocd_z.rom (CDZ BIOS)",
+        "optional": true
+      },
+      {
+        "path": "neocd/neocd_sz.rom",
+        "title": "neocd/neocd_sz.rom (CDZ BIOS (SMKDAN))",
+        "optional": true
+      },
+      {
+        "path": "neocd/neocd.bin",
+        "title": "neocd/neocd.bin (CDZ BIOS (MAME))",
+        "optional": true
+      },
+      {
+        "path": "neocd/ng-lo.rom",
+        "title": "neocd/ng-lo.rom (Y-ZOOM ROM)",
+        "optional": true
+      },
+      {
+        "path": "neocd/000-lo.lo",
+        "title": "neocd/000-lo.lo (Y-ZOOM ROM (MAME))",
+        "optional": true
+      },
+      {
+        "path": "neocd/uni-bioscd.rom",
+        "title": "neocd/uni-bioscd.rom (Universe BIOS 3.2)",
+        "optional": true
+      }
+    ]
+  },
+  "nes": {
+    "title": "Nintendo - NES / Famicom (nes)",
+    "files": []
+  },
+  "nestopia": {
+    "title": "Nintendo - NES / Famicom (Nestopia)",
+    "files": [
+      {
+        "path": "disksys.rom",
+        "title": "disksys.rom (Family Computer Disk System BIOS)",
+        "optional": true,
+        "md5": "ca30b50f880eb660a320674ed365ef7a"
+      }
+    ]
+  },
+  "noods": {
+    "title": "Nintendo - DS (NooDS)",
+    "files": [
+      {
+        "path": "firmware.bin",
+        "title": "firmware.bin (NDS Firmware)",
+        "optional": true
+      },
+      {
+        "path": "bios7.bin",
+        "title": "bios7.bin (ARM7 BIOS)",
+        "optional": true,
+        "md5": "df692a80a5b1bc90728bc3dfc76cd948"
+      },
+      {
+        "path": "bios9.bin",
+        "title": "bios9.bin (ARM9 BIOS)",
+        "optional": true,
+        "md5": "a392174eb3e572fed6447e956bde4b25"
+      },
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (Game Boy Advance BIOS)",
+        "optional": true,
+        "md5": "a860e8c0b6d573d191e4ec7db1b1e4f6"
+      },
+      {
+        "path": "nds_sd_card.bin",
+        "title": "nds_sd_card.bin (NDS SD card)",
+        "optional": true
+      }
+    ]
+  },
+  "np2kai": {
+    "title": "NEC - PC-98 (Neko Project II Kai)",
+    "files": [
+      {
+        "path": "np2kai/font.bmp",
+        "title": "np2kai/font.bmp (needed to display text)",
+        "optional": true
+      },
+      {
+        "path": "np2kai/FONT.ROM",
+        "title": "np2kai/FONT.ROM (alt font file)",
+        "optional": true
+      },
+      {
+        "path": "np2kai/bios.rom",
+        "title": "np2kai/bios.rom",
+        "optional": true
+      },
+      {
+        "path": "np2kai/itf.rom",
+        "title": "np2kai/itf.rom",
+        "optional": true
+      },
+      {
+        "path": "np2kai/sound.rom",
+        "title": "np2kai/sound.rom",
+        "optional": true
+      },
+      {
+        "path": "np2kai/2608_BD.WAV",
+        "title": "np2kai/2608_BD.WAV (YM2608 rhythm sample)",
+        "optional": true
+      },
+      {
+        "path": "np2kai/2608_SD.WAV",
+        "title": "np2kai/2608_SD.WAV (YM2608 rhythm sample)",
+        "optional": true
+      },
+      {
+        "path": "np2kai/2608_TOP.WAV",
+        "title": "np2kai/2608_TOP.WAV (YM2608 rhythm sample)",
+        "optional": true
+      },
+      {
+        "path": "np2kai/2608_HH.WAV",
+        "title": "np2kai/2608_HH.WAV (YM2608 rhythm sample)",
+        "optional": true
+      },
+      {
+        "path": "np2kai/2608_TOM.WAV",
+        "title": "np2kai/2608_TOM.WAV (YM2608 rhythm sample)",
+        "optional": true
+      },
+      {
+        "path": "np2kai/2608_RIM.WAV",
+        "title": "np2kai/2608_RIM.WAV (YM2608 rhythm sample)",
+        "optional": true
+      }
+    ]
+  },
+  "nside_sfc_balanced": {
+    "title": "Nintendo - SNES / SFC (nSide Balanced)",
+    "files": [
+      {
+        "path": "dsp1.data.rom",
+        "title": "dsp1.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1.program.rom",
+        "title": "dsp1.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.data.rom",
+        "title": "dsp1b.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp1b.program.rom",
+        "title": "dsp1b.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.data.rom",
+        "title": "dsp2.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp2.program.rom",
+        "title": "dsp2.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.data.rom",
+        "title": "dsp3.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp3.program.rom",
+        "title": "dsp3.program.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.data.rom",
+        "title": "dsp4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "dsp4.program.rom",
+        "title": "dsp4.program.rom",
+        "optional": true
+      },
+      {
+        "path": "cx4.data.rom",
+        "title": "cx4.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.data.rom",
+        "title": "st010.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st010.program.rom",
+        "title": "st010.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.data.rom",
+        "title": "st011.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st011.program.rom",
+        "title": "st011.program.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.data.rom",
+        "title": "st018.data.rom",
+        "optional": true
+      },
+      {
+        "path": "st018.program.rom",
+        "title": "st018.program.rom",
+        "optional": true
+      },
+      {
+        "path": "SGB1.sfc/sgb1.boot.rom",
+        "title": "SGB1.sfc/sgb1.boot.rom (SGB Boot BIOS)",
+        "optional": true
+      },
+      {
+        "path": "SGB1.sfc/program.rom",
+        "title": "SGB1.sfc/program.rom (SGB Boot Image)",
+        "optional": true
+      },
+      {
+        "path": "SGB2.sfc/sgb2.boot.rom",
+        "title": "SGB2.sfc/sgb2.boot.rom (SGB Boot BIOS)",
+        "optional": true
+      },
+      {
+        "path": "SGB2.sfc/program.rom",
+        "title": "SGB2.sfc/program.rom (SGB Boot Image)",
+        "optional": true
+      }
+    ]
+  },
+  "nuance": {
+    "title": "VM Labs - NUON (Nuance)",
+    "files": [
+      {
+        "path": "nuance/bios.cof",
+        "title": "bios.cof (NUON main BIOS, shipped with the emulator)",
+        "optional": false
+      },
+      {
+        "path": "nuance/minibios.cof",
+        "title": "minibios.cof (NUON minibios for MPEs 0-2)",
+        "optional": false
+      },
+      {
+        "path": "nuance/minibiosX.cof",
+        "title": "minibiosX.cof (NUON extended minibios)",
+        "optional": false
+      }
+    ]
+  },
+  "numero": {
+    "title": "Texas Instruments TI-83 (Numero)",
+    "files": [
+      {
+        "path": "ti83se.rom",
+        "title": "ti83se.rom (TI-83 Silver Edition)",
+        "optional": true,
+        "md5": "c6ff8204c5c81b7be34614dbbd690c8b"
+      },
+      {
+        "path": "ti83plus.rom",
+        "title": "ti83plus.rom (TI-83 Plus)",
+        "optional": true,
+        "md5": "8011181f810b5ec4e9d6a03f0e14257a"
+      },
+      {
+        "path": "ti83.rom",
+        "title": "ti83.rom (TI-83)",
+        "optional": true,
+        "md5": "d4448d09bbfde687c04f9e3310e023ab"
+      }
+    ]
+  },
+  "nxengine": {
+    "title": "Cave Story (NXEngine)",
+    "files": []
+  },
+  "o2em": {
+    "title": "Magnavox - Odyssey2 / Philips Videopac+ (O2EM)",
+    "files": [
+      {
+        "path": "o2rom.bin",
+        "title": "o2rom.bin (Odyssey2 BIOS - G7000 model)",
+        "optional": false,
+        "md5": "562d5ebf9e030a40d6fabfc2f33139fd"
+      },
+      {
+        "path": "c52.bin",
+        "title": "c52.bin (Videopac French BIOS - G7000 model)",
+        "optional": false,
+        "md5": "f1071cdb0b6b10dde94d3bc8a6146387"
+      },
+      {
+        "path": "g7400.bin",
+        "title": "g7400.bin (Videopac+ European BIOS - G7400 model)",
+        "optional": false,
+        "md5": "c500ff71236068e0dc0d0603d265ae76"
+      },
+      {
+        "path": "jopac.bin",
+        "title": "jopac.bin (Videopac+ French BIOS - G7400 model)",
+        "optional": false,
+        "md5": "279008e4a0db2dc5f1c048853b033828"
+      }
+    ]
+  },
+  "oberon": {
+    "title": "Oberon RISC Emulator",
+    "files": []
+  },
+  "omicron": {
+    "title": "Omicron",
+    "files": []
+  },
+  "onscripter": {
+    "title": "ONScripter",
+    "files": []
+  },
+  "onsyuri": {
+    "title": "ONScripter Yuri",
+    "files": []
+  },
+  "openlara": {
+    "title": "Tomb Raider (OpenLara)",
+    "files": []
+  },
+  "opentyrian": {
+    "title": "Tyrian (OpenTyrian)",
+    "files": []
+  },
+  "opera": {
+    "title": "The 3DO Company - 3DO (Opera)",
+    "files": [
+      {
+        "path": "panafz1.bin",
+        "title": "panafz1.bin (Panasonic FZ-1 BIOS)",
+        "optional": true,
+        "md5": "f47264dd47fe30f73ab3c010015c155b"
+      },
+      {
+        "path": "panafz10.bin",
+        "title": "panafz10.bin (Panasonic FZ-10 BIOS)",
+        "optional": true,
+        "md5": "51f2f43ae2f3508a14d9f56597e2d3ce"
+      },
+      {
+        "path": "panafz10-norsa.bin",
+        "title": "panafz10-norsa.bin (Panasonic FZ-10 BIOS [Encryption Check Disabled])",
+        "optional": true,
+        "md5": "1477bda80dc33731a65468c1f5bcbee9"
+      },
+      {
+        "path": "panafz10e-anvil.bin",
+        "title": "panafz10e-anvil.bin (Panasonic FZ-10E ANVIL BIOS)",
+        "optional": true,
+        "md5": "a48e6746bd7edec0f40cff078f0bb19f"
+      },
+      {
+        "path": "panafz10e-anvil-norsa.bin",
+        "title": "panafz10e-anvil-norsa.bin (Panasonic FZ-10E ANVIL BIOS [Encryption Check Disabled])",
+        "optional": true,
+        "md5": "cf11bbb5a16d7af9875cca9de9a15e09"
+      },
+      {
+        "path": "goldstar.bin",
+        "title": "goldstar.bin (Goldstar GDO-101M BIOS)",
+        "optional": true,
+        "md5": "8639fd5e549bd6238cfee79e3e749114"
+      },
+      {
+        "path": "sanyotry.bin",
+        "title": "sanyotry.bin (Sanyo Try IMP-21J BIOS)",
+        "optional": true,
+        "md5": "35fa1a1ebaaeea286dc5cd15487c13ea"
+      },
+      {
+        "path": "3do_arcade_saot.bin",
+        "title": "3do_arcade_saot.bin (Shootout At Old Tucson BIOS)",
+        "optional": true,
+        "md5": "8970fc987ab89a7f64da9f8a8c4333ff"
+      },
+      {
+        "path": "panafz1-kanji.bin",
+        "title": "panafz1-kanji.bin (Panasonic FZ-1 Kanji Font ROM)",
+        "optional": true,
+        "md5": "b8dc97f778a6245c58e064b0312e8281"
+      },
+      {
+        "path": "panafz10ja-anvil-kanji.bin",
+        "title": "panafz10ja-anvil-kanji.bin (Panasonic FZ-10JA Kanji Font ROM)",
+        "optional": true,
+        "md5": "428577250f43edc902ea239c50d2240d"
+      },
+      {
+        "path": "panafz1j.bin",
+        "title": "panafz1j.bin (Panasonic FZ-1J BIOS)",
+        "optional": true,
+        "md5": "a496cfdded3da562759be3561317b605"
+      },
+      {
+        "path": "panafz1j-norsa.bin",
+        "title": "panafz1j-norsa.bin (Panasonic FZ-1J BIOS [Encryption Check Disabled])",
+        "optional": true,
+        "md5": "f6c71de7470d16abe4f71b1444883dc8"
+      },
+      {
+        "path": "panafz1j-kanji.bin",
+        "title": "panafz1j-kanji.bin (Panasonic FZ-1J Kanji Font ROM)",
+        "optional": true,
+        "md5": "c23fb5d5e6bb1c240d02cf968972be37"
+      }
+    ]
+  },
+  "panda3ds": {
+    "title": "Nintendo - 3DS (Panda3DS)",
+    "files": []
+  },
+  "parallel_n64_debug": {
+    "title": "Nintendo - Nintendo 64 (ParaLLEl) (Debug)",
+    "files": [
+      {
+        "path": "64DD_IPL.bin",
+        "title": "64DD_IPL.bin (64DD IPL ROM)",
+        "optional": true,
+        "md5": "8d3d9f294b6e174bc7b1d2fd1c727530"
+      }
+    ]
+  },
+  "parallel_n64": {
+    "title": "Nintendo - Nintendo 64 (ParaLLEl N64)",
+    "files": [
+      {
+        "path": "64DD_IPL.bin",
+        "title": "64DD_IPL.bin (64DD IPL ROM)",
+        "optional": true,
+        "md5": "8d3d9f294b6e174bc7b1d2fd1c727530"
+      }
+    ]
+  },
+  "pascal_pong": {
+    "title": "PascalPong",
+    "files": []
+  },
+  "pcee2": {
+    "title": "Sony - PlayStation 2 (PCEE2)",
+    "files": [
+      {
+        "path": "pcsx2/bios",
+        "title": "'pcsx2/bios' folder (any valid PS2 BIOS dump, e.g. scph39001.bin)",
+        "optional": false,
+        "directory": true
+      },
+      {
+        "path": "pcsx2/resources",
+        "title": "'pcsx2/resources' folder (shaders, GameIndex.yaml, fonts)",
+        "optional": false,
+        "directory": true
+      }
+    ]
+  },
+  "pcem": {
+    "title": "PC (PCem)",
+    "files": []
+  },
+  "pcsx1": {
+    "title": "Sony - PlayStation (PCSX1)",
+    "files": [
+      {
+        "path": "scph5500.bin",
+        "title": "scph5500.bin (PS1 JP BIOS)",
+        "optional": true,
+        "md5": "8dd7d5296a650fac7319bce665a6a53c"
+      },
+      {
+        "path": "scph5501.bin",
+        "title": "scph5501.bin (PS1 US BIOS)",
+        "optional": true,
+        "md5": "490f666e1afb15b7362b406ed1cea246"
+      },
+      {
+        "path": "scph5502.bin",
+        "title": "scph5502.bin (PS1 EU BIOS)",
+        "optional": true,
+        "md5": "32736f17079d0b2b7024407c39bd3050"
+      }
+    ]
+  },
+  "pcsx2": {
+    "title": "Sony - PlayStation 2 (LRPS2)",
+    "files": [
+      {
+        "path": "pcsx2/bios",
+        "title": "'pcsx2/bios' folder",
+        "optional": false,
+        "directory": true
+      },
+      {
+        "path": "pcsx2/resources/GameIndex.yaml",
+        "title": "pcsx2/resources/GameIndex.yaml (Game Database)",
+        "optional": true
+      }
+    ]
+  },
+  "pcsx_rearmed_interpreter": {
+    "title": "Sony - PlayStation (PCSX ReARMed) [Interpreter]",
+    "files": [
+      {
+        "path": "scph5500.bin",
+        "title": "scph5500.bin (PS1 JP BIOS)",
+        "optional": true,
+        "md5": "8dd7d5296a650fac7319bce665a6a53c"
+      },
+      {
+        "path": "scph5501.bin",
+        "title": "scph5501.bin (PS1 US BIOS)",
+        "optional": true,
+        "md5": "490f666e1afb15b7362b406ed1cea246"
+      },
+      {
+        "path": "scph5502.bin",
+        "title": "scph5502.bin (PS1 EU BIOS)",
+        "optional": true,
+        "md5": "32736f17079d0b2b7024407c39bd3050"
+      }
+    ]
+  },
+  "pcsx_rearmed": {
+    "title": "Sony - PlayStation (PCSX ReARMed)",
+    "files": [
+      {
+        "path": "scph5500.bin",
+        "title": "scph5500.bin (PS1 JP BIOS)",
+        "optional": true,
+        "md5": "8dd7d5296a650fac7319bce665a6a53c"
+      },
+      {
+        "path": "scph5501.bin",
+        "title": "scph5501.bin (PS1 US BIOS)",
+        "optional": true,
+        "md5": "490f666e1afb15b7362b406ed1cea246"
+      },
+      {
+        "path": "scph5502.bin",
+        "title": "scph5502.bin (PS1 EU BIOS)",
+        "optional": true,
+        "md5": "32736f17079d0b2b7024407c39bd3050"
+      },
+      {
+        "path": "psxonpsp660.bin",
+        "title": "psxonpsp660.bin (PSP PSX Emu BIOS)",
+        "optional": true,
+        "md5": "c53ca5908936d412331790f4426c6c33"
+      }
+    ]
+  },
+  "pcsx_rearmed_neon": {
+    "title": "Sony - PlayStation (PCSX ReARMed) [NEON]",
+    "files": [
+      {
+        "path": "scph5500.bin",
+        "title": "scph5500.bin (PS1 JP BIOS)",
+        "optional": true,
+        "md5": "8dd7d5296a650fac7319bce665a6a53c"
+      },
+      {
+        "path": "scph5501.bin",
+        "title": "scph5501.bin (PS1 US BIOS)",
+        "optional": true,
+        "md5": "490f666e1afb15b7362b406ed1cea246"
+      },
+      {
+        "path": "scph5502.bin",
+        "title": "scph5502.bin (PS1 EU BIOS)",
+        "optional": true,
+        "md5": "32736f17079d0b2b7024407c39bd3050"
+      }
+    ]
+  },
+  "pd777": {
+    "title": "Epoch - Cassette Vision (PD777)",
+    "files": []
+  },
+  "picodrive": {
+    "title": "Sega - MS/GG/MD/CD/32X (PicoDrive)",
+    "files": [
+      {
+        "path": "bios_CD_E.bin",
+        "title": "bios_CD_E.bin (MegaCD EU BIOS)",
+        "optional": true,
+        "md5": "e66fa1dc5820d254611fdcdba0662372"
+      },
+      {
+        "path": "bios_CD_U.bin",
+        "title": "bios_CD_U.bin (SegaCD US BIOS)",
+        "optional": true,
+        "md5": "2efd74e3232ff260e371b99f84024f7f"
+      },
+      {
+        "path": "bios_CD_J.bin",
+        "title": "bios_CD_J.bin (MegaCD JP BIOS)",
+        "optional": true,
+        "md5": "278a9397d192149e84e820ac621a8edd"
+      }
+    ]
+  },
+  "piece": {
+    "title": "Aquaplus - P/ECE (piece-emu)",
+    "files": []
+  },
+  "play": {
+    "title": "Sony - PlayStation 2 (Play!)",
+    "files": []
+  },
+  "playdiaemu": {
+    "title": "Playdia (PlaydiaEmu)",
+    "files": []
+  },
+  "pocketcdg": {
+    "title": "PocketCDG",
+    "files": []
+  },
+  "pokemini": {
+    "title": "Nintendo - Pokemon Mini (PokeMini)",
+    "files": [
+      {
+        "path": "bios.min",
+        "title": "bios.min (Pokemon Mini BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "pokket": {
+    "title": "Sony - PocketStation (Pokket)",
+    "files": [
+      {
+        "path": "pocketstation.bin",
+        "title": "pocketstation.bin (PocketStation BIOS)",
+        "optional": true,
+        "md5": "987d643809d84631677c7b897858c892"
+      }
+    ]
+  },
+  "potator": {
+    "title": "Watara - Supervision (Potator)",
+    "files": []
+  },
+  "ppsspp": {
+    "title": "Sony - PlayStation Portable (PPSSPP)",
+    "files": [
+      {
+        "path": "PPSSPP/ppge_atlas.zim",
+        "title": "ppge_atlas.zim (PPSSPP Data ROM)",
+        "optional": false,
+        "md5": "866855cc330b9b95cc69135fb7b41d38"
+      }
+    ]
+  },
+  "prboom": {
+    "title": "Doom (PrBoom)",
+    "files": []
+  },
+  "prosystem": {
+    "title": "Atari - 7800 (ProSystem)",
+    "files": [
+      {
+        "path": "7800 BIOS (U).rom",
+        "title": "7800 BIOS (U).rom (7800 BIOS)",
+        "optional": true,
+        "md5": "0763f1ffb006ddbe32e52d497ee848ae"
+      }
+    ]
+  },
+  "puae2021": {
+    "title": "Commodore - Amiga (PUAE 2021)",
+    "files": [
+      {
+        "path": "kick33180.A500",
+        "title": "kick33180.A500 | amiga-os-120.rom (A500-A2000 KS v1.2 rev 33.180)",
+        "optional": true,
+        "md5": "85ad74194e87c08904327de1a9443b7a"
+      },
+      {
+        "path": "kick34005.A500",
+        "title": "kick34005.A500 | amiga-os-130.rom (A500-A2000-CDTV KS v1.3 rev 34.005)",
+        "optional": false,
+        "md5": "82a21c1890cae844b3df741f2762d48d"
+      },
+      {
+        "path": "kick37175.A500",
+        "title": "kick37175.A500 | amiga-os-204.rom (A500+ KS v2.04 rev 37.175)",
+        "optional": true,
+        "md5": "dc10d7bdd1b6f450773dfb558477c230"
+      },
+      {
+        "path": "kick37350.A600",
+        "title": "kick37350.A600 | amiga-os-205-a600.rom (A600 KS v2.05 rev 37.350)",
+        "optional": true,
+        "md5": "465646c9b6729f77eea5314d1f057951"
+      },
+      {
+        "path": "kick40063.A600",
+        "title": "kick40063.A600 | amiga-os-310-a600.rom (A600-A2000 KS v3.1 rev 40.063)",
+        "optional": true,
+        "md5": "e40a5dfb3d017ba8779faba30cbd1c8e"
+      },
+      {
+        "path": "kick39106.A1200",
+        "title": "kick39106.A1200 | amiga-os-300-a1200.rom (A1200 KS v3.0 rev 39.106)",
+        "optional": true,
+        "md5": "b7cc148386aa631136f510cd29e42fc3"
+      },
+      {
+        "path": "kick40068.A1200",
+        "title": "kick40068.A1200 | amiga-os-310-a1200.rom (A1200 KS v3.1 rev 40.068)",
+        "optional": false,
+        "md5": "646773759326fbac3b2311fd8c8793ee"
+      },
+      {
+        "path": "kick39106.A4000",
+        "title": "kick39106.A4000 | amiga-os-300-a4000.rom (A4000 KS v3.0 rev 39.106)",
+        "optional": true,
+        "md5": "9b8bdd5a3fd32c2a5a6f5b1aefc799a5"
+      },
+      {
+        "path": "kick40068.A4000",
+        "title": "kick40068.A4000 | amiga-os-310-a4000.rom (A4000 KS v3.1 rev 40.068)",
+        "optional": true,
+        "md5": "9bdedde6a4f33555b4a270c8ca53297d"
+      },
+      {
+        "path": "kick34005.CDTV",
+        "title": "kick34005.CDTV | amiga-os-130-cdtv-ext.rom (CDTV extended ROM v1.0)",
+        "optional": true,
+        "md5": "89da1838a24460e4b93f4f0c5d92d48d"
+      },
+      {
+        "path": "kick40060.CD32",
+        "title": "kick40060.CD32 | amiga-os-310-cd32.rom (CD32 KS v3.1 rev 40.060)",
+        "optional": false,
+        "md5": "5f8924d013dd57a89cf349f4cdedc6b1"
+      },
+      {
+        "path": "kick40060.CD32.ext",
+        "title": "kick40060.CD32.ext | amiga-os-310-cd32-ext.rom (CD32 extended ROM rev 40.060)",
+        "optional": false,
+        "md5": "bb72565701b1b6faece07d68ea5da639"
+      }
+    ]
+  },
+  "puae": {
+    "title": "Commodore - Amiga (PUAE)",
+    "files": [
+      {
+        "path": "kick33180.A500",
+        "title": "kick33180.A500 | amiga-os-120.rom (A500-A2000 KS v1.2 rev 33.180)",
+        "optional": true,
+        "md5": "85ad74194e87c08904327de1a9443b7a"
+      },
+      {
+        "path": "kick34005.A500",
+        "title": "kick34005.A500 | amiga-os-130.rom (A500-A2000-CDTV KS v1.3 rev 34.005)",
+        "optional": false,
+        "md5": "82a21c1890cae844b3df741f2762d48d"
+      },
+      {
+        "path": "kick37175.A500",
+        "title": "kick37175.A500 | amiga-os-204.rom (A500+ KS v2.04 rev 37.175)",
+        "optional": true,
+        "md5": "dc10d7bdd1b6f450773dfb558477c230"
+      },
+      {
+        "path": "kick37350.A600",
+        "title": "kick37350.A600 | amiga-os-205-a600.rom (A600 KS v2.05 rev 37.350)",
+        "optional": true,
+        "md5": "465646c9b6729f77eea5314d1f057951"
+      },
+      {
+        "path": "kick40063.A600",
+        "title": "kick40063.A600 | amiga-os-310-a600.rom (A600-A2000 KS v3.1 rev 40.063)",
+        "optional": true,
+        "md5": "e40a5dfb3d017ba8779faba30cbd1c8e"
+      },
+      {
+        "path": "kick39106.A1200",
+        "title": "kick39106.A1200 | amiga-os-300-a1200.rom (A1200 KS v3.0 rev 39.106)",
+        "optional": true,
+        "md5": "b7cc148386aa631136f510cd29e42fc3"
+      },
+      {
+        "path": "kick40068.A1200",
+        "title": "kick40068.A1200 | amiga-os-310-a1200.rom (A1200 KS v3.1 rev 40.068)",
+        "optional": false,
+        "md5": "646773759326fbac3b2311fd8c8793ee"
+      },
+      {
+        "path": "kick39106.A4000",
+        "title": "kick39106.A4000 | amiga-os-300-a4000.rom (A4000 KS v3.0 rev 39.106)",
+        "optional": true,
+        "md5": "9b8bdd5a3fd32c2a5a6f5b1aefc799a5"
+      },
+      {
+        "path": "kick40068.A4000",
+        "title": "kick40068.A4000 | amiga-os-310-a4000.rom (A4000 KS v3.1 rev 40.068)",
+        "optional": true,
+        "md5": "9bdedde6a4f33555b4a270c8ca53297d"
+      },
+      {
+        "path": "kick34005.CDTV",
+        "title": "kick34005.CDTV | amiga-os-130-cdtv-ext.rom (CDTV extended ROM v1.0)",
+        "optional": true,
+        "md5": "89da1838a24460e4b93f4f0c5d92d48d"
+      },
+      {
+        "path": "kick40060.CD32",
+        "title": "kick40060.CD32 | amiga-os-310-cd32.rom (CD32 KS v3.1 rev 40.060)",
+        "optional": false,
+        "md5": "5f8924d013dd57a89cf349f4cdedc6b1"
+      },
+      {
+        "path": "kick40060.CD32.ext",
+        "title": "kick40060.CD32.ext | amiga-os-310-cd32-ext.rom (CD32 extended ROM rev 40.060)",
+        "optional": false,
+        "md5": "bb72565701b1b6faece07d68ea5da639"
+      }
+    ]
+  },
+  "puzzlescript": {
+    "title": "PuzzleScript (pzretro)",
+    "files": []
+  },
+  "px68k": {
+    "title": "Sharp - X68000 (PX68k)",
+    "files": [
+      {
+        "path": "keropi/iplrom.dat",
+        "title": "iplrom.dat (X68000 BIOS)",
+        "optional": false
+      },
+      {
+        "path": "keropi/cgrom.dat",
+        "title": "cgrom.dat (X68000 BIOS 2)",
+        "optional": false
+      },
+      {
+        "path": "keropi/iplrom30.dat",
+        "title": "iplrom30.dat (X68000 BIOS 3)",
+        "optional": true
+      }
+    ]
+  },
+  "qemu": {
+    "title": "QEMU",
+    "files": []
+  },
+  "quasi88": {
+    "title": "NEC - PC-88 series (QUASI88)",
+    "files": [
+      {
+        "path": "quasi88/n88.rom",
+        "title": "n88.rom (Main BIOS)",
+        "optional": false
+      },
+      {
+        "path": "quasi88/n88_0.rom",
+        "title": "n88_0.rom (Extension BIOS 1)",
+        "optional": false
+      },
+      {
+        "path": "quasi88/n88_1.rom",
+        "title": "n88_1.rom (Extension BIOS 2)",
+        "optional": true
+      },
+      {
+        "path": "quasi88/n88_2.rom",
+        "title": "n88_2.rom (Extension BIOS 3)",
+        "optional": true
+      },
+      {
+        "path": "quasi88/n88_3.rom",
+        "title": "n88_3.rom (Extension BIOS 4)",
+        "optional": true
+      },
+      {
+        "path": "quasi88/n88n.rom",
+        "title": "n88n.rom (N Basic BIOS)",
+        "optional": true
+      },
+      {
+        "path": "quasi88/disk.rom",
+        "title": "disk.rom (Sub BIOS)",
+        "optional": true
+      },
+      {
+        "path": "quasi88/n88knj1.rom",
+        "title": "n88knj1.rom (Kanji Font 1)",
+        "optional": true
+      },
+      {
+        "path": "quasi88/n88knj2.rom",
+        "title": "n88knj2.rom (Kanji Font 2)",
+        "optional": true
+      },
+      {
+        "path": "quasi88/n88jisho.rom",
+        "title": "n88jisho.rom (Jisho)",
+        "optional": true
+      }
+    ]
+  },
+  "quicknes": {
+    "title": "Nintendo - NES / Famicom (QuickNES)",
+    "files": []
+  },
+  "race": {
+    "title": "SNK - Neo Geo Pocket / Color (RACE)",
+    "files": []
+  },
+  "radio": {
+    "title": "Internet Radio (Radio)",
+    "files": []
+  },
+  "redbook": {
+    "title": "Redbook Audio Player",
+    "files": []
+  },
+  "reminiscence": {
+    "title": "Flashback (REminiscence)",
+    "files": []
+  },
+  "remotejoy": {
+    "title": "PSP RemotePlay (RemoteJoy)",
+    "files": []
+  },
+  "retro8": {
+    "title": "PICO-8 (Retro8)",
+    "files": []
+  },
+  "retrodream": {
+    "title": "Sega - Dreamcast (RetroDream)",
+    "files": [
+      {
+        "path": "dc/boot.bin",
+        "title": "boot.bin (Dreamcast BIOS)",
+        "optional": false,
+        "md5": "e10c53c2f8b90bab96ead2d368858623"
+      },
+      {
+        "path": "dc/flash.bin",
+        "title": "flash.bin (Date/Time/Language)",
+        "optional": false,
+        "md5": "0a93f7940c455905bea6e392dfde92a4"
+      }
+    ]
+  },
+  "romcleaner": {
+    "title": "ROM Cleaner",
+    "files": []
+  },
+  "rp6502": {
+    "title": "Picocomputer 6502",
+    "files": []
+  },
+  "rpcs3": {
+    "title": "Sony - PlayStation 3 (RPCS3)",
+    "files": [
+      {
+        "path": "PS3UPDAT.PUP",
+        "title": "PS3UPDAT.PUP (PS3 system software)",
+        "optional": false
+      }
+    ]
+  },
+  "rustation": {
+    "title": "Sony - PlayStation (Rustation)",
+    "files": []
+  },
+  "rustynes": {
+    "title": "Nintendo - NES / Famicom (RustyNES)",
+    "files": [
+      {
+        "path": "disksys.rom",
+        "title": "disksys.rom (Family Computer Disk System BIOS)",
+        "optional": true,
+        "md5": "ca30b50f880eb660a320674ed365ef7a"
+      }
+    ]
+  },
+  "rvvm": {
+    "title": "RVVM",
+    "files": []
+  },
+  "same_cdi": {
+    "title": "Philips - CDi (SAME CDi)",
+    "files": [
+      {
+        "path": "same_cdi/bios/cdimono1.zip",
+        "title": "same_cdi/bios/cdimono1.zip",
+        "optional": false
+      },
+      {
+        "path": "same_cdi/bios/cdimono2.zip",
+        "title": "same_cdi/bios/cdimono2.zip",
+        "optional": true
+      },
+      {
+        "path": "same_cdi/bios/cdibios.zip",
+        "title": "same_cdi/bios/cdibios.zip",
+        "optional": true
+      }
+    ]
+  },
+  "sameboy": {
+    "title": "Nintendo - Game Boy / Color (SameBoy)",
+    "files": [
+      {
+        "path": "dmg_boot.bin",
+        "title": "dmg_boot.bin (Game Boy boot ROM)",
+        "optional": true,
+        "md5": "32fbbd84168d3482956eb3c5051637f5"
+      },
+      {
+        "path": "cgb_boot.bin",
+        "title": "cgb_boot.bin (Game Boy Color boot ROM)",
+        "optional": true,
+        "md5": "dbfce9db9deaa2567f6a84fde55f9680"
+      }
+    ]
+  },
+  "sameduck": {
+    "title": "Mega Duck / Cougar Boy (SameDuck)",
+    "files": []
+  },
+  "scummvm": {
+    "title": "ScummVM",
+    "files": [
+      {
+        "path": "scummvm/theme/scummclassic.zip",
+        "title": "scummclassic.zip",
+        "optional": true
+      },
+      {
+        "path": "scummvm/theme/scummmodern.zip",
+        "title": "scummmodern.zip",
+        "optional": true
+      },
+      {
+        "path": "scummvm/theme/scummremastered.zip",
+        "title": "scummremastered.zip",
+        "optional": true
+      },
+      {
+        "path": "scummvm/theme/residualvm.zip",
+        "title": "residualvm.zip",
+        "optional": true
+      },
+      {
+        "path": "scummvm/theme/gui-icons.dat",
+        "title": "gui-icons.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/theme/shaders.dat",
+        "title": "shaders.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/theme/translations.dat",
+        "title": "translations.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/achievements.dat",
+        "title": "achievements.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/encoding.dat",
+        "title": "encoding.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/freescape.dat",
+        "title": "freescape.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/grim-patch.lab",
+        "title": "grim-patch.lab",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/monkey4-patch.m4b",
+        "title": "monkey4-patch.m4b",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/myst3.dat",
+        "title": "myst3.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/fonts.dat",
+        "title": "fonts.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/macgui.dat",
+        "title": "macgui.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/access.dat",
+        "title": "access.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/cryo.dat",
+        "title": "cryo.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/cryomni3d.dat",
+        "title": "cryomni3d.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/drascula.dat",
+        "title": "drascula.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/hadesch_translations.dat",
+        "title": "hadesch_translations.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/hugo.dat",
+        "title": "hugo.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/kyra.dat",
+        "title": "kyra.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/lure.dat",
+        "title": "lure.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/macventure.dat",
+        "title": "macventure.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/mort.dat",
+        "title": "mort.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/nancy.dat",
+        "title": "nancy.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/neverhood.dat",
+        "title": "neverhood.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/queen.tbl",
+        "title": "queen.tbl",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/sky.cpt",
+        "title": "sky.cpt",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/supernova.dat",
+        "title": "supernova.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/teenagent.dat",
+        "title": "teenagent.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/titanic.dat",
+        "title": "titanic.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/tony.dat",
+        "title": "tony.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/toon.dat",
+        "title": "toon.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/ultima.dat",
+        "title": "ultima.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/wintermute.zip",
+        "title": "wintermute.zip",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/mm.dat",
+        "title": "mm.dat",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/vkeybd_default.zip",
+        "title": "vkeybd_default.zip",
+        "optional": true
+      },
+      {
+        "path": "scummvm/extra/Roland_SC-55.sf2",
+        "title": "Roland_SC-55.sf2",
+        "optional": true
+      }
+    ]
+  },
+  "sdlpal": {
+    "title": "SDLPAL",
+    "files": []
+  },
+  "simcp": {
+    "title": "SAM Coupe (SimCoupe)",
+    "files": []
+  },
+  "skyemu": {
+    "title": "Nintendo - Game Boy/GBA/NDS (SkyEmu)",
+    "files": [
+      {
+        "path": "cgb_boot.bin",
+        "title": "cgb_boot.bin (GBC BIOS)",
+        "optional": true
+      },
+      {
+        "path": "gbc_bios.bin",
+        "title": "gbc_bios.bin (GBC BIOS)",
+        "optional": true
+      },
+      {
+        "path": "cgb0_boot.bin",
+        "title": "cgb0_boot.bin (GBC BIOS)",
+        "optional": true
+      },
+      {
+        "path": "cgb_agb_boot.bin",
+        "title": "cgb_agb_boot.bin (GBC BIOS)",
+        "optional": true
+      },
+      {
+        "path": "dmg_rom.bin",
+        "title": "dmg_rom.bin (DMG BIOS)",
+        "optional": true
+      },
+      {
+        "path": "dmg0_rom.bin",
+        "title": "dmg0_rom.bin (DMG BIOS)",
+        "optional": true
+      },
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (GBA BIOS)",
+        "optional": true
+      },
+      {
+        "path": "nds7.bin",
+        "title": "nds7.bin (NDS ARM7 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "nds9.bin",
+        "title": "nds9.bin (NDS ARM9 BIOS)",
+        "optional": true
+      },
+      {
+        "path": "firmware.bin",
+        "title": "firmware.bin (NDS FIRMWARE)",
+        "optional": true
+      }
+    ]
+  },
+  "sm2": {
+    "title": "Sega - Model 2 (SM2-Emu Libretro)",
+    "files": [
+      {
+        "path": "sm2-emu/games.xml",
+        "title": "SM2-Emu game database matching this core",
+        "optional": false
+      }
+    ]
+  },
+  "smsplus": {
+    "title": "Sega - MS/GG (SMS Plus GX)",
+    "files": [
+      {
+        "path": "bios.sms",
+        "title": "bios.sms (Master System BIOS)",
+        "optional": true
+      },
+      {
+        "path": "BIOS.col",
+        "title": "BIOS.col (Colecovision BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "snes9x2002": {
+    "title": "Nintendo - SNES / SFC (Snes9x 2002)",
+    "files": []
+  },
+  "snes9x2005": {
+    "title": "Nintendo - SNES / SFC (Snes9x 2005)",
+    "files": []
+  },
+  "snes9x2005_plus": {
+    "title": "Nintendo - SNES / SFC (Snes9x 2005 Plus)",
+    "files": []
+  },
+  "snes9x2010": {
+    "title": "Nintendo - SNES / SFC (Snes9x 2010)",
+    "files": []
+  },
+  "snes9x": {
+    "title": "Nintendo - SNES / SFC (Snes9x)",
+    "files": [
+      {
+        "path": "BS-X.bin",
+        "title": "BS-X.bin (BS-X - Sore wa Namae o Nusumareta Machi no Monogatari (Japan) (Rev 1))",
+        "optional": true,
+        "md5": "fed4d8242cfbed61343d53d48432aced"
+      },
+      {
+        "path": "STBIOS.bin",
+        "title": "STBIOS.bin (Sufami Turbo (Japan))",
+        "optional": true,
+        "md5": "d3a44ba7d42a74d3ac58cb9c14c6a5ca"
+      }
+    ]
+  },
+  "spmp8000emu": {
+    "title": "SPMP8000 (SPMP8000Emu)",
+    "files": []
+  },
+  "squirreljme": {
+    "title": "Java ME (SquirrelJME)",
+    "files": [
+      {
+        "path": "squirreljme-0.3.0-fast.jar",
+        "title": "squirreljme-0.3.0-fast.jar (SquirrelJME Class Library, Versioned, Optimized and stripped)",
+        "optional": true
+      },
+      {
+        "path": "squirreljme-0.3.0.jar",
+        "title": "squirreljme-0.3.0.jar (SquirrelJME Class Library, Versioned)",
+        "optional": true
+      },
+      {
+        "path": "squirreljme-0.3.0-test.jar",
+        "title": "squirreljme-0.3.0-test.jar (SquirrelJME Class Library, Versioned, Optimized and stripped with Tests)",
+        "optional": true
+      },
+      {
+        "path": "squirreljme-0.3.0-slow.jar",
+        "title": "squirreljme-0.3.0-slow.jar (SquirrelJME Class Library, Versioned, Unoptimized with full debugging)",
+        "optional": true
+      },
+      {
+        "path": "squirreljme-0.3.0-slow-test.jar",
+        "title": "squirreljme-0.3.0-slow-test.jar (SquirrelJME Class Library, Versioned, Unoptimized with full debugging with tests)",
+        "optional": true
+      },
+      {
+        "path": "squirreljme-fast.jar",
+        "title": "squirreljme-fast.jar (SquirrelJME Class Library, Optimized and stripped)",
+        "optional": true
+      },
+      {
+        "path": "squirreljme.jar",
+        "title": "squirreljme.jar (SquirrelJME Class Library)",
+        "optional": true
+      },
+      {
+        "path": "squirreljme-test.jar",
+        "title": "squirreljme-test.jar (SquirrelJME Class Library, Optimized and stripped with Tests)",
+        "optional": true
+      },
+      {
+        "path": "squirreljme-slow.jar",
+        "title": "squirreljme-slow.jar (SquirrelJME Class Library, Unoptimized with full debugging)",
+        "optional": true
+      },
+      {
+        "path": "squirreljme-slow-test.jar",
+        "title": "squirreljme-slow-test.jar (SquirrelJME Class Library, Unoptimized with full debugging with tests)",
+        "optional": true
+      }
+    ]
+  },
+  "stella2014": {
+    "title": "Atari - 2600 (Stella 2014)",
+    "files": []
+  },
+  "stella2023": {
+    "title": "Atari - 2600 (Stella 2023)",
+    "files": []
+  },
+  "stella": {
+    "title": "Atari - 2600 (Stella)",
+    "files": []
+  },
+  "stonesoup": {
+    "title": "Dungeon Crawl Stone Soup",
+    "files": []
+  },
+  "superbroswar": {
+    "title": "Super Bros War",
+    "files": []
+  },
+  "supermodel": {
+    "title": "Sega - Model 3 (Supermodel)",
+    "files": []
+  },
+  "swanstation": {
+    "title": "Sony - PlayStation (SwanStation)",
+    "files": [
+      {
+        "path": "psxonpsp660.bin",
+        "title": "psxonpsp660.bin (PSP PS1 BIOS)",
+        "optional": true,
+        "md5": "c53ca5908936d412331790f4426c6c33"
+      },
+      {
+        "path": "scph5500.bin",
+        "title": "scph5500.bin (PS1 JP BIOS)",
+        "optional": true,
+        "md5": "8dd7d5296a650fac7319bce665a6a53c"
+      },
+      {
+        "path": "scph5501.bin",
+        "title": "scph5501.bin (PS1 US BIOS)",
+        "optional": true,
+        "md5": "490f666e1afb15b7362b406ed1cea246"
+      },
+      {
+        "path": "scph5502.bin",
+        "title": "scph5502.bin (PS1 EU BIOS)",
+        "optional": true,
+        "md5": "32736f17079d0b2b7024407c39bd3050"
+      },
+      {
+        "path": "ps1_rom.bin",
+        "title": "ps1_rom.bin (PS3 PS1 BIOS)",
+        "optional": true,
+        "md5": "81bbe60ba7a3d1cea1d48c14cbcc647b"
+      }
+    ]
+  },
+  "syobonaction": {
+    "title": "Syobon Action",
+    "files": []
+  },
+  "tamalibretro": {
+    "title": "Bandai - Tamagotchi P1 (TamaLIBretro)",
+    "files": []
+  },
+  "tempgba": {
+    "title": "Nintendo - Game Boy Advance (TempGBA)",
+    "files": [
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (Game Boy Advance BIOS)",
+        "optional": false,
+        "md5": "a860e8c0b6d573d191e4ec7db1b1e4f6"
+      }
+    ]
+  },
+  "test": {
+    "title": "Test",
+    "files": []
+  },
+  "test_netplay": {
+    "title": "Test for netplay",
+    "files": []
+  },
+  "testaudio_callback": {
+    "title": "TestAudio Callback",
+    "files": []
+  },
+  "testaudio_no_callback": {
+    "title": "TestAudio NoCallback",
+    "files": []
+  },
+  "testaudio_playback_wav": {
+    "title": "TestAudio Playback Wav",
+    "files": []
+  },
+  "testgl_compute_shaders": {
+    "title": "TestGL ComputeShaders",
+    "files": []
+  },
+  "testgl_ff": {
+    "title": "TestGL (FF)",
+    "files": []
+  },
+  "testgl": {
+    "title": "TestGL",
+    "files": []
+  },
+  "testinput_buttontest": {
+    "title": "Button Test",
+    "files": []
+  },
+  "testretroluxury": {
+    "title": "Test RetroLuxury",
+    "files": []
+  },
+  "testsw": {
+    "title": "TestSW",
+    "files": []
+  },
+  "testsw_vram": {
+    "title": "TestSW VRAM",
+    "files": []
+  },
+  "testvulkan_async_compute": {
+    "title": "TestVulkan AsyncCompute",
+    "files": []
+  },
+  "testvulkan": {
+    "title": "TestVulkan",
+    "files": []
+  },
+  "tgbdual": {
+    "title": "Nintendo - Game Boy / Color (TGB Dual)",
+    "files": []
+  },
+  "tgpulse_next_m1": {
+    "title": "Sega - Model 1 (TGPulse-Next)",
+    "files": []
+  },
+  "theodore": {
+    "title": "Thomson - MO/TO (Theodore)",
+    "files": []
+  },
+  "thepowdertoy": {
+    "title": "The Powder Toy",
+    "files": []
+  },
+  "tia": {
+    "title": "Atari - 2600 (Tia)",
+    "files": []
+  },
+  "tic80": {
+    "title": "TIC-80",
+    "files": []
+  },
+  "trident": {
+    "title": "Nintendo - 3DS (Trident)",
+    "files": []
+  },
+  "tyrquake": {
+    "title": "Quake (TyrQuake)",
+    "files": []
+  },
+  "uae4arm": {
+    "title": "Commodore - Amiga (UAE4ARM)",
+    "files": [
+      {
+        "path": "kick34005.A500",
+        "title": "kick34005.A500 (Amiga 500 BIOS, Kickstart v1.3 Rev. 34.005)",
+        "optional": false
+      },
+      {
+        "path": "kick40063.A600",
+        "title": "kick40063.A600 (Amiga 600 BIOS, Kickstart v3.1 Rev. 40.063)",
+        "optional": false
+      },
+      {
+        "path": "kick40068.A1200",
+        "title": "kick40068.A1200 (Amiga 1200 BIOS, Kickstart v3.1 Rev. 40.068)",
+        "optional": false
+      },
+      {
+        "path": "kick34005.CDTV",
+        "title": "kick34005.CDTV (Amiga CDTV extended ROM v1.00 Rev. 34.005)",
+        "optional": false
+      },
+      {
+        "path": "kick40060.CD32",
+        "title": "kick40060.CD32 (Amiga CD32 BIOS, Kickstart v3.1 Rev. 40.060)",
+        "optional": false
+      },
+      {
+        "path": "kick40060.CD32.ext",
+        "title": "kick40060.CD32.ext (Amiga CD32 Extended BIOS, CD32 Extended ROM Rev. 40.060)",
+        "optional": false
+      }
+    ]
+  },
+  "ume2015": {
+    "title": "Multi (UME 2015)",
+    "files": []
+  },
+  "uw8": {
+    "title": "MicroW8",
+    "files": []
+  },
+  "uxn": {
+    "title": "Uxn / Varvara (zuxn)",
+    "files": []
+  },
+  "uzem": {
+    "title": "Uzebox (Uzem)",
+    "files": []
+  },
+  "vaporspec": {
+    "title": "VaporSpec",
+    "files": []
+  },
+  "vba_next": {
+    "title": "Nintendo - Game Boy Advance (VBA Next)",
+    "files": [
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (Game Boy Advance BIOS)",
+        "optional": true,
+        "md5": "a860e8c0b6d573d191e4ec7db1b1e4f6"
+      }
+    ]
+  },
+  "vbam": {
+    "title": "Nintendo - Game Boy Advance (VBA-M)",
+    "files": [
+      {
+        "path": "gba_bios.bin",
+        "title": "gba_bios.bin (Game Boy Advance BIOS)",
+        "optional": true,
+        "md5": "a860e8c0b6d573d191e4ec7db1b1e4f6"
+      },
+      {
+        "path": "gb_bios.bin",
+        "title": "gb_bios.bin (Game Boy BIOS)",
+        "optional": true,
+        "md5": "32fbbd84168d3482956eb3c5051637f5"
+      },
+      {
+        "path": "gbc_bios.bin",
+        "title": "gbc_bios.bin (Game Boy Color BIOS)",
+        "optional": true,
+        "md5": "dbfce9db9deaa2567f6a84fde55f9680"
+      }
+    ]
+  },
+  "vecx": {
+    "title": "GCE - Vectrex (vecx)",
+    "files": []
+  },
+  "vemulator": {
+    "title": "VeMUlator",
+    "files": []
+  },
+  "vice_x128": {
+    "title": "Commodore - C128 (VICE x128)",
+    "files": [
+      {
+        "path": "vice/JiffyDOS_C128.bin",
+        "title": "vice/JiffyDOS_C128.bin (JiffyDOS C128 Kernal)",
+        "optional": true,
+        "md5": "cbbd1bbcb5e4fd8046b6030ab71fc021"
+      },
+      {
+        "path": "vice/JiffyDOS_C64.bin",
+        "title": "vice/JiffyDOS_C64.bin (JiffyDOS C64 Kernal)",
+        "optional": true,
+        "md5": "be09394f0576cf81fa8bacf634daf9a2"
+      },
+      {
+        "path": "vice/JiffyDOS_1541-II.bin",
+        "title": "vice/JiffyDOS_1541-II.bin (JiffyDOS 1541 drive BIOS)",
+        "optional": true,
+        "md5": "1b1e985ea5325a1f46eb7fd9681707bf"
+      },
+      {
+        "path": "vice/JiffyDOS_1571_repl310654.bin",
+        "title": "vice/JiffyDOS_1571_repl310654.bin (JiffyDOS 1571 drive BIOS)",
+        "optional": true,
+        "md5": "41c6cc528e9515ffd0ed9b180f8467c0"
+      },
+      {
+        "path": "vice/JiffyDOS_1581.bin",
+        "title": "vice/JiffyDOS_1581.bin (JiffyDOS 1581 drive BIOS)",
+        "optional": true,
+        "md5": "20b6885c6dc2d42c38754a365b043d71"
+      }
+    ]
+  },
+  "vice_x64": {
+    "title": "Commodore - C64 (VICE x64, fast)",
+    "files": [
+      {
+        "path": "vice/JiffyDOS_C64.bin",
+        "title": "vice/JiffyDOS_C64.bin (JiffyDOS C64 Kernal)",
+        "optional": true,
+        "md5": "be09394f0576cf81fa8bacf634daf9a2"
+      },
+      {
+        "path": "vice/JiffyDOS_1541-II.bin",
+        "title": "vice/JiffyDOS_1541-II.bin (JiffyDOS 1541 drive BIOS)",
+        "optional": true,
+        "md5": "1b1e985ea5325a1f46eb7fd9681707bf"
+      },
+      {
+        "path": "vice/JiffyDOS_1571_repl310654.bin",
+        "title": "vice/JiffyDOS_1571_repl310654.bin (JiffyDOS 1571 drive BIOS)",
+        "optional": true,
+        "md5": "41c6cc528e9515ffd0ed9b180f8467c0"
+      },
+      {
+        "path": "vice/JiffyDOS_1581.bin",
+        "title": "vice/JiffyDOS_1581.bin (JiffyDOS 1581 drive BIOS)",
+        "optional": true,
+        "md5": "20b6885c6dc2d42c38754a365b043d71"
+      }
+    ]
+  },
+  "vice_x64dtv": {
+    "title": "Commodore - C64DTV (VICE x64dtv)",
+    "files": [
+      {
+        "path": "vice/JiffyDOS_C64.bin",
+        "title": "vice/JiffyDOS_C64.bin (JiffyDOS C64 Kernal)",
+        "optional": true,
+        "md5": "be09394f0576cf81fa8bacf634daf9a2"
+      },
+      {
+        "path": "vice/JiffyDOS_1541-II.bin",
+        "title": "vice/JiffyDOS_1541-II.bin (JiffyDOS 1541 drive BIOS)",
+        "optional": true,
+        "md5": "1b1e985ea5325a1f46eb7fd9681707bf"
+      },
+      {
+        "path": "vice/JiffyDOS_1571_repl310654.bin",
+        "title": "vice/JiffyDOS_1571_repl310654.bin (JiffyDOS 1571 drive BIOS)",
+        "optional": true,
+        "md5": "41c6cc528e9515ffd0ed9b180f8467c0"
+      },
+      {
+        "path": "vice/JiffyDOS_1581.bin",
+        "title": "vice/JiffyDOS_1581.bin (JiffyDOS 1581 drive BIOS)",
+        "optional": true,
+        "md5": "20b6885c6dc2d42c38754a365b043d71"
+      }
+    ]
+  },
+  "vice_x64sc": {
+    "title": "Commodore - C64 (VICE x64sc, accurate)",
+    "files": [
+      {
+        "path": "vice/JiffyDOS_C64.bin",
+        "title": "vice/JiffyDOS_C64.bin (JiffyDOS C64 Kernal)",
+        "optional": true,
+        "md5": "be09394f0576cf81fa8bacf634daf9a2"
+      },
+      {
+        "path": "vice/JiffyDOS_1541-II.bin",
+        "title": "vice/JiffyDOS_1541-II.bin (JiffyDOS 1541 drive BIOS)",
+        "optional": true,
+        "md5": "1b1e985ea5325a1f46eb7fd9681707bf"
+      },
+      {
+        "path": "vice/JiffyDOS_1571_repl310654.bin",
+        "title": "vice/JiffyDOS_1571_repl310654.bin (JiffyDOS 1571 drive BIOS)",
+        "optional": true,
+        "md5": "41c6cc528e9515ffd0ed9b180f8467c0"
+      },
+      {
+        "path": "vice/JiffyDOS_1581.bin",
+        "title": "vice/JiffyDOS_1581.bin (JiffyDOS 1581 drive BIOS)",
+        "optional": true,
+        "md5": "20b6885c6dc2d42c38754a365b043d71"
+      }
+    ]
+  },
+  "vice_xcbm2": {
+    "title": "Commodore - CBM-II 6x0/7x0 (VICE xcbm2)",
+    "files": []
+  },
+  "vice_xcbm5x0": {
+    "title": "Commodore - CBM-II 5x0 (VICE xcbm5x0)",
+    "files": []
+  },
+  "vice_xpet": {
+    "title": "Commodore - PET (VICE xpet)",
+    "files": []
+  },
+  "vice_xplus4": {
+    "title": "Commodore - PLUS/4 (VICE xplus4)",
+    "files": []
+  },
+  "vice_xscpu64": {
+    "title": "Commodore - C64 SuperCPU (VICE xscpu64)",
+    "files": [
+      {
+        "path": "vice/JiffyDOS_C64.bin",
+        "title": "vice/JiffyDOS_C64.bin (JiffyDOS C64 Kernal)",
+        "optional": true,
+        "md5": "be09394f0576cf81fa8bacf634daf9a2"
+      },
+      {
+        "path": "vice/JiffyDOS_1541-II.bin",
+        "title": "vice/JiffyDOS_1541-II.bin (JiffyDOS 1541 drive BIOS)",
+        "optional": true,
+        "md5": "1b1e985ea5325a1f46eb7fd9681707bf"
+      },
+      {
+        "path": "vice/JiffyDOS_1571_repl310654.bin",
+        "title": "vice/JiffyDOS_1571_repl310654.bin (JiffyDOS 1571 drive BIOS)",
+        "optional": true,
+        "md5": "41c6cc528e9515ffd0ed9b180f8467c0"
+      },
+      {
+        "path": "vice/JiffyDOS_1581.bin",
+        "title": "vice/JiffyDOS_1581.bin (JiffyDOS 1581 drive BIOS)",
+        "optional": true,
+        "md5": "20b6885c6dc2d42c38754a365b043d71"
+      }
+    ]
+  },
+  "vice_xvic": {
+    "title": "Commodore - VIC-20 (VICE xvic)",
+    "files": []
+  },
+  "video_processor": {
+    "title": "Video Processor (V4L2)",
+    "files": []
+  },
+  "vidtest": {
+    "title": "VidTest",
+    "files": []
+  },
+  "vircon32": {
+    "title": "Vircon32",
+    "files": [
+      {
+        "path": "Vircon32Bios.v32",
+        "title": "Vircon32Bios.v32 (alternative BIOS file)",
+        "optional": true
+      }
+    ]
+  },
+  "virtualjaguar": {
+    "title": "Atari - Jaguar (Virtual Jaguar)",
+    "files": [
+      {
+        "path": "[BIOS] Atari Jaguar CD (World).j64",
+        "title": "[BIOS] Atari Jaguar CD (World).j64 (Jaguar CD BIOS, retail - optional override)",
+        "optional": true
+      },
+      {
+        "path": "[BIOS] Atari Jaguar Developer CD (World).j64",
+        "title": "[BIOS] Atari Jaguar Developer CD (World).j64 (Jaguar CD BIOS, developer - optional override)",
+        "optional": true
+      },
+      {
+        "path": "jagboot_m.rom",
+        "title": "jagboot_m.rom (Jaguar cart boot ROM, Model M - optional override)",
+        "optional": true
+      },
+      {
+        "path": "jagboot.rom",
+        "title": "jagboot.rom (Jaguar cart boot ROM, any revision - optional, used when Cart BIOS Type is Custom)",
+        "optional": true
+      }
+    ]
+  },
+  "virtualxt": {
+    "title": "VirtualXT",
+    "files": []
+  },
+  "vita3k": {
+    "title": "Sony - PlayStation Vita (Vita3K)",
+    "files": [
+      {
+        "path": "vita3k/PSP2UPDAT.PUP",
+        "title": "PSP2UPDAT.PUP (PS Vita system firmware)",
+        "optional": false
+      },
+      {
+        "path": "vita3k/PSP2UPDAT_PREINST.PUP",
+        "title": "PSP2UPDAT_PREINST.PUP (PS Vita firmware preinst package)",
+        "optional": false
+      },
+      {
+        "path": "vita3k/PSP2UPDAT_FONT.PUP",
+        "title": "PSP2UPDAT_FONT.PUP (PS Vita firmware fonts)",
+        "optional": true
+      }
+    ]
+  },
+  "vitaquake2-rogue": {
+    "title": "Quake II - Ground Zero (vitaQuake 2 [Rogue])",
+    "files": []
+  },
+  "vitaquake2-xatrix": {
+    "title": "Quake II - The Reckoning (vitaQuake 2 [Xatrix])",
+    "files": []
+  },
+  "vitaquake2-zaero": {
+    "title": "Quake II - Zaero (vitaQuake 2 [Zaero])",
+    "files": []
+  },
+  "vitaquake2": {
+    "title": "Quake II (vitaQuake 2)",
+    "files": []
+  },
+  "vitaquake3": {
+    "title": "Quake III: Arena (vitaQuake 3)",
+    "files": []
+  },
+  "vitavoyager": {
+    "title": "Star Trek: Voyager - Elite Force (vitaVoyager)",
+    "files": []
+  },
+  "wasm4": {
+    "title": "WASM-4",
+    "files": []
+  },
+  "wqxemu": {
+    "title": "Wenquxing (WQXEmu)",
+    "files": [
+      {
+        "path": "WQXEmu/nc1020/obj_lu.bin",
+        "title": "NC1020 obj_lu.bin (System ROM)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/nc1020/nc1020.fls",
+        "title": "NC1020 nc1020.fls (NOR Flash)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/pc1000/pc1000.rom",
+        "title": "PC1000 pc1000.rom (System ROM)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/pc1000/pc1000.fls",
+        "title": "PC1000 pc1000.fls (NOR Flash)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/cc800/obj.bin",
+        "title": "CC800 obj.bin (System ROM)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/cc800/cc800.fls",
+        "title": "CC800 cc800.fls (NOR Flash)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/nc2000/nc2000.nor",
+        "title": "NC2000 nc2000.nor (NOR Flash)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/nc2000/nc2000.nand",
+        "title": "NC2000 nc2000.nand (NAND Flash)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/nc2000/nc2000.nand0",
+        "title": "NC2000 nc2000.nand0 (First NAND Plane)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/nc3000/nc3000.nor",
+        "title": "NC3000 nc3000.nor (NOR Flash)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/nc3000/nc3000.nand",
+        "title": "NC3000 nc3000.nand (NAND Flash)",
+        "optional": true
+      },
+      {
+        "path": "WQXEmu/nc3000/nc3000.nand0",
+        "title": "NC3000 nc3000.nand0 (Optional First NAND Plane)",
+        "optional": true
+      }
+    ]
+  },
+  "x16emu": {
+    "title": "Commander X16 (x16emu)",
+    "files": [
+      {
+        "path": "x16/rom.bin",
+        "title": "x16/rom.bin (Commander X16 KERNAL ROM)",
+        "optional": false
+      }
+    ]
+  },
+  "x1": {
+    "title": "Sharp X1 (X Millennium)",
+    "files": [
+      {
+        "path": "xmil/IPLROM.X1",
+        "title": "xmil/IPLROM.X1 (Sharp X1 IPL ROM)",
+        "optional": true,
+        "md5": "eeeea1cd29c6e0e8b094790ae969bfa7"
+      },
+      {
+        "path": "xmil/IPLROM.X1T",
+        "title": "xmil/IPLROM.X1T (Sharp X1 8x8 Font ROM)",
+        "optional": true,
+        "md5": "851e4a5936f17d13f8c39a980cf00d77"
+      }
+    ]
+  },
+  "x64sdl": {
+    "title": "Commodore - C64 (VICE SDL)",
+    "files": []
+  },
+  "xemu": {
+    "title": "Microsoft - Xbox (xemu)",
+    "files": [
+      {
+        "path": "xemu/mcpx_1.0.bin",
+        "title": "xemu/mcpx_1.0.bin (MCPX Boot ROM)",
+        "optional": false
+      },
+      {
+        "path": "xemu/Complex_4627v1.03.bin",
+        "title": "xemu/Complex_4627v1.03.bin (Flash ROM / BIOS)",
+        "optional": false
+      },
+      {
+        "path": "xemu/xbox_hdd.qcow2",
+        "title": "xemu/xbox_hdd.qcow2 (Hard disk image)",
+        "optional": false
+      },
+      {
+        "path": "xemu/xbox_eeprom.bin",
+        "title": "xemu/xbox_eeprom.bin (EEPROM, created when missing)",
+        "optional": true
+      }
+    ]
+  },
+  "xenia_edge": {
+    "title": "Microsoft - Xbox 360 (Xenia Edge)",
+    "files": []
+  },
+  "xrick": {
+    "title": "Rick Dangerous (XRick)",
+    "files": []
+  },
+  "yabasanshiro": {
+    "title": "Sega - Saturn (YabaSanshiro)",
+    "files": [
+      {
+        "path": "saturn_bios.bin",
+        "title": "saturn_bios.bin (Saturn BIOS)",
+        "optional": false,
+        "md5": "af5828fdff51384f99b3c4926be27762"
+      }
+    ]
+  },
+  "yabause": {
+    "title": "Sega - Saturn (Yabause)",
+    "files": [
+      {
+        "path": "saturn_bios.bin",
+        "title": "saturn_bios.bin (Saturn BIOS)",
+        "optional": true,
+        "md5": "af5828fdff51384f99b3c4926be27762"
+      }
+    ]
+  },
+  "yaps2": {
+    "title": "Sony - PlayStation 2 (yaps2)",
+    "files": [
+      {
+        "path": "pcsx2/bios",
+        "title": "'pcsx2/bios' folder (any valid PS2 BIOS dump, e.g. scph39001.bin)",
+        "optional": false,
+        "directory": true
+      },
+      {
+        "path": "pcsx2/resources",
+        "title": "'pcsx2/resources' folder (shaders, GameIndex.yaml, fonts)",
+        "optional": false,
+        "directory": true
+      }
+    ]
+  },
+  "ymir": {
+    "title": "Sega - Saturn (Emir)",
+    "files": [
+      {
+        "path": "sega_101.bin",
+        "title": "sega_101.bin (Saturn JP BIOS)",
+        "optional": true,
+        "md5": "85ec9ca47d8f6807718151cbcca8b964"
+      },
+      {
+        "path": "mpr-17933.bin",
+        "title": "mpr-17933.bin (Saturn US/EU BIOS)",
+        "optional": true,
+        "md5": "3240872c70984b6cbfda1586cab68dbe"
+      },
+      {
+        "path": "saturn_bios.bin",
+        "title": "saturn_bios.bin (Saturn BIOS)",
+        "optional": true
+      }
+    ]
+  },
+  "zcdi": {
+    "title": "Philips - CD-i (zcdi)",
+    "files": [
+      {
+        "path": "cdi200.rom",
+        "title": "cdi200.rom (CD-i BIOS, NTSC)",
+        "optional": true,
+        "md5": "2969341396aa61e0143dc2351aaa6ef6"
+      },
+      {
+        "path": "cdi220b.rom",
+        "title": "cdi220b.rom (CD-i BIOS, PAL)",
+        "optional": true,
+        "md5": "ac0d468be366779c9df633be98da250a"
+      },
+      {
+        "path": "vmpega.rom",
+        "title": "vmpega.rom (Digital Video Cartridge ROM, needed for DVC titles)",
+        "optional": true,
+        "md5": "53ba3bf7443187a657baa272d01d3771"
+      }
+    ]
+  },
+  "zesarpcw": {
+    "title": "Amstrad - PCW (ZEsarPCW)",
+    "files": []
+  }
+}

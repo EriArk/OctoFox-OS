@@ -10,9 +10,10 @@ Panel {
     readonly property var badges: record.badges || []
     readonly property var latest: record.latestSession || ({})
     readonly property bool browsing: !profile.editing && shell.profileRoute === "summary"
-    readonly property bool compact: height < 500
+    readonly property bool compact: height < 560
     readonly property color accent: Theme.dark ? "#b9cfa5" : "#527b59"
     patterned: false
+    radius: 28
     MouseArea { anchors.fill: parent }
 
     component ProfileAction: Item {
@@ -21,37 +22,52 @@ Panel {
         required property string label
         property bool available: true
         property int textSize: 12
+        property color ink: root.accent
         readonly property bool focused: root.shell.profileContentActive && root.shell.profileFocus === actionIndex
         height: 30
         opacity: available ? 1 : .5
         Rectangle { anchors.fill: parent; radius: 5; color: action.focused ? Theme.selection : pointer.containsMouse ? Theme.surface : "transparent"; border.width: action.focused ? 2 : 0; border.color: Theme.focus }
-        Text { anchors.fill: parent; anchors.margins: 5; text: action.label; textFormat: Text.PlainText; color: root.accent; font.pixelSize: action.textSize; elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter }
+        Text { anchors.fill: parent; anchors.margins: 5; text: action.label; textFormat: Text.PlainText; color: action.focused || pointer.containsMouse ? root.accent : action.ink; font.pixelSize: action.textSize; elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter }
         MouseArea { id: pointer; anchors.fill: parent; hoverEnabled: true; enabled: action.available && root.shell.profileContentActive; onClicked: root.shell.activate(action.actionIndex,"profile") }
         Accessible.role: Accessible.Button; Accessible.name: label; Accessible.onPressAction: if(available)root.shell.activate(actionIndex,"profile")
     }
     Item {
         anchors.fill: parent; anchors.margins: 18; visible: !root.profile.editing
         Item {
-            id: heading; width: parent.width; height: 34
-            Text { text: root.shell.profileRoute === "summary" ? "Player profile" : "\u2039  Back"; font.pixelSize: 17; color: Theme.ink
+            id: heading; width: parent.width; height: 34; visible: !root.browsing
+            Text { text: "\u2039  Back"; font.family: Theme.brandFamily; font.pixelSize: 17; color: Theme.ink
                 MouseArea { anchors.fill: parent; anchors.margins: -4; onClicked: root.shell.pressButton("B") }
             }
-            ProfileAction { anchors.right: close.left; width: 88; y: -6; actionIndex: 1; label: "Wardrobe"; visible: root.browsing; available: root.profile.exists && root.profile.avatarAvailable }
-            ProfileAction { anchors.right: close.left; anchors.rightMargin: 88; width: 86; y: -6; actionIndex: 13; label: "Sharing"; visible: root.browsing }
-            ProfileAction { anchors.right: close.left; anchors.rightMargin: 174; width: 126; y: -6; actionIndex: 12; label: "View as player"; visible: root.browsing }
             SocialIconButton { id: close; anchors.right: parent.right; y: -6; icon: "x"; label: "Back"; onClicked: root.shell.pressButton("B") }
             Rectangle { y: 30; width: parent.width; height: 1; color: Theme.divider }
         }
         Item {
-            id: showcase; y: 42; width: parent.width; height: parent.height-y; visible: root.browsing
+            id: showcase; y: 0; width: parent.width; height: parent.height; visible: root.browsing
             ProfileScene {
-                id:portrait;width:parent.width*.37;height:parent.height
-                profile:root.profile;appearance:root.shell.backendAccount.profileAppearance;showAvatar:root.browsing
-                Rectangle { anchors.right:parent.right;anchors.rightMargin:7;y:7;width:105;height:31;radius:6;color:Theme.surface;opacity:.92 }
-                ProfileAction { anchors.right:parent.right;anchors.rightMargin:10;y:8;width:98;actionIndex:9;label:"Appearance \u203a";textSize:11 }
+                id:portrait;width:parent.width*.35;height:parent.height
+                profile:root.profile;appearance:root.shell.backendAccount.profileAppearance;showAvatar:root.browsing;footerInset:43
+                Rectangle { x:10;y:10;width:116;height:30;radius:15;color:"#c5122229" }
+                ProfileAction { x:16;y:10;width:108;actionIndex:9;label:"Change scenery  ›";textSize:11;ink:"#fff0cd" }
+                Rectangle { x:10;anchors.bottom:parent.bottom;anchors.bottomMargin:10;width:parent.width-20;height:42;radius:9;color:"#d4122229"
+                    Text { x:12;y:7;text:"YOUR CHARACTER";font.family:Theme.brandFamily;font.pixelSize:9;font.letterSpacing:1.5;color:"#bdd5ce" }
+                    Text { x:12;y:23;text:"Make it yours";font.pixelSize:10;color:"#e3e9da" }
+                    ProfileAction { anchors.right:parent.right;anchors.rightMargin:8;y:6;width:88;height:30;actionIndex:1;label:"Wardrobe  ›";ink:"#ffe2a1";available:root.profile.exists&&root.profile.avatarAvailable }
+                }
+            }
+            Item {
+                id:identity;x:portrait.width+22;width:parent.width-x;height:root.compact?52:68
+                Text { objectName:"profile-name";y:-4;width:parent.width-profileTools.width-10;text:root.account.name;textFormat:Text.PlainText;font.family:Theme.displayFamily;font.pixelSize:root.compact?35:44;minimumPixelSize:23;fontSizeMode:Text.HorizontalFit;elide:Text.ElideRight;color:Theme.ink }
+
+                Text { anchors.bottom:parent.bottom;anchors.bottomMargin:3;width:parent.width;text:root.profile.profile.joined?"PLAYER SINCE "+root.profile.profile.joined.toUpperCase():"EVERY ADVENTURE LEAVES A MARK";font.family:Theme.brandFamily;font.pixelSize:9;font.letterSpacing:1.6;color:root.accent;elide:Text.ElideRight }
+            }
+            Row {
+                id:profileTools;anchors.right:parent.right;spacing:4;z:2
+                SocialIconButton { objectName:"profile-edit";glyph:"pencil";label:root.profile.exists?"Edit profile":"Create profile";highlighted:root.shell.profileContentActive&&root.shell.profileFocus===0;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(0,"profile") }
+                SocialIconButton { objectName:"profile-sharing";glyph:"privacy";label:"Profile privacy";highlighted:root.shell.profileContentActive&&root.shell.profileFocus===13;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(13,"profile") }
+                SocialIconButton { objectName:"profile-close";glyph:"close";label:"Close profile";onClicked:root.shell.pressButton("B") }
             }
             Flickable {
-                id: factsScroll; x: portrait.width+22; width: parent.width-x; height: parent.height
+                id: factsScroll; x: identity.x; y:identity.height+8; width: parent.width-x; height: parent.height-y
                 contentWidth: width; contentHeight: body.implicitHeight; clip: true
                 boundsBehavior: Flickable.StopAtBounds
                 function revealFocus() {
@@ -59,8 +75,9 @@ Panel {
                     const focus = root.shell.profileFocus
                     const section = focus === 4 ? economy : focus === 10 ? supportEntry : focus === 11 ? trophyShelf : focus === 3 || (focus >= 7 && focus <= 8) ? awards : focus === 2 || focus === 5 || focus === 6 ? journey : null
                     if (!section) { contentY = 0; return }
-                    if (section.y < contentY) contentY = section.y
-                    else if (section.y+section.height > contentY+height) contentY = Math.max(0, section.y+section.height-height)
+                    const top = section.mapToItem(body, 0, 0).y
+                    if (top < contentY) contentY = top
+                    else if (top+section.height > contentY+height) contentY = Math.max(0, top+section.height-height)
                 }
                 property int observedFocus: -1
                 property string observedRoute: ""
@@ -74,94 +91,111 @@ Panel {
                     }
                 }
                 Column {
-                id: body; width: factsScroll.width; spacing: root.compact?5:9
-                Item {
-                    width: parent.width; height: root.compact?42:55
-                    Text { objectName: "profile-name"; y: -5; width: parent.width-62; text: root.account.name; textFormat: Text.PlainText; font.family: Theme.displayFamily; font.pixelSize: root.compact?28:36; minimumPixelSize:20; fontSizeMode:Text.HorizontalFit; elide:Text.ElideRight; color:Theme.ink }
-                    ProfileAction { objectName: "profile-edit"; anchors.right: parent.right; y: -5; width: 55; actionIndex: 0; label: root.profile.exists?"Edit":"Create" }
-                    Text { y: root.compact?26:38; width: parent.width; text: root.profile.profile.joined?"Playing since "+root.profile.profile.joined:"Your adventures, your story"; font.pixelSize: 10; color: root.accent; elide:Text.ElideRight }
-                }
-                Item {
-                    id: economy; width: parent.width; height: root.compact?72:88
-                    readonly property real split: width*.43
-                    Rectangle { y: 3; width: 34; height: 34; radius: 11; color: Theme.dark?"#293f3d":"#e1ecd9"
-                        Text { anchors.centerIn: parent; text: root.account.levelText; font.family:Theme.displayFamily; font.pixelSize:23; color:root.accent }
-                    }
-                    Text { x: 43; y: 1; width: economy.split-x-4; text: "Account level"; color: Theme.ink; font.pixelSize:12; elide:Text.ElideRight }
-                    Text { x: 43; y: 20; text: "Trainer Mastery"; color: Theme.muted; font.pixelSize:10 }
-                    Text { y: root.compact?43:47; width: economy.split-14; text: root.account.levelKnown?root.account.levelXp+" / "+root.account.nextLevelXp+" XP" :root.account.signedIn?"Progress unavailable":"Sign in for account progress"; color:Theme.muted; font.pixelSize:10; elide:Text.ElideRight }
-                    Rectangle { y:root.compact?61:68;width:economy.split-14;height:3;radius:1.5;color:Theme.divider;visible:root.account.levelKnown
-                        Rectangle { height:parent.height;radius:1.5;color:root.accent;width:parent.width*Math.max(0,Math.min(1,(root.account.levelXp||0)/(root.account.nextLevelXp||1)));Behavior on width { NumberAnimation { duration:300 } } }
-                    }
-                    Rectangle { x: economy.split; height: parent.height; width: 1; color: Theme.divider }
+                    id: body; width: factsScroll.width; spacing: root.compact?8:12
                     Item {
-                        x: economy.split+15; width: parent.width-x; height: parent.height
-                        SparkIcon { id:rewardSpark;width: 29; height: 29; y: 0 }
-                        Text { x: 36; y: -3; text: root.account.sparksText; font.family:Theme.displayFamily; font.pixelSize:28; color:Theme.ink }
-                        Text { anchors.right:parent.right;y:6;text:"Sparks";color:Theme.muted;font.pixelSize:12 }
-                        Text { y: root.compact?29:31; width: parent.width; text:rewardFade.running?rewardFlash.text:root.account.stale?"Last confirmed balance · offline":root.account.balanceKnown?"Available balance":"Balance unavailable"; color:rewardFade.running?root.accent:Theme.muted;font.pixelSize:10;elide:Text.ElideRight }
-                        QtObject { id:rewardFlash;property string text:"" }
-                        SequentialAnimation { id:rewardFade;NumberAnimation { target:rewardSpark;property:"scale";to:1.3;duration:180 } NumberAnimation { target:rewardSpark;property:"scale";to:1;duration:250 } PauseAnimation { duration:2500 } }
-                        Connections { target:root.shell.backendAccount;function onRewardsEarned(xp,sparks) {rewardFlash.text=(xp>0?"+"+xp+" XP  ·  ":"")+"+"+sparks+" Sparks";rewardFade.restart()} }
-                        ProfileAction { objectName:"profile-account"; y: root.compact?46:56; width: parent.width; actionIndex:4;label:"TrainerOS account  \u203a"; textSize:10 }
-                    }
-                }
-                Item {
-                    id:trophyShelf;width:parent.width;height:96
-                    Text {text:"Trophy shelf";font.pixelSize:14;color:Theme.ink}
-                    ProfileAction {anchors.right:parent.right;y:-7;width:135;actionIndex:11;label:(root.shell.backendAccount.prizes.pending||0)>0?"Rewards ("+root.shell.backendAccount.prizes.pending+")  \u203a":"Hall of fame  \u203a";textSize:11}
-                    Row {y:23;width:parent.width;spacing:10
-                        Repeater {model:5;delegate:Item {
-                            required property int index
-                            readonly property var trophy:(root.shell.backendAccount.prizes.shelf||[])[index]||({})
-                            width:(trophyShelf.width-40)/5;height:66
-                            PrizeEmblem {anchors.horizontalCenter:parent.horizontalCenter;width:45;height:45;visible:!!parent.trophy.game_id;kind:parent.trophy.completed?"completed":"beaten"}
-                            Rectangle {x:6;y:44;width:parent.width-12;height:2;color:Theme.divider}
-                            Text {y:50;width:parent.width;text:parent.trophy.title||"\u2014";textFormat:Text.PlainText;color:Theme.muted;font.pixelSize:9;elide:Text.ElideRight;horizontalAlignment:Text.AlignHCenter}
-                            MouseArea {anchors.fill:parent;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(11,"profile")}
-                        }}
-                    }
-                }
-                ProfileAction { id:supportEntry;objectName:"profile-support";width:parent.width;actionIndex:10;label:"Support \u00d72 / \u00d73  \u00b7  Compare Sparks \u203a";textSize:11 }
-                Rectangle { width: parent.width; height:1;color:Theme.divider }
-                Item {
-                    id: awards; width: parent.width; height: root.compact?69:82
-                    Text { text:"RetroAchievements";font.pixelSize:14;color:Theme.ink }
-                    ProfileAction { objectName:"profile-achievements";anchors.right:parent.right;y:-7;width:64;actionIndex:3;label:"View all \u203a";textSize:10 }
-                    Row {
-                        y:25;width:parent.width;spacing:10
-                        Repeater { model:root.badges
-                            delegate: Item {
-                                required property var modelData
-                                required property int index
-                                width:(awards.width-10)/2;height:42
-                                Rectangle { anchors.fill:parent;radius:5;color:root.shell.profileFocus===index+7?Theme.selection:"transparent";border.width:root.shell.profileFocus===index+7?2:0;border.color:Theme.focus }
-                                Image { id:badge;x:2;y:2;width:34;height:width;source:modelData.icon||"";sourceSize:Qt.size(80,80);asynchronous:true;fillMode:Image.PreserveAspectFit }
-                                Text { x:6;y:4;visible:badge.status!==Image.Ready;text:"\u2605";font.pixelSize:25;color:root.accent }
-                                Text { x:43;width:parent.width-x;text:modelData.title;textFormat:Text.PlainText;font.pixelSize:11;color:Theme.ink;elide:Text.ElideRight }
-                                Text { x:43;y:19;width:parent.width-x;text:modelData.date;font.pixelSize:9;color:Theme.muted;elide:Text.ElideRight }
-                                MouseArea { anchors.fill:parent;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(index+7,"profile") }
+                        id:economy;width:parent.width;height:root.compact?86:100
+                        readonly property real split:width*.61
+                        Item {
+                            id:levelSeal;width:66;height:74
+                            Canvas {
+                                anchors.fill:parent
+                                property color gold:Theme.dark?"#edcd83":"#9f7036"
+                                property color fill:Theme.dark?"#172a30":"#eff0df"
+                                onGoldChanged:requestPaint()
+                                onFillChanged:requestPaint()
+                                onPaint:{const c=getContext("2d");c.reset();const w=width,h=height;c.beginPath();c.moveTo(w*.5,2);c.lineTo(w-4,16);c.lineTo(w-7,h*.73);c.lineTo(w*.5,h-3);c.lineTo(7,h*.73);c.lineTo(4,16);c.closePath();c.fillStyle=fill;c.fill();c.strokeStyle=gold;c.lineWidth=1.5;c.stroke();c.beginPath();c.moveTo(12,22);c.lineTo(w*.5,12);c.lineTo(w-12,22);c.stroke();}
                             }
+                            Text { anchors.horizontalCenter:parent.horizontalCenter;y:19;width:parent.width-16;text:root.account.levelText;font.family:Theme.gameFamily;font.pixelSize:29;minimumPixelSize:17;fontSizeMode:Text.HorizontalFit;horizontalAlignment:Text.AlignHCenter;color:Theme.ink }
+                            Text { anchors.horizontalCenter:parent.horizontalCenter;y:54;text:"LEVEL";font.family:Theme.brandFamily;font.pixelSize:8;font.letterSpacing:1.6;color:root.accent }
+                        }
+                        Column {
+                            x:78;y:5;width:economy.split-x-17;spacing:7
+                            Text { text:"Trainer mastery";font.family:Theme.displayFamily;font.pixelSize:16;color:Theme.ink }
+                            Text { width:parent.width;text:root.account.levelKnown?Math.max(0,root.account.nextLevelXp-root.account.levelXp)+" XP to next level":root.account.signedIn?"Progress unavailable":"Sign in to start";font.pixelSize:11;color:root.accent;elide:Text.ElideRight }
+                            Rectangle {
+                                objectName:"profile-xp-track";width:parent.width;height:7;radius:3.5;color:Theme.divider;visible:root.account.levelKnown
+                                Rectangle { width:parent.width*Math.max(0,Math.min(1,(root.account.levelXp||0)/(root.account.nextLevelXp||1)));height:parent.height;radius:3.5;color:root.accent }
+                                Repeater { model:4;Rectangle { required property int index;x:parent.width*(index+1)/5;width:2;height:parent.height;color:Theme.paper } }
+                            }
+                            Text { width:parent.width;text:root.account.levelKnown?root.account.levelXp+" / "+root.account.nextLevelXp+" XP"+(root.account.stale?" · offline":""):"Verified account progress";font.pixelSize:9;color:Theme.muted;elide:Text.ElideRight }
+                        }
+                        Rectangle { x:economy.split;y:7;height:parent.height-16;width:1;color:Theme.divider }
+                        Item {
+                            x:economy.split+15;width:parent.width-x;height:parent.height
+                            SparkIcon { id:rewardSpark;width:29;height:29;y:4 }
+                            Text { x:36;y:0;width:parent.width-x;text:root.account.sparksText;font.family:Theme.displayFamily;font.pixelSize:28;minimumPixelSize:18;fontSizeMode:Text.HorizontalFit;elide:Text.ElideRight;color:Theme.ink }
+                            Text { x:36;y:30;text:"SPARKS";font.family:Theme.brandFamily;font.pixelSize:9;font.letterSpacing:1.4;color:root.accent }
+                            Text { y:46;width:parent.width;text:rewardFade.running?rewardFlash.text:root.account.stale?"Saved balance · offline":root.account.balanceKnown?"For your next unlock":"Balance unavailable";font.pixelSize:9;color:rewardFade.running?root.accent:Theme.muted;elide:Text.ElideRight }
+                            QtObject { id:rewardFlash;property string text:"" }
+                            SequentialAnimation { id:rewardFade;NumberAnimation {target:rewardSpark;property:"scale";to:1.3;duration:180} NumberAnimation {target:rewardSpark;property:"scale";to:1;duration:250} PauseAnimation {duration:2500} }
+                            Connections { target:root.shell.backendAccount;function onRewardsEarned(xp,sparks){rewardFlash.text=(xp>0?"+"+xp+" XP · ":"")+"+"+sparks+" Sparks";rewardFade.restart()} }
+                            ProfileAction { objectName:"profile-account";y:60;width:parent.width;actionIndex:4;label:"Account & rewards  ›";textSize:10 }
                         }
                     }
-                    Text { y:28;width:parent.width;visible:!root.badges.length;text:root.record.achievementNote||"No confirmed achievements yet";font.pixelSize:12;color:Theme.muted;wrapMode:Text.WordWrap }
-                }
-                Item {
-                    id: journey;width:parent.width;height:root.compact?90:105
-                    Text { text:"Player journey";font.pixelSize:14;color:Theme.ink }
-                    ProfileAction { objectName:"profile-story";anchors.right:parent.right;y:-7;width:81;actionIndex:2;label:"All history \u203a";textSize:10 }
                     Item {
-                        y:24;width:parent.width;height:root.compact?35:46
-                        Rectangle { anchors.fill:parent;radius:5;color:root.shell.profileFocus===6?Theme.selection:"transparent";border.width:root.shell.profileFocus===6?2:0;border.color:Theme.focus }
-                        Image { id:lastPhoto;visible:!!root.latest.image;width:70;height:parent.height;source:root.latest.image||"";asynchronous:true;fillMode:Image.PreserveAspectFit }
-                        Text { x:lastPhoto.visible?80:0;width:parent.width-x;text:root.latest.game||"Your story starts with a game";textFormat:Text.PlainText;color:Theme.ink;font.pixelSize:12;elide:Text.ElideRight }
-                        Text { x:lastPhoto.visible?80:0;y:18;width:parent.width-x;text:root.latest.game?(root.latest.date+" \u00b7 "+root.latest.duration):"Your sessions will appear here";color:Theme.muted;font.pixelSize:10;elide:Text.ElideRight }
-                        MouseArea { anchors.fill:parent;enabled:!!root.latest.game&&root.shell.profileContentActive;onClicked:root.shell.activate(6,"profile") }
+                        id:trophyShelf;width:parent.width;height:root.compact?112:134
+                        readonly property var trophies:root.shell.backendAccount.prizes.shelf||[]
+                        Text { text:"Trophy shelf";font.family:Theme.displayFamily;font.pixelSize:18;color:Theme.ink }
+                        ProfileAction { anchors.right:parent.right;y:-3;width:135;actionIndex:11;label:(root.shell.backendAccount.prizes.pending||0)>0?"Rewards ("+root.shell.backendAccount.prizes.pending+")  ›":"Hall of fame  ›";textSize:11 }
+                        Row {
+                            y:29;width:parent.width;spacing:8
+                            Repeater { model:5;delegate:Item {
+                                id:trophySlot;required property int index
+                                readonly property var trophy:trophyShelf.trophies[index]||({})
+                                width:(trophyShelf.width-32)/5;height:root.compact?62:78
+                                Rectangle { anchors.fill:parent;radius:8;color:Qt.alpha(root.accent,.045);border.color:Qt.alpha(root.accent,.16);border.width:1 }
+                                Rectangle { x:7;y:parent.height-5;width:parent.width-14;height:2;radius:1;color:Qt.alpha(root.accent,.32) }
+                                PrizeEmblem { anchors.horizontalCenter:parent.horizontalCenter;y:0;width:root.compact?44:58;height:width;visible:!!trophySlot.trophy.game_id;kind:trophySlot.trophy.completed?"completed":"beaten" }
+                                MenuGlyph { anchors.horizontalCenter:parent.horizontalCenter;y:8;width:25;height:25;glyph:"trophy";ink:Qt.alpha(root.accent,.32);visible:!trophySlot.trophy.game_id }
+                                Text { y:parent.height-20;width:parent.width-8;x:4;text:trophySlot.trophy.title||("0"+(index+1));textFormat:Text.PlainText;color:trophySlot.trophy.game_id?Theme.ink:Theme.muted;font.pixelSize:9;elide:Text.ElideRight;horizontalAlignment:Text.AlignHCenter }
+                                MouseArea { anchors.fill:parent;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(11,"profile") }
+                                Accessible.role:Accessible.Button;Accessible.name:trophySlot.trophy.title||"Choose a trophy for slot "+(index+1);Accessible.onPressAction:root.shell.activate(11,"profile")
+                            } }
+                        }
+                        Text { anchors.bottom:parent.bottom;width:parent.width;text:trophyShelf.trophies.length?"Your victories. Your collection.":"Finish games. Collect trophies. Tell your story.";font.pixelSize:9;color:Theme.muted;elide:Text.ElideRight }
                     }
-                    Text { y:root.compact?64:78;width:parent.width-80;text:(root.record.gamesPlayed??0)+" games  \u00b7  "+(root.record.recordedTime||"\u2014");font.pixelSize:10;color:Theme.muted;elide:Text.ElideRight }
-                    ProfileAction { objectName:"profile-screens";anchors.right:parent.right;y:root.compact?56:70;width:80;actionIndex:5;label:"Screens \u203a";textSize:10 }
+                    Item {
+                        id:journal;width:parent.width;height:root.compact?136:142
+                        Rectangle { width:parent.width;height:1;color:Theme.divider }
+                        Item {
+                            id:awards;y:9;width:parent.width*.50-10;height:parent.height-y
+                            Text { text:"Recent achievements";font.family:Theme.displayFamily;font.pixelSize:15;color:Theme.ink }
+                            Column {
+                                y:26;width:parent.width;spacing:4
+                                Repeater { model:root.badges;delegate:Item {
+                                    required property var modelData;required property int index
+                                    width:awards.width;height:29
+                                    Rectangle { anchors.fill:parent;radius:5;color:root.shell.profileFocus===index+7?Theme.selection:"transparent";border.width:root.shell.profileFocus===index+7?2:0;border.color:Theme.focus }
+                                    Image { id:badge;x:0;y:0;width:28;height:28;source:modelData.icon||"";sourceSize:Qt.size(64,64);asynchronous:true;fillMode:Image.PreserveAspectFit }
+                                    Text { x:3;visible:badge.status!==Image.Ready;text:"✦";font.pixelSize:23;color:root.accent }
+                                    Text { x:36;y:0;width:parent.width-x;text:modelData.title;textFormat:Text.PlainText;font.pixelSize:10;color:Theme.ink;elide:Text.ElideRight }
+                                    Text { x:36;y:15;width:parent.width-x;text:modelData.date;font.pixelSize:8;color:Theme.muted;elide:Text.ElideRight }
+                                    MouseArea { anchors.fill:parent;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(index+7,"profile") }
+                                } }
+                            }
+                            Text { y:29;width:parent.width;visible:!root.badges.length;text:root.record.achievementNote||"Your next challenge is waiting.";font.pixelSize:11;color:Theme.muted;wrapMode:Text.WordWrap;maximumLineCount:3;elide:Text.ElideRight }
+                            ProfileAction { objectName:"profile-achievements";anchors.bottom:parent.bottom;width:parent.width;actionIndex:3;label:"RetroAchievements  ›";textSize:10 }
+                        }
+                        Rectangle { x:parent.width*.5;y:15;width:1;height:parent.height-20;color:Theme.divider }
+                        Item {
+                            id:journey;x:parent.width*.5+14;y:9;width:parent.width-x;height:parent.height-y
+                            Text { text:"Last adventure";font.family:Theme.displayFamily;font.pixelSize:15;color:Theme.ink }
+                            Item {
+                                y:26;width:parent.width;height:45
+                                Rectangle { anchors.fill:parent;radius:5;color:root.shell.profileFocus===6?Theme.selection:"transparent";border.width:root.shell.profileFocus===6?2:0;border.color:Theme.focus }
+                                Image { id:lastPhoto;visible:!!root.latest.image;width:54;height:42;source:root.latest.image||"";asynchronous:true;fillMode:Image.PreserveAspectFit }
+                                Text { x:lastPhoto.visible?62:0;width:parent.width-x;text:root.latest.game||"A new story awaits";textFormat:Text.PlainText;color:Theme.ink;font.pixelSize:11;elide:Text.ElideRight }
+                                Text { x:lastPhoto.visible?62:0;y:18;width:parent.width-x;text:root.latest.game?root.latest.duration:"Start a game to begin";color:Theme.muted;font.pixelSize:10;elide:Text.ElideRight }
+                                MouseArea { anchors.fill:parent;enabled:!!root.latest.game&&root.shell.profileContentActive;onClicked:root.shell.activate(6,"profile") }
+                            }
+                            Text { y:70;width:parent.width;text:(root.record.gamesPlayed??0)+" games  ·  "+(root.record.recordedTime||"—");font.pixelSize:9;color:Theme.muted;elide:Text.ElideRight }
+                            ProfileAction { objectName:"profile-story";anchors.bottom:parent.bottom;width:parent.width-70;actionIndex:2;label:"Player journey  ›";textSize:10 }
+                            ProfileAction { objectName:"profile-screens";anchors.right:parent.right;anchors.bottom:parent.bottom;width:70;actionIndex:5;label:"Screens  ›";textSize:10 }
+                        }
+                    }
+                    ProfileAction { id:supportEntry;objectName:"profile-support";width:parent.width;height:26;actionIndex:10;label:"✦  Support TrainerOS  ·  Sparks ×2 / ×3  ›";textSize:10 }
                 }
-                }
+
             }
         }
         ProfileShop { x:0;y:42;width:parent.width;height:parent.height-y;shell:root.shell;visible:root.shell.profileRoute==="shop" }

@@ -54,6 +54,7 @@ public:
     bool saving() const { return service_ && service_->saving(); }
     int focusIndex() const { return focus_; }
 signals:
+    void preparationRequested();
     void changed();
     void closeRequested();
     void messageRequested(const QString& message);

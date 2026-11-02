@@ -34,6 +34,7 @@
 #include "features/device/ControlsDashboard.h"
 #include "features/device/NetworkController.h"
 #include "features/diagnostics/DiagnosticsController.h"
+#include "features/settings/GamePreparationController.h"
 #include "integrations/adventure/AdventureAdapter.h"
 #include "platform/PlatformService.h"
 #include <QObject>
@@ -135,6 +136,7 @@ class ShellController final : public QObject {
     Q_PROPERTY(trainer::DeviceController* device READ device CONSTANT)
     Q_PROPERTY(trainer::NetworkController* network READ network CONSTANT)
     Q_PROPERTY(trainer::DiagnosticsController* diagnostics READ diagnostics CONSTANT)
+    Q_PROPERTY(trainer::GamePreparationController* gamePreparation READ gamePreparation CONSTANT)
     Q_PROPERTY(QString service READ service NOTIFY changed)
     Q_PROPERTY(bool serviceOpen READ serviceOpen NOTIFY changed)
     Q_PROPERTY(bool sampleLibrary READ sampleLibrary CONSTANT)
@@ -230,6 +232,7 @@ public:
     DeviceController* device() { return &device_; }
     NetworkController* network() { return &network_; }
     DiagnosticsController* diagnostics() { return &diagnostics_; }
+    GamePreparationController* gamePreparation() { return &gamePreparation_; }
     QString service() const { return service_; }
     bool serviceOpen() const { return !service_.isEmpty(); }
     bool sampleLibrary() const { return !repository_.editable(); }
@@ -318,7 +321,7 @@ public:
     bool powerMenu() const { return powerMenu_; }
     QString notice() const { return notice_; }
     bool moduleServiceBusy() const { return moduleWriting() || modulesBlocked(); }
-    bool runtimeChangeBlocked() const { return pcGames_.busy() || diagnostics_.checking() || scraper_.busy() || moduleWriting() || navigationLocked(); }
+    bool runtimeChangeBlocked() const { return gamePreparation_.busy() || pcGames_.busy() || diagnostics_.checking() || scraper_.busy() || moduleWriting() || navigationLocked(); }
     QVariantMap home() const;
     QVariantList resumePoints() const;
     QVariantList drawerGames() const;
@@ -419,6 +422,7 @@ private:
     DeviceController device_;
     NetworkController network_;
     DiagnosticsController diagnostics_;
+    GamePreparationController gamePreparation_;
     SocialController social_;
     BackendAccount backendAccount_;
     OutfitController outfits_{backendAccount_,trainer_,this};

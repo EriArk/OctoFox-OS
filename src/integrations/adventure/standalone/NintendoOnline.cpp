@@ -91,6 +91,23 @@ Setup setup(const QString& platform,const QString& stateDirectory) {
     }
     return s;
 }
+QList<gamePreparation::File> requiredFiles(const Setup& s) {
+    QList<gamePreparation::File> result;
+    const auto add=[&](QString root,QString name,qint64 size=-1){result<<gamePreparation::File{s.platform+':'+name,s.platform,name,root,name,{},
+        "Online only. Use files from your own console, all from the same console. Existing identity files are never replaced. The native emulator validates credentials on connection.",size,false};};
+    if(s.platform=="n3ds") {
+        QSettings ini(s.config+"/qt-config.ini",QSettings::IniFormat);
+        const bool custom=!ini.value("Data Storage/use_custom_storage/default",false).toBool()&&ini.value("Data Storage/use_custom_storage",false).toBool();
+        const auto nand=custom?ini.value("Data Storage/nand_directory").toString():s.data+"/nand";
+        add(s.data,"sysdata/otp.bin",256);add(nand,"rw/sys/SecureInfo_A",0x111);add(nand,"rw/sys/LocalFriendCodeSeed_B",0x110);
+    } else if(s.platform=="wiiu") {
+        add(s.data,"otp.bin",1024);add(s.data,"seeprom.bin",512);
+        const auto account=cemuAccount(s);
+        if(QDir::isAbsolutePath(account.mlc))for(const auto* file:{"ccerts/WIIU_COMMON_1_CERT.der","ccerts/WIIU_COMMON_1_RSA_KEY.aes","ccerts/WIIU_ACCOUNT_1_CERT.der","ccerts/WIIU_ACCOUNT_1_RSA_KEY.aes","scerts/CACERT_NINTENDO_CA.der"})
+            add(account.mlc+"/sys/title/0005001b/10054000/content",file);
+    }
+    return result;
+}
 QString check(const Setup& s,const std::function<void(const QString&)>& observe) {
     if(!services(s.platform).contains(s.service)||s.service=="off")return "Choose an Online service first.";
     const auto need=[&](const QString& path,qint64 size=-1){if(observe)observe(path);const QFileInfo f(path);return f.isFile()&&f.isReadable()&&f.size()>0&&(size<0||f.size()==size);};

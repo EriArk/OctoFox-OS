@@ -48,7 +48,11 @@ class SettingsController final : public QObject {
     Q_PROPERTY(trainer::GameInputProfiles* gameInput READ gameInput CONSTANT)
     Q_PROPERTY(QVariantList controls READ controls NOTIFY changed)
     Q_PROPERTY(QString onlineServiceStatus READ onlineServiceStatus NOTIFY changed)
+    Q_PROPERTY(QVariantList onlineControls READ onlineControls NOTIFY changed)
 public:
+    QVariantList onlineControls() const;
+    void selectOnlinePlatform(const QString& platform);
+    Q_INVOKABLE void onlineAction(int index);
     GameInputProfiles* gameInput() {return &gameInput_;}
     void setController(ControllerInput* value) { input_=value;connect(value,&ControllerInput::profileChanged,this,&SettingsController::changed);
         connect(&gameInput_,&GameInputProfiles::captureRequested,value,&ControllerInput::beginCapture);
@@ -115,6 +119,7 @@ public:
     void dispatch(Action);
     void activate(int index);
 signals:
+    void gamePreparationRequested();
     void changed();
     void closeRequested();
     void deviceRequested(int index);

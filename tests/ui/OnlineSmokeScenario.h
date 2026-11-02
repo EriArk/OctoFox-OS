@@ -171,7 +171,8 @@ inline void startOnlineSmoke(QQuickWindow* window,trainer::ShellController& shel
             account->setServices({[](QByteArray,QString,QJsonObject,QByteArray,trainer::BackendAccount::Reply done){done(503,{});},
                 [](QString,auto done){done(true,{});},[](QString,QByteArray,auto done){done(true);},[](QUrl){return false;},
                 [](QString){return QByteArray();},[](QString,QByteArray){return true;}});
-            account->configure("ui-support-signed-out");shell.openProfile();break;
+            account->configure("ui-support-signed-out");shell.openProfile();
+            for(int i=0;i<20 && shell.profileFocus()!=10;++i)shell.dispatch(Action::Down);break;
         }
         case 35: {
             const std::function<QQuickItem*(QQuickItem*)> find=[&](QQuickItem* item)->QQuickItem* {
@@ -328,20 +329,23 @@ inline void startOnlineSmoke(QQuickWindow* window,trainer::ShellController& shel
                     done(200,value);
                 }else done(503,{});
             },[](QString,auto done){done(true,QJsonDocument(QJsonObject{{"refresh_token",QString(43,'r')}}).toJson());},[](QString,QByteArray,auto done){done(true);},[](QUrl){return false;},[](QString){return QByteArray();},[](QString,QByteArray){return true;}});
-            shell.backendAccount()->configure("ui-visitor-fixture");window->resize(1280,720);shell.openProfile();shell.activate(12,"profile");*prizeWait=0;break;
+            shell.backendAccount()->configure("ui-visitor-fixture");window->resize(1280,720);shell.openProfile();shell.activate(12,"profile");
+            check(shell.profileRoute()=="summary","Removed self-preview action cannot open a hidden route");
+            shell.dispatch(Action::Right);check(shell.profileFocus()==13,"Edit moves directly to privacy");
+            shell.openVisitorProfile(player);*prizeWait=0;break;
         }
         case 54:
             if(shell.visitorProfile()->avatarPreview().isEmpty()&&++*prizeWait<30){--*step;break;}
-            check(shell.profileRoute()=="visitor"&&shell.visitorProfile()->preview(),"Own profile uses visitor projection");
+            check(shell.profileRoute()=="visitor"&&!shell.visitorProfile()->preview(),"Stable player ID uses the public profile projection");
             check(shell.visitorProfile()->data()["shelf"].toList().size()==5,"Visitor shelf is server-backed");capture("visitor-wide");window->resize(960,540);break;
         case 55:
-            capture("visitor-compact");shell.dispatch(Action::Back);check(shell.profileRoute()=="summary"&&shell.profileFocus()==12,"Preview returns to its own entry");
-            shell.activate(13,"profile");shell.activate(2,"profile");break;
+            capture("visitor-compact");shell.dispatch(Action::Back);check(!shell.serviceOpen(),"Public profile closes to its source");
+            shell.openProfile();shell.activate(13,"profile");shell.activate(2,"profile");break;
         case 56:
             check(!shell.visitorProfile()->sharing()["history"].toBool(),"Sharing writes the server choice");capture("visitor-sharing-compact");
-            shell.dispatch(Action::Back);shell.activate(12,"profile");break;
+            shell.dispatch(Action::Back);shell.openVisitorProfile("11111111-1111-4111-8111-111111111111");break;
         case 57:
-            check(!shell.visitorProfile()->data().contains("history"),"Self preview respects private history");capture("visitor-private-compact");
+            check(!shell.visitorProfile()->data().contains("history"),"Public profile respects private history");capture("visitor-private-compact");
             shell.dispatch(Action::Back);shell.dispatch(Action::Back);shell.openOnlineFace("chats");shell.social()->profile("2");break;
         case 58:
             check(shell.profileRoute()=="visitor"&&!shell.visitorProfile()->preview(),"Social person opens full profile");
@@ -382,6 +386,16 @@ inline void startOnlineSmoke(QQuickWindow* window,trainer::ShellController& shel
         case 66:
             shell.openVisitorProfile("11111111-1111-4111-8111-111111111111");shell.activate(0,"profile");
             check(shell.primaryId()=="online"&&shell.onlineFace()=="chats","Message from a UUID profile enters the existing conversation route");break;
+        case 67:
+            shell.dispatch(Action::Back);shell.openProfile();shell.settings()->cycleTheme();window->resize(960,540);break;
+        case 68:
+            capture("profile-final-dark-960");window->resize(800,450);break;
+        case 69:
+            capture("profile-final-dark-800");shell.dispatch(Action::Right);check(shell.profileFocus()==13,"Profile icon navigation skips removed preview");shell.dispatch(Action::Confirm);break;
+        case 70:
+            check(shell.profileRoute()=="privacy","Privacy icon keeps its existing action");shell.dispatch(Action::Back);shell.settings()->cycleTheme();window->resize(1280,720);break;
+        case 71:
+            capture("profile-final-light-1280");shell.dispatch(Action::Back);break;
         default:
             check(warnings==0,"QML warnings during Online navigation");
             if(!directory.isEmpty()){QFile f(directory+"/online-report.json");if(f.open(QIODevice::WriteOnly))f.write(QJsonDocument(QJsonObject{{"warnings",warnings},{"success",diagnostics.isEmpty()},{"diagnostics",QJsonArray::fromStringList(diagnostics)}}).toJson());}

@@ -252,6 +252,10 @@ add_library(trainer_core STATIC
     src/platform/diagnostics/DiagnosticsService.h
     src/features/diagnostics/DiagnosticsController.cpp
     src/features/diagnostics/DiagnosticsController.h
+    src/features/settings/GamePreparationController.cpp
+    src/features/settings/GamePreparationController.h
+    src/platform/emulation/GamePreparation.cpp
+    src/platform/emulation/GamePreparation.h
     src/platform/process/ProcessService.cpp
     src/platform/process/ProcessService.h
     src/core/navigation/AdventureLaunchController.cpp
@@ -355,6 +359,7 @@ qt_add_resources(trainer_core badge_assets PREFIX "/badges" BASE assets/badges
     FILES assets/badges/manifest.json ${badge_images})
 qt_add_resources(trainer_core collection PREFIX "/collection" BASE data FILES data/catalogue.json)
 qt_add_resources(trainer_core rom_platforms PREFIX "/library" BASE data FILES data/rom-platforms.json)
+qt_add_resources(trainer_core game_preparation PREFIX "/preparation" BASE data/firmware FILES data/firmware/firmware.json)
 qt_add_resources(trainer_core pokedex_reference PREFIX "/pokedex" BASE data FILES data/pokedex.json)
 qt_add_resources(trainer_core emerald_reference PREFIX "/progress" BASE data FILES data/emerald-reference.json)
 qt_add_resources(trainer_core emerald_shops PREFIX "/progress" BASE data FILES data/emerald-shops.json)
@@ -585,6 +590,7 @@ qt_add_qml_module(traineros
         src/qml/ClockPane.qml
         src/qml/DevicePanel.qml
         src/qml/DiagnosticsPanel.qml
+        src/qml/GamePreparationPanel.qml
         src/qml/KeyboardPanel.qml
         src/adapters/pokemon/TrainerPage.qml
         src/qml/PlayerChatPane.qml
@@ -1004,6 +1010,9 @@ if(BUILD_TESTING)
     endif()
     set_tests_properties(adventure_exit PROPERTIES TIMEOUT 30)
     qt_add_executable(trainer_diagnostics_tests tests/DiagnosticsTests.cpp)
+    qt_add_executable(trainer_game_preparation_tests tests/GamePreparationTests.cpp)
+    target_link_libraries(trainer_game_preparation_tests PRIVATE trainer_core Qt6::Test)
+    add_test(NAME game_preparation COMMAND trainer_game_preparation_tests)
     qt_add_executable(trainer_input_profile_tests tests/InputProfileTests.cpp)
     target_link_libraries(trainer_input_profile_tests PRIVATE trainer_core Qt6::Test)
     add_test(NAME input_profiles COMMAND trainer_input_profile_tests)

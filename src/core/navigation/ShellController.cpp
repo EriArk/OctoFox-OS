@@ -36,7 +36,7 @@ void ShellController::prepareShutdown() {
             &trainer_, &trainerSetup_, &worlds_, &multiverse_, &hall_,
             &libraryManager_, &libraryTools_, &scraper_, &apps_, &crates_, &files_,
             &pcGames_, &gamePerformance_, &browser_, &powerControl_, &downloads_,
-            &settings_, &controls_, &device_, &network_, &diagnostics_, &social_,
+            &settings_, &controls_, &device_, &network_, &diagnostics_, &gamePreparation_, &social_,
             &backendAccount_, &outfits_, &visitorProfile_, &dashboard_, &album_};
     for(auto* source:sources)detach(source);
     for(auto& module:modules_)detach(module.get());
@@ -369,6 +369,17 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&settings_, &SettingsController::controllerRequested, this, [this] { service_ = "diagnostics"; diagnostics_.begin(); emit changed(); });
     diagnostics_.configureLibrary(&repo,&adapter);
     diagnostics_.canCheck=[this]{return liveGame_.isEmpty()&&!scraper_.busy()&&!navigationLocked();};
+    connect(&gamePreparation_,&GamePreparationController::changed,this,&ShellController::changed);
+    connect(&gamePreparation_,&GamePreparationController::tasksChanged,this,[this]{downloads_.publish("game-preparation",gamePreparation_.tasks());});
+    connect(&downloads_,&DownloadsController::commandRequested,this,[this](QString provider,QString,QString action){if(provider=="game-preparation"&&(action=="cancel"||action=="cancel-all"))gamePreparation_.cancel();});
+    const auto preparation=[this]{service_="game-preparation";gamePreparation_.begin();emit changed();};
+    connect(&settings_,&SettingsController::gamePreparationRequested,this,preparation);
+    connect(&diagnostics_,&DiagnosticsController::preparationRequested,this,preparation);
+    connect(&gamePreparation_,&GamePreparationController::closeRequested,this,[this]{service_="settings";emit changed();});
+    connect(&gamePreparation_,&GamePreparationController::onlineSettingsRequested,this,[this]{service_="settings";settings_.selectPage("online-services",true);emit changed();});
+    connect(&gamePreparation_,&GamePreparationController::platformSelected,&settings_,&SettingsController::selectOnlinePlatform);
+    connect(&gamePreparation_,&GamePreparationController::onlineActionRequested,&settings_,&SettingsController::onlineAction);
+    connect(&settings_,&SettingsController::onlineServicesChanged,&gamePreparation_,&GamePreparationController::refresh);
     connect(&settings_,&SettingsController::onlineGuideRequested,this,[this](QString url){QDesktopServices::openUrl(QUrl(url));});
     connect(&settings_,&SettingsController::healthRequested,this,[this]{service_="diagnostics";diagnostics_.beginHealth();emit changed();});
     connect(&diagnostics_,&DiagnosticsController::reportsRequested,this,[this](const QString& path){service_.clear();goToPage(AppsPage);selectFace(2);files_.navigate(QUrl::fromLocalFile(path).toString());emit changed();});
@@ -504,6 +515,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     syncExperience();
 }
 void ShellController::configureServices(FileCatalog* files, PreferencesRepository* preferences) {
+    gamePreparation_.picker()->setCatalog(files);
     downloads_.picker()->setCatalog(files);
     pcGames_.setCatalog(files);
     libraryTools_.setCatalog(files);
@@ -972,6 +984,7 @@ int ShellController::focusIndex() const {
     if (service_ == "settings") return hall_.account()->isOpen() ? hall_.account()->focusIndex() : trainer_.editing() ? trainer_.focusIndex() : settings_.focusIndex();
     if (service_ == "device") return device_.focusIndex();
     if (service_ == "diagnostics") return diagnostics_.focusIndex();
+    if (service_ == "game-preparation") return gamePreparation_.focusIndex();
     if (trainer_.editing()) return trainer_.focusIndex();
     if (page_ == 1 && collectionsRoot_) return collectionFocus_;
     if (page_ == 1) return multiverseFace_ ? multiverse_.focusIndex() : worlds_.focusIndex();
@@ -1556,6 +1569,7 @@ void ShellController::activate(int index, const QString& area) {
     else if (service_ == "settings") { if(hall_.account()->isOpen()) { hall_.account()->activate(index); return; } if(trainer_.editing()) { trainer_.activate(index); return; } if(settings_.controlsFocused()) {if(settings_.category()==10)network_.activate(index);else settings_.activateRow(index);} else {settings_.selectSection(index);settings_.dispatch(Action::Confirm);} return; }
     else if (service_ == "device") { device_.activate(index); return; }
     else if (service_ == "diagnostics") { diagnostics_.activate(index); return; }
+    else if (service_ == "game-preparation") { gamePreparation_.activate(index); return; }
     else if (trainer_.editing()) { trainer_.activate(index); return; }
     else if(page_==0 && area.startsWith("experience-home:") && activeModule_) {
         activeModule_->activateHome(index,area.mid(16));return;
@@ -1852,10 +1866,9 @@ void ShellController::activateProfile(int index) {
         emit changed();return;
     }
     if(profileRoute_!="summary")return;
-    if(index<0 || index>13)return;
+    if(index<0 || index>13 || index==12)return;
     profileFocus_=index;
-    if(index==12){profileRoute_="visitor";profileFocus_=3;visitorProfile_.open({},backendAccount_.snapshot()["player_id"].toString(),true);}
-    else if(index==13){profileRoute_="privacy";profileFocus_=0;visitorProfile_.loadSharing();}
+    if(index==13){profileRoute_="privacy";profileFocus_=0;visitorProfile_.loadSharing();}
     else if(index==11){profileRoute_="prizes";profileFocus_=0;backendAccount_.refreshPrizes();}
     else if(index==10){profileRoute_="support";profileFocus_=0;backendAccount_.refreshProgression(false);backendAccount_.refreshSupport();}
     else if(index==9){profileRoute_="shop";profileFocus_=1;backendAccount_.refreshShop();}
@@ -1889,7 +1902,7 @@ void ShellController::dispatchProfile(Action action) {
     if(trainer_.editing()){trainer_.dispatch(action,true);return;}
     if(profileRoute_=="visitor"||profileRoute_=="privacy") {
         if(action==Action::Back) {
-            if(profileRoute_=="privacy"||visitorProfile_.preview()){profileFocus_=profileRoute_=="privacy"?13:12;profileRoute_="summary";visitorProfile_.close();}
+            if(profileRoute_=="privacy"||visitorProfile_.preview()){profileFocus_=13;profileRoute_="summary";visitorProfile_.close();}
             else closeProfile();
         }else if(action==Action::Confirm)activateProfile(profileFocus_);
         else if(action==Action::Up||action==Action::Down||action==Action::Left||action==Action::Right) {
@@ -1975,9 +1988,9 @@ void ShellController::dispatchProfile(Action action) {
     } else if(action==Action::Back)closeProfile();
     else if(action==Action::Confirm)activateProfile(profileFocus_);
     else if(action==Action::Up || action==Action::Left || action==Action::Down || action==Action::Right) {
-        QList<int> order{0,1,12,13,4,9,10,11,3};
+        QList<int> order{0,13,1,9,4,11,3};
         for(int i=0;i<profileSnapshot_["badges"].toList().size();++i)order.append(7+i);
-        order.append(2);if(!profileSnapshot_["latestSession"].toMap().isEmpty())order.append(6);order.append(5);
+        order.append(2);if(!profileSnapshot_["latestSession"].toMap().isEmpty())order.append(6);order.append(5);order.append(10);
         const int delta=action==Action::Up || action==Action::Left?-1:1;
         profileFocus_=order[std::clamp(int(order.indexOf(profileFocus_))+delta,0,int(order.size())-1)];
     }
@@ -2300,6 +2313,7 @@ void ShellController::dispatch(Action action) {
         if (service_ == "settings") { if(hall_.account()->isOpen()) hall_.account()->dispatch(action); else if(trainer_.editing()) trainer_.dispatch(action,true); else if(settings_.category()==10 && settings_.controlsFocused()) network_.dispatch(action); else settings_.dispatch(action); return; }
         if (service_ == "device") { device_.dispatch(action); return; }
         if (service_ == "diagnostics") { diagnostics_.dispatch(action); return; }
+        if (service_ == "game-preparation") { gamePreparation_.dispatch(action); return; }
         if (trainer_.editing()) { trainer_.dispatch(action); return; }
 
         if(page_==HomePage && (action==Action::Up || action==Action::Down || action==Action::Left || action==Action::Right || action==Action::Back)) {

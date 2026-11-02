@@ -81,3 +81,10 @@ retrieved on 2026-10-06. Its SHA-256 is
 `fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0`.
 The copyright on the license text itself belongs to the Free Software Foundation;
 it is distinct from copyright in TrainerOS.
+
+## Firmware requirement metadata
+
+`data/firmware/firmware.json` is derived from libretro-core-info under MIT.
+The upstream revision and regeneration procedure are in [its README](data/firmware/README.md);
+retain [its MIT notice](data/firmware/LICENSE). This metadata contains names and checksums,
+not BIOS images, firmware, ROMs or console keys.

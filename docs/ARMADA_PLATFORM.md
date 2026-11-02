@@ -2,6 +2,15 @@
 
 ## Handheld delivery build - 2 November 2026
 
+Use a source/build root owned by this workstream. The retained shared builder
+was also used by game-preparation work: a later profile build found mismatched
+generated MOC files. Do not overlay another chat's source or trust its cached
+objects. Preserve its source archive and output, and verify a separate source
+inventory before building. The attempted profile delivery was not installed;
+the owner stopped handheld access before that builder could be reconciled.
+Reconcile the retained builder before its next use; local UI verification does
+not clear it for delivery.
+
 Use an explicit optimized configuration for a binary installed for ordinary use:
 `cmake -S <source> -B <build> -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF`.
 Keep the source and build roots on microSD as below. An empty single-config
