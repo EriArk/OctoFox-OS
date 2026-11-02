@@ -37,6 +37,7 @@ public:
     void createProtectedTrainer(const TrainerProfile&, SecretPin, QObject*, std::function<void(ProfileWriteResult)>);
 
     bool ready() const { return ready_; }
+    bool mediaPending() const { return mediaPending_; }
     bool opening() const { return opening_; }
     int pending() const { return pending_; }
     QList<TrainerProfile> trainers() const { return profiles_; }
@@ -101,6 +102,10 @@ private:
     void accessWrite(std::function<QString(SqliteWorker&)>, std::function<void(QString)>);
     void write(std::function<QString(SqliteWorker&)>, std::function<void(QString)>);
     QThread thread_;
+    QThread* mediaThread_ = nullptr;
+    bool mediaPending_ = false;
+    quint64 mediaGeneration_ = 0;
+    void readMediaAfterOpen();
     quint64 libraryRevision_ = 0;
     SqliteWorker* worker_;
     QString directory_, scope_, error_, ownerId_, accountOwner_;

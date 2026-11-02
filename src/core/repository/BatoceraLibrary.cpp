@@ -14,6 +14,8 @@
 #include <QDomDocument>
 #include <QLockFile>
 #include <QSaveFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <memory>
 #include <algorithm>
 
@@ -192,7 +194,7 @@ Metadata readGamelist(const QString& directory,QStringList& warnings,bool& reada
 }
 }
 QStringList batoceraPlatforms() { return formats().keys(); }
-FolderScan scanBatoceraLibrary(const QString& roms,const QList<AdventureRegistration>& existing,const ExperienceIdentityProbe& probe) {
+FolderScan scanBatoceraLibrary(const QString& roms,const QList<AdventureRegistration>& existing,const ExperienceIdentityProbe& probe,const LibraryScanProgress& progress) {
     FolderScan result;QDir root(roms);
     if(!root.exists() || !QFileInfo(roms).isReadable()) {result.complete=false;result.warnings.append("The ROM folder is unavailable.");return result;}
     root=QDir(root.canonicalPath());
@@ -206,6 +208,7 @@ FolderScan scanBatoceraLibrary(const QString& roms,const QList<AdventureRegistra
         if(!supported && std::none_of(known.cbegin(),known.cend(),[&](const auto& record){
             return key(record.contentPath).startsWith(folderPath+'/');
         }))continue;
+        if(progress)progress(platform,result.entries.size());
         if(!folder.isReadable()){result.complete=false;result.warnings.append(folder.fileName()+": folder unavailable");continue;}
         bool metadataReadable=true;
         const auto metadata=readGamelist(folder.absoluteFilePath(),result.warnings,metadataReadable);
@@ -345,9 +348,29 @@ FolderScan scanBatoceraLibrary(const QString& roms,const QList<AdventureRegistra
     return result;
 }
 BatoceraLibrary::BatoceraLibrary(LibraryRepository& library,QString roms,QObject* parent)
-    :QObject(parent),library_(library),roms_(std::move(roms)) {
-    deferredScan_.setSingleShot(true);
-    connect(&deferredScan_,&QTimer::timeout,this,&BatoceraLibrary::rescan);
+    :QObject(parent),library_(library),roms_(std::move(roms)) {}
+QString BatoceraLibrary::snapshotPath() const {
+    return snapshotDirectory_.isEmpty()?QString():snapshotDirectory_+"/library-catalogue-"+
+        QString::fromLatin1(QCryptographicHash::hash(QDir::cleanPath(roms_).toUtf8(),QCryptographicHash::Sha256).toHex())+".json";
+}
+void BatoceraLibrary::restoreSnapshot(const QString& directory) {
+    if(busy_)return;
+    snapshotDirectory_=directory;busy_=true;scanStatus_="Loading saved catalogue";emit busyChanged();
+    auto result=std::make_shared<QVariantMap>();
+    thread_=QThread::create([result,path=snapshotPath(),root=roms_] {
+        QFile file(path);if(file.size()>32*1024*1024||!file.open(QIODevice::ReadOnly))return;
+        const auto value=QJsonDocument::fromJson(file.readAll()).object();
+        if(value["version"].toInt()==1&&value["root"].toString()==root)*result=value["entries"].toObject().toVariantMap();
+    });
+    connect(thread_,&QThread::finished,this,[this,result] {
+        thread_->wait();delete thread_;thread_=nullptr;
+        media_.clear();
+        for(const auto& r:library_.registrations()) {
+            const auto cached=result->value(r.adventure.id).toMap();
+            if(cached["path"]==r.contentPath)media_.insert(r.adventure.id,cached["media"].toMap());
+        }
+        ++revision_;busy_=false;scanStatus_.clear();emit busyChanged();emit changed();emit snapshotRestored();
+    });thread_->start();
 }
 std::optional<quint64> BatoceraLibrary::libraryRevision() const {
     const auto base=library_.libraryRevision();
@@ -401,18 +424,32 @@ void BatoceraLibrary::setFavoriteAsync(const QString& id,bool favorite,QObject* 
         if(formats().contains(romPlatformId(entry.fileName())) && !root.isEmpty() && path.startsWith(root+'/')){systemRoot=root;break;}
     }
     if(systemRoot.isEmpty()){done("Reconnect this game's library storage before changing favorites.");return;}
-    deferredScan_.stop();busy_=true;writing_=true;emit busyChanged();emit writingChanged();
+    busy_=true;writing_=true;emit busyChanged();emit writingChanged();
     auto result=std::make_shared<QString>();
-    thread_=QThread::create([result,systemRoot,path,favorite]{*result=writeFavorite(systemRoot,path,favorite);});
-    connect(thread_,&QThread::finished,this,[this,result,id,path,favorite,guard=QPointer<QObject>(context),done=std::move(done)] {
+    auto cacheError=std::make_shared<QString>();
+    thread_=QThread::create([result,cacheError,systemRoot,path,favorite,id,cachePath=snapshotPath()]{
+        *result=writeFavorite(systemRoot,path,favorite);
+        if(!result->isEmpty()||cachePath.isEmpty())return;
+        QFile input(cachePath);
+        if(!input.exists())return; // The first explicit scan will create the snapshot.
+        if(!input.open(QIODevice::ReadOnly)){*cacheError="Favorite saved, but the saved catalogue could not be updated.";return;}
+        auto value=QJsonDocument::fromJson(input.readAll()).object();input.close();
+        auto entries=value["entries"].toObject();auto entry=entries[id].toObject();
+        if(entry.isEmpty())return;
+        auto media=entry["media"].toObject();media["favorite"]=favorite;
+        entry["media"]=media;entries[id]=entry;value["entries"]=entries;
+        const auto bytes=QJsonDocument(value).toJson(QJsonDocument::Compact);QSaveFile output(cachePath);
+        if(!output.open(QIODevice::WriteOnly)||output.write(bytes)!=bytes.size()||!output.commit())
+            *cacheError="Favorite saved, but the saved catalogue could not be updated.";
+    });
+    connect(thread_,&QThread::finished,this,[this,result,cacheError,id,path,favorite,guard=QPointer<QObject>(context),done=std::move(done)] {
         thread_->wait();delete thread_;thread_=nullptr;
         const auto current=library_.registration(id);
         if(result->isEmpty() && current && !current->removed && QFileInfo(current->contentPath).canonicalFilePath()==path)
             {media_[id]["favorite"]=favorite;++revision_;}
         busy_=false;writing_=false;emit busyChanged();emit writingChanged();
         if(result->isEmpty())emit changed();
-        if(guard)done(*result);
-        if(rescanPending_)rescan();
+        if(guard)done(result->isEmpty()?*cacheError:*result);
     });
     thread_->start();
 }
@@ -440,7 +477,7 @@ void BatoceraLibrary::editLibraryAsync(const LibraryEdit& edit,QObject* context,
         const auto error=prepareFileMove(*record,request);
         if(!error.isEmpty()){done(error);return;}
     }
-    deferredScan_.stop();busy_=true;writing_=true;emit busyChanged();emit writingChanged();
+    busy_=true;writing_=true;emit busyChanged();emit writingChanged();
     library_.editLibraryAsync(request,this,[this,guard=QPointer<QObject>(context),done=std::move(done)](const QString& error){
         busy_=false;writing_=false;emit busyChanged();emit writingChanged();
         if(guard)done(error);
@@ -448,27 +485,21 @@ void BatoceraLibrary::editLibraryAsync(const LibraryEdit& edit,QObject* context,
     });
 }
 void BatoceraLibrary::refreshContentAvailability() {
-    PerformanceTrace::Scope perf("BatoceraLibrary.refreshContentAvailability");
-    if(!library_.editable())return;
-    if(busy_){rescanPending_=true;return;}
-    // Page/focus changes may request repeatedly. Keep navigation independent of
-    // storage work, while still observing files copied during the current run.
-    if(lastScan_.isValid() && lastScan_.elapsed()<10000) {
-        if(!deferredScan_.isActive())deferredScan_.start(int(10000-lastScan_.elapsed()));
-        return;
-    }
-    rescan();
+    // Browsing consumes the last catalogue. Only an explicit rescan discovers
+    // external filesystem changes; navigation never schedules a delayed pass.
 }
 void BatoceraLibrary::rescan() {
-    if(!library_.editable())return;
-    if(busy_){rescanPending_=true;return;}
-    rescanPending_=false;
-    deferredScan_.stop();lastScan_.start();
+    if(!library_.editable()||busy_)return;
+    lastScan_.start();
     library_.refreshContentAvailability();
     const auto existing=library_.registrations();
-    busy_=true;emit busyChanged();
+    busy_=true;scanStatus_="Scanning library";emit busyChanged();
     auto result=std::make_shared<FolderScan>();
-    thread_=QThread::create([result,root=roms_,existing,probe=observeIdentity]{*result=scanBatoceraLibrary(root,existing,probe);});
+    thread_=QThread::create([this,result,root=roms_,existing,probe=observeIdentity]{
+        *result=scanBatoceraLibrary(root,existing,probe,[this](const QString& platform,int count){
+            QMetaObject::invokeMethod(this,[this,platform,count]{scanStatus_=QString("Scanning %1 · %2 games found").arg(platform).arg(count);emit scanProgress();},Qt::QueuedConnection);
+        });
+    });
     connect(thread_,&QThread::finished,this,[this,result] {
         thread_->wait();delete thread_;thread_=nullptr;
         scan_=std::move(*result);index_=0;added_=0;
@@ -477,7 +508,10 @@ void BatoceraLibrary::rescan() {
     thread_->start();
 }
 void BatoceraLibrary::importNext() {
+    QElapsedTimer slice;slice.start();
     while(index_<scan_.entries.size()) {
+        if(slice.elapsed()>=4) {QTimer::singleShot(0,this,&BatoceraLibrary::importNext);return;}
+        if(index_%32==0){scanStatus_=QString("Updating catalogue · %1 / %2").arg(index_).arg(scan_.entries.size());emit scanProgress();}
         auto entry=scan_.entries[index_++];auto r=entry.record;
         // Recheck after asynchronous discovery: do not replace edits or bindings.
         const auto current=library_.registration(r.adventure.id);
@@ -535,14 +569,25 @@ void BatoceraLibrary::importNext() {
     const bool mediaChanged=media_!=nextMedia_;
     media_=std::move(nextMedia_);
     if(mediaChanged)++revision_;
-    if(writing_) {writing_=false;emit writingChanged();}
-    busy_=false;emit busyChanged();
     if(mediaChanged || added_)emit changed();
-    emit scanFinished(added_,scan_.warnings);
-    scan_={};
-    if(rescanPending_) {
-        rescanPending_=false;
-        deferredScan_.start(int(std::max<qint64>(0,10000-lastScan_.elapsed())));
-    }
+    if(snapshotPath().isEmpty()){finishScan();return;}
+    QVariantMap entries;
+    for(const auto& r:library_.registrations())if(media_.contains(r.adventure.id))
+        entries.insert(r.adventure.id,QVariantMap{{"path",r.contentPath},{"media",media_.value(r.adventure.id)}});
+    const auto value=QJsonObject{{"version",1},{"root",roms_},{"entries",QJsonObject::fromVariantMap(entries)}};
+    auto error=std::make_shared<QString>();
+    thread_=QThread::create([error,value,path=snapshotPath()]{
+        QSaveFile file(path);QDir().mkpath(QFileInfo(path).absolutePath());
+        const auto bytes=QJsonDocument(value).toJson(QJsonDocument::Compact);
+        if(!file.open(QIODevice::WriteOnly)||file.write(bytes)!=bytes.size()||!file.commit())*error="Could not save the catalogue. Scan again after restarting.";
+    });
+    connect(thread_,&QThread::finished,this,[this,error]{thread_->wait();delete thread_;thread_=nullptr;if(!error->isEmpty())scan_.warnings.append(*error);finishScan();});
+    thread_->start();
+}
+void BatoceraLibrary::finishScan() {
+    if(writing_) {writing_=false;emit writingChanged();}
+    busy_=false;scanStatus_.clear();emit busyChanged();
+    PerformanceTrace::sample("library.scan",lastScan_.elapsed());
+    emit scanFinished(added_,scan_.warnings);scan_={};
 }
 }

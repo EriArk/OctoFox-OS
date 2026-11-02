@@ -20,7 +20,8 @@ struct FolderScan {
 // Read-only filesystem discovery. Reads optional bounded adapter identity probes; does not execute XML commands,
 // modify gamelists or use external play counts as Trainer history.
 using ExperienceIdentityProbe = std::function<QVariantMap(const QString&,const QString&)>;
-FolderScan scanBatoceraLibrary(const QString& roms, const QList<AdventureRegistration>& existing, const ExperienceIdentityProbe& probe = {});
+using LibraryScanProgress = std::function<void(const QString&,int)>;
+FolderScan scanBatoceraLibrary(const QString& roms, const QList<AdventureRegistration>& existing, const ExperienceIdentityProbe& probe = {}, const LibraryScanProgress& progress = {});
 QStringList batoceraPlatforms();
 
 class BatoceraLibrary final : public QObject, public LibraryRepository {
@@ -53,6 +54,8 @@ public:
     void setDisplayPreferences(const QJsonObject& preferences) {if(display_==preferences)return;display_=preferences;++revision_;emit changed();}
     void refreshContentAvailability() override;
     void rescan();
+    void restoreSnapshot(const QString& directory);
+    QString scanStatus() const { return scanStatus_; }
     bool setRoot(const QString& root) { if(busy_)return false; roms_=root;media_.clear();++revision_;lastScan_.invalidate();return true; }
     bool busy() const { return busy_; }
     QString root() const { return roms_; }
@@ -65,16 +68,19 @@ signals:
     void busyChanged();
     void writingChanged();
     void scanFinished(int added, const QStringList& warnings);
+    void snapshotRestored();
+    void scanProgress();
 private:
     void importNext();
+    void finishScan();
+    QString snapshotPath() const;
     LibraryRepository& library_;
     QString roms_;
     QThread* thread_ = nullptr;
     bool busy_ = false;
     bool writing_ = false;
-    bool rescanPending_ = false;
     QElapsedTimer lastScan_;
-    QTimer deferredScan_;
+    QString snapshotDirectory_, scanStatus_;
     FolderScan scan_;
     int index_ = 0, added_ = 0;
     QHash<QString,QVariantMap> media_;

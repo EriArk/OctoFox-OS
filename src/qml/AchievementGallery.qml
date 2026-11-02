@@ -22,7 +22,7 @@ Item {
             }
             Text {
                 x: 34; y: 0; width: parent.width-256; height: 32
-                text: root.summary.title || root.shell.home.adventure || "Your achievements"
+                text: root.summary.title || (root.visible ? root.shell.home.adventure : "") || "Your achievements"
                 textFormat: Text.PlainText; elide: Text.ElideRight
                 font.family: Theme.displayFamily; font.pixelSize: 25; color: Theme.ink
             }

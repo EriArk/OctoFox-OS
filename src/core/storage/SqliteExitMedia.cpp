@@ -8,6 +8,7 @@
 #include <QImageReader>
 #include <QJsonDocument>
 #include <QSqlQuery>
+#include <QThread>
 
 namespace trainer {
 namespace {
@@ -54,6 +55,7 @@ QString contentHash(const QString& path, qint64 size, qint64 modified) {
     }
     qint64 read = 0;
     while (!file.atEnd() && read <= MaximumContent) {
+        if(QThread::currentThread()->isInterruptionRequested())return {};
         const auto bytes = file.read(256 * 1024);
         if (bytes.isEmpty()) return {};
         digest.addData(bytes); read += bytes.size();
@@ -98,24 +100,36 @@ QString writeExitMedia(QSqlDatabase& db, const PlaySession& session, const Prepa
     const auto error=appendScreen(db,media,source.registration.adventure.title);
     return error.isEmpty()?pruneScreens(db,source.trainerId):error;
 }
-QList<ExitMedia> readExitMedia(QSqlDatabase& db, const QString& owner) {
+QList<ExitMedia> readExitMedia(QSqlDatabase& db, const QString& owner,const QSet<QString>* verifiedSessions) {
     QList<ExitMedia> result;
     QSqlQuery q(db);
     // Exact owner and registration gates also apply after restart. Media is
     // optional: damage never prevents the library/history from opening.
     q.prepare("SELECT m.session_id,m.trainer_id,m.domain,m.adventure_id,m.registration_revision,m.build_sha256,m.captured_at,m.jpeg,m.image_sha256,m.content_path,m.content_size,m.content_modified,m.width,m.height,a.adapter_id FROM exit_media m JOIN trainer_profile p ON p.id=m.trainer_id JOIN adventures a ON a.id=m.adventure_id AND a.revision=m.registration_revision AND a.content_path=m.content_path JOIN play_sessions s ON s.id=m.session_id AND s.adventure_id=m.adventure_id AND s.outcome='returned' AND s.trainer_id=m.trainer_id WHERE m.trainer_id=? AND length(m.jpeg) BETWEEN 1 AND 524288 ORDER BY s.rowid DESC LIMIT 100"); q.addBindValue(owner);
     if (!q.exec()) return result;
+    // Release the SQL read lock before touching ROMs. A slow card must not
+    // serialize ordinary profile/settings writes behind picture validation.
+    QList<QVariantList> rows; qint64 loaded=0;
+    while(q.next()) {
+        if(loaded+q.value(7).toByteArray().size()>16*1024*1024)break;
+        QVariantList row;for(int i=0;i<15;++i)row.append(q.value(i));loaded+=row[7].toByteArray().size();rows.append(row);
+    }
+    q.finish();
     qint64 budget = 16 * 1024 * 1024;
     qint64 contentBudget = 256 * 1024 * 1024;
-    while (q.next()) {
+    for(const auto& q:rows) {
+        if(QThread::currentThread()->isInterruptionRequested())break;
+        if(verifiedSessions&&!verifiedSessions->contains(q.value(0).toString()))continue;
         const auto bytes = q.value(7).toByteArray();
         if (bytes.size() > budget || hash(bytes) != q.value(8).toString()) continue;
+        if(!verifiedSessions) {
         const QFileInfo content(q.value(9).toString());
         const bool steam=q.value(14).toString()=="steam";
         if (!content.isFile() || (!steam && (content.size() != q.value(10).toLongLong() || content.lastModified().toMSecsSinceEpoch() != q.value(11).toLongLong()))) continue;
         if (content.size() <= 0 || hashCost(content.size()) > contentBudget) continue;
         contentBudget -= hashCost(content.size());
         if ((steam ? steamMediaIdentity(content.filePath()) : contentHash(content.filePath(), content.size(), content.lastModified().toMSecsSinceEpoch())) != q.value(5).toString()) continue;
+        }
         QBuffer buffer; buffer.setData(bytes); buffer.open(QIODevice::ReadOnly);
         QImageReader reader(&buffer, "JPEG");
         const QSize expected(q.value(12).toInt(), q.value(13).toInt());

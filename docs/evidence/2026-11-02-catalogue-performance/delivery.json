@@ -1,0 +1,28 @@
+{
+  "flip": {
+    "sha256": "2a8beeef2c03597b9287554473dd52a1286512c08638c076c92184dfcf7a2247",
+    "previous": "9ecce7a554a6f3b34211e4fb52ba9456fb1fd3e662c096e069905236a353e926",
+    "database_checks": 1,
+    "existing_rows_preserved": true,
+    "avatar_pack_preserved": true,
+    "settings_unchanged": true,
+    "volume": "Volume: 0.20",
+    "integration_helpers_preserved": true,
+    "home_observed": true,
+    "qml_errors": 0,
+    "startup_scan_finishes": 1
+  },
+  "odin": {
+    "sha256": "2a8beeef2c03597b9287554473dd52a1286512c08638c076c92184dfcf7a2247",
+    "previous": "9ecce7a554a6f3b34211e4fb52ba9456fb1fd3e662c096e069905236a353e926",
+    "database_checks": 1,
+    "existing_rows_preserved": true,
+    "avatar_pack_preserved": true,
+    "settings_unchanged": true,
+    "volume": "Volume: 0.00",
+    "integration_helpers_preserved": true,
+    "home_observed": true,
+    "qml_errors": 0,
+    "startup_scan_finishes": 1
+  }
+}

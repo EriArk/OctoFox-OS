@@ -96,7 +96,7 @@ LibrarySnapshot readLibrary(QSqlDatabase& db, const QString& owner) {
     const auto fail = [&] { result.error = "Your library couldn't be read. The existing data has been kept."; return result; };
     if (!q.exec("SELECT id,name FROM worlds ORDER BY sort_order,id")) return fail();
     while (q.next()) result.worlds.append({q.value(0).toString(), q.value(1).toString(), {}});
-    if (!q.exec("SELECT id,world_id,title,kind,description,content_path,adapter_id,config,revision,platform_id,catalogue_id,variant,domain FROM adventures ORDER BY title COLLATE NOCASE,id")) return fail();
+    if (!q.exec("SELECT id,world_id,title,kind,description,content_path,adapter_id,config,revision,platform_id,catalogue_id,variant,domain,content_available FROM adventures ORDER BY title COLLATE NOCASE,id")) return fail();
     while (q.next()) {
         AdventureRegistration record;
         record.adventure.id = q.value(0).toString(); record.adventure.worldId = q.value(1).toString();
@@ -110,8 +110,9 @@ LibrarySnapshot readLibrary(QSqlDatabase& db, const QString& owner) {
         record.adventure.platformId = q.value(9).toString(); record.adventure.catalogueId = q.value(10).toString();
         record.adventure.variant = q.value(11).toString();
         record.adventure.domain = q.value(12).toString();
-        const QFileInfo content(record.contentPath);
-        record.contentAvailable = content.isFile() && content.isReadable();
+        // Last explicit scan/import; launch still validates the selected file.
+        // Opening a profile never stats every removable/network library path.
+        record.contentAvailable = q.value(13).toBool();
         if(record.adventure.adapterId=="steam")record.contentAvailable=record.contentAvailable&&record.integrationConfig["available"].toBool();
         result.registrations.append(record);
     }
@@ -173,7 +174,7 @@ LibraryWriteResult writeAdventure(QSqlDatabase& db, const AdventureRegistration&
         if (error.isEmpty()) {
             q.prepare(record.revision == 0
                 ? "INSERT INTO adventures(world_id,title,kind,description,content_path,adapter_id,config,revision,platform_id,catalogue_id,variant,domain,id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"
-                : "UPDATE adventures SET world_id=?,title=?,kind=?,description=?,content_path=?,adapter_id=?,config=?,revision=?,platform_id=?,catalogue_id=?,variant=?,domain=? WHERE id=?");
+                : "UPDATE adventures SET world_id=?,title=?,kind=?,description=?,content_path=?,adapter_id=?,config=?,revision=?,platform_id=?,catalogue_id=?,variant=?,domain=?,content_available=1 WHERE id=?");
             q.addBindValue(a.domain == "multiverse" ? QVariant() : QVariant(a.worldId)); q.addBindValue(a.title.trimmed()); q.addBindValue(int(a.kind));
             q.addBindValue(a.description.isNull() ? QString("") : a.description.trimmed());
             q.addBindValue(record.contentPath); q.addBindValue(a.adapterId);

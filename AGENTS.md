@@ -19,6 +19,15 @@ restart. Preserve its identity and clearly stale presentation of name/progress/
 balance; offline cache does not authorize purchases, grants or server writes.
 Only explicit sign-out/account change clears that profile, not network loss.
 
+**Owner interface performance, 2 November:** ROM discovery is one pass at
+startup when enabled, or an explicit Settings action. The requirement is
+single-pass behavior, not merely a visible progress label. Do not schedule
+another ROM walk on page/focus changes, Recent or an idle timer. Reuse the
+persisted catalogue between sessions; selected-content launch/save checks stay
+authoritative. Use Flip for routine verification; Odin's problematic microSD
+is not the default stress-test/build device. See
+[the performance pass](docs/evidence/2026-11-02-catalogue-performance/README.md).
+
 **Owner support-provider decision, 29 October (latest):** Patreon is the only
 support provider. Remove Ko-fi from active requirements and draft contracts;
 it is cancelled scope, not unfinished work. Keep historical delivery records

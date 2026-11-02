@@ -60,7 +60,7 @@ private slots:
         manifest("123","0");const auto original=steamMediaIdentity(path);QVERIFY(!original.isEmpty());
         const auto now=QDateTime::currentDateTimeUtc();
         {
-            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());profile(store);
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());profile(store);
             AdventureRegistration r;r.adventure.id="steam:42";r.adventure.title="Steam fixture";
             r.adventure.domain="multiverse";r.adventure.platformId="steam";r.adventure.adapterId="steam";r.contentPath=path;
             r.integrationConfig={{"appId","42"},{"available",true}};
@@ -75,12 +75,12 @@ private slots:
             QVERIFY(store.exitMedia("steam:42"));
         }
         {
-            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());
             QVERIFY(store.exitMedia("steam:42"));QVERIFY(!store.exitImage("steam-clean").isNull());
         }
         manifest("124","1760000000");QVERIFY(steamMediaIdentity(path)!=original);
         {
-            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QVERIFY(!store.exitMedia("steam:42"));
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());QVERIFY(!store.exitMedia("steam:42"));
             QCOMPARE(store.recentSessions().first().outcome,PlaySessionOutcome::Returned);
         }
         {QFile f(path);QVERIFY(f.open(QIODevice::WriteOnly|QIODevice::Append));f.write("truncated");}
@@ -91,7 +91,7 @@ private slots:
     void cleanExitsAccumulateWhileHomeKeepsLatestAndStarsSurviveGameRemoval() {
         QTemporaryDir dir;const auto content=this->content(dir);const auto now=QDateTime::currentDateTimeUtc();
         {
-            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());profile(store);addAdventure(store,content);
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());profile(store);addAdventure(store,content);
             ExitMediaSource source{"owner","pokemon",*store.registration("journey")};
             QImage image(160,144,QImage::Format_RGB32);image.fill(Qt::darkGreen);
             for(int i=0;i<3;++i) {
@@ -104,7 +104,7 @@ private slots:
             QVERIFY(!store.screenImage("owner/photo-0").isNull());QVERIFY(store.screenImage("another/photo-0").isNull());
         }
         QVERIFY(QFile::remove(content));
-        LocalStateStore reopened(dir.path());reopened.open();QTRY_VERIFY(reopened.ready());
+        LocalStateStore reopened(dir.path());reopened.open();QTRY_VERIFY(reopened.ready());QTRY_VERIFY(!reopened.mediaPending());
         QCOMPARE(reopened.screenMedia()->size(),3);QVERIFY(!reopened.screenImage("owner/photo-0").isNull());
         QVERIFY(!reopened.exitMedia("journey")); // Home's build-validation gate is unchanged.
         for(const auto& row:*reopened.screenMedia())if(row.toMap()["id"]=="photo-0")QVERIFY(row.toMap()["favorite"].toBool());
@@ -164,7 +164,7 @@ private slots:
         QSqlDatabase::removeDatabase(connection);
     }
     void remoteClientWithoutLocalAdventureDoesNotWriteLocalProgress() {
-        QTemporaryDir dir;LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());profile(store);
+        QTemporaryDir dir;LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());profile(store);
         ProcessService process;AdventureLaunchController launch(process);PlayHistoryController history(launch,store);
         QSignalSpy failed(&history,&PlayHistoryController::writeFailed),started(&launch,&AdventureLaunchController::adventureStarted);
         connect(&launch,&AdventureLaunchController::checkpointRequested,this,[&](quint64 token,const QJsonObject&){launch.checkpointCompleted(token,{});});
@@ -240,7 +240,7 @@ private slots:
         QVERIFY(file.resize(2LL*1024*1024*1024)); file.close();
         const auto now=QDateTime::currentDateTimeUtc(); QImage frame(64,36,QImage::Format_RGB32); frame.fill(Qt::green);
         {
-            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());profile(store);addAdventure(store,path);
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());profile(store);addAdventure(store,path);
             ExitMediaSource source{"owner","pokemon",*store.registration("journey")};
             PlaySession value{"large-exit","journey",now,{},{},PlaySessionOutcome::Running};
             QVERIFY(saveMedia(store,value,source).isEmpty());
@@ -248,17 +248,17 @@ private slots:
             QVERIFY(saveMedia(store,value,source,ExitCapture{frame,now}).isEmpty());
             QVERIFY(store.exitMedia("journey")); QVERIFY(store.exitMedia("journey")->buildSha256.startsWith("sample-v1:"));
         }
-        { LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QVERIFY(store.exitMedia("journey")); }
+        { LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());QVERIFY(store.exitMedia("journey")); }
         QVERIFY(file.open(QIODevice::ReadWrite)); const auto modified=QFileInfo(file).lastModified();
         QVERIFY(file.seek(file.size()/2));QCOMPARE(file.write("changed"),qint64(7));QVERIFY(file.flush());
         QVERIFY(file.setFileTime(modified,QFileDevice::FileModificationTime));file.close();
-        LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QVERIFY(!store.exitMedia("journey"));
+        LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());QVERIFY(!store.exitMedia("journey"));
     }
     void multiverseExitMediaKeepsItsDomainAcrossRestart() {
         QTemporaryDir dir;const auto path=content(dir);const auto now=QDateTime::currentDateTimeUtc();
         QImage frame(64,36,QImage::Format_RGB32);frame.fill(Qt::blue);
         {
-            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());profile(store);
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());profile(store);
             AdventureRegistration r;r.adventure.id="general";r.adventure.title="General fixture";
             r.adventure.domain="multiverse";r.adventure.platformId="gba";r.adventure.adapterId="unconfigured";r.contentPath=path;
             bool done=false;store.saveAdventureAsync(r,this,[&](auto result){QVERIFY(result.success);done=true;});QTRY_VERIFY(done);
@@ -270,7 +270,7 @@ private slots:
             QVERIFY(store.exitMedia("general"));QCOMPARE(store.exitMedia("general")->domain,"multiverse");
             QVERIFY(store.home().activeAdventureId.isEmpty());
         }
-        LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());
+        LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());
         QVERIFY(store.exitMedia("general"));QCOMPARE(store.exitMedia("general")->domain,"multiverse");
         QVERIFY(!store.exitImage("general-exit").isNull());QVERIFY(store.home().activeAdventureId.isEmpty());
     }
@@ -299,7 +299,7 @@ private slots:
         QImage frame(64, 36, QImage::Format_RGB32); frame.fill(qRgb(20, 110, 80));
         const auto now = QDateTime::currentDateTimeUtc();
         {
-            LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());
+            LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());
             addAdventure(store, path); profile(store);
             ExitMediaSource source{"owner", "pokemon", *store.registration("journey")};
             PlaySession value{"clean", "journey", now, {}, {}, PlaySessionOutcome::Running};
@@ -324,7 +324,7 @@ private slots:
             QCOMPARE(store.exitMedia("journey")->sessionId, "clean");
         }
         {
-            LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());
+            LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());
             QVERIFY(store.exitMedia("journey")); QCOMPARE(store.exitMedia("journey")->sessionId, "clean");
             QVERIFY(!store.exitImage("clean").isNull());
             auto record = *store.registration("journey"); record.adventure.title = "Changed edition";
@@ -332,12 +332,12 @@ private slots:
             store.saveAdventureAsync(record, this, [&](LibraryWriteResult result) { done = result.success; });
             QTRY_VERIFY(done); QVERIFY(!store.exitMedia("journey")); QVERIFY(store.exitImage("clean").isNull());
         }
-        LocalStateStore reopened(dir.path()); reopened.open(); QTRY_VERIFY(reopened.ready());
+        LocalStateStore reopened(dir.path()); reopened.open(); QTRY_VERIFY(reopened.ready());QTRY_VERIFY(!reopened.mediaPending());
         QVERIFY(!reopened.exitMedia("journey")); QCOMPARE(*reopened.recordedSeconds("journey"), 7);
     }
     void mediaWriteFailureKeepsPriorImageAndCommitsRealReturn() {
         QTemporaryDir dir; const auto path = content(dir);
-        LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready()); addAdventure(store, path); profile(store);
+        LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending()); addAdventure(store, path); profile(store);
         ExitMediaSource source{"owner", "pokemon", *store.registration("journey")};
         const auto now = QDateTime::currentDateTimeUtc();
         QImage frame(16, 16, QImage::Format_RGB32); frame.fill(Qt::green);
@@ -361,7 +361,7 @@ private slots:
     }
     void controllerPublishesOnlyConfirmedCleanProcessExit() {
         QTemporaryDir dir; const auto path = content(dir);
-        LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready()); addAdventure(store, path); profile(store);
+        LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending()); addAdventure(store, path); profile(store);
         ProcessService process; AdventureLaunchController launch(process); PlayHistoryController history(launch, store);
         history.setMediaSource([&](const QString& id) -> std::optional<ExitMediaSource> { return ExitMediaSource{"owner", "pokemon", *store.registration(id)}; });
         connect(&launch, &AdventureLaunchController::checkpointRequested, this, [&](quint64 token, const QJsonObject&) { launch.checkpointCompleted(token, {}); });
@@ -395,7 +395,7 @@ private slots:
         QTemporaryDir dir; const auto path = content(dir);
         const auto now = QDateTime::currentDateTimeUtc();
         {
-            LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready()); addAdventure(store, path); profile(store);
+            LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending()); addAdventure(store, path); profile(store);
             const ExitMediaSource source{"owner", "pokemon", *store.registration("journey")};
             PlaySession value{"clean", "journey", now, {}, {}, PlaySessionOutcome::Running};
             QVERIFY(saveMedia(store, value, source).isEmpty());
@@ -415,7 +415,7 @@ private slots:
             }
             QSqlDatabase::removeDatabase("media-damage");
         }
-        LocalStateStore reopened(dir.path()); reopened.open(); QTRY_VERIFY(reopened.ready());
+        LocalStateStore reopened(dir.path()); reopened.open(); QTRY_VERIFY(reopened.ready());QTRY_VERIFY(!reopened.mediaPending());
         QVERIFY(!reopened.exitMedia("journey")); QCOMPARE(reopened.recentSessions().first().outcome, PlaySessionOutcome::Returned);
         QCOMPARE(*reopened.recordedSeconds("journey"), 1); QVERIFY(reopened.registration("journey"));
     }
@@ -423,7 +423,7 @@ private slots:
         QTemporaryDir dir; const auto path = content(dir);
         const auto time = QDateTime::fromString("2026-09-01T10:00:00.000Z", Qt::ISODateWithMs);
         {
-            LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());
+            LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending());
             addAdventure(store, path); addAdventure(store, path, "other");
             PlaySession first{"first", "journey", time, {}, {}, PlaySessionOutcome::Running};
             QVERIFY(save(store, first).isEmpty()); QVERIFY(!store.recordedSeconds("journey"));
@@ -441,7 +441,7 @@ private slots:
             QVERIFY(save(store, open).isEmpty()); QCOMPARE(store.home().activeAdventureId, "other");
             QVERIFY(!store.home().badges); QVERIFY(!store.home().caught);
         }
-        LocalStateStore reopened(dir.path()); reopened.open(); QTRY_VERIFY(reopened.ready());
+        LocalStateStore reopened(dir.path()); reopened.open(); QTRY_VERIFY(reopened.ready());QTRY_VERIFY(!reopened.mediaPending());
         QCOMPARE(reopened.recentSessions().size(), 2);
         const auto interrupted = reopened.recentSessions().first();
         QCOMPARE(interrupted.id, "open"); QCOMPARE(interrupted.outcome, PlaySessionOutcome::Interrupted);
@@ -451,7 +451,7 @@ private slots:
     }
     void realProcessesRecordOnlyStartedChildren() {
         QTemporaryDir dir; const auto path = content(dir);
-        LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready()); addAdventure(store, path);
+        LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());QTRY_VERIFY(!store.mediaPending()); addAdventure(store, path);
         ProcessService process; AdventureLaunchController launch(process); PlayHistoryController history(launch, store);
         QSignalSpy returned(&launch, &AdventureLaunchController::restoreRequested);
         QSignalSpy failures(&history, &PlayHistoryController::writeFailed);
@@ -495,7 +495,7 @@ private slots:
             db.close();
         }
         QSqlDatabase::removeDatabase("history-migration");
-        LocalStateStore reopened(dir.path()); reopened.open(); QTRY_VERIFY(reopened.ready());
+        LocalStateStore reopened(dir.path()); reopened.open(); QTRY_VERIFY(reopened.ready());QTRY_VERIFY(!reopened.mediaPending());
         QVERIFY(reopened.registration("journey")); QCOMPARE(reopened.registration("journey")->contentPath, path);
         QVERIFY(reopened.recentSessions().isEmpty());
         PlaySession invalid{"bad", "absent", QDateTime::currentDateTimeUtc(), {}, {}, PlaySessionOutcome::Running};

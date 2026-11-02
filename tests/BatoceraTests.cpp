@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <QDomDocument>
 #include <QLockFile>
+#include <QSettings>
 
 using namespace trainer;
 namespace {
@@ -19,6 +20,14 @@ void put(const QString& path,const QByteArray& bytes="Test fixture, not a ROM.")
 class BatoceraTests final : public QObject {
     Q_OBJECT
 private slots:
+    void scanModeIsPersistentAndDoesNotStartAScanWhenToggled() {
+        QSettings prefs;const auto previous=prefs.value("library/scanAtStartup");
+        prefs.setValue("library/scanAtStartup",true);
+        SettingsController settings;QSignalSpy requests(&settings,&SettingsController::libraryRefreshRequested);
+        settings.selectCategory(8);settings.activateRow(4);QVERIFY(!settings.scanLibraryAtStartup());
+        SettingsController reopened;QVERIFY(!reopened.scanLibraryAtStartup());QCOMPARE(requests.size(),0);
+        if(previous.isValid())prefs.setValue("library/scanAtStartup",previous);else prefs.remove("library/scanAtStartup");
+    }
     void favoritesPersistWithoutReplacingMetadataAndRejectUnsafeWrites() {
         QTemporaryDir dir;const auto rom=dir.filePath("gba/nested/First.gba");put(rom);
         const auto xml=dir.filePath("gba/gamelist.xml");
@@ -172,7 +181,7 @@ private slots:
         QVERIFY(folders.artwork(id).value("displayPicture").toString().isEmpty());
         QCOMPARE(store.adventures().first().id,id);
     }
-    void refreshDuringScanRunsOneFollowup() {
+    void refreshDuringScanDoesNotScheduleAnotherPass() {
         QTemporaryDir dir;put(dir.filePath("gba/First.gba"));
         LocalStateStore store(dir.filePath("state"));store.open();QTRY_VERIFY(store.ready());
         BatoceraLibrary folders(store,dir.path());QSignalSpy finished(&folders,&BatoceraLibrary::scanFinished);
@@ -180,8 +189,29 @@ private slots:
         for(int i=0;i<20;++i)folders.rescan();
         QTRY_COMPARE(finished.size(),1);
         put(dir.filePath("gba/Second.gba"));
-        QTRY_COMPARE_WITH_TIMEOUT(finished.size(),2,12000);
+        for(int i=0;i<20;++i)folders.refreshContentAvailability();
+        QTest::qWait(150);QCOMPARE(finished.size(),1);QCOMPARE(store.adventures().size(),1);
+        folders.rescan();QTRY_COMPARE(finished.size(),2);
         QCOMPARE(store.adventures().size(),2);QVERIFY(!folders.busy());
+    }
+    void savedCatalogueRestoresWithoutWalkingTheRomTree() {
+        QTemporaryDir dir;const auto roms=dir.filePath("roms"),state=dir.filePath("state");
+        put(roms+"/gba/First.gba");put(roms+"/gba/art.png");
+        put(roms+"/gba/gamelist.xml","<gameList><game><path>./First.gba</path><name>First</name><image>./art.png</image><genre>Adventure</genre></game></gameList>");
+        LocalStateStore store(state);store.open();QTRY_VERIFY(store.ready());QString id;
+        {BatoceraLibrary folders(store,roms);QSignalSpy restored(&folders,&BatoceraLibrary::snapshotRestored);
+         folders.restoreSnapshot(state);QTRY_COMPARE(restored.size(),1);
+         QSignalSpy scan(&folders,&BatoceraLibrary::scanFinished);folders.rescan();QTRY_COMPARE(scan.size(),1);
+         id=store.adventures().first().id;QVERIFY(!folders.artwork(id)["cover"].toString().isEmpty());
+         bool favoriteSaved=false;folders.setFavoriteAsync(id,true,this,[&](const QString& error){QVERIFY(error.isEmpty());favoriteSaved=true;});QTRY_VERIFY(favoriteSaved);}
+        QVERIFY(QDir().rename(roms,roms+"-offline"));
+        BatoceraLibrary reopened(store,roms);int probes=0;reopened.observeIdentity=[&](const QString&,const QString&){++probes;return QVariantMap{};};
+        QSignalSpy restored(&reopened,&BatoceraLibrary::snapshotRestored),scan(&reopened,&BatoceraLibrary::scanFinished);
+        reopened.restoreSnapshot(state);QTRY_COMPARE(restored.size(),1);
+        QCOMPARE(reopened.artwork(id)["genre"].toString(),"Adventure");QVERIFY(!reopened.artwork(id)["cover"].toString().isEmpty());
+        QVERIFY(reopened.artwork(id)["favorite"].toBool());
+        for(int i=0;i<100;++i)reopened.refreshContentAvailability();
+        QTest::qWait(100);QCOMPARE(scan.size(),0);QCOMPARE(probes,0);
     }
     void copiedRomReusesPermanentlyRemovedIdentity() {
         QTemporaryDir dir;const auto file=dir.filePath("gba/Fixture.gba");put(file);
@@ -238,9 +268,11 @@ private slots:
         put(dir.filePath("gamecube/Adventure.rvz"));
         put(dir.filePath("psx/Disc 1.chd"));put(dir.filePath("psx/Disc 2.chd"));
         put(dir.filePath("psx/Story.m3u"),"Disc 1.chd\nDisc 2.chd\n");
-        put(dir.filePath("psx/tracks.bin"));
+        // The current platform manifest supports an unreferenced PS1 BIN.
+        // Actual playlist/cue dependencies remain hidden as separate games.
+        put(dir.filePath("psx/Standalone.bin"));
         const auto scan=scanBatoceraLibrary(dir.path(),{});
-        QVERIFY(scan.warnings.isEmpty());QCOMPARE(scan.entries.size(),6);
+        QVERIFY(scan.warnings.isEmpty());QCOMPARE(scan.entries.size(),7);
         int matched=0,hacks=0,discs=0,cubes=0;
         for(const auto& e:scan.entries) {
             const auto& a=e.record.adventure;
@@ -249,10 +281,10 @@ private slots:
                 QCOMPARE(e.media["cover"].toString(),QUrl::fromLocalFile(dir.filePath("gba/images/cover.png")).toString());
                 QVERIFY(!e.media["marquee"].toString().isEmpty());QVERIFY(!e.media.contains("video"));QVERIFY(!e.media.contains("playcount"));
             } else if(a.domain=="pokemon") {++hacks;QVERIFY(a.catalogueId.isEmpty());QCOMPARE(a.worldId,"unclassified-pokemon");}
-            else if(a.platformId=="psx") {++discs;QVERIFY(e.record.contentPath.endsWith("Story.m3u"));}
+            else if(a.platformId=="psx") {++discs;QVERIFY(e.record.contentPath.endsWith("Story.m3u")||e.record.contentPath.endsWith("Standalone.bin"));}
             else if(a.platformId=="gc")++cubes;
         }
-        QCOMPARE(matched,1);QCOMPARE(hacks,3);QCOMPARE(discs,1);QCOMPARE(cubes,1);
+        QCOMPARE(matched,1);QCOMPARE(hacks,3);QCOMPARE(discs,2);QCOMPARE(cubes,1);
     }
     void invalidXmlAndMissingMediaDoNotLoseFiles() {
         QTemporaryDir dir;put(dir.filePath("nes/Fixture.nes"));
@@ -268,7 +300,7 @@ private slots:
         LocalStateStore store(dir.filePath("state"));store.open();QTRY_VERIFY(store.ready());
         CollectionRepository collection(store);BatoceraLibrary folders(collection,roms);
         QSignalSpy finished(&folders,&BatoceraLibrary::scanFinished);
-        folders.refreshContentAvailability();QTRY_COMPARE(finished.size(),1);
+        folders.rescan();QTRY_COMPARE(finished.size(),1);
         QCOMPARE(finished[0][0].toInt(),1);QCOMPARE(store.adventures().size(),1);
         auto record=*store.registration(store.adventures()[0].id);QCOMPARE(record.adventure.catalogueId,"emerald-gba");
         record.adventure.title="Owner's edition";record.integrationConfig["owner-option"]="kept";

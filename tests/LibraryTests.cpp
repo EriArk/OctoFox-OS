@@ -40,6 +40,24 @@ public:
 class LibraryTests final : public QObject {
     Q_OBJECT
 private slots:
+    void availabilityIsAStoredCatalogueUntilExplicitRefresh() {
+        QTemporaryDir dir;const auto path=dir.filePath("game.rom");fixtureFile(path);QString id;
+        {LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());
+         auto record=candidate(path);id=record.adventure.id;bool saved=false;
+         store.saveAdventureAsync(record,this,[&](auto result){QVERIFY(result.success);saved=true;});QTRY_VERIFY(saved);}
+        QVERIFY(QFile::remove(path));
+        {LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());
+         QVERIFY(store.registration(id)->contentAvailable); // No disk walk while opening.
+         store.refreshContentAvailability();QTRY_VERIFY(!store.registration(id)->contentAvailable);}
+        LocalStateStore reopened(dir.path());reopened.open();QTRY_VERIFY(reopened.ready());
+        QVERIFY(!reopened.registration(id)->contentAvailable);
+    }
+    void profileIsPublishedBeforeOptionalMediaValidation() {
+        QTemporaryDir dir;LocalStateStore store(dir.path());bool pendingAtOpen=false;
+        connect(&store,&LocalStateStore::opened,this,[&](bool ready){if(ready)pendingAtOpen=store.mediaPending();});
+        store.open();QTRY_VERIFY(store.ready());QVERIFY(pendingAtOpen);
+        QTRY_VERIFY(!store.mediaPending());
+    }
     void steamAvailabilityAndFileOwnershipSurviveStorageRefresh() {
         QTemporaryDir dir;const auto path=dir.filePath("appmanifest_100.acf");fixtureFile(path);
         LocalStateStore store(dir.filePath("state"),nullptr,"user-library-v1");store.open();QTRY_VERIFY(store.ready());
@@ -533,7 +551,7 @@ private slots:
             QCOMPARE(store.worlds().size(), 9); QVERIFY(store.adventures().isEmpty()); QVERIFY(store.navigation().isEmpty());
         }
         Connection connection(dir.path()); QSqlQuery q(connection.db);
-        QVERIFY(q.exec("PRAGMA user_version")); QVERIFY(q.next()); QCOMPARE(q.value(0).toInt(),17);
+        QVERIFY(q.exec("PRAGMA user_version")); QVERIFY(q.next()); QCOMPARE(q.value(0).toInt(),18);
         QVERIFY(q.exec("SELECT payload FROM shell_state WHERE scope='prototype-library-v1'")); QVERIFY(q.next()); QVERIFY(!q.value(0).toString().isEmpty());
     }
     void filePickerScrollHistoryCancellationAndUnavailableDirectory() {

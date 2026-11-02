@@ -1,6 +1,7 @@
 #pragma once
 #include "core/model/ExitMedia.h"
 #include <QSqlDatabase>
+#include <QSet>
 
 namespace trainer {
 struct PreparedExitMedia {
@@ -11,5 +12,5 @@ struct PreparedExitMedia {
 QString migrateExitMedia(QSqlDatabase&);
 std::optional<PreparedExitMedia> prepareExitMedia(QSqlDatabase&, const ExitMediaSource&);
 QString writeExitMedia(QSqlDatabase&, const PlaySession&, const PreparedExitMedia&, const ExitCapture&);
-QList<ExitMedia> readExitMedia(QSqlDatabase&, const QString& owner);
+QList<ExitMedia> readExitMedia(QSqlDatabase&, const QString& owner, const QSet<QString>* verifiedSessions = nullptr);
 }

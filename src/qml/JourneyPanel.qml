@@ -4,7 +4,7 @@ Item {
     id: root
     required property var shell
     property bool takesFocus: false
-    readonly property var current: shell.home
+    readonly property var current: visible ? shell.home : ({})
     readonly property var journey: shell.hall.journey
     readonly property bool champions: shell.hall.route !== "archive-journey"
     readonly property var snapshot: shell.hall.championPreview

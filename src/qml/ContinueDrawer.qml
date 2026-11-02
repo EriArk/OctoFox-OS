@@ -199,7 +199,7 @@ ChassisDrawer {
             id: emptyState
             objectName: "resume-empty"
             x: 5; y: 27; width: parent.width-10; height: 105
-            visible: root.shell.drawerGames.length === 0
+            visible: root.expanded && cards.count === 0
             readonly property bool selected: visible && root.expanded && !root.shell.menuOpen && root.shell.notice.length === 0
             onSelectedChanged: if(selected)Qt.callLater(function() { if(selected)forceActiveFocus(Qt.OtherFocusReason) })
             Accessible.role: Accessible.StaticText

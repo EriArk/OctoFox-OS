@@ -96,11 +96,13 @@ void SettingsController::configureNearby(NativeActivityProvider* value) {
     emit changed();
 }
 void SettingsController::setLibraryScanState(bool available,bool busy,const QString& result) {
+    if(libraryAvailable_==available&&libraryScanning_==busy&&(result.isEmpty()||libraryStatus_==result))return;
     libraryAvailable_=available;libraryScanning_=busy;
-    if(busy)libraryStatus_.clear();
-    else if(!result.isEmpty())libraryStatus_=result;
+    if(!result.isEmpty())libraryStatus_=result;
+    else if(busy)libraryStatus_="Scanning library";
     emit changed();
 }
+bool SettingsController::scanLibraryAtStartup() const {return QSettings().value("library/scanAtStartup",true).toBool();}
 void SettingsController::reload() { if (repository_ && !saving_) { value_ = repository_->preferences(); emit changed(); } }
 void SettingsController::activate(int index) {
     if(index<0 || index>3 || saving_) return;
@@ -146,12 +148,13 @@ QVariantList SettingsController::controls() const {
     }
     case 8: {
         QVariantList result{row("Collections","action","Create and edit your game collections")};
-        result.append(row(libraryScanning_?"Refreshing library…":"Refresh library",
+        result.append(row(libraryScanning_?"Scanning library…":"Scan library now",
             libraryAvailable_ && !libraryScanning_?"action":"unavailable",
-            libraryScanning_?"Looking for games and updated artwork":libraryAvailable_?"Find copied games and reload artwork":"Connect your game library first"));
+            libraryScanning_?libraryStatus_:libraryAvailable_?"One scan for added games and changed artwork":"Connect your game library first"));
         result.append(row("Game storage",storage_.apply?"action":"unavailable",storage_.root()));
         result.append(row("ScreenScraper","action","Account, downloads and artwork display"));
         if(legacyTrash_)result.append(row("Previous game trash","action","Restore games removed by an earlier version"));
+        result.append(row("Library scanning","action",scanLibraryAtStartup()?"Once at startup · manual scan also available":"Manual only · use the saved catalogue"));
         return result;
     }
     case 9: return {row("Read-only saves",savePolicy_?"toggle":"unavailable",readOnlySaves()?"On - reading and backups only":"Off - allow confirmed save changes")};
@@ -210,6 +213,10 @@ void SettingsController::activateRow(int index) {
     else if(category_==8 && row_==2) storage_.begin();
     else if(category_==8 && row_==3) selectCategory(14);
     else if(category_==8 && row_==4 && legacyTrash_) emit trashRequested();
+    else if(category_==8 && row_==(legacyTrash_?5:4)) {
+        QSettings settings;settings.setValue("library/scanAtStartup",!scanLibraryAtStartup());settings.sync();
+        error_=settings.status()==QSettings::NoError?QString():QString("Could not save scanning preference");
+    }
     else if(category_==9 && savePolicy_) {
         saving_=true;error_.clear();
         savePolicy_->setReadOnly(!readOnlySaves(),this,[this](const QString& error){saving_=false;error_=error;emit changed();});

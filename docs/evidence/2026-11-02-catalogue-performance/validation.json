@@ -1,0 +1,55 @@
+{
+  "base_commit": "d4ca1071",
+  "source_files": 1541,
+  "production": {
+    "success": true,
+    "exit": 0,
+    "last_step": 4,
+    "production_built": true,
+    "sha256": "2a8beeef2c03597b9287554473dd52a1286512c08638c076c92184dfcf7a2247"
+  },
+  "suites": {
+    "PlayHistoryTests": {
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0
+    },
+    "BatoceraTests": {
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0
+    },
+    "CollectionTests": {
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0
+    },
+    "CoreTests": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0
+    },
+    "InteractionTests": {
+      "passed": 56,
+      "failed": 0,
+      "skipped": 1
+    },
+    "OwnershipTests": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    "SeriesTests": {
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0
+    },
+    "LibraryTests": {
+      "passed": 29,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "core_rebuilt_after_source_mtime_correction": true,
+  "skipped_reason": "InteractionTests.quickLooksDuringLiveGamePreserveSessionAndReturn: avatar pack absent in isolated container"
+}

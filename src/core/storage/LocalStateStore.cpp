@@ -23,7 +23,7 @@
 
 namespace trainer {
 namespace {
-constexpr int SchemaVersion = 17;
+constexpr int SchemaVersion = 18;
 QString failedWrite() { return "Couldn't save changes. Check free space or storage access, then try again."; }
 struct LoadedState {
     QVariantList achievementMoments;
@@ -48,7 +48,7 @@ class SqliteWorker final : public QObject {
 public:
     ~SqliteWorker() override { close(); }
     void close() {
-        pendingMedia.clear();verified_.clear();
+        pendingMedia.clear();verified_.clear();verifiedMediaSessions_.clear();
         const QString name = db.connectionName();
         db.close(); db = {};
         if (!name.isEmpty()) QSqlDatabase::removeDatabase(name);
@@ -237,6 +237,16 @@ public:
                     if(!openError.isEmpty())db.rollback();
                 }
             }
+            if(openError.isEmpty() && (!query.exec("PRAGMA user_version") || !query.next()))openError=failedWrite();
+            if(openError.isEmpty() && query.value(0).toInt()<18){
+                query.finish();
+                if(!db.transaction())openError=failedWrite();
+                else {
+                    if(!query.exec("ALTER TABLE adventures ADD COLUMN content_available INTEGER NOT NULL DEFAULT 1 CHECK(content_available IN(0,1))") || !query.exec("PRAGMA user_version=18"))openError=failedWrite();
+                    if(openError.isEmpty()&&!db.commit())openError=failedWrite();
+                    if(!openError.isEmpty())db.rollback();
+                }
+            }
             if (openError.isEmpty()) {
                 ownerId_ = localOwner(db);
                 if (ownerId_.isEmpty()) openError = "Your Trainer ownership needs recovery. Existing data has been kept.";
@@ -316,8 +326,7 @@ public:
         const auto journal = readPokedexJournal(db, ownerId_);
         if (!journal.error.isEmpty()) return fail(journal.error);
         state.journal = journal.records;
-        state.exitMedia = readExitMedia(db, ownerId_);
-        if(const auto error=seedScreens(db,ownerId_,directory,state.exitMedia);!error.isEmpty())return fail(error);
+        // Optional pictures are validated after opened(), on a separate worker.
         state.screens=readScreens(db,ownerId_);
         state.achievementMoments=readAchievementMoments(db,ownerId_);
         return state;
@@ -480,10 +489,26 @@ public:
         return query.exec() ? QString() : failedWrite();
     }
     LibraryWriteResult adventure(const AdventureRegistration& record) { return writeAdventure(db, record); }
+    QString updateAvailability(const QList<AdventureRegistration>& records) {
+        if(!db.transaction())return failedWrite();
+        QSqlQuery q(db);q.prepare("UPDATE adventures SET content_available=? WHERE id=? AND revision=? AND content_path=? AND content_available<>?");
+        for(const auto& r:records) {
+            q.bindValue(0,r.contentAvailable?1:0);q.bindValue(1,r.adventure.id);q.bindValue(2,r.revision);q.bindValue(3,r.contentPath);q.bindValue(4,r.contentAvailable?1:0);
+            if(!q.exec()){db.rollback();return failedWrite();}
+        }
+        if(!db.commit()){db.rollback();return failedWrite();}return {};
+    }
     QString libraryEdit(const LibraryEdit& edit, LibrarySnapshot& snapshot, QList<ExitMedia>& media) {
         const auto error = editLibrary(db, edit, ownerId_);
-        snapshot = readLibrary(db, ownerId_); media = readExitMedia(db, ownerId_);
+        snapshot = readLibrary(db, ownerId_); media = readExitMedia(db, ownerId_, &verifiedMediaSessions_);
         return error.isEmpty() ? snapshot.error : error;
+    }
+    QString acceptMedia(const QString& owner,const QString& directory,const QList<ExitMedia>& checked,QList<ExitMedia>& media,QVariantList& screens) {
+        if(ownerId_!=owner)return {};
+        for(const auto& m:checked)verifiedMediaSessions_.insert(m.sessionId);
+        media=readExitMedia(db,ownerId_,&verifiedMediaSessions_);
+        const auto error=seedScreens(db,ownerId_,directory,media);
+        screens=readScreens(db,ownerId_);return error;
     }
     QString preferences(const ShellPreferences& value) {
         if(!QStringList{"light","dark","turquoise","red","green","blue","orange"}.contains(value.theme))return "Choose Light or Dark appearance.";
@@ -528,7 +553,9 @@ public:
         else {
             if (prepared) pendingMedia.insert(value.id, *prepared);
             if (value.outcome != PlaySessionOutcome::Running) pendingMedia.remove(value.id);
-            media = readExitMedia(db, ownerId_);
+            // writeExitMedia already performed the exact source checks above.
+            if(capture&&warning.isEmpty()&&value.outcome==PlaySessionOutcome::Returned)verifiedMediaSessions_.insert(value.id);
+            media = readExitMedia(db, ownerId_, &verifiedMediaSessions_);
             screens = readScreens(db,ownerId_);
         }
         return error;
@@ -541,6 +568,7 @@ private:
         return "First ask a parent to set the family code in Settings > Trainer.";
     }
     QSet<QString> verified_;
+    QSet<QString> verifiedMediaSessions_;
     QHash<QString, PreparedExitMedia> pendingMedia;
     QSqlDatabase db;
     QString scope_, ownerId_;
@@ -557,10 +585,13 @@ LocalStateStore::LocalStateStore(QString directory, QObject* parent, QString sco
 }
 LocalStateStore::~LocalStateStore() {
     // The application waits asynchronously for pending()==0 before normal exit.
+    if(mediaThread_){mediaThread_->requestInterruption();mediaThread_->wait();delete mediaThread_;}
     thread_.quit(); thread_.wait();
 }
 void LocalStateStore::open() {
     if (opening_ || ready_ || pending_) return;
+    ++mediaGeneration_;mediaPending_=false;
+    if(mediaThread_)mediaThread_->requestInterruption();
     opening_ = true; error_.clear();
     QMetaObject::invokeMethod(worker_, [this] {
         auto state = worker_->open(directory_, scope_, enforceAccess_, grant_, chooseOnOpen_);
@@ -578,9 +609,42 @@ void LocalStateStore::open() {
                 ++libraryRevision_;
                 history_ = state.history; archive_ = state.archive; champions_=state.champions; journal_ = state.journal; exitMedia_ = state.exitMedia; screens_=state.screens; achievementMoments_=state.achievementMoments;
             }
+            if(ready_)readMediaAfterOpen();
             emit opened(ready_);
         }, Qt::QueuedConnection);
     }, Qt::QueuedConnection);
+}
+void LocalStateStore::readMediaAfterOpen() {
+    if(!ready_)return;
+    mediaPending_=true;if(mediaThread_)return;
+    const auto generation=mediaGeneration_;const auto owner=ownerId_;const auto directory=directory_;
+    auto checked=std::make_shared<QList<ExitMedia>>();
+    mediaThread_=QThread::create([checked,owner,directory]{
+        const auto name=QUuid::createUuid().toString();
+        {
+            auto db=QSqlDatabase::addDatabase("QSQLITE",name);db.setDatabaseName(QDir(directory).filePath("traineros.sqlite3"));
+            db.setConnectOptions("QSQLITE_OPEN_READONLY;QSQLITE_BUSY_TIMEOUT=250");
+            if(db.open())*checked=readExitMedia(db,owner);
+            db.close();
+        }
+        QSqlDatabase::removeDatabase(name);
+    });
+    connect(mediaThread_,&QThread::finished,this,[this,checked,owner,directory,generation]{
+        mediaThread_->wait();delete mediaThread_;mediaThread_=nullptr;
+        if(generation!=mediaGeneration_||owner!=ownerId_){mediaPending_=false;if(ready_)readMediaAfterOpen();return;}
+        if(checked->isEmpty()){mediaPending_=false;return;}
+        auto media=std::make_shared<QList<ExitMedia>>();auto screens=std::make_shared<QVariantList>();
+        write([=](SqliteWorker& worker){return worker.acceptMedia(owner,directory,*checked,*media,*screens);},
+            [this,owner,generation,media,screens](const QString& error){
+                if(generation!=mediaGeneration_)return;
+                if(owner!=ownerId_){mediaPending_=false;if(ready_)readMediaAfterOpen();return;}
+                mediaPending_=false;
+                if(error.isEmpty()){
+                    const bool changed=!media->isEmpty()||!exitMedia_.isEmpty()||screens_!=*screens;
+                    exitMedia_=*media;screens_=*screens;if(changed)emit libraryChanged();
+                }
+            });
+    });mediaThread_->start();
 }
 void LocalStateStore::write(std::function<QString(SqliteWorker&)> operation, std::function<void(QString)> completed) {
     if (!ready_ || staged_) { completed("Your data isn't open yet. Retry after reopening TrainerOS."); return; }
@@ -770,9 +834,9 @@ void LocalStateStore::refreshContentAvailability() {
     if(!ready_ || staged_ || availabilityPending_)return;
     availabilityPending_=true;
     auto snapshot=std::make_shared<QList<AdventureRegistration>>(registrations_);
-    write([snapshot](SqliteWorker&) {
+    write([snapshot](SqliteWorker& worker) {
         for(auto& r:*snapshot) {const QFileInfo file(r.contentPath);r.contentAvailable=file.isFile() && file.isReadable();if(r.adventure.adapterId=="steam")r.contentAvailable=r.contentAvailable&&r.integrationConfig["available"].toBool();}
-        return QString();
+        return worker.updateAvailability(*snapshot);
     },[this,snapshot](const QString& error) {
         availabilityPending_=false;if(!error.isEmpty())return;
         bool changed=false;

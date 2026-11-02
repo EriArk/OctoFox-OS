@@ -632,6 +632,13 @@ Window {
                 Hint { visible: !sessionState.firstRun.busy && (!sessionState.firstRunPage || shell.keyboard.open || sessionState.firstRun.connections || ["controls","network","clock","storage","trainer"].includes(sessionState.firstRun.stage)); button: "B"; label: sessionState.firstRunPage && sessionState.firstRun.stage==="controls" ? "Check" : "Back"; tint: Theme.pink }
             }
         }
+        Text {
+            visible: shell.settings.libraryScanning && !sessionState.blocked && !shell.keyboard.open && !adventureLaunch.active
+            x: Theme.screenBounds.x+14; y: Theme.screenBounds.y+Theme.screenBounds.height-19
+            width: Theme.screenBounds.width-28; horizontalAlignment: Text.AlignRight
+            text: shell.settings.libraryStatus; textFormat: Text.PlainText; elide: Text.ElideMiddle
+            font.pixelSize: 11; color: Theme.muted
+        }
         StoragePanel { anchors.fill: parent; visible: sessionState.blocked && !sessionState.entryGate && !sessionState.firstRunPage && !sessionState.access.active; stateController: sessionState }
         TrainerAccessPanel { anchors.fill: parent; access: sessionState.access; visible: sessionState.access.active }
         LobbyImportPanel { anchors.fill: parent; visible: lobbyImport.open; importer: lobbyImport }

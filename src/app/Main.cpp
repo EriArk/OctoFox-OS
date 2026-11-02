@@ -434,7 +434,13 @@ int main(int argc, char* argv[]) {
             shell.scraper()->configure(stateDirectory);
             folders.setDisplayPreferences(shell.scraper()->displayPreferences());
             bindings.connect(shell.scraper(),&ScrapeController::displayChanged,&shell,[&]{folders.setDisplayPreferences(shell.scraper()->displayPreferences());shell.refreshLibrary();});
-            bindings.connect(shell.scraper(),&ScrapeController::saved,&folders,&BatoceraLibrary::rescan);
+            // A multi-game scrape is one explicit catalogue update, not one
+            // recursive ROM walk per downloaded image/game.
+            auto metadataChanged=std::make_shared<bool>(false);
+            bindings.connect(shell.scraper(),&ScrapeController::saved,&folders,[metadataChanged]{*metadataChanged=true;});
+            bindings.connect(shell.scraper(),&ScrapeController::changed,&folders,[&,metadataChanged]{
+                if(*metadataChanged&&!shell.scraper()->busy()&&!folders.busy()){*metadataChanged=false;folders.rescan();}
+            });
         }
         if(personalLibrary && !smoke && store) {
             bindings.connect(store.get(), &LocalStateStore::opened, &shell, [&](bool ready) {
@@ -471,11 +477,20 @@ int main(int argc, char* argv[]) {
             folders.prepareFileMove = [saveRuntimes](const AdventureRegistration& record,LibraryEdit& edit)->QString {
                 return retroarch::prepareFileMove(record,edit,saveRuntimes->load()->retroarch);
             };
-            bindings.connect(store.get(), &LocalStateStore::opened, &folders, [&](bool ready) { if(ready)folders.refreshContentAvailability(); });
+            auto catalogueOpened=std::make_shared<bool>(false);
+            bindings.connect(store.get(), &LocalStateStore::opened, &folders, [&,catalogueOpened](bool ready) {
+                if(ready&&!*catalogueOpened){*catalogueOpened=true;folders.restoreSnapshot(stateDirectory);}
+            });
+            bindings.connect(&folders,&BatoceraLibrary::snapshotRestored,&shell,[&]{
+                shell.refreshLibrary();
+                if(shell.settings()->scanLibraryAtStartup())folders.rescan();
+                else shell.settings()->setLibraryScanState(true,false,"Saved catalogue · scan manually to find changes");
+            });
             shell.settings()->setLibraryScanState(true,false);
             bindings.connect(&folders, &BatoceraLibrary::busyChanged, &shell, [&] {
-                shell.settings()->setLibraryScanState(true,folders.busy());
+                shell.settings()->setLibraryScanState(true,folders.busy(),folders.scanStatus());
             });
+            bindings.connect(&folders,&BatoceraLibrary::scanProgress,&shell,[&]{shell.settings()->setLibraryScanState(true,folders.busy(),folders.scanStatus());});
             bindings.connect(&folders, &BatoceraLibrary::scanFinished, &shell, [&](int added,const QStringList& warnings) {
                 shell.refreshLibrary();
                 qInfo() << "Library discovery:" << added << "updated;" << warnings;
@@ -810,7 +825,7 @@ int main(int argc, char* argv[]) {
         bindings.connect(&session,&SessionState::changed,&multiplayer,refreshMultiplayerState);
         bindings.connect(shell.trainer(),&TrainerController::changed,&multiplayer,refreshMultiplayerState);
         bindings.connect(&shell,&ShellController::changed,&multiplayer,refreshMultiplayerState);
-        if(store)bindings.connect(store.get(),&LocalStateStore::libraryChanged,&multiplayer,[&]{if(!steamLibrary.busy())refreshMultiplayer();});
+        if(store)bindings.connect(store.get(),&LocalStateStore::libraryChanged,&multiplayer,[&]{if(!steamLibrary.busy())refreshMultiplayerState();});
         bindings.connect(&steamLibrary,&SteamLibrary::changed,&multiplayer,refreshMultiplayer);
         refreshMultiplayer();
         auto gameNotifications=[&]{
@@ -1124,21 +1139,17 @@ int main(int argc, char* argv[]) {
                     shell.refreshLibrary();
                     refreshMultiplayer();
                 }
-                if (scanLibrary || changed) folders.refreshContentAvailability();
+                if (scanLibrary) folders.rescan();
             };
             const auto refreshEmulators = [&] { emulatorRefresh->request(folders.root(), true); };
             bindings.connect(shell.settings(), &SettingsController::libraryRefreshRequested, emulatorRefresh.get(), refreshEmulators);
             bindings.connect(&app, &QGuiApplication::applicationStateChanged, emulatorRefresh.get(), [&](Qt::ApplicationState state) {
                 if (state == Qt::ApplicationActive) emulatorRefresh->request(folders.root());
             });
-            auto previousPage = std::make_shared<int>(shell.page());
-            bindings.connect(&shell, &ShellController::changed, emulatorRefresh.get(), [&, previousPage, refreshEmulators] {
-                const auto previous = *previousPage; *previousPage = shell.page();
-                if (shell.page() == 1 && previous != 1) refreshEmulators();
-            });
             emulatorPoll.setInterval(60000);
             bindings.connect(&emulatorPoll, &QTimer::timeout, emulatorRefresh.get(), [&] { emulatorRefresh->request(folders.root()); });
-            bindings.connect(&emulatorPoll, &QTimer::timeout, &multiplayer, refreshMultiplayer);
+            // RuntimeMultiplayer watches its own content dependencies. Inventory
+            // changes above refresh it; an idle minute is not a library change.
             emulatorPoll.start();
         }
         shell.scraper()->canStart = [&] {

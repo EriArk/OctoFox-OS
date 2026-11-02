@@ -6,7 +6,11 @@ Item {
     objectName: "home-launch"
     property bool showGlyph: true
     property bool selected: shell.page === 0 && shell.dashboard.focus === "play" && shell.unobstructed && !shell.drawerOpen && !shell.quickAppsOpen
-    readonly property string actionLabel: !shell.homeGame.id ? "Choose" : shell.home.actionHint === "Play" ? "Start" : shell.home.actionHint
+    readonly property string actionLabel: {
+        if (!visible || !shell.homeGame.id) return "Choose"
+        const hint = shell.home.actionHint
+        return hint === "Play" ? "Start" : hint
+    }
     readonly property real unit: Math.min(width,height)/220
     Accessible.role: Accessible.Button
     Accessible.name: actionLabel

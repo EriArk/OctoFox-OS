@@ -1,0 +1,210 @@
+{
+  "scope": "Observed Flip navigation, 18 page transitions in each completed run",
+  "limitations": [
+    "Another owner chat was using the handheld for NGPC; timing comparison is not isolated.",
+    "First new run stopped on active-window guard and is excluded.",
+    "Frame intervals include demand-driven rendering and are not FPS or touch-to-photon."
+  ],
+  "metrics": {
+    "baseline-final": {
+      "BatoceraLibrary.refreshContentAvailability": {
+        "n": 9,
+        "totalMs": 2.5234219999999996,
+        "maxMs": 2.488683
+      },
+      "ShellController.continueRows": {
+        "n": 161,
+        "totalMs": 1427.6882669999998,
+        "maxMs": 35.499599
+      },
+      "ShellController.goToPage": {
+        "n": 18,
+        "totalMs": 5169.749703,
+        "maxMs": 444.152074
+      },
+      "ShellController.home": {
+        "n": 1206,
+        "totalMs": 2683.4115640000005,
+        "maxMs": 14.945585
+      },
+      "WorldsController.regionTiles": {
+        "n": 170,
+        "totalMs": 210.42994700000003,
+        "maxMs": 4.627226
+      },
+      "eventLoop.delay": {
+        "n": 152,
+        "totalMs": 15368.089391000001,
+        "maxMs": 2219.93931
+      },
+      "frame.interval": {
+        "n": 198,
+        "totalMs": 30014.564009000005,
+        "maxMs": 3825.000375
+      },
+      "navigation.account": {
+        "n": 18,
+        "totalMs": 0.026456000000000007,
+        "maxMs": 0.015363
+      },
+      "navigation.archive": {
+        "n": 18,
+        "totalMs": 0.07333,
+        "maxMs": 0.033227
+      },
+      "navigation.keyboard": {
+        "n": 18,
+        "totalMs": 0.03744599999999999,
+        "maxMs": 0.018281
+      },
+      "navigation.manager": {
+        "n": 18,
+        "totalMs": 0.030940000000000013,
+        "maxMs": 0.014062
+      },
+      "navigation.publish": {
+        "n": 18,
+        "totalMs": 2014.1076809999997,
+        "maxMs": 268.885536
+      },
+      "navigation.setup": {
+        "n": 18,
+        "totalMs": 0.433831,
+        "maxMs": 0.133171
+      },
+      "navigation.storage": {
+        "n": 18,
+        "totalMs": 41.686749,
+        "maxMs": 5.77014
+      },
+      "navigation.tools": {
+        "n": 18,
+        "totalMs": 102.98401700000001,
+        "maxMs": 25.994169
+      },
+      "navigation.trainer": {
+        "n": 18,
+        "totalMs": 0.024374,
+        "maxMs": 0.001927
+      },
+      "PartyPresentation.syncActors": {
+        "n": 14,
+        "totalMs": 0.214418,
+        "maxMs": 0.112963
+      },
+      "RuntimeMultiplayer::refresh": {
+        "n": 5,
+        "totalMs": 1875.399598,
+        "maxMs": 734.855834
+      },
+      "WorldsController.detail": {
+        "n": 81,
+        "totalMs": 49.013062999999995,
+        "maxMs": 0.724652
+      },
+      "SocialController::receive": {
+        "n": 8,
+        "totalMs": 1814.1235789999998,
+        "maxMs": 274.521828
+      }
+    },
+    "after-final": {
+      "ShellController.goToPage": {
+        "n": 18,
+        "totalMs": 3105.340166,
+        "maxMs": 275.631046
+      },
+      "ShellController.home": {
+        "n": 644,
+        "totalMs": 1655.4010420000002,
+        "maxMs": 15.011884
+      },
+      "WorldsController.regionTiles": {
+        "n": 136,
+        "totalMs": 174.14805099999998,
+        "maxMs": 4.132042
+      },
+      "eventLoop.delay": {
+        "n": 242,
+        "totalMs": 6412.508427999998,
+        "maxMs": 567.103147
+      },
+      "frame.interval": {
+        "n": 346,
+        "totalMs": 27679.747024000004,
+        "maxMs": 5164.031698
+      },
+      "navigation.account": {
+        "n": 18,
+        "totalMs": 0.008853999999999999,
+        "maxMs": 0.000625
+      },
+      "navigation.archive": {
+        "n": 18,
+        "totalMs": 0.041821000000000004,
+        "maxMs": 0.00276
+      },
+      "navigation.keyboard": {
+        "n": 18,
+        "totalMs": 0.028747,
+        "maxMs": 0.002709
+      },
+      "navigation.manager": {
+        "n": 18,
+        "totalMs": 0.021196000000000003,
+        "maxMs": 0.00151
+      },
+      "navigation.publish": {
+        "n": 18,
+        "totalMs": 1223.931272,
+        "maxMs": 157.492027
+      },
+      "navigation.setup": {
+        "n": 18,
+        "totalMs": 0.274362,
+        "maxMs": 0.016822
+      },
+      "navigation.storage": {
+        "n": 18,
+        "totalMs": 65.757003,
+        "maxMs": 6.214442
+      },
+      "navigation.tools": {
+        "n": 18,
+        "totalMs": 176.61605799999998,
+        "maxMs": 25.507578
+      },
+      "navigation.trainer": {
+        "n": 18,
+        "totalMs": 0.020258,
+        "maxMs": 0.001302
+      },
+      "PartyPresentation.syncActors": {
+        "n": 12,
+        "totalMs": 0.083121,
+        "maxMs": 0.007656
+      },
+      "SocialController::receive": {
+        "n": 13,
+        "totalMs": 1271.076563,
+        "maxMs": 212.159247
+      },
+      "SavedExitImages.requestImage": {
+        "n": 18,
+        "totalMs": 217.57966199999998,
+        "maxMs": 19.47193
+      },
+      "ShellController.continueRows": {
+        "n": 17,
+        "totalMs": 153.140932,
+        "maxMs": 12.661372
+      },
+      "RuntimeMultiplayer::refresh": {
+        "n": 1,
+        "totalMs": 208.614678,
+        "maxMs": 208.614678
+      }
+    }
+  },
+  "scan_count_after_navigation": 1
+}

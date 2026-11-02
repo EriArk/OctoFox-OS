@@ -253,7 +253,11 @@ Item {
             width: root.generic ? parent.width*.45-22 : play.x-x-24
             height: root.generic ? awards.y-36 : 98
             balanced: root.generic
-            source: root.shell.home.exitPreviewLabel ? root.shell.home.exitPreview : ""
+            source: {
+                if (!root.visible) return ""
+                const home = root.shell.home
+                return home.exitPreviewLabel ? home.exitPreview : ""
+            }
             selected: root.active && root.flow.focus === "screens"
             onActivated: root.shell.activateDashboard("screens")
         }

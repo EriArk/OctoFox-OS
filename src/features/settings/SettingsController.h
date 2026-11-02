@@ -34,6 +34,7 @@ class SettingsController final : public QObject {
     Q_PROPERTY(bool saving READ saving NOTIFY changed)
     Q_PROPERTY(QString error READ error NOTIFY changed)
     Q_PROPERTY(QString libraryStatus READ libraryStatus NOTIFY changed)
+    Q_PROPERTY(bool libraryScanning READ libraryScanning NOTIFY changed)
     Q_PROPERTY(int focusIndex READ focusIndex NOTIFY changed)
     Q_PROPERTY(bool creditsOpen READ creditsOpen NOTIFY changed)
     Q_PROPERTY(int category READ category NOTIFY changed)
@@ -104,6 +105,8 @@ public:
     bool saving() const { return saving_; }
     QString error() const { return error_; }
     QString libraryStatus() const { return libraryStatus_; }
+    bool libraryScanning() const { return libraryScanning_; }
+    bool scanLibraryAtStartup() const;
     void setLibraryScanState(bool available, bool busy, const QString& result = {});
     int focusIndex() const { return pane_ ? rowFocus() : sectionIndex(); }
     void dispatch(Action);

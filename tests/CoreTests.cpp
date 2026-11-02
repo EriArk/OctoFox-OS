@@ -8,6 +8,8 @@ using namespace trainer;
 
 class SparseLibrary final : public LibraryRepository {
 public:
+    int availabilityRefreshes = 0;
+    void refreshContentAvailability() override { ++availabilityRefreshes; }
     QList<ResumePoint> points;
     QList<World> worlds() const override { return {}; }
     QList<Adventure> adventures() const override { return {}; }
@@ -18,6 +20,18 @@ public:
 class CoreTests : public QObject {
     Q_OBJECT
 private slots:
+    void navigationNeverRefreshesStorage() {
+        SparseLibrary repo;MockTrainerRepository profiles;MockAdventureAdapter adapter;
+        DevelopmentPlatformService platform;MockPokedexRepository dex;
+        MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(repo,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        for(int i=0;i<10;++i) {
+            shell.goToPage(1);shell.goToPage(0);
+            shell.dispatch(Action::ToggleContinue);QVERIFY(shell.drawerOpen());
+            shell.dispatch(Action::Back);QVERIFY(!shell.drawerOpen());
+        }
+        QCOMPARE(repo.availabilityRefreshes,0);
+    }
     void disconnectedExchangeCanReachChatWithoutUnlockingSaveOperations() {
         MockLibraryRepository repo;MockTrainerRepository profiles;MockAdventureAdapter adapter;
         DevelopmentPlatformService platform;MockPokedexRepository dex;

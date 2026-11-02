@@ -1315,7 +1315,6 @@ void ShellController::goToPage(int page) {
     if(page_==1 && multiverseFace_)multiverse_.setCollection(worldCollection_);
     // Primary tabs resume their existing route and focus. Only explicit Back
     // or a destination action goes to a root; switching tabs is not navigation up.
-    if (page_ == 1) repository_.refreshContentAvailability();
     // Party observes the current Adventure, library and save provider directly.
     // Visiting an unrelated page must not republish the same actors/practice UI.
     syncExperience();
@@ -2269,7 +2268,7 @@ void ShellController::dispatch(Action action) {
     }
     if (action == Action::ToggleContinue && chooseAdventureAvailable()) {
         if(!drawerOpen_) {
-            repository_.refreshContentAvailability();refreshContinue();
+            refreshContinue();
         }
         drawerOpen_ = !drawerOpen_; emit changed(); return;
     }
