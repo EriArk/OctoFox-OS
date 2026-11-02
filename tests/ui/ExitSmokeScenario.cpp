@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QQuickItem>
 #include <QTemporaryDir>
+#include <QSettings>
 #include <algorithm>
 #include <cmath>
 #include <memory>
@@ -23,6 +24,15 @@ struct Scenario {
 void startExitSmoke(QQuickWindow* shellWindow, ShellController& shell, AdventureLaunchController& launch,
         AdventureExitPresentation& view, ControllerInput& input, SDL_Joystick* joystick,
         const QString& output, bool& completed, int& warnings, QStringList& diagnostics) {
+    QSettings settings;
+    const auto previousProfile=settings.value("display/profile"),previousScale=settings.value("display/interfaceScale");
+    QObject::connect(shellWindow,&QObject::destroyed,[previousProfile,previousScale]{
+        QSettings restored;
+        if(previousProfile.isValid())restored.setValue("display/profile",previousProfile);else restored.remove("display/profile");
+        if(previousScale.isValid())restored.setValue("display/interfaceScale",previousScale);else restored.remove("display/interfaceScale");
+    });
+    settings.setValue("display/profile","auto");settings.setValue("display/interfaceScale",100);
+    emit shell.settings()->changed();
     auto state = std::make_shared<Scenario>();
     auto* window = shellWindow->findChild<QQuickWindow*>("adventure-exit-window");
     if (!window) { diagnostics.append("Missing exit window"); QCoreApplication::exit(1); return; }
@@ -189,7 +199,8 @@ void startExitSmoke(QQuickWindow* shellWindow, ShellController& shell, Adventure
             shell.goToPage(1); const auto beforeMenu = shell.navigationState();
             press(SDL_CONTROLLER_BUTTON_GUIDE);
             check(shell.homeMenuOpen() && shell.navigationState() == beforeMenu, "Shell Home retains origin route");
-            press(SDL_CONTROLLER_BUTTON_A);
+            input.poll(); // Home changes the input epoch on release; sample neutral before Back.
+            press(static_cast<SDL_GameControllerButton>(input.backButton()));
             check(!shell.homeMenuOpen() && shell.navigationState() == beforeMenu, "Shell B retains origin route");
             shell.goToPage(0);
             input.setEnabled(false);

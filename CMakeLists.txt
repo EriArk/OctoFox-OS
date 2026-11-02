@@ -543,6 +543,7 @@ qt_add_qml_module(traineros
         src/qml/ControlWidget.qml
         src/qml/SystemPanel.qml
         src/qml/ConnectionsPane.qml
+        src/qml/ConnectionsPopup.qml
         src/qml/StoragePanel.qml
         src/qml/LaunchPanel.qml
         src/qml/LobbyImportPanel.qml

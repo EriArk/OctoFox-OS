@@ -3,12 +3,23 @@
 **Current owner-approved direction: 21 October 2026.** This is the short, **active** entrypoint for Codex and other development agents. The previous 84 KB collection of dated requirements was preserved in full (with relative links rebased) in [historical AGENTS archive](docs/archive/AGENTS_2026-10-14.md). It contains valuable implementation evidence and older decisions, but its superseded page names, priorities and button assignments are **not active instructions**.
 
 **Owner header/inbox correction, 2 November:** notifications belong in the bell
-popover, not Home or the Home-button menu. Place level at the avatar's top-right,
-Sparks under the name and the bell at the right edge of the slightly wider panel.
+popover, not Home or the Home-button menu. Place the compact level immediately
+after the name, Sparks under the name and the bell at the right edge of the
+slightly wider panel. This supersedes the rejected large condensed level column.
+Footer button hints belong on the left; clock, network and battery on the right.
+The clock is rightmost. Tapping Wi-Fi opens the shared connection popover above
+its icon, without opening Start or centering the popup on the screen.
+Drawer ears use the selected controller's glyphs without circular key backgrounds.
+For keyboard/unknown-pad fallback, show the actual X/Y keyboard shortcuts, not arrows.
 Keep the popover narrow: its right edge aligns with the Home game card's left edge.
 The bell uses equal top, right and bottom insets inside the account panel.
 Wi-Fi needs persistent authentication feedback and re-enter password through the
 shared connection flow. See [current contract/evidence](docs/evidence/2026-11-02-bell-wifi/README.md).
+
+**Owner minimized-game Home correction, 2 November:** while a game is running,
+Home opens its existing in-game menu directly, including from the minimized shell.
+Do not insert Shell Options or a second Game Options step. Continue retains the
+same process; minimize, protected exit and the shell return route stay intact.
 
 **Owner Home boundary correction, 2 November:** the left Home area belongs to
 the shell and the user's selected widget. An active game adapter must not reduce

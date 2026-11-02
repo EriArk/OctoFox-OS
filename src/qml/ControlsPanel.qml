@@ -159,13 +159,9 @@ Rectangle {
         }
     }
 
-    Rectangle { anchors.fill: parent; z: 20; radius: root.radius; color: Theme.surfaceColor("#68182b29"); visible: root.shell.controlsNetworkOpen
-        MouseArea { anchors.fill: parent; onClicked: root.shell.closeControlsNetwork() }
-        Rectangle { objectName: "start-network-popup"; anchors.centerIn: parent; width: Math.min(490,root.width-32); height: Math.min(Math.max(380,root.height-16),root.parent.height-24); radius: 18; color: Theme.paper; border.color: Theme.divider
-            MouseArea { anchors.fill: parent }
-            Text { x: 22; y: 18; text: root.shell.network.bluetooth ? "Bluetooth" : "Wi-Fi"; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 22 }
-            SocialIconButton { objectName: "start-network-close"; anchors.right: parent.right; anchors.rightMargin: 15; y: 13; icon: "x"; label: "Close connections"; onClicked: root.shell.closeControlsNetwork() }
-            ConnectionsPane { x: 22; y: 47; width: parent.width-44; height: parent.height-y-12; shell: root.shell; quick: true; flat: true }
-        }
+    ConnectionsPopup {
+        anchors.fill: parent; z: 20; shell: root.shell; visible: root.shell.controlsNetworkOpen
+        preferredHeight: Math.max(380,root.height-16)
+        maximumHeight: root.parent.height-24
     }
 }

@@ -4,8 +4,26 @@
 #include <QRegularExpression>
 namespace trainer {
 NetworkController::NetworkController(QObject* parent):QObject(parent){
+    // Passive OS notifications only: the footer must not start network scans.
+    QNetworkInformation::loadDefaultBackend();information_=QNetworkInformation::instance();
+    if(information_){
+        connect(information_,&QNetworkInformation::transportMediumChanged,this,&NetworkController::connectionChanged);
+        connect(information_,&QNetworkInformation::reachabilityChanged,this,&NetworkController::connectionChanged);
+    }
     poll_.setInterval(8000);
     connect(&poll_,&QTimer::timeout,this,[this]{if(active_&&!busy_&&!detailsOpen()&&!failed_&&prompt_.isEmpty()&&textMode_.isEmpty())run("list");});
+}
+QVariantMap NetworkController::connection() const {
+    using Info=QNetworkInformation;
+    const bool known=information_&&information_->supports(Info::Feature::TransportMedium);
+    const auto medium=known?information_->transportMedium():Info::TransportMedium::Unknown;
+    const bool connected=known&&medium!=Info::TransportMedium::Unknown
+        &&information_->reachability()!=Info::Reachability::Disconnected;
+    const QString kind=medium==Info::TransportMedium::WiFi?"wifi":medium==Info::TransportMedium::Ethernet?"ethernet"
+        :medium==Info::TransportMedium::Bluetooth?"bluetooth":medium==Info::TransportMedium::Cellular?"cellular":"none";
+    const QString label=!known?"Network status unavailable":!connected?"Not connected"
+        :kind=="wifi"?"Wi-Fi connected":kind=="ethernet"?"Ethernet connected":kind=="bluetooth"?"Bluetooth network connected":"Mobile network connected";
+    return {{"known",known},{"connected",connected},{"kind",kind},{"label",label}};
 }
 void NetworkController::configure(NetworkService* service){
     if(service_)disconnect(service_,nullptr,this,nullptr);

@@ -29,6 +29,29 @@ void write(const QString& path, const QByteArray& value) {
 class DeviceTests : public QObject {
     Q_OBJECT
 private slots:
+    void footerWifiKeepsRouteAndOwnsInputUntilClosed() {
+        MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;
+        DevelopmentPlatformService platform;MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        NetworkProbe service;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        shell.network()->configure(&service);shell.goToPage(1);const auto page=shell.page();
+        shell.systemAction("footer-wifi");QVERIFY(shell.controlsNetworkOpen());QVERIFY(!shell.menuOpen());
+        QCOMPARE(service.requestValue["kind"].toString(),"wifi");
+        service.list({QJsonObject{{"id","ap:test"},{"title","Test network"},{"security","wpa-psk"},{"saved",false}}});
+        shell.dispatch(Action::NextPage);QCOMPARE(shell.page(),page);
+        shell.dispatch(Action::Confirm);QVERIFY(shell.keyboard()->isOpen());
+        shell.dispatch(Action::Back);QVERIFY(!shell.keyboard()->isOpen());QVERIFY(shell.controlsNetworkOpen());
+        shell.dispatch(Action::Back);QVERIFY(!shell.controlsNetworkOpen());QCOMPARE(shell.page(),page);QVERIFY(!shell.menuOpen());
+        shell.systemAction("footer-wifi");service.list({});shell.systemAction("footer-wifi");QVERIFY(!shell.controlsNetworkOpen());
+        shell.systemAction("footer-wifi");service.list({});shell.dispatch(Action::Home);QVERIFY(!shell.controlsNetworkOpen());QVERIFY(!shell.homeMenuOpen());
+        shell.systemAction("footer-wifi");service.list({});shell.dispatch(Action::SystemMenu);QVERIFY(!shell.controlsNetworkOpen());QVERIFY(!shell.menuOpen());
+    }
+    void passiveConnectionStatusDoesNotDiscoverNetworks() {
+        NetworkProbe service;NetworkController network;network.configure(&service);
+        for(int i=0;i<100;++i)QVERIFY(!network.connection()["label"].toString().isEmpty());
+        QCoreApplication::processEvents();
+        QCOMPARE(service.requests,0);QVERIFY(!network.busy());QVERIFY(network.rows().isEmpty());
+    }
     void audioSourcesAndMicrophonesUseRealIdentityAndRejectStaleTargets() {
         const auto rows=parseAudioStreams(R"([{"index":12,"properties":{"object.serial":"50","application.name":"Game","application.process.id":"300"},"volume":{"front-left":{"value":32768}},"mute":false}])");
         QCOMPARE(rows.size(),1);QCOMPARE(rows[0].toMap()["level"].toInt(),50);

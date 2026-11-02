@@ -50,7 +50,10 @@ for line in sys.stdin:
   else:emit('input',epoch=c['epoch'],connected=True,neutral=True)
  elif op=='preview':emit('previewed',token=c['token'],ok=False)
  elif op=='minimize':mode='shell';emit('minimized')
- elif op=='return':mode='game';emit('returned')
+ elif op=='return':
+  mode='game';emit('returned')
+  if c.get('options'):emit('request')
+ elif op=='cancel':emit('released')
  elif op=='stop':break
 )PY");file.close();
         ProcessService game;AdventureLaunchController launch(game);AdventureExitPresentation view(launch.exitController());
@@ -62,7 +65,10 @@ for line in sys.stdin:
         QVERIFY(service.canMinimize());const auto pid=game.processId();service.minimize();
         QTRY_COMPARE(shell.size(),1);QTRY_COMPARE(input.size(),1);QCOMPARE(qvariant_cast<Action>(input.first()[0]),Action::Confirm);
         QVERIFY(launch.minimized());QVERIFY(!view.visible());QVERIFY(finished.isEmpty());QCOMPARE(game.processId(),pid);
-        service.returnToGame();QCOMPARE(returned.size(),1);QTRY_VERIFY(!launch.minimized());QCOMPARE(game.processId(),pid);QVERIFY(finished.isEmpty());
+        service.returnToGame(true);QCOMPARE(returned.size(),1);QTRY_VERIFY(!launch.minimized());
+        QTRY_VERIFY(view.menuOpen());view.setWindowFocused(true);QTRY_VERIFY(view.ready());
+        QCOMPARE(view.menuActions().value(view.menuFocus()).toMap()["id"],"continue");
+        view.activateAction("continue");QVERIFY(!view.visible());QCOMPARE(game.processId(),pid);QVERIFY(finished.isEmpty());
         QFile stop(control);QVERIFY(stop.open(QIODevice::WriteOnly));stop.write("exit");stop.close();QTRY_VERIFY(!game.active());
     }
     void helperEndingAfterGameDoesNotDiscardCaptureDuringSettlement() {

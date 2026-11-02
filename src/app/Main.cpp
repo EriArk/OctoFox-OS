@@ -874,6 +874,7 @@ int main(int argc, char* argv[]) {
             for(auto& v:experienceActions){auto row=v.toMap();row["column"]="game";v=row;}actions.append(experienceActions);
             const auto lobby=shell.social()->homeLobby();
             if(!lobby["id"].toString().isEmpty())actions.append(QVariantMap{{"id","current-lobby"},{"label","Current lobby"},{"detail",lobby["title"]},{"readOnly",!(adventureOverlay && adventureOverlay->canMinimize())}});
+            if(shell.trainer()->exists()&&shell.trainer()->avatarAvailable())actions.append(QVariantMap{{"id","outfits"},{"label","Looks"},{"detail","Quick wardrobe"},{"readOnly",!(adventureOverlay && adventureOverlay->canMinimize())}});
             if(!playerOverlay.players().isEmpty())actions.append(QVariantMap{{"id","players"},{"label","Players & chat"}});
             const auto voice=shell.social()->account()["voice"].toMap();
             if(!voice["channel"].toString().isEmpty())actions.append(QVariantMap{{"id","call"},{"label","Voice call"},{"detail",voice["name"]}});
@@ -911,6 +912,7 @@ int main(int argc, char* argv[]) {
             if(playerOverlay.menuAction(action))return;
             if(shell.invokeLiveExperienceAction(action,adventureLaunch.adventureId(),liveExperienceSession()))return;
             if(action=="current-lobby"){pendingSystemAction="current-lobby";if(adventureOverlay)adventureOverlay->minimize();return;}
+            if(action=="outfits"){pendingSystemAction="outfits";if(adventureOverlay)adventureOverlay->minimize();return;}
             if(action=="minimize"){if(adventureOverlay)adventureOverlay->minimize();return;}
             if(action.startsWith("notice:")) {
                 if(playerOverlay.openNotification(action.mid(7)))return;
@@ -1515,6 +1517,7 @@ int main(int argc, char* argv[]) {
                     bindings.connect(adventureOverlay.get(),&AdventureOverlayService::handoffFailed,&shell,[&](QString message){pendingNotification.clear();pendingSystemAction.clear();shell.showNotice(message);});
                     bindings.connect(&shell,&ShellController::liveGameRequested,adventureOverlay.get(),[&](bool options){
                         if(shell.runtimeChangeBlocked())return;
+                        if(!adventureOverlay->canMinimize()){shell.showNotice("Game controls are temporarily unavailable.");return;}
                         adventureOverlay->returnToGame(options);
                     });
                 }

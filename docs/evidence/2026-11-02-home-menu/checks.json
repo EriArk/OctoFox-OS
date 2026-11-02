@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-02",
+  "source_base": "a145f7b0",
+  "windows_qt": {
+    "interactions_passed": 58,
+    "device_passed": 24,
+    "home_ui": true,
+    "home_reopen": true,
+    "exit_ui": true,
+    "live_controller_family_switch": [
+      "playstation",
+      "xbox",
+      "nintendo"
+    ],
+    "qml_warnings": 0,
+    "final_presentation_delta": "Direction hint text only; verified in installed ARM build"
+  },
+  "installed": {
+    "flip": {
+      "running_sha256": "5eb07b447018543958d4761f97f6e35efaae8553d188f4b7e78accd7fb06cca0",
+      "helpers_verified": 181,
+      "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_preserved": true,
+      "qml_errors": 0,
+      "header_footer_ears_visually_checked": true,
+      "anchored_wifi_real_networks_checked": true,
+      "start_shared_wifi_checked": true,
+      "shell_home_without_game_checked": true
+    },
+    "odin": {
+      "running_sha256": "5eb07b447018543958d4761f97f6e35efaae8553d188f4b7e78accd7fb06cca0",
+      "helpers_verified": 154,
+      "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_preserved": true,
+      "qml_errors": 0,
+      "header_footer_ears_visually_checked": true,
+      "anchored_wifi_real_networks_checked": true,
+      "shell_home_without_game_checked": true,
+      "volume_zero": true
+    }
+  },
+  "remaining": [
+    "physical Home/minimize/Continue cycle on handheld",
+    "external display acceptance"
+  ],
+  "arm_linux_qt": {
+    "targeted_interactions": {
+      "passed": 4,
+      "failed": 0,
+      "skipped": 1
+    },
+    "overlay_transport": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    "device_before_footer_popup": {
+      "passed": 23,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "source_manifest_sha256": "bd43e5a06059e0e36a15edace292ff873ae0b0968ff9c6c67a438799c6b8fe21"
+}

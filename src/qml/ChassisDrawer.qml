@@ -18,6 +18,12 @@ Item {
     }
     readonly property real closedWidth: Theme.adventureTabWidth
     property string button: "Y"
+    readonly property string buttonGlyph: {
+        const family=Theme.controller?.family, profile=Theme.controller?.profile
+        // With no recognized pad, show the real keyboard shortcuts, not
+        // directional placeholders for unknown face-button positions.
+        return !Theme.controller || family === "generic" ? button : Theme.buttonLabel(button)
+    }
     property string label: "Recent games"
     readonly property real keyInset: button === "Y" ? 30 : 22
     property string toggleName: "continue-toggle"
@@ -126,31 +132,14 @@ Item {
                 objectName: root.toggleName
                 visible: root.headerVisible
                 width: root.width; height: Theme.adventureTabHeight
-                Accessible.role: Accessible.Button; Accessible.name: root.button+" "+root.label
+                Accessible.role: Accessible.Button; Accessible.name: root.buttonGlyph+" "+root.label
                 Accessible.onPressAction: root.toggled()
-                Repeater {
-                    model: 4
-                    delegate: Rectangle {
-                        required property int index
-                        x: root.keyInset-4+index; y: 7+index; width: 29-index*2; height: width; radius: width/2
-                        color: [Theme.surfaceColor("#0a101e1d"),Theme.surfaceColor("#12101e1d"),Theme.surfaceColor("#1c101e1d"),Theme.surfaceColor("#28101e1d")][index]
-                    }
-                }
-                Rectangle {
-                    x: root.keyInset; y: 10; width: 21; height: 21; radius: width/2
-                    color: Qt.darker(keyCap.tint,1.3)
-                }
-                Rectangle {
-                    id: keyCap
+                Text {
                     objectName: "drawer-key-"+root.button
-                    x: root.keyInset; y: 7; width: 21; height: 21; radius: width/2
-                    readonly property color tint: root.button === "Y" ? Theme.yellow : Theme.pink
-                    border.color: Qt.lighter(tint,1.35); border.width: 0.7
-                    gradient: Gradient {
-                        GradientStop { position: 0; color: Qt.lighter(keyCap.tint,1.28) }
-                        GradientStop { position: 1; color: keyCap.tint }
-                    }
-                    Text { anchors.centerIn: parent; text: root.button; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 16; font.weight: Font.DemiBold }
+                    x: root.keyInset; y: 7; width: 21; height: 24
+                    text: root.buttonGlyph; color: root.button === "Y" ? Theme.ink : Theme.accentInk
+                    font.pixelSize: 20; font.weight: Font.DemiBold
+                    horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                 }
                 Text {
                     x: (root.button === "Y" ? root.keyInset : 18)+28; y: 7; width: root.closedWidth-x-22; height: 24

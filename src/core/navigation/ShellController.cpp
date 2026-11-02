@@ -375,7 +375,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&diagnostics_,&DiagnosticsController::setupRequested,this,[this](const QString& id){service_.clear();libraryTools_.beginGame(id);libraryTools_.activate(3);emit changed();});
     connect(&diagnostics_,&DiagnosticsController::recheckRequested,&settings_,&SettingsController::libraryRefreshRequested);
     connect(&device_, &DeviceController::changed, this, &ShellController::changed);
-    connect(this, &ShellController::changed, this, [this] { device_.setMonitoring(onboardingConnections_ || onboardingSettings_ || menuOpen_ || gameControlsOpen_ || service_ == "device" || service_ == "settings"); });
+    connect(this, &ShellController::changed, this, [this] { device_.setMonitoring(onboardingConnections_ || onboardingSettings_ || menuOpen_ || gameControlsOpen_ || controlsNetworkOpen_ || service_ == "device" || service_ == "settings"); });
     connect(&device_, &DeviceController::closeRequested, this, [this] { service_ = "settings"; emit changed(); });
     connect(&device_, &DeviceController::messageRequested, this, &ShellController::showNotice);
     connect(&powerControl_, &PowerControl::changed, this, &ShellController::changed);
@@ -547,6 +547,7 @@ bool ShellController::canEditWorld() const {
         && !drawerOpen_ && !libraryTools_.isOpen() && !worlds_.region().value("id").toString().isEmpty();
 }
 bool ShellController::localModalOpen() {
+    if(controlsNetworkOpen_)return true;
     if(dashboard_.widgetPicking())return true;
     if(pcGames_.isOpen()||gamePerformance_.isOpen())return true;
     return files_.modal() || social_.files()->picker()->isOpen() || (social_.myLobbiesOpen() || social_.lobbyCreateOpen() || social_.lobbyPickerOpen() || social_.lobbyVoteOpen()) || collectionManager()->isOpen() || downloads_.isOpen() || scraper_.isOpen() || (socialActive() && !social_.menu().isEmpty()) || libraryTools_.isOpen() || trainer_.editing()
@@ -1272,6 +1273,18 @@ void ShellController::dispatchGameControls(Action action){
     dispatchControls(action);
 }
 void ShellController::systemAction(const QString& id){
+    if(id=="footer-wifi"){
+        if(controlsNetworkOpen_){closeControlsNetwork();return;}
+        if(menuOpen_||gameControlsOpen_||homeMenuOpen_||keyboard_.isOpen()||localModalOpen()||navigationLocked()||!notice_.isEmpty())return;
+        drawerOpen_=quickAppsOpen_=false;
+        controlsNetworkOpen_=true;network_.openWifi();emit changed();return;
+    }
+    if(id=="outfits"){
+        if(trainer_.editing()||trainer_.saving()||navigationLocked())return;
+        closeHomeMenu();openProfile();
+        if(service_=="profile"){profileRoute_="outfits";outfits_.open();emit changed();}
+        return;
+    }
     if(id=="home-widget-refresh"){
         if(page_==HomePage && pairedNavigationAvailable() && dashboard_.widget()["id"]=="storage")device_.begin();
         return;
@@ -2015,7 +2028,7 @@ void ShellController::activateHomeMenu(int index) {
     if(id=="lobby"){if(liveGame_.isEmpty())social_.openLobby();else social_.openLobbyForGame(liveGame_.value("id").toString());return;}
     if(id=="live-return"||id=="live-options"){returnToLiveGame(id=="live-options");return;}
     if(id=="profile"){openProfile();return;}
-    if(id=="outfits"){if(trainer_.editing()||trainer_.saving())return;closeHomeMenu();openProfile();if(service_=="profile"){profileRoute_="outfits";outfits_.open();emit changed();}return;}
+    if(id=="outfits"){systemAction(id);return;}
     if(id=="game-party"){closeHomeMenu();openOnlineFace("lobby");emit social_.runtimeAction("multiplayer-party");return;}
     if(id.startsWith("answer-call:")||id.startsWith("decline-call:")) {
         const bool accept=id.startsWith("answer-call:");
@@ -2089,6 +2102,11 @@ void ShellController::openSocialNotification() {
     social_.openNotification();emit changed();
 }
 void ShellController::dispatch(Action action) {
+    if(controlsNetworkOpen_&&!menuOpen_&&!gameControlsOpen_&&notice_.isEmpty()){
+        if(action==Action::Home||action==Action::SystemMenu)closeControlsNetwork();
+        else dispatchControls(action);
+        return;
+    }
     if(dashboard_.widgetPicking() && (action==Action::ToggleKeyboard || action==Action::ToggleNotifications
         || action==Action::ToggleContinue || action==Action::Secondary || action==Action::Home
         || action==Action::SystemMenu || action==Action::PreviousPage || action==Action::NextPage))dashboard_.closeWidgetPicker();
@@ -2266,6 +2284,9 @@ void ShellController::dispatch(Action action) {
     }
     if(action==Action::LocalAction && canEditWorld()) {libraryTools_.beginWorld(worlds_.region().value("id").toString(),true);return;}
     if (action == Action::Home) {
+        // A running session owns Home even while the shell has foreground focus.
+        // Open its existing overlay directly, preserving the current shell route.
+        if(!liveGame_.isEmpty()){returnToLiveGame(true);return;}
         homeMenuSelection_.clear();homeMenuOpen_ = true; notificationsOpen_=homeCallOpen_=false; homeMenuSelection_ = homeMenuActions().value(0).toMap()["id"].toString();
         const auto actions=homeMenuActions();
         for(const auto& action:actions)if(action.toMap()["id"].toString().startsWith("answer-call:")){homeMenuSelection_=action.toMap()["id"].toString();break;}

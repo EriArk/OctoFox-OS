@@ -33,6 +33,8 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
     // Offscreen screen dimensions differ from the window. Exercise actual logical
     // 960x540 and 800x450 layouts without inheriting the developer's density.
     QSettings settings;
+    const auto previousController=input.profile();
+    QObject::connect(window,&QObject::destroyed,[&input,previousController]{input.setProfile(previousController);});
     const auto previousProfile=settings.value("display/profile"),previousScale=settings.value("display/interfaceScale");
     QObject::connect(window,&QObject::destroyed,[previousProfile,previousScale]{
         QSettings restored;
@@ -536,6 +538,17 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
         }
         case 63: {
             if(shell.trainer()->saving()){--*stage;break;}
+            auto* level=itemNamed("header-account-level");auto* label=itemNamed("header-account-name");auto* progress=itemNamed("header-account-progress");
+            check(level && label && progress && label->x()+label->width()<level->x()
+                && qAbs(level->y()-label->y())<1
+                && qAbs(label->x()-progress->x())<1,
+                "Compact level follows the name, with Sparks below");
+            auto* hints=itemNamed("shell-button-hints");auto* status=itemNamed("footer-status");
+            check(hints && status && hints->x()==18
+                && hints->mapRectToScene(hints->boundingRect()).right()<status->mapRectToScene(status->boundingRect()).left(),
+                "Footer hints stay left of clock, network and battery");
+            auto* clock=itemNamed("footer-clock");
+            check(clock && status && qAbs(clock->x()+clock->width()-status->width())<1,"Clock is the rightmost footer item");
             auto* name=itemNamed("header-account-name");check(name && name->property("lineCount").toInt()==1,"Short profile name stays on one line");capture("header-short-name-960");
             shell.trainer()->beginEdit();shell.trainer()->setDraftName("VLADISLAV TVTIKAUSHI");shell.trainer()->activate(shell.trainer()->editRows().size()-2);break;
         }
@@ -571,6 +584,44 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             if(shell.device()->busy()){--*stage;break;}
             check(shell.device()->status()[1].toMap()["value"].toString().contains("32.0"),"Home Storage receives the real device-service fixture");
             capture("home-widget-storage");shell.editHomeWidget();shell.dashboard()->chooseWidget("clock");break;
+        case 72: {
+            auto profile=input.profile();profile["family"]="generic";check(input.setProfile(profile),"Select keyboard fallback glyphs");break;
+        }
+        case 73: {
+            check(itemNamed("drawer-key-X")->property("text")=="X" && itemNamed("drawer-key-Y")->property("text")=="Y","Unrecognized pad uses actual keyboard X/Y shortcuts in drawer ears");
+            capture("footer-keyboard");
+            auto profile=input.profile();profile["family"]="playstation";check(input.setProfile(profile),"Select PlayStation glyphs");break;
+        }
+        case 74: {
+            check(itemNamed("drawer-key-X")->property("text").toString()==QString::fromUtf8("△")
+                && itemNamed("drawer-key-Y")->property("text").toString()==QString::fromUtf8("□"),"Drawer ears follow actual PlayStation button positions");
+            capture("footer-playstation");auto profile=input.profile();profile["family"]="xbox";input.setProfile(profile);break;
+        }
+        case 75: {
+            check(itemNamed("drawer-key-X")->property("text")=="Y" && itemNamed("drawer-key-Y")->property("text")=="X","Drawer ears update immediately to Xbox");
+            capture("footer-xbox");auto profile=input.profile();profile["family"]="nintendo";input.setProfile(profile);break;
+        }
+        case 76:
+            check(itemNamed("drawer-key-X")->property("text")=="X" && itemNamed("drawer-key-Y")->property("text")=="Y","Drawer ears update immediately to Nintendo");
+            capture("footer-nintendo");break;
+        case 77: {
+            auto* network=itemNamed("footer-network");
+            check(network && QMetaObject::invokeMethod(network,"pressAction"),"Footer Wi-Fi has a direct accessible action");break;
+        }
+        case 78: {
+            auto* popup=itemNamed("footer-network-popup");auto* network=itemNamed("footer-network");
+            check(shell.controlsNetworkOpen()&&!shell.menuOpen() && popup && popup->isVisible(),"Footer opens shared connections without Start");
+            if(popup&&network)check(popup->mapRectToScene(popup->boundingRect()).bottom()<network->mapRectToScene(network->boundingRect()).top(),"Wi-Fi popover opens above its icon");
+            capture("footer-wifi-960");window->resize(800,450);break;
+        }
+        case 79: {
+            auto* popup=itemNamed("footer-network-popup");
+            check(popup && popup->x()>=0 && popup->x()+popup->width()<=800 && popup->y()>=0,"Anchored Wi-Fi stays inside compact screen");
+            capture("footer-wifi-800");
+            QMetaObject::invokeMethod(itemNamed("footer-network"),"pressAction");window->resize(960,540);break;
+        }
+        case 80:
+            check(!shell.controlsNetworkOpen()&&!shell.menuOpen(),"Second Wi-Fi press closes popover without navigation");break;
         default:
             check(warnings == 0, "QML warnings"); completed = true; timer->stop();
             if (!screenshotDir.isEmpty()) {

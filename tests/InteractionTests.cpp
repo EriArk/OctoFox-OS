@@ -209,12 +209,13 @@ private slots:
         shell.showOverview("timeline");QCOMPARE(shell.overviewFace(),"timeline");
         shell.setLiveGame({{"id",pokemon},{"title","Running Pokemon"}});
         QSignalSpy returns(&shell,&ShellController::liveGameRequested);
-        shell.dispatch(Action::Home);const auto options=shell.homeMenuActions();
+        const auto origin=shell.navigationState();
+        shell.dispatch(Action::Home);QCOMPARE(returns.size(),1);QVERIFY(returns.takeFirst()[0].toBool());
+        QVERIFY(!shell.homeMenuOpen());QCOMPARE(shell.navigationState(),origin);
         shell.dispatch(Action::SystemMenu);QVERIFY(shell.menuOpen());QVERIFY(!shell.homeMenuOpen());
-        shell.dispatch(Action::Back);QVERIFY(!shell.menuOpen());QVERIFY(shell.homeMenuOpen());
+        shell.dispatch(Action::Back);QVERIFY(!shell.menuOpen());QVERIFY(!shell.homeMenuOpen());
         QCOMPARE(shell.page(),0);QCOMPARE(shell.overviewFace(),"timeline");
-        int live=-1;for(int i=0;i<options.size();++i)if(options[i].toMap()["id"]=="live-return")live=i;
-        QVERIFY(live>=0);shell.activateHomeMenu(live);QCOMPARE(returns.size(),1);QCOMPARE(shell.currentAdventureId(),pokemon);
+        shell.returnToLiveGame();QCOMPARE(returns.size(),1);QVERIFY(!returns.takeFirst()[0].toBool());QCOMPARE(shell.currentAdventureId(),pokemon);
         if(shell.service()=="profile")for(int back=0;back<6 && shell.service()=="profile";++back)shell.dispatch(Action::Back);
         shell.openProfile();QCOMPARE(shell.service(),"profile");shell.dispatch(Action::Confirm);
         QCOMPARE(shell.trainer()->editRows().size(),4);QVERIFY(shell.trainer()->editing());
@@ -237,6 +238,22 @@ private slots:
             QCOMPARE(shell.navigationState(),origin);
         }
     }
+    void minimizedHomeOpensGameOptionsDirectlyFromEveryTab() {
+        MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;
+        DevelopmentPlatformService platform;MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        QSignalSpy returns(&shell,&ShellController::liveGameRequested),launches(&shell,&ShellController::homeLaunchPressed);
+        shell.setLiveGame({{"id","running-game"},{"title","Running game"}});
+        for(int page=0;page<shell.primaryNames().size();++page){
+            shell.goToPage(page);const auto origin=shell.navigationState();
+            shell.dispatch(Action::Home);
+            QCOMPARE(returns.size(),1);QVERIFY(returns.takeFirst()[0].toBool());
+            QVERIFY(!shell.homeMenuOpen());QCOMPARE(shell.navigationState(),origin);QVERIFY(launches.isEmpty());
+        }
+        shell.setLiveGame({});shell.dispatch(Action::Home);
+        QVERIFY(shell.homeMenuOpen());QVERIFY(returns.isEmpty());
+        shell.dispatch(Action::Back);QVERIFY(!shell.homeMenuOpen());
+    }
     void quickLooksDuringLiveGamePreserveSessionAndReturn() {
         TrainerProfile profile;profile.id="looks-owner";profile.name="Alice";profile.createdAt=QDateTime::currentDateTimeUtc();
         MockLibraryRepository library;MockTrainerRepository profiles(profile);MockAdventureAdapter adapter;
@@ -244,11 +261,11 @@ private slots:
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
         if(!shell.trainer()->avatarAvailable())QSKIP("Avatar pack required");
         shell.setLiveGame({{"id","live-game"},{"title","Running game"}});QSignalSpy returns(&shell,&ShellController::liveGameRequested);
-        shell.dispatch(Action::Home);shell.activateHomeAction("outfits");
+        shell.systemAction("outfits");
         QCOMPARE(shell.profileRoute(),"outfits");QVERIFY(!shell.homeMenuOpen());
         QCOMPARE(shell.liveGame()["id"].toString(),"live-game");QCOMPARE(returns.size(),0);
         shell.dispatch(Action::Back);QCOMPARE(shell.profileRoute(),"summary");QCOMPARE(shell.profileFocus(),1);
-        shell.dispatch(Action::Back);shell.dispatch(Action::Home);shell.activateHomeAction("live-return");
+        shell.dispatch(Action::Back);shell.returnToLiveGame();
         QCOMPARE(returns.size(),1);QCOMPARE(shell.liveGame()["id"].toString(),"live-game");
     }
     void playerProfileOwnsHistoryAchievementsAndAccountReturn() {

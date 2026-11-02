@@ -79,6 +79,7 @@ Window {
             id: brand
             objectName: "brand-extension"
             width: Theme.brandWidth; height: Theme.brandHeight
+            readonly property real accountTextWidth: Math.max(0,notificationBell.x-headerName.x-7)
             z: 1
             AccountAvatar {
                 id: headerAvatar
@@ -90,8 +91,8 @@ Window {
             Text {
                 id: headerName; objectName: "header-account-name"
                 readonly property string fullName: shell.profileAccount.name
-                x: headerAvatar.x + headerAvatar.width + 14
-                y: 8; width: Math.max(0,notificationBell.x-x-7); height: 27
+                x: headerAvatar.x+headerAvatar.width+14
+                y: 8; width: Math.min(implicitWidth,Math.max(0,brand.accountTextWidth-headerLevel.width-7)); height: 27
                 text: fullName
                 color: "#fffef9"; font.family: Theme.displayFamily; font.pixelSize: 25
                 minimumPixelSize: 16; fontSizeMode: Text.Fit
@@ -116,22 +117,27 @@ Window {
                 Accessible.role: Accessible.Button; Accessible.name: "Notifications, "+shell.notifications.length+" updates. Home + "+Theme.buttonLabel(Theme.controller?.family==="nintendo"?"west":"north")
                 Accessible.onPressAction: shell.openNotifications()
             }
-            Rectangle {
+            Item {
+                id: headerLevel
                 objectName: "header-account-level"
-                x: headerAvatar.x+headerAvatar.width-15; y: headerAvatar.y-3
-                width: Math.max(23,Math.min(38,levelNumber.implicitWidth+10)); height: 18; radius: 9
-                color: "#f2d38b"; border.color: "#fff1c8"; border.width: 1
-                Text { id: levelNumber; anchors.centerIn: parent; width: parent.width-6; text: shell.profileAccount.levelText; color: "#343d32"; font.pixelSize: 11; font.bold: true; horizontalAlignment: Text.AlignHCenter; fontSizeMode: Text.HorizontalFit; minimumPixelSize: 8 }
+                x: headerName.x+headerName.width+7; y: headerName.y
+                width: Math.max(18,Math.min(42,levelNumber.implicitWidth)); height: headerName.height
+                Text {
+                    id: levelNumber; anchors.fill: parent; text: shell.profileAccount.levelText
+                    color: "#f2d38b"; font.family: Theme.brandFamily; font.pixelSize: 21
+                    horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
+                    fontSizeMode: Text.HorizontalFit; minimumPixelSize: 14
+                }
                 Accessible.name: "Level " + shell.profileAccount.levelText
             }
             Row {
                 objectName: "header-account-progress"
-                x: headerName.x; y: 36; width: shell.liveGame.id ? Math.min(110,headerName.width) : headerName.width; spacing: 5
+                x: headerName.x; y: 36; width: shell.liveGame.id ? Math.min(110,brand.accountTextWidth) : brand.accountTextWidth; spacing: 5
                 SparkIcon { width: 18; height: 18 }
                 Text { width: parent.width-23; height: 18; verticalAlignment: Text.AlignVCenter; text: shell.profileAccount.sparksText; color: "#f2d38b"; font.pixelSize: 14; elide: Text.ElideRight; Accessible.name: "Sparks: " + text }
             }
             Text {
-                x: headerName.x+114; y: 39; width: Math.max(0,headerName.width-114)
+                x: headerName.x+114; y: 39; width: Math.max(0,brand.accountTextWidth-114)
                 visible: !!shell.liveGame.id; text: "Game running · Home"
                 horizontalAlignment: Text.AlignRight; color: Theme.textColor("#ffe3a4"); font.pixelSize: 9
                 fontSizeMode: Text.HorizontalFit; minimumPixelSize: 7
@@ -401,10 +407,35 @@ Window {
             id: footer
             visible: !adventureLaunch.preparing
             x: 0; y: Theme.footerTop; width: parent.width; height: Theme.footerHeight
-            BatteryGauge { x: 18; y: 5; status: powerStatus }
+            Row {
+                id: footerStatus; objectName: "footer-status"
+                anchors { right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
+                spacing: 8
+                Item {
+                    id: footerNetwork; objectName: "footer-network"; width: 22; height: 27
+                    readonly property var connection: shell.network.connection
+                    function pressAction() { shell.systemAction("footer-wifi") }
+                    MenuGlyph { anchors.centerIn: parent; width: 20; height: 20; glyph: parent.connection.kind==="ethernet"?"desktop":parent.connection.kind==="bluetooth"?"bluetooth":"wifi"; ink: parent.connection.connected?"#b7c8c1":"#61716d" }
+                    Rectangle { visible: parent.connection.known&&!parent.connection.connected; anchors.centerIn: parent; width: 24; height: 1.5; rotation: -45; color: "#b7c8c1" }
+                    Text { visible: !parent.connection.known; anchors.right: parent.right; anchors.bottom: parent.bottom; text: "?"; color: "#b7c8c1"; font.pixelSize: 10 }
+                    Accessible.role: Accessible.Button; Accessible.name: "Wi-Fi: "+connection.label
+                    Accessible.onPressAction: pressAction()
+                    MouseArea { anchors.centerIn: parent; width: 30; height: parent.height; onClicked: footerNetwork.pressAction() }
+                }
+                BatteryGauge { status: powerStatus }
+                Text {
+                    id: footerClock; objectName: "footer-clock"; width: 43; height: 27
+                    text: Qt.formatTime(new Date(),"hh:mm"); color: "#b7c8c1"
+                    font.family: Theme.brandFamily; font.pixelSize: 16; verticalAlignment: Text.AlignVCenter
+                    Timer { interval: 1000; repeat: true; triggeredOnStart: true; running: footer.visible && window.visible; onTriggered: footerClock.text=Qt.formatTime(new Date(),"hh:mm") }
+                    Accessible.role: Accessible.StaticText; Accessible.name: text
+                }
+            }
             Text {
+                id: controllerWarning
                 objectName: "controller-warning"
-                x: 132; y: 10; visible: !controllerInput.connected; text: "!  Connect a controller"
+                anchors.right: footerStatus.left; anchors.rightMargin: 12
+                y: 10; visible: !controllerInput.connected; text: "!  Connect a controller"
                 color: Theme.textColor("#ffe29c"); font.pixelSize: 11
                 Accessible.role: Accessible.AlertMessage; Accessible.name: text
             }
@@ -441,11 +472,11 @@ Window {
                     if (shell.trainerSetup.canRemove) result.unshift(h("X","Remove Trainer"))
                     return result
                 }
-                if (shell.service === "settings" && shell.settings.category===10 && shell.settings.controlsFocused) {
+                if (shell.controlsNetworkOpen || (shell.service === "settings" && shell.settings.category===10 && shell.settings.controlsFocused)) {
                     if(shell.network.prompt.length) return shell.network.confirmLabel==="Wait" ? [h("B","Cancel")] : [h("A",shell.network.confirmLabel),h("B","Cancel")]
                     if(shell.network.busy) return [h("B","Cancel")]
-                    if(shell.network.detailsOpen) return [h("UpDown","Select"),h("A","Choose"),h("B","Networks")]
-                    if(!shell.network.bluetooth) return [h("UpDown","Networks"),h("A",shell.network.actionLabel),h("Select","Details"),h("Y","Search"),h("B","Categories")]
+                    if(shell.network.detailsOpen) return [h("\u2191\u2193","Select"),h("A","Choose"),h("B","Networks")]
+                    if(!shell.network.bluetooth) return [h("\u2191\u2193","Networks"),h("A",shell.network.actionLabel),h("Select","Details"),h("Y","Search"),h("B",shell.controlsNetworkOpen?"Close":"Categories")]
                     let controls = [h("←→","Wi-Fi / Bluetooth"),h("X","Radio"),h("Y","Search")]
                     if(shell.network.bluetooth && shell.network.canForget) controls.push(h("Select","Forget"))
                     if(shell.network.rows.length) controls.push(h("A",shell.network.actionLabel))
@@ -501,10 +532,12 @@ Window {
                 return result
             }
             Row {
+                id: footerHints
                 objectName: "shell-button-hints"
-                anchors { right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
+                x: 18; anchors.verticalCenter: parent.verticalCenter
                 spacing: 9
-                transformOrigin: Item.Right
+                transformOrigin: Item.Left
+                scale: Math.min(1,Math.max(0,(controllerWarning.visible?controllerWarning.x:footerStatus.x)-x-14)/Math.max(1,implicitWidth))
 
 
                 Repeater { model: footer.actions.filter(function(item) { return item.button !== "X" && item.button !== "Y" })
@@ -518,8 +551,8 @@ Window {
                         tint: button === "B" ? Theme.pink : button === "X" || button === "←→" ? Theme.blue : button === "Y" ? Theme.yellow : Theme.green
                     }
                 }
-                Hint { button: "Home"; label: "Options"; subtle: true; interactive: true; onClicked: shell.pressButton("Home"); visible: !shell.moduleControlsBlocked && !shell.social.online.open }
-                Hint { button: "Start"; label: "System"; subtle: true; tint: Theme.yellow; interactive: true; onClicked: shell.pressButton("Start"); visible: !shell.moduleControlsBlocked && !shell.social.online.open }
+                Hint { button: "Home"; label: "Options"; subtle: true; interactive: true; onClicked: shell.pressButton("Home"); visible: !shell.controlsNetworkOpen && !shell.moduleControlsBlocked && !shell.social.online.open }
+                Hint { button: "Start"; label: "System"; subtle: true; tint: Theme.yellow; interactive: true; onClicked: shell.pressButton("Start"); visible: !shell.controlsNetworkOpen && !shell.moduleControlsBlocked && !shell.social.online.open }
             }
         }
         Loader { anchors.fill: screen; active: shell.service === "library"; visible: active; sourceComponent: LibraryPanel { shell: shellController } }
@@ -581,6 +614,11 @@ Window {
         SystemPanel {
             anchors { left: screen.left; right: parent.right; top: screen.top; bottom: footer.top }
             z: 4; shell: shellController
+        }
+        ConnectionsPopup {
+            anchors.fill: parent; z: 4.3; shell: shellController; popupName: "footer-network-popup"
+            visible: shell.controlsNetworkOpen && !shell.menuOpen && !shell.gameControlsOpen
+            origin: Qt.point(footerStatus.x+footerNetwork.x+footerNetwork.width/2,footer.y+footerNetwork.y)
         }
         Item {
             objectName: "shell-home-menu"

@@ -3,6 +3,7 @@
 #include "core/input/Action.h"
 #include <QVariantList>
 #include <QTimer>
+#include <QNetworkInformation>
 namespace trainer {
 class NetworkController final:public QObject {
     Q_OBJECT
@@ -20,6 +21,7 @@ class NetworkController final:public QObject {
     Q_PROPERTY(QVariantList detailActions READ detailActions NOTIFY changed)
     Q_PROPERTY(int detailFocus READ detailFocus NOTIFY changed)
     Q_PROPERTY(bool failed READ failed NOTIFY changed)
+    Q_PROPERTY(QVariantMap connection READ connection NOTIFY connectionChanged)
 public:
     explicit NetworkController(QObject* parent=nullptr);
     void configure(NetworkService* service);
@@ -40,6 +42,7 @@ public:
     QVariantList detailActions() const;
     int detailFocus() const {return detailFocus_;}
     bool failed() const {return failed_;}
+    QVariantMap connection() const;
     void dispatch(Action action);
     void applyText(const QString& text);
     void cancelText();
@@ -54,6 +57,7 @@ public:
     Q_INVOKABLE void back(){dispatch(Action::Back);}
     Q_INVOKABLE void toggleRadio(){if(!busy_&&prompt_.isEmpty()&&textMode_.isEmpty())emit radioRequested(bluetooth_?3:2);}
 signals:
+    void connectionChanged();
     void changed();
     void backRequested();
     void textRequested(const QString& title,int limit,bool secret);
@@ -67,6 +71,7 @@ private:
     void connectWifi(const QVariantMap& row,bool editPassword=false);
     QVariantMap selected() const{return rows_.value(focus_).toMap();}
     NetworkService* service_=nullptr;
+    QNetworkInformation* information_=nullptr;
     QTimer poll_;
     QVariantList rows_;
     QJsonObject pending_;
