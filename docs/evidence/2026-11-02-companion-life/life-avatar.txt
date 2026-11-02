@@ -1,0 +1,14 @@
+********* Start testing of AvatarSceneTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : AvatarSceneTests::initTestCase()
+PASS   : AvatarSceneTests::idleDirectorVarietyEligibilityAndPause()
+PASS   : AvatarSceneTests::runningClipChangesBlendAndCanBeInterrupted()
+QINFO  : AvatarSceneTests::gpuSkinMatchesCpuWithoutPoseUploads() 24 dressed pose frames CPU reference ms 628.145 GPU palette ms 6.38475
+PASS   : AvatarSceneTests::gpuSkinMatchesCpuWithoutPoseUploads()
+QINFO  : AvatarSceneTests::resolvedModelFacesAndSkin() Background avatar load milliseconds 1109 vertices 217092
+PASS   : AvatarSceneTests::resolvedModelFacesAndSkin()
+PASS   : AvatarSceneTests::rejectInvalidSource()
+PASS   : AvatarSceneTests::revokeWhileLoading()
+PASS   : AvatarSceneTests::cleanupTestCase()
+Totals: 8 passed, 0 failed, 0 skipped, 0 blacklisted, 16388ms
+********* Finished testing of AvatarSceneTests *********

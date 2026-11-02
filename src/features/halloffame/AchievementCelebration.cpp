@@ -134,6 +134,9 @@ void AchievementCelebration::collect(const QString& id) {
                 if(!guard || generation!=guard->generation_ || !guard->valid())return;
                 if(!error.isEmpty()){emit guard->notice(error);return;}
                 if(!inserted)return;
+                emit guard->provider_.achievementAwardsEarned(moment.set,{QVariantMap{
+                    {"id",moment.achievement},{"title",moment.title},
+                    {"icon",moment.badge.isEmpty()?QString():"https://media.retroachievements.org/Badge/"+moment.badge+".png"}}});
                 qCInfo(achievementLiveLog)<<"moment committed"<<moment.set<<moment.achievement<<"photo"<<!moment.frame.isNull();
                 int points=-1;
                 for(const auto& d:guard->provider_.snapshot(moment.set).definitions)if(d.id==moment.achievement)points=d.points;

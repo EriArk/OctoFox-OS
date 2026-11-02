@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QUrl>
 #include <algorithm>
 #include <cmath>
 
@@ -21,7 +22,7 @@ void HomeCompanion::setOwner(const QString& owner){
     if(key_==key)return;
     const bool resume=active_;save();timer_.stop();active_=interacting_=menuOpen_=false;key_=key;
     food_=mood_=energy_=80;stamp_=now();quiet_=resting_=false;scene_=scenes[0];focus_=foodIndex_=0;
-    activity_.clear();bubble_.clear();bubbleKind_.clear();pendingGame_.clear();pendingAchievements_=0;
+    activity_.clear();bubble_.clear();bubbleKind_.clear();awards_.clear();achievement_.clear();seenAwards_.clear();
     unreadIds_.clear();pendingUnread_=false;actionUntil_=bubbleUntil_=lastHint_=0;
     if(!key_.isEmpty()){
         const auto o=QJsonDocument::fromJson(QSettings().value(key_).toByteArray()).object();
@@ -62,7 +63,7 @@ void HomeCompanion::setActive(bool value){
     value=value&&!key_.isEmpty();if(value==active_)return;
     advanceTo(now());active_=value;
     if(active_){timer_.start();presentPending();}
-    else {timer_.stop();interacting_=menuOpen_=false;activity_.clear();actionUntil_=0;bubble_.clear();bubbleKind_.clear();}
+    else {timer_.stop();interacting_=menuOpen_=false;activity_.clear();actionUntil_=0;bubble_.clear();bubbleKind_.clear();achievement_.clear();}
     save();emit changed();
 }
 QVariantMap HomeCompanion::needs() const {return {{"food",qRound(food_)},{"mood",qRound(mood_)},{"energy",qRound(energy_)}};}
@@ -70,6 +71,7 @@ QString HomeCompanion::background() const{return scene_;}
 QString HomeCompanion::activity() const{return activity_.isEmpty()?(resting_?"rest":"idle"):activity_;}
 QString HomeCompanion::expression() const{
     if(activity_=="celebrate")return "laughing";
+    if(activity_=="notify")return "surprised";
     if(activity_=="feed")return "happy";
     if(resting_)return "content";
     if(energy_<45)return "tired";
@@ -87,10 +89,10 @@ void HomeCompanion::perform(int index){
     interacting_=true;focus_=index;
     if(index==5){openHint();return;}
     if(index==3){scene_=scenes[(scenes.indexOf(scene_)+1)%scenes.size()];save();emit changed();return;}
-    if(index==4){quiet_=!quiet_;if(quiet_){bubble_.clear();bubbleKind_.clear();pendingAchievements_=0;pendingUnread_=false;}save();emit changed();return;}
+    if(index==4){quiet_=!quiet_;if(quiet_){clearAchievements();bubble_.clear();bubbleKind_.clear();pendingUnread_=false;if(activity_=="notify")activity_.clear();}save();emit changed();return;}
     // A repeated held/tapped action cannot stack rewards or replace its own animation.
-    if(!activity_.isEmpty()&&now()<actionUntil_)return;
-    advanceTo(now());bubble_.clear();bubbleKind_.clear();const bool wasResting=resting_;resting_=false;
+    if(activity_=="feed"&&now()<actionUntil_)return;
+    advanceTo(now());bubble_.clear();bubbleKind_.clear();achievement_.clear();const bool wasResting=resting_;resting_=false;
     if(index==0){food_=std::min(100.,food_+24);foodIndex_=(foodIndex_+1)%foods.size();activity_="feed";}
     if(index==2){resting_=!wasResting&&energy_<100;activity_.clear();}
     actionUntil_=now()+4500;save();emit changed();
@@ -113,8 +115,28 @@ void HomeCompanion::dispatch(Action a){
     emit changed();
 }
 void HomeCompanion::celebrate(const QString& game,const QStringList& titles){
-    if(key_.isEmpty()||quiet_||titles.isEmpty())return;
-    pendingAchievements_=std::min(99,pendingAchievements_+int(titles.size()));pendingGame_=game.left(80);
+    QVariantList rows;for(const auto& title:titles)rows.append(QVariantMap{{"title",title}});
+    celebrateAwards(game,rows);
+}
+void HomeCompanion::clearAchievements(){
+    awards_.clear();seenAwards_.clear();achievement_.clear();
+    if(activity_=="celebrate")activity_.clear();
+    if(bubbleKind_=="achievement"){bubble_.clear();bubbleKind_.clear();}
+    emit changed();
+}
+void HomeCompanion::celebrateAwards(const QString& set,const QVariantList& rows){
+    if(key_.isEmpty()||quiet_)return;
+    for(const auto& value:rows){
+        auto row=value.toMap();const auto title=row["title"].toString().left(160);if(title.isEmpty())continue;
+        const auto id=row["id"].toString();const auto identity=set+":"+id;
+        if(!id.isEmpty()&&seenAwards_.contains(identity))continue;
+        if(awards_.size()>=16)break;
+        const QUrl icon(row["icon"].toString());
+        const bool allowed=icon.scheme()=="https"&&icon.host()=="media.retroachievements.org"
+            &&icon.path().startsWith("/Badge/")&&icon.path().endsWith(".png")&&icon.userInfo().isEmpty()&&!icon.hasQuery()&&!icon.hasFragment();
+        awards_.enqueue(QVariantMap{{"title",title},{"icon",allowed?icon.toString():QString()},{"id",id}});
+        if(!id.isEmpty()){seenAwards_.append(identity);if(seenAwards_.size()>256)seenAwards_.removeFirst();}
+    }
     if(active_)presentPending();emit changed();
 }
 void HomeCompanion::setNotifications(const QVariantList& rows){
@@ -122,23 +144,27 @@ void HomeCompanion::setNotifications(const QVariantList& rows){
     if(ids==unreadIds_)return;
     auto added=ids;added.subtract(unreadIds_);unreadIds_=ids;
     if(!added.isEmpty())pendingUnread_=true;
-    if(ids.isEmpty()){pendingUnread_=false;if(bubbleKind_=="notifications"){bubble_.clear();bubbleKind_.clear();}}
+    if(ids.isEmpty()){pendingUnread_=false;if(bubbleKind_=="notifications"){bubble_.clear();bubbleKind_.clear();}if(activity_=="notify")activity_.clear();}
     if(active_)presentPending();emit changed();
 }
 void HomeCompanion::presentPending(){
-    if(!active_||quiet_||!activity_.isEmpty()||!bubble_.isEmpty())return;
-    if(pendingAchievements_){
-        bubble_=pendingAchievements_==1?"Achievement unlocked!":"%1 achievements unlocked!";
-        if(pendingAchievements_>1)bubble_=bubble_.arg(pendingAchievements_);
-        bubbleKind_="achievement";pendingAchievements_=0;activity_="celebrate";actionUntil_=now()+3500;bubbleUntil_=now()+10000;
+    if(!active_||quiet_||menuOpen_||resting_||!activity_.isEmpty()||!bubble_.isEmpty())return;
+    if(!awards_.isEmpty()){
+        if(now()<actionUntil_)return; // Let the previous ceremony lower its arms.
+        achievement_=awards_.dequeue();bubble_=achievement_["title"].toString();
+        bubbleKind_="achievement";activity_="celebrate";actionUntil_=now()+6500;bubbleUntil_=actionUntil_;
     }else if(pendingUnread_&&!unreadIds_.isEmpty()&&(!lastHint_||now()-lastHint_>=600000)){
         bubble_="You have unread notifications";bubbleKind_="notifications";pendingUnread_=false;lastHint_=now();bubbleUntil_=now()+8000;
+        activity_="notify";actionUntil_=now()+4500;
     }
 }
-void HomeCompanion::openHint(){if(!active_)return;bubble_.clear();bubbleKind_.clear();pendingUnread_=false;emit inboxRequested();emit changed();}
+void HomeCompanion::openHint(){if(!active_)return;bubble_.clear();bubbleKind_.clear();pendingUnread_=false;if(activity_=="notify")activity_.clear();emit inboxRequested();emit changed();}
 void HomeCompanion::tick(){
     advanceTo(now());
-    if(!activity_.isEmpty()&&now()>=actionUntil_)activity_.clear();
+    if(!activity_.isEmpty()&&now()>=actionUntil_){
+        if(activity_=="celebrate")actionUntil_=now()+600;
+        activity_.clear();achievement_.clear();
+    }
     if(!bubble_.isEmpty()&&now()>=bubbleUntil_){bubble_.clear();bubbleKind_.clear();}
     presentPending();if(now()-lastSave_>=60000)save();emit changed();
 }

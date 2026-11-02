@@ -157,7 +157,7 @@ void RetroAchievementsProvider::publish(LinkedAchievementSet value,bool notify) 
     if (value.snapshot.state != AchievementState::Ready && records_.contains(value.set.id)) {
         auto cached = records_.value(value.set.id); cached.snapshot.state = value.snapshot.state; value = std::move(cached);
     }
-    QStringList earned;
+    QStringList earned;QVariantList awards;
     if(notify && value.snapshot.state==AchievementState::Ready && records_.contains(value.set.id)) {
         const auto& previous=records_[value.set.id];
         if(previous.contentHash==value.contentHash && previous.snapshot.context==value.snapshot.context)
@@ -165,11 +165,16 @@ void RetroAchievementsProvider::publish(LinkedAchievementSet value,bool notify) 
                 if(liveAcknowledged_.contains(value.set.id+":"+unlock.achievementId))continue;
                 const auto old=std::find_if(previous.snapshot.unlocks.cbegin(),previous.snapshot.unlocks.cend(),[&](const auto& u){return u.achievementId==unlock.achievementId;});
                 if(old==previous.snapshot.unlocks.cend()||old->unlocked!=false)continue;
-                for(const auto& definition:value.snapshot.definitions)if(definition.id==unlock.achievementId)earned.append(definition.title);
+                for(const auto& definition:value.snapshot.definitions)if(definition.id==unlock.achievementId){
+                    earned.append(definition.title);
+                    awards.append(QVariantMap{{"id",definition.id},{"title",definition.title},
+                        {"icon",definition.badgeName.isEmpty()?QString():"https://media.retroachievements.org/Badge/"+definition.badgeName+".png"}});
+                }
             }
     }
     records_.insert(value.set.id, value); emit snapshotChanged(value.set.id);
     if(!earned.isEmpty())emit achievementsEarned(value.set.title,earned);
+    if(!awards.isEmpty())emit achievementAwardsEarned(value.set.id,awards);
 }
 void RetroAchievementsProvider::sync(const QString& setId,const QString& adventureId,bool notify) {
     if (!account_.valid() || busy_) return;

@@ -84,7 +84,8 @@ struct AvatarScene::Data {
     struct Part {int node,skin;QVector<Vertex> base;QVector<float> joints,weights,lastMorph;bool uploaded=false;QVector<QVector<Delta>> morphs;QStringList names;QByteArray indices;QQuick3DGeometry* geometry=nullptr;};
     struct Track {int node,width;QString path,interpolation;QVector<float> times,values;};
     struct Clip {QVector<Track> tracks;float duration=0;};
-    QVector<Node> nodes;QVector<Skin> skins;QVector<Part> parts;QMap<QString,Clip> clips;
+    QVector<Node> nodes,animated,transition;float transitionTime=0;
+    QVector<Skin> skins;QVector<Part> parts;QMap<QString,Clip> clips;
     QJsonObject expressions;QSet<QString> controls;QMap<QString,float> face;
     QMap<QString,QVector3D> pose;int vertices=0;
     QVariantList materials;
@@ -109,7 +110,11 @@ bool AvatarScene::supportsExpression(const QString& name) const{return d_&&d_->e
 bool AvatarScene::supportsClip(const QString& name) const{return d_&&d_->clips.contains(name);}
 void AvatarScene::setRunning(bool value){if(running_==value)return;running_=value;clock_.restart();if(value&&ready())timer_.start();else timer_.stop();emit changed();}
 void AvatarScene::setExpression(const QString& value){if(expression_==value||(d_&&!supportsExpression(value)))return;expression_=value;dirty_=true;emit changed();if(!running_)frame();}
-void AvatarScene::setClip(const QString& value){if(clip_==value||(d_&&!value.isEmpty()&&!supportsClip(value)))return;clip_=value;clipSeconds_=0;dirty_=true;emit changed();if(!running_)frame();}
+void AvatarScene::setClip(const QString& value){
+    if(clip_==value||(d_&&!value.isEmpty()&&!supportsClip(value)))return;
+    if(d_){d_->transition=running_?d_->animated:QVector<Data::Node>();d_->transitionTime=0;}
+    clip_=value;clipSeconds_=0;dirty_=true;emit changed();if(!running_)frame();
+}
 void AvatarScene::setClipPosition(qreal value){if(!std::isfinite(value)||clipPosition_==value)return;clipPosition_=std::clamp(value,-1.,1.);dirty_=true;emit changed();if(!running_)frame();}
 void AvatarScene::setPose(const QVariantMap& value){
     for(auto i=value.begin();i!=value.end();++i){if(!i.value().canConvert<QVector3D>())return;const auto v=i.value().value<QVector3D>();if(!std::isfinite(v.x())||!std::isfinite(v.y())||!std::isfinite(v.z()))return;}
@@ -204,7 +209,7 @@ void AvatarScene::setSource(const QUrl& value){
 void AvatarScene::frame(){
     if(!d_)return;
     const double dt=std::clamp(clock_.restart()/1000.,0.,.1);if(running_)clipSeconds_+=dt;
-    bool updateNeeded=dirty_||(!clip_.isEmpty()&&clipPosition_<0);dirty_=false;
+    bool updateNeeded=dirty_||(!clip_.isEmpty()&&clipPosition_<0)||!d_->transition.isEmpty();dirty_=false;
     const float smoothing=running_?float(1-std::exp(-dt/0.12)):1.f;
     auto expression=d_->expressions[expression_].toObject();
     for(auto i=face_.begin();i!=face_.end();++i)if(d_->controls.contains(i.key()))expression[i.key()]=std::clamp(i.value().toDouble(),0.,1.);
@@ -220,6 +225,18 @@ void AvatarScene::frame(){
             auto& n=nodes[track.node];if(track.path=="translation"&&v.size()==3)n.p=vec(v,0);else if(track.path=="scale"&&v.size()==3)n.s=vec(v,0);else if(track.path=="rotation"&&v.size()==4){const auto& q=track.values;const int x=a*4,y=b*4;n.r=QQuaternion::slerp(QQuaternion(q[x+3],q[x],q[x+1],q[x+2]),QQuaternion(q[y+3],q[y],q[y+1],q[y+2]),blend);}else if(track.path=="weights")n.weights=v;
         }
     }
+    // Blend from the actual last sampled pose, including interrupted transitions.
+    // Procedural offsets below retain their own smoothing and are not applied twice.
+    if(d_->transition.size()==nodes.size()){
+        d_->transitionTime+=dt;const float t=running_?std::min(1.f,d_->transitionTime/.32f):1.f;
+        const float a=t*t*(3-2*t);
+        for(int i=0;i<nodes.size();++i){auto& n=nodes[i];const auto& from=d_->transition[i];
+            n.p=from.p*(1-a)+n.p*a;n.s=from.s*(1-a)+n.s*a;n.r=QQuaternion::slerp(from.r,n.r,a);
+            for(int j=0;j<n.weights.size();++j)n.weights[j]=from.weights.value(j)*(1-a)+n.weights[j]*a;
+        }
+        if(t>=1)d_->transition.clear();
+    }
+    d_->animated=nodes;
     for(auto& node:nodes)if(d_->pose.contains(node.name))node.r*=QQuaternion::fromEulerAngles(d_->pose[node.name]);
     QVector<QMatrix4x4> world(nodes.size());QVector<int> state(nodes.size(),0);
     std::function<void(int)> update=[&](int i){if(state[i]==2)return;require(state[i]!=1);state[i]=1;const auto& n=nodes[i];QMatrix4x4 local=n.matrix;if(!n.matrixSet){local.setToIdentity();local.translate(n.p);local.rotate(n.r);local.scale(n.s);}if(n.parent>=0){update(n.parent);world[i]=world[n.parent]*local;}else world[i]=local;state[i]=2;};

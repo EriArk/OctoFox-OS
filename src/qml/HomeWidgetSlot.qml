@@ -39,10 +39,17 @@ Item {
         }
     }
     Loader {
+        id:companionLoader
         objectName: "home-companion-loader"
         anchors.fill:parent
-        active:root.visible && root.presentationActive && !root.picking && root.flow.widget.renderer==="avatar-care-v1"
-        sourceComponent:HomeCompanionWidget {shell:root.shell;selected:root.selected;assetBase:root.flow.widget.assetBase || ""}
+        active:shutter.retainContent
+        sourceComponent:HomeCompanionWidget {shell:root.shell;selected:root.selected;assetBase:root.flow.widget.assetBase || "";presentationActive:shutter.retainContent}
+    }
+    HomeWidgetShutter {
+        id:shutter;anchors.fill:parent
+        visible:!root.picking && root.flow.widget.renderer==="avatar-care-v1"
+        requested:root.visible && root.presentationActive && visible
+        contentReady:!!companionLoader.item && companionLoader.item.presentationReady
     }
     Rectangle {
         anchors.fill: parent

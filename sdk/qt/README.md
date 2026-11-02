@@ -73,6 +73,28 @@ Tests: `trainer_avatar_scene_tests`, `trainer_home_companion_tests`,
 See [Home companion evidence](../../docs/evidence/2026-11-02-home-companion/README.md)
 and [GPU/lifecycle checks](../../docs/evidence/2026-11-02-companion-fixes/README.md).
 
+## Autonomous idle motion
+
+`AvatarIdleDirector.qml` is an optional presentation helper for the current
+`trainer-humanoid-54-v1` rig. Register it beside `AvatarView3D`. Bind `enabled` to
+visible, ready, unblocked idle time; feed it `energy` (0..100) and `outdoors`.
+It returns `pose`, `action`, `clipPosition`, `expression`, `yaw` and `seated`.
+An empty expression means use the host's current mood. The host supplies the
+seat model when `seated` is true; this never invokes a care Rest action.
+
+Seven activities use visible upper-body/head motion: looking around, looking up,
+inspecting a hand, swaying, stretching, waving and sitting. Pauses, recent-action
+exclusion and a seat cooldown prevent constant repetition; low energy excludes
+stretching and increases the chance of a seat. `greetingPose(phase,weight)` also
+serves bounded notification gestures. No care state, reward or game time is
+modified. Disabling resets motion and stops the 83 ms presentation timer;
+unloading its owner destroys it. `automatic:false`, `seed`, `start(name)` and
+`advance(seconds)` support controlled previews and deterministic tests.
+
+Running `AvatarScene` clip changes now blend from the last sampled skeleton for
+320 ms, including interruption during a blend. Procedural offsets retain their
+separate smoothing. Stopped scenes sample directly for deterministic pose tools.
+
 ## Static cards
 
 Optional GPL-3.0-or-later SDK consumer code. Add `AvatarCards.h` to an AUTOMOC

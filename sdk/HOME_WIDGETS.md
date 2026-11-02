@@ -40,12 +40,29 @@ that selection available again. Installing alone never replaces the user's Home
 selection. **Open** in Crates selects its first contribution through host routing.
 
 The avatar-care presentation is created only on the active, unobstructed Home.
-Leaving Home, opening Start/drawers/keyboard, or deactivating the shell destroys
-the complete widget, its 3D scene, animation timers and owned geometry. Returning
-creates one instance from the current profile. Care, queued achievements and
+Leaving Home, opening Start/drawers/keyboard, or deactivating the shell closes
+the host's two-panel shutter before destroying the complete widget, its 3D scene,
+animation timers and owned geometry. A still-visible surface gets a bounded
+190 ms closing transition. Hidden/non-renderable surfaces close and release
+immediately. Returning creates one instance behind closed doors; they open only
+after `presentationReady` (avatar ready, or an explicit unavailable/error state).
+Reversing a transition does not create a second scene. Care, queued achievements and
 verified gameplay accounting stay in their lightweight host services; unloading
 is not the Rest action and grants no energy. Render-driver caches need not cause
 process RSS to fall immediately when a presentation is destroyed.
+
+Home care's notification reaction is presentation-only: one wave and surprised
+face, a speech balloon, and the existing inbox route. Unchanged unread IDs do not
+retrigger it; quiet mode and resting/feeding/menu priority remain effective.
+The internal `AchievementProvider::achievementAwardsEarned(setId, awards)` signal
+carries stable `id`, `title` and `icon` together. It originates from newly confirmed
+unlocks or a committed owned live moment, never a history import. The Trainer
+provider forwards it; Home deduplicates IDs, queues at most 16 awards and clears
+them on provider-account/profile changes. This is an internal provider contract,
+not a new external TCP method or a claim about unimplemented achievement providers.
+Artwork currently comes from the RA badge service; missing/offline art uses an
+explicit generic star with the actual award title. It is not another achievement's
+icon. The old title-only shell notification signal remains compatible.
 
 ## Optional SDK activation
 

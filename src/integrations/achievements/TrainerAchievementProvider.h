@@ -13,6 +13,7 @@ public:
         provider_=std::make_unique<RetroAchievementsProvider>(library_,directory);
         connect(provider_.get(),&AchievementProvider::snapshotChanged,this,&AchievementProvider::snapshotChanged);
         connect(provider_.get(),&AchievementProvider::achievementsEarned,this,&AchievementProvider::achievementsEarned);
+        connect(provider_.get(),&AchievementProvider::achievementAwardsEarned,this,&AchievementProvider::achievementAwardsEarned);
         connect(provider_.get(),&AchievementProvider::historyChanged,this,&AchievementProvider::historyChanged);
         emit snapshotChanged({});provider_->refreshAll();
     }

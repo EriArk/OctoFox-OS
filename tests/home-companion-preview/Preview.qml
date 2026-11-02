@@ -8,6 +8,8 @@ Window {
     onDarkChanged:Theme.themeId=dark?"dark":"light"
     property real uiScale:2
     property bool compact:false
+    readonly property bool sceneRequested:mockShell.unobstructed
+    readonly property bool sceneReady:!!slot.item && slot.item.presentationReady && shutter.progress===0
     QtObject {
         id: mockShell
         property bool unobstructed:true
@@ -21,8 +23,16 @@ Window {
     Loader {
         id: slot
         anchors.centerIn:parent;width:root.compact?216:269;height:root.compact?121:208;scale:2
-        Component.onCompleted:setSource(sourceRoot+"/src/qml/HomeCompanionWidget.qml",{"shell":mockShell,"selected":true,"assetBase":packageAssets})
+        active:shutter.retainContent
+        Component.onCompleted:setSource(sourceRoot+"/src/qml/HomeCompanionWidget.qml",{"shell":mockShell,"selected":true,"assetBase":packageAssets,"presentationActive":Qt.binding(function(){return shutter.retainContent})})
     }
-    function hideScene(){mockShell.unobstructed=false;slot.active=false}
-    function showScene(){mockShell.unobstructed=true;slot.active=true}
+    HomeWidgetShutter {
+        id:shutter;anchors.centerIn:parent;width:slot.width;height:slot.height;scale:2
+        // Xvfb has no window manager. Focus is a controlled fixture input here.
+        windowRenderable:true
+        requested:mockShell.unobstructed
+        contentReady:!!slot.item && slot.item.presentationReady
+    }
+    function hideScene(){mockShell.unobstructed=false}
+    function showScene(){mockShell.unobstructed=true}
 }

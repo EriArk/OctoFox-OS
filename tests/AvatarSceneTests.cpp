@@ -10,10 +10,39 @@
 #include <cstring>
 #include <functional>
 #include <QPointer>
+#include <QQmlEngine>
+#include <QQmlComponent>
 using namespace trainer;
 class AvatarSceneTests final:public QObject {
     Q_OBJECT
 private slots:
+    void idleDirectorVarietyEligibilityAndPause(){
+        QQmlEngine engine;QQmlComponent component(&engine,QUrl::fromLocalFile(TRAINER_AVATAR_IDLE_QML));
+        QScopedPointer<QObject> idle(component.create());QVERIFY2(idle,qPrintable(component.errorString()));
+        idle->setProperty("automatic",false);idle->setProperty("seed",1234);idle->setProperty("enabled",true);
+        QString last;QSet<QString> seen;int changes=0;
+        for(int i=0;i<6000;++i){
+            QVERIFY(QMetaObject::invokeMethod(idle.data(),"advance",Q_ARG(QVariant,.1)));
+            const auto state=idle->property("behavior").toString();
+            if(state!="pause" && state!=last){seen.insert(state);last=state;++changes;}
+        }
+        QCOMPARE(seen.size(),7);QVERIFY(changes>30);
+        idle->setProperty("enabled",false);QCOMPARE(idle->property("action").toString(),QString());
+        const auto clock=idle->property("clock");QMetaObject::invokeMethod(idle.data(),"advance",Q_ARG(QVariant,10.));
+        QCOMPARE(idle->property("clock"),clock);QVERIFY(!idle->property("seated").toBool());
+        idle->setProperty("energy",30);idle->setProperty("enabled",true);
+        for(int i=0;i<3000;++i){QMetaObject::invokeMethod(idle.data(),"advance",Q_ARG(QVariant,.1));QVERIFY(idle->property("behavior").toString()!="stretch");}
+    }
+    void runningClipChangesBlendAndCanBeInterrupted(){
+        QTemporaryDir cache;const auto avatar=AvatarAssets::resolve(AvatarAssets::defaults(),{},cache.path());
+        AvatarScene scene;scene.setGpuSkinning(true);scene.setSource(QUrl::fromLocalFile(avatar["glb"].toString()));
+        QTRY_VERIFY_WITH_TIMEOUT(scene.ready(),10000);const auto standing=scene.nodePoses();
+        scene.setRunning(true);scene.setClipPosition(.5);scene.setClip("Sit");QTest::qWait(110);
+        const auto between=scene.nodePoses();QVERIFY(between!=standing);
+        QTest::qWait(400);const auto sitting=scene.nodePoses();QVERIFY(between!=sitting);
+        scene.setClip("Arms_Up");QTest::qWait(90);scene.setClip("");QTest::qWait(450);
+        QCOMPARE(scene.nodePoses(),standing);scene.setRunning(false);
+    }
     void gpuSkinMatchesCpuWithoutPoseUploads(){
         QTemporaryDir cache;auto appearance=AvatarAssets::defaults();
         appearance["top"]="rose-racing-suit";appearance["shoes"]="rose-racing-boots";

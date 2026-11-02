@@ -112,6 +112,9 @@ private slots:
         QCOMPARE(dashboard->widget()["id"].toString(),QString("crates:home-companion:pet"));
         QVERIFY(!dashboard->widgetPicking());
         shell.goToPage(ShellController::HomePage);pet->setActive(true);
+        emit achievements.achievementAwardsEarned("fixture-set",{QVariantMap{{"id","fixture-award"},{"title","Provider award"},{"icon","https://media.retroachievements.org/Badge/00123.png"}}});
+        QCOMPARE(pet->achievement()["id"].toString(),"fixture-award");
+        achievements.setAccount("replacement-account");QVERIFY(pet->achievement().isEmpty());QCOMPARE(pet->activity(),QString("idle"));
         QVERIFY(QMetaObject::invokeMethod(dashboard,"select",Q_ARG(QString,QString("widget"))));
         QCOMPARE(dashboard->focus(),QString("widget"));
         QSignalSpy launches(&shell,&ShellController::homeLaunchPressed);

@@ -1,0 +1,38 @@
+********* Start testing of RetroAchievementsTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : RetroAchievementsTests::initTestCase()
+PASS   : RetroAchievementsTests::accountHistoryIsPagedPrivateAndRejectsMalformedProgress()
+PASS   : RetroAchievementsTests::serverWarningsAreNotAwardsOrProgressEvenInOldCache()
+PASS   : RetroAchievementsTests::nativeEventsAreBoundedAndNeverReadHistoricalOrUnscopedText()
+PASS   : RetroAchievementsTests::momentsMigratePhotosDeduplicateAndRetainAwardsAfterPruning()
+PASS   : RetroAchievementsTests::runtimeHashEnablesOtherPlatformsWithoutFilenameOrRawHashGuessing()
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: owned runtime attached
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: runtime identified set "42"
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: moment committed "42" "103" photo true
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: celebration presented "42" "103"
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: celebration presented "42" "103"
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: owned runtime attached
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: runtime identified set "42"
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: owned runtime attached
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: runtime identified set "42"
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: owned runtime attached
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: runtime identified set "42"
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: owned runtime attached
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: runtime identified set "42"
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: moment committed "42" "102" photo false
+QINFO  : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture() trainer.achievements: celebration presented "42" "102"
+PASS   : RetroAchievementsTests::liveCaptureIsBoundToSessionAndHistoricalRefreshDoesNotCapture()
+PASS   : RetroAchievementsTests::launchAccountIsTrainerScopedAndClearedOnSignOut()
+PASS   : RetroAchievementsTests::launchOverlayPreservesSaveRouteAndIsRemovedAfterReturn()
+PASS   : RetroAchievementsTests::rejectedPreparationDoesNotLeaveCredentials()
+PASS   : RetroAchievementsTests::returnedAdventureRefreshNotifiesOnlyNewConfirmedUnlocks()
+PASS   : RetroAchievementsTests::formEncodingPreservesPasswordCharacters()
+PASS   : RetroAchievementsTests::verifiedWholeFileHashAndUnsupportedLayouts()
+PASS   : RetroAchievementsTests::verifiedCoreDefinitionsAndUnlockModes()
+PASS   : RetroAchievementsTests::optionalBadgeIdentitySurvivesCacheWithoutChangingUnlocks()
+PASS   : RetroAchievementsTests::partialOrInvalidRepliesDoNotInventLockedTotals()
+PASS   : RetroAchievementsTests::privateAccountAndProviderCacheSurviveOfflineRestart()
+PASS   : RetroAchievementsTests::controllerLoginMasksDraftAndClearsItOnClose()
+PASS   : RetroAchievementsTests::cleanupTestCase()
+Totals: 19 passed, 0 failed, 0 skipped, 0 blacklisted, 4096ms
+********* Finished testing of RetroAchievementsTests *********

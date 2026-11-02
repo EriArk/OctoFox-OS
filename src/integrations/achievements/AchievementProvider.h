@@ -75,6 +75,9 @@ signals:
     void historyChanged();
     void snapshotChanged(const QString& setId);
     void achievementsEarned(const QString& title, const QStringList& names);
+    // New verified awards, never an imported history snapshot. Stable IDs and
+    // artwork travel together so consumers never match achievements by title.
+    void achievementAwardsEarned(const QString& setId,const QVariantList& awards);
 };
 class MockAchievementProvider final : public AchievementProvider {
 public:

@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QVariantMap>
 #include <QSet>
+#include <QQueue>
 
 namespace trainer {
 // Profile-owned care state. Rendering and background timers are not its clock.
@@ -21,6 +22,7 @@ class HomeCompanion final : public QObject {
     Q_PROPERTY(QString prop READ prop NOTIFY changed)
     Q_PROPERTY(QString bubble READ bubble NOTIFY changed)
     Q_PROPERTY(QString bubbleKind READ bubbleKind NOTIFY changed)
+    Q_PROPERTY(QVariantMap achievement READ achievement NOTIFY changed)
 public:
     explicit HomeCompanion(QObject* parent=nullptr);
     ~HomeCompanion() override;
@@ -40,6 +42,7 @@ public:
     QString prop() const;
     QString bubble() const { return bubble_; }
     QString bubbleKind() const { return bubbleKind_; }
+    QVariantMap achievement() const { return achievement_; }
     Q_INVOKABLE void begin();
     Q_INVOKABLE void end();
     Q_INVOKABLE void toggleMenu();
@@ -48,6 +51,8 @@ public:
     Q_INVOKABLE void setNotifications(const QVariantList& rows);
     void dispatch(Action action);
     void celebrate(const QString& game,const QStringList& titles);
+    void celebrateAwards(const QString& set,const QVariantList& awards);
+    void clearAchievements();
 signals:
     void changed();
     void inboxRequested();
@@ -61,8 +66,10 @@ private:
     qint64 stamp_=0,lastSave_=0,actionUntil_=0,bubbleUntil_=0,lastHint_=0;
     bool active_=false,interacting_=false,quiet_=false,resting_=false;
     bool menuOpen_=false;
-    int focus_=0,foodIndex_=0,pendingAchievements_=0;
-    QString pendingGame_;
+    int focus_=0,foodIndex_=0;
+    QQueue<QVariantMap> awards_;
+    QVariantMap achievement_;
+    QStringList seenAwards_;
     QSet<QString> unreadIds_;
     bool pendingUnread_=false;
     QTimer timer_;

@@ -704,7 +704,12 @@ Item {
 })QML",QUrl("qrc:/TrainerOS/CompanionIntegrationProbe.qml"));
             auto* probe=qobject_cast<QQuickItem*>(component.createWithInitialProperties({{"liveShell",QVariant::fromValue(&shell)}}));
             check(probe,component.errorString());
-            if(probe){probe->setParent(window);probe->setParentItem(window->contentItem());}
+            if(probe){
+                probe->setParent(window);probe->setParentItem(window->contentItem());
+                // This offscreen fixture controls focus; real application focus
+                // remains a separate handheld acceptance condition.
+                if(auto* shutter=probe->findChild<QObject*>("home-widget-shutter"))shutter->setProperty("windowRenderable",true);
+            }
             break;
         }
         case 92: {

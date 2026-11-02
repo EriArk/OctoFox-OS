@@ -15,8 +15,11 @@ HomeDashboardController::HomeDashboardController(LibraryRepository& library,Achi
         if(next!=account){account=next;focus_="play";}
         emit changed();
     });
-    connect(&provider_,&AchievementProvider::snapshotChanged,this,[this]{achievementsCached_=false;emit changed();});
-    connect(&provider_,&AchievementProvider::achievementsEarned,&companion_,&HomeCompanion::celebrate);
+    connect(&provider_,&AchievementProvider::snapshotChanged,this,[this,context=provider_.context()]() mutable {
+        if(context!=provider_.context()){context=provider_.context();companion_.clearAchievements();}
+        achievementsCached_=false;emit changed();
+    });
+    connect(&provider_,&AchievementProvider::achievementAwardsEarned,&companion_,&HomeCompanion::celebrateAwards);
     // QML loader activation changes care state. Defer its presentation signal
     // until the current widget/picker binding has finished evaluating.
     connect(&companion_,&HomeCompanion::changed,this,&HomeDashboardController::changed,Qt::QueuedConnection);

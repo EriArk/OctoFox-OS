@@ -9,7 +9,10 @@ Item {
     property bool selected: false
     property string assetBase: "qrc:/home-pet/"
     readonly property var pet: shell.dashboard.companion
-    readonly property bool live: visible && shell.unobstructed && !shell.quickAppsOpen && !shell.drawerOpen && !shell.keyboard.open
+    property bool presentationActive:shell.unobstructed && !shell.quickAppsOpen && !shell.drawerOpen && !shell.keyboard.open
+    readonly property bool live:visible && presentationActive
+    readonly property bool presentationReady:!shell.trainer.avatarRendererAvailable ||
+        (!!actor.item && (actor.item.ready || !!actor.item.error)) || (!shell.trainer.avatarBusy && !shell.trainer.avatarModel.toString())
     readonly property bool compact: height < 170
     readonly property var labels: ["Feed", "Playtime · 60 min = 100%", pet.activity === "rest" ? "Wake up" : "Rest"]
     objectName: "home-companion"
@@ -113,10 +116,53 @@ Item {
     Rectangle {
         anchors.horizontalCenter:parent.horizontalCenter; anchors.bottom:parent.bottom; anchors.bottomMargin:6
         width:Math.min(parent.width-16,190); height:message.implicitHeight+10; radius:8
-        visible:!!root.pet.bubble && !root.pet.menuOpen; color:"#eafff6dc"
+        visible:!!root.pet.bubble && root.pet.bubbleKind!=="notifications" && !root.pet.menuOpen; color:"#eafff6dc"
         Text { id:message; x:6; y:5; width:parent.width-12; text:root.pet.bubble; textFormat:Text.PlainText; wrapMode:Text.WordWrap; font.pixelSize:root.compact?10:12; color:"#3d473a" }
         MouseArea { anchors.fill:parent; onClicked:root.pet.openHint() }
         Accessible.role:Accessible.Button; Accessible.name:root.pet.bubble; Accessible.onPressAction:root.pet.openHint()
+    }
+    Item {
+        id:notice;objectName:"companion-notice-bubble"
+        visible:root.live && !!root.pet.bubble && root.pet.bubbleKind==="notifications" && !root.pet.menuOpen
+        x:parent.width*.66;y:root.compact?parent.height*.29:parent.height*.25
+        width:root.compact?28:35;height:width
+        property real bob:0
+        transform:Translate {y:notice.bob}
+        SequentialAnimation on bob {
+            running:notice.visible;loops:Animation.Infinite
+            NumberAnimation {to:-3;duration:650;easing.type:Easing.InOutSine}
+            NumberAnimation {to:0;duration:650;easing.type:Easing.InOutSine}
+        }
+        Rectangle {width:10;height:10;x:4;y:parent.height-7;rotation:30;color:"#fff8e5"}
+        Rectangle {anchors.fill:parent;radius:width*.43;color:"#fff8e5";border.color:"#e0a72b";border.width:1.5}
+        Text {anchors.centerIn:parent;text:"!";font.bold:true;font.pixelSize:root.compact?23:29;color:"#674724"}
+        MouseArea {anchors.fill:parent;onClicked:root.pet.openHint()}
+        Accessible.role:Accessible.Button;Accessible.name:root.pet.bubble;Accessible.onPressAction:root.pet.openHint()
+    }
+    Item {
+        id:award;objectName:"companion-raised-award"
+        visible:root.live && root.pet.activity==="celebrate" && !!actor.item && actor.item.ready && !root.pet.menuOpen
+        width:root.compact?29:38;height:width
+        opacity:actor.item?actor.item.awardLift:0
+        scale:actor.item?.5+.5*actor.item.awardLift:1
+        x:actor.item?actor.x+actor.item.awardPoint.x-width/2:0
+        y:actor.item?Math.max(3,actor.y+actor.item.awardPoint.y-height/2):0
+        property real spin:0
+        NumberAnimation on spin {from:0;to:360;duration:6500;loops:Animation.Infinite;running:award.visible}
+        Item {
+            anchors.centerIn:parent;width:parent.width*1.8;height:width;rotation:award.spin
+            Repeater {
+                model:8
+                Item {
+                    required property int index
+                    anchors.fill:parent;rotation:index*45
+                    Rectangle {x:parent.width/2-1.5;y:0;width:3;height:6;radius:1.5;color:"#ffe698"}
+                }
+            }
+        }
+        Rectangle {anchors.fill:parent;radius:9;color:"#fff5cd";border.width:2;border.color:"#f8c852"}
+        Image {id:awardIcon;objectName:"companion-award-icon";anchors.fill:parent;anchors.margins:4;source:root.pet.achievement.icon || "";asynchronous:true;sourceSize:Qt.size(96,96);fillMode:Image.PreserveAspectFit}
+        Text {anchors.centerIn:parent;visible:awardIcon.status!==Image.Ready;text:"★";font.pixelSize:parent.height*.72;color:"#d28c12"}
     }
     Item {
         anchors.fill:parent; visible:root.pet.menuOpen
