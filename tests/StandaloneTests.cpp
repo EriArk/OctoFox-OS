@@ -13,6 +13,7 @@
 #include "integrations/adventure/standalone/VitaNetplay.h"
 #include "integrations/adventure/standalone/MelonDsNetplay.h"
 #include "integrations/adventure/standalone/MelonDsWfc.h"
+#include "integrations/adventure/standalone/NintendoOnline.h"
 #include "integrations/adventure/DiscPlaylist.h"
 #include "integrations/adventure/retroarch/RetroArchAdapter.h"
 #include "core/storage/LocalStateStore.h"
@@ -50,6 +51,66 @@ class StandaloneTests final : public QObject {
         QFile file(path); QVERIFY(file.open(QIODevice::WriteOnly)); QCOMPARE(file.write(data), data.size());
     }
 private slots:
+    void nintendoNativeOnline_data() {
+        QTest::addColumn<QString>("platform");QTest::addColumn<QString>("service");QTest::addColumn<QString>("suffix");
+        QTest::newRow("wiimmfi")<<QString("wii")<<QString("wiimmfi")<<QString("iso");
+        QTest::newRow("wiilink")<<QString("wii")<<QString("wiilink")<<QString("rvz");
+        QTest::newRow("azahar-pretendo")<<QString("n3ds")<<QString("pretendo")<<QString("cci");
+        QTest::newRow("cemu-pretendo")<<QString("wiiu")<<QString("pretendo")<<QString("wua");
+    }
+    void nintendoNativeOnline() {
+        QFETCH(QString,platform);QFETCH(QString,service);QFETCH(QString,suffix);
+        QTemporaryDir dir;QVERIFY(dir.isValid());
+        nintendoOnline::Setup setup;setup.platform=platform;setup.service=service;setup.prepared=true;
+        setup.config=dir.path()+"/config";setup.data=dir.path()+"/data";
+        setup.installation.program=setup.installation.runtimeFile=probe();setup.installation.platforms={platform};
+        const auto put=[&](const QString& path,const QByteArray& bytes){QVERIFY(QDir().mkpath(QFileInfo(path).absolutePath()));write(path,bytes);};
+        QVERIFY(!nintendoOnline::check(setup).isEmpty());
+        if(platform=="wii") {
+            put(setup.config+"/Dolphin.ini","[General]\n");
+            put(setup.data+"/Wii/shared2/sys/SYSCONF","own-nand");
+        } else if(platform=="n3ds") {
+            put(setup.config+"/qt-config.ini","[System]\nenable_required_online_lle_modules=true\nenable_required_online_lle_modules\\default=false\n");
+            put(setup.data+"/sysdata/otp.bin",QByteArray(256,'o'));put(setup.data+"/nand/rw/sys/SecureInfo_A",QByteArray(0x111,'s'));
+            put(setup.data+"/nand/rw/sys/LocalFriendCodeSeed_B",QByteArray(0x110,'f'));
+            put(setup.data+"/sysdata/http_hle_replace_rules.txt","nintendowifi\\.net\npretendo.cc\nnintendo\\.net\npretendo.cc\npokemon-gl\\.com\npretendo.cc\n");
+        } else {
+            put(setup.config+"/settings.xml","<content><Account><PersistentId>2147483649</PersistentId></Account><AccountService><SelectedService PersistentId=\"2147483649\" Service=\"2\"/></AccountService></content>");
+            put(setup.data+"/otp.bin",QByteArray(1024,'o'));put(setup.data+"/seeprom.bin",QByteArray(512,'s'));
+            put(setup.data+"/mlc01/usr/save/system/act/80000001/account.dat","own-account");
+            for(const auto* file:{"ccerts/WIIU_COMMON_1_CERT.der","ccerts/WIIU_COMMON_1_RSA_KEY.aes","ccerts/WIIU_ACCOUNT_1_CERT.der","ccerts/WIIU_ACCOUNT_1_RSA_KEY.aes","scerts/CACERT_NINTENDO_CA.der"})put(setup.data+"/mlc01/sys/title/0005001b/10054000/content/"+file,"fixture-certificate");
+        }
+        QStringList observed;QVERIFY2(nintendoOnline::check(setup,[&](QString p){observed<<p;}).isEmpty(),qPrintable(nintendoOnline::check(setup)));
+        QVERIFY(!observed.isEmpty());
+        QMap<QString,QByteArray> before;for(const auto& path:observed){QFile f(path);if(f.open(QIODevice::ReadOnly)&&f.size()<1024*1024)before.insert(path,f.readAll());}
+        AdventureRegistration r;r.adventure.id="native-fixture";r.adventure.title="Untested game";r.adventure.platformId=platform;
+        r.contentPath=dir.path()+"/game."+suffix;put(r.contentPath,QByteArray(1024,'g'));std::atomic_bool cancel=false;
+        const auto identity=nintendoOnline::identity(r,setup,cancel);QVERIFY(!identity.isEmpty());
+        QVERIFY(permitsMultiplayer({{"players","1"}},identity));QVERIFY(!localLobbyRuntime(identity));
+        const auto wire=QJsonDocument(identity).toJson();QVERIFY(!wire.contains(dir.path().toUtf8()));QVERIFY(!wire.contains("own-account"));QVERIFY(!wire.contains("80000001"));
+        auto other=setup;other.installation.runtimeFile=r.contentPath;
+        QCOMPARE(nintendoOnline::identity(r,other,cancel),identity); // Native service protocol, not emulator lockstep/build equality.
+        auto cmd=nintendoOnline::command(r,setup,identity);QCOMPARE(cmd.prepare(cmd,cancel),QString());
+        QVERIFY(cmd.arguments.contains(r.contentPath));QVERIFY(!cmd.arguments.contains("--room"));
+        if(platform=="wiiu"){QVERIFY(cmd.arguments.contains("80000001"));QVERIFY(cmd.arguments.contains(setup.data+"/mlc01"));}
+        auto duplicate=nintendoOnline::command(r,setup,identity);QVERIFY(!duplicate.prepare(duplicate,cancel).isEmpty());
+        QCOMPARE(cmd.finalize({true,1,true,false}),QString()); // Crash retains native data; no peer copyback.
+        for(auto it=before.cbegin();it!=before.cend();++it){QFile f(it.key());QVERIFY(f.open(QIODevice::ReadOnly));QCOMPARE(f.readAll(),it.value());}
+        auto changed=identity;changed["service"]="another-service";auto rejected=nintendoOnline::command(r,setup,changed);QVERIFY(!rejected.prepare(rejected,cancel).isEmpty());
+        setup.prepared=false;QVERIFY(nintendoOnline::identity(r,setup,cancel).isEmpty());setup.prepared=true;
+        setup.service="off";QVERIFY(nintendoOnline::identity(r,setup,cancel).isEmpty());
+        setup.service=service;cancel=true;QVERIFY(nintendoOnline::identity(r,setup,cancel).isEmpty());
+        cancel=false;
+        if(platform=="wiiu") {
+            put(setup.config+"/settings.xml","<content><Account><PersistentId>2147483649</PersistentId></Account><AccountService><SelectedService PersistentId=\"2147483649\" Service=\"1\"/></AccountService></content>");
+            QVERIFY(nintendoOnline::check(setup).contains("PNID"));
+        } else if(platform=="n3ds") {
+            put(setup.data+"/sysdata/http_hle_replace_rules.txt","nintendo\\.net\npretendo.cc\n");
+            QVERIFY(nintendoOnline::check(setup).contains("Nimbus"));
+            put(setup.config+"/qt-config.ini","[System]\nenable_required_online_lle_modules=false\n");
+            QVERIFY(nintendoOnline::check(setup).contains("LLE"));
+        }
+    }
 
     void dsWfcOwnIdentityProgressAndFailures() {
         const bool mode=QStandardPaths::isTestModeEnabled();QStandardPaths::setTestModeEnabled(true);

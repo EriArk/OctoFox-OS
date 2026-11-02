@@ -1,5 +1,6 @@
 #include "core/PerformanceTrace.h"
 #include "RuntimeMultiplayer.h"
+#include "integrations/adventure/standalone/NintendoOnline.h"
 #include "RuntimeIdentity.h"
 #include "integrations/adventure/retroarch/RetroArchHandheldLink.h"
 #include "integrations/adventure/retroarch/PS2Netplay.h"
@@ -290,7 +291,7 @@ RuntimeMultiplayer::RuntimeMultiplayer(LibraryRepository& lib,RetroArchAdapter& 
         if(hotseat()&&(host_||dolphin()))handoff_.begin(party_.state()["party"].toString(),host_?1:2,
             dolphin()?HotseatHandoff::NativeControl::HostAuthority:HotseatHandoff::NativeControl::SplitRoles);
         if(nativeOnline()) {
-            if(host_)send({{"kind",dsWfc()?"ds-wfc-ready":"dc-online-ready"},{"identity",descriptor_}});
+            if(host_)send({{"kind",nativeOnlineReady()},{"identity",descriptor_}});
             relaySent_=true;deadline_=0;timer_.stop();status_=dsWfc()?"Choose Nintendo WFC and the same room in the game":"Choose Online and the same room in the game";return;
         }
         if(nativeLan()) {
@@ -388,8 +389,14 @@ void RuntimeMultiplayer::refresh(const RetroArchInstallation& installation,QStri
         stamp(pspInstallation.runtimeFile),stamp(ppsspp::contentProbeFile()),stamp(ppsspp::contentProbeRoot()+"/manifest.json"),stamp(dolphin::bridgeFile()),stamp(dolphin::bridgeRoot()+"/bin/dolphin-tool"),stamp(dolphin::bridgeRoot()+"/manifest.json"),
         stamp(installation.linkedSavePython),stamp(installation.linkedSaveHelper),stamp(dolphinlan::bundleRoot()+"/manifest.json"),stamp(ps2::bundleRoot()+"/manifest.json"),stamp(ps2lan::bundleRoot()+"/manifest.json"),stamp(rmg::bundleRoot()+"/manifest.json"),stamp(flycast::bundleRoot()+"/manifest.json"),stamp(flycast::cabinetRoot()+"/manifest.json"),stamp(flycast::onlineRoot()+"/manifest.json"),stamp(xboxlan::bundleRoot()+"/manifest.json"),stamp(model3::bundleRoot()+"/manifest.json"),stamp(doom::bundleRoot()+"/manifest.json"),stamp(ngpc::bundleRoot()+"/manifest.json"),stamp(dswfc::bundleRoot()+"/manifest.json"),stamp(melonds::bundleRoot()+"/manifest.json"),stamp(azahar::bundleRoot()+"/manifest.json"),stamp(vita::bundleRoot()+"/manifest.json"));
     for(auto it=installation.cores.cbegin();it!=installation.cores.cend();++it)revision=qHashMulti(revision,it.key(),stamp(it.value()));
+    const auto stateDirectory=QFileInfo(saveBackupRoot).absolutePath();
+    QMap<QString,nintendoOnline::Setup> nintendoSetups;
+    for(const auto& platform:{QString("wii"),QString("n3ds"),QString("wiiu")}) {
+        const auto s=nintendoOnline::setup(platform,stateDirectory);nintendoSetups.insert(platform,s);
+        revision=qHashMulti(revision,s.service,s.prepared,stamp(s.installation.runtimeFile),stamp(s.config),stamp(s.data));
+    }
     const auto installationRevision=revision;
-    const auto candidate=[](const AdventureRegistration& r){return r.adventure.platformId=="ngp"||r.adventure.platformId=="ngpc"||r.adventure.platformId=="doom"||r.adventure.platformId=="model3"||r.adventure.platformId=="xbox"||flycast::arcadePlatform(r.adventure.platformId)||r.adventure.platformId=="ps2"||r.adventure.platformId=="psvita"||r.adventure.platformId=="n3ds"||r.adventure.platformId=="nds"||r.adventure.platformId=="psp"||r.adventure.platformId=="gc"||r.adventure.platformId=="wii"||r.adventure.platformId=="n64"||r.adventure.platformId=="dreamcast"||
+    const auto candidate=[](const AdventureRegistration& r){return r.adventure.platformId=="wiiu"||r.adventure.platformId=="ngp"||r.adventure.platformId=="ngpc"||r.adventure.platformId=="doom"||r.adventure.platformId=="model3"||r.adventure.platformId=="xbox"||flycast::arcadePlatform(r.adventure.platformId)||r.adventure.platformId=="ps2"||r.adventure.platformId=="psvita"||r.adventure.platformId=="n3ds"||r.adventure.platformId=="nds"||r.adventure.platformId=="psp"||r.adventure.platformId=="gc"||r.adventure.platformId=="wii"||r.adventure.platformId=="n64"||r.adventure.platformId=="dreamcast"||
         retroarch::netplaySupported(r.adventure.platformId,r.integrationConfig["core"].toString());};
     QMap<QString,int> capacities;
     QMap<QString,QVariantMap> metadata;
@@ -424,7 +431,7 @@ void RuntimeMultiplayer::refresh(const RetroArchInstallation& installation,QStri
         // Publish verified titles in small batches, without waiting for a large
         // disc image or rebuilding the entire picker once per small cartridge.
         scanCancel_=std::make_shared<std::atomic_bool>(false);
-        scan_.setFuture(QtConcurrent::run([ordered,installation,installationRevision,previous=scanResults_,pspInstallation,dolphinInstallation,candidate,capacities,cancel=scanCancel_](QPromise<ScannedGame>& promise){
+        scan_.setFuture(QtConcurrent::run([ordered,installation,installationRevision,nintendoSetups,previous=scanResults_,pspInstallation,dolphinInstallation,candidate,capacities,cancel=scanCancel_](QPromise<ScannedGame>& promise){
             retroarch::NetplayDigestCache digests;
             const auto requestRevision=[&](const AdventureRegistration& r) {
                 return qHashMulti(installationRevision,r.adventure.id,r.adventure.platformId,r.adventure.title,
@@ -453,6 +460,7 @@ void RuntimeMultiplayer::refresh(const RetroArchInstallation& installation,QStri
                 auto identity=runtimeIdentity(r,installation,pspInstallation,dolphinInstallation,*cancel,capacities.value(r.adventure.id,2),&digests);
                 const auto lan=flycast::arcadePlatform(r.adventure.platformId)
                     ?flycast::cabinetIdentity(retroarch::netplayRegistration(r),*cancel,[&digests](const QString& path){digests.observe(path);})
+                    :nintendoSetups.contains(r.adventure.platformId)?nintendoOnline::identity(r,nintendoSetups.value(r.adventure.platformId),*cancel,[&digests](const QString& path){digests.observe(path);})
                     :r.adventure.platformId=="nds"?dswfc::identity(r,installation,*cancel,[&digests](const QString& path){digests.observe(path);})
                     :r.adventure.platformId=="dreamcast"?flycast::onlineIdentity(retroarch::netplayRegistration(r),*cancel,[&digests](const QString& path){digests.observe(path);}):dolphinlan::netplayIdentity(retroarch::netplayRegistration(r),dolphinInstallation,*cancel);
                 if(!lan.isEmpty())identity["nativeLanProfile"]=lan;
@@ -480,9 +488,9 @@ void RuntimeMultiplayer::refresh(const RetroArchInstallation& installation,QStri
         const auto content=profile["content"].toString();const int capacity=profile["players"].toInt(2);
         if(content.isEmpty()||capacity<1||capacity>16||(!multiplayerConnectionAllowed(profile,"online")&&!localLobbyRuntime(profile)))continue;
         const auto id=QString::fromLatin1(QCryptographicHash::hash((profile["id"].toString()+"/"+content).toUtf8(),QCryptographicHash::Sha256).toHex());
-        lobbyGames.append(QVariantMap{{"key",record.adventure.id+(profile["id"]=="runtime.dolphin.bba.v1"?"#bba":profile["id"]=="runtime.flycast.cabinet.v1"?"#cabinet":(profile["id"]=="runtime.flycast.online.v1"||profile["id"]=="runtime.melonds.wfc.v1")?"#online":"")},{"adventure",record.adventure.id},{"id",id},{"title",profile["label"].toString()},
+        lobbyGames.append(QVariantMap{{"key",record.adventure.id+(profile["id"]=="runtime.dolphin.bba.v1"?"#bba":profile["id"]=="runtime.flycast.cabinet.v1"?"#cabinet":(profile["id"]=="runtime.flycast.online.v1"||profile["id"]=="runtime.melonds.wfc.v1"||nintendoOnline::mode(profile["id"].toString()))?"#online":"")},{"adventure",record.adventure.id},{"id",id},{"title",profile["label"].toString()},
             {"platform",record.adventure.platformId},{"mode",profile["id"].toString()},{"modeLabel",multiplayerPresentation(profile).value("label",QString("Emulator multiplayer"))},
-            {"modeDetail",profile["id"]=="runtime.melonds.wfc.v1"?"Kaeru WFC / choose a room in-game / separate WFC progress":profile["id"]=="runtime.ngpc.link.v1"?"Link / own screen / separate linked progress":profile["id"]=="runtime.odamex.doom.v1"?(profile["gameMode"]=="deathmatch"?"Deathmatch / own screen":"Cooperative play / own screen"):profile["id"]=="runtime.supermodel.link.v1"?"Linked cabinets / set cabinet roles in-game / own cabinet settings":profile["id"]=="runtime.xemu.lan.v1"?"Own Xbox / choose System Link in-game / own progress":profile["id"]=="runtime.dolphin.bba.v1"?"Own screen / LAN menu / temporary progress":profile["id"]=="runtime.flycast.cabinet.v1"?"Linked cabinets / own screen / temporary progress":profile["id"]=="runtime.flycast.online.v1"?"Group launch / choose a room in-game / own saved VMUs":""},{"cover",library_.artwork(record.adventure.id).value("cover")},{"seats",qMin(4,capacity)},{"runtime",profile.toVariantMap()}});
+            {"modeDetail",nintendoOnline::mode(profile["id"].toString())?"Group launch / choose a room in-game / your native account and saves / service support varies":profile["id"]=="runtime.melonds.wfc.v1"?"Kaeru WFC / choose a room in-game / separate WFC progress":profile["id"]=="runtime.ngpc.link.v1"?"Link / own screen / separate linked progress":profile["id"]=="runtime.odamex.doom.v1"?(profile["gameMode"]=="deathmatch"?"Deathmatch / own screen":"Cooperative play / own screen"):profile["id"]=="runtime.supermodel.link.v1"?"Linked cabinets / set cabinet roles in-game / own cabinet settings":profile["id"]=="runtime.xemu.lan.v1"?"Own Xbox / choose System Link in-game / own progress":profile["id"]=="runtime.dolphin.bba.v1"?"Own screen / LAN menu / temporary progress":profile["id"]=="runtime.flycast.cabinet.v1"?"Linked cabinets / own screen / temporary progress":profile["id"]=="runtime.flycast.online.v1"?"Group launch / choose a room in-game / own saved VMUs":""},{"cover",library_.artwork(record.adventure.id).value("cover")},{"seats",qMin(4,capacity)},{"runtime",profile.toVariantMap()}});
         social_.lobbyRuntime()->registerService(profile["id"].toString(),this);
         }
     }
@@ -943,7 +951,7 @@ void RuntimeMultiplayer::launch() {
         if(!requestRuntimeLaunch||saveBackupRoot.isEmpty()){fail("Online save protection isn't ready.");return;}
         QStringList inputPrefix;const int end=installation_.prefixArguments.indexOf("--");
         if(end>=0)inputPrefix=installation_.prefixArguments.mid(0,end+1);
-        const auto result=requestRuntimeLaunch(dsWfc()?dswfc::command(*record,installation_,descriptor_,trainer_,saveBackupRoot):flycast::onlineCommand(*record,descriptor_,social_.trainerIdentity(),saveBackupRoot,inputPrefix),game_);
+        const auto result=requestRuntimeLaunch(nintendoOnline()?nintendoOnline::command(*record,nintendoOnline::setup(record->adventure.platformId,QFileInfo(saveBackupRoot).absolutePath()),descriptor_):dsWfc()?dswfc::command(*record,installation_,descriptor_,trainer_,saveBackupRoot):flycast::onlineCommand(*record,descriptor_,social_.trainerIdentity(),saveBackupRoot,inputPrefix),game_);
         if(!result.success)fail(result.message);
         return;
     }
@@ -1082,12 +1090,12 @@ void RuntimeMultiplayer::linkedTransferCompleted(int slot,QByteArray bytes) {
     if(host_)launch();else if(!linkedEndpoint_.isEmpty()){const auto endpoint=linkedEndpoint_;linkedEndpoint_={};frame(endpoint);}
 }
 void RuntimeMultiplayer::send(QJsonObject packet) {
-    if(partySession_){if(packet["kind"]=="dc-online-ready"||packet["kind"]=="ds-wfc-ready"||packet["kind"]=="ready"||packet["kind"]=="psp-ready"||packet["kind"]=="ps2-ready"||packet["kind"]=="bba-ready"||packet["kind"]=="ngpc-ready"||packet["kind"]=="doom-ready"||packet["kind"]=="model3-ready"||packet["kind"]=="xbox-ready"||packet["kind"]=="cabinet-ready"||packet["kind"]=="dolphin-ready"||packet["kind"]=="rmg-ready"||packet["kind"]=="flycast-ready"||packet["kind"]=="ds-ready"||packet["kind"]=="azahar-ready"||packet["kind"]=="vita-ready")party_.ready(packet);return;}
+    if(partySession_){if(packet["kind"]=="nintendo-online-ready"||packet["kind"]=="dc-online-ready"||packet["kind"]=="ds-wfc-ready"||packet["kind"]=="ready"||packet["kind"]=="psp-ready"||packet["kind"]=="ps2-ready"||packet["kind"]=="bba-ready"||packet["kind"]=="ngpc-ready"||packet["kind"]=="doom-ready"||packet["kind"]=="model3-ready"||packet["kind"]=="xbox-ready"||packet["kind"]=="cabinet-ready"||packet["kind"]=="dolphin-ready"||packet["kind"]=="rmg-ready"||packet["kind"]=="flycast-ready"||packet["kind"]=="ds-ready"||packet["kind"]=="azahar-ready"||packet["kind"]=="vita-ready")party_.ready(packet);return;}
 }
 void RuntimeMultiplayer::frame(const QJsonObject& packet) {
     if(!active_)return;
     if(nativeOnline()) {
-        if(host_||packet["kind"]!=(dsWfc()?"ds-wfc-ready":"dc-online-ready")||lifecycle_.active()||launchPending_)return;
+        if(host_||packet["kind"]!=(nativeOnlineReady())||lifecycle_.active()||launchPending_)return;
         if(packet["identity"].toObject()!=descriptor_||packet["slot"].toInt()<2||packet["slot"].toInt()>descriptor_["players"].toInt(2)||packet["slot"].toInt()!=request_.slot){fail("Your Online invitation changed.");return;}
         launchPending_=true;launch();return;
     }

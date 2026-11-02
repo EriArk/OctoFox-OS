@@ -369,6 +369,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&settings_, &SettingsController::controllerRequested, this, [this] { service_ = "diagnostics"; diagnostics_.begin(); emit changed(); });
     diagnostics_.configureLibrary(&repo,&adapter);
     diagnostics_.canCheck=[this]{return liveGame_.isEmpty()&&!scraper_.busy()&&!navigationLocked();};
+    connect(&settings_,&SettingsController::onlineGuideRequested,this,[this](QString url){QDesktopServices::openUrl(QUrl(url));});
     connect(&settings_,&SettingsController::healthRequested,this,[this]{service_="diagnostics";diagnostics_.beginHealth();emit changed();});
     connect(&diagnostics_,&DiagnosticsController::reportsRequested,this,[this](const QString& path){service_.clear();goToPage(AppsPage);selectFace(2);files_.navigate(QUrl::fromLocalFile(path).toString());emit changed();});
     connect(&diagnostics_,&DiagnosticsController::setupRequested,this,[this](const QString& id){service_.clear();libraryTools_.beginGame(id);libraryTools_.activate(3);emit changed();});

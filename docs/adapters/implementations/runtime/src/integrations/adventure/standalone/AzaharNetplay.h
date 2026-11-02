@@ -9,7 +9,8 @@ QJsonObject netplayIdentity(const AdventureRegistration&,const std::atomic_bool&
                            const std::function<void(const QString&)>& observe={});
 bool package(const AdventureRegistration&);
 QString installContent(const AdventureRegistration&,const std::atomic_bool&);
-QString prepareContent(ProcessCommand&,const AdventureRegistration&,const std::atomic_bool&);
+QString prepareContent(ProcessCommand&,const AdventureRegistration&,const std::atomic_bool&,
+                       const QString& configDirectory={},const QString& dataDirectory={});
 struct Request {
     QJsonObject expected,endpoint;
     bool host=false,online=false;

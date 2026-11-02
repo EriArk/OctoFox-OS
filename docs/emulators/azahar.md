@@ -1,5 +1,14 @@
 # Azahar: native 3DS wireless rooms
 
+**2 November 2026 — native Online source integration.** The separate
+[Nintendo Online service route](nintendo-online.md) adds provider selection,
+bounded local prerequisite checks and ordinary Lobby/explicit Start/Home/exit.
+This supersedes earlier statements that no TrainerOS native-service profile
+exists. It does not supersede pending service/gameplay acceptance, install a
+new emulator, or replace the existing NetPlay/Wireless/LAN routes. Own console
+data, provider account and game patches remain native setup prerequisites.
+
+
 ## Lobby groups — 26 October 2026
 
 The maintained Azahar 2126.2 room adapter now admits two to four independent

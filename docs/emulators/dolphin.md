@@ -1,5 +1,14 @@
 # Dolphin integration checkpoint
 
+**2 November 2026 — native Online source integration.** The separate
+[Nintendo Online service route](nintendo-online.md) adds provider selection,
+bounded local prerequisite checks and ordinary Lobby/explicit Start/Home/exit.
+This supersedes earlier statements that no TrainerOS native-service profile
+exists. It does not supersede pending service/gameplay acceptance, install a
+new emulator, or replace the existing NetPlay/Wireless/LAN routes. Own console
+data, provider account and game patches remain native setup prerequisites.
+
+
 **26.10 — R035/R041:** добавлен групповой PS2 LAN / Dolphin BBA на 2–4
 независимые консоли через общий Lobby. [Контракт и состояние поставки](native-lan-groups.md).
 Старые парные описания относятся к предыдущей реализации; обычный Dolphin

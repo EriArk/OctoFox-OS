@@ -159,6 +159,12 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
             capture("notifications-many-1280");shell.dismissNotifications();break;
         }
         case 41: check(shell.notifications().isEmpty(),"Clear updates empties ordinary messages");shell.closeHomeMenu();break;
+        case 42: window->resize(960,540);shell.systemAction("settings");settings->configureNintendoOnline(folder->path());settings->selectPage("online-services",true);break;
+        case 43: check(settings->controls().size()==5,"Nintendo services use the common Settings controls");capture("online-services-off-960");tap(visibleItem(window->contentItem(),"settings-control-1"));break;
+        case 44: check(settings->controls()[1].toMap()["detail"]=="wiimmfi","Touch selects Wii service");settings->activateRow(4);break;
+        case 45: check(settings->onlineServiceStatus().contains("Install the native emulator"),"Missing native setup is explained");capture("online-services-missing-960");settings->activateRow(0);settings->activateRow(1);break;
+        case 46: check(settings->controls()[0].toMap()["detail"]=="Nintendo 3DS","Next family retains its own selection");check(settings->controls()[1].toMap()["detail"]=="pretendo","3DS offers Pretendo");settings->activateRow(3);settings->dispatch(trainer::Action::Back);check(!settings->controlsFocused(),"Back returns to Settings navigation");settings->selectPage("online-services",true);settings->activateRow(0);settings->activateRow(1);break;
+        case 47: check(settings->controls()[0].toMap()["detail"]=="Wii U","Wii U has independent preparation");check(settings->controls()[3].toMap()["detail"].toString().startsWith("No"),"3DS confirmation does not enable Wii U");capture("online-services-wiiu-960");break;
         default:timer->stop();completed=true;qInfo()<<"Settings UI checks"<<diagnostics<<"warnings"<<warnings;QCoreApplication::exit(diagnostics.isEmpty()&&warnings==0?0:1);break;
         }
     });timer->start();

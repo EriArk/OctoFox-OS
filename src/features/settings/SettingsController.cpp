@@ -1,5 +1,6 @@
 #include "SettingsController.h"
 #include "DisplayScale.h"
+#include "integrations/adventure/standalone/NintendoOnline.h"
 #include "features/library/ScrapeController.h"
 #include "features/crates/CratesController.h"
 #include "core/experience/ExperienceProviders.h"
@@ -14,8 +15,8 @@ void SettingsController::setCrates(CratesController* value){
     connect(value,&CratesController::preferenceError,this,[this](QString message){error_=message;emit changed();});
 }
 namespace {
-const QStringList pageIds{"appearance","audio","media","feedback","trainer","system","credits","controller","library","saves","connections","clock","nearby","communication","scraper","software","game-input"};
-const QList<QList<int>> sectionPages{{0,2},{1,7,16,10,3},{4,13,12},{8,9,14},{15},{5,11,6}};
+const QStringList pageIds{"appearance","audio","media","feedback","trainer","system","credits","controller","library","saves","connections","clock","nearby","communication","scraper","software","game-input","online-services"};
+const QList<QList<int>> sectionPages{{0,2},{1,7,16,10,3},{4,13,12},{8,9,14,17},{15},{5,11,6}};
 }
 QVariantList SettingsController::sections() const {
     return {QVariantMap{{"id","personalization"},{"title","Personalization"}},QVariantMap{{"id","device"},{"title","Device"}},
@@ -169,6 +170,13 @@ QVariantList SettingsController::controls() const {
         return {row("Apps","action","Open installed applications"),row("Crates","action","Manage installed Crates and their data"),automatic};
     }
     case 16: return gameInput_.rows();
+    case 17: {
+        const auto s=nintendoOnline::setup(nintendoPlatform_,nintendoDirectory_);
+        return {row("Console","action",nintendoPlatform_=="wii"?"Wii":nintendoPlatform_=="n3ds"?"Nintendo 3DS":"Wii U"),
+            row("Online service","action",s.service),row("Provider setup guide","action","Use your own console data and native emulator account"),
+            row("Preparation confirmed","action",s.prepared?"Yes · emulator and game patches prepared by you":"No · complete the provider guide first"),
+            row("Check local setup","action","Recheck files and settings; this does not log in")};
+    }
     default: return {};
     }
 }
@@ -190,6 +198,20 @@ void SettingsController::activateRow(int index) {
     if(category_==14&&scraper_){scraper_->activateSetting(index);return;}
     if(category_==13){communication_.activate(index);return;}
     if(category_==11){clock_.activate(index);return;}
+    if(category_==17) {
+        pane_=true;row_=std::clamp(index,0,4);
+        auto s=nintendoOnline::setup(nintendoPlatform_,nintendoDirectory_);QSettings preferences;
+        const auto key="nintendo-online/"+nintendoPlatform_;
+        if(row_==0){const QStringList platforms{"wii","n3ds","wiiu"};nintendoPlatform_=platforms[(platforms.indexOf(nintendoPlatform_)+1)%3];nintendoStatus_.clear();}
+        if(row_==1){const auto values=nintendoOnline::services(nintendoPlatform_);preferences.setValue(key+"/service",values[(values.indexOf(s.service)+1)%values.size()]);nintendoStatus_.clear();}
+        if(row_==2)emit onlineGuideRequested(nintendoOnline::guide(nintendoPlatform_,s.service));
+        if(row_==3&&s.service!="off"){preferences.setValue(key+"/prepared/"+s.service,!s.prepared);nintendoStatus_.clear();}
+        if(row_==4){nintendoStatus_=nintendoOnline::check(s);if(nintendoStatus_.isEmpty())nintendoStatus_="Local prerequisites found. Login, game patches and server compatibility remain unverified.";}
+        preferences.sync();
+        if(preferences.status()!=QSettings::NoError)nintendoStatus_="Could not save Online service preferences.";
+        if(row_==1||row_==3||row_==4)emit onlineServicesChanged();
+        emit changed();return;
+    }
     if(storage_.isOpen()){storage_.activate(index);return;}
     if(saving_)return;
     pane_=true; row_=std::clamp(index,0,std::max(0,int(controls().size())-1));

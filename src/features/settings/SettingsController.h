@@ -47,6 +47,7 @@ class SettingsController final : public QObject {
     Q_PROPERTY(QString categoryId READ categoryId NOTIFY changed)
     Q_PROPERTY(trainer::GameInputProfiles* gameInput READ gameInput CONSTANT)
     Q_PROPERTY(QVariantList controls READ controls NOTIFY changed)
+    Q_PROPERTY(QString onlineServiceStatus READ onlineServiceStatus NOTIFY changed)
 public:
     GameInputProfiles* gameInput() {return &gameInput_;}
     void setController(ControllerInput* value) { input_=value;connect(value,&ControllerInput::profileChanged,this,&SettingsController::changed);
@@ -77,7 +78,7 @@ public:
     int category() const { return category_; }
     int rowFocus() const { return category_==16?gameInput_.focusIndex():row_; }
     bool controlsFocused() const { return pane_; }
-    QStringList categories() const { return {"Appearance", "Sound", "Media", "Feedback", "Trainer", "System", "Credits", "Controller", "Library", "Saves", "Connections", "Date & time", "Nearby play", "Communication", "ScreenScraper", "Software", "Game input"}; }
+    QStringList categories() const { return {"Appearance", "Sound", "Media", "Feedback", "Trainer", "System", "Credits", "Controller", "Library", "Saves", "Connections", "Date & time", "Nearby play", "Communication", "ScreenScraper", "Software", "Game input", "Online services"}; }
     QVariantList controls() const;
     QVariantList sections() const;
     QVariantList pages() const;
@@ -102,6 +103,8 @@ public:
     bool previewSound() const;
     int previewDelay() const;
     void setMediaOwner(const QString& owner);
+    void configureNintendoOnline(QString directory) { nintendoDirectory_=std::move(directory); }
+    QString onlineServiceStatus() const { return nintendoStatus_.isEmpty()?QString("Use Online in the lobby, then choose a room in the game. Your native account and saves stay on this device. Service/game support varies."):nintendoStatus_; }
     bool saving() const { return saving_; }
     QString error() const { return error_; }
     QString libraryStatus() const { return libraryStatus_; }
@@ -123,8 +126,11 @@ signals:
     void libraryRefreshRequested();
     void trainerRequested(int index);
     void messageRequested(const QString& message);
+    void onlineServicesChanged();
+    void onlineGuideRequested(QString url);
     void quickAdjustment(int index, trainer::Action action);
 private:
+    QString nintendoDirectory_, nintendoPlatform_="wii", nintendoStatus_;
     QString mediaPrefix_="media/preview/";
     GameInputProfiles gameInput_;
     ControllerInput* input_=nullptr;

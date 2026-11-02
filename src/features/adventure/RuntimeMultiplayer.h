@@ -59,6 +59,7 @@ public:
     LobbyGamePreparation& gamePreparation() {return preparation_;}
     std::function<QVariantList(const QMap<QString,QJsonObject>&)> additionalLobbyGames;
     void refresh(const RetroArchInstallation&,QString trainer,bool allowed);
+    void refreshOnlineServices() { invalidateScan(); }
     void prepare(QString operation,QJsonObject context,Completion done) override;
     void launch(QString operation,QString ticket,QJsonObject context,Completion done) override;
     void cancel(QString operation) override;
@@ -127,7 +128,9 @@ private:
     bool vita() const { return descriptor_["id"]=="runtime.vita3k.lan.v1"; }
     bool gcLan() const { return descriptor_["id"]=="runtime.dolphin.bba.v1"; }
     bool dsWfc() const { return descriptor_["id"]=="runtime.melonds.wfc.v1"; }
-    bool nativeOnline() const { return dcOnline()||dsWfc(); }
+    bool nintendoOnline() const { const auto id=descriptor_["id"].toString();return id=="runtime.nintendo.wii.wiimmfi.v1"||id=="runtime.nintendo.wii.wiilink.v1"||id=="runtime.nintendo.n3ds.pretendo.v1"||id=="runtime.nintendo.wiiu.pretendo.v1"; }
+    bool nativeOnline() const { return dcOnline()||dsWfc()||nintendoOnline(); }
+    QString nativeOnlineReady() const { return nintendoOnline()?"nintendo-online-ready":dsWfc()?"ds-wfc-ready":"dc-online-ready"; }
     bool dcOnline() const { return descriptor_["id"]=="runtime.flycast.online.v1"; }
     bool cabinetLan() const { return descriptor_["id"]=="runtime.flycast.cabinet.v1"; }
     bool nativeLan() const { return ngpcLink()||doomLan()||ps2Lan()||gcLan()||xboxLan()||model3Lan()||cabinetLan(); }

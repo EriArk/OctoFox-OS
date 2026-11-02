@@ -1,5 +1,13 @@
 # Структура TrainerOS: владельцы, контракты и связи
 
+**2 ноября — S03/S06/S07/S08/S15, Nintendo native Online.** S15 хранит выбор
+сервиса и пользовательское подтверждение подготовки; S03 читает native config,
+проверяет предпосылки и запускает существующий emulator profile. S06/S07 передают
+общую идентичность/готовность и места; console/account secrets не покидают устройство.
+S08 не получает peer saves: native хранилище сохраняет прежнего владельца, без
+copyback или нового snapshot NAND/MLC. [Контракт](emulators/nintendo-online.md).
+
+
 **2 ноября — S04, граница Home и пользовательский виджет.**
 `HomeDashboardController` хранит выбор в настройках текущего профиля;
 `HomeWidgetSlot` переиспользует `ControlWidget` и реальные владельцы Downloads,

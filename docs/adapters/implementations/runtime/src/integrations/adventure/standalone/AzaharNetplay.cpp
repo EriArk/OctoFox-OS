@@ -57,9 +57,10 @@ bool writePrivate(const QString& path,const QByteArray& bytes) {
         &&file.setPermissions(QFile::ReadOwner|QFile::WriteOwner)&&file.write(bytes)==bytes.size()&&file.flush();
 }
 
-QJsonObject content(const AdventureRegistration& record,const std::atomic_bool& cancel,bool install=false,const QString& expected={}) {
-    QSettings original(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)+"/azahar-emu/qt-config.ini",QSettings::IniFormat);
-    const auto data=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/azahar-emu";
+QJsonObject content(const AdventureRegistration& record,const std::atomic_bool& cancel,bool install=false,const QString& expected={},const QString& configDirectory={},const QString& dataDirectory={}) {
+    const auto config=configDirectory.isEmpty()?QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)+"/azahar-emu":configDirectory;
+    QSettings original(config+"/qt-config.ini",QSettings::IniFormat);
+    const auto data=dataDirectory.isEmpty()?QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/azahar-emu":dataDirectory;
     const bool custom=!original.value("Data Storage/use_custom_storage/default",false).toBool()
         &&original.value("Data Storage/use_custom_storage",false).toBool();
     QTemporaryDir directory(QDir::tempPath()+"/traineros-3ds-content-XXXXXX");
@@ -130,12 +131,12 @@ QString installContent(const AdventureRegistration& record,const std::atomic_boo
     if(installed.isEmpty())return "Couldn't install this package. Existing content and saves were kept.";
     return installed["error"].toString();
 }
-QString prepareContent(ProcessCommand& command,const AdventureRegistration& record,const std::atomic_bool& cancel) {
+QString prepareContent(ProcessCommand& command,const AdventureRegistration& record,const std::atomic_bool& cancel,const QString& configDirectory,const QString& dataDirectory) {
     if(!package(record))return {};
     if(bundle(cancel)["content"].toObject()["protocol"]!="azahar-content-v1")return "Restore the 3DS content installer first.";
-    const auto inspected=content(record,cancel);
+    const auto inspected=content(record,cancel,false,{},configDirectory,dataDirectory);
     if(inspected["executable"]!=true)return inspected["error"].toString("This is an update or DLC package. Install it from the game's options, then open the base game.");
-    const auto installed=content(record,cancel,true,inspected["fingerprint"].toString());
+    const auto installed=content(record,cancel,true,inspected["fingerprint"].toString(),configDirectory,dataDirectory);
     if(cancel)return "Opening cancelled.";
     if(!installed["error"].toString().isEmpty())return installed["error"].toString();
     const auto entry=installed["entry"].toString();

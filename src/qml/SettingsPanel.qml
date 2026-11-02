@@ -9,7 +9,7 @@ Item {
         : (settings.category===0 || settings.category===8 || settings.category===9) && settings.error.length ? settings.error
         : [0,1,5,10].includes(settings.category) ? shell.device.error : ""
     readonly property string statusText: settings.categoryId==="game-input" ? settings.gameInput.title+" / "+(settings.gameInput.status || "Choose a PC or native game. Home is reserved.") : settings.category===4 && shell.trainer.saving || settings.saving ? "Saving..."
-        : localError || (shell.hall.account.open ? shell.hall.account.status : settings.category===8 ? settings.libraryStatus : "")
+        : settings.categoryId==="online-services" ? settings.onlineServiceStatus : localError || (shell.hall.account.open ? shell.hall.account.status : settings.category===8 ? settings.libraryStatus : "")
 
     Item {
         anchors.fill: parent; anchors.margins: 12

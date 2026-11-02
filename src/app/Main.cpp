@@ -780,6 +780,8 @@ int main(int argc, char* argv[]) {
         bindings.connect(&remotePlay,&RemotePlayRuntime::notice,&shell,&ShellController::showNotice);
         if(personalLibrary&&!smoke) {
             multiplayer.saveBackupRoot=QDir(stateDirectory).filePath("backups");
+            shell.settings()->configureNintendoOnline(stateDirectory);
+            QObject::connect(shell.settings(),&SettingsController::onlineServicesChanged,&multiplayer,&RuntimeMultiplayer::refreshOnlineServices);
             multiplayer.resolveSaveTarget=[saveRuntimes](const AdventureRegistration& record) {
                 const auto snapshot=saveRuntimes->load();
                 return record.adventure.adapterId=="melonds"?resolveMelonDsSave(record,snapshot->melonds):resolveRetroArchSave(record,snapshot->retroarch);

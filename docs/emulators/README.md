@@ -25,6 +25,7 @@ a second execution plan or a claim that all installed runtimes are validated.
 | RPCS3 | [PS3 homebrew launch](rpcs3.md) | Existing Odin runtime/firmware, shared launch and separate SDL input profile; device cycle recorded in LAUNCH-80 |
 | Eden | [Switch homebrew launch](eden.md) | Official ARM64 0.2.1, shared launch and fresh SDL defaults; device cycle recorded in LAUNCH-80 |
 | Vita3K | [Native LAN integration](vita3k.md) | Installed ordinary invitation, native discovery, paired input, own-data Home/minimize/Exit and idle-loss handling; one reviewed homebrew profile, commercial AdHoc/PSN open |
+| Nintendo native Online | [Wii / 3DS / Wii U](nintendo-online.md) | Wiimmfi/WiiLink/Pretendo Settings and Lobby launch prepared in source; own console setup and live service acceptance remain separate |
 | melonDS DS WFC | [Native WFC](melonds-wfc.md) | Source integration, automatic AP/DNS and own progress; native Windows checks, no handheld delivery |
 | melonDS | [DS delivery](melonds.md) | Installed two-player Nearby/Online invitations, native wireless race/soak and own-save return on Flip/Odin; four-player, broader games/saves, frontend polish and physical/distinct-network acceptance remain open |
 | RetroArch | [Common ARM64 baseline](retroarch.md) | Exact core bundle, two-device alignment, recoverable update/rollback and remaining image/standalone gates |
@@ -36,7 +37,7 @@ a second execution plan or a claim that all installed runtimes are validated.
 | SameBoy | [GB/GBC battery pairs](sameboy.md) | Native two-ROM subsystem/SRAM, maintained rollback frontend and automatic own-save preparation |
 | mGBA Splitscreen | [GBA linked pairs](mgba-splitscreen.md) | Existing linked-machine engine, per-viewer screen/audio and protected separate batteries |
 | Dolphin | [GameCube and Wii delivery](dolphin.md) | Installed separate GC pads, two-person exclusive-P1 Golf Hotseat and separate Wii Remotes through ordinary invitations/Home; paired gameplay and distinct preservation evidence, wider/physical/network acceptance open |
-| Cemu | [Wii U launch and online prerequisites](cemu.md) | LAUNCH-80 standalone launch added in source, device delivery pending; existing Libretro bindings retained. No enabled TrainerOS network profile or paired service evidence |
+| Cemu | [Wii U launch and online prerequisites](cemu.md) | LAUNCH-80 standalone launch added in source, device delivery pending; existing Libretro bindings retained. Native Pretendo profile added in source on 2 November; no paired live-service evidence |
 | DuckStation | [PS1 standalone launch](duckstation.md) | LAUNCH-80 common launch/discovery integration in source; existing PS1 bindings/cards retained, device cycle pending |
 | Azahar | [3DS native wireless](azahar.md) | Installed pinned ARM64 client, Nearby/public-relay Minicraft3DS and ordinary Online/Home/own save/Exit; wider retail/update identity and external acceptance remain open |
 | PPSSPP | [PPSSPP](ppsspp.md) | Isolated networking, preserved identity, bounded LAN/relay gameplay and remaining recovery/network gates |

@@ -1,0 +1,22 @@
+{
+  "id": "runtime.nintendo.n3ds.pretendo.v1",
+  "platform": "n3ds",
+  "romSha256": "",
+  "state": "partial",
+  "record": "../emulators/nintendo-online.md",
+  "persistentSaveWrites": true,
+  "savePolicy": "Own native emulator account/storage. No peer save seeding, account replacement, savestates or crash copyback; this is not a new NAND/MLC snapshot.",
+  "evidence": [
+    "source-native-service-settings-and-local-preflight",
+    "ordinary-lobby-explicit-start-native-process-lifecycle"
+  ],
+  "remaining": [
+    "handheld-delivery",
+    "owner-console-provider-setup",
+    "live-service-and-game-acceptance"
+  ],
+  "implementationSource": "src/integrations/adventure/standalone/NintendoOnline.cpp",
+  "implementation": "implementations/runtime",
+  "profile": "implementations/runtime/profiles/runtime.nintendo.n3ds.pretendo.v1.json",
+  "evidenceBase": "../../../"
+}

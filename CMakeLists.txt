@@ -171,6 +171,7 @@ add_library(trainer_core STATIC
     src/integrations/adventure/standalone/VitaNetplay.cpp
     src/integrations/adventure/standalone/Ps2LanNetplay.cpp
     src/integrations/adventure/standalone/MelonDsWfc.cpp
+    src/integrations/adventure/standalone/NintendoOnline.cpp
     src/integrations/adventure/standalone/MelonDsNetplay.cpp
     src/integrations/adventure/AdapterRouter.h
     src/integrations/adventure/standalone/StandaloneAdapter.h

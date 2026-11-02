@@ -621,6 +621,90 @@
       "implementationSource": "src/integrations/adventure/standalone/MelonDsWfc.cpp",
       "implementation": "implementations/runtime",
       "profile": "implementations/runtime/profiles/runtime.melonds.wfc.v1.json"
+    },
+    {
+      "id": "runtime.nintendo.wii.wiimmfi.v1",
+      "platform": "wii",
+      "romSha256": "",
+      "state": "partial",
+      "record": "../emulators/nintendo-online.md",
+      "persistentSaveWrites": true,
+      "savePolicy": "Own native emulator account/storage. No peer save seeding, account replacement, savestates or crash copyback; this is not a new NAND/MLC snapshot.",
+      "evidence": [
+        "source-native-service-settings-and-local-preflight",
+        "ordinary-lobby-explicit-start-native-process-lifecycle"
+      ],
+      "remaining": [
+        "handheld-delivery",
+        "owner-console-provider-setup",
+        "live-service-and-game-acceptance"
+      ],
+      "implementationSource": "src/integrations/adventure/standalone/NintendoOnline.cpp",
+      "implementation": "implementations/runtime",
+      "profile": "implementations/runtime/profiles/runtime.nintendo.wii.wiimmfi.v1.json"
+    },
+    {
+      "id": "runtime.nintendo.wii.wiilink.v1",
+      "platform": "wii",
+      "romSha256": "",
+      "state": "partial",
+      "record": "../emulators/nintendo-online.md",
+      "persistentSaveWrites": true,
+      "savePolicy": "Own native emulator account/storage. No peer save seeding, account replacement, savestates or crash copyback; this is not a new NAND/MLC snapshot.",
+      "evidence": [
+        "source-native-service-settings-and-local-preflight",
+        "ordinary-lobby-explicit-start-native-process-lifecycle"
+      ],
+      "remaining": [
+        "handheld-delivery",
+        "owner-console-provider-setup",
+        "live-service-and-game-acceptance"
+      ],
+      "implementationSource": "src/integrations/adventure/standalone/NintendoOnline.cpp",
+      "implementation": "implementations/runtime",
+      "profile": "implementations/runtime/profiles/runtime.nintendo.wii.wiilink.v1.json"
+    },
+    {
+      "id": "runtime.nintendo.n3ds.pretendo.v1",
+      "platform": "n3ds",
+      "romSha256": "",
+      "state": "partial",
+      "record": "../emulators/nintendo-online.md",
+      "persistentSaveWrites": true,
+      "savePolicy": "Own native emulator account/storage. No peer save seeding, account replacement, savestates or crash copyback; this is not a new NAND/MLC snapshot.",
+      "evidence": [
+        "source-native-service-settings-and-local-preflight",
+        "ordinary-lobby-explicit-start-native-process-lifecycle"
+      ],
+      "remaining": [
+        "handheld-delivery",
+        "owner-console-provider-setup",
+        "live-service-and-game-acceptance"
+      ],
+      "implementationSource": "src/integrations/adventure/standalone/NintendoOnline.cpp",
+      "implementation": "implementations/runtime",
+      "profile": "implementations/runtime/profiles/runtime.nintendo.n3ds.pretendo.v1.json"
+    },
+    {
+      "id": "runtime.nintendo.wiiu.pretendo.v1",
+      "platform": "wiiu",
+      "romSha256": "",
+      "state": "partial",
+      "record": "../emulators/nintendo-online.md",
+      "persistentSaveWrites": true,
+      "savePolicy": "Own native emulator account/storage. No peer save seeding, account replacement, savestates or crash copyback; this is not a new NAND/MLC snapshot.",
+      "evidence": [
+        "source-native-service-settings-and-local-preflight",
+        "ordinary-lobby-explicit-start-native-process-lifecycle"
+      ],
+      "remaining": [
+        "handheld-delivery",
+        "owner-console-provider-setup",
+        "live-service-and-game-acceptance"
+      ],
+      "implementationSource": "src/integrations/adventure/standalone/NintendoOnline.cpp",
+      "implementation": "implementations/runtime",
+      "profile": "implementations/runtime/profiles/runtime.nintendo.wiiu.pretendo.v1.json"
     }
   ],
   "builds": [
