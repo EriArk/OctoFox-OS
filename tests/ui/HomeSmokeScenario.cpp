@@ -9,6 +9,7 @@
 #include <QPainter>
 #include <QTimer>
 #include <QTemporaryDir>
+#include <QSettings>
 #include <QQmlComponent>
 #include <QQmlEngine>
 #include "features/home/BadgeAssets.h"
@@ -29,6 +30,17 @@ public:
 void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& session, LocalStateStore& store,
         ControllerInput& input, ProbeAdventureAdapter& adapter, SDL_Joystick* joystick, bool reopen,
         const QString& screenshotDir, bool& completed, int& warnings, QStringList& diagnostics) {
+    // Offscreen screen dimensions differ from the window. Exercise actual logical
+    // 960x540 and 800x450 layouts without inheriting the developer's density.
+    QSettings settings;
+    const auto previousProfile=settings.value("display/profile"),previousScale=settings.value("display/interfaceScale");
+    QObject::connect(window,&QObject::destroyed,[previousProfile,previousScale]{
+        QSettings restored;
+        if(previousProfile.isValid())restored.setValue("display/profile",previousProfile);else restored.remove("display/profile");
+        if(previousScale.isValid())restored.setValue("display/interfaceScale",previousScale);else restored.remove("display/interfaceScale");
+    });
+    settings.setValue("display/profile","auto");settings.setValue("display/interfaceScale",100);
+    emit shell.settings()->changed();
     auto* process = new ProcessService(window);
     auto* launch = new AdventureLaunchController(*process, window);
     auto* history = new PlayHistoryController(*launch, store, window);
@@ -263,6 +275,9 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
                 auto* art=itemNamed("home-card-illustration");
                 auto* card=itemNamed("home-game-card");
                 check(art && card && art->parentItem()==card,"Illustration must belong only to the game card");
+                auto* awards=itemNamed("home-awards");auto* widget=itemNamed("home-widget-slot");
+                check(awards && card && awards->parentItem()==card,"Adapter achievements stay inside its card");
+                check(widget && qAbs(widget->height()-208)<1 && widget->width()>=232,"Adapter Home leaves the shared 4 by 4 widget slot intact");
             }
             check(!itemNamed("home-exit-picture"), "Owner temporarily disabled screenshot backgrounds on Home");
             if(auto* card=itemNamed("home-game-card"))check(card->width()>card->parentItem()->width()*.63,"Home reserves roughly two thirds for the game card");
@@ -349,6 +364,8 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             auto* card=itemNamed("home-game-card");auto* awards=itemNamed("home-awards");
             auto* screens=itemNamed("home-screens");auto* description=itemNamed("home-description");
             check(card && awards && awards->parentItem()==card,"Generic achievements are inside the game card");
+            auto* widget=itemNamed("home-widget-slot");
+            check(widget && qAbs(widget->height()-208)<1 && widget->width()>=232,"Generic Home has the same 4 by 4 widget slot");
             check(screens && description && screens->x()>description->x()+description->width(),"Description leaves space for the top-right collage");
             check(screens && awards && screens->y()+screens->height()<awards->y(),"Collage sits above achievements");
             if(screens && awards)check(qAbs((screens->y()+screens->property("visualTop").toDouble())-(awards->y()-screens->y()-screens->property("visualBottom").toDouble()))<1,"Collage visible bounds have equal top and divider spacing");
@@ -433,8 +450,8 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             for(int i=0;i<14;++i)shell.dispatch(Action::Right);break;
         case 45:
             check(itemNamed("quick-apps-favorites") && itemNamed("quick-apps-favorites")->property("contentX").toReal()==0,"Favorites stay fixed while navigating running apps");
-            check(itemNamed("quick-apps-list") && itemNamed("quick-apps-list")->property("contentX").toReal()>0,"Only the running section scrolls on overflow");
-            check(shell.apps()->focusIndex()==11,"Horizontal app navigation reaches overflow");capture("quick-apps-overflow-960");
+            if(auto* list=itemNamed("quick-apps-list"))check(list->property("contentWidth").toReal()<=list->width()+1 ? list->property("contentX").toReal()==0 : list->property("contentX").toReal()>0,"Running apps scroll only when they overflow the actual viewport");else check(false,"Running app list exists");
+            check(shell.apps()->focusIndex()==11,"Horizontal app navigation reaches the last app");capture("quick-apps-overflow-960");
             shell.dispatch(Action::ToggleContinue);break;
         case 46:
             if(auto* d=itemNamed("continue-drawer");d && qAbs(d->height()-162)>0.1){--*stage;return;}
@@ -531,6 +548,29 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             if(shell.trainer()->saving()){--*stage;break;}
             auto* name=itemNamed("header-account-name");check(name && name->property("contentWidth").toReal()<=name->width()+1,"Long profile name stays within its chassis area");capture("header-long-name-960");break;
         }
+        case 66:
+            shell.editHomeWidget();break;
+        case 67: {
+            check(shell.dashboard()->widgetPicking(),"Home widget picker opens");capture("home-widget-picker");
+            auto* choice=itemNamed("home-widget-choice-clock");
+            check(choice && QMetaObject::invokeMethod(choice,"pressAction"),"Clock has an accessible picker action");
+            break;
+        }
+        case 68:
+            check(!shell.dashboard()->widgetPicking() && shell.dashboard()->widget()["id"]=="clock","Picker applies the selected Home widget");
+            check(itemNamed("start-widget-clock"),"Existing widget renderer is used on Home");capture("home-widget-clock");
+            shell.editHomeWidget();shell.dispatch(Action::Back);window->resize(800,450);break;
+        case 69: {
+            auto* widget=itemNamed("home-widget-slot");
+            check(widget && widget->height()>100 && widget->height()<150 && widget->width()>200,"Compact screen adapts without a 4 by 4 overflow");
+            capture("home-widget-800");window->resize(960,540);break;
+        }
+        case 70:
+            shell.editHomeWidget();shell.dashboard()->chooseWidget("storage");break;
+        case 71:
+            if(shell.device()->busy()){--*stage;break;}
+            check(shell.device()->status()[1].toMap()["value"].toString().contains("32.0"),"Home Storage receives the real device-service fixture");
+            capture("home-widget-storage");shell.editHomeWidget();shell.dashboard()->chooseWidget("clock");break;
         default:
             check(warnings == 0, "QML warnings"); completed = true; timer->stop();
             if (!screenshotDir.isEmpty()) {

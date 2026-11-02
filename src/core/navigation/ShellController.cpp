@@ -422,6 +422,12 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         if(service_=="profile") { settings_.communication()->leave(); trainer_.beginAvatarEdit(); }
     });
     connect(&controls_,&ControlsDashboard::actionRequested,this,&ShellController::systemAction);
+    connect(&dashboard_,&HomeDashboardController::widgetActivated,this,[this](const QString& id){
+        if(id=="downloads")downloads_.begin();
+        else if(id=="battery")systemAction("power");
+        else {systemAction("settings");settings_.selectPage(id=="clock"?"clock":"system",true);}
+    });
+    connect(this,&ShellController::changed,this,[this]{if(page_!=HomePage || !service_.isEmpty())dashboard_.closeWidgetPicker();});
     connect(&controls_,&ControlsDashboard::adjustRequested,this,[this](const QString& id,int delta){
         const int index=id=="volume"?0:1;
         const int value=device_.rows().value(index).toMap().value("level",-1).toInt();
@@ -540,6 +546,7 @@ bool ShellController::canEditWorld() const {
         && !drawerOpen_ && !libraryTools_.isOpen() && !worlds_.region().value("id").toString().isEmpty();
 }
 bool ShellController::localModalOpen() {
+    if(dashboard_.widgetPicking())return true;
     if(pcGames_.isOpen()||gamePerformance_.isOpen())return true;
     return files_.modal() || social_.files()->picker()->isOpen() || (social_.myLobbiesOpen() || social_.lobbyCreateOpen() || social_.lobbyPickerOpen() || social_.lobbyVoteOpen()) || collectionManager()->isOpen() || downloads_.isOpen() || scraper_.isOpen() || (socialActive() && !social_.menu().isEmpty()) || libraryTools_.isOpen() || trainer_.editing()
         || (adapterActive() && activeModule_ && activeModule_->modalOpen())
@@ -678,10 +685,15 @@ void ShellController::toggleQuickApps() {
     else apps_.leave();
     emit changed();
 }
+void ShellController::editHomeWidget() {
+    if(page_!=HomePage || !pairedNavigationAvailable() || navigationLocked() || localModalOpen())return;
+    dashboard_.editWidget();emit changed();
+}
 void ShellController::activateDashboard(const QString& key) {
     if(page_!=HomePage || !pairedNavigationAvailable() || navigationLocked())return;
     const auto target=dashboard_.target(key);if(target.isEmpty())return;
     dashboard_.select(key);
+    if(target["type"]=="widget"){dashboard_.activateWidget();emit changed();return;}
     if(target["type"]=="lobbies"){if(social_.account()["state"]!="connected")social_.openLobby();else if(social_.myLobbies().isEmpty())social_.createAnotherLobby();else social_.showMyLobbies();return;}
     if(target["type"]=="play"){confirm();emit changed();return;}
     if(target["type"]=="screens") {
@@ -792,6 +804,7 @@ void ShellController::syncExperience() {
     if(profileOwnerChanged){++postGamePrizesGeneration_;prizeWardrobeReturn_=false;overviewFocus_=0;overviewSessionId_.clear();overviewFace_="summary";profileSnapshot_.clear();profileReturnNavigation_={};profileRoute_="summary";achievementPhotoReturn_=false;}
     if(!experience_.owner().isEmpty() && experience_.owner()!=owner){dashboard_.reset();achievementNotifications_.clear();achievementToast_.clear();++achievementToastGeneration_;}
     album_.setOwner(owner);
+    dashboard_.setOwner(owner);
     album_.setMedia(storyMedia());
     ExperienceModule* next=resolveExperience(game);
     Q_ASSERT(next);
@@ -1258,6 +1271,10 @@ void ShellController::dispatchGameControls(Action action){
     dispatchControls(action);
 }
 void ShellController::systemAction(const QString& id){
+    if(id=="home-widget-refresh"){
+        if(page_==HomePage && pairedNavigationAvailable() && dashboard_.widget()["id"]=="storage")device_.begin();
+        return;
+    }
     if(id=="audio-output"){
         if((menuOpen_||gameControlsOpen_)&&!controls_.editing()&&!controlsNetworkOpen_)device_.beginAudio();
         return;
@@ -1405,6 +1422,7 @@ void ShellController::editCollection(int index) {
 void ShellController::openContext(const QString& type,const QString& target) {
     if(navigationLocked() || homeMenuOpen_ || menuOpen_ || serviceOpen() || keyboard_.isOpen() || localModalOpen() || !notice_.isEmpty())return;
 
+    if(type.isEmpty() && page_==HomePage && dashboard_.focus()=="widget"){editHomeWidget();return;}
     if(type.isEmpty() && page_==HomePage && dashboard_.focus()!="play")return;
     if(type.isEmpty() && page_==GamesPage && collectionsRoot_) {
         if(gamesRootZone_=="collections") {
@@ -2070,6 +2088,9 @@ void ShellController::openSocialNotification() {
     social_.openNotification();emit changed();
 }
 void ShellController::dispatch(Action action) {
+    if(dashboard_.widgetPicking() && (action==Action::ToggleKeyboard || action==Action::ToggleNotifications
+        || action==Action::ToggleContinue || action==Action::Secondary || action==Action::Home
+        || action==Action::SystemMenu || action==Action::PreviousPage || action==Action::NextPage))dashboard_.closeWidgetPicker();
     if(action==Action::ToggleNotifications){openNotifications();return;}
     if(page_==AppsPage && appsFace_=="browser" && !browser_.dialog().isEmpty() && !keyboard_.isOpen()
         && service_.isEmpty() && !menuOpen_ && !homeMenuOpen_ && notice_.isEmpty()
@@ -2090,6 +2111,7 @@ void ShellController::dispatch(Action action) {
         return;
     }
     if(social_.dispatchIncomingCall(action))return;
+    if(dashboard_.widgetPicking()){dashboard_.move(action);emit changed();return;}
     if(page_==AppsPage && appsFace_=="browser" && service_.isEmpty() && !keyboard_.isOpen() && !menuOpen_ && !homeMenuOpen_ && !drawerOpen_ && !quickAppsOpen_ && notice_.isEmpty() && !localModalOpen()) {
         if(action==Action::Up||action==Action::Down||action==Action::Left||action==Action::Right||action==Action::Confirm||action==Action::ContextMenu||action==Action::Back||action==Action::LocalAction||action==Action::ScrollUp||action==Action::ScrollDown){browser_.dispatch(action);return;}
         if(action==Action::ChangeView||action==Action::ToggleFavorite)return;

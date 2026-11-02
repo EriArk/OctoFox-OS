@@ -91,7 +91,7 @@ Window {
                 id: headerName; objectName: "header-account-name"
                 readonly property string fullName: shell.profileAccount.name
                 x: headerAvatar.x + headerAvatar.width + 14
-                y: 8; width: parent.width-x-47; height: 27
+                y: 8; width: Math.max(0,notificationBell.x-x-7); height: 27
                 text: fullName
                 color: "#fffef9"; font.family: Theme.displayFamily; font.pixelSize: 25
                 minimumPixelSize: 16; fontSizeMode: Text.Fit
@@ -99,15 +99,16 @@ Window {
                 elide: Text.ElideRight; textFormat: Text.PlainText; verticalAlignment: Text.AlignVCenter
             }
             MouseArea {
-                objectName: "account-profile-toggle"; anchors.fill: parent; anchors.rightMargin: 40
+                objectName: "account-profile-toggle"; anchors.fill: parent; anchors.rightMargin: parent.width-notificationBell.x
                 enabled: shell.unobstructed && !shell.quickAppsOpen
                 onClicked: shell.openProfile()
                 Accessible.role: Accessible.Button; Accessible.name: "Your player profile"
                 Accessible.onPressAction: shell.openProfile()
             }
             Item {
-                objectName: "notification-bell"; anchors.right: parent.right; anchors.rightMargin: 4
-                anchors.verticalCenter: parent.verticalCenter; width: 36; height: 44
+                id: notificationBell
+                objectName: "notification-bell"; anchors.right: parent.right; anchors.rightMargin: (parent.height-height)/2
+                anchors.verticalCenter: parent.verticalCenter; width: 44; height: 44
                 Rectangle { anchors.fill: parent; radius: 12; color: "#18ffffff"; visible: bellPointer.containsMouse || shell.notificationsOpen }
                 MenuGlyph { anchors.centerIn: parent; width: 22; height: 22; glyph: "bell"; ink: "#fffef9" }
                 Rectangle { anchors.right: parent.right; anchors.rightMargin: 4; y: 5; width: 7; height: width; radius: width/2; color: Theme.yellow; visible: shell.notifications.length>0 }

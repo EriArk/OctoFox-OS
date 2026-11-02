@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QSet>
+#include <QSettings>
 #include <algorithm>
 
 namespace trainer {
@@ -17,7 +18,44 @@ HomeDashboardController::HomeDashboardController(LibraryRepository& library,Achi
 }
 void HomeDashboardController::setContext(QString adventure,bool generic) {
     if(adventure_==adventure && generic_==generic)return;
-    adventure_=std::move(adventure);generic_=generic;focus_="play";achievementsCached_=false;emit changed();
+    adventure_=std::move(adventure);generic_=generic;focus_="play";widgetPicking_=false;achievementsCached_=false;emit changed();
+}
+QVariantList HomeDashboardController::widgetChoices() const {
+    return {QVariantMap{{"id",""},{"title","No widget"}},
+        QVariantMap{{"id","downloads"},{"title","Downloads"}},
+        QVariantMap{{"id","storage"},{"title","Storage"}},
+        QVariantMap{{"id","clock"},{"title","Clock"}},
+        QVariantMap{{"id","battery"},{"title","Battery"}}};
+}
+QVariantMap HomeDashboardController::widget() const {
+    if(widgetId_.isEmpty())return {};
+    for(const auto& value:widgetChoices())if(value.toMap()["id"]==widgetId_) {
+        auto row=value.toMap();row["w"]=4;row["h"]=4;return row;
+    }
+    return {};
+}
+void HomeDashboardController::setOwner(const QString& owner) {
+    const auto key=owner.isEmpty()?QString():"home/widget/v1/"+QString::fromLatin1(QCryptographicHash::hash(owner.toUtf8(),QCryptographicHash::Sha256).toHex());
+    if(key==ownerKey_)return;
+    ownerKey_=key;widgetId_=key.isEmpty()?QString():QSettings().value(key).toString();
+    if(widget().isEmpty())widgetId_.clear();
+    widgetPicking_=false;widgetChoiceIndex_=0;emit changed();
+}
+void HomeDashboardController::editWidget() {
+    if(ownerKey_.isEmpty())return;
+    focus_="widget";widgetPicking_=true;widgetChoiceIndex_=0;
+    const auto rows=widgetChoices();for(int i=0;i<rows.size();++i)if(rows[i].toMap()["id"]==widgetId_)widgetChoiceIndex_=i;
+    emit changed();
+}
+void HomeDashboardController::chooseWidget(const QString& id) {
+    if(!widgetPicking_||ownerKey_.isEmpty())return;
+    const auto rows=widgetChoices();bool valid=false;for(const auto& row:rows)if(row.toMap()["id"]==id)valid=true;
+    if(!valid)return;
+    widgetId_=id;QSettings().setValue(ownerKey_,id);widgetPicking_=false;focus_="widget";emit changed();
+}
+void HomeDashboardController::closeWidgetPicker() {if(widgetPicking_){widgetPicking_=false;emit changed();}}
+void HomeDashboardController::activateWidget() {
+    if(widgetId_.isEmpty())editWidget();else emit widgetActivated(widgetId_);
 }
 QVariantList HomeDashboardController::people() const {
     auto rows=social_.quickPeople();
@@ -31,7 +69,7 @@ QVariantList HomeDashboardController::achievements() const {
     if(revision && achievementsCached_ && achievementsRevision_==revision && achievementsContext_==context)return achievementsCache_;
     QSet<QString> games;for(const auto& game:library_.adventures())games.insert(game.id);
     for(const auto& set:provider_.sets()) {
-        if(!set.supported || !games.contains(set.adventureId) || (generic_ && set.adventureId!=adventure_))continue;
+        if(!set.supported || !games.contains(set.adventureId) || set.adventureId!=adventure_)continue;
         const auto snapshot=provider_.snapshot(set.id);
         if(snapshot.context!=context || snapshot.setId!=set.id
            || (snapshot.state!=AchievementState::Ready && snapshot.state!=AchievementState::Offline))continue;
@@ -64,12 +102,24 @@ QList<QStringList> HomeDashboardController::zones() const {
 }
 QVariantMap HomeDashboardController::target(const QString& key) const {
     if(key=="lobbies")return {{"type","lobbies"},{"key",key}};
-    if(key=="play" || key=="screens")return {{"type",key},{"key",key}};
+    if(key=="play" || key=="screens" || key=="widget")return {{"type",key},{"key",key}};
     for(const auto& rows:{people(),achievements()})for(const auto& row:rows)if(row.toMap()["key"]==key)return row.toMap();
     return {}; // An expired focused item never becomes a new row at its old index.
 }
 void HomeDashboardController::select(const QString& key) {if(!target(key).isEmpty()){focus_=key;emit changed();}}
 void HomeDashboardController::move(Action action) {
+    if(widgetPicking_) {
+        if(action==Action::Back || action==Action::Home || action==Action::SystemMenu)closeWidgetPicker();
+        else if(action==Action::Confirm)chooseWidget(widgetChoices().value(widgetChoiceIndex_).toMap()["id"].toString());
+        else if(action==Action::Up || action==Action::Down){widgetChoiceIndex_=std::clamp(widgetChoiceIndex_+(action==Action::Up?-1:1),0,int(widgetChoices().size())-1);emit changed();}
+        return;
+    }
+    if(focus_=="widget") {
+        if(action==Action::Up)select(people().isEmpty()?"lobbies":people().last().toMap()["key"].toString());
+        else if(action==Action::Right || action==Action::Back || action==Action::NextFace || action==Action::PreviousFace)reset();
+        return;
+    }
+    if(action==Action::Down && (focus_.startsWith("person:") || (focus_=="lobbies" && people().isEmpty()))){select("widget");return;}
     const auto groups=zones();int zone=-1,index=-1;
     if(focus_=="lobbies"&&action==Action::Down&&!people().isEmpty()){select(people().first().toMap()["key"].toString());return;}
     if(focus_.startsWith("person:")&&action==Action::Up){select("lobbies");return;}
@@ -99,6 +149,9 @@ void HomeDashboardController::move(Action action) {
     }
     if(!generic_ && focus_=="play" && action==Action::Left){select("screens");return;}
     if(!generic_ && focus_=="screens" && action==Action::Right){select("play");return;}
+    if(!generic_ && focus_=="screens" && action==Action::Left){select(groups[1].isEmpty()?"widget":groups[1].last());return;}
+    if(!generic_ && zone==1 && action==Action::Left && index==0){select("widget");return;}
+    if(!generic_ && zone==1 && action==Action::Right && index==groups[1].size()-1){select("screens");return;}
     if(zone<0) {
         if(focus_.startsWith("person:") && (action==Action::Left || action==Action::Right) && !people().isEmpty()) {
             select(people().first().toMap()["key"].toString());return;

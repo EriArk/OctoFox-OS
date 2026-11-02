@@ -11,14 +11,19 @@ Item {
     readonly property real split: width * .33
     readonly property real gameCardLeft: showcase.x
     readonly property real usableHeight: height - (shell.chooseAdventureAvailable ? Theme.adventureCutoutHeight : 0) - 10
-    function hints(h) { if (!visible) return null; return flow.focus === "play" ? [h("A",shell.liveGame.id ? "Return" : shell.homeGame.id ? shell.home.actionHint : "Choose a game"),h("Select","Game actions"),h("B","Back")] : [h("A","Open"),h("B","Play focus")] }
+    function hints(h) {
+        if (!visible) return null
+        if(flow.widgetPicking)return [h("A","Select widget"),h("B","Cancel")]
+        if(flow.focus==="widget")return [h("A",flow.widget.id?"Open":"Choose widget"),h("Select","Change widget"),h("B","Play focus")]
+        return flow.focus === "play" ? [h("A",shell.liveGame.id ? "Return" : shell.homeGame.id ? shell.home.actionHint : "Choose a game"),h("Select","Game actions"),h("B","Back")] : [h("A","Open"),h("B","Play focus")]
+    }
 
     // One quiet social area, with individual controls rather than a wall of tiles.
     Item {
         id: activity
         x: root.gap; y: 12 * root.unit
         width: root.split - 2 * root.gap
-        height: root.usableHeight - (root.generic ? 0 : awards.height + root.gap) - y
+        height: root.usableHeight - y
         Item {
             id: lobbyCard; objectName: "home-lobby-card"; width: parent.width; height: visible ? 54 : 0
             visible: true
@@ -63,7 +68,7 @@ Item {
             id: emptySocial
             readonly property bool compact: height < 100
             visible: root.flow.people.length === 0
-            x: 3*root.unit; y: lobbyCard.height+16*root.unit; width: parent.width; height: Math.max(0,parent.height-y)
+            x: 3*root.unit; y: lobbyCard.height+16*root.unit; width: parent.width; height: chatRow.height-10
             Rectangle {
                 visible: !emptySocial.compact
                 x: 3; y: 9*root.unit; width: 67*root.unit; height: 55*root.unit; radius: 17*root.unit
@@ -81,22 +86,27 @@ Item {
                 Text { width: parent.width; visible: emptySocial.height>48; text: "Friends, messages and invitations"; color: Theme.muted; font.pixelSize: emptySocial.compact ? 11 : 13; wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight }
             }
         }
+        HomeWidgetSlot {
+            shell: root.shell; selected: root.active && root.flow.focus==="widget"
+            y: chatRow.y+chatRow.height+12; width: parent.width
+            height: Math.min(208,Math.max(0,parent.height-y))
+        }
     }
     Item {
         id: awards
         objectName: "home-awards"
-        readonly property bool compact: root.generic && showcase.height < 330
-        parent: root.generic ? showcase : root
-        x: root.generic ? 20 : activity.x
-        y: root.generic ? parent.height-height-13 : root.usableHeight-height
-        width: root.generic ? parent.width-play.width-60 : activity.width
-        height: root.generic ? (compact ? 128 : 148) : 139
+        readonly property bool compact: !root.generic || showcase.height < 330
+        parent: showcase
+        x: 20
+        y: parent.height-height-(root.generic ? 13 : 9)
+        width: root.generic ? parent.width-play.width-60 : (play.x-56)*.5
+        height: root.generic ? (compact ? 128 : 148) : 98
         Rectangle { visible: !root.generic; width: parent.width; height: 1; color: Theme.surfaceColor("#70c6d6b6") }
         Rectangle { visible: !root.generic; y: 1; width: parent.width; height: 1; color: Theme.surfaceColor("#203a4635") }
-        Text { y: root.generic ? 6 : 13; width: parent.width; elide: Text.ElideRight; text: "Recent achievements"; color: root.generic ? Theme.textColor("#fff4ce") : Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 19 * root.unit }
+        Text { y: 6; width: parent.width; elide: Text.ElideRight; text: "Recent achievements"; color: Theme.textColor("#fff4ce"); font.family: Theme.displayFamily; font.pixelSize: root.generic ? 19 : 14 }
         ListView {
             id: trophies; objectName: "home-achievements"
-            y: root.generic ? (awards.compact ? 29 : 34) : 45; width: parent.width; height: root.generic ? (awards.compact ? 84 : 103) : 70
+            y: root.generic ? (awards.compact ? 29 : 34) : 26; width: parent.width; height: root.generic ? (awards.compact ? 84 : 103) : 48
             orientation: ListView.Horizontal; clip: true; spacing: root.generic ? 6 : 10; model: root.flow.achievements
             currentIndex: { for(let i=0;i<model.length;i++)if(model[i].key===root.flow.focus)return i;return -1 }
             onCurrentIndexChanged: if(currentIndex>=0)positionViewAtIndex(currentIndex,ListView.Contain)
@@ -104,10 +114,10 @@ Item {
                 required property var modelData
                 required property int index
                 objectName: "home-award-"+index
-                width: root.generic ? (trophies.width-4*trophies.spacing)/5 : 62; height: trophies.height
+                width: root.generic ? (trophies.width-4*trophies.spacing)/5 : 44; height: trophies.height
                 Rectangle {
                     id: medallion
-                    x: root.generic ? (parent.width-width)/2 : 2; y: 5; width: root.generic ? Math.min(parent.width-6,awards.compact ? 46 : 58) : 58; height: width; radius: width/2
+                    x: root.generic ? (parent.width-width)/2 : 2; y: 5; width: root.generic ? Math.min(parent.width-6,awards.compact ? 46 : 58) : 40; height: width; radius: width/2
                     color: Theme.surfaceColor("#234b46"); border.color: Theme.surfaceColor("#769f87"); border.width: 2
                     Rectangle {
                         anchors.fill: parent; anchors.margins: 4; radius: width/2
@@ -138,10 +148,10 @@ Item {
                 Repeater {
                     model: root.generic ? 5 : 3
                     Item {
-                        width: root.generic ? (trophies.width-4*trophies.spacing)/5 : 54; height: root.generic ? 80 : 54
+                        width: root.generic ? (trophies.width-4*trophies.spacing)/5 : 44; height: root.generic ? 80 : 44
                         Rectangle {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            width: root.generic ? Math.min(parent.width-6,awards.compact ? 46 : 58) : 54
+                            width: root.generic ? Math.min(parent.width-6,awards.compact ? 46 : 58) : 40
                             height: width; radius: width/2; color: Theme.surfaceColor("#80244844"); border.color: Theme.surfaceColor("#9eae89"); border.width: 2
                             Rectangle { anchors.fill: parent; anchors.margins: 5; radius: width/2; color: "transparent"; border.color: Theme.surfaceColor("#7d916f") }
                             Text { anchors.centerIn: parent; text: "☆"; color: Theme.textColor("#b9c6a2"); font.pixelSize: 29*root.unit }
@@ -152,14 +162,14 @@ Item {
         }
         Text {
             visible: !root.generic || trophies.count === 0
-            y: root.generic ? parent.height-18 : 113; width: parent.width
+            y: parent.height-18; width: parent.width
             text: {
                 const rows = root.flow.achievements
                 let chosen = rows.length ? rows[0] : null
                 for (let i=0; i<rows.length; ++i) if(rows[i].key===root.flow.focus) chosen=rows[i]
                 return chosen ? chosen.name + (chosen.offline ? " · Offline" : "") : "Your first achievements await"
             }
-            color: root.generic ? Theme.textColor("#e1ebd4") : Theme.muted; font.pixelSize: 12*root.unit; elide: Text.ElideRight
+            color: Theme.textColor("#e1ebd4"); font.pixelSize: root.generic ? 12 : 11; elide: Text.ElideRight
         }
     }
     // A softly raised card: diffuse contact shadows, a darker lower edge,
@@ -213,10 +223,10 @@ Item {
         }
         HomeScreensCollage {
             objectName: "home-screens"
-            x: root.generic ? parent.width*.55 : 22
+            x: root.generic ? parent.width*.55 : awards.x+awards.width+12
             y: root.generic ? 18 : play.y+(play.height-height)/2
             width: root.generic ? parent.width*.45-22 : play.x-x-24
-            height: root.generic ? awards.y-36 : 98
+            height: root.generic ? awards.y-36 : 90
             balanced: root.generic
             source: {
                 if (!root.visible) return ""

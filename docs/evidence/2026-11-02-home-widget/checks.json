@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-02",
+  "source_base": "785dd836",
+  "windows_qt": {
+    "targeted_home": 8,
+    "home_ui": true,
+    "home_reopen": true,
+    "qml_warnings": 0
+  },
+  "arm_linux_qt": {
+    "core": 8,
+    "targeted_home": 7
+  },
+  "installed": {
+    "flip": {
+      "running_sha256": "b8ab84f6e7d7bf1db2ae450190c9c2cb59e7cbcc29296866a17e5b453c6a32ca",
+      "helpers_verified": 181,
+      "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged_during_install": true,
+      "qml_errors": 0,
+      "widget_choice_retained_after_restart": true,
+      "picker_and_bell_checked": true,
+      "restored_empty_widget": true,
+      "storage_real_capacity_after_restart": true
+    },
+    "odin": {
+      "running_sha256": "b8ab84f6e7d7bf1db2ae450190c9c2cb59e7cbcc29296866a17e5b453c6a32ca",
+      "helpers_verified": 154,
+      "network_helper_sha256": "bf4da8a0eacd9fe685c205b3aba70369ad8e813170137da2233db4be8f744f4e",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged_during_install": true,
+      "volume_zero": true,
+      "qml_errors": 0,
+      "widget_choice_retained_after_restart": true,
+      "picker_and_bell_checked": true,
+      "restored_empty_widget": true
+    }
+  },
+  "remaining": [
+    "physical touch/controller owner acceptance",
+    "external SDK widget catalogue",
+    "previously deferred manual library scan cycle"
+  ],
+  "source_manifest_sha256": "5a3a6fcfee26c1f9bef04326d7a38d25c928145e185cbc0e7c6bbb641a921ec4"
+}

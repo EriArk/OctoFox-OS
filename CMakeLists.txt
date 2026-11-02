@@ -495,6 +495,7 @@ qt_add_qml_module(traineros
         src/qml/ExperienceHost.qml
         src/qml/GenericExperiencePage.qml
         src/qml/HomeDashboard.qml
+        src/qml/HomeWidgetSlot.qml
     src/qml/GameHubPage.qml
     src/qml/OnlinePage.qml
         src/qml/AlbumPhoto.qml

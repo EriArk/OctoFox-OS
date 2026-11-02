@@ -6,8 +6,15 @@
 popover, not Home or the Home-button menu. Place level at the avatar's top-right,
 Sparks under the name and the bell at the right edge of the slightly wider panel.
 Keep the popover narrow: its right edge aligns with the Home game card's left edge.
+The bell uses equal top, right and bottom insets inside the account panel.
 Wi-Fi needs persistent authentication feedback and re-enter password through the
 shared connection flow. See [current contract/evidence](docs/evidence/2026-11-02-bell-wifi/README.md).
+
+**Owner Home boundary correction, 2 November:** the left Home area belongs to
+the shell and the user's selected widget. An active game adapter must not reduce
+or replace it. Keep game presentation and achievements inside the game card;
+the standard handheld slot fits 4×4 Start cells. Store Home widget selection per
+profile, independently of the selected game and Start layout.
 
 ## Current working mode — owner correction, 21 October 2026
 

@@ -288,6 +288,7 @@ public:
     Q_INVOKABLE void dismissPassiveNotice();
     HomeDashboardController* dashboard(){return &dashboard_;}
     Q_INVOKABLE void activateDashboard(const QString& key);
+    Q_INVOKABLE void editHomeWidget();
     void setLiveGame(const QVariantMap& game);
     void presentPostGamePrizes();
     Q_INVOKABLE void returnToLiveGame(bool options=false) { if(!liveGame_.isEmpty())emit liveGameRequested(options); }

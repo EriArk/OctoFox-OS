@@ -9,12 +9,57 @@
 #include <QTemporaryDir>
 #include <QFile>
 #include <QBuffer>
+#include <QSettings>
 #include "fixtures/HomeSocialFixture.h"
 
 using namespace trainer;
 class ExperienceTests : public QObject {
     Q_OBJECT
+    QTemporaryDir settingsDir_;
 private slots:
+    void initTestCase() {
+        QVERIFY(settingsDir_.isValid());
+        QCoreApplication::setOrganizationName("TrainerOS-tests");
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+        QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settingsDir_.path());
+    }
+    void homeWidgetBelongsToProfileNotAdapterAndPickerConsumesInput() {
+        const auto owner="widget-test-"+QUuid::createUuid().toString();
+        MockLibraryRepository library;MockTrainerRepository profiles(TrainerProfile{owner,"Widget test","compass",{},QDateTime::currentDateTimeUtc()});MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        auto* dashboard=shell.dashboard();
+        const auto startLayout=shell.controls()->widgets();
+        QSignalSpy launches(&shell,&ShellController::homeLaunchPressed);
+        dashboard->select("lobbies");dashboard->move(Action::Down);QCOMPARE(dashboard->focus(),"widget");
+        shell.dispatch(Action::Confirm);QVERIFY(dashboard->widgetPicking());
+        dashboard->chooseWidget("untrusted-widget");QVERIFY(dashboard->widgetPicking());QVERIFY(dashboard->widget().isEmpty());
+        shell.dispatch(Action::Down);shell.dispatch(Action::Confirm);
+        QCOMPARE(dashboard->widget()["id"],"downloads");QVERIFY(!dashboard->widgetPicking());QVERIFY(launches.isEmpty());
+        shell.dispatch(Action::Confirm);QVERIFY(shell.downloads()->isOpen());QVERIFY(launches.isEmpty());
+        shell.downloads()->close();QCOMPARE(dashboard->focus(),"widget");
+        shell.openContext();QVERIFY(dashboard->widgetPicking());
+        shell.dispatch(Action::Down);shell.dispatch(Action::Back);QCOMPARE(dashboard->widget()["id"],"downloads");
+        shell.editHomeWidget();shell.dispatch(Action::Secondary);
+        QVERIFY(!dashboard->widgetPicking());QVERIFY(shell.quickAppsOpen());shell.dispatch(Action::Back);
+        QCOMPARE(dashboard->widget()["id"],"downloads");QCOMPARE(shell.controls()->widgets(),startLayout);
+        HomeDashboardController reopened(library,achievements,*shell.social());reopened.setOwner(owner);
+        reopened.setContext("emerald-demo",false);reopened.setContext("other",true);
+        QCOMPARE(reopened.widget()["id"],"downloads");
+        reopened.setOwner(owner+"-second");QVERIFY(reopened.widget().isEmpty());
+        reopened.editWidget();reopened.chooseWidget("clock");reopened.setOwner(owner);
+        QCOMPARE(reopened.widget()["id"],"downloads");
+        reopened.editWidget();reopened.setOwner({});QVERIFY(!reopened.widgetPicking());QVERIFY(reopened.widget().isEmpty());
+        reopened.setOwner(owner);
+        reopened.editWidget();reopened.chooseWidget({});QVERIFY(reopened.widget().isEmpty());
+        DeviceSnapshot snapshot;snapshot.internalFree=20LL<<30;snapshot.internalTotal=64LL<<30;
+        std::atomic_int reads=0;DeviceService service(DeviceBackend{[&]{++reads;return snapshot;},[](const QString&,int){return QString();}});
+        shell.device()->configure(&service,false);
+        shell.systemAction("home-widget-refresh");QCOMPARE(reads.load(),0); // Downloads never polls device status.
+        dashboard->editWidget();dashboard->chooseWidget("storage");shell.systemAction("home-widget-refresh");
+        QTRY_VERIFY(shell.device()->status()[1].toMap()["value"].toString().contains("20.0"));
+        const int observed=reads.load();dashboard->reset();dashboard->select("widget");QCOMPARE(reads.load(),observed);
+    }
     void shellDisconnectsServiceAndModuleCallbacksBeforeTeardown() {
         class ClosingExperience final : public ExperienceModule {
         public:
@@ -352,8 +397,8 @@ private slots:
         MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;DevelopmentPlatformService platform;
         MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
-        const auto rows=shell.dashboard()->achievements();QVERIFY(rows.size()>=4);
-        QSet<QString> sets;for(const auto& row:rows)sets.insert(row.toMap()["set"].toString());QCOMPARE(sets.size(),2);
+        const auto rows=shell.dashboard()->achievements();QVERIFY(!rows.isEmpty());
+        QSet<QString> sets;for(const auto& row:rows)sets.insert(row.toMap()["set"].toString());QCOMPARE(sets.size(),1);
         shell.showAchievements("Unrelated toast",{"Not a trophy"});QCOMPARE(shell.dashboard()->achievements(),rows);
         const auto key=rows.first().toMap()["key"].toString();shell.activateDashboard(key);
         QCOMPARE(shell.service(),"profile");QCOMPARE(shell.profileRoute(),"ra");QCOMPARE(shell.hall()->route(),"achievement-detail");
@@ -383,7 +428,7 @@ private slots:
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
         HomeDashboardController projection(library,achievements,*shell.social());
         auto* dashboard=&projection;dashboard->setContext("emerald-demo",false);
-        const auto adapterRows=dashboard->achievements();QVERIFY(adapterRows.size()>3);
+        const auto adapterRows=dashboard->achievements();QCOMPARE(adapterRows.size(),3);
         dashboard->setContext("emerald-demo",true);
         const auto emerald=dashboard->achievements();QCOMPARE(emerald.size(),3);
         for(const auto& row:emerald)QCOMPARE(row.toMap()["adventure"].toString(),"emerald-demo");
