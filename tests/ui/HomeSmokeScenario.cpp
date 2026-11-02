@@ -1,5 +1,6 @@
 #include "HomeSmokeScenario.h"
 #include "../fixtures/HomeSocialFixture.h"
+#include "../fixtures/HomeWidgetPackage.h"
 #include "features/home/PlayHistoryController.h"
 #include <QCoreApplication>
 #include <QQuickItem>
@@ -74,6 +75,7 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             require(!(panels[0]->property("panelVisible").toBool() && panels[1]->property("panelVisible").toBool()),
                     "Switching drawers closes one before raising the next");
     });
+    auto widgetPackage = std::make_shared<QTemporaryDir>();
     auto artworkWaits = std::make_shared<int>(0);
     auto returningToSelector = std::make_shared<bool>(false);
     const auto program = QDir(QCoreApplication::applicationDirPath()).filePath(
@@ -673,6 +675,63 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
         }
         case 90:
             capture("notification-toast-alternate-theme-960");shell.settings()->cycleTheme();shell.dismissPassiveNotice();break;
+        case 91: {
+            shell.goToPage(1); // Hide the ordinary Home while probing the real widget QML.
+            const auto receipt=homeWidgetPackage(widgetPackage->path());
+            const auto base=widgetPackage->path()+"/objects/"+receipt["object"].toString()+"/assets/backgrounds/";
+            QImage backdrop(8,8,QImage::Format_RGB32);backdrop.fill(QColor("#58786a"));
+            for(const auto& name:{"cozy-room","sunny-garden","evening-nook"})backdrop.save(base+name+".png");
+            shell.dashboard()->setInstalledWidgets(widgetPackage->path(),{receipt});
+            check(shell.dashboard()->selectPackageWidget("home-companion"),"Installed package selects its contribution");
+            QQmlComponent component(qmlEngine(window));
+            component.setData(R"QML(import QtQuick
+import TrainerOS
+Item {
+    id: probe; objectName: "companion-integration-probe"
+    required property var liveShell
+    x: 30; y: 80; width: 269; height: 208; z: 200
+    property QtObject proxy: QtObject {
+        property var dashboard: probe.liveShell.dashboard
+        property var trainer: ({avatarModel:"",avatarRendererAvailable:false,avatarBusy:false})
+        property bool unobstructed: true
+        property bool quickAppsOpen: false
+        property bool drawerOpen: false
+        property var keyboard: ({open:false})
+        property var notifications: []
+    }
+    HomeWidgetSlot { anchors.fill:parent; shell:probe.proxy; selected:true }
+})QML",QUrl("qrc:/TrainerOS/CompanionIntegrationProbe.qml"));
+            auto* probe=qobject_cast<QQuickItem*>(component.createWithInitialProperties({{"liveShell",QVariant::fromValue(&shell)}}));
+            check(probe,component.errorString());
+            if(probe){probe->setParent(window);probe->setParentItem(window->contentItem());}
+            break;
+        }
+        case 92: {
+            auto* widget=itemNamed("home-companion");
+            check(widget && shell.dashboard()->companion()->active(),"Real widget loader activates care without a binding loop");
+            if(widget)check(QMetaObject::invokeMethod(widget,"use",Q_ARG(QVariant,QVariant(0))),"QML touch action invokes shared Home focus and Feed");
+            check(shell.dashboard()->companion()->activity()=="feed","Feed actually reaches the controller");
+            shell.dashboard()->setInstalledWidgets({},{});break;
+        }
+        case 93: {
+            check(!itemNamed("home-companion") && !shell.dashboard()->companion()->active(),"Package removal unloads the renderer and stops care");
+            const auto restoredReceipt=homeWidgetPackage(widgetPackage->path());
+            // Restore valid image assets before republishing the installed receipt.
+            {const auto base=widgetPackage->path()+"/objects/home-companion-"+QString(64,'a')+"/assets/backgrounds/";
+             QImage backdrop(8,8,QImage::Format_RGB32);backdrop.fill(QColor("#58786a"));
+             for(const auto& name:{"cozy-room","sunny-garden","evening-nook"})backdrop.save(base+name+".png");}
+            shell.dashboard()->setInstalledWidgets(widgetPackage->path(),{restoredReceipt});
+            check(shell.dashboard()->selectPackageWidget("home-companion"),"Crates selection works after a rendered widget");break;
+        }
+        case 94:
+            check(!shell.dashboard()->widgetPicking() && shell.dashboard()->widget()["id"]=="crates:home-companion:pet",
+                  "QML lifecycle cannot reopen picker or discard package selection");
+            check(shell.dashboard()->companion()->active(),"Replacement renderer reactivates care");
+            if(auto* probe=itemNamed("companion-integration-probe"))probe->setVisible(false);break;
+        case 95:
+            check(!shell.dashboard()->companion()->active(),"Hidden widget stops care");
+            if(auto* probe=itemNamed("companion-integration-probe"))probe->deleteLater();
+            shell.dashboard()->setInstalledWidgets({},{});shell.goToPage(0);break;
         default:
             check(warnings == 0, "QML warnings"); completed = true; timer->stop();
             if (!screenshotDir.isEmpty()) {

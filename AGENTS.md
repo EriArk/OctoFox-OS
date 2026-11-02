@@ -26,8 +26,15 @@ authentication errors/retry. Drawer ears use the selected controller's glyphs
 without round backgrounds; keyboard fallback uses real X/Y shortcuts.
 These decisions supersede the earlier clock-rightmost and fixed inbox alignment.
 See [current delivery](docs/evidence/2026-11-02-direct-home-calls/README.md).
-Companion installation is explicitly deferred until its Crates publication;
-preserve the other chat's package/host preparation for that later delivery.
+Companion 0.1.0 is now published in Crates. The owner resumed its delivery:
+integrate the prepared host support into current main, install the signed package
+and select it on both handhelds. Preserve their profiles, approved avatar packs
+and the current Home/notification behavior. Publication alone is not delivery.
+The integrated Release shell and signed package are now installed on both:
+[delivery evidence](docs/evidence/2026-11-02-companion-delivery/README.md).
+Owner corner correction: do not change Companion visuals in this core pass;
+the renderer's rectangular clipping is tracked in [Crates #2](https://github.com/EriArk/crates/issues/2).
+Its measured animation cost remains unfinished optimization, not accepted performance.
 
 **Owner Home boundary correction, 2 November:** the left Home area belongs to
 the shell and the user's selected widget. An active game adapter must not reduce

@@ -1087,6 +1087,8 @@ int main(int argc, char* argv[]) {
         }
         std::unique_ptr<PlayHistoryController> playHistory;
         if (personalLibrary) playHistory = std::make_unique<PlayHistoryController>(adventureLaunch, *store);
+        if (playHistory) bindings.connect(playHistory.get(),&PlayHistoryController::gameplayElapsed,
+            shell.dashboard()->companion(),&HomeCompanion::addGameplaySeconds);
         if (playHistory) playHistory->setMediaSource([&](const QString& id) -> std::optional<ExitMediaSource> {
             const auto profile = store->load();
             const auto record = activeLibrary.registration(id);
@@ -1459,6 +1461,7 @@ int main(int argc, char* argv[]) {
                 bindings.connect(crateLibrary,&CratesLibrary::changed,&shell,[&]{shell.refreshLibrary();shell.apps()->refresh();});
                 bindings.connect(crateLibrary,&CratesLibrary::error,&shell,&ShellController::showNotice);
                 const auto syncCrateGames=[&,crateLibrary]{
+                    shell.dashboard()->setInstalledWidgets(shell.crates()->installer()->root(),shell.crates()->installer()->installed());
                     if(store->load()&&!adventureLaunch.active())crateLibrary->update(shell.crates()->installer()->installed());
                 };
                 bindings.connect(&adventureLaunch,&AdventureLaunchController::changed,&shell,[syncCrateGames]{syncCrateGames();});
@@ -1467,6 +1470,9 @@ int main(int argc, char* argv[]) {
                 packages->configure("/var/opt/traineros/crates/installer.py","/var/opt/traineros/crates/packages.json",cratesRuntime.root);
                 shell.crates()->configureCatalogue("/var/opt/traineros/crates/catalogue.py",cratesRuntime.root+"/catalogue");
                 bindings.connect(shell.crates(),&CratesController::launchRequested,&shell,[&](QString id,QString kind){
+                    if(!adventureLaunch.active() && !shell.runtimeChangeBlocked() && shell.dashboard()->selectPackageWidget(id)){
+                        shell.goToPage(ShellController::HomePage);return;
+                    }
                     if(kind=="game")shell.launchPreparation().launch("crates:"+id);
                     else shell.apps()->openDesktopId("org.traineros.crates."+id+".desktop");
                 });

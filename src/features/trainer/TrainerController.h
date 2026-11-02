@@ -7,6 +7,7 @@
 #include <QFutureWatcher>
 #include <QJsonObject>
 #include <QTemporaryDir>
+#include <QUrl>
 
 namespace trainer {
 class TrainerController : public QObject {
@@ -25,6 +26,7 @@ class TrainerController : public QObject {
     Q_PROPERTY(bool avatarRendererAvailable READ avatarRendererAvailable CONSTANT)
     Q_PROPERTY(bool avatarBusy READ avatarBusy NOTIFY changed)
     Q_PROPERTY(QString avatarPreview READ avatarPreview NOTIFY changed)
+    Q_PROPERTY(QUrl avatarModel READ avatarModel NOTIFY changed)
     Q_PROPERTY(QVariantList avatarRows READ avatarRows NOTIFY changed)
     Q_PROPERTY(QString avatarError READ avatarError NOTIFY changed)
 public:
@@ -51,6 +53,7 @@ public:
     bool avatarRendererAvailable() const;
     bool avatarBusy() const { return avatarJob_.isRunning(); }
     QString avatarPreview() const;
+    QUrl avatarModel() const {const auto path=liveAvatar_["glb"].toString();return path.isEmpty()?QUrl():QUrl::fromLocalFile(path);}
     QString avatarError() const { return avatarError_; }
     QVariantList avatarRows() const;
     QJsonObject avatarDescriptor() const { return liveAvatar_; }

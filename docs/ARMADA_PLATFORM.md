@@ -1,5 +1,16 @@
 # TrainerOS on ArmadaOS
 
+## Handheld delivery build - 2 November 2026
+
+Use an explicit optimized configuration for a binary installed for ordinary use:
+`cmake -S <source> -B <build> -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF`.
+Keep the source and build roots on microSD as below. An empty single-config
+`CMAKE_BUILD_TYPE` does not imply Release: the retained core builder had no
+optimization flags, which materially increased live-avatar CPU work. Verify the
+cache/compile flags and the running executable hash in delivery evidence.
+Debug/native test builds remain separate; do not claim their resource cost is
+representative of the optimized handheld build.
+
 ## Build storage — 26 October 2026
 
 The owner requires handheld development sources, build trees, dependency caches

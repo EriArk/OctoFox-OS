@@ -33,6 +33,11 @@ public:
             qEnvironmentVariable("TRAINEROS_RECORD_HELPER",root+"/secure-channel.py"));
         host_.setNetwork(network_.get());
         host_.setBackend(shell_.backendAccount());
+        host_.selectHomeWidget=[this](const QString& app,const QString& widget)->QString {
+            if(launch_.active() || shell_.runtimeChangeBlocked())return "session_busy";
+            if(!shell_.dashboard()->selectPackageWidget(app,widget))return "widget_unavailable";
+            shell_.goToPage(ShellController::HomePage);return {};
+        };
         network_->launchInstalled=[this](const QString& local){
             if(local.isEmpty()||launch_.active()||shell_.launchPreparation().busy())return false;
             shell_.launchPreparation().launch(local);return true;

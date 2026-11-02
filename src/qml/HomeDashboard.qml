@@ -14,6 +14,7 @@ Item {
     function hints(h) {
         if (!visible) return null
         if(flow.widgetPicking)return [h("A","Select widget"),h("B","Cancel")]
+        if(flow.focus==="widget" && flow.companion.interacting)return [h("A","Use"),h("Select","Change widget"),h("B","Back")]
         if(flow.focus==="widget")return [h("A",flow.widget.id?"Open":"Choose widget"),h("Select","Change widget"),h("B","Play focus")]
         return flow.focus === "play" ? [h("A",shell.liveGame.id ? "Return" : shell.homeGame.id ? shell.home.actionHint : "Choose a game"),h("Select","Game actions"),h("B","Back")] : [h("A","Open"),h("B","Play focus")]
     }

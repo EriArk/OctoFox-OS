@@ -14,6 +14,12 @@
 
 ## Что уже можно использовать
 
+Для живых Qt-сцен добавлен общий [AvatarView3D / AvatarScene](qt/README.md#live-avatar-scene):
+полный аватар профиля, одежда, скелетные клипы, мимика, дополнительные позы
+и точки крепления предметов. Питомец Home — один из потребителей этого компонента.
+Он не переносит переодевание в игру. Статические карточки по-прежнему используют
+одноразовый portrait renderer; аппаратная проверка живого Qt-пути остаётся отдельной.
+
 | Capability | Вход / результат | Выход |
 | --- | --- | --- |
 | `context: 1` | Текущий локальный profile ID, выбранная игра отдельно от живой game session, состояние процесса/minimize и текущая app activity | Snapshot + события изменений; смена профиля отзывает подключение |
@@ -146,3 +152,8 @@ version требует отдельной версии, не молчаливо�
 [PLATFORM_SDK](../docs/PLATFORM_SDK.md) и документах конкретных служб.
 Проверка локального протокола, визуальный игровой прогон, физический ввод и
 разные сети — отдельные результаты; наличие capability не заменяет их.
+
+## Installed Home widgets
+
+See [Home contributions and optional selection API](HOME_WIDGETS.md) for durable
+Crates-installed widgets in the Home slot. This is separate from ephemeral Start widgets.

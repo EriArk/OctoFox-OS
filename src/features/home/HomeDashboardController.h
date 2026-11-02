@@ -4,6 +4,7 @@
 #include "integrations/achievements/AchievementProvider.h"
 #include "features/social/SocialController.h"
 #include <QObject>
+#include "HomeCompanion.h"
 
 namespace trainer {
 // Read-only game projections; shared Home focus and per-profile widget choice.
@@ -17,14 +18,18 @@ class HomeDashboardController final : public QObject {
     Q_PROPERTY(QVariantList widgetChoices READ widgetChoices NOTIFY changed)
     Q_PROPERTY(bool widgetPicking READ widgetPicking NOTIFY changed)
     Q_PROPERTY(int widgetChoiceIndex READ widgetChoiceIndex NOTIFY changed)
+    Q_PROPERTY(trainer::HomeCompanion* companion READ companion CONSTANT)
 public:
     HomeDashboardController(LibraryRepository&,AchievementProvider&,SocialController&,QObject* parent=nullptr);
     QVariantList people() const;
     QVariantList achievements() const;
     void setContext(QString adventure,bool generic);
     void setOwner(const QString& owner);
+    HomeCompanion* companion(){return &companion_;}
     QVariantMap widget() const;
     QVariantList widgetChoices() const;
+    void setInstalledWidgets(const QString& root,const QVariantList& receipts);
+    bool selectPackageWidget(const QString& package,const QString& localId={});
     bool widgetPicking() const {return widgetPicking_;}
     int widgetChoiceIndex() const {return widgetChoiceIndex_;}
     void editWidget();
@@ -33,21 +38,24 @@ public:
     Q_INVOKABLE void closeWidgetPicker();
     bool genericLayout() const {return generic_;}
     QString focus() const{return focus_;}
-    void select(const QString&);
+    Q_INVOKABLE void select(const QString&);
     void move(Action);
     QVariantMap target(const QString&) const;
-    void reset(){focus_="play";emit changed();}
+    void reset(){companion_.end();focus_="play";emit changed();}
 signals:
     void changed();
     void scrollRequested(int direction);
     void widgetActivated(QString id);
 private:
+    void applyWidget(const QString& id);
     QList<QStringList> zones() const;
     LibraryRepository& library_;
     AchievementProvider& provider_;
     SocialController& social_;
+    HomeCompanion companion_{this};
     QString focus_="play",adventure_;
     QString ownerKey_,widgetId_;
+    QVariantList installedWidgets_;
     bool widgetPicking_=false;
     int widgetChoiceIndex_=0;
     bool generic_=false;

@@ -232,10 +232,26 @@
         "qrc:/crates/projects/pocket-golf.png"
       ],
       "releases": []
+    },
+    {
+      "id": "home-companion",
+      "title": "Companion (alpha)",
+      "kind": "app",
+      "creator": "AbyssTail",
+      "license": "GPL-3.0-or-later",
+      "summary": "Your avatar, a little care, a place on Home.",
+      "description": "A gentle virtual pet in your Home widget slot. Feed and rest with your profile avatar, three scenes, achievement reactions and notification hints. Playtime fills while you play games. Requires updated TrainerOS with installed Home widget support (ui.home.widget:1); updating this package alone does not update the shell. Handheld acceptance pending.",
+      "hero": "qrc:/crates/projects/home-companion.png",
+      "screenshots": [
+        "qrc:/crates/projects/home-companion.png",
+        "qrc:/crates/projects/home-companion-rest.png"
+      ],
+      "releases": []
     }
   ],
   "contents": {
     "whats-new": [
+      "home-companion",
       "pocket-golf",
       "falling-blocks",
       "minesweeper-race",
@@ -254,6 +270,7 @@
       "qalculate"
     ],
     "workshop": [
+      "home-companion",
       "pocket-golf",
       "falling-blocks",
       "minesweeper-race",
@@ -287,6 +304,7 @@
       "hextris"
     ],
     "tools": [
+      "home-companion",
       "session-timer",
       "featherpad",
       "qalculate"

@@ -67,6 +67,27 @@ class PlatformHostTests final: public QObject {
     Q_OBJECT
     QTemporaryDir settings_;
 private slots:
+    void installedHomeSelectionRequiresBoundCapabilityAndCurrentProfile() {
+        Fixture f;QVERIFY(f.start());Client unbound(f.endpoint);
+        QVERIFY(!unbound.hello()["result"].toObject()["capabilities"].toObject().contains("ui.home.widget"));
+        unbound.send("home.widget.select",{{"id","pet"}});QCOMPARE(unbound.receive()["error"].toObject()["code"],"unsupported_method");
+        QString selected;f.host.selectHomeWidget=[&](const QString& app,const QString& id)->QString{
+            if(app!="home-companion" || id!="pet")return "widget_unavailable";
+            selected=id;return {};
+        };
+        Client client(f.endpoint);const auto hello=client.hello("home-companion")["result"].toObject();
+        QCOMPARE(hello["capabilities"].toObject()["ui.home.widget"].toInt(),1);
+        const auto revision=hello["context"].toObject().value("revision");
+        client.send("home.widget.select",{{"id","pet"},{"revision","0"}});
+        QCOMPARE(client.receive()["error"].toObject()["code"],"stale_context");QVERIFY(selected.isEmpty());
+        client.send("home.widget.select",{{"id","missing"},{"revision",revision}});
+        QCOMPARE(client.receive()["error"].toObject()["code"],"widget_unavailable");
+        client.send("home.widget.select",{{"id","pet"},{"revision",revision}});
+        QCOMPARE(client.receive()["result"].toObject()["id"],"pet");QCOMPARE(selected,"pet");
+        f.host.setContext(context({}));Client guest(f.endpoint);guest.hello("guest");
+        guest.send("home.widget.select",{{"id","pet"},{"revision",revision}});
+        QCOMPARE(guest.receive()["error"].toObject()["code"],"no_profile");
+    }
     void initTestCase(){
         QCoreApplication::setOrganizationName("TrainerSdkTests");QCoreApplication::setApplicationName("Host");
         QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settings_.path());

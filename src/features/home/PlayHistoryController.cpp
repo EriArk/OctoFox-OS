@@ -4,6 +4,13 @@
 namespace trainer {
 PlayHistoryController::PlayHistoryController(AdventureLaunchController& launch, PlayHistoryRepository& repository, QObject* parent)
     : QObject(parent), repository_(repository) {
+    gameplayTimer_.setInterval(1000);
+    connect(&gameplayTimer_,&QTimer::timeout,this,&PlayHistoryController::sampleGameplay);
+    connect(&launch,&AdventureLaunchController::changed,this,[this,&launch]{
+        const bool eligible=launch.state()=="running"&&!launch.minimized()&&launch.recordsLocalHistory();
+        if(eligible&&!gameplayTimer_.isActive()){gameplayClock_.start();gameplayTimer_.start();}
+        else if(!eligible&&gameplayTimer_.isActive()){sampleGameplay();gameplayTimer_.stop();}
+    });
     connect(&launch, &AdventureLaunchController::adventureStarted, this, [this,&launch](const QString& id) {
         error_.clear();
         if(!launch.recordsLocalHistory()){active_.reset();source_.reset();capture_.reset();return;}
@@ -11,6 +18,7 @@ PlayHistoryController::PlayHistoryController(AdventureLaunchController& launch, 
         source_ = mediaSource_ ? mediaSource_(id) : std::nullopt;
         capture_.reset(); captureRequestedAt_ = {};
         clock_.start(); save(*active_);
+        gameplayRemainder_=0;
     });
     connect(&launch.exitController(), &AdventureExitController::captureRequested, this, [this](quint64) {
         capture_.reset(); captureRequestedAt_ = QDateTime::currentDateTimeUtc();
@@ -28,6 +36,15 @@ PlayHistoryController::PlayHistoryController(AdventureLaunchController& launch, 
         save(session);
         source_.reset(); capture_.reset();
     });
+}
+void PlayHistoryController::sampleGameplay(){
+    if(!gameplayClock_.isValid())return;
+    const qint64 elapsed=gameplayClock_.restart();
+    // A long event-loop gap can be suspend, never catch up as gameplay.
+    if(elapsed<0||elapsed>2500)return;
+    gameplayRemainder_+=elapsed;
+    const qint64 seconds=gameplayRemainder_/1000;gameplayRemainder_%=1000;
+    if(seconds>0)emit gameplayElapsed(seconds);
 }
 void PlayHistoryController::save(const PlaySession& session) {
     repository_.saveSessionMediaAsync(session, source_, capture_, this, [this](const QString& error) {
