@@ -77,7 +77,7 @@ private slots:
         };
         Client client(f.endpoint);const auto hello=client.hello("home-companion")["result"].toObject();
         QCOMPARE(hello["capabilities"].toObject()["ui.home.widget"].toInt(),1);
-        const auto revision=hello["context"].toObject()["revision"];
+        const auto revision=hello["context"].toObject().value("revision");
         client.send("home.widget.select",{{"id","pet"},{"revision","0"}});
         QCOMPARE(client.receive()["error"].toObject()["code"],"stale_context");QVERIFY(selected.isEmpty());
         client.send("home.widget.select",{{"id","missing"},{"revision",revision}});
