@@ -15,6 +15,7 @@ import urllib.parse
 import releases as sw
 import channels
 import installer
+import screenscraper_client
 
 SOURCE = Path(__file__).resolve().parents[2]
 
@@ -38,6 +39,9 @@ def build(payload, output, private_key, public_key, version, sequence, source, r
     with executable.open('rb') as stream: header = stream.read(64)
     if len(header) < 64 or header[:6] != b'\x7fELF\x02\x01' or struct.unpack_from('<H', header, 18)[0] != 183:
         raise ValueError('Payload entrypoint must be a Linux ARM64 ELF executable')
+    # A working personal installation does not prove a fresh player's client
+    # access. Publication requires a separately provisioned application identity.
+    screenscraper_client.read(payload / screenscraper_client.RELATIVE_PATH)
     base = f'https://github.com/{repository}/releases/download/{urllib.parse.quote(tag)}/'
     manifest = sw.build(payload, output, private_key, version, sequence, source, base + 'traineros.tar.gz', data)
     sw.verified(manifest, public_key)  # catches mismatched signing/public keys

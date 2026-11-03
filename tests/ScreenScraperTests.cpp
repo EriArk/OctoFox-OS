@@ -394,7 +394,9 @@ private slots:
     void allCataloguePlatformsHaveAnExplicitServiceBoundary() {
         QCOMPARE(systemId("msx"),113);QCOMPARE(systemId("msx2"),116);QCOMPARE(systemId("msx2+"),117);QCOMPARE(systemId("msxturbor"),118);
         // Vita entered the library catalogue after the original scraper matrix; no service mapping is registered.
-        const QStringList unavailable{"c128","enterprise","systemsp","videopacplus","psvita","xbox"};
+        // Recent catalogue entries have no scraper mapping yet. Steam uses its
+        // own provider; Doom/Model 3 must not silently inherit another platform.
+        const QStringList unavailable{"c128","enterprise","systemsp","videopacplus","psvita","xbox","steam","doom","model3"};
         for(const auto& platform:romPlatforms())QVERIFY2(systemId(platform.id)>0||unavailable.contains(platform.id),qPrintable(platform.id));
     }
     void languageRegionAndDownloadPreferences() {
@@ -536,6 +538,37 @@ private slots:
         put(path,"changed");QVERIFY(!f.unchanged());
         put(dir.filePath("Archive.zip"),"123456789");QCOMPARE(fingerprint(dir.filePath("Archive.zip"),cancel).md5,f.md5);
     }
+    void packagedClientSeparatesUserStateAndSurvivesKeyRotation() {
+        QTemporaryDir dir;const auto account=dir.filePath("private/account.json"),client=dir.filePath("client.json");
+        const auto provision=[&](const QString& secret){put(client,QJsonDocument(QJsonObject{{"version",1},{"developerId","app"},{"developerPassword",secret}}).toJson());};
+        provision("first");
+        auto c=readCredentials(account,client);QVERIFY(c.valid());QVERIFY(c.username.isEmpty());QVERIFY(!QFile::exists(account));
+        c.username="player";c.password="personal";QVERIFY(writeCredentials(account,c,client));
+        const auto stored=QJsonDocument::fromJson(read(account)).object();
+        QCOMPARE(stored["version"].toInt(),1);QCOMPARE(stored["developerId"].toString(),"app");
+        QCOMPARE(readCredentials(account,QString()).password,"personal"); // Previous Software can still sign in after rollback.
+        QCOMPARE(readCredentials(account,client).username,"player");
+        provision("second");c=readCredentials(account,client);QCOMPARE(c.developerPassword,"second");QCOMPARE(c.password,"personal");
+        c.username.clear();c.password.clear();QVERIFY(writeCredentials(account,c,client));
+        QVERIFY(readCredentials(account,client).valid());QVERIFY(readCredentials(account,client).username.isEmpty());
+        QVERIFY(readCredentials(account,QString()).valid());
+    }
+    void packagedClientMigratesLegacyAndRejectsPersonalPayload() {
+        QTemporaryDir dir;const auto account=dir.filePath("account.json"),client=dir.filePath("client.json");
+        QVERIFY(writeCredentials(account,{"old","old-secret","player","personal"},QString()));
+        const QJsonObject identity{{"version",1},{"developerId","new"},{"developerPassword","new-secret"}};
+        put(client,QJsonDocument(identity).toJson());
+        auto c=readCredentials(account,client);QCOMPARE(c.developerId,"new");QCOMPARE(c.username,"player");
+        QVERIFY(writeCredentials(account,c,client));QCOMPARE(QJsonDocument::fromJson(read(account)).object()["developerId"].toString(),"new");
+        auto bad=identity;bad["username"]="another-player";put(client,QJsonDocument(bad).toJson());
+        QVERIFY(!readCredentials(account,client).valid());QVERIFY(!writeCredentials(account,c,client));
+        QCOMPARE(QJsonDocument::fromJson(read(account)).object()["username"].toString(),"player");
+        put(client,QJsonDocument(identity).toJson());
+#ifdef Q_OS_UNIX
+        QVERIFY(QFile::setPermissions(account,QFileDevice::ReadOwner|QFileDevice::WriteOwner|QFileDevice::ReadOther));
+        QVERIFY(!readCredentials(account,client).valid());
+#endif
+    }
     void credentialsAreExplicitAndPrivate() {
         QTemporaryDir dir;const auto path=dir.filePath("account.json");
         QVERIFY(!writeCredentials(path,{}));Credentials c{"dev","dev-secret","user","user-secret"};
@@ -545,6 +578,9 @@ private slots:
 #endif
         int calls=0;Client empty({},[&](auto,auto,auto){++calls;return Reply{};});
         QCOMPARE(empty.account(flag()).status,Status::MissingCredentials);QCOMPARE(calls,0);
+        put(path,"{\"version\":1,\"developerId\":\"legacy\",\"developerPassword\":\"app-only\"}");
+        QVERIFY(QFile::setPermissions(path,QFileDevice::ReadOwner|QFileDevice::WriteOwner));
+        QVERIFY(readCredentials(path,QString()).valid()); // Existing developer-only provisioning stays valid.
     }
     void parsesEnglishAndNeverTrustsSearchAsExact() {
         QUrl observed;

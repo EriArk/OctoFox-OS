@@ -13,8 +13,12 @@ struct Credentials {
     QString developerId, developerPassword, username, password;
     bool valid() const;
 };
-Credentials readCredentials(const QString& file);
-bool writeCredentials(const QString& file, const Credentials& credentials);
+QString clientCredentialsPath();
+// Signed application payload contains only the application identity. Personal
+// accounts stay in the private state file; legacy combined files remain readable.
+Credentials readCredentials(const QString& file, const QString& clientFile = clientCredentialsPath());
+bool writeCredentials(const QString& file, const Credentials& credentials,
+                      const QString& clientFile = clientCredentialsPath());
 int systemId(const QString& platform);
 QStringList platforms();
 struct Fingerprint {

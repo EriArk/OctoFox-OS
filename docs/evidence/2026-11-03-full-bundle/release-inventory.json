@@ -1,0 +1,1456 @@
+{
+  "schema": 1,
+  "scope": "manifest and embedded wheel metadata; no execution or new gameplay check",
+  "components": [
+    {
+      "id": "ARMSX2",
+      "archive": {
+        "bytes": 62355409,
+        "sha256": "a00c2b53083162207cbc19e7379c9d29029c9f03db03a43e1981a8df597ac709"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "Azahar-Enhanced",
+      "archive": {
+        "bytes": 84605801,
+        "sha256": "9fcd1f20213f3b8257776fbe262126bcf4d88f0620b4f7720d988ef8dc1f1d12"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "Cemu",
+      "archive": {
+        "bytes": 73961632,
+        "sha256": "44dcb1adbbabc0b07f0b3e3b645f293e6c761e1552628aa683055c6b34733fd5"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "DuckStation",
+      "archive": {
+        "bytes": 87579395,
+        "sha256": "e9bd313a32a77dfac33461705a3bbc15dd7d303b8fad80c2cb76e780aa11b892"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "azahar-netplay",
+      "archive": {
+        "bytes": 18064401,
+        "sha256": "7259506501cdd257620c372d76a9f2560e56eac192098b6fa06a89f9ec651992"
+      },
+      "declaredSource": "219d743a1e698101fe1ab8bef43e6563126c3c27",
+      "noticeFiles": [
+        "LICENSE.upstream"
+      ],
+      "patchFiles": [
+        "source-patches/TrainerContent.inc",
+        "source-patches/TrainerRoom.inc",
+        "source-patches/UPSTREAM.txt",
+        "source-patches/build.sh",
+        "source-patches/libusb-init-failure.patch",
+        "source-patches/traineros-content.patch",
+        "source-patches/traineros-room.patch"
+      ],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "dolphin-lan",
+      "archive": {
+        "bytes": 890521,
+        "sha256": "e8d86bfddff56059ac997437550f4089ef1acf2946fdc5e02d41ddd8feb58a97"
+      },
+      "declaredSource": null,
+      "noticeFiles": [
+        "notices/TrainerOS.LICENSE",
+        "notices/datachannel/LICENSE",
+        "notices/datachannel/deps/libjuice/LICENSE",
+        "notices/datachannel/deps/plog/LICENSE",
+        "notices/datachannel/deps/usrsctp/LICENSE.md",
+        "notices/datachannel/examples/signaling-server-nodejs/LICENSE",
+        "notices/datachannel/examples/signaling-server-python/LICENSE",
+        "notices/datachannel/examples/signaling-server-qt/LICENSE",
+        "notices/datachannel/examples/signaling-server-rust/LICENSE",
+        "notices/datachannel/examples/web/LICENSE"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "dolphin-netplay",
+      "archive": {
+        "bytes": 18463721,
+        "sha256": "8641a182fb7c95382a763371520419d4c58b9d78781bd5b2098d38d19eea259b"
+      },
+      "declaredSource": "c77bbaa0f372c3f72281602a8b087206706542cb",
+      "noticeFiles": [
+        "bin/Sys/GC/font-licenses.txt",
+        "bin/Sys/Resources/OSD_Font_VeraMono_Copyright.txt",
+        "notices/Dolphin.COPYING"
+      ],
+      "patchFiles": [
+        "source-patches/TrainerNetplay.inc",
+        "source-patches/UPSTREAM.txt",
+        "source-patches/traineros-bba-eof.patch",
+        "source-patches/traineros-content.patch",
+        "source-patches/traineros-netplay.patch"
+      ],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "eden",
+      "archive": {
+        "bytes": 63103129,
+        "sha256": "29a5465b10e40017c4f2ed62d9b1f10a96a1137013c11a0a5d5fd34e13cceeb8"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "flycast-lan",
+      "archive": {
+        "bytes": 5501302,
+        "sha256": "cb0a8ce1f05142e315f5f585a7d33fbaeed5c84c93bfca058c11ca14c1961c30"
+      },
+      "declaredSource": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+      "noticeFiles": [
+        "licenses/libdatachannel.LICENSE",
+        "licenses/libjuice.LICENSE",
+        "licenses/plog.LICENSE",
+        "licenses/usrsctp.LICENSE.md"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "flycast-netplay",
+      "archive": {
+        "bytes": 4490369,
+        "sha256": "e5eb468acaea078661ef95d9079e50d3c56daf364ffe1cb59641140cb31252ab"
+      },
+      "declaredSource": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+      "noticeFiles": [
+        "licenses/LICENSE.arcade-metadata",
+        "licenses/arcade-catalog.NOTICE"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "flycast-online",
+      "archive": {
+        "bytes": 8301804,
+        "sha256": "1392e04a4c96ce0e30aba69d8d6626f406e6ec0b4aa42f9c8eb9a5540e54ce16"
+      },
+      "declaredSource": "5aa091fde632fb332c8d8c34e280d62dc951954c",
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "game-capture",
+      "archive": {
+        "bytes": 17569,
+        "sha256": "ff1e4037c48a60525f4c216312e75d2b10d9e9ec3711e02b8e88c483f1ae7853"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "linked-save",
+      "archive": {
+        "bytes": 3747,
+        "sha256": "13051a85aa372843e18cae141cbb61fba60a86cf29e8bb44642ec91a0c9a3e83"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "melonDS",
+      "archive": {
+        "bytes": 34056160,
+        "sha256": "036930492e54df1e63f7e3b575a14242ee3559a4c43534b2f4ff65f06c06df7e"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "melonds-netplay",
+      "archive": {
+        "bytes": 1050006,
+        "sha256": "5aed49412b122a2003b7df43243c84c9d9cf4919cde23c0236a6addec71f9627"
+      },
+      "declaredSource": "906e9ebb27da8c6a715cd7abab4abfe8a8d29427",
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "neocd-netplay",
+      "archive": {
+        "bytes": 1159797,
+        "sha256": "28a4cf701104df8b8dfa09360888378c7e439479d29ca8a64fa2cbbf4ede26a8"
+      },
+      "declaredSource": "b1e04c738cb48a1dae0574b8877f6a116d270ca1",
+      "noticeFiles": [
+        "LICENSE.md"
+      ],
+      "patchFiles": [
+        "0001-canonical-netplay-state.patch"
+      ],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "ngpc",
+      "archive": {
+        "bytes": 1630935,
+        "sha256": "36100244a0e39b4521d72714396168dd364755a9bab41c49b9ee108c3ef73d85"
+      },
+      "declaredSource": "d0acb0874cc07735d7fa978539bb2471b2c1e71a",
+      "noticeFiles": [
+        "NGPCRAFT-LICENSE",
+        "licenses/SDL2_ttf-LICENSE.txt",
+        "licenses/dejavu-sans-fonts-LICENSE"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "odamex",
+      "archive": {
+        "bytes": 14492860,
+        "sha256": "406d83ec6636f9ec9b6024b50d37963ba7aee1d90bb9a29aa5422d57f1dc66c5"
+      },
+      "declaredSource": "3a763534ac609aee8d22351baa3155809c4ea355",
+      "noticeFiles": [
+        "3RD-PARTY-LICENSES",
+        "LICENSE",
+        "licenses/3RD-PARTY-LICENSES",
+        "licenses/LICENSE",
+        "licenses/SDL2_mixer-LICENSE.txt",
+        "licenses/libraries-cpptrace-LICENSE",
+        "licenses/libraries-curl-COPYING",
+        "licenses/libraries-fltk-COPYING",
+        "licenses/libraries-fmt-LICENSE",
+        "licenses/libraries-googletest-LICENSE",
+        "licenses/libraries-jsoncpp-LICENSE",
+        "licenses/libraries-libadlmidi-LICENSE",
+        "licenses/libraries-libadlmidi-LICENSE.GPL-3.txt",
+        "licenses/libraries-libadlmidi-LICENSE.LGPL-2.1.txt",
+        "licenses/libraries-libpng-LICENSE",
+        "licenses/libraries-minilzo-COPYING",
+        "licenses/libraries-miniupnp-LICENSE",
+        "licenses/libraries-protobuf-LICENSE",
+        "licenses/libraries-zlib-LICENSE"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "pcsx-rearmed-cbin",
+      "archive": {
+        "bytes": 6307027,
+        "sha256": "b772f2f7bb11b7083ab308a69b0e83f73736c2f4be796e48f7c77216b7a04365"
+      },
+      "declaredSource": "c8816799b50388e61cfe237fe2cdbb7d8175f20a",
+      "noticeFiles": [
+        "LICENSE.upstream"
+      ],
+      "patchFiles": [
+        "cbin-reader.patch"
+      ],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "ps2-lan",
+      "archive": {
+        "bytes": 1210812,
+        "sha256": "e4b9d5b17d8eb538d5c0eef6f51449196a443e0b8e53bc38066b3318c8f2489a"
+      },
+      "declaredSource": null,
+      "noticeFiles": [
+        "notices/TrainerOS.LICENSE",
+        "notices/chdr/LICENSE.txt",
+        "notices/chdr/deps/lzma-26.02/LICENSE",
+        "notices/datachannel/LICENSE",
+        "notices/datachannel/deps/libjuice/LICENSE",
+        "notices/datachannel/deps/plog/LICENSE",
+        "notices/datachannel/deps/usrsctp/LICENSE.md",
+        "notices/datachannel/examples/signaling-server-nodejs/LICENSE",
+        "notices/datachannel/examples/signaling-server-python/LICENSE",
+        "notices/datachannel/examples/signaling-server-qt/LICENSE",
+        "notices/datachannel/examples/signaling-server-rust/LICENSE",
+        "notices/datachannel/examples/web/LICENSE"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "psp-content",
+      "archive": {
+        "bytes": 200069,
+        "sha256": "ed19f336a8aeadd50970ae8aaf77c7a979336dc2c865ed7dbcdc28546f5e8df0"
+      },
+      "declaredSource": null,
+      "noticeFiles": [
+        "notices/libchdr/LICENSE.txt",
+        "notices/libchdr/deps/lzma-24.05/LICENSE",
+        "notices/libchdr/deps/zlib-1.3.1/LICENSE",
+        "notices/libchdr/deps/zlib-1.3.1/contrib/dotzlib/LICENSE_1_0.txt",
+        "notices/libchdr/deps/zstd-1.5.6/COPYING",
+        "notices/libchdr/deps/zstd-1.5.6/LICENSE",
+        "notices/libchdr/deps/zstd-1.5.6/build/LICENSE"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "psp-network",
+      "archive": {
+        "bytes": 1047777,
+        "sha256": "8f438d8f75d2364b8bc4345efc36465a42266091f56a43bdaeffe4d8404949e4"
+      },
+      "declaredSource": null,
+      "noticeFiles": [
+        "notices/TrainerOS/LICENSE",
+        "notices/datachannel/LICENSE",
+        "notices/datachannel/deps/libjuice/LICENSE",
+        "notices/datachannel/deps/plog/LICENSE",
+        "notices/datachannel/deps/usrsctp/LICENSE.md",
+        "notices/datachannel/examples/signaling-server-nodejs/LICENSE",
+        "notices/datachannel/examples/signaling-server-python/LICENSE",
+        "notices/datachannel/examples/signaling-server-qt/LICENSE",
+        "notices/datachannel/examples/signaling-server-rust/LICENSE",
+        "notices/datachannel/examples/web/LICENSE"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "remote-play",
+      "archive": {
+        "bytes": 1358364,
+        "sha256": "a547c6e21ec3fef55c245e305c8c293108cc3dd96006192930c8d0b079f38f01"
+      },
+      "declaredSource": null,
+      "noticeFiles": [
+        "notices/TrainerOS/LICENSE",
+        "notices/datachannel/LICENSE",
+        "notices/datachannel/deps/libjuice/LICENSE",
+        "notices/datachannel/deps/plog/LICENSE",
+        "notices/datachannel/deps/usrsctp/LICENSE.md",
+        "notices/datachannel/examples/signaling-server-nodejs/LICENSE",
+        "notices/datachannel/examples/signaling-server-python/LICENSE",
+        "notices/datachannel/examples/signaling-server-qt/LICENSE",
+        "notices/datachannel/examples/signaling-server-rust/LICENSE",
+        "notices/datachannel/examples/web/LICENSE",
+        "notices/inputtino/LICENSE",
+        "notices/moonlight/LICENSE.txt",
+        "notices/moonlight/enet/LICENSE",
+        "notices/moonlight/enet/docs/license.dox",
+        "notices/moonlight/nanors/LICENSE",
+        "notices/nanors/LICENSE",
+        "notices/nanors/deps/obl/sse2neon/LICENSE",
+        "notices/wolf/LICENSE"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "retroarch-cores",
+      "archive": {
+        "bytes": 303417915,
+        "sha256": "b0bc151b3d9e8cb7b977e45da7eba3e2ba82050f70a000913f6ac684668647c7"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false,
+      "cores": [
+        {
+          "path": "cores/81_libretro.so",
+          "sha256": "7a2d2a01381fb476fa4a3f7648d5c31b95e6056c15420b397e93eb4fc052c0e2"
+        },
+        {
+          "path": "cores/DoubleCherryGB_libretro.so",
+          "sha256": "e49b43151b22b568ce64af80992e9abffa4dd48db9d906a792e5c69f8bd5d087"
+        },
+        {
+          "path": "cores/a5200_libretro.so",
+          "sha256": "7998a4b8c9592efd29502da9f9739e4cbcc58e3ffd6ca2495ca46fe78f630c11"
+        },
+        {
+          "path": "cores/amiarcadia_libretro.so",
+          "sha256": "fc97cbcdd12d9b46227adb9c753ead020d74f655dc3c5d4aa63debc6d386a4c8"
+        },
+        {
+          "path": "cores/applewin_libretro.so",
+          "sha256": "321cb5cd20a28c6e4540dfc3263c092cd504e4153a7810a63e0072d019f4af8c"
+        },
+        {
+          "path": "cores/arduous_libretro.so",
+          "sha256": "ee8bde607b151ce064e0130a8dedb4fd9ec49ea9bfe236ff12b8bf18ad396549"
+        },
+        {
+          "path": "cores/armsx2_libretro.so",
+          "sha256": "cf66f1b18f31fa373401c6417dab563fe747a0d8f0b375f92a786c52abf60679"
+        },
+        {
+          "path": "cores/atari800_libretro.so",
+          "sha256": "076ccae83c6887dc26e49edd98e2de4c07768ce4d22ed2c6c50c2deb3bf0efb3"
+        },
+        {
+          "path": "cores/b2_libretro.so",
+          "sha256": "8d4c6eaed3f7df78871a25d1491a20141a610ebf064fca398a9c4a3414ed6817"
+        },
+        {
+          "path": "cores/bk_libretro.so",
+          "sha256": "1b836672e223348f80ae2cbbb2042322ee91c72bbde862b6224116b70f977997"
+        },
+        {
+          "path": "cores/bluemsx_libretro.so",
+          "sha256": "cb6a7d33d93a23e4089f5cf3d44406b6e45dadc2d0ba429fa7157012d2ac301b"
+        },
+        {
+          "path": "cores/cap32_libretro.so",
+          "sha256": "cc89e9c18c472f679402f7a78679f2084b2d5019bdb22ad9b88519c19587903b"
+        },
+        {
+          "path": "cores/cemu_libretro.so",
+          "sha256": "a07acf795cd807f759f67a7a869bb24888f790c7d0ec0ad5d3d114badc535074"
+        },
+        {
+          "path": "cores/citra_libretro.so",
+          "sha256": "d983fe8a3329478e10f2dbbb617ddae9a6652339a038fdf714762785b238dc93"
+        },
+        {
+          "path": "cores/dosbox_pure_libretro.so",
+          "sha256": "a391d8708269edca8d7d4e84183fbc30a78a27d4fe45645566d7a8dd3e2cfc90"
+        },
+        {
+          "path": "cores/emuscv_libretro.so",
+          "sha256": "cbb19ce5d7187dfe22cc865d1885ae575802bcd45e244e0dbd4dc4bbe9ba4779"
+        },
+        {
+          "path": "cores/ep128emu_core_libretro.so",
+          "sha256": "0a589aefa2946ab7b7dc1c518e6947852ab4c7eb9aafc825446af14b36f4ea08"
+        },
+        {
+          "path": "cores/fbneo_libretro.so",
+          "sha256": "ffb37315a609317e1a00bf32c0e3d66c5a848d052d1260f4ab7f42da0f9fb9c3"
+        },
+        {
+          "path": "cores/fceumm_libretro.so",
+          "sha256": "1b13b00d4680394dad8000d5175f97be727107e0945bc9b412da91d70c07b267"
+        },
+        {
+          "path": "cores/flycast_libretro.so",
+          "sha256": "0f18e86be41e800fe84604192824ae37726f1937ab503d37519bd42b15b7bc1e"
+        },
+        {
+          "path": "cores/freechaf_libretro.so",
+          "sha256": "f0f24b56d2fd9d5befce8e5915be0ae1c79fe7d2346ac89e72234779d1349baa"
+        },
+        {
+          "path": "cores/freeintv_libretro.so",
+          "sha256": "f0e6dfb5089bdcef32c0cc2fecfc724be5acb9d6a7a2a7e1522b013b1f7a38f8"
+        },
+        {
+          "path": "cores/fuse_libretro.so",
+          "sha256": "9561c0b4759e3f9301fbe39eb60828b17d3ea6e9950cf3bd721f0a97481d1246"
+        },
+        {
+          "path": "cores/gambatte_libretro.so",
+          "sha256": "8db8742add1b9e0b4918145411f54c0050eed61638c1d3f15d011644f9a5eeaf"
+        },
+        {
+          "path": "cores/gearcoleco_libretro.so",
+          "sha256": "0e9656d318019b4085ae0af431611cc906855f26e279781dbd79c5cb05f28d6c"
+        },
+        {
+          "path": "cores/genesis_plus_gx_libretro.so",
+          "sha256": "de8ad971eee89fa5e4e00dd1c048f0a8cc53cd9558b8c143aa022f5d7623d273"
+        },
+        {
+          "path": "cores/gpsp_libretro.so",
+          "sha256": "bf0aee3cbb0bbb6d5dcee715a7b3a4da24631bf925a620ab02b937b43a626b4c"
+        },
+        {
+          "path": "cores/gw_libretro.so",
+          "sha256": "56bc41f0e49565ed84d35e7a92949bffa075b4ab6be0f0dc84118ab4fd16b815"
+        },
+        {
+          "path": "cores/handy_libretro.so",
+          "sha256": "3efb38b73e44b561d89f4877e9ac86a1fe99bcb23a1ad0843204d2dd254d892e"
+        },
+        {
+          "path": "cores/hatari_libretro.so",
+          "sha256": "317eb58690a748828dd27fd50a0fd80811e2da023bf164b70dbb24c1c3c53c19"
+        },
+        {
+          "path": "cores/lowresnx_libretro.so",
+          "sha256": "6a28c0d9e095dac15f2769b4bbeadbf2047e2aedfc2486e2cf1af28df323b688"
+        },
+        {
+          "path": "cores/mame_libretro.so",
+          "sha256": "4b37dc1289104b45baa2a3b531ccfaba988a12467084e41298ae0a128742ad2f"
+        },
+        {
+          "path": "cores/mednafen_ngp_libretro.so",
+          "sha256": "b67d6a649117a9d82f015b5b5530e749fe5c5c198005d71061aa3e46e3da1b9d"
+        },
+        {
+          "path": "cores/mednafen_pce_fast_libretro.so",
+          "sha256": "f7686b2bfab6a9ca34d3d48e6eda5c41ae37c430cf5c73b0f256cefd54990a51"
+        },
+        {
+          "path": "cores/mednafen_pcfx_libretro.so",
+          "sha256": "9a6ca3bfd16cd480ba4c94602c1103838899a770e83584ea809891d6acca6e1e"
+        },
+        {
+          "path": "cores/mednafen_supergrafx_libretro.so",
+          "sha256": "574c4b61e83b1a4034a42cfceed62e09ae8f0809c85527ca979fe9c5e18865e3"
+        },
+        {
+          "path": "cores/mednafen_vb_libretro.so",
+          "sha256": "f0aa440c5e76c9f2b7b3f9d18c9e5ff8dac252d5539ab69adf03d32bcbfa10be"
+        },
+        {
+          "path": "cores/mednafen_wswan_libretro.so",
+          "sha256": "700b6eb5678a3283db9818cf22c68783d0d7f1607142b1d069c366eab81dfbaa"
+        },
+        {
+          "path": "cores/mgba_libretro.so",
+          "sha256": "abde7a0764f08fa0cc2c7d3d9a29b9d1245a9f3b7df0e7a594b74df642ee53c6"
+        },
+        {
+          "path": "cores/mgba_splitscreen_libretro.so",
+          "sha256": "fbf14e74472aa9f298f9a8a964b6bd00cae37ccc6563f347a92d2a3f1a088977"
+        },
+        {
+          "path": "cores/minivmac_libretro.so",
+          "sha256": "09acdbb9f72352ebf54cdee8ae3864acf681753103183ffcabd9845d90cfffec"
+        },
+        {
+          "path": "cores/neocd_libretro.so",
+          "sha256": "4e113c99a14b1ab96181ded0e5a879a2c87b29a495a8e30315ec6efc96465ad4"
+        },
+        {
+          "path": "cores/np2kai_libretro.so",
+          "sha256": "5c5123d16da656c9a7a8a9db1caed89ed5832cfd465437e5057d5224fef3e3e1"
+        },
+        {
+          "path": "cores/o2em_libretro.so",
+          "sha256": "155fa5caa73687cadd9c5ba22706b3be3560157165873eca1b52daa0f2bdc588"
+        },
+        {
+          "path": "cores/opera_libretro.so",
+          "sha256": "ef88a7040a6a97c0ac14399c12151c68c69d05f09f301d447a4596c6621e9aaa"
+        },
+        {
+          "path": "cores/parallel_n64_libretro.so",
+          "sha256": "7301ca3ea5030c23c8bbaec53f90379b15c93cf2aba77fcaf746d206dc5c1560"
+        },
+        {
+          "path": "cores/pcsx_rearmed_libretro.so",
+          "sha256": "25bfeb6336d7ef573903775fe53733af974c90edd268cf4fb9afa497e188609d"
+        },
+        {
+          "path": "cores/picodrive_libretro.so",
+          "sha256": "6b0dbe4e21f0e47afbf8a89d59b92e5b48a316dd7c5fae8c74d7351f341de044"
+        },
+        {
+          "path": "cores/pokemini_libretro.so",
+          "sha256": "afaf6d425a283b7dce94ab2e8e5da21f267f1fa808f47348044f4f3dc9f943f2"
+        },
+        {
+          "path": "cores/potator_libretro.so",
+          "sha256": "6ce04f01c2ee993cda6b83131d9434a56bf3817e2590b2e4e2d1118f7d140937"
+        },
+        {
+          "path": "cores/ppsspp_libretro.so",
+          "sha256": "a508773e5a4942ba32f19dc7cb4a32802f693eb93336438b2f0d2fe01145ba70"
+        },
+        {
+          "path": "cores/prosystem_libretro.so",
+          "sha256": "284a5c1390d47c00967bed8c8b83a14a04234508fff69ffac906d532f7db8a51"
+        },
+        {
+          "path": "cores/puae_libretro.so",
+          "sha256": "01c3a33921240657c73d66e10fab607fb674e0d4b9ecc9d66a01f8da5d32d8ad"
+        },
+        {
+          "path": "cores/px68k_libretro.so",
+          "sha256": "4faa50da0016e80e5397ca2ca2f8d7bb7b57c80ce004faf6bd4388d82f2837b7"
+        },
+        {
+          "path": "cores/quasi88_libretro.so",
+          "sha256": "366e9fc72877d40d6878611ab3b7bc8f6aa1d2b1053d42d48c93bf4b02bf53a7"
+        },
+        {
+          "path": "cores/retro8_libretro.so",
+          "sha256": "b1054563ab2e548d62597f32a6bcaf12e4c1ff1a5d331ecd128b30ccacfed84c"
+        },
+        {
+          "path": "cores/same_cdi_libretro.so",
+          "sha256": "17f8f0b0aa81a4bfc9e09bb399fcfb29d6aa58c7592247d25c079dd9b42a9ef7"
+        },
+        {
+          "path": "cores/sameboy_libretro.so",
+          "sha256": "f0f6d03669761544b90b95596894fec41dee311c3fe8be5c0ffd7fe7866b1533"
+        },
+        {
+          "path": "cores/sameduck_libretro.so",
+          "sha256": "d0a75d3772d4c1d9d66fbddf95d8fb0a2496205144157c586f10f3998028a8be"
+        },
+        {
+          "path": "cores/scummvm_libretro.so",
+          "sha256": "7e7dde9c7216b68fc09f5c86d847ed912c06c2dba721166444764eb57fa57b3d"
+        },
+        {
+          "path": "cores/snes9x_libretro.so",
+          "sha256": "e8d8f5cf93898c7be3ca2590d4d75dc8e9a89b891589c2da1a7917fa27411d21"
+        },
+        {
+          "path": "cores/stella_libretro.so",
+          "sha256": "bf2cf27781f9e393079c9a53c71d8676d638025086955498641723a8e121228a"
+        },
+        {
+          "path": "cores/theodore_libretro.so",
+          "sha256": "2ddb36c0f34fbd84782b2799f28e2e94faff70b62ea0887e1c581b978000b3cc"
+        },
+        {
+          "path": "cores/tic80_libretro.so",
+          "sha256": "465e54f90ecc581115fbd70cbee9adad9967492cb8c9dfb3390985e67bdc10b0"
+        },
+        {
+          "path": "cores/uzem_libretro.so",
+          "sha256": "d75685c9191a2d07422568960ac68e5dc0f3ea5a796c115c4ec1aa43d84ff609"
+        },
+        {
+          "path": "cores/vecx_libretro.so",
+          "sha256": "d9d86dadab9098e2c9847ddee10af553a8b883589c7c41107d4806eb45759ec9"
+        },
+        {
+          "path": "cores/vice_x128_libretro.so",
+          "sha256": "1676b8b13ce00884ee3861849bc7755d2f3a5b04b7dc400a2839323ce040280f"
+        },
+        {
+          "path": "cores/vice_x64_libretro.so",
+          "sha256": "e3bb88342920ed43a18d8b01698bdaa1dc92b7e45a56ac65c33917d4eae9621c"
+        },
+        {
+          "path": "cores/vice_xpet_libretro.so",
+          "sha256": "8bf51453b95e6f1d8e55eae918c433538388ce4254f29e08f9b314086008075e"
+        },
+        {
+          "path": "cores/vice_xplus4_libretro.so",
+          "sha256": "1ddcaf46c5e51aeaa419b45d873eec3919a844a7729e92a9eb39d6ad86669646"
+        },
+        {
+          "path": "cores/vice_xvic_libretro.so",
+          "sha256": "e607670898ed84e1fab13d1f36f2e4c0fd3f87e57ce25e5f99f50a07008a9eca"
+        },
+        {
+          "path": "cores/vircon32_libretro.so",
+          "sha256": "51bad96135f05b3c9c536bacc3f61c2e08b31520924b8164de64fb369180e494"
+        },
+        {
+          "path": "cores/virtualjaguar_libretro.so",
+          "sha256": "7ef3c2344e130ff69ab7c0f2c717e9aa5be47ad212840db4875d0a8c21dc997b"
+        },
+        {
+          "path": "cores/wasm4_libretro.so",
+          "sha256": "3e2328e279173d7de4f942fc5e455aa9b5d4d668e89242ade0738509dcd80bfb"
+        },
+        {
+          "path": "cores/x1_libretro.so",
+          "sha256": "9918001d66e4d49c178ca6599267a0bb0fea75ad7379160c5ef8e5559a943291"
+        },
+        {
+          "path": "cores/yabasanshiro_libretro.so",
+          "sha256": "a22ab8993b30edbd029bd593a353f9db1080546ac577e7f8f0c7b98dbfec714c"
+        }
+      ]
+    },
+    {
+      "id": "rmg-netplay",
+      "archive": {
+        "bytes": 13040367,
+        "sha256": "26f0ac42e46131030f23c0828ba2036f2fd1d089db0dddbd1ced2f11f8db12ca"
+      },
+      "declaredSource": "4777ed3f1fb7f1e4a0e70438a27dc4a5e9fb1927",
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "rpcs3",
+      "archive": {
+        "bytes": 80090270,
+        "sha256": "2023f5baaf27efb5b8a3dd9c68059c25ab169b7b7b680c1262d096eb5cf26f9e"
+      },
+      "declaredSource": null,
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "supermodel-link",
+      "archive": {
+        "bytes": 2846732,
+        "sha256": "62477ff52ae308da18cce3aab8b072d2b77766db18aa05190ff7e5a23fb88d1c"
+      },
+      "declaredSource": "036af1c8d6640c5a60709c1f99144635ed82a184",
+      "noticeFiles": [
+        "GLU-NOTICES.txt",
+        "SDL2-NET-LICENSE.txt",
+        "SUPERMODEL-LICENSE.txt"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "vita3k-netplay",
+      "archive": {
+        "bytes": 81956521,
+        "sha256": "4f509390915b8c2fe9b35d346231ee1f9f1ce8f6dfe94cc121d30c51e70a4912"
+      },
+      "declaredSource": "46602447c7f84d53790b44e1869ab5105178bf16",
+      "noticeFiles": [
+        "LICENSE.upstream",
+        "runtime/usr/share/doc/libapparmor1/copyright",
+        "runtime/usr/share/doc/libasyncns0/copyright",
+        "runtime/usr/share/doc/libatomic1/copyright",
+        "runtime/usr/share/doc/libbrotli1/copyright",
+        "runtime/usr/share/doc/libbz2-1.0/copyright",
+        "runtime/usr/share/doc/libdbus-1-3/copyright",
+        "runtime/usr/share/doc/libffi8/copyright",
+        "runtime/usr/share/doc/libflac14/copyright",
+        "runtime/usr/share/doc/libglib2.0-0t64/copyright",
+        "runtime/usr/share/doc/libgstreamer-gl1.0-0/copyright",
+        "runtime/usr/share/doc/libgstreamer-plugins-base1.0-0/copyright",
+        "runtime/usr/share/doc/libgstreamer-plugins-extra1.0-0/copyright",
+        "runtime/usr/share/doc/libgstreamer1.0-0/copyright",
+        "runtime/usr/share/doc/libgudev-1.0-0/copyright",
+        "runtime/usr/share/doc/libmp3lame0/copyright",
+        "runtime/usr/share/doc/libmpg123-0t64/copyright",
+        "runtime/usr/share/doc/libogg0/copyright",
+        "runtime/usr/share/doc/libopus0/copyright",
+        "runtime/usr/share/doc/liborc-0.4-0t64/copyright",
+        "runtime/usr/share/doc/libpcre2-8-0/copyright",
+        "runtime/usr/share/doc/libpng16-16t64/copyright",
+        "runtime/usr/share/doc/libpulse0/copyright",
+        "runtime/usr/share/doc/libsndfile1/copyright",
+        "runtime/usr/share/doc/libssl3t64/copyright",
+        "runtime/usr/share/doc/libsystemd0/copyright",
+        "runtime/usr/share/doc/libudev1/copyright",
+        "runtime/usr/share/doc/libvorbis0a/copyright",
+        "runtime/usr/share/doc/libvorbisenc2/copyright",
+        "runtime/usr/share/doc/libwayland-cursor0/copyright",
+        "runtime/usr/share/doc/libwayland-egl1/copyright",
+        "runtime/usr/share/doc/libxau6/copyright",
+        "runtime/usr/share/doc/libxcb-cursor0/copyright",
+        "runtime/usr/share/doc/libxcb-glx0/copyright",
+        "runtime/usr/share/doc/libxcb-icccm4/copyright",
+        "runtime/usr/share/doc/libxcb-image0/copyright",
+        "runtime/usr/share/doc/libxcb-keysyms1/copyright",
+        "runtime/usr/share/doc/libxcb-randr0/copyright",
+        "runtime/usr/share/doc/libxcb-render-util0/copyright",
+        "runtime/usr/share/doc/libxcb-render0/copyright",
+        "runtime/usr/share/doc/libxcb-shape0/copyright",
+        "runtime/usr/share/doc/libxcb-shm0/copyright",
+        "runtime/usr/share/doc/libxcb-sync1/copyright",
+        "runtime/usr/share/doc/libxcb-util1/copyright",
+        "runtime/usr/share/doc/libxcb-xfixes0/copyright",
+        "runtime/usr/share/doc/libxcb-xkb1/copyright",
+        "runtime/usr/share/doc/libxdmcp6/copyright",
+        "runtime/usr/share/doc/libxext6/copyright",
+        "runtime/usr/share/doc/libxkbcommon-x11-0/copyright",
+        "runtime/usr/share/doc/libxkbcommon0/copyright",
+        "runtime/usr/share/doc/libxrandr2/copyright",
+        "runtime/usr/share/doc/libxrender1/copyright",
+        "runtime/usr/share/doc/libzstd1/copyright",
+        "runtime/usr/share/licenses/Vita3K/COPYING.txt"
+      ],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    },
+    {
+      "id": "xemu-lan",
+      "archive": {
+        "bytes": 17158637,
+        "sha256": "fd0cd45b6588d3c44d259e1769ea31d50517915c57d2ed33f3627ffdd20036d7"
+      },
+      "declaredSource": "25e1ee2fd59a451f2ab57e825b4f8a5414220c8b",
+      "noticeFiles": [],
+      "patchFiles": [],
+      "correspondingSourceVerified": false
+    }
+  ],
+  "flatpak": [
+    {
+      "ref": "org.freedesktop.Platform.GL.default/aarch64/25.08",
+      "kind": "runtime",
+      "commit": "ae808301ba0e5d8366326d9e80594f75600e8c6deee5f301c66e794998bfb4af",
+      "file": "runtime-org.freedesktop.Platform.GL.default-aarch64-25.08.flatpak",
+      "bytes": 87089608,
+      "sha256": "639eea761f6da09a283d6d6948bdb69260192eab892cdfaca23c8659752f7bdd"
+    },
+    {
+      "ref": "org.freedesktop.Platform.GL.default/aarch64/25.08-extra",
+      "kind": "runtime",
+      "commit": "331f0e5700c561a46dca8812693956a4a03218ab3758d444a690359fc8f60142",
+      "file": "runtime-org.freedesktop.Platform.GL.default-aarch64-25.08-extra.flatpak",
+      "bytes": 87075712,
+      "sha256": "7effbcb07c458813cfee23d3fd2a590e73c4fad797428e17b8591e020bd21b16"
+    },
+    {
+      "ref": "org.freedesktop.Platform.codecs-extra/aarch64/25.08-extra",
+      "kind": "runtime",
+      "commit": "3b594ed9ba51cb7c7003535a8d8c0c1b38ecd147b93546b312f26e2bf153d305",
+      "file": "runtime-org.freedesktop.Platform.codecs-extra-aarch64-25.08-extra.flatpak",
+      "bytes": 9966296,
+      "sha256": "759be244c92dafbb826d5e0f159a2bbcc68633d4946b461a0b155144289c7a7a"
+    },
+    {
+      "ref": "org.freedesktop.Platform/aarch64/25.08",
+      "kind": "runtime",
+      "commit": "d56d30d8b124c41b689ae2adfb7cb01f7b1850d1d4741b83782607a074788339",
+      "file": "runtime-org.freedesktop.Platform-aarch64-25.08.flatpak",
+      "bytes": 167110056,
+      "sha256": "6c51beee3fca00cb481d8efa4db8684b10178b36c4a71335e1994638127a7052"
+    },
+    {
+      "ref": "org.kde.KStyle.Adwaita/aarch64/6.10",
+      "kind": "runtime",
+      "commit": "e48ba0982bc0e658f9e7adb51ac4a109bbf7640f7fb47940662d5c392807e472",
+      "file": "runtime-org.kde.KStyle.Adwaita-aarch64-6.10.flatpak",
+      "bytes": 5087688,
+      "sha256": "df61e000bfcadbd50e4714bb224c4d3f942aeecb6da85a4e9ccc4d3b87fa244d"
+    },
+    {
+      "ref": "org.kde.KStyle.Adwaita/aarch64/6.11",
+      "kind": "runtime",
+      "commit": "98c31fe1d493deef5ee04592ff1420a441b7c23e8f18cbee23088fc8f8406346",
+      "file": "runtime-org.kde.KStyle.Adwaita-aarch64-6.11.flatpak",
+      "bytes": 5186480,
+      "sha256": "3aa5ef47a8a390711172662efb134c92ab5ff089c5a7b6c6e8a67229e9fab490"
+    },
+    {
+      "ref": "org.kde.Platform/aarch64/6.10",
+      "kind": "runtime",
+      "commit": "cb026317831ec841a6b0f6d9808805891bad06fbac5b16d14546a7ce7a0ef1bb",
+      "file": "runtime-org.kde.Platform-aarch64-6.10.flatpak",
+      "bytes": 253600760,
+      "sha256": "174ac0c1bfdefcae1eb198f324c1da578d78383dcd0c594ef60588ed0841ed87"
+    },
+    {
+      "ref": "org.kde.Platform/aarch64/6.11",
+      "kind": "runtime",
+      "commit": "dd61759582a4069c720d45c369d89ccd618c96fe2462987542b1ad4e87414076",
+      "file": "runtime-org.kde.Platform-aarch64-6.11.flatpak",
+      "bytes": 269705328,
+      "sha256": "cb0ba1a4cfa87cfc2d8c461319547ebd1739582d1ac65ba6e5f5056b8d01b1c5"
+    },
+    {
+      "ref": "org.DolphinEmu.dolphin-emu/aarch64/stable",
+      "kind": "app",
+      "commit": "50741ae7267181560aa88d3a1ba7177321629c171ad2677504409afa6b4462db",
+      "file": "app-org.DolphinEmu.dolphin-emu-aarch64-stable.flatpak",
+      "bytes": 19410872,
+      "sha256": "1d737d52fc64832bbb8835712d1c5c8470546b7fecfc73e6a989699226f10a82"
+    },
+    {
+      "ref": "org.flycast.Flycast/aarch64/stable",
+      "kind": "app",
+      "commit": "1d48669e88c0261c5c07d93bc0d48efbdbcf4be8ec5f6865825f47a7100982ef",
+      "file": "app-org.flycast.Flycast-aarch64-stable.flatpak",
+      "bytes": 10225440,
+      "sha256": "fe398e764829c5ba02a253e8d2c65ea9181e8d7421a028cecd54f6dfed1ceb96"
+    },
+    {
+      "ref": "org.libretro.RetroArch/aarch64/stable",
+      "kind": "app",
+      "commit": "a72a8a0a7cde5c24a0134a32fdc1469fb644c459e9974f644e95170ae5dba8bc",
+      "file": "app-org.libretro.RetroArch-aarch64-stable.flatpak",
+      "bytes": 334137488,
+      "sha256": "b6081d4a84c8a302fd3e7ca1ccbc364606375a8295daef4d6453e792aa9ee68e"
+    },
+    {
+      "ref": "org.ppsspp.PPSSPP/aarch64/traineros-relay",
+      "kind": "app",
+      "commit": "bc01e5f451519ba4af4ebb735f35aa49333c7e6f34ec6717891a74dde5856652",
+      "file": "app-org.ppsspp.PPSSPP-aarch64-traineros-relay.flatpak",
+      "bytes": 29421816,
+      "sha256": "dbe31425eb28c3d0eace9258d28584dcde90cbc2a245033a1da8b7826cff25cf"
+    }
+  ],
+  "wheels": [
+    {
+      "file": "automat-25.4.16-py3-none-any.whl",
+      "sha256": "04e9bce696a8d5671ee698005af6e5a9fa15354140a87f4870744604dcdd3ba1",
+      "name": "Automat",
+      "version": "25.4.16",
+      "declaredLicense": "Copyright (c) 2014\n        Rackspace\n        \n        Permission is hereby granted, free of charge, to any person obtaining\n        a copy of this software and associated documentation files (the\n        \"Software\"), to deal in the Software without restriction, including\n        without limitation the rights to use, copy, modify, merge, publish,\n        distribute, sublicense, and/or sell copies of the Software, and to\n        permit persons to whom the Software is furnished to do so, subject to\n        the following conditions:\n        \n        The above copyright notice and this permission notice shall be\n        included in all copies or substantial portions of the Software.\n        \n        THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n        EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n        NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\n        LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n        OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n        WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n        ",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "noticeFiles": [
+        "automat-25.4.16.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "incremental-24.11.0-py3-none-any.whl",
+      "sha256": "a34450716b1c4341fe6676a0598e88a39e04189f4dce5dc96f656e040baa10b3",
+      "name": "Incremental",
+      "version": "24.11.0",
+      "declaredLicense": null,
+      "licenseClassifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "noticeFiles": [
+        "incremental-24.11.0.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "pynacl-1.6.2-cp38-abi3-manylinux_2_34_aarch64.whl",
+      "sha256": "26bfcd00dcf2cf160f122186af731ae30ab120c18e8375684ec2670dccd28130",
+      "name": "PyNaCl",
+      "version": "1.6.2",
+      "declaredLicense": "Apache-2.0",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ],
+      "noticeFiles": [
+        "pynacl-1.6.2.dist-info/licenses/",
+        "pynacl-1.6.2.dist-info/licenses/LICENSE",
+        "pynacl-1.6.2.dist-info/licenses/licenses/",
+        "pynacl-1.6.2.dist-info/licenses/licenses/LICENSE.libsodium.txt"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "pyyaml-6.0.3-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl",
+      "sha256": "501a031947e3a9025ed4405a168e6ef5ae3126c59f90ce0cd6f2bfc477be31b7",
+      "name": "PyYAML",
+      "version": "6.0.3",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "noticeFiles": [
+        "pyyaml-6.0.3.dist-info/licenses/",
+        "pyyaml-6.0.3.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "twisted-26.4.0-py3-none-any.whl",
+      "sha256": "dc25ea0ebf6511c24f03232ee9f4afa54b291c5d897990e3a39cc4d14a1ef4c0",
+      "name": "Twisted",
+      "version": "26.4.0",
+      "declaredLicense": "MIT License",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "twisted/copyright.py",
+        "twisted-26.4.0.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "aiofiles-25.1.0-py3-none-any.whl",
+      "sha256": "abe311e527c862958650f9438e859c1fa7568a141b22abcd015e120e86a85695",
+      "name": "aiofiles",
+      "version": "25.1.0",
+      "declaredLicense": "Apache-2.0",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ],
+      "noticeFiles": [
+        "aiofiles-25.1.0.dist-info/licenses/LICENSE",
+        "aiofiles-25.1.0.dist-info/licenses/NOTICE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "attrs-26.1.0-py3-none-any.whl",
+      "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309",
+      "name": "attrs",
+      "version": "26.1.0",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "attrs-26.1.0.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "autobahn-26.7.1-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl",
+      "sha256": "44f8094b0c0fa29a4963ce12130b7932469f89afa0242ff858d2b26541a81005",
+      "name": "autobahn",
+      "version": "26.7.1",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "autobahn-26.7.1.dist-info/licenses/",
+        "autobahn-26.7.1.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "cbor2-6.1.5-cp314-cp314-manylinux_2_28_aarch64.whl",
+      "sha256": "e1028f34af9158ee810c705a1c6c0b7c71f1e0a3c890fb343afd75725a80c191",
+      "name": "cbor2",
+      "version": "6.1.5",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "cbor2-6.1.5.dist-info/licenses/",
+        "cbor2-6.1.5.dist-info/licenses/LICENSE.txt"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "cffi-2.1.1-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "sha256": "58acb8ab8e295e6c5ea12f888cbb13cf21511ef2a3303a23f4325c29d17fe5c1",
+      "name": "cffi",
+      "version": "2.1.1",
+      "declaredLicense": "MIT-0",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "cffi-2.1.1.dist-info/licenses/",
+        "cffi-2.1.1.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "click-8.5.0-py3-none-any.whl",
+      "sha256": "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360",
+      "name": "click",
+      "version": "8.5.0",
+      "declaredLicense": "BSD-3-Clause",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "click-8.5.0.dist-info/licenses/LICENSE.txt"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "constantly-23.10.4-py3-none-any.whl",
+      "sha256": "3fd9b4d1c3dc1ec9757f3c52aef7e53ad9323dbe39f51dfd4c43853b68dfa3f9",
+      "name": "constantly",
+      "version": "23.10.4",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "noticeFiles": [
+        "constantly-23.10.4.dist-info/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "cryptography-50.0.2-cp311-abi3-manylinux_2_34_aarch64.whl",
+      "sha256": "87e9ce85beb6b328ba370cc6e6aea483c92617b4c95b1d33a49297eb662bfb04",
+      "name": "cryptography",
+      "version": "50.0.2",
+      "declaredLicense": "Apache-2.0 OR BSD-3-Clause",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "cryptography-50.0.2.dist-info/licenses/",
+        "cryptography-50.0.2.dist-info/licenses/LICENSE",
+        "cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE",
+        "cryptography-50.0.2.dist-info/licenses/LICENSE.BSD"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "humanize-4.16.0-py3-none-any.whl",
+      "sha256": "353eb2f34c09d098b2880eee8bef21832eae6d174f48c5762fff7e5fcb74d01d",
+      "name": "humanize",
+      "version": "4.16.0",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "humanize-4.16.0.dist-info/licenses/LICENCE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "hyperlink-21.0.0-py2.py3-none-any.whl",
+      "sha256": "e6b14c37ecb73e89c77d78cdb4c2cc8f3fb59a885c5b3f819ff4ed80f25af1b4",
+      "name": "hyperlink",
+      "version": "21.0.0",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "noticeFiles": [
+        "hyperlink-21.0.0.dist-info/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "idna-3.20-py3-none-any.whl",
+      "sha256": "ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c",
+      "name": "idna",
+      "version": "3.20",
+      "declaredLicense": "BSD-3-Clause",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "idna-3.20.dist-info/licenses/LICENSE.md"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "iterable_io-1.0.4-py3-none-any.whl",
+      "sha256": "7d7104b69e499bcdad856e623bbc0feb0970eae5416b2b49be8b822ff4a37347",
+      "name": "iterable-io",
+      "version": "1.0.4",
+      "declaredLicense": "LGPL-3.0-only",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)"
+      ],
+      "noticeFiles": [],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "livekit-1.1.19-py3-none-manylinux_2_28_aarch64.whl",
+      "sha256": "ed8aba52c4e3ff93529a32169af287b0f0299e629cb49a3390f1aa5f255c5af0",
+      "name": "livekit",
+      "version": "1.1.19",
+      "declaredLicense": "Apache-2.0",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "livekit/rtc/resources/LICENSE.md"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "magic_wormhole-0.24.0-py3-none-any.whl",
+      "sha256": "312d7d55cba76fe443fd207b1e006d12b7c56699961ed6dce46bed765945e712",
+      "name": "magic-wormhole",
+      "version": "0.24.0",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "magic_wormhole-0.24.0.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "msgpack-1.2.3-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl",
+      "sha256": "9324c54995641c3d1f92a9d55093c8cde0ffa2fbc87a467a688ef60428393220",
+      "name": "msgpack",
+      "version": "1.2.3",
+      "declaredLicense": "Apache-2.0",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "msgpack-1.2.3.dist-info/licenses/",
+        "msgpack-1.2.3.dist-info/licenses/COPYING"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "noiseprotocol-0.3.1-py3-none-any.whl",
+      "sha256": "2e1a603a38439636cf0ffd8b3e8b12cee27d368a28b41be7dbe568b2abb23111",
+      "name": "noiseprotocol",
+      "version": "0.3.1",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "noticeFiles": [
+        "noiseprotocol-0.3.1.dist-info/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "numpy-2.5.3-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+      "sha256": "be5a8381859b6da607c84f4f7d6847725f1cf1853ef8a2c9e115b7d58bef47dc",
+      "name": "numpy",
+      "version": "2.5.3",
+      "declaredLicense": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "numpy/_core/include/numpy/random/LICENSE.txt",
+        "numpy/ma/LICENSE",
+        "numpy/random/LICENSE.md",
+        "numpy-2.5.3.dist-info/licenses/",
+        "numpy-2.5.3.dist-info/licenses/LICENSE.txt",
+        "numpy-2.5.3.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt",
+        "numpy-2.5.3.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING",
+        "numpy-2.5.3.dist-info/licenses/numpy/_core/src/highway/LICENSE",
+        "numpy-2.5.3.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt",
+        "numpy-2.5.3.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
+        "numpy-2.5.3.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE",
+        "numpy-2.5.3.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md",
+        "numpy-2.5.3.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt",
+        "numpy-2.5.3.dist-info/licenses/numpy/ma/LICENSE",
+        "numpy-2.5.3.dist-info/licenses/numpy/random/LICENSE.md",
+        "numpy-2.5.3.dist-info/licenses/numpy/random/src/distributions/LICENSE.md",
+        "numpy-2.5.3.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md",
+        "numpy-2.5.3.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md",
+        "numpy-2.5.3.dist-info/licenses/numpy/random/src/philox/LICENSE.md",
+        "numpy-2.5.3.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md",
+        "numpy-2.5.3.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "packaging-26.3-py3-none-any.whl",
+      "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c",
+      "name": "packaging",
+      "version": "26.3",
+      "declaredLicense": "Apache-2.0 OR BSD-2-Clause",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "packaging-26.3.dist-info/licenses/LICENSE",
+        "packaging-26.3.dist-info/licenses/LICENSE.APACHE",
+        "packaging-26.3.dist-info/licenses/LICENSE.BSD"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "protobuf-7.36.2-cp310-abi3-manylinux2014_aarch64.whl",
+      "sha256": "e11e1f0180583a2af89db6a2ecd9e8dc40aa6d2988ca175bfd0e6d12ea72d74e",
+      "name": "protobuf",
+      "version": "7.36.2",
+      "declaredLicense": "3-Clause BSD License",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "protobuf-7.36.2.dist-info/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "pyopenssl-26.4.0-py3-none-any.whl",
+      "sha256": "f0eb0cb2d581d3ad2b9c489468485e7f2ab6727d08401bcf9d824c3caddf3c1c",
+      "name": "pyOpenSSL",
+      "version": "26.4.0",
+      "declaredLicense": "Apache License, Version 2.0",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ],
+      "noticeFiles": [
+        "pyopenssl-26.4.0.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "pycparser-3.11-py3-none-any.whl",
+      "sha256": "51d5a8ba2be0bbe440b99d2112604c95bbbc3c2748a64260186c541e1729cd80",
+      "name": "pycparser",
+      "version": "3.11",
+      "declaredLicense": "BSD-3-Clause",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "pycparser-3.11.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "qrcode-8.2-py3-none-any.whl",
+      "sha256": "16e64e0716c14960108e85d853062c9e8bba5ca8252c0b4d0231b9df4060ff4f",
+      "name": "qrcode",
+      "version": "8.2",
+      "declaredLicense": "BSD",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: BSD License",
+        "License :: Other/Proprietary License"
+      ],
+      "noticeFiles": [
+        "qrcode-8.2.dist-info/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "service_identity-26.1.0-py3-none-any.whl",
+      "sha256": "68c32dadbb69135fb951077677e07cd7f6031020f3a8c8f47a28cda8a0742118",
+      "name": "service-identity",
+      "version": "26.1.0",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "noticeFiles": [
+        "service_identity-26.1.0.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "spake2-0.9-py3-none-any.whl",
+      "sha256": "2d7cbe936519c4172866649ddceefdec08e3d9b3ce4c8a75bbf84d6bdd07a2fb",
+      "name": "spake2",
+      "version": "0.9",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "noticeFiles": [
+        "spake2-0.9.dist-info/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "tqdm-4.70.1-py3-none-any.whl",
+      "sha256": "c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73",
+      "name": "tqdm",
+      "version": "4.70.1",
+      "declaredLicense": "MPL-2.0 AND MIT",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "tqdm-4.70.1.dist-info/licenses/LICENCE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "txaio-26.6.1-py3-none-any.whl",
+      "sha256": "91a84a7825485a367c0b070c7399824c0e1a1e8c071cbdf3882dd3146dab587b",
+      "name": "txaio",
+      "version": "26.6.1",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "txaio-26.6.1.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "txtorcon-26.6.0-py3-none-any.whl",
+      "sha256": "2c5a6e9bf639e48a8fb8a19ceedca0c8b40a8b15c7c049483671fec625dc93a0",
+      "name": "txtorcon",
+      "version": "26.6.0",
+      "declaredLicense": "MIT",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "noticeFiles": [
+        "txtorcon-26.6.0.dist-info/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "types_protobuf-7.35.1.20260906-py3-none-any.whl",
+      "sha256": "5155e48569e0dabff303fdf578db96cd31ea9a4a63b18018a4ceac6b0ae17462",
+      "name": "types-protobuf",
+      "version": "7.35.1.20260906",
+      "declaredLicense": "Apache-2.0",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "types_protobuf-7.35.1.20260906.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "typing_extensions-4.16.0-py3-none-any.whl",
+      "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8",
+      "name": "typing_extensions",
+      "version": "4.16.0",
+      "declaredLicense": "PSF-2.0",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "typing_extensions-4.16.0.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "ujson-6.0.0-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl",
+      "sha256": "ab7b316bba31be494635dcc5db87e429f2478073d15d2c54925c32fd9e1947f4",
+      "name": "ujson",
+      "version": "6.0.0",
+      "declaredLicense": "BSD-3-Clause AND TCL",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "ujson-6.0.0.dist-info/licenses/",
+        "ujson-6.0.0.dist-info/licenses/LICENSE.txt"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "websocket_client-1.9.0-py3-none-any.whl",
+      "sha256": "af248a825037ef591efbf6ed20cc5faa03d3b47b9e5a2230a529eeee1c1fc3ef",
+      "name": "websocket-client",
+      "version": "1.9.0",
+      "declaredLicense": "Apache-2.0",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ],
+      "noticeFiles": [
+        "websocket_client-1.9.0.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "zipstream_ng-1.9.3-py3-none-any.whl",
+      "sha256": "6614580d7ae56bc9f3c2a342210108450e2d191b62038e818bae7845612584b7",
+      "name": "zipstream-ng",
+      "version": "1.9.3",
+      "declaredLicense": "LGPL-3.0-only",
+      "licenseClassifiers": [
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)"
+      ],
+      "noticeFiles": [
+        "zipstream_ng-1.9.3.dist-info/licenses/LICENSE"
+      ],
+      "redistributionReviewed": false
+    },
+    {
+      "file": "zope_interface-8.6-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "sha256": "ef15a2f6258f809334a19c1fcce64648813066ceebe3f3f6077871483fd0f50d",
+      "name": "zope.interface",
+      "version": "8.6",
+      "declaredLicense": "ZPL-2.1",
+      "licenseClassifiers": [],
+      "noticeFiles": [
+        "zope_interface-8.6.dist-info/licenses/",
+        "zope_interface-8.6.dist-info/licenses/LICENSE.txt"
+      ],
+      "redistributionReviewed": false
+    }
+  ],
+  "sourceArchives": [
+    {
+      "path": "sources/corresponding-source-app.tar.gz",
+      "bytes": 605906526
+    },
+    {
+      "path": "sources/runtime-recipes.tar.gz",
+      "bytes": 865302
+    },
+    {
+      "path": "sources/setup-code.tar.gz",
+      "bytes": 131561
+    }
+  ],
+  "redistributionReviewed": false,
+  "remaining": [
+    "Match each distributed binary to exact upstream source, patches and build dependencies",
+    "Provide applicable complete notices and corresponding source for cores, AppImages and Flatpak",
+    "Review avatar incorporated distribution separately from software licences"
+  ]
+}

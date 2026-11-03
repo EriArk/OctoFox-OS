@@ -13,18 +13,20 @@ import re
 import shutil
 import subprocess
 import struct
+import screenscraper_client
 
 
 def output(args):
     return subprocess.check_output(args, text=True, timeout=30).strip()
 
 
-def stage(build, destination):
+def stage(build, destination, screenscraper=None):
     build, destination = Path(build).resolve(), Path(destination).absolute()
     if destination.exists(): raise ValueError('Use a new empty staging destination')
     if any(p.is_symlink() for p in destination.parents): raise ValueError('Redirected staging destination')
     report = destination.with_name(destination.name + '.staging.json')
     if report.exists(): raise ValueError('Staging report already exists')
+    if screenscraper is not None: screenscraper_client.read(screenscraper)
     with (build / 'traineros').open('rb') as stream: header = stream.read(64)
     if len(header) < 64 or header[:6] != b'\x7fELF\x02\x01' or struct.unpack_from('<H', header, 18)[0] != 183:
         raise ValueError('The release builder requires an ARM64 application')
@@ -51,6 +53,7 @@ def stage(build, destination):
                         'package': output(['rpm', '-q', package]), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
     destination.mkdir(parents=True, mode=0o700)
     subprocess.run(['cmake', '--install', str(build), '--prefix', str(destination)], check=True)
+    if screenscraper is not None: screenscraper_client.stage(screenscraper, destination)
     # The managed launcher and dependency preflight expose this signed lib
     # directory. RUNPATH alone does not resolve libfm's transitive menu-cache.
     for name, path in libraries:
@@ -68,6 +71,7 @@ def stage(build, destination):
     record = {'schema': 1, 'payload': destination.name, 'files': len(files),
               'bytes': sum(p.stat().st_size for p in files),
               'bundledLibraries': records,
+              'screenScraperClientIncluded': screenscraper is not None,
               'redistributionReviewed': False, 'published': False}
     report.write_text(json.dumps(record, indent=2) + '\n')
     return record
@@ -77,5 +81,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--screenscraper-client', type=Path,
+                        help='Private operator input containing only the approved application identity')
     args = parser.parse_args()
-    print(json.dumps(stage(args.build, args.output)))
+    print(json.dumps(stage(args.build, args.output, args.screenscraper_client)))

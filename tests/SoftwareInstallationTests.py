@@ -326,6 +326,11 @@ class InstallationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'review'): build()
         self.assertFalse(output.exists())
         record['redistributionReviewed'] = True; sw.atomic(provenance, record)
+        with self.assertRaisesRegex(ValueError, 'ScreenScraper'): build()
+        self.assertFalse(output.exists())
+        client = payload / 'share/traineros/integrations/screenscraper-client.json'
+        client.parent.mkdir(parents=True)
+        sw.atomic(client, {'version': 1, 'developerId': 'fixture', 'developerPassword': 'fixture-only'})
         result = build(); self.assertFalse(result['published'])
         plan = sw.decode((output / 'publication.json').read_bytes()); self.assertFalse(plan['published'])
         for name, digest in plan['files'].items(): self.assertEqual(sw.sha256(output / name), digest)

@@ -1,5 +1,6 @@
 #include "ScreenScraper.h"
 #include <QCryptographicHash>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QEventLoop>
@@ -10,6 +11,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QSaveFile>
+#include <QSet>
 #include <QThread>
 #include <QTimer>
 #include <QUrlQuery>
@@ -113,21 +115,54 @@ bool Credentials::valid() const {
     const auto good=[](const QString& s){return !s.isEmpty() && s.size()<=256 && !s.contains(QChar::Null);};
     return good(developerId) && good(developerPassword) && ((username.isEmpty() && password.isEmpty()) || (good(username) && good(password)));
 }
-Credentials readCredentials(const QString& path) {
+QString clientCredentialsPath() {
+    return QDir(QCoreApplication::applicationDirPath()).filePath("../share/traineros/integrations/screenscraper-client.json");
+}
+namespace {
+Credentials readClientCredentials(const QString& path) {
+    QFile f(path);
+    if(path.isEmpty() || QFileInfo(path).isSymLink() || !f.open(QIODevice::ReadOnly) || f.size()>8192)return {};
+    const auto o=QJsonDocument::fromJson(f.readAll()).object();
+    const QSet<QString> expected{"version","developerId","developerPassword"};
+    const auto keys=o.keys();
+    if(QSet<QString>(keys.begin(),keys.end())!=expected || o["version"].toInt()!=1)return {};
+    Credentials c{o["developerId"].toString(),o["developerPassword"].toString(),{}, {}};
+    return c.valid()?c:Credentials{};
+}
+}
+Credentials readCredentials(const QString& path,const QString& clientFile) {
+    const auto application=readClientCredentials(clientFile);
+    // A malformed installed client identity must not silently use an obsolete key.
+    if(!clientFile.isEmpty() && QFileInfo::exists(clientFile) && !application.valid())return {};
+    if(!QFileInfo::exists(path) && !QFileInfo(path).isSymLink())return application;
     QFile f(path);
     if(QFileInfo(path).isSymLink() || !f.open(QIODevice::ReadOnly) || f.size()>8192)return {};
 #ifdef Q_OS_UNIX
     if(f.permissions() & (QFileDevice::ReadGroup|QFileDevice::WriteGroup|QFileDevice::ReadOther|QFileDevice::WriteOther))return {};
 #endif
     const auto o=QJsonDocument::fromJson(f.readAll()).object();
-    Credentials c{o["developerId"].toString(),o["developerPassword"].toString(),o["username"].toString(),o["password"].toString()};
-    return o["version"].toInt()==1 && c.valid()?c:Credentials{};
+    const int version=o["version"].toInt();
+    if(version!=1)return {};
+    Credentials c=application;
+    if(!c.valid()){c.developerId=o["developerId"].toString();c.developerPassword=o["developerPassword"].toString();}
+    if((o.contains("username") && !o["username"].isString()) ||
+       (o.contains("password") && !o["password"].isString()))return {};
+    c.username=o["username"].toString();c.password=o["password"].toString();
+    return c.valid()?c:Credentials{};
 }
-bool writeCredentials(const QString& path,const Credentials& c) {
+bool writeCredentials(const QString& path,const Credentials& c,const QString& clientFile) {
     if(!c.valid() || QFileInfo(path).isSymLink() || !QDir().mkpath(QFileInfo(path).absolutePath()))return false;
     QSaveFile f(path);f.setDirectWriteFallback(false);
     if(!f.open(QIODevice::WriteOnly) || !f.setPermissions(QFileDevice::ReadOwner|QFileDevice::WriteOwner))return false;
-    const auto bytes=QJsonDocument(QJsonObject{{"version",1},{"developerId",c.developerId},{"developerPassword",c.developerPassword},{"username",c.username},{"password",c.password}}).toJson();
+    const auto application=readClientCredentials(clientFile);
+    // Keep the private v1 snapshot readable by the previous Software generation
+    // after rollback. The installed application identity still wins on new builds.
+    QJsonObject o{{"version",1},{"developerId",c.developerId},{"developerPassword",c.developerPassword},
+                  {"username",c.username},{"password",c.password}};
+    if(!application.valid()){
+        if(!clientFile.isEmpty() && QFileInfo::exists(clientFile))return false;
+    }else if(c.developerId!=application.developerId || c.developerPassword!=application.developerPassword)return false;
+    const auto bytes=QJsonDocument(o).toJson();
     return f.write(bytes)==bytes.size() && f.commit();
 }
 int systemId(const QString& platform) {
