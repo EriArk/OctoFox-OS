@@ -9,7 +9,8 @@ Item {
     property bool balanced: false
     property int frameCount: 2
     signal activated()
-    readonly property real frameWidth: balanced ? Math.min(width/1.48,(height-14)*(frameCount > 2 ? 1.10 : 1.24)) : Math.min(width * .68, height * 1.45)
+    // Reserve the rotated corners, front-frame offset and contact shadow too.
+    readonly property real frameWidth: balanced ? Math.max(0,Math.min(width/1.48,(height-16)/(frameCount > 2 ? 1.02 : .90))) : Math.min(width * .68, height * 1.45)
     readonly property real frameHeight: balanced ? frameWidth*.75 : height*.82
     readonly property real rearTop: (frameHeight-frameWidth*Math.sin(Math.PI/20)-frameHeight*Math.cos(Math.PI/20))/2
     readonly property real frontTop: (frameHeight-frameWidth*Math.sin(Math.PI/30)-frameHeight*Math.cos(Math.PI/30))/2

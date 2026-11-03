@@ -32,6 +32,80 @@ public:
 class PcImportUiTests : public QObject {
     Q_OBJECT
 private slots:
+    void homeAdapterHasSeparateContentAndActions() {
+        QTemporaryDir temp;const QString module=temp.filePath("TrainerOS");QVERIFY(QDir().mkpath(module));
+        QStringList files;
+        for(const auto& folder:{QString("src/qml"),QString("src/adapters/pokemon")}) {
+            const QDir source(QString(TRAINER_SOURCE_DIR)+"/"+folder);
+            for(const auto& name:source.entryList({"*.qml","*.js"},QDir::Files)) {
+                QVERIFY(QFile::copy(source.filePath(name),module+"/"+name));if(name.endsWith(".qml")&&name!="Theme.qml")files<<name;
+            }
+        }
+        QFile qmldir(module+"/qmldir");QVERIFY(qmldir.open(QIODevice::WriteOnly));
+        qmldir.write("module TrainerOS\nsingleton Theme 1.0 Theme.qml\n");
+        for(const auto& name:files)qmldir.write((name.chopped(4)+" 1.0 "+name+"\n").toUtf8());qmldir.close();
+        // Mount the real adapter in the real host, with deterministic full/empty/long
+        // presentation data. No runtime save, launch or game capabilities are mocked in.
+        QFile host(module+"/ExperienceHost.qml");QVERIFY(host.open(QIODevice::WriteOnly|QIODevice::Truncate));
+        host.write(R"(import QtQuick
+import TrainerOS
+Item {
+ id: root; required property var shell; property bool showcase:false
+ QtObject {
+  id: adapterShell
+  property var home: Object.assign({},root.shell.home,{world:"Hoenn",adventure:homeCase==="long"?"A very long adventure title on a compact handheld":"Pokemon Emerald",progressNote:"Last in-game save · National Pokedex",badges:homeCase==="empty"?"—":"8",caught:homeCase==="empty"?"—":"386",recordedTime:"123 h 45 min",badgeSlots:homeCase==="empty"?[]:Array.from({length:8},()=>({image:"",state:"earned"}))})
+  property var experienceModel: ({party:{activities:activity}})
+  property bool unobstructed:root.shell.unobstructed
+  property bool quickAppsOpen:root.shell.quickAppsOpen
+  property bool drawerOpen:root.shell.drawerOpen
+ }
+ QtObject {
+  id: activity
+  property var original: root.shell.experienceModel.party.activities.actors
+  property bool hasParty: homeCase!=="empty"
+  property var actors:hasParty&&original.length?[original[0],original[1],original[0],original[1],original[0],original[1]]:[]
+ }
+ HomePage {anchors.fill:parent;shell:adapterShell}
+})");host.close();
+        QFile scene(temp.filePath("Probe.qml"));QVERIFY(scene.open(QIODevice::WriteOnly));
+        scene.write("import QtQuick\nimport TrainerOS\nItem { width:912;height:354;property bool dark:false;onDarkChanged:Theme.themeId=dark?'dark':'light';Rectangle{anchors.fill:parent;color:Theme.paper} HomeDashboard{anchors.fill:parent;shell:probeShell} }");scene.close();
+        MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;OfflinePokedex reference;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(reference,dex),archive,achievements);
+        ClassicArt builtins("");SpriteArt sprites("");auto* pokemon=dynamic_cast<PokemonExperience*>(shell.module("pokemon"));QVERIFY(pokemon);
+        pokemon->party()->configureArtwork(&builtins,&sprites);
+        QQuickView view;view.engine()->addImageProvider("sprite-detail",new SpriteImages(sprites));QStringList warnings;
+        connect(view.engine(),&QQmlEngine::warnings,this,[&](const QList<QQmlError>& errors){for(const auto& e:errors)
+            if(!e.description().contains("Cannot open:")&&!e.description().contains("Cannot open file:")&&!e.description().contains("Cannot read:"))warnings<<e.toString();});
+        auto paths=view.engine()->importPathList();paths.removeAll(QCoreApplication::applicationDirPath());view.engine()->setImportPathList(paths);
+        view.engine()->addImportPath(temp.path());view.rootContext()->setContextProperty("probeShell",&shell);
+        view.rootContext()->setContextProperty("homeCase","full");
+        view.setResizeMode(QQuickView::SizeRootObjectToView);view.setSource(QUrl::fromLocalFile(scene.fileName()));
+        QVERIFY2(view.status()==QQuickView::Ready,qPrintable(warnings.join('\n')));view.show();
+        std::function<QQuickItem*(QQuickItem*,const QString&)> find=[&](QQuickItem* item,const QString& name)->QQuickItem* {
+            if(item->objectName()==name)return item;for(auto* child:item->childItems())if(auto* found=find(child,name))return found;return nullptr;
+        };
+        auto bounds=[](QQuickItem* item){return item->mapRectToScene(item->boundingRect());};
+        QDir().mkpath("screenshots/home-adapter");
+        for(bool dark:{false,true})for(const QSize size:{QSize(912,404),QSize(912,354),QSize(760,310)})for(const QString state:{"full","empty","long"}) {
+            view.resize(size);view.rootObject()->setProperty("dark",dark);view.rootContext()->setContextProperty("homeCase",state);QTest::qWait(120);
+            auto* content=find(view.rootObject(),"home-description");auto* awards=find(view.rootObject(),"home-awards");
+            auto* screens=find(view.rootObject(),"home-screens");auto* play=find(view.rootObject(),"home-launch");
+            auto* party=find(view.rootObject(),"home-party");auto* progress=find(view.rootObject(),"home-adapter-progress");
+            QVERIFY(content&&awards&&screens&&play&&party&&progress);
+            const auto c=bounds(content),a=bounds(awards),s=bounds(screens),p=bounds(play);
+            QVERIFY(c.bottom()<a.top());QVERIFY(!a.intersects(s));QVERIFY(!s.intersects(p));
+            QVERIFY(s.top()+screens->property("visualTop").toReal()>c.bottom());
+            QVERIFY2(screens->property("visualBottom").toReal()<=screens->height(),qPrintable(QString("Rotated collage exceeds slot: %1 > %2").arg(screens->property("visualBottom").toReal()).arg(screens->height())));
+            if(state!="empty") {
+                QVERIFY(party->isVisible());QVERIFY(party->height()>=35);
+                QVERIFY(bounds(party).top()>bounds(progress).bottom());QVERIFY(c.contains(bounds(party)));
+                for(int i=0;i<6;++i) {auto* actor=find(party,"home-party-"+QString::number(i));QVERIFY(actor);QVERIFY(bounds(party).contains(bounds(actor)));}
+            } else QVERIFY(!party->isVisible());
+            QVERIFY(view.grabWindow().save(QString("screenshots/home-adapter/%1-%2-%3x%4.png").arg(state,dark?"dark":"light").arg(size.width()).arg(size.height())));
+            QVERIFY2(warnings.isEmpty(),qPrintable(warnings.join('\n')));
+        }
+    }
     void pokemonWorkspacesAtHandheldSizes() {
         QTemporaryDir temp;const QString module=temp.filePath("TrainerOS");QVERIFY(QDir().mkpath(module));
         QStringList files;

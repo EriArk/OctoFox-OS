@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-03",
+  "base_commit": "5c5f08a42fa6268cb37d13914f125e0462b87fd6",
+  "build": "ARM Release; BUILD_TESTING=OFF",
+  "source_manifest_entries": 1674,
+  "source_manifest_matches": true,
+  "ui_test": "PcImportUiTests::homeAdapterHasSeparateContentAndActions",
+  "ui_states": 18,
+  "devices": {
+    "flip": {
+      "sha256": "b8c75599d5d5e7fa40205eab3ed5f4da887153f7effed99d4b87c9b310e7b95b",
+      "previous": "a979ee148ade5b6305f7477c29dc4cc0d1b0653e2887a8a0db4ace9c3e8a41b3",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "one_shell": true,
+      "qml_error_counts": {
+        "ReferenceError": 0,
+        "TypeError": 0,
+        "Binding loop": 0,
+        "Cannot assign": 0,
+        "Unable to assign": 0
+      },
+      "volume": "Volume: 0.20",
+      "private_pack_indices_and_choices_preserved": true,
+      "album_open_and_return_viewed": true,
+      "home_restored_and_viewed": true,
+      "actual_emerald_full_party_and_badges_viewed": true,
+      "tab_return_viewed": true
+    },
+    "odin": {
+      "sha256": "b8c75599d5d5e7fa40205eab3ed5f4da887153f7effed99d4b87c9b310e7b95b",
+      "previous": "a979ee148ade5b6305f7477c29dc4cc0d1b0653e2887a8a0db4ace9c3e8a41b3",
+      "database_checks": 1,
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "one_shell": true,
+      "qml_error_counts": {
+        "ReferenceError": 0,
+        "TypeError": 0,
+        "Binding loop": 0,
+        "Cannot assign": 0,
+        "Unable to assign": 0
+      },
+      "volume": "Volume: 0.00",
+      "private_pack_indices_and_choices_preserved": true,
+      "album_open_and_return_viewed": true,
+      "home_restored_and_viewed": true,
+      "generic_game_card_viewed": true
+    }
+  },
+  "limits": [
+    "Physical input, sleep/wake and new gameplay/save acceptance not exercised.",
+    "Owner assessment of the new layout remains separate."
+  ]
+}

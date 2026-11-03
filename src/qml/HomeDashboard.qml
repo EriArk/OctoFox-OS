@@ -101,11 +101,9 @@ Item {
         readonly property bool compact: !root.generic || showcase.height < 330
         parent: showcase
         x: 20
-        y: parent.height-height-(root.generic ? 13 : 9)
-        width: root.generic ? parent.width-play.width-60 : (play.x-56)*.5
-        height: root.generic ? (compact ? 128 : 148) : 98
-        Rectangle { visible: !root.generic; width: parent.width; height: 1; color: Theme.surfaceColor("#70c6d6b6") }
-        Rectangle { visible: !root.generic; y: 1; width: parent.width; height: 1; color: Theme.surfaceColor("#203a4635") }
+        y: root.generic ? parent.height-height-13 : showcase.footerTop
+        width: root.generic ? parent.width-play.width-60 : (play.x-44)*.52
+        height: root.generic ? (compact ? 128 : 148) : showcase.footerHeight
         Text { y: 6; width: parent.width; elide: Text.ElideRight; text: "Recent achievements"; color: Theme.textColor("#fff4ce"); font.family: Theme.displayFamily; font.pixelSize: root.generic ? 19 : 14 }
         ListView {
             id: trophies; objectName: "home-achievements"
@@ -117,10 +115,10 @@ Item {
                 required property var modelData
                 required property int index
                 objectName: "home-award-"+index
-                width: root.generic ? (trophies.width-4*trophies.spacing)/5 : 44; height: trophies.height
+                width: root.generic ? (trophies.width-4*trophies.spacing)/5 : 40; height: trophies.height
                 Rectangle {
                     id: medallion
-                    x: root.generic ? (parent.width-width)/2 : 2; y: 5; width: root.generic ? Math.min(parent.width-6,awards.compact ? 46 : 58) : 40; height: width; radius: width/2
+                    x: root.generic ? (parent.width-width)/2 : 2; y: 5; width: root.generic ? Math.min(parent.width-6,awards.compact ? 46 : 58) : 34; height: width; radius: width/2
                     color: Theme.surfaceColor("#234b46"); border.color: Theme.surfaceColor("#769f87"); border.width: 2
                     Rectangle {
                         anchors.fill: parent; anchors.margins: 4; radius: width/2
@@ -147,14 +145,14 @@ Item {
                 Accessible.onPressAction: root.shell.activateDashboard(modelData.key)
             }
             Row {
-                visible: !trophies.count; spacing: root.generic ? trophies.spacing : 13; y: 5
+                visible: !trophies.count; spacing: root.generic ? trophies.spacing : 8; y: 5
                 Repeater {
                     model: root.generic ? 5 : 3
                     Item {
-                        width: root.generic ? (trophies.width-4*trophies.spacing)/5 : 44; height: root.generic ? 80 : 44
+                        width: root.generic ? (trophies.width-4*trophies.spacing)/5 : 40; height: root.generic ? 80 : 40
                         Rectangle {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            width: root.generic ? Math.min(parent.width-6,awards.compact ? 46 : 58) : 40
+                            width: root.generic ? Math.min(parent.width-6,awards.compact ? 46 : 58) : 34
                             height: width; radius: width/2; color: Theme.surfaceColor("#80244844"); border.color: Theme.surfaceColor("#9eae89"); border.width: 2
                             Rectangle { anchors.fill: parent; anchors.margins: 5; radius: width/2; color: "transparent"; border.color: Theme.surfaceColor("#7d916f") }
                             Text { anchors.centerIn: parent; text: "☆"; color: Theme.textColor("#b9c6a2"); font.pixelSize: 29*root.unit }
@@ -191,6 +189,8 @@ Item {
     // The adapter owns the showcase; the shell keeps a single compact launch control.
     Rectangle {
         id: showcase; objectName: "home-game-card"
+        readonly property real footerHeight: 92
+        readonly property real footerTop: height-footerHeight-16
         x: root.split + 8; y: 11 * root.unit
         width: parent.width-x-19*root.unit; height: parent.height-y-19*root.unit
         radius: 18 * root.unit; border.color: Theme.edgeLight; border.width: 1
@@ -202,9 +202,9 @@ Item {
         Rectangle { anchors.fill: parent; anchors.margins: 4; radius: parent.radius-4; color: "transparent"; border.color: Theme.edgeLight; opacity: .38 }
         Item {
             objectName: "home-description"
-            x: 14; y: 14
-            width: root.generic ? parent.width*.54-24 : parent.width-28
-            height: root.generic ? Math.max(0,metadata.y-y-8) : parent.height-y-107
+            x: root.generic ? 14 : 20; y: 14
+            width: root.generic ? parent.width*.54-24 : parent.width-40
+            height: root.generic ? Math.max(0,metadata.y-y-8) : Math.max(0,showcase.footerTop-y-12)
             clip: true; enabled: root.generic
             ExperienceHost { anchors.fill: parent; shell: root.shell; showcase: true }
         }
@@ -217,20 +217,21 @@ Item {
             game: root.shell.homeGame
         }
         Rectangle { visible: root.generic; x: 20; y: awards.y; width: parent.width-play.width-50; height: 1; color: Theme.surfaceColor("#70c6d6b6") }
+        Rectangle { visible: !root.generic; x: 20; y: showcase.footerTop-6; width: parent.width-40; height: 1; color: "#40bfd6bf" }
         AdventureButton {
             id: play
-            anchors { right: parent.right; bottom: parent.bottom; rightMargin: 16*root.unit; bottomMargin: 29*root.unit }
-            width: root.generic ? (awards.compact ? 116 : 132) : 96; height: width
+            anchors { right: parent.right; bottom: parent.bottom; rightMargin: 16*root.unit; bottomMargin: root.generic ? 29*root.unit : 16 }
+            width: root.generic ? (awards.compact ? 116 : 132) : showcase.footerHeight; height: width
             showGlyph: !root.generic
             shell: root.shell; selected: root.active && root.flow.focus === "play"
         }
         HomeScreensCollage {
             objectName: "home-screens"
             x: root.generic ? parent.width*.55 : awards.x+awards.width+12
-            y: root.generic ? 18 : play.y+(play.height-height)/2
-            width: root.generic ? parent.width*.45-22 : play.x-x-24
-            height: root.generic ? awards.y-36 : 90
-            balanced: root.generic
+            y: root.generic ? 18 : showcase.footerTop
+            width: root.generic ? parent.width*.45-22 : play.x-x-12
+            height: root.generic ? awards.y-36 : showcase.footerHeight
+            balanced: true
             source: {
                 if (!root.visible) return ""
                 const home = root.shell.home

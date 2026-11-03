@@ -14,7 +14,8 @@ Item {
             required property int index
             required property var modelData
             objectName: "home-party-" + index
-            slot: index; member: modelData; presentationScale: 0.8
+            slot: index; member: modelData
+            presentationScale: Math.min(0.85, Math.max(0.3,(root.height-9)/76), root.width/6/100)
             x: index * width; width: root.width / 6; height: root.height
             playing: root.playing
         }

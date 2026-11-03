@@ -1,5 +1,9 @@
 # Game-adapter knowledge base
 
+**3 November, Home layout:** the Pokemon presenter now fits progress and the
+six-member party above the host's separate actions area. [Checks and delivery](../evidence/2026-11-03-home-adapter/README.md).
+No save parser, capability or exact-build gate changed.
+
 **3 November:** the Pokemon adapter owns the [Cuboid artwork fallback](../CUBOID_CREATURES.md).
 It changes presentation only, with exact-form recipes and independent user-art/
 sprite precedence. No semantic reader, writer, ROM gate or save format changed.
