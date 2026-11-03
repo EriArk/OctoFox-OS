@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "RetroArchConfiguration.h"
 #include <QCryptographicHash>
 #include <QDir>
@@ -45,7 +46,7 @@ bool enabled(const Settings& s, const QString& key, bool fallback) {
 QString configuredPath(const Settings& s, const QString& key, const QString& fallback) {
     auto path = s.value(key);
     if (path.isEmpty() || path == "default") path = fallback;
-    if (path.startsWith("~/")) path = QDir::home().filePath(path.mid(2));
+    if (path.startsWith("~/")) path = QDir(runtimepaths::userHome()).filePath(path.mid(2));
     return path;
 }
 QString configDirectory(const Settings& settings, const RetroArchInstallation& i) {

@@ -18,6 +18,7 @@ import installation as install
 import releases as sw
 import runtime_set
 import runtime_manager as manager
+import runtime_layout
 from runtime_transaction import Files
 from runtime_flatpak import Flatpaks
 
@@ -36,6 +37,7 @@ class FlatpakFixture:
         return SimpleNamespace(returncode=0,stdout='',stderr='')
 
 
+@unittest.skipUnless(sys.platform=='linux','Runtime activation is supported on Linux only')
 class RuntimeInstallationTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
@@ -49,6 +51,53 @@ class RuntimeInstallationTests(unittest.TestCase):
 
     def desired(self): return {str(self.dst):self.files.import_file(self.src,0o755)}
     def crash(self,*args): raise RuntimeError('injected crash')
+
+    def test_private_deployment_ignores_existing_emulators_and_environment(self):
+        stage=self.base/'private-stage';component=stage/'media/runtimes/Cemu';component.mkdir(parents=True)
+        record={'files':[{'path':'Cemu.AppImage','bytes':14,'sha256':sw.sha256(self.src),'mode':0o755}]}
+        sw.atomic(component/'component.json',record)
+        source=self.base/'image-source';source.mkdir();(source/'Cemu.AppImage').write_bytes(self.src.read_bytes())
+        existing=self.home/'Applications/Cemu.AppImage';existing.write_bytes(b'EmuDeck runtime')
+        with patch.object(runtime_set,'NATIVE',set()),patch.object(runtime_set,'IMAGES',{'Cemu'}),patch.object(runtime_set,'EXTRAS',set()),patch.object(runtime_set,'component',return_value=(record,source)):
+            files,desired,_,aliases=runtime_set.deployment(self.root,stage,self.home,self.home/'data',False)
+        target=self.root/'runtime-home/Applications/Cemu.AppImage'
+        self.assertEqual(set(desired),{str(target)});self.assertEqual(aliases,{})
+        files.begin(files.plan(desired,'private'));files.apply()
+        files.begin(files.plan({},'remove'));files.apply()
+        self.assertEqual(existing.read_bytes(),b'EmuDeck runtime');self.assertFalse(target.exists())
+
+    def test_private_flatpak_environment_overrides_inherited_emudeck_paths(self):
+        private,data=runtime_layout.paths(self.root)
+        with patch.dict(os.environ,{'HOME':str(self.home),'FLATPAK_USER_DIR':str(self.home/'emudeck-flatpak')}):
+            flat=Flatpaks(self.root/'isolated-flatpak',data,self.fake)
+            default=Flatpaks(self.root/'runtimes/flatpak',runner=self.fake)
+        self.assertEqual(default.data,data)
+        self.assertEqual(default.env['FLATPAK_USER_DIR'],str(data/'flatpak'))
+        self.assertEqual(flat.env['HOME'],str(private))
+        self.assertEqual(flat.env['FLATPAK_USER_DIR'],str(data/'flatpak'))
+        self.assertEqual(flat.env['XDG_CONFIG_HOME'],str(private/'.config'))
+        self.assertNotEqual(flat.env['HOME'],str(self.home))
+
+    def test_private_home_alias_cannot_redirect_installation_into_user_data(self):
+        (self.root/'runtime-home').symlink_to(self.home,target_is_directory=True)
+        with self.assertRaisesRegex(ValueError,'Linked private'):runtime_layout.paths(self.root)
+
+    def test_old_shared_runtime_candidate_is_not_silently_adopted(self):
+        (self.root/'runtimes').mkdir(exist_ok=True)
+        sw.atomic(self.root/'runtimes/receipt.json',{'active':'old','previous':'','software':''})
+        with self.assertRaisesRegex(ValueError,'shared-target'):manager.plan(self.root,remove=True)
+
+    def test_runtime_maintenance_blocks_private_children_but_not_other_emulators(self):
+        private,_=runtime_layout.paths(self.root)
+        other=subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)'],env=dict(os.environ,HOME=str(self.home)))
+        owned=None
+        try:
+            runtime_set.idle(owned_home=private)
+            owned=subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)'],env=dict(os.environ,HOME=str(private)))
+            with self.assertRaisesRegex(ValueError,'Close TrainerOS'):runtime_set.idle(owned_home=private)
+        finally:
+            for process in (owned,other):
+                if process:process.terminate();process.wait(timeout=5)
 
     def test_changed_existing_code_needs_migration_and_uninstall_restores_it(self):
         self.dst.write_bytes(b'original')
@@ -107,6 +156,10 @@ class RuntimeInstallationTests(unittest.TestCase):
         plan,ref=self.flatplan();self.fp.begin(plan);self.fake.refs[ref]='b'*64
         with self.assertRaisesRegex(ValueError,'preserving'):self.fp.apply()
         self.assertEqual(self.fake.refs[ref],'b'*64)
+
+    def test_flatpak_read_error_is_not_treated_as_an_absent_installation(self):
+        self.fp.run=lambda *a,**k:SimpleNamespace(returncode=1,stdout='',stderr='Permission denied reading installed repository')
+        with self.assertRaisesRegex(ValueError,'Cannot inspect'):self.fp.commit('org.test.Game/aarch64/stable')
 
     def test_flatpak_remove_can_be_undone_after_interruption(self):
         plan,ref=self.flatplan();self.fp.begin(plan);self.fp.apply()

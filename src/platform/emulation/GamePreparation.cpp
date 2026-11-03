@@ -1,3 +1,4 @@
+#include "RuntimePaths.h"
 #include "GamePreparation.h"
 #include "integrations/adventure/retroarch/RetroArchConfiguration.h"
 #include "integrations/adventure/retroarch/RetroArchAdapter.h"
@@ -212,7 +213,7 @@ QString importFile(const File& f,const QString& source,const std::atomic_bool& c
     staged.setAutoRemove(false);return {};
 }
 QString registerDiscFirmware(const QString& directory,const std::atomic_bool& cancel) {
-    auto path=directory+"/integrations/retroarch.json";if(!QFileInfo::exists(path))path=directory+"/integrations/discovered/retroarch.json";
+    auto path=runtimepaths::profileDirectory(directory)+"/retroarch.json";if(!QFileInfo::exists(path))path=runtimepaths::profileDirectory(directory)+"/discovered/retroarch.json";
     const auto original=read(path);auto profile=QJsonDocument::fromJson(original).object();if(profile["version"]!=1)return {};
     const auto root=retroarch::configuredPath(retroarch::readSettings(profile["configFile"].toString()),"system_directory");
     if(!QDir::isAbsolutePath(root))return {};

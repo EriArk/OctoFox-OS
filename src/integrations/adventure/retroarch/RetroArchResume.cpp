@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "RetroArchResume.h"
 #include "RetroArchConfiguration.h"
 #include <QCryptographicHash>
@@ -209,8 +210,8 @@ QString prepareRetroArchResume(ProcessCommand& command, const AdventureRegistrat
     config += setting("global_core_options", settings.value("global_core_options", "false"));
     const auto proofConfig = QDir(proof).filePath("check.cfg");
     if (!writeNew(proofConfig, config)) return "Couldn't write the saved-moment check settings.";
-    QProcess check;
-    auto environment = QProcessEnvironment::systemEnvironment();
+    QProcess check;check.setProcessEnvironment(runtimepaths::environment());
+    auto environment = runtimepaths::environment();
     environment.insert("QT_QPA_PLATFORM", "offscreen"); check.setProcessEnvironment(environment);
     check.setProcessChannelMode(QProcess::MergedChannels);
     check.start(installation.program, installation.prefixArguments + QStringList{"--verbose", "--config", proofConfig,

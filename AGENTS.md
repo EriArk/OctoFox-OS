@@ -1,5 +1,16 @@
 # TrainerOS — active agent / developer contract
 
+**Owner parallel emulator installation and fresh Flip journey, 3 November (latest):**
+TrainerOS installs its own runtimes, Flatpak repository, cores and emulator data
+alongside EmuDeck and existing emulators. Do not adopt, migrate or replace their
+installations/configuration. The earlier shared-target migration candidate is
+superseded. After the isolated installer is prepared and checked, the owner
+authorizes clearing Flip's added software to ordinary Armada and testing the
+complete fresh-user journey. Before removal, preserve games and BIOS in a separate
+microSD folder and verify backups of saves/profiles. Locate missing BIOS on the
+owner's server disk and validate real files, never manufacture readiness marks.
+This reset applies to Flip only; preserve Armada, boot recovery and Odin.
+
 **Owner pre-beta release, 3 November (latest):** prepare the public pre-beta now:
 GitHub-hosted Software OTA and installer over existing Armada, with an up-to-date
 Armada base for the installer/image. This explicitly resumes installer/release

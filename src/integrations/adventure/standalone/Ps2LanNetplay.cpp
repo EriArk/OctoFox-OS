@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "Ps2LanNetplay.h"
 #include "integrations/adventure/DiscPlaylist.h"
 #include "core/model/GamePlayers.h"
@@ -31,7 +32,7 @@ bool verified(const std::atomic_bool& cancel) {
 }
 QJsonObject helper(QString mode,QString path,const std::atomic_bool& cancel) {
     if(!verified(cancel))return {};
-    QProcess process;auto env=QProcessEnvironment::systemEnvironment();env.insert("PYTHONDONTWRITEBYTECODE","1");process.setProcessEnvironment(env);
+    QProcess process;process.setProcessEnvironment(runtimepaths::environment());auto env=runtimepaths::environment();env.insert("PYTHONDONTWRITEBYTECODE","1");process.setProcessEnvironment(env);
     process.start("/usr/bin/python3",{bundleRoot()+"/launcher.py",mode,path});
     if(!process.waitForStarted(3000))return {};
     QElapsedTimer timer;timer.start();QByteArray output;
@@ -44,7 +45,7 @@ QJsonObject helper(QString mode,QString path,const std::atomic_bool& cancel) {
     return QJsonDocument::fromJson(output).object();
 }
 }
-QString bundleRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/ps2-lan";}
+QString bundleRoot(){return runtimepaths::data()+"/TrainerOS/emulators/ps2-lan";}
 QJsonObject netplayIdentity(const AdventureRegistration& record,const std::atomic_bool& cancel,const std::function<void(const QString&)>& observe) {
     if(observe)observe(bundleRoot()+"/manifest.json");
     if(record.adventure.platformId!="ps2"||record.adventure.adapterId!="armsx2"||record.adventure.collectionOnly
@@ -56,7 +57,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& record,const std::atomi
     result["label"]=record.adventure.title.left(96);return result;
 }
 ProcessCommand command(const AdventureRegistration& record,const QJsonObject& expected,QString connection,bool host,const QStringList& inputPrefix) {
-    ProcessCommand result;result.runtimeControls={{"kind","armsx2"},{"game",record.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
+    ProcessCommand result;result.emulatorRuntime=true;result.runtimeControls={{"kind","armsx2"},{"game",record.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
     result.prepare=[record,expected,connection,host,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(!sameMultiplayerGame(netplayIdentity(record,cancel),expected))return "Your PS2 game or its LAN setup changed. Choose the game again.";
         auto dir=std::make_shared<QTemporaryDir>(QDir::tempPath()+"/traineros-ps2-XXXXXX");

@@ -198,7 +198,8 @@ def destination(home, data, identity, name):
 
 
 def deployment(root, stage, home=None, data=None, make_environments=True, progress=lambda *args:None):
-    home = Path(home or Path.home()).absolute(); data = Path(data or os.environ.get('XDG_DATA_HOME', home / '.local/share')).absolute()
+    import runtime_layout
+    home, data = runtime_layout.paths(root)
     files = Files(Path(root) / 'runtimes/files', [home, data]); desired = {}; system = []
     present = {p.name for p in (stage / 'media/runtimes').iterdir() if p.is_dir()}
     if present != NATIVE | IMAGES | EXTRAS: raise ValueError('Incomplete or unknown runtime family set')
@@ -221,10 +222,7 @@ def deployment(root, stage, home=None, data=None, make_environments=True, progre
                 if identity == 'game-capture' and name != 'libexec/traineros/traineros-game-capture': raise ValueError('Unknown capture payload')
                 system.append({'path': target, 'source': str(path), 'sha256': row['sha256'], 'mode': row['mode']}); continue
             dest = destination(home, data, identity, name)
-            for parent in dest.parents:
-                if parent.is_symlink(): aliases[str(parent)] = os.readlink(parent)
-            # Keep existing version-directory aliases, touching only their code.
-            dest = dest.parent.resolve() / dest.name
+            files.path(str(dest))  # Reject aliases rather than following external installations.
             if name == 'manifest.json' and record.get('metadata', {}).get('manifestTemplate'):
                 value = path.read_text().replace('${HOME}', json.dumps(str(home))[1:-1])
                 rendered = stage / 'rendered' / identity / name; rendered.parent.mkdir(parents=True, exist_ok=True)
@@ -237,19 +235,7 @@ def deployment(root, stage, home=None, data=None, make_environments=True, progre
             if name == 'voice': dest = data / 'traineros-voice'
             elif name == 'linked-save': dest = data / 'TrainerOS/runtime/linked-save-20261010.1/venv'
             else: dest = data / 'TrainerOS/emulators' / name / 'transport/venv'
-            dest = dest.parent.resolve() / dest.name
-            if dest.is_dir() and not dest.is_symlink():
-                # Existing exact environments are borrowed, never adopted/deleted.
-                actual = subprocess.check_output([str(dest / 'bin/python'), '-m', 'pip', 'freeze'], text=True, timeout=30).splitlines()
-                wanted = (stage / 'media/python' / (name + '.lock')).read_text().splitlines()
-                if sorted(actual) != sorted(wanted) or sw.sha256(dest / 'bin/python') != sw.sha256(built / 'bin/python'):
-                    raise ValueError('Existing Python environment requires a separate preserved migration: ' + str(dest))
-                def packages(path):
-                    return {key:value for key,value in environment_files(path).items() if '/site-packages/' in key
-                            and not key.endswith('/RECORD')}
-                if packages(dest)!=packages(built):
-                    raise ValueError('Existing Python packages differ from the signed wheels; preserve/review this environment: '+str(dest))
-            else: desired[str(dest)] = {'kind': 'link', 'target': str(built)}
+            desired[str(dest)] = {'kind': 'link', 'target': str(built)}
     return files, desired, system, aliases
 
 
@@ -273,15 +259,17 @@ def check_aliases(aliases):
             raise ValueError('Runtime directory link changed after review')
 
 
-def idle(protected=()):
-    names = {'traineros', 'retroarch', 'ppssppsdl', 'dolphin-emu', 'flycast', 'rmg', 'traineros-ds',
-             'melonds', 'azahar', 'armsx2', 'vita3k', 'xemu', 'cemu', 'rpcs3', 'eden', 'duckstation', 'supermodel', 'odamex'}
+def idle(protected=(), owned_home=None):
+    names = {'traineros'}  # Other launchers' emulators do not belong to this transaction.
     if not Path('/proc').is_dir(): raise ValueError('Runtime activation requires Linux')
     protected={str(Path(p).resolve()) for p in protected}
+    environment_markers = {('HOME='+str(owned_home)).encode(),
+                           ('FLATPAK_USER_DIR='+str(Path(owned_home)/'.local/share/flatpak')).encode()} if owned_home else set()
     for item in Path('/proc').iterdir():
         try:
             if not item.name.isdigit() or item.stat().st_uid != os.getuid(): continue
             if ((item / 'comm').read_text().strip().lower() in names or
-                    protected and str((item/'exe').resolve()) in protected):
+                    protected and str((item/'exe').resolve()) in protected or
+                    environment_markers and environment_markers.intersection((item/'environ').read_bytes().split(b'\0'))):
                 raise ValueError('Close TrainerOS and emulators before runtime installation')
         except (FileNotFoundError, ProcessLookupError, PermissionError): continue

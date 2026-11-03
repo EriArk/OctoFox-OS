@@ -4,6 +4,8 @@
 #include <QTemporaryDir>
 #include <QDir>
 #include <QFile>
+#include <QJsonDocument>
+#include <QScopeGuard>
 
 using namespace trainer;
 class ProcessTests final : public QObject {
@@ -18,6 +20,28 @@ class ProcessTests final : public QObject {
         );
     }
 private slots:
+    void emulatorHomeDoesNotLeakIntoDesktopChildren() {
+        QTemporaryDir dir;
+        const auto old=qgetenv("TRAINEROS_RUNTIME_HOME");
+        const bool had=qEnvironmentVariableIsSet("TRAINEROS_RUNTIME_HOME");
+        const auto restore=qScopeGuard([&]{if(had)qputenv("TRAINEROS_RUNTIME_HOME",old);else qunsetenv("TRAINEROS_RUNTIME_HOME");});
+        const auto home=dir.filePath("private-home");qputenv("TRAINEROS_RUNTIME_HOME",home.toUtf8());
+        ProcessService process;QSignalSpy finished(&process,&ProcessService::finished);
+        const auto output=dir.filePath("environment.json");
+        ProcessCommand command{probe(),{"environment",output},{}};
+        command.emulatorRuntime=true;
+        command.prepare=[](ProcessCommand& cmd,const std::atomic_bool&){cmd.emulatorRuntime=false;return QString();};
+        QVERIFY(process.start(command));QTRY_COMPARE(finished.size(),1);
+        QFile file(output);QVERIFY(file.open(QIODevice::ReadOnly));
+        const auto isolated=QJsonDocument::fromJson(file.readAll()).object();file.close();
+        QCOMPARE(isolated["HOME"].toString(),home);
+        QCOMPARE(isolated["FLATPAK_USER_DIR"].toString(),home+"/.local/share/flatpak");
+        command.emulatorRuntime=false;command.prepare={};
+        QVERIFY(process.start(command));QTRY_COMPARE(finished.size(),2);
+        QVERIFY(file.open(QIODevice::ReadOnly));const auto desktop=QJsonDocument::fromJson(file.readAll()).object();
+        QCOMPARE(desktop["HOME"].toString(),qEnvironmentVariable("HOME"));
+        QCOMPARE(desktop["FLATPAK_USER_DIR"].toString(),qEnvironmentVariable("FLATPAK_USER_DIR"));
+    }
     void supervisorReadinessIsSplitSafeAndNeverCountsLauncherOnlyRuns() {
         ProcessService process;QSignalSpy started(&process,&ProcessService::started),finished(&process,&ProcessService::finished);
         ProcessCommand command{probe(),{"delayed-ready"},{}};command.readyMarker="GAME_READY";

@@ -1,6 +1,7 @@
 test_changed_existing_code_needs_migration_and_uninstall_restores_it (RuntimeInstallationTests.RuntimeInstallationTests.test_changed_existing_code_needs_migration_and_uninstall_restores_it) ... ok
 test_flatpak_external_update_blocks_recovery (RuntimeInstallationTests.RuntimeInstallationTests.test_flatpak_external_update_blocks_recovery) ... ok
 test_flatpak_install_remove_retains_app_data_and_never_forces_dependencies (RuntimeInstallationTests.RuntimeInstallationTests.test_flatpak_install_remove_retains_app_data_and_never_forces_dependencies) ... ok
+test_flatpak_read_error_is_not_treated_as_an_absent_installation (RuntimeInstallationTests.RuntimeInstallationTests.test_flatpak_read_error_is_not_treated_as_an_absent_installation) ... ok
 test_flatpak_remove_can_be_undone_after_interruption (RuntimeInstallationTests.RuntimeInstallationTests.test_flatpak_remove_can_be_undone_after_interruption) ... ok
 test_full_transaction_can_resume_after_inner_commit (RuntimeInstallationTests.RuntimeInstallationTests.test_full_transaction_can_resume_after_inner_commit) ... ok
 test_incomplete_media_preparation_retries_and_changed_ready_media_is_rejected (RuntimeInstallationTests.RuntimeInstallationTests.test_incomplete_media_preparation_retries_and_changed_ready_media_is_rejected) ... ok
@@ -18,6 +19,6 @@ test_symlink_parent_and_escape_are_rejected (RuntimeInstallationTests.RuntimeIns
 test_unsigned_archive_entries_and_path_traversal_are_rejected (RuntimeInstallationTests.RuntimeInstallationTests.test_unsigned_archive_entries_and_path_traversal_are_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 18 tests in 13.674s
+Ran 19 tests in 11.464s
 
 OK

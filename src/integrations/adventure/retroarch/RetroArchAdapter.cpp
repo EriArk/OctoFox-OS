@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "RetroArchAdapter.h"
 #include <QStandardPaths>
 #include "RetroArchAppearance.h"
@@ -73,9 +74,9 @@ RetroArchInstallation RetroArchInstallation::fromJson(const QJsonObject& object)
         const auto path=QDir(coresDirectory).absoluteFilePath(name+"_libretro.so");
         if(QFileInfo(path).isFile()&&QFileInfo(path).isReadable())result.cores.insert(name,path);
     }
-    const auto cbin=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/pcsx-rearmed-cbin/core.so";
+    const auto cbin=runtimepaths::data()+"/TrainerOS/emulators/pcsx-rearmed-cbin/core.so";
     if(QFileInfo(cbin).isFile())result.cores.insert("pcsx_rearmed_cbin",cbin);
-    const auto neoCdNetplay=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/neocd-netplay/core.so";
+    const auto neoCdNetplay=runtimepaths::data()+"/TrainerOS/emulators/neocd-netplay/core.so";
     if(QFileInfo(neoCdNetplay).isFile())result.cores.insert("neocd_netplay",neoCdNetplay);
     if (QFileInfo(object.value("runtimeFile").toString()).isAbsolute())
         result.runtimeFile = object.value("runtimeFile").toString();
@@ -87,7 +88,7 @@ RetroArchInstallation RetroArchInstallation::fromJson(const QJsonObject& object)
         }
     }
     result.saveBackups = object.value("backupProtocol").toString() == "mgba-sram-v1";
-    const auto linkedSaveRoot=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/runtime/linked-save-20261010.1/";
+    const auto linkedSaveRoot=runtimepaths::data()+"/TrainerOS/runtime/linked-save-20261010.1/";
     // A fresh discovery profile has no developer-machine paths. Use the installed
     // companion only when neither field was explicitly configured; admission still
     // verifies the helper's exact digest before any protected-save exchange.
@@ -172,7 +173,7 @@ std::optional<ProcessCommand> RetroArchAdapter::command(const AdventureRegistrat
     auto arguments = installation_.prefixArguments;
     arguments << "--fullscreen" << "--config" << installation_.configFile
               << "--libretro" << installation_.cores.value(core) << record->contentPath;
-    ProcessCommand result{installation_.program, arguments, {}};
+    ProcessCommand result{installation_.program, arguments, {}};result.emulatorRuntime=true;
     result.inspectOutput=[](const QByteArray& bytes)->QString {
         const auto output=bytes.toLower();
         if(output.contains("failed to load content") || output.contains("failed to load libretro core")

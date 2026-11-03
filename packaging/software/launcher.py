@@ -13,6 +13,7 @@ import sys
 import time
 import installation as install
 import releases as sw
+import runtime_layout
 
 
 def run(root, arguments=()):
@@ -36,6 +37,12 @@ def run(root, arguments=()):
             reader, writer = os.pipe()
             env = dict(os.environ, TRAINEROS_SOFTWARE_ROOT=str(root), TRAINEROS_READY_FD=str(writer),
                        TRAINEROS_SOFTWARE_MANAGED='1', TRAINEROS_SOFTWARE_CHANNEL=install.selected_channel(root))
+            runtimes = install.read(root/'runtimes/receipt.json', {})
+            env.pop('TRAINEROS_RUNTIME_HOME', None)
+            if runtimes.get('active'):
+                if runtimes.get('layout') != runtime_layout.LAYOUT:
+                    raise ValueError('This runtime candidate predates isolated installation. Use the updated Setup.')
+                env['TRAINEROS_RUNTIME_HOME'] = str(runtime_layout.paths(root)[0])
             # Optional bundled libraries are part of the signed, verified tree.
             if (payload / 'lib').is_dir(): env['LD_LIBRARY_PATH'] = str(payload / 'lib')
             if (payload / 'plugins').is_dir(): env['QT_PLUGIN_PATH'] = str(payload / 'plugins')

@@ -1056,6 +1056,21 @@ private slots:
         QCOMPARE(command.program,probe());QCOMPARE(command.arguments,QStringList{"/roms/game.iso"});
         QVERIFY(!command.settled);
     }
+    void managedDiscoveryPreservesLegacyProfilesAndUsesPrivateConfig() {
+        QTemporaryDir dir;
+        EmulatorEnvironment env;env.managed=true;env.home=dir.filePath("runtime-home");
+        env.configHome=env.home+"/.config";env.stateDirectory=dir.filePath("state");env.libraryRoot=dir.filePath("roms");
+        env.executables={{"PPSSPPSDL",probe()}};
+        const auto legacy=env.stateDirectory+"/integrations/ppsspp.json";
+        QVERIFY(QDir().mkpath(QFileInfo(legacy).absolutePath()));
+        write(legacy,"legacy custom emulator profile");
+        const auto found=prepareEmulators(env);
+        QVERIFY(found.profiles.contains("ppsspp"));
+        QVERIFY(found.profiles["ppsspp"]["initialConfigDirectory"].toString().startsWith(env.home+'/'));
+        QFile saved(legacy);QVERIFY(saved.open(QIODevice::ReadOnly));QCOMPARE(saved.readAll(),QByteArray("legacy custom emulator profile"));
+        QVERIFY(QFileInfo::exists(env.stateDirectory+"/integrations/managed/discovered/ppsspp.json"));
+        QVERIFY(!QFileInfo::exists(env.stateDirectory+"/integrations/discovered/ppsspp.json"));
+    }
     void discoveryIsAutomaticAndPreservesUserSettingsAndRoute() {
         QTemporaryDir dir;
         EmulatorEnvironment env; env.home=dir.path();env.configHome=dir.filePath("config");

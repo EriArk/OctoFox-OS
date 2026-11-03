@@ -328,8 +328,8 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
                 stage=runtimes.prepare(root,runtime_manifest,runtime_archive,progress.update)
                 try: job=runtime_manager.plan(root,stage,result['prepared'],progress=progress.update)
                 except ValueError as error:
-                    if 'requires migration with a backup' not in str(error) and 'needs migration with a recovery copy' not in str(error): raise
-                    if dialog('--yesno','Existing emulator code must be replaced. Setup will retain originals for recovery. Personal saves, BIOS and configuration files are kept.\n\n'+str(error)+'\n\nMigrate this runtime set?').returncode: return 0
+                    if 'needs migration with a recovery copy' not in str(error): raise
+                    if dialog('--yesno','An earlier TrainerOS system helper needs updating. Setup will retain its original for recovery. Your other emulators are not modified.\n\n'+str(error)+'\n\nUpdate this TrainerOS helper?').returncode: return 0
                     job=runtime_manager.plan(root,stage,result['prepared'],migrate=True,progress=progress.update)
             progress.update('Installing verified files')
             progress.call('showCancelButton', 'false')

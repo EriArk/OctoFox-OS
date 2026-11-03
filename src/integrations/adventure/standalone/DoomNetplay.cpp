@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "DoomNetplay.h"
 #include "CabinetConnection.h"
@@ -37,7 +38,7 @@ bool bundle(const std::atomic_bool& cancel) {
     return QFileInfo("/usr/bin/python3").isExecutable() && QFileInfo("/usr/bin/bwrap").isExecutable();
 }
 QJsonObject content(const QString& path, const std::atomic_bool& cancel) {
-    QProcess p; p.setStandardErrorFile(QProcess::nullDevice());
+    QProcess p;p.setProcessEnvironment(runtimepaths::environment()); p.setStandardErrorFile(QProcess::nullDevice());
     p.start("/usr/bin/python3", {"-I", bundleRoot() + "/content.py", path});
     if (!p.waitForStarted(3000)) return {};
     QByteArray bytes; QElapsedTimer timer; timer.start();
@@ -51,7 +52,7 @@ QJsonObject content(const QString& path, const std::atomic_bool& cancel) {
 }
 ProcessCommand launch(const AdventureRegistration& r, const QJsonObject& expected, const QString& connection,
                       bool host, const QStringList& inputPrefix, bool network) {
-    ProcessCommand cmd;
+    ProcessCommand cmd;cmd.emulatorRuntime=true;
     cmd.runtimeControls = {{"kind", "odamex"}, {"game", r.adventure.id}};
     if (network) { cmd.runtimeControls["netplay"] = expected.toVariantMap(); cmd.runtimeControls["temporaryProgress"] = true; }
     cmd.prepare = [r, expected, connection, host, inputPrefix, network](ProcessCommand& out, const std::atomic_bool& cancel)->QString {
@@ -62,7 +63,7 @@ ProcessCommand launch(const AdventureRegistration& r, const QJsonObject& expecte
             const auto c = flycast::CabinetConnection::read(connection);
             if (!c.valid() || (c.seat == 1) != host) return "The Doom lobby seats changed.";
         }
-        const auto state = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
+        const auto state = runtimepaths::data()
             + "/TrainerOS/doom/" + current["content"].toString() + (network ? "/network" : "/solo");
         if (!QDir().mkpath(state)) return "Couldn't prepare your Doom settings.";
         auto lock = std::make_shared<QLockFile>(state + "/session.lock"); lock->setStaleLockTime(0);
@@ -83,7 +84,7 @@ ProcessCommand launch(const AdventureRegistration& r, const QJsonObject& expecte
     return cmd;
 }
 }
-QString bundleRoot() { return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/TrainerOS/emulators/odamex"; }
+QString bundleRoot() { return runtimepaths::data() + "/TrainerOS/emulators/odamex"; }
 QJsonObject netplayIdentity(const AdventureRegistration& r, const std::atomic_bool& cancel,
                            const std::function<void(const QString&)>& observe) {
     if (r.adventure.platformId != "doom" || r.adventure.adapterId != "odamex" || r.adventure.collectionOnly || !bundle(cancel)) return {};

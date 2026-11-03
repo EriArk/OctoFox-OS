@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "RmgNetplay.h"
 #include "integrations/adventure/CartridgeContent.h"
 #include "NetplayCache.h"
@@ -39,7 +40,7 @@ bool serverUrl(const QUrl& url) {
         &&(url.scheme()=="wss"||(url.scheme()=="ws"&&!QHostAddress(url.host()).isNull()));
 }
 }
-QString bundleRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/rmg-netplay";}
+QString bundleRoot(){return runtimepaths::data()+"/TrainerOS/emulators/rmg-netplay";}
 QJsonObject bundle(const std::atomic_bool& cancel) {
     const auto root=bundleRoot();QFile file(root+"/manifest.json");
     if(!file.open(QIODevice::ReadOnly)||file.size()>65536)return {};
@@ -106,7 +107,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& r,const std::atomic_boo
 }
 ProcessCommand command(const AdventureRegistration& r,const QJsonObject& expected,const QString& address,
                        int port,int controller,const QStringList& inputPrefix) {
-    ProcessCommand cmd;
+    ProcessCommand cmd;cmd.emulatorRuntime=true;
     cmd.runtimeControls={{"kind","rmg"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},
                          {"temporaryProgress",true}};
     cmd.prepare=[r,expected,address,port,controller,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
@@ -140,7 +141,7 @@ ProcessCommand command(const AdventureRegistration& r,const QJsonObject& expecte
     return cmd;
 }
 ProcessCommand privateCommand(const AdventureRegistration& r,const Lobby::Request& request,const QStringList& inputPrefix) {
-    ProcessCommand cmd;
+    ProcessCommand cmd;cmd.emulatorRuntime=true;
     cmd.runtimeControls={{"kind","rmg"},{"game",r.adventure.id},{"netplay",request.identity.toVariantMap()},
                          {"temporaryProgress",true}};
     cmd.prepare=[r,request,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {

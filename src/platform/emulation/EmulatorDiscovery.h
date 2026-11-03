@@ -13,6 +13,7 @@ struct EmulatorEnvironment {
     QString controllerName;
     QHash<QString, int> controllerButtons; // melonDS raw SDL button/hat encoding
     QHash<QString, QString> switchBindings; // Eden native SDL parameter packages
+    bool managed = false;
 };
 struct EmulatorDiscovery {
     QHash<QString, QJsonObject> profiles;

@@ -5,21 +5,28 @@ from pathlib import Path
 import subprocess
 import installation as install
 import releases as sw
+import runtime_layout
 
 
 class Flatpaks:
     def __init__(self, root, data=None, runner=subprocess.run):
-        self.root = install.private(root); self.data = Path(data or os.environ.get('XDG_DATA_HOME', Path.home()/'.local/share'))
-        self.run = runner; self.env = dict(os.environ, XDG_DATA_HOME=str(self.data), TMPDIR=str(self.root))
+        self.root = install.private(root)
+        self.data = Path(data) if data is not None else runtime_layout.paths(self.root.parent.parent)[1]
+        self.run = runner
+        self.env = runtime_layout.environment(self.data.parent.parent, os.environ)
+        self.env.update(XDG_DATA_HOME=str(self.data), FLATPAK_USER_DIR=str(self.data/'flatpak'),
+                        TMPDIR=str(self.root), LC_ALL='C')
 
     def command(self, args):
         p = self.run(['flatpak', *args], env=self.env, capture_output=True, text=True, timeout=1800)
         if p.returncode: raise ValueError('Flatpak operation failed: ' + p.stderr[-2000:])
         return p.stdout.strip()
 
-    def commit(self, ref, scope='user'):
-        p = self.run(['flatpak', '--'+scope, 'info', '--show-commit', ref], env=self.env, capture_output=True, text=True, timeout=30)
-        if p.returncode: return ''
+    def commit(self, ref):
+        p = self.run(['flatpak', '--user', 'info', '--show-commit', ref], env=self.env, capture_output=True, text=True, timeout=30)
+        if p.returncode:
+            if 'not installed' in p.stderr: return ''
+            raise ValueError('Cannot inspect the existing Flatpak installation: '+p.stderr[-2000:])
         value = p.stdout.strip()
         if not sw.HASH.fullmatch(value): raise ValueError('Invalid installed Flatpak identity')
         return value

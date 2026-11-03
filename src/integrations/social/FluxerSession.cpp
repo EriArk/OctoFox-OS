@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "FluxerSession.h"
 #include "features/adventure/GameParty.h"
 #include "AltchaProof.h"
@@ -866,7 +867,7 @@ void FluxerSession::mergeMessage(const QJsonObject& message) {
 }
 bool FluxerSession::voiceAvailable() const {
 #ifdef Q_OS_LINUX
-    static const bool available=QFileInfo((qEnvironmentVariable("XDG_DATA_HOME").isEmpty()?QDir::homePath()+"/.local/share":qEnvironmentVariable("XDG_DATA_HOME"))+"/traineros-voice/bin/python").isExecutable()
+    static const bool available=QFileInfo(runtimepaths::data()+"/traineros-voice/bin/python").isExecutable()
         &&QFileInfo("/var/opt/traineros/integrations/fluxer-voice.py").isFile();
     return available;
 #else
@@ -1045,7 +1046,7 @@ void FluxerSession::voiceGrant(const QJsonObject& grant) {
     clearStreams();
     voicePeople_.clear();voiceSpeakers_.clear();
     voiceState_="connecting";voiceStatus_="Connecting audio...";voiceDeadline_.start(20000);
-    voiceProcess_.start((qEnvironmentVariable("XDG_DATA_HOME").isEmpty()?QDir::homePath()+"/.local/share":qEnvironmentVariable("XDG_DATA_HOME"))+"/traineros-voice/bin/python",{"/var/opt/traineros/integrations/fluxer-voice.py"});
+    voiceProcess_.start(runtimepaths::data()+"/traineros-voice/bin/python",{"/var/opt/traineros/integrations/fluxer-voice.py"});
     auto configured=grant;configured["audio"]=audioConfiguration();
     voiceProcess_.write(QJsonDocument(configured).toJson(QJsonDocument::Compact)+'\n');voiceHeartbeat_.start();publish();
 }

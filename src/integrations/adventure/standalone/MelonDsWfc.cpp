@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "MelonDsWfc.h"
 #include "integrations/adventure/CartridgeContent.h"
@@ -71,7 +72,7 @@ bool unpack(const QByteArray& bytes,const QString& dir) {
     return (!size||write(sram(dir),bytes.mid(9,size)))&&(!flag||write(wifi(dir),bytes.right(WifiBytes)));
 }
 }
-QString bundleRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/melonds-wfc";}
+QString bundleRoot(){return runtimepaths::data()+"/TrainerOS/emulators/melonds-wfc";}
 QJsonObject identity(const AdventureRegistration& r,const RetroArchInstallation& installation,const std::atomic_bool& cancel,
                      const std::function<void(const QString&)>& observe) {
     if(r.adventure.platformId!="nds"||r.adventure.collectionOnly)return {};
@@ -84,7 +85,7 @@ QJsonObject identity(const AdventureRegistration& r,const RetroArchInstallation&
         {"players",4},{"lateJoin",false},{"privateProgress",false},{"temporaryProgress",false},{"connections",QJsonArray{"online"}}};
 }
 ProcessCommand command(const AdventureRegistration& r,const RetroArchInstallation& installation,const QJsonObject& expected,QString owner,QString backupRoot) {
-    ProcessCommand cmd;cmd.runtimeControls={{"kind","retroarch"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
+    ProcessCommand cmd;cmd.emulatorRuntime=true;cmd.runtimeControls={{"kind","retroarch"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
     cmd.prepare=[=](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(owner.isEmpty()||owner.size()>128||!QDir::isAbsolutePath(backupRoot)||QFileInfo(backupRoot).isSymLink())return "Your WFC save owner is unavailable.";
         if(!sameMultiplayerGame(identity(r,installation,cancel),expected))return "Your DS game or WFC runtime changed. Choose it again.";

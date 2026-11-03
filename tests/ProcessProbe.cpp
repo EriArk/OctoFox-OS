@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <cstdlib>
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -19,6 +20,13 @@ int main(int argc, char** argv) {
 #endif
     QCoreApplication app(argc, argv);
     const auto args = app.arguments();
+    if (args.size() == 3 && args[1] == "environment") {
+        QFile file(args[2]); if (!file.open(QIODevice::WriteOnly)) return 3;
+        QJsonObject result;
+        for (const auto* key : {"HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME", "FLATPAK_USER_DIR"})
+            result[key]=qEnvironmentVariable(key);
+        file.write(QJsonDocument(result).toJson()); return 0;
+    }
     if (args.size() == 3 && args[1] == "--psp-content") {
         QFile input(args[2]), output;
         if (!input.open(QIODevice::ReadOnly) || !output.open(stdout,QIODevice::WriteOnly)) return 3;

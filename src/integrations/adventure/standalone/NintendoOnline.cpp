@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "NintendoOnline.h"
 #include "DolphinNetplay.h"
@@ -63,16 +64,16 @@ Setup setup(const QString& platform,const QString& stateDirectory) {
     Setup s;s.platform=platform;const auto a=adapter(platform);if(a.isEmpty())return s;
     QSettings preferences;s.service=preferences.value("nintendo-online/"+platform+"/service","off").toString();
     s.prepared=preferences.value("nintendo-online/"+platform+"/prepared/"+s.service,false).toBool();
-    auto path=stateDirectory+"/integrations/"+a+".json";
-    if(!QFileInfo::exists(path))path=stateDirectory+"/integrations/discovered/"+a+".json";
+    auto path=runtimepaths::profileDirectory(stateDirectory)+"/"+a+".json";
+    if(!QFileInfo::exists(path))path=runtimepaths::profileDirectory(stateDirectory)+"/discovered/"+a+".json";
     const auto object=QJsonDocument::fromJson(read(path,65536)).object();
     s.installation=StandaloneInstallation::fromJson(object,a);
     const auto name=platform=="wii"?QString("dolphin-emu"):platform=="n3ds"?QString("azahar-emu"):QString("Cemu");
-    s.config=QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)+'/'+name;
-    s.data=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+'/'+name;
+    s.config=runtimepaths::config()+'/'+name;
+    s.data=runtimepaths::data()+'/'+name;
     const auto app=platform=="wii"?QString("org.DolphinEmu.dolphin-emu"):platform=="n3ds"?QString("org.azahar_emu.Azahar"):QString("info.cemu.Cemu");
     if(s.installation.prefixArguments.contains(app)) {
-        const auto base=QDir::homePath()+"/.var/app/"+app;
+        const auto base=runtimepaths::userHome()+"/.var/app/"+app;
         s.config=base+"/config/"+name;s.data=base+"/data/"+name;
     }
     // Upstream portable layouts take precedence over XDG directories.
@@ -161,7 +162,7 @@ QJsonObject identity(const AdventureRegistration& r,const Setup& s,const std::at
         {"players",4},{"lateJoin",false},{"privateProgress",false},{"temporaryProgress",false},{"connections",QJsonArray{"online"}}};
 }
 ProcessCommand command(const AdventureRegistration& r,const Setup& s,const QJsonObject& expected) {
-    ProcessCommand cmd{s.installation.program,s.installation.prefixArguments,{}};
+    ProcessCommand cmd{s.installation.program,s.installation.prefixArguments,{}};cmd.emulatorRuntime=true;
     cmd.runtimeControls={{"kind",adapter(s.platform)},{"game",r.adventure.id}};
     cmd.prepare=[r,s,expected](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         const auto error=check(s);if(!error.isEmpty())return error;

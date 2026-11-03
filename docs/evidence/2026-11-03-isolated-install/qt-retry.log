@@ -1,0 +1,95 @@
+[  0%] Built target trainer_core_autogen_timestamp_deps
+[  0%] Built target traineros_qmlimportscan
+[  0%] Built target traineros_copy_qml
+[  0%] Built target traineros_copy_res
+[  0%] Built target trainer_process_probe_autogen_timestamp_deps
+[  0%] Built target generate_qmlls_build_ini_file
+[  0%] Built target trainer_core_resources_1
+[  0%] Built target trainer_core_resources_2
+[  0%] Built target trainer_core_resources_3
+[  0%] Built target trainer_core_resources_4
+[  0%] Built target trainer_core_resources_5
+[  1%] Built target trainer_core_resources_6
+[  1%] Built target trainer_core_resources_7
+[  1%] Built target trainer_core_resources_8
+[  1%] Built target trainer_process_probe_autogen
+[  1%] Built target trainer_process_probe
+[  1%] Built target trainer_core_autogen
+[ 35%] Built target trainer_core
+[ 35%] Built target traineros_autogen_timestamp_deps
+[ 35%] Built target traineros_autogen
+[ 35%] Generating meta_types/qt6traineros_metatypes.json
+[ 35%] Generating meta_types/qt6traineros_metatypes.json
+[ 37%] Linking CXX executable traineros
+[100%] Built target traineros
+[  0%] Built target trainer_core_autogen_timestamp_deps
+[  0%] Built target trainer_process_probe_autogen_timestamp_deps
+[  0%] Built target trainer_core_resources_1
+[  0%] Built target trainer_core_resources_2
+[  0%] Built target trainer_core_resources_3
+[  0%] Built target trainer_core_resources_4
+[  0%] Built target trainer_standalone_tests_qmlimportscan
+[  0%] Built target trainer_core_resources_5
+[  5%] Built target trainer_core_resources_6
+[  5%] Built target trainer_core_resources_7
+[  5%] Built target trainer_core_resources_8
+[  5%] Built target trainer_core_autogen
+[  5%] Built target trainer_process_probe_autogen
+[  5%] Built target trainer_process_probe
+[100%] Built target trainer_core
+[100%] Built target trainer_standalone_tests_autogen_timestamp_deps
+[100%] Automatic MOC for target trainer_standalone_tests
+[100%] Built target trainer_standalone_tests_autogen
+[100%] Building CXX object CMakeFiles/trainer_standalone_tests.dir/tests/StandaloneTests.cpp.o
+[100%] Linking CXX executable trainer_standalone_tests
+[100%] Built target trainer_standalone_tests
+[  0%] Built target trainer_core_autogen_timestamp_deps
+[  0%] Built target trainer_process_probe_autogen_timestamp_deps
+[  0%] Built target trainer_process_tests_qmlimportscan
+[  0%] Built target trainer_core_resources_1
+[  0%] Built target trainer_core_resources_2
+[  0%] Built target trainer_core_resources_3
+[  0%] Built target trainer_core_resources_4
+[  5%] Built target trainer_core_resources_6
+[  5%] Built target trainer_core_resources_5
+[  5%] Built target trainer_core_resources_7
+[  5%] Built target trainer_core_resources_8
+[  5%] Built target trainer_core_autogen
+[  5%] Built target trainer_process_probe_autogen
+[  5%] Built target trainer_process_probe
+[100%] Built target trainer_core
+[100%] Built target trainer_process_tests_autogen_timestamp_deps
+[100%] Built target trainer_process_tests_autogen
+[100%] Built target trainer_process_tests
+********* Start testing of StandaloneTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (arm64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : StandaloneTests::initTestCase()
+PASS   : StandaloneTests::managedDiscoveryPreservesLegacyProfilesAndUsesPrivateConfig()
+PASS   : StandaloneTests::cleanupTestCase()
+Totals: 3 passed, 0 failed, 0 skipped, 0 blacklisted, 4ms
+********* Finished testing of StandaloneTests *********
+********* Start testing of ProcessTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (arm64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : ProcessTests::initTestCase()
+PASS   : ProcessTests::emulatorHomeDoesNotLeakIntoDesktopChildren()
+PASS   : ProcessTests::supervisorReadinessIsSplitSafeAndNeverCountsLauncherOnlyRuns()
+PASS   : ProcessTests::lostSettingsChannelIsNotOfferedAgainInTheSameSession()
+PASS   : ProcessTests::liveSettingsUseSessionWorkerAndSerializeWithExit()
+PASS   : ProcessTests::gameConfigurationUsesLiveIdentityAndFinalizesFailedStart()
+PASS   : ProcessTests::minimizedSessionKeepsProcessAndLatestShellReturnContext()
+PASS   : ProcessTests::finalizationPrecedesObservationAndReportsSaveFailure()
+PASS   : ProcessTests::returnObservationRunsOffGuiBeforeFinishedAndNextLaunch()
+PASS   : ProcessTests::cancelledPreparationSettlesOnceWithoutStartingChild()
+PASS   : ProcessTests::preparationIsAsyncCancellableAndCannotStartLate()
+PASS   : ProcessTests::preparationCanSelectTheValidatedExecutable()
+PASS   : ProcessTests::preparationFailureNeverStartsAChild()
+PASS   : ProcessTests::cancellingAdapterPreparationIsNotAFailedGame()
+PASS   : ProcessTests::adapterOutputFailureStopsOnlyItsOwnedChild()
+PASS   : ProcessTests::checkpointsBeforeStartingAndRestores()
+PASS   : ProcessTests::failedOrCancelledCheckpointNeverStarts()
+PASS   : ProcessTests::confirmedLocalLaunchUpdatesOnlyHomeInTheReturnCheckpoint()
+PASS   : ProcessTests::actualCrashAndStopRestoreExactlyOnce()
+PASS   : ProcessTests::argumentsAreLiteralWithoutShellInterpretation()
+PASS   : ProcessTests::cleanupTestCase()
+Totals: 21 passed, 0 failed, 0 skipped, 0 blacklisted, 5030ms
+********* Finished testing of ProcessTests *********

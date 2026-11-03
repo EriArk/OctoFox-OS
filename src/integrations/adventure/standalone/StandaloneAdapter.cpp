@@ -143,7 +143,7 @@ std::optional<ProcessCommand> StandaloneAdapter::command(const Adventure& advent
     else if (id_ == "dolphin") arguments << "-b" << "-C" << "Dolphin.Display.Fullscreen=True"
         << "-C" << "Dolphin.Interface.ConfirmStop=False" << "-e" << record->contentPath;
     else return {};
-    ProcessCommand result{installation_.program, arguments, {}};
+    ProcessCommand result{installation_.program, arguments, {}};result.emulatorRuntime=true;
     result.runtimeControls={{"kind",id_},{"game",adventure.id}};
     result.prepare = [record=*record,path = record->contentPath, program = installation_.program, runtime = installation_.runtimeFile, vita = id_ == "vita3k", ds = id_ == "melonds", ps2 = id_ == "armsx2", azahar=id_=="azahar"]
         (ProcessCommand& out, const std::atomic_bool& cancel) -> QString {

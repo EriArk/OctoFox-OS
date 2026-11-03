@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "DolphinNetplay.h"
 #include "NetplayCache.h"
 #include "integrations/adventure/DiscPlaylist.h"
@@ -17,7 +18,7 @@
 #include <QCryptographicHash>
 
 namespace trainer::dolphin {
-QString bridgeRoot() {return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/dolphin-netplay";}
+QString bridgeRoot() {return runtimepaths::data()+"/TrainerOS/emulators/dolphin-netplay";}
 QString bridgeFile() {return bridgeRoot()+"/bin/dolphin-emu";}
 QString contentIdentity(const QString& path,qint64 limit,const std::atomic_bool& cancel,const std::function<void(const QString&)>& observe) {
     if(observe)observe(path);
@@ -103,7 +104,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& r,const StandaloneInsta
         const auto tool=bridgeRoot()+"/bin/dolphin-tool";
         const auto toolHash=retroarch::fileDigest(tool,128*1024*1024,cancel);
         if(toolHash.isEmpty()||toolHash!=m["toolSha256"].toString())return {};
-        QProcess probe;probe.setProgram(tool);probe.setArguments({"header","-j","-i",r.contentPath});
+        QProcess probe;probe.setProcessEnvironment(runtimepaths::environment());probe.setProgram(tool);probe.setArguments({"header","-j","-i",r.contentPath});
         probe.setStandardErrorFile(QProcess::nullDevice());probe.start();
         if(!probe.waitForStarted(1500))return {};
         QElapsedTimer elapsed;elapsed.start();
@@ -159,7 +160,7 @@ QString configureNetplay(ProcessCommand& cmd,const StandaloneInstallation& i,con
     // Copy only input mapping. All NetPlay/game settings are session-owned;
     // no memory-card path, per-game override or ordinary save is writable here.
     const QString inputFile=wii?"WiimoteNew.ini":"GCPadNew.ini";
-    const auto source=i.configFile.isEmpty()?QDir::homePath()+"/.var/app/org.DolphinEmu.dolphin-emu/config/dolphin-emu/"+inputFile:QFileInfo(i.configFile).dir().filePath(inputFile);
+    const auto source=i.configFile.isEmpty()?runtimepaths::userHome()+"/.var/app/org.DolphinEmu.dolphin-emu/config/dolphin-emu/"+inputFile:QFileInfo(i.configFile).dir().filePath(inputFile);
     if(QFileInfo(source).size()>1024*1024||!QFile::copy(source,root+"/Config/"+inputFile))return "Couldn't read your controller settings.";
     const auto write=[](const QString& path,const QByteArray& bytes){QSaveFile f(path);return f.open(QIODevice::WriteOnly)&&f.write(bytes)==bytes.size()&&f.commit();};
     QByteArray config="[Interface]\nConfirmStop = False\nOnScreenDisplayMessages = False\n[Display]\nFullscreen = True\nRenderToMain = False\n"

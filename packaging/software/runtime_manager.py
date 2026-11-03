@@ -12,6 +12,7 @@ import uuid
 import installation as install
 import releases as sw
 import runtime_set as runtime
+import runtime_layout
 from runtime_transaction import Files
 from runtime_flatpak import Flatpaks
 
@@ -45,9 +46,10 @@ def plan(root, stage=None, prepared=None, *, remove=False, migrate=False, home=N
          make_environments=True, runner=subprocess.run, software_receipt=None, progress=lambda *args:None):
     root=Path(root)
     if pending(root): raise ValueError('Recover the interrupted full installation first')
-    home=Path(home or Path.home()).absolute()
-    data=Path(data or os.environ.get('XDG_DATA_HOME',home/'.local/share')).absolute()
+    home,data=runtime_layout.paths(root)
     before=receipt(root); before_software=install.receipt(root)
+    if before['active'] and before.get('layout') != runtime_layout.LAYOUT:
+        raise ValueError('Old shared-target runtime candidate must be recovered/removed with its original Setup')
     ident=uuid.uuid4().hex; envelope=None
     if remove:
         files=Files(root/'runtimes/files',[home,data]); desired={}; system_rows=[]; aliases={}
@@ -71,9 +73,9 @@ def plan(root, stage=None, prepared=None, *, remove=False, migrate=False, home=N
         files,desired,system_rows,aliases=runtime.deployment(root,stage,home,data,make_environments,progress)
         progress('Preparing Flatpak recovery copies')
         flatplan=Flatpaks(root/'runtimes/flatpak',data,runner).plan(stage,runtime.flatpak_rows(stage),migrate)
-        next_receipt={'active':expected,'previous':before['active'] if expected!=before['active'] else before['previous'],
+        next_receipt={'layout':runtime_layout.LAYOUT,'active':expected,'previous':before['active'] if expected!=before['active'] else before['previous'],
                       'software':''}
-    fileplan=files.plan(desired,ident,migrate)
+    fileplan=files.plan(desired,ident,False)
     if not migrate:
         for row in system_rows:
             path=Path('/var/opt/traineros/integrations')/row['path']
@@ -93,7 +95,7 @@ def begin(root, job, runner=subprocess.run):
     root=Path(root)
     if pending(root): raise ValueError('Full installation recovery is pending')
     runtime.check_aliases(job['aliases'])
-    runtime.idle(op['path'] for op in job['files']['operations'])
+    runtime.idle((op['path'] for op in job['files']['operations']), owned_home=job['home'])
     files,flatpaks=engines(root,job,runner)
     # Outer intent precedes even the first inner journal write.
     sw.atomic(root/'runtimes/transaction.json',job)
@@ -113,7 +115,7 @@ def apply(root, *, reverse=False, runner=subprocess.run, system_action=system, c
         job['direction']='rollback'; sw.atomic(root/'runtimes/transaction.json',job)
     reverse=job['direction']=='rollback'
     runtime.check_aliases(job['aliases'])
-    runtime.idle(op['path'] for op in job['files']['operations'])
+    runtime.idle((op['path'] for op in job['files']['operations']), owned_home=job['home'])
     files,flatpaks=engines(root,job,runner)
     reopen(files.root,job['files']); reopen(flatpaks.root,job['flatpak'])
     files.apply(reverse,finish=False,checkpoint=lambda *args:checkpoint('runtime-files')); checkpoint('files')
@@ -163,12 +165,13 @@ def rollback_plan(root, **kwargs):
 def audit(root, runner=subprocess.run):
     root=Path(root); problems=[]
     if pending(root): problems.append('Full installation needs recovery')
-    files=Files(root/'runtimes/files',[Path.home(),Path(os.environ.get('XDG_DATA_HOME',Path.home()/'.local/share'))])
+    home,data=runtime_layout.paths(root)
+    files=Files(root/'runtimes/files',[home])
     for path,state in files.owned().items():
         try:
             if files.snapshot(path)!=state: problems.append('Changed runtime code: '+path)
         except (OSError,ValueError) as error: problems.append(str(error))
-    flatpaks=Flatpaks(root/'runtimes/flatpak',runner=runner)
+    flatpaks=Flatpaks(root/'runtimes/flatpak',data,runner=runner)
     for ref,state in install.read(flatpaks.root/'owned.json',{}).items():
         if flatpaks.commit(ref)!=state['commit']: problems.append('Changed Flatpak: '+ref)
     active=receipt(root)['active']

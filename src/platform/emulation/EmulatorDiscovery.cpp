@@ -1,4 +1,5 @@
 #include "EmulatorDiscovery.h"
+#include "RuntimePaths.h"
 #include "integrations/adventure/retroarch/RetroArchConfiguration.h"
 #include <QDir>
 #include <QFile>
@@ -133,10 +134,12 @@ QString currentFlatpakDeployment(const QString& app, const QStringList& installa
 EmulatorEnvironment installedEmulators(const QString& stateDirectory, const QString& libraryRoot, bool readController) {
     EmulatorEnvironment env;
     env.home = QDir::homePath(); env.configHome = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+    env.managed = !runtimepaths::home().isEmpty();
+    if (env.managed) { env.home = runtimepaths::home(); env.configHome = env.home + "/.config"; }
     env.stateDirectory = stateDirectory; env.libraryRoot = libraryRoot;
 #ifdef Q_OS_LINUX
-    env.nativeCoreDirectories = {"/usr/lib/libretro", "/usr/lib64/libretro", "/usr/lib/aarch64-linux-gnu/libretro"};
-    for (const auto& route : routes) for (const auto& name : route.names) {
+    if (!env.managed) env.nativeCoreDirectories = {"/usr/lib/libretro", "/usr/lib64/libretro", "/usr/lib/aarch64-linux-gnu/libretro"};
+    if (!env.managed) for (const auto& route : routes) for (const auto& name : route.names) {
         const auto path = QStandardPaths::findExecutable(name);
         if (!path.isEmpty()) env.executables.insert(name, path);
     }
@@ -147,6 +150,11 @@ EmulatorEnvironment installedEmulators(const QString& stateDirectory, const QStr
         QElapsedTimer deadline; deadline.start();
         for (const auto& route : routes) {
             if (route.app.isEmpty() || deadline.elapsed() >= 2000) continue;
+            if (env.managed) {
+                const auto location = currentFlatpakDeployment(route.app, {env.home + "/.local/share/flatpak"});
+                if (!location.isEmpty()) env.flatpaks.insert(route.app, location);
+                continue;
+            }
             QProcess process; process.start(flatpak, {"info", "--show-location", route.app});
             if (!process.waitForFinished(qMax(1, 2000 - int(deadline.elapsed())))) { process.kill(); process.waitForFinished(100); continue; }
             if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
@@ -168,10 +176,23 @@ EmulatorEnvironment installedEmulators(const QString& stateDirectory, const QStr
         }
     }
     for (const auto& route : routes) {
+        if (env.managed) {
+            const QHash<QString, QString> bundles{{"odamex","odamex"},{"supermodel","supermodel-link"},
+                {"xemu","xemu-lan"},{"vita3k","vita3k-netplay"}};
+            if (bundles.contains(route.id)) {
+                const auto path = env.home + "/.local/share/TrainerOS/emulators/" + bundles[route.id]
+                    + (route.id == "xemu" ? "/xemu.AppImage" : "/bin/" + route.binary);
+                if (executable(path)) env.executables.insert(route.names.first(), path);
+            }
+        }
         const auto appImage = QDir(env.home).filePath("Applications/" + route.binary + ".AppImage");
         if (!env.executables.contains(route.names.first()) && executable(appImage)) env.executables.insert(route.names.first(), appImage);
         if(route.id=="duckstation" && !env.executables.contains(route.names.first())) {
             const auto image=QDir(env.home).filePath("Applications/DuckStation.AppImage");
+            if(executable(image))env.executables.insert(route.names.first(),image);
+        }
+        if (route.id=="azahar" && env.managed) {
+            const auto image=env.home+"/Applications/Azahar-Enhanced.AppImage";
             if(executable(image))env.executables.insert(route.names.first(),image);
         }
     }
@@ -239,8 +260,9 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
     EmulatorDiscovery result;
     if (env.stateDirectory.isEmpty()) return result;
     for (const auto& route : routes) {
-        const auto explicitPath = QDir(env.stateDirectory).filePath("integrations/" + route.id + ".json");
-        const auto discoveredPath = QDir(env.stateDirectory).filePath("integrations/discovered/" + route.id + ".json");
+        const auto profileRoot = env.stateDirectory + (env.managed ? "/integrations/managed" : "/integrations");
+        const auto explicitPath = profileRoot + "/" + route.id + ".json";
+        const auto discoveredPath = profileRoot + "/discovered/" + route.id + ".json";
         const bool supplied = exists(explicitPath), previous = exists(discoveredPath);
         auto profile = readProfile(supplied ? explicitPath : discoveredPath);
         if (supplied || previous) {
@@ -264,7 +286,7 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
         // The graphical Armada session has a deliberately short PATH. A
         // selected per-user launcher must still be discoverable there, while
         // explicit profiles and binaries already found on PATH keep priority.
-        if (program.isEmpty()) for (const auto& name : route.names) {
+        if (program.isEmpty() && !env.managed) for (const auto& name : route.names) {
             const auto local = QStandardPaths::findExecutable(name,
                 {QDir(env.home).filePath(".local/bin")});
             if (executable(local)) { program = local; break; }
@@ -273,6 +295,7 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
         QString runtimeFile = program;
         const bool flatpak = program.isEmpty() && executable(env.executables.value("flatpak")) && executable(runtime(route, env));
         if (flatpak) { program = env.executables.value("flatpak"); runtimeFile = runtime(route, env); arguments = {"run", route.app}; }
+        if (flatpak && env.managed) arguments = {"--user", "run", route.app};
         if (program.isEmpty()) continue;
         if(route.id=="vita3k") {
             // A .psvita link is an installed-title reference, not a native CLI

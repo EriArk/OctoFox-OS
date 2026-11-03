@@ -32,6 +32,8 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         temp=Path(temp); tree=temp/'TrainerOS-Setup';tree.mkdir()
         holder=temp/'bootstrap';holder.mkdir();installer.bootstrap(holder,source_root/'packaging')
         shutil.copytree(holder/'bootstrap/packaging',tree/'packaging')
+        shutil.copyfile(holder/'bootstrap-files.json',tree/'setup-files.json')
+        setup_inventory_sha=sw.sha256(tree/'setup-files.json')
         shutil.copyfile(public,tree/'trusted-key.pem')
         sw.atomic(tree/'bootstrap.json',{'schema':1,'publicKey':'trusted-key.pem','defaultChannel':'preview',
             'feeds':{name:'https://raw.githubusercontent.com/EriArk/TrainerOS/updates/'+name+'.json' for name in ('beta','preview')}})
@@ -46,7 +48,8 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
             'Extract the entire archive onto storage with enough free space, then open Install TrainerOS.sh in Armada Desktop.\n'
             'Setup installs the signed Software, emulator set and pinned offline dependencies. Run as your desktop user.\n'
             'System helpers/session registration request normal administrator authorization. Boot defaults stay unchanged.\n'
-            'Existing managed files are checked; migration retains original code. Personal games, firmware, saves and accounts are not included.\n'
+            'Emulators use a private runtime-home alongside EmuDeck and other installations, including separate Flatpak data.\n'
+            'Only TrainerOS-owned code is updated or removed. Personal games, firmware, saves and accounts are not included.\n'
             'Use Setup and Recovery after interruption; do not launch an incomplete installation.\n'
             'Requires the compatible Armada Python and system libraries. No network fallback for offline packages.\n'
             'Redistribution/source review and clean privileged device acceptance remain pending.\n')
@@ -65,6 +68,7 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
     record={'schema':1,'file':target.name,'bytes':target.stat().st_size,'sha256':sw.sha256(target),
             'softwareSource':release['source'],'runtimeSequence':sequence,'publicKeySha256':sw.sha256(public),
             'sourceArchiveSha256':sw.sha256(source_archive),
+            'setupFilesSha256':setup_inventory_sha,
             'published':False,'redistributionReviewed':False,'cleanDeviceAcceptance':False}
     sw.atomic(output/'candidate.json',record);return record
 
