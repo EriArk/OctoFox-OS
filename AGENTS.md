@@ -1,5 +1,13 @@
 # TrainerOS — active agent / developer contract
 
+
+**Owner standalone default, 3 November (latest):** the standalone TrainerOS
+session is the default after installation, including upgrade of the earlier
+managed candidate. Keep Desktop/Steam entry and safe removal/recovery. This
+supersedes preserving the host boot default on first managed installation.
+Verify actual reboot and service sign-in on Flip; Odin is outside this fresh
+installation pass. Later updates must not repeatedly reset an explicit choice.
+
 **Owner parallel emulator installation and fresh Flip journey, 3 November (latest):**
 TrainerOS installs its own runtimes, Flatpak repository, cores and emulator data
 alongside EmuDeck and existing emulators. Do not adopt, migrate or replace their

@@ -184,3 +184,19 @@ Bootstrap inventory идентичен проверенному 05. Полный
 Software-обновление 06. Подпись лабораторная; это частный кандидат, не публичный
 релиз и не закрытие redistribution/source acceptance. Временный inhibitor сна
 остановлен; оболочка оставлена на Home.
+
+
+## Standalone default follow-up, 3 November
+
+Owner explicitly requests standalone TrainerOS as the installation boot default.
+First managed integration now passes --default, records success only after the
+privileged helper completes, and owns the Armada boot drop-in. Repeated integration
+does not reset a later choice. Removal validates all owned files before selecting
+Desktop if SDDM still names TrainerOS, then removes the owned boot override.
+Modified or unowned overrides block removal before a preference change.
+
+SessionDesktopTests + SoftwareInstallationTests: 41 passed on Linux.
+Flip at 18:59:03: standalone service first frame; Home visible at 1920x1080,
+no plasmashell. Start ? Switch ? Desktop confirmation returned to actual Plasma
+at 19:07. Updated Setup delivery and reboot proof are pending at this checkpoint;
+these observations are not service-login acceptance or a public release.

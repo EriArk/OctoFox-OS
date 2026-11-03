@@ -7,6 +7,7 @@ from pathlib import Path
 import tempfile
 
 EXACT = {'/etc/systemd/system/inputplumber.service.d/90-traineros-pad-read.conf', '/etc/polkit-1/rules.d/50-traineros-clock.rules', '/etc/systemd/user/traineros-session.service',
+         '/etc/systemd/system/armada-session-default.service.d/traineros.conf',
          '/etc/sudoers.d/traineros-session', '/etc/sudoers.d/traineros-power', '/etc/sudoers.d/traineros-radio', '/etc/sddm.conf.d/90-traineros.conf',
          '/var/opt/traineros/crates/catalogue.py', '/var/opt/traineros/crates/catalogue-key.pem',
          '/var/opt/traineros/crates/installer.py', '/var/opt/traineros/crates/launch.py',

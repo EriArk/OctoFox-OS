@@ -115,9 +115,12 @@ def integrate(root, remove=False):
     for name, digest in install.read(root / 'bootstrap-files.json').items():
         path = root / 'bootstrap/packaging' / name
         if path.is_symlink() or sw.sha256(path) != digest: raise ValueError('Bootstrap integrity check failed')
-    subprocess.run(['pkexec', '/usr/bin/python3', '-I', str(helper), '--user', pwd.getpwuid(os.getuid()).pw_name,
-                    '--uninstall' if remove else '--managed'], check=True)
-    sw.atomic(root / 'integration.json', {'systemInstalled': not remove})
+    configured = install.read(root / 'integration.json', {}).get('bootDefaultConfigured', False)
+    command = ['pkexec', '/usr/bin/python3', '-I', str(helper), '--user', pwd.getpwuid(os.getuid()).pw_name,
+               '--uninstall' if remove else '--managed']
+    if not remove and not configured: command.append('--default')
+    subprocess.run(command, check=True)
+    sw.atomic(root / 'integration.json', {'systemInstalled': not remove, 'bootDefaultConfigured': not remove})
 
 
 def dialog(*args):
@@ -218,7 +221,7 @@ def finish_setup(root, action):
             payload_dependencies(job['prepared']);install.install_prepared(root,job['prepared'])
         install.version(root,install.receipt(root)['active'])
         if job.get('channel'):install.select_channel(root,job['channel'])
-        shortcuts(root);sw.atomic(root/'integration.json',{'systemInstalled':True});integrate(root)
+        shortcuts(root);integrate(root)
         result={'status':'installed'}
     elif action=='uninstall':
         install.uninstall(root,preflight=True)
@@ -316,7 +319,7 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
     description = (f"Install TrainerOS {candidate['version']}?\nDownload: {candidate['downloadBytes'] / 1048576:.1f} MiB\n"
                    f"OS: {report['system']}\nOS storage: {disk['location']} ({disk['disk']})\n"
                    f"Free installation space: {report['freeBytes'] / 1073741824:.1f} GiB\n"
-                   'Your OS, games, profiles and saves will be kept. A system authorization prompt installs the session choice.')
+                   'Your OS, games, profiles and saves will be kept. TrainerOS becomes the boot default on first setup; Desktop and Steam remain available. Later updates keep your choice.')
     if dialog('--yesno', description).returncode: return 0
     with Progress() as progress:
         result = (resolve_offline(root, offline, prepare=True, progress=progress.update, allow_current=bool(runtime_manifest)) if offline is not None else

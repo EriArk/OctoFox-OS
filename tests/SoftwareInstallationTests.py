@@ -48,6 +48,21 @@ class InstallationTests(unittest.TestCase):
 
     def install(self): return install.install_prepared(self.installation, self.prepared)
 
+    def test_first_integration_selects_default_once_and_retries_authorization(self):
+        sw.atomic(self.installation/'bootstrap-files.json', {})
+        with patch.object(installer.subprocess, 'run', side_effect=RuntimeError('cancelled')):
+            with self.assertRaises(RuntimeError): installer.integrate(self.installation)
+        self.assertFalse(install.read(self.installation/'integration.json', {}).get('bootDefaultConfigured', False))
+        with patch.object(installer.subprocess, 'run') as run:
+            installer.integrate(self.installation)
+            self.assertIn('--default', run.call_args.args[0])
+            installer.integrate(self.installation)
+            self.assertNotIn('--default', run.call_args.args[0])
+            installer.integrate(self.installation, remove=True)
+            self.assertIn('--uninstall', run.call_args.args[0])
+            self.assertNotIn('--default', run.call_args.args[0])
+        self.assertFalse(install.read(self.installation/'integration.json')['systemInstalled'])
+
     def test_setup_finalization_retries_authorization_without_downloading(self):
         self.install()
         with patch.object(installer,'shortcuts'),patch.object(installer,'integrate',side_effect=RuntimeError('cancelled authorization')):

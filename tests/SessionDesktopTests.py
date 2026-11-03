@@ -56,6 +56,33 @@ class DesktopLogoutTests(unittest.TestCase):
                         execute.assert_called_once_with(['/usr/bin/systemctl', '--no-block', 'restart', 'sddm'])
 
 
+class ManagedBootTests(unittest.TestCase):
+    def test_removal_restores_desktop_only_for_our_active_session(self):
+        helper = module('install'); ownership = module('ownership')
+        for selected in ('traineros.desktop', 'plasma.desktop', 'gamescope-session.desktop'):
+            with self.subTest(selected=selected), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder); owner = ownership.Ownership(root/'journal.json', 'fixture', root)
+                path = owner.target(helper.BOOT_DEFAULT); path.parent.mkdir(parents=True)
+                owner.preparing(helper.BOOT_DEFAULT, b'owned'); path.write_bytes(b'owned')
+                override = root/'autologin'; override.write_text('[Autologin]\nSession='+selected+'\n')
+                choose = Mock(); helper.prepare_uninstall(owner, override, choose)
+                self.assertEqual(choose.call_count, int(selected == 'traineros.desktop'))
+                owner.uninstall(); self.assertFalse(path.exists())
+
+    def test_modified_or_unowned_default_refuses_before_switch(self):
+        helper = module('install'); ownership = module('ownership')
+        for known in (False, True):
+            with tempfile.TemporaryDirectory() as folder:
+                root = Path(folder); owner = ownership.Ownership(root/'journal.json', 'fixture', root)
+                path = owner.target(helper.BOOT_DEFAULT); path.parent.mkdir(parents=True)
+                if known: owner.preparing(helper.BOOT_DEFAULT, b'owned')
+                path.write_bytes(b'user changed')
+                override = root/'autologin'; override.write_text('Session=traineros.desktop')
+                choose = Mock()
+                with self.assertRaises(ValueError): helper.prepare_uninstall(owner, override, choose)
+                choose.assert_not_called(); self.assertEqual(path.read_bytes(), b'user changed')
+
+
 class BrightnessTests(unittest.TestCase):
     def setUp(self):
         self.helper = module('plasma-brightness')

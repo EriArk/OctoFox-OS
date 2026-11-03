@@ -15,6 +15,18 @@ import shutil
 import subprocess
 import tempfile
 
+BOOT_DEFAULT = '/etc/systemd/system/armada-session-default.service.d/traineros.conf'
+
+
+def prepare_uninstall(owned, override, select_desktop):
+    # Never leave SDDM pointing to the session whose files are about to disappear.
+    # Verify everything first, including user drift, before changing any preference.
+    for name in owned.data['files']: owned.check(name)
+    if owned.target(BOOT_DEFAULT).exists() and BOOT_DEFAULT not in owned.data['files']:
+        raise ValueError('Unmanaged boot preference requires explicit recovery before removal')
+    if override.exists() and b'Session=traineros.desktop' in override.read_bytes():
+        select_desktop()
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -29,8 +41,8 @@ def main():
     args = parser.parse_args()
     if args.plasma_audio_library and (args.uninstall or args.emulator_support_only or args.clock_only):
         parser.error('The Plasma repair artifact belongs to a session installation')
-    if (args.managed or args.uninstall) and (args.default or args.emulator_support_only or args.clock_only):
-        parser.error("Managed installation preserves boot and host power preferences")
+    if (args.managed or args.uninstall) and (args.emulator_support_only or args.clock_only) or args.uninstall and args.default:
+        parser.error("Managed session operations cannot be combined with helper-only or uninstall/default options")
     if args.default and (args.emulator_support_only or args.clock_only):
         parser.error("Helper-only installation cannot change the boot default")
     if os.geteuid() != 0 or not re.fullmatch(r"[a-z_][a-z0-9_-]*", args.user):
@@ -52,10 +64,8 @@ def main():
         if not ledger_path.exists():
             print('No managed session files were installed; other session files are preserved.')
             return
-        defaults = [Path('/etc/systemd/system/armada-session-default.service.d/traineros.conf'),
-                    Path('/etc/sddm.conf.d/zz-steamos-autologin.conf')]
-        if any(p.exists() and b'traineros' in p.read_bytes().lower() for p in defaults):
-            parser.error('Choose Desktop or Steam as the boot default before removing the TrainerOS session')
+        prepare_uninstall(owned, Path('/etc/sddm.conf.d/zz-steamos-autologin.conf'),
+                          lambda: subprocess.run(['/usr/libexec/armada/session-control', 'default-desktop'], check=True))
         # Drop user-owned links as that user, before removing the trusted target.
         # Older installations did not have this helper.
         entry_helper = Path('/var/opt/traineros/session/desktop-entry.py')
@@ -188,6 +198,9 @@ def main():
     power_install.install(args.user, writer=install if args.managed else None, configure_sleep=not args.managed)
     install("/etc/sddm.conf.d/90-traineros.conf",
             ("[Wayland]\nSessionDir=" + ",".join(directories) + "\n").encode(), 0o644)
+    if args.default:
+        install("/etc/systemd/system/armada-session-default.service.d/traineros.conf",
+                (source / "armada-session-default.conf").read_bytes(), 0o644)
     if args.managed:
         # Validate every destination before writing the first file. Recovery may
         # resume an interrupted journal, but must never adopt an old manual install.
@@ -207,8 +220,6 @@ def main():
     if not original.exists() and override.is_file():
         shutil.copy2(override, original)
     if args.default:
-        install("/etc/systemd/system/armada-session-default.service.d/traineros.conf",
-                (source / "armada-session-default.conf").read_bytes(), 0o644)
         subprocess.run(["/usr/bin/systemctl", "daemon-reload"], check=True)
         subprocess.run([helper, "default-traineros"], check=True)
         print("TrainerOS is the boot default. Steam and Desktop choices remain available.")
