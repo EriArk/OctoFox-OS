@@ -47,7 +47,7 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         (tree/'README.txt').write_text('OFFLINE SETUP CANDIDATE - NOT A PUBLIC RELEASE\n'
             'Extract the entire archive onto storage with enough free space, then open Install TrainerOS.sh in Armada Desktop.\n'
             'Setup installs the signed Software, emulator set and pinned offline dependencies. Run as your desktop user.\n'
-            'System helpers/session registration request normal administrator authorization. Boot defaults stay unchanged.\n'
+            'System helpers/session registration request normal administrator authorization. TrainerOS becomes the initial boot default; Desktop and Steam remain available.\n'
             'Emulators use a private runtime-home alongside EmuDeck and other installations, including separate Flatpak data.\n'
             'Only TrainerOS-owned code is updated or removed. Personal games, firmware, saves and accounts are not included.\n'
             'Use Setup and Recovery after interruption; do not launch an incomplete installation.\n'

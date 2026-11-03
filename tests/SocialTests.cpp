@@ -2729,6 +2729,30 @@ private slots:
         deferred({200,QJsonDocument(QJsonArray{QJsonObject{{"id","99"},{"channel_id",channel},{"content","private old owner text"}}})});
         QVERIFY(s.messages_.isEmpty());QVERIFY(s.token_.isEmpty());QCOMPARE(s.generation_,quint64(2));
     }
+    void loginAcceptsReviewedDiscoveryPairsOnly() {
+        const QList<QPair<QString,QString>> pairs{
+            {"https://api.fluxer.app","wss://gateway.fluxer.app"},
+            {"https://fluxer.com/api","wss://gateway.fluxer.com"},
+            {"https://attacker.invalid/api","wss://gateway.fluxer.com"},
+            {"https://fluxer.com/api","wss://attacker.invalid"},
+            {"http://fluxer.com/api","wss://gateway.fluxer.com"},
+            {"https://fluxer.com/api","wss://gateway.fluxer.app"}};
+        for(int index=0;index<pairs.size();++index) {
+            FluxerSession s;int initiated=0;
+            s.setTransport([&](auto method,auto path,auto,Completion done,QByteArray){
+                if(path=="/.well-known/fluxer") {
+                    QCOMPARE(method,QByteArray("GET"));
+                    done({200,QJsonDocument(QJsonObject{{"endpoints",QJsonObject{
+                        {"api_public",pairs[index].first},{"gateway",pairs[index].second}}}})});
+                } else if(path=="/v1/auth/handoff/initiate") {
+                    ++initiated;done({200,QJsonDocument(QJsonObject{{"code","fixture"},{"poll_secret","fixture-secret"}})});
+                }
+            });
+            s.setOwner("fixture",1);s.login();
+            QCOMPARE(initiated,index<2?1:0);
+            QCOMPARE(s.state_,index<2?QString("authorizing"):QString("signed-out"));
+        }
+    }
     void canceledLoginNeverInstallsLateToken() {
         FluxerSession s;Completion deferred;
         s.setTransport([&](auto,auto,auto,Completion done, QByteArray){deferred=std::move(done);});s.setOwner("a",1);

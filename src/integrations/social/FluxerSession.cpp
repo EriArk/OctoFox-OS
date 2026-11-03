@@ -572,7 +572,12 @@ void FluxerSession::login() {
     // Public instance only for this increment. Validate advertised endpoints before authentication.
     request("GET","/.well-known/fluxer",{},[this](Reply r){
         const auto endpoints=r.body.object()["endpoints"].toObject();
-        if(r.status!=200 || endpoints["api_public"]!="https://api.fluxer.app" || endpoints["gateway"]!="wss://gateway.fluxer.app") {
+        // The official discovery document moved to fluxer.com in November.
+        // Accept only the two reviewed endpoint pairs, never arbitrary advertised
+        // destinations. Requests still use the working pinned .app API alias.
+        const bool legacy=endpoints["api_public"]=="https://api.fluxer.app" && endpoints["gateway"]=="wss://gateway.fluxer.app";
+        const bool current=endpoints["api_public"]=="https://fluxer.com/api" && endpoints["gateway"]=="wss://gateway.fluxer.com";
+        if(r.status!=200 || (!legacy && !current)) {
             state_="signed-out"; fail(r,"Sign-in is unavailable"); return;
         }
         request("POST","/v1/auth/handoff/initiate",{},[this](Reply result){
