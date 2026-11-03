@@ -67,20 +67,27 @@ redistribution review, not a final public asset library.
 | Body, round/almond face | Owner-created AI-generated body, based on an image generated for the owner by the assistant; origin confirmed by the owner on 3 November 2026 | Approved head scale 0.92 and shorts seam repair; skin and 46 correctives retained; sparse packing, face patches, palette masks |
 | Swept hair | [Anime Hair 19](https://sketchfab.com/3d-models/anime-hair-19-b0a497ba4aad4b9aadb37a60b7a6c24a), neutralize, CC BY 4.0 | Fitted, simplified, recolorable, head binding |
 | Ponytail | [Anime Hair 17](https://sketchfab.com/3d-models/anime-hair-17-bb43ed9ad59c4216a09c89557fdf0ee4), neutralize, CC BY 4.0 | Fitted, simplified, recolorable, head binding |
-| Crop / bob | Owner-supplied Hair Anime20.fbx / Hair Anime14.blend, previously recorded as CGTrader; owner confirms a free library permitting use (3 November 2026), source links to follow | Fitted, simplified, recolorable; exact licence/attribution terms awaiting source links |
+| Crop / bob | [Anime hair style 20](https://www.cgtrader.com/free-3d-models/character/man/anime-hair-style-20-female-character-hair) and [Anime hair style 14](https://www.cgtrader.com/free-3d-models/character/woman/hair-anime14), only3dstock, CGTrader Royalty Free License (no AI); owner-supplied Hair Anime20.fbx / Hair Anime14.blend | Fitted, simplified, recolorable, head binding |
 | Historical tank (revision 3 only) | [Tank Top](https://sketchfab.com/3d-models/tank-top-d6b2561de39f423f9c7a2e7944485beb), Shift4cube / Mohan M, CC BY 4.0 | Loose fitting, reduced polygons, skin/corrective binding; source garment openings retained |
 | Current sports tank / modular eyes | Owner-approved original authoring | Separate fitted tank and 12 eye pairs; shared rig and palette |
 | Facial rig / mouths (revision 5) | Original procedural geometry and morph authoring for TrainerOS | Eight mouth poses, eye/brow expressions; visual owner acceptance pending |
 | Flip-flops | [Flip Flops](https://sketchfab.com/3d-models/flip-flops-ac0eaae976a545caa52908e977f59ae0), Remie07, CC BY 4.0 | Simplified soles, fitted and mirrored pair, rebuilt straps, foot binding |
 
-[CC BY 4.0 terms](https://creativecommons.org/licenses/by/4.0/) apply to the
-attributed components and adaptations. No endorsement by their authors is implied.
+[CC BY 4.0 terms](https://creativecommons.org/licenses/by/4.0/) apply only to the
+components explicitly marked CC BY above and their adaptations. No endorsement
+by their authors is implied.
 The body origin above is an owner statement, not an independent audit of an
-unnamed generation service. The owner also confirms permitted use of the two
-supplied hairstyles and is locating their source links. Record those exact
-licence/attribution terms before closing the public asset review; no blanket
-GPL or CC licence is inferred from a free download. This updates the earlier
-unknown-body-origin note without changing any approved models.
+unnamed generation service. On 3 November 2026 the owner supplied both CGTrader
+links above; their author and displayed licence were checked on the product pages.
+
+[CGTrader terms](https://www.cgtrader.com/pages/terms-and-conditions), definition 8,
+sections 21A, 21B and 24, distinguish incorporated software use from standalone
+model redistribution and require reasonable safeguards against extraction.
+The No AI variant prohibits model-training use. These meshes are not GPL/CC assets.
+The current loose GLB/BLEND delivery needs a packaging review before public release;
+the source question is resolved, but the release's redistribution review stays open.
+Keep the approved originals intact; this record does not authorize deleting files,
+rewriting repository history or changing the accepted hairstyles.
 
 `packs/trainer-avatar-1/manifest.json` contains source and output hashes, rig,
 palette/material roles and action mapping. `template.glb` is the shared body and
