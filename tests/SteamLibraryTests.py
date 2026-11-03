@@ -76,6 +76,22 @@ class LibraryTests(unittest.TestCase):
         path=self.manifest();path.write_text(path.read_text().replace('"A game" }','"../outside" }'))
         self.assertFalse(steam.discover(self.home)['games'])
 
+    @unittest.skipUnless(sys.platform.startswith('linux'),'Linux directory links')
+    def test_game_moved_to_external_disk_and_disconnected(self):
+        manifest=self.manifest();before=manifest.read_bytes()
+        original=self.root/'steamapps/common/A game'
+        target=self.home/'external-disk/game';target.mkdir(parents=True)
+        original.rmdir();original.symlink_to(target,target_is_directory=True)
+        found=steam.discover(self.home)
+        self.assertEqual(found['warnings'],[])
+        self.assertTrue(found['games'][0]['available'])
+        self.assertEqual(found['games'][0]['installRoot'],str(target.resolve()))
+        target.rmdir()
+        found=steam.discover(self.home)
+        self.assertEqual(found['warnings'],[])
+        self.assertFalse(found['games'][0]['available'])
+        self.assertEqual(manifest.read_bytes(),before)
+
 
 @unittest.skipUnless(sys.platform.startswith('linux'),'Linux process identity')
 class SessionTests(unittest.TestCase):

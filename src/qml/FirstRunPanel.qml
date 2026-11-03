@@ -8,7 +8,7 @@ Item {
     readonly property bool selecting: !flow.connections && !flow.service.length && flow.stage !== "trainer"
     readonly property bool takesFocus: visible && !shell.keyboard.open
     Row {
-        x: 225; y: 26; width: parent.width-x-24
+        x: Theme.brandWidth + 12; y: 26; width: parent.width-x-24
         Repeater {
             model: root.flow.stepLabels
             Item {

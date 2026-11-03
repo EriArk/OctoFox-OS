@@ -19,17 +19,19 @@ Item {
                 id: setupList
                 objectName: "setup-list"
                 visible: !root.flow.keypad; x: 28; y: 66; width: 526; height: parent.height - y - 30
-                spacing: 0; clip: true; interactive: false
+                spacing: 0; clip: true; interactive: contentHeight > height
+                keyNavigationEnabled: false
+                readonly property real rowHeight: Math.max(52, Math.min(66, height / Math.max(1, count)))
                 model: root.flow.rows; currentIndex: root.flow.focusIndex
                 onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
                 onCountChanged: positionViewAtIndex(currentIndex, ListView.Contain)
                 delegate: FocusScope {
                         required property int index; required property var modelData
-                        width: setupList.width; height: 66
+                        width: setupList.width; height: setupList.rowHeight
                     CapButton {
                         focus: true
                         objectName: "setup-action-" + index
-                        x: 8; y: 9; width: 510; height: 48; label: modelData.label; detail: modelData.detail
+                        x: 8; y: 6; width: 510; height: Math.min(48, parent.height - 12); label: modelData.label; detail: modelData.detail
                         tint: index % 2 ? Theme.blue : Theme.yellow
                         selected: root.takesFocus && !root.flow.keypad && root.flow.focusIndex === index
                         onActivated: root.entry ? root.flow.activate(index) : root.shell.activate(index)

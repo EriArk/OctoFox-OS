@@ -156,7 +156,10 @@ def manifest(path, library):
         raise ValueError('Invalid Steam game metadata')
     base = (library/'steamapps/common').resolve()
     install = (base/directory).resolve()
-    if not install.is_relative_to(base): raise ValueError('Steam installation escapes its library')
+    # Users may move a game to another disk and retain a directory symlink.
+    # Discovery is read-only; launch still goes through Steam's numeric app ID.
+    # The manifest's directory component was validated above, so a link is not
+    # an untrusted relative path supplied by metadata.
     flags = int(state.get('stateflags', '0'))
     available = bool(flags & 4) and install.is_dir()
     return dict(appId=app, title=name[:96], manifest=str(path.resolve()), installRoot=str(install),
