@@ -1,0 +1,31 @@
+{
+  "software": {
+    "status": "ready",
+    "scope": "software-files",
+    "sessionIntegration": "recorded-not-audited",
+    "health": "first-frame-confirmed",
+    "problems": []
+  },
+  "source": "2a6c9c9b00b58e914525bd779c76896c8fcf5006",
+  "binarySha256": "1e3ae4ab491ad6c79ba5cdcb2c59f89c84b4df3fe9c28039ff18bcb752a79d71",
+  "previousRetained": true,
+  "runtimeActive": "b0065a9337f1539525bc0f97e192e37433bf7038478e40ddfef8243831dd2169",
+  "integration": {
+    "bootDefaultConfigured": true,
+    "systemInstalled": true
+  },
+  "pending": false,
+  "bootDefaultOwned": true,
+  "plasmaAbsent": true,
+  "screenScraper": {
+    "applicationFieldsOnly": true,
+    "playerAccountUnchanged": true,
+    "rollbackSnapshotRestored": true,
+    "privateMode0600": true,
+    "uiConnectedObserved": true,
+    "quotaObserved": 10000,
+    "freshPasswordEntry": false,
+    "personalFileBeforeSignIn": "version/username/password only"
+  },
+  "publicRelease": false
+}

@@ -26,9 +26,13 @@ source/recipe. Три внешних source-архива содержат при
 они сами по себе не закрывают исходники всех эмуляторов, ядер и Flatpak-зависимостей.
 У `iterable-io 1.0.4` заявлена LGPL-3.0-only, но в wheel нет отдельного текста
 лицензии; [официальный PyPI](https://pypi.org/project/iterable-io/1.0.4/) подтверждает
-версию и совпавший SHA-256. [Все 38 точных sdist](evidence/2026-11-03-full-bundle/python-release-sources.json)
+версию и совпавший SHA-256. Подготовлен [недостающий текст LGPL и notice](../packaging/licenses/iterable-io/README.md)
+для будущей сборки runtime notices; старый архив автоматически не изменён.
+[Все 38 точных sdist](evidence/2026-11-03-full-bundle/python-release-sources.json)
 скачаны с официального PyPI; сверены исходные архивы и соответствие распространяемых
-wheels официальным хешам. Встроенные native-библиотеки и полные notices всё ещё
+wheels официальным хешам. [Опись notices в sdist](evidence/2026-11-03-full-bundle/python-source-notices.json)
+фиксирует отдельные пробелы исходных архивов; у LiveKit и noiseprotocol тексты есть
+в соответствующих wheels. Встроенные native-библиотеки и полные notices всё ещё
 требуют проверки; скачивание sdist не объявлено завершением лицензионной приёмки.
 
 Отдельно остаётся incorporated distribution двух CGTrader-причёсок: текущие

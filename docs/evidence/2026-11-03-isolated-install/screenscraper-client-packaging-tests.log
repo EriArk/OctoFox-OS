@@ -1,0 +1,17 @@
+STEP 0
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.003s
+
+OK
+STEP 1
+......................{"phase": "download", "bytes": 1, "totalBytes": 10}
+..{"phase": "extract", "bytes": 45, "totalBytes": 45}
+{"phase": "prepared", "bytes": 0, "totalBytes": 0}
+{"phase": "extract", "bytes": 45, "totalBytes": 45}
+{"phase": "prepared", "bytes": 0, "totalBytes": 0}
+........
+----------------------------------------------------------------------
+Ran 32 tests in 7.806s
+
+OK

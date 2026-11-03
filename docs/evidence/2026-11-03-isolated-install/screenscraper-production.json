@@ -1,0 +1,13 @@
+{
+  "exit": 0,
+  "step": 2,
+  "source": "2a6c9c9b00b58e914525bd779c76896c8fcf5006",
+  "buildTesting": false,
+  "sourceArchive": "TrainerOS-2a6c9c9b-source.tar.gz",
+  "sourceArchiveSha256": "f58ac54924f6e976ceb77b9bd744e7f61a8436fd295da3fd885726699e5c082b",
+  "binarySha256": "1e3ae4ab491ad6c79ba5cdcb2c59f89c84b4df3fe9c28039ff18bcb752a79d71",
+  "archiveSha256": "c3ba2bd6e79dc688ae6b57ac2b8f33aee62e61b1591bbf5ad32e0716673d3086",
+  "sequence": 7,
+  "version": "prebeta-isolated-validation.5",
+  "applicationCredentialsOnly": true
+}
