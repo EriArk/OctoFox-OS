@@ -87,4 +87,3 @@ class CoreRebuildPackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'incomplete'):pack.package(self.root,self.root/'candidate.tar',['original'],self.probes)
 
 if __name__=='__main__':unittest.main()
-
