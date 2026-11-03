@@ -1118,7 +1118,7 @@ private slots:
         for (const auto& set : {QString("kanto-frlg"), QString("hoenn-rse")}) {
             for (const auto& row : BadgeAssets::entries(set, 255)) {
                 const auto url = row.toMap()["image"].toString();
-                QVERIFY(url.startsWith("qrc:/badges/"));
+                QVERIFY(url.startsWith("qrc:/badges/original-"));
                 QImage image(url.mid(3));
                 QCOMPARE(image.size(), QSize(192, 192));
                 QVERIFY(image.hasAlphaChannel());
@@ -1129,6 +1129,8 @@ private slots:
                 QVERIFY(pixels > 2500 && pixels < 31000); // Not an empty image, clipped sheet or opaque square.
             }
         }
+        QVERIFY(!QFile::exists(":/badges/hoenn-stone.png"));
+        QVERIFY(!QFile::exists(":/badges/kanto-boulder.png"));
         const auto zero = BadgeAssets::entries("hoenn-rse", 0);
         QCOMPARE(zero.first().toMap()["id"], "stone");
         QCOMPARE(zero.last().toMap()["id"], "rain");

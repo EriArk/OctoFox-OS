@@ -30,13 +30,16 @@ entity/form mapping; `sprites` uses `SpriteArt` version-1 sprite index, checked
 assets/credits and exact-form targets. Their new default roots are
 `<state>/adapters/pokemon/packs/art/` and `.../sprites/`. Existing
 `artwork/bootstrap` / `artwork/sprites` roots remain compatible when the scoped
-family has not been installed. Explicit `--art-dir` / `--sprite-dir` overrides
-remain available. No files are copied, removed or publicly bundled.
+family has not been installed. No files are copied, removed or publicly bundled.
+The directory arguments (including `--art-dir` / `--sprite-dir`) no longer activate
+imported art: both providers default to `ArtSource::Original`. The internal
+`Imported` mode retains validation for future explicit selection and import tests;
+production does not select it. Graphics switches remain owner-deferred.
 
-Cuboid v1 is now the built-in lowest-priority presentation fallback: exact-key
+Cuboid v1 is now the default on every presentation surface: exact-key
 recipes cover the offline catalogue; unknown keys use a neutral symbolic cube.
-ClassicArt fills missing illustrations; SpriteArt supplements missing kind/action
-pairs without replacing user clips. The original renderer shares one canvas
+ClassicArt supplies original illustrations; SpriteArt supplies all clips and
+portraits even when legacy packs are installed. The original renderer shares one canvas
 across actions and uses the existing asynchronous image provider/cache. It is
 not an installed pack and grants no save capability. [Contract and delivery](../../../docs/CUBOID_CREATURES.md).
 

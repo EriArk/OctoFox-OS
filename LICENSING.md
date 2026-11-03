@@ -35,7 +35,9 @@ The default software grant does not relicense separately supplied materials:
 - PokeAPI-derived reference data retains `data/licenses/PokeAPI.txt`.
 - Original code-authored Cuboid creatures and their rendered output have the
   explicit [GPL-3.0-or-later asset notice](data/licenses/CuboidCreatures.md).
-- Badge recreations retain the author/license/provenance in `assets/badges/`.
+- Runtime league medallions are original TrainerOS geometry, GPL-3.0-or-later.
+  Historical badge recreations retain their author/license/provenance in
+  `assets/badges/legacy-manifest.json`; they are excluded from runtime resources.
 - The Dolphin patch/bridge and its reusable copy retain GPL-2.0-or-later.
 - The separately built Linux Iris kernel patches retain GPL-2.0-only; see
   [their source and license record](packaging/kernel/iris/README.md).

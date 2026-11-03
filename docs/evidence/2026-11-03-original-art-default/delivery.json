@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-03",
+  "build_type": "ARM Release BUILD_TESTING=OFF",
+  "build_on": "Flip microSD",
+  "devices": {
+    "flip": {
+      "sha256": "0459f8063b3a182bf58e25601e82f79a91603108b56e62ebad8b4225b87584e0",
+      "one_shell": true,
+      "qml_error_counts": {
+        "ReferenceError": 0,
+        "TypeError": 0,
+        "Binding loop": 0,
+        "Cannot assign": 0,
+        "Unable to assign": 0
+      },
+      "volume": "Volume: 0.20",
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "database_checks": 1,
+      "legacy_pack_indices_and_choices_preserved": true,
+      "visual_check": "ordinary profile and actual Emerald team",
+      "post_ui": {
+        "all_old_adventure_ids_retained": true,
+        "protected_rows_preserved_except_availability": true,
+        "availability_transitions": {},
+        "settings_changes_only_companion_state": true
+      }
+    },
+    "odin": {
+      "sha256": "0459f8063b3a182bf58e25601e82f79a91603108b56e62ebad8b4225b87584e0",
+      "one_shell": true,
+      "qml_error_counts": {
+        "ReferenceError": 0,
+        "TypeError": 0,
+        "Binding loop": 0,
+        "Cannot assign": 0,
+        "Unable to assign": 0
+      },
+      "volume": "Volume: 0.00",
+      "existing_rows_preserved": true,
+      "avatar_pack_preserved": true,
+      "settings_unchanged": true,
+      "database_checks": 1,
+      "legacy_pack_indices_and_choices_preserved": true,
+      "visual_check": "ordinary Home and isolated ephemeral adapter sample",
+      "post_ui": {
+        "all_old_adventure_ids_retained": true,
+        "protected_rows_preserved_except_availability": true,
+        "availability_transitions": {
+          "1 -> 0": 8
+        },
+        "settings_changes_only_companion_state": true,
+        "availability_changes_match_preexisting_steam_config": true
+      }
+    }
+  }
+}

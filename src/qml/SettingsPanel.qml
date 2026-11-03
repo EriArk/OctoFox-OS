@@ -121,10 +121,10 @@ Item {
                 Item { anchors.fill: parent; visible: root.settings.category===6
                 Column {
                     x: 22; y: 16; spacing: 12; width: parent.width - 44
-                    Text { text: "Pokémon League badge SVG recreations"; color: Theme.ink; font.pixelSize: 18; font.bold: true }
-                    Text { text: "Stephen Griffiths · 2011"; color: Theme.ink; font.pixelSize: 18 }
-                    Text { text: "Creative Commons Attribution 3.0 Unported\nhttps://creativecommons.org/licenses/by/3.0/\nhttps://github.com/SteGriff/pokemon-badges"; color: Theme.muted; font.pixelSize: 14; lineHeight: 1.3 }
-                    Text { width: parent.width; text: "Adapted for TrainerOS: vector layers isolated, padded and rendered for the handheld. Badge shapes and colors preserved. Original source references: Bulbapedia.\nPokémon designs belong to their respective owners."; color: Theme.muted; font.pixelSize: 14; wrapMode: Text.WordWrap; lineHeight: 1.2 }
+                    Text { text: "Original creature and achievement art"; color: Theme.ink; font.pixelSize: 18; font.bold: true }
+                    Text { text: "TrainerOS contributors"; color: Theme.ink; font.pixelSize: 18 }
+                    Text { text: "GNU General Public License 3.0 or later"; color: Theme.muted; font.pixelSize: 14 }
+                    Text { width: parent.width; text: "Cuboid creatures, animations and abstract league medallions are drawn from original geometry. Game names and progress identities remain separate from their artwork."; color: Theme.muted; font.pixelSize: 14; wrapMode: Text.WordWrap; lineHeight: 1.2 }
                 }
 
                     CapButton { flat: true; objectName: "credits-back"; x: 22; anchors.bottom: parent.bottom; anchors.bottomMargin: 48; width: 240; height: 38; label: "Categories"; selected: root.takesFocus && root.settings.controlsFocused && root.settings.category===6; onActivated: root.settings.selectCategory(6,false) }

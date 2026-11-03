@@ -30,6 +30,31 @@ class SpriteArtTests final : public QObject {
         manifest.write(QJsonDocument(root).toJson()); return id;
     }
 private slots:
+    void installedLegacySpritesAreInactiveByDefault() {
+        QTemporaryDir dir;const auto id=fixture(dir.path());QVERIFY(!id.isEmpty());
+        QFile index(dir.filePath("sprite-index.json")),image(dir.filePath("images/"+id+".png"));
+        QVERIFY(index.open(QIODevice::ReadOnly));QVERIFY(image.open(QIODevice::ReadOnly));
+        const auto indexBefore=index.readAll(),imageBefore=image.readAll();
+        SpriteArt sprites(dir.path());ClassicArt art(dir.path());
+        const auto choices=sprites.choices("vulpix/37");QCOMPARE(choices.size(),9);
+        for(const auto& value:choices) {
+            const auto row=value.toMap();QVERIFY(row["builtin"].toBool());
+            QVERIFY(!sprites.requestImage(row["id"].toString(),nullptr,{}).isNull());
+        }
+        QVERIFY(sprites.requestImage(id,nullptr,{}).isNull());
+        PartyPresentation party(false);party.configureArtwork(&art,&sprites);party.setAdventure("game","Game");
+        GameProgress progress;progress.availability=ProgressAvailability::Available;
+        PartySnapshot snapshot;PokemonRecord mon;mon.kind=PokemonSlotKind::Known;mon.speciesId="vulpix";mon.formId="37";
+        snapshot.party.append(mon);progress.party=snapshot;progress.saveRevision="one";party.setProgress("game",progress);
+        const auto actor=party.activities()->actors().first().toMap();
+        for(const auto& kind:{"clips","portraits"}) {
+            const auto rows=actor[kind].toMap();QVERIFY(!rows.isEmpty());
+            for(const auto& value:rows)QVERIFY(value.toMap()["builtin"].toBool());
+        }
+        QVERIFY(index.seek(0));QVERIFY(image.seek(0));
+        QCOMPARE(index.readAll(),indexBefore);QCOMPARE(image.readAll(),imageBefore);
+    }
+
     void renderBuiltinReviewSheet() {
         const QStringList targets{"pikachu/25","bulbasaur/1","charmander/4","zubat/41","unknown/1","squirtle/7","onix/95","mudkip/258","eevee/133","snorlax/143"};
         QImage sheet(960,480,QImage::Format_ARGB32);sheet.fill(QColor("#f5f1e5"));QPainter p(&sheet);
@@ -93,9 +118,9 @@ private slots:
     }
     void removalRestoresBuiltinWithoutPackWrites() {
         QTemporaryDir dir;fixture(dir.path());
-        {SpriteArt installed(dir.path());QVERIFY(!installed.choices("vulpix/37").first().toMap()["builtin"].toBool());}
+        {SpriteArt installed(dir.path(), ArtSource::Imported);QVERIFY(!installed.choices("vulpix/37").first().toMap()["builtin"].toBool());}
         QVERIFY(QFile::remove(dir.filePath("sprite-index.json")));
-        SpriteArt removed(dir.path());QCOMPARE(removed.choices("vulpix/37").size(),9);
+        SpriteArt removed(dir.path(), ArtSource::Imported);QCOMPARE(removed.choices("vulpix/37").size(),9);
         QVERIFY(removed.choices("vulpix/37").first().toMap()["builtin"].toBool());
         QVERIFY(!QFile::exists(dir.filePath("sprite-index.json")));
     }
@@ -105,7 +130,7 @@ private slots:
         auto root=QJsonDocument::fromJson(f.readAll()).object();f.close();
         auto assets=root["assets"].toObject();auto asset=assets[id].toObject();asset["kind"]="sprite";asset["action"]="Idle";
         assets[id]=asset;root["assets"]=assets;QVERIFY(f.open(QIODevice::WriteOnly));f.write(QJsonDocument(root).toJson());f.close();
-        SpriteArt sprites(dir.path());const auto choices=sprites.choices("vulpix/37");QCOMPARE(choices.size(),9);
+        SpriteArt sprites(dir.path(), ArtSource::Imported);const auto choices=sprites.choices("vulpix/37");QCOMPARE(choices.size(),9);
         QCOMPARE(choices.first().toMap()["url"].toString(),"image://sprite-detail/"+id);
         int idle=0;for(const auto& value:choices){const auto row=value.toMap();
             if(row["action"]=="Idle"){++idle;QVERIFY(!row["builtin"].toBool());}
@@ -120,7 +145,7 @@ private slots:
         auto assets=root["assets"].toObject();auto face=assets[id].toObject();
         face["kind"]="portrait";face["action"]="Normal";assets[id]=face;root["assets"]=assets;
         QVERIFY(file.open(QIODevice::WriteOnly));file.write(QJsonDocument(root).toJson());file.close();
-        SpriteArt sprites(dir.path());PartyPresentation party(false);party.configureArtwork(nullptr,&sprites);
+        SpriteArt sprites(dir.path(), ArtSource::Imported);PartyPresentation party(false);party.configureArtwork(nullptr,&sprites);
         party.setAdventure("game","Game");GameProgress progress;progress.availability=ProgressAvailability::Available;
         PartySnapshot snapshot;PokemonRecord mon;mon.kind=PokemonSlotKind::Known;mon.speciesId="vulpix";mon.formId="37";
         snapshot.party.append(mon);progress.party=snapshot;progress.saveRevision="one";party.setProgress("game",progress);
@@ -142,13 +167,13 @@ private slots:
             {"credit","Original fixture"},{"source","Test"},{"license","Test"}};
         QFile manifest(dir.filePath("sprite-index.json"));QVERIFY(manifest.open(QIODevice::WriteOnly));
         manifest.write(QJsonDocument(QJsonObject{{"version",1},{"kind","pmd-detail-preview"},{"targets",QJsonObject{}},{"assets",QJsonObject{{id,asset}}}}).toJson());manifest.close();
-        SpriteArt sprites(dir.path());const auto fitted=sprites.requestImage(id+"/trimmed",nullptr,{});
+        SpriteArt sprites(dir.path(), ArtSource::Imported);const auto fitted=sprites.requestImage(id+"/trimmed",nullptr,{});
         QCOMPARE(fitted.size(),QSize(10,9));QCOMPARE(fitted.pixelColor(0,0),QColor(Qt::red));QCOMPARE(fitted.pixelColor(9,8),QColor(Qt::blue));
         QCOMPARE(sprites.requestImage(id,nullptr,{}),sheet); // Original/private source is unchanged.
         QCOMPARE(sprites.requestImage(id+"/trimmed",nullptr,{}),fitted);
     }
     void exactIdentityAndBoundedDecode() {
-        QTemporaryDir dir; auto id=fixture(dir.path()); QVERIFY(!id.isEmpty()); SpriteArt sprites(dir.path());
+        QTemporaryDir dir; auto id=fixture(dir.path()); QVERIFY(!id.isEmpty()); SpriteArt sprites(dir.path(), ArtSource::Imported);
         QCOMPARE(sprites.choices("vulpix/37").size(),10);
         QVERIFY(sprites.choices("vulpix/10205").first().toMap()["builtin"].toBool()); // Never substitute the ordinary user form.
         QVERIFY(sprites.choices("vulpix/37/shiny").isEmpty());
@@ -160,13 +185,13 @@ private slots:
     void badHashPathsAndPixelBomb() {
         QTemporaryDir dir; const auto id=fixture(dir.path());
         QFile damaged(dir.path()+"/images/"+id+".png"); QVERIFY(damaged.open(QIODevice::WriteOnly)); damaged.write("bad"); damaged.close();
-        SpriteArt corrupt(dir.path()); QVERIFY(corrupt.requestImage(id,nullptr,{}).isNull());
-        fixture(dir.path(),QSize(40,40),"../outside.png"); SpriteArt escaped(dir.path()); QCOMPARE(escaped.choices("vulpix/37").size(),9);
-        const auto large=fixture(dir.path(),QSize(257,40)); SpriteArt oversized(dir.path()); QVERIFY(oversized.requestImage(large,nullptr,{}).isNull());
+        SpriteArt corrupt(dir.path(), ArtSource::Imported); QVERIFY(corrupt.requestImage(id,nullptr,{}).isNull());
+        fixture(dir.path(),QSize(40,40),"../outside.png"); SpriteArt escaped(dir.path(), ArtSource::Imported); QCOMPARE(escaped.choices("vulpix/37").size(),9);
+        const auto large=fixture(dir.path(),QSize(257,40)); SpriteArt oversized(dir.path(), ArtSource::Imported); QVERIFY(oversized.requestImage(large,nullptr,{}).isNull());
         QVERIFY(oversized.requestImage("../"+large,nullptr,{}).isNull());
     }
     void controllerRestoresIllustrationDetailAndForm() {
-        QTemporaryDir dir; fixture(dir.path()); SpriteArt sprites(dir.path());
+        QTemporaryDir dir; fixture(dir.path()); SpriteArt sprites(dir.path(), ArtSource::Imported);
         OfflinePokedex reference; MockPokedexRepository progress; PokedexController dex(reference,progress);
         dex.configureSprites(&sprites); dex.applySearch("37"); dex.activateControl("list",0);
         const auto original=dex.detail(); dex.dispatch(Action::Down); QCOMPARE(dex.zone(),"list");

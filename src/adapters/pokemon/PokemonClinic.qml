@@ -1,7 +1,7 @@
 import QtQuick
 import TrainerOS
 
-// Original pixel-room composition, inspired by the warm counters of Hoenn.
+// Original workshop and cuboid caretaker; no game character or capsule artwork.
 Item {
     id: root
     required property var shell
@@ -41,7 +41,7 @@ Item {
                     }
                     box(0,0,w,26,"#cb6877");box(0,2,w,3,"#ef9b9d");box(0,23,w,5,"#884a60")
                     box(0,28,w,3,"#c1a483")
-                    // Framed windows, wall lights and the unmistakable counter silhouette.
+                    // Framed windows and a warm workshop counter.
                     for(const x of [22,115]){
                         box(x,8,39,17,"#783f54");box(x+2,10,35,13,"#a0d5d6")
                         box(x+4,11,12,11,"#d1eeea");box(x+18,10,2,13,"#f6d8bf")
@@ -58,7 +58,7 @@ Item {
                 }
             }
             Item {
-                id: nurse; objectName: "center-nurse"; x: 270; y: 60; width: 99; height: 99
+                id: caretaker; objectName: "center-caretaker"; x: 270; y: 60; width: 99; height: 99
                 property real greeting: 0
                 SequentialAnimation on greeting {
                     running: root.active && !Theme.reducedMotion; loops: Animation.Infinite
@@ -69,17 +69,16 @@ Item {
                 }
                 Canvas {
                     width: 33; height: 33; scale: 3; smooth: false; transformOrigin: Item.TopLeft
-                    y: nurse.greeting*2
+                    y: caretaker.greeting*2
                     onPaint: {
                         const c=getContext("2d");c.reset()
                         function p(x,y,w,h,color){c.fillStyle=color;c.fillRect(x,y,w,h)}
-                        p(6,10,21,14,"#9c4466");p(3,13,5,10,"#d97292");p(25,13,5,10,"#d97292")
-                        p(9,8,15,14,"#ffd5b5");p(7,8,19,5,"#d97292")
-                        p(12,15,2,3,"#584158");p(20,15,2,3,"#584158");p(16,19,3,1,"#bb6c7b")
-                        p(8,22,18,9,"#f5eee1");p(13,22,8,3,"#df8fa6");p(15,26,4,5,"#df8fa6")
-                        p(5,25,4,5,"#ffd5b5");p(25,25,4,5,"#ffd5b5")
-                        p(9,4,15,6,"#fff7e6");p(7,8,19,3,"#fff7e6")
-                        p(14,5,2,2,"#df6c89");p(18,5,2,2,"#df6c89");p(15,7,4,2,"#df6c89")
+                        p(15,2,3,5,"#577f82");p(13,1,7,3,"#f0cb74")
+                        p(5,7,23,16,"#77aaa7");p(5,7,23,3,"#c1ddd1");p(25,10,3,13,"#4f7f82")
+                        p(8,12,17,8,"#26494e");p(11,14,3,3,"#e9eed0");p(19,14,3,3,"#e9eed0")
+                        p(10,24,14,7,"#e4bd75");p(10,24,14,2,"#f8dda2");p(20,26,4,5,"#bc8e5c")
+                        p(3,25,5,4,"#a7cec1");p(26,25,5,4,"#a7cec1")
+                        p(12,31,4,2,"#4f7f82");p(20,31,4,2,"#4f7f82")
                     }
                 }
             }
@@ -92,11 +91,12 @@ Item {
                         model: 6
                         Rectangle {
                             required property int index
-                            width: 24; height: 19; radius: 9
+                            width: 24; height: 19; radius: 3
                             color: index>=root.clinic.partyCount ? "#638393" : root.treating && (root.pulse+index)%3===0 ? "#fff3ac" : root.clinic.treatment==="done" ? "#b9efa9" : "#f29094"
                             border.color: "#253e57"; border.width: 2
-                            Rectangle { x: 3; y: 9; width: 18; height: 2; color: "#52707f" }
-                            Rectangle { x: 10; y: 7; width: 5; height: 5; radius: 2; color: "#fff6e0" }
+                            Rectangle { x: 4; y: 3; width: 15; height: 2; color: "#fff6e0"; opacity: .65 }
+                            Rectangle { x: 18; y: 5; width: 3; height: 10; color: "#52707f"; opacity: .55 }
+                            Rectangle { x: 7; y: 8; width: 4; height: 4; color: "#fff6e0" }
                         }
                     }
                 }

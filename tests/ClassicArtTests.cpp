@@ -30,19 +30,38 @@ class ClassicArtTests final : public QObject {
         file.write(QJsonDocument(QJsonObject{{"version",1},{"stage","flip-bootstrap"},{"images",images},{"targets",targets}}).toJson());
     }
 private slots:
+    void installedPacksNeverOverrideOriginalDefault() {
+        QTemporaryDir dir;fixture(dir.path());
+        ClassicArt imported(dir.path(),nullptr,ArtSource::Imported);
+        QVERIFY(imported.select("vulpix/37","second").isEmpty());
+        QFile index(dir.filePath("bootstrap-index.json")), choice(dir.filePath("choices.json"));
+        QVERIFY(index.open(QIODevice::ReadOnly));QVERIFY(choice.open(QIODevice::ReadOnly));
+        const auto indexBefore=index.readAll(), choiceBefore=choice.readAll();
+        ClassicArt original(dir.path());
+        for(const auto& profile:{"pokedexListArt","pokedexDetailArt","speciesPickerArt"})
+            QVERIFY(original.image("vulpix/37",profile)["builtin"].toBool());
+        QVERIFY(original.choices("vulpix/37").isEmpty());
+        QVERIFY(!original.select("vulpix/37","first").isEmpty());
+        OfflinePokedex reference;MockPokedexRepository progress;PokedexController dex(reference,progress);
+        dex.configureArtwork(&original);dex.applySearch("37");dex.activateControl("list",0);
+        QVERIFY(dex.detail()["art"].toMap()["builtin"].toBool());
+        QVERIFY(index.seek(0));QVERIFY(choice.seek(0));
+        QCOMPARE(index.readAll(),indexBefore);QCOMPARE(choice.readAll(),choiceBefore);
+    }
+
     void exactIdentityChoicePersistenceAndMissingFallback() {
-        QTemporaryDir dir; fixture(dir.path()); ClassicArt art(dir.path());
+        QTemporaryDir dir; fixture(dir.path()); ClassicArt art(dir.path(), nullptr, ArtSource::Imported);
         QVERIFY(art.image("vulpix/37","pokedexListArt")["available"].toBool());
         QVERIFY(art.image("vulpix/10205","pokedexDetailArt")["fallback"].toBool());
         QVERIFY(art.image("unknown/1","pokedexDetailArt")["fallback"].toBool());
         QCOMPARE(art.choices("vulpix/37").size(),2);
         QVERIFY(!art.select("vulpix/10205","first").isEmpty());
         QVERIFY(art.select("vulpix/37","second").isEmpty());
-        ClassicArt reopened(dir.path()); QCOMPARE(reopened.image("vulpix/37","pokedexDetailArt")["id"].toString(),"second");
+        ClassicArt reopened(dir.path(), nullptr, ArtSource::Imported); QCOMPARE(reopened.image("vulpix/37","pokedexDetailArt")["id"].toString(),"second");
         QCOMPARE(reopened.coverage(),"Illustrations · 1 / 2 forms");
     }
     void escapedOrMissingFilesNeverLoadAndFailurePreservesChoice() {
-        QTemporaryDir dir; fixture(dir.path(),true); ClassicArt art(dir.path());
+        QTemporaryDir dir; fixture(dir.path(),true); ClassicArt art(dir.path(), nullptr, ArtSource::Imported);
         QVERIFY(art.image("vulpix/37","pokedexListArt")["fallback"].toBool());
         QCOMPARE(art.choices("vulpix/37").size(),1);
         QDir(dir.path()).mkdir("choices.json");
@@ -50,7 +69,7 @@ private slots:
         QVERIFY(art.image("vulpix/37","pokedexListArt")["fallback"].toBool());
     }
     void controllerDraftCancelAndFormIsolation() {
-        QTemporaryDir dir; fixture(dir.path()); ClassicArt art(dir.path());
+        QTemporaryDir dir; fixture(dir.path()); ClassicArt art(dir.path(), nullptr, ArtSource::Imported);
         OfflinePokedex reference; MockPokedexRepository progress; PokedexController dex(reference,progress);
         dex.configureArtwork(&art); dex.applySearch("37"); dex.activateControl("list",0);
         dex.activateControl("rail",7); QCOMPARE(dex.zone(),"art");

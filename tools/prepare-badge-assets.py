@@ -78,7 +78,8 @@ def main():
                                 "viewBox": box, "sha256": hashlib.sha256(output.read_bytes()).hexdigest()})
             manifest["sets"][set_id] = {"sourceFile": "svg/" + region + ".svg",
                 "sourceSha256": hashlib.sha256(raw).hexdigest(), "vector": vector.name, "badges": entries}
-    (args.output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    # Legacy recreation tooling must not replace the active original-art manifest.
+    (args.output / "legacy-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

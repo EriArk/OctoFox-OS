@@ -17,8 +17,9 @@ QJsonObject objectFile(const QString& path, qint64 limit) {
     return QJsonDocument::fromJson(file.readAll()).object();
 }
 }
-ClassicArt::ClassicArt(const QString& directory, QObject* parent) : QObject(parent), directory_(directory) {
-    if (directory.isEmpty()) return;
+ClassicArt::ClassicArt(const QString& directory, QObject* parent, ArtSource source) : QObject(parent) {
+    if (source == ArtSource::Original || directory.isEmpty()) return;
+    directory_ = directory;
     const auto document = objectFile(QDir(directory).filePath("bootstrap-index.json"), 16 * 1024 * 1024);
     if (document.isEmpty()) return;
     if (document["version"].toInt() != 1 || document["stage"].toString() != "flip-bootstrap") {

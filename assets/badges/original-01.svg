@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+<!-- Original TrainerOS abstract medallion 1; GPL-3.0-or-later. -->
+<defs><linearGradient id="rim" x2="0.7" y2="1"><stop stop-color="#f4e8c8"/><stop offset=".46" stop-color="#b6c9bd"/><stop offset="1" stop-color="#547d80"/></linearGradient>
+<linearGradient id="glass" x2=".8" y2="1"><stop stop-color="#385c62"/><stop offset="1" stop-color="#163238"/></linearGradient></defs>
+<circle cx="96" cy="99" r="81" fill="#10282c" opacity=".22"/>
+<circle cx="96" cy="95" r="81" fill="url(#rim)"/>
+<circle cx="96" cy="95" r="73" fill="url(#glass)" stroke="#112f35" stroke-width="2"/>
+<path d="M36 70A65 65 0 0 1 121 36" fill="none" stroke="#fff9df" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>
+<g fill="none" stroke="#71c5c6" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"><path d="M96 48 124 76 96 104 68 76Z M68 92 96 120 124 92"/></g>
+<circle cx="68" cy="151" r="2.6" fill="#71c5c6"/><circle cx="76" cy="151" r="2.6" fill="#496063"/><circle cx="84" cy="151" r="2.6" fill="#496063"/><circle cx="92" cy="151" r="2.6" fill="#496063"/><circle cx="100" cy="151" r="2.6" fill="#496063"/><circle cx="108" cy="151" r="2.6" fill="#496063"/><circle cx="116" cy="151" r="2.6" fill="#496063"/><circle cx="124" cy="151" r="2.6" fill="#496063"/></svg>

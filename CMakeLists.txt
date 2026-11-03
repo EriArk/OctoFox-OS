@@ -356,7 +356,7 @@ if(TARGET Qt6::WebEngineQuick)
     target_compile_definitions(trainer_core PUBLIC TRAINER_WEBENGINE=1)
 endif()
 file(GLOB browser_control_icons CONFIGURE_DEPENDS assets/icons/browser-controls/*.svg)
-file(GLOB badge_images CONFIGURE_DEPENDS assets/badges/*.png)
+file(GLOB badge_images CONFIGURE_DEPENDS assets/badges/original-*.svg)
 qt_add_resources(trainer_core badge_assets PREFIX "/badges" BASE assets/badges
     FILES assets/badges/manifest.json ${badge_images})
 qt_add_resources(trainer_core collection PREFIX "/collection" BASE data FILES data/catalogue.json)

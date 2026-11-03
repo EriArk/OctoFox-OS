@@ -1,214 +1,110 @@
 {
-  "author": "Stephen Griffiths, 2011",
-  "license": "CC BY 3.0 Unported",
-  "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
-  "source": "https://github.com/SteGriff/pokemon-badges",
-  "revision": "89fde1733f2f819e7d3fe8036e68a8ade4c49579",
-  "modifications": "Vector layer extracted; embedded reference images/editor layers removed; square padded crops rendered to 192px PNG. Badge paths and colors unchanged.",
+  "author": "TrainerOS contributors",
+  "license": "GPL-3.0-or-later",
+  "source": "tools/generate-original-medallions.py",
+  "description": "Original abstract ordinal medallions; semantic badge identities are retained separately.",
   "sets": {
     "kanto-frlg": {
-      "sourceFile": "svg/Kanto.svg",
-      "sourceSha256": "30cc2bb605545c15ee7a9e22397a921d35a790bd22fe27ccade7db6482935e31",
-      "vector": "kanto-vectors.svg",
       "badges": [
         {
           "id": "boulder",
           "name": "Boulder Badge",
-          "image": "kanto-boulder.png",
-          "viewBox": [
-            64.08,
-            94.08,
-            63.839999999999996,
-            63.839999999999996
-          ],
-          "sha256": "9a4ea8043985d367e21b9be0acf5eda55d508609a5438254f4e538670b63af9b"
+          "image": "original-01.svg",
+          "sha256": "82ca658b48a156e631d39cff1d96976e7dc18e09a4d0a63d5cd28d35da88d19d"
         },
         {
           "id": "cascade",
           "name": "Cascade Badge",
-          "image": "kanto-cascade.png",
-          "viewBox": [
-            130.8,
-            89.80000000000001,
-            68.39999999999999,
-            68.39999999999999
-          ],
-          "sha256": "5d4f097d955e971bb689350b3061ce1aa7b80c724aeed206b2b19fba1ef4a925"
+          "image": "original-02.svg",
+          "sha256": "48235b66945f7bd6b6052df8ce0df2ccd71dc85cf7e8f30bbd29b22f3729b4a3"
         },
         {
           "id": "thunder",
           "name": "Thunder Badge",
-          "image": "kanto-thunder.png",
-          "viewBox": [
-            196.02,
-            91.52000000000001,
-            72.96,
-            72.96
-          ],
-          "sha256": "0fcc960f04801c11e1b247d6df01d3d1c815ae8187957ad8559bdcda9f63e2f0"
+          "image": "original-03.svg",
+          "sha256": "2b9243768a124c382449c2a2f215147b54a6e608e588a929f053e1c0de7d5761"
         },
         {
           "id": "rainbow",
           "name": "Rainbow Badge",
-          "image": "kanto-rainbow.png",
-          "viewBox": [
-            282.94,
-            95.94,
-            66.11999999999999,
-            66.11999999999999
-          ],
-          "sha256": "cf8e102d9c48d8790d080fe3c23dc0a560f557a96ae350333b73c61b6835ffb1"
+          "image": "original-04.svg",
+          "sha256": "bff9620a0dff0a7233b3c4ba61a5f8ce14557b1303b21735cf59bbe466a817d5"
         },
         {
           "id": "soul",
           "name": "Soul Badge",
-          "image": "kanto-soul.png",
-          "viewBox": [
-            359.23,
-            93.73,
-            69.53999999999999,
-            69.53999999999999
-          ],
-          "sha256": "944c39eaaf495972e93c648eec7c2fdb6e91b58c442cc3ac26057fb152db45b1"
+          "image": "original-05.svg",
+          "sha256": "ac6eb4da8f863139b8f921ed74590655c75a8ac524d4a81230cfe5f183f5c502"
         },
         {
           "id": "marsh",
           "name": "Marsh Badge",
-          "image": "kanto-marsh.png",
-          "viewBox": [
-            437.94,
-            98.94,
-            66.11999999999999,
-            66.11999999999999
-          ],
-          "sha256": "142a0d34fd3d502b4b127016312baf43c332a03d7984e503c8e32fe8ae88144a"
+          "image": "original-06.svg",
+          "sha256": "418af2c245d5dbcbedc391d2e68b904179c959bb76a5430ccf34fade321927a4"
         },
         {
           "id": "volcano",
           "name": "Volcano Badge",
-          "image": "kanto-volcano.png",
-          "viewBox": [
-            519.59,
-            98.59,
-            71.82,
-            71.82
-          ],
-          "sha256": "70bbb4398c563ce0fcd60354dcc290670b43dca1c05524c3f55aa6b55d42c14d"
+          "image": "original-07.svg",
+          "sha256": "f593171c0bb547704d1b57a5a04cee400feacf6cacc0aeaecf50ff5672a0c1e8"
         },
         {
           "id": "earth",
           "name": "Earth Badge",
-          "image": "kanto-earth.png",
-          "viewBox": [
-            618.51,
-            100.01,
-            64.97999999999999,
-            64.97999999999999
-          ],
-          "sha256": "bb88176a8d4792adeab39191106314d68a790ad9644fd0c93900e2a687066517"
+          "image": "original-08.svg",
+          "sha256": "49035b5b5e1659cf0fd83dfb3ade2077b82856f83722ea275298ce24c80af772"
         }
       ]
     },
     "hoenn-rse": {
-      "sourceFile": "svg/Hoenn.svg",
-      "sourceSha256": "cb52cb4e8a9fb43b89a862ae9591a6415d64a42ae4c30732e8e33c3f0d5f1452",
-      "vector": "hoenn-vectors.svg",
       "badges": [
         {
           "id": "stone",
           "name": "Stone Badge",
-          "image": "hoenn-stone.png",
-          "viewBox": [
-            54.870000000000005,
-            447.87,
-            67.25999999999999,
-            67.25999999999999
-          ],
-          "sha256": "ef786a9229f44fe0da82d20e232c379c41f396acb4ba804e0c05dd6d7d207adb"
+          "image": "original-01.svg",
+          "sha256": "82ca658b48a156e631d39cff1d96976e7dc18e09a4d0a63d5cd28d35da88d19d"
         },
         {
           "id": "knuckle",
           "name": "Knuckle Badge",
-          "image": "hoenn-knuckle.png",
-          "viewBox": [
-            143.73000000000002,
-            454.23,
-            69.53999999999999,
-            69.53999999999999
-          ],
-          "sha256": "fb85f46e936bfbbb47141f39f31f146295875925ccb2f9ef72fb8a9761fe8d06"
+          "image": "original-02.svg",
+          "sha256": "48235b66945f7bd6b6052df8ce0df2ccd71dc85cf7e8f30bbd29b22f3729b4a3"
         },
         {
           "id": "dynamo",
           "name": "Dynamo Badge",
-          "image": "hoenn-dynamo.png",
-          "viewBox": [
-            224.59,
-            450.59000000000003,
-            71.82,
-            71.82
-          ],
-          "sha256": "4e5c84f9e4f164890feb495d2133d7d22a5f44974529daea17cd6fdf7367779b"
+          "image": "original-03.svg",
+          "sha256": "2b9243768a124c382449c2a2f215147b54a6e608e588a929f053e1c0de7d5761"
         },
         {
           "id": "heat",
           "name": "Heat Badge",
-          "image": "hoenn-heat.png",
-          "viewBox": [
-            293.23,
-            449.73,
-            69.53999999999999,
-            69.53999999999999
-          ],
-          "sha256": "2fbd243e965d77443a4263e21cbf8e59b3e7d42862a3a14599232ca4e5d389f8"
+          "image": "original-04.svg",
+          "sha256": "bff9620a0dff0a7233b3c4ba61a5f8ce14557b1303b21735cf59bbe466a817d5"
         },
         {
           "id": "balance",
           "name": "Balance Badge",
-          "image": "hoenn-balance.png",
-          "viewBox": [
-            369.8,
-            458.8,
-            68.39999999999999,
-            68.39999999999999
-          ],
-          "sha256": "df920248bc4a92d406f89dde6cd728639f349e0d9e93a662b4f64651b523a1cb"
+          "image": "original-05.svg",
+          "sha256": "ac6eb4da8f863139b8f921ed74590655c75a8ac524d4a81230cfe5f183f5c502"
         },
         {
           "id": "feather",
           "name": "Feather Badge",
-          "image": "hoenn-feather.png",
-          "viewBox": [
-            452.73,
-            446.23,
-            69.53999999999999,
-            69.53999999999999
-          ],
-          "sha256": "ed840d8fc2851c452738f7863d5a263470aa584f6b9ac97652491a9232f62199"
+          "image": "original-06.svg",
+          "sha256": "418af2c245d5dbcbedc391d2e68b904179c959bb76a5430ccf34fade321927a4"
         },
         {
           "id": "mind",
           "name": "Mind Badge",
-          "image": "hoenn-mind.png",
-          "viewBox": [
-            529.73,
-            451.23,
-            69.53999999999999,
-            69.53999999999999
-          ],
-          "sha256": "b06e025f6769b18204b0d6b69dae2f2a0cfc0a781b6585ee60d3786af511a1f8"
+          "image": "original-07.svg",
+          "sha256": "f593171c0bb547704d1b57a5a04cee400feacf6cacc0aeaecf50ff5672a0c1e8"
         },
         {
           "id": "rain",
           "name": "Rain Badge",
-          "image": "hoenn-rain.png",
-          "viewBox": [
-            606.52,
-            446.52,
-            72.96,
-            72.96
-          ],
-          "sha256": "13257e7c0673371463820acb0fa36cc332ae87c9b56838d647b4e8559fd02116"
+          "image": "original-08.svg",
+          "sha256": "49035b5b5e1659cf0fd83dfb3ade2077b82856f83722ea275298ce24c80af772"
         }
       ]
     }

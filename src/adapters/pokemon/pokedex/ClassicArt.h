@@ -1,5 +1,6 @@
 #pragma once
 #include "core/experience/ExperienceProviders.h"
+#include "ArtSource.h"
 #include <QJsonObject>
 #include <QVariantList>
 
@@ -10,7 +11,7 @@ class ClassicArt final : public QObject, public ExperienceArtProvider {
     Q_OBJECT
     Q_PROPERTY(QString coverage READ coverage NOTIFY changed)
 public:
-    explicit ClassicArt(const QString& directory, QObject* parent = nullptr);
+    explicit ClassicArt(const QString& directory, QObject* parent = nullptr, ArtSource source = ArtSource::Original);
     QString coverage() const;
     QVariantMap image(const QString& target, const QString& profile) const override;
     QVariantList choices(const QString& target) const;

@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**Owner original-art correction, 3 November (latest):** apply original cuboid
+creatures to every adapter surface, including existing installed profiles. Legacy
+private packs must not activate merely because they exist on disk. Preserve their
+files and choices, but default both illustration and animation providers to original
+art; imported mode requires a deliberate future selection. Replace the bundled
+game-badge reproductions with original abstract medallions too. Keep semantic
+species/form/badge identities, saves and progress. Graphics switches remain later.
+This supersedes the older automatic user-pack precedence, not the separate #116 review.
+
 **Owner Emerald workspace correction, 2 November (latest):** adapter-owned categories replace the empty Game spaces peer and long screen sidebar. Emerald uses Team / Field Guide / Center / Trainer, L2/R2 and touch; each category remembers its screen. Games without adapter screens have no empty primary tab. Select opens the chosen adapter without launching; preserve active game context and protected saves. Support light/dark themes and compact layouts. The original cuboid creature fallback remains #161: preserve species names/data, user-pack precedence and #116 review; private installed art is not a shipped fallback. See [implementation/evidence](docs/evidence/2026-11-02-emerald-workspace/README.md).
 
 

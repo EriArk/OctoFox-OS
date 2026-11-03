@@ -129,6 +129,7 @@ Item {
         QVERIFY(pokemon);pokemon->pokedex()->configureArtwork(&builtins);pokemon->pokedex()->configureSprites(&sprites);
         pokemon->party()->configureArtwork(&builtins,&sprites);
         QQuickView view;view.engine()->addImageProvider("sprite-detail",new SpriteImages(sprites));QStringList warnings;
+        auto paths=view.engine()->importPathList();paths.removeAll(QCoreApplication::applicationDirPath());view.engine()->setImportPathList(paths);
         connect(view.engine(),&QQmlEngine::warnings,this,[&](const QList<QQmlError>& errors){for(const auto& e:errors) {
             // No private artwork is bundled in the fixture; missing optional images exercise the fallback.
             if(!e.description().contains("Cannot open:") && !e.description().contains("Cannot open file:") && !e.description().contains("Cannot read:"))warnings<<e.toString();

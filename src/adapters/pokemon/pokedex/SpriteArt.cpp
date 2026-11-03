@@ -12,8 +12,8 @@
 #include <QRegularExpression>
 
 namespace trainer {
-SpriteArt::SpriteArt(const QString& directory)
-    : directory_(QFileInfo(directory).canonicalFilePath()) {
+SpriteArt::SpriteArt(const QString& directory, ArtSource source)
+    : directory_(source == ArtSource::Imported ? QFileInfo(directory).canonicalFilePath() : QString()) {
     if (directory.isEmpty() || directory_.isEmpty()) return;
     QFile file(QDir(directory_).filePath("sprite-index.json"));
     if (!file.open(QIODevice::ReadOnly)) return;
