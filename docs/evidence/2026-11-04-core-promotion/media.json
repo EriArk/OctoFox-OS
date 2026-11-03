@@ -1,0 +1,18 @@
+{
+  "files": 130,
+  "bytes": 3170438407,
+  "redistributionReviewed": false,
+  "archive": {
+    "bytes": 3170570240,
+    "sha256": "d4d482a5e70bcd2aa316c3b384b698e71eac9d03c93edf7ffcb3bfd16b05a492"
+  },
+  "changedPaths": [
+    "runtimes/retroarch-cores/component.json",
+    "runtimes/retroarch-cores/component.tar.gz",
+    "sources/core-promoted-builds.json",
+    "sources/core-rebuild-candidate.tar",
+    "sources/core-source-bindings.json"
+  ],
+  "installed": false,
+  "published": false
+}

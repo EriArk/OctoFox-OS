@@ -1,0 +1,32 @@
+test_changed_archive_rejected_before_output (CorePromotionTests.CorePromotionTests.test_changed_archive_rejected_before_output) ... ok
+test_media_retains_unrelated_runtime_and_embeds_sources (CorePromotionTests.CorePromotionTests.test_media_retains_unrelated_runtime_and_embeds_sources) ... ok
+test_native_check_must_match_the_exact_replacement (CorePromotionTests.CorePromotionTests.test_native_check_must_match_the_exact_replacement) ... ok
+test_only_selected_core_changes_and_all_other_bytes_are_preserved (CorePromotionTests.CorePromotionTests.test_only_selected_core_changes_and_all_other_bytes_are_preserved) ... ok
+test_patch_list_must_agree_with_actual_build (CorePromotionTests.CorePromotionTests.test_patch_list_must_agree_with_actual_build) ... ok
+test_unselected_core_cannot_sneak_into_component (CorePromotionTests.CorePromotionTests.test_unselected_core_cannot_sneak_into_component) ... ok
+test_wrong_previous_binary_is_not_overwritten (CorePromotionTests.CorePromotionTests.test_wrong_previous_binary_is_not_overwritten) ... ok
+test_bundle_readback_preserves_candidate_boundary_and_prior_archive (CoreRebuildTests.CoreRebuildPackageTests.test_bundle_readback_preserves_candidate_boundary_and_prior_archive) ... ok
+test_exact_patch_is_packaged_and_tampering_rejected (CoreRebuildTests.CoreRebuildPackageTests.test_exact_patch_is_packaged_and_tampering_rejected) ... ok
+test_missing_probe_or_ambiguous_build_cannot_be_packaged (CoreRebuildTests.CoreRebuildPackageTests.test_missing_probe_or_ambiguous_build_cannot_be_packaged) ... ok
+test_patch_recipe_cannot_be_claimed_for_an_unpatched_binary (CoreRebuildTests.CoreRebuildPackageTests.test_patch_recipe_cannot_be_claimed_for_an_unpatched_binary) ... ok
+test_tampered_built_core_cannot_be_packaged (CoreRebuildTests.CoreRebuildPackageTests.test_tampered_built_core_cannot_be_packaged) ... ok
+test_candidate_keeps_original_identity_and_cannot_overwrite_attempt (CoreRebuildTests.CoreRebuildTests.test_candidate_keeps_original_identity_and_cannot_overwrite_attempt) ... ok
+test_host_binary_cannot_be_delivered_as_arm64 (CoreRebuildTests.CoreRebuildTests.test_host_binary_cannot_be_delivered_as_arm64) ... ok
+test_patch_cannot_escape_recipe_directory (CoreRebuildTests.CoreRebuildTests.test_patch_cannot_escape_recipe_directory) ... ok
+test_patch_change_is_rejected_before_source_or_build_mutation (CoreRebuildTests.CoreRebuildTests.test_patch_change_is_rejected_before_source_or_build_mutation) ... ok
+test_tampered_source_stops_before_build (CoreRebuildTests.CoreRebuildTests.test_tampered_source_stops_before_build) ... ok
+test_wrong_source_revision_and_artifact_escape_are_rejected (CoreRebuildTests.CoreRebuildTests.test_wrong_source_revision_and_artifact_escape_are_rejected) ... ok
+test_archive_core_and_source_tampering_are_separate_failures (CoreSourceTests.CoreSourceTests.test_archive_core_and_source_tampering_are_separate_failures) ... ok
+test_bundle_verifies_dirty_base_keeps_recipe_and_does_not_certify_build (CoreSourceTests.CoreSourceTests.test_bundle_verifies_dirty_base_keeps_recipe_and_does_not_certify_build) ... ok
+test_cannot_hide_extra_core_or_change_architecture (CoreSourceTests.CoreSourceTests.test_cannot_hide_extra_core_or_change_architecture) ... ok
+test_capsule_revision_and_material_path_are_verified (CoreSourceTests.CoreSourceTests.test_capsule_revision_and_material_path_are_verified) ... ok
+test_marker_crossing_chunk_boundary (CoreSourceTests.CoreSourceTests.test_marker_crossing_chunk_boundary) ... ok
+test_retained_record_must_match_exact_binary (CoreSourceTests.CoreSourceTests.test_retained_record_must_match_exact_binary) ... ok
+test_revision_string_may_follow_a_nonzero_binary_table (CoreSourceTests.CoreSourceTests.test_revision_string_may_follow_a_nonzero_binary_table) ... ok
+test_unknown_and_uncollected_are_visible (CoreSourceTests.CoreSourceTests.test_unknown_and_uncollected_are_visible) ... ok
+test_wrong_revision_and_absent_marker_are_rejected (CoreSourceTests.CoreSourceTests.test_wrong_revision_and_absent_marker_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.113s
+
+OK

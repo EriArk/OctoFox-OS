@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "shellRunning": true,
+  "plasmaRunning": false,
+  "gameRunning": false,
+  "softwareHealth": "first-frame-confirmed",
+  "gamescopeRunning": true,
+  "homeVisuallyConfirmed": true,
+  "returnMethod": "installed Return to TrainerOS desktop entry via KRunner",
+  "physicalGameplayChecked": false
+}

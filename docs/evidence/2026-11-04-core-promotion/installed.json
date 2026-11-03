@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "runtimeSequence": 13,
+  "previousRuntimeSequence": 12,
+  "softwareSource": "2a6c9c9b00b58e914525bd779c76896c8fcf5006",
+  "softwareAudit": {
+    "status": "ready",
+    "scope": "software-files",
+    "sessionIntegration": "recorded-not-audited",
+    "health": "awaiting-first-frame",
+    "problems": []
+  },
+  "runtimeAudit": {
+    "status": "ready",
+    "problems": [],
+    "scope": "user-runtime-files-and-flatpak-identities; privileged helpers checked during activation"
+  },
+  "coresVerified": 76,
+  "oldCoreRecoveryBlobsVerified": 18,
+  "previousSoftwarePairValid": true,
+  "unchangedPersonalFiles": 31,
+  "pendingTransaction": false,
+  "rollbackExecuted": false,
+  "freeInternalGiB": 16.24
+}

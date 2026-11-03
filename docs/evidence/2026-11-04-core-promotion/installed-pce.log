@@ -1,0 +1,57 @@
+[INFO] RetroArch 1.22.2 (Git 69a4f0ea1e)
+[INFO] === Build =======================================
+[INFO] Capabilities: ASIMD 
+[INFO] Version: 1.22.2
+[INFO] Git: 69a4f0ea1e
+[INFO] Built: Nov 11 2011
+[INFO] =================================================
+[INFO] [Input] Found input driver: "null".
+[INFO] [Core] Loading dynamic libretro core from: "PRIVATE_RUNTIME/.var/app/org.libretro.RetroArch/config/retroarch/cores/mednafen_pce_fast_libretro.so".
+[INFO] [Override] Redirecting save file to "TEST/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm".
+[INFO] [Override] Redirecting save state to "TEST/states/Beetle PCE Fast/Reflectron (aetherbyte).state".
+[INFO] [Environ] GET_CORE_OPTIONS_VERSION.
+[INFO] [Environ] GET_LANGUAGE: "0".
+[INFO] [Environ] SET_CORE_OPTIONS_V2_INTL.
+[INFO] [Environ] SET_CONTROLLER_INFO.
+[INFO] [Environ] SET_CONTENT_INFO_OVERRIDE.
+[INFO] [Content Override] File Extension: 'pce' - need_fullpath: FALSE, persistent_data: FALSE
+[INFO] [Environ] GET_VFS_INTERFACE. Core requested version >= V1, providing V3.
+[INFO] [Environ] GET_LOG_INTERFACE.
+[INFO] [Environ] GET_SYSTEM_DIRECTORY: "TEST/system".
+[INFO] [Environ] SET_PIXEL_FORMAT: RGB565.
+[libretro INFO] Frontend supports RGB565 - will use that instead of XRGB1555.
+[INFO] [Environ] GET_PERF_INTERFACE.
+[INFO] [Environ] SET_SUPPORT_ACHIEVEMENTS: yes.
+[INFO] [Environ] SET_PERFORMANCE_LEVEL: 5.
+[INFO] [Content] Loading content file: "PERSONAL_LIBRARY/roms/pcengine/Multiverse/Reflectron (aetherbyte).pce".
+[INFO] [Environ] GET_GAME_INFO_EXT.
+[INFO] [Environ] SET_INPUT_DESCRIPTORS.
+[INFO] [Environ] SET_AUDIO_BUFFER_STATUS_CALLBACK.
+[libretro INFO] PCE CD Audio settings changed.
+[INFO] [Environ] SET_MEMORY_MAPS.
+[INFO] [State] Found auto save state in "TEST/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto".
+[INFO] [State] Auto-loading save state from "TEST/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto" succeeded.
+[INFO] [Core] Version of libretro API: 1, Compiled against API: 1
+[INFO] [Core] Geometry: 256x243, Aspect: 1.200, FPS: 59.82, Sample rate: 44100.00 Hz.
+[INFO] [Video] Set video size to: 876x729.
+[INFO] [Video] Graphics driver did not initialize an input driver. Attempting to pick a suitable driver.
+[INFO] [Input] Found joypad driver: "udev".
+[INFO] [Video] Found display server: "null".
+[INFO] [Audio] Set audio input rate to: 44232.70 Hz.
+[INFO] [Playlist] Loading favorites file: "TEST/playlists/builtin/content_favorites.lpl".
+[ERROR] failed_to_start_audio_driver
+[INFO] [Environ] SET_MINIMUM_AUDIO_LATENCY.
+[INFO] [Environ] SET_GEOMETRY: 256x240, Aspect: 1.215.
+[INFO] [State] Loading state "TEST/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto", 80616 bytes.
+[INFO] [State] Saving state "RAM", 80616 bytes.
+[INFO] [State] Auto save state to "TEST/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto" succeeded.
+[ERROR] failed_to_start_audio_driver
+[INFO] [SRAM] Saving RAM type #0 to "TEST/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm".
+[INFO] [SRAM] Saved successfully to "TEST/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm".
+[INFO] [Runtime] Content ran for a total of: 00 hours, 00 minutes, 10 seconds.
+[INFO] [Core] Unloading game...
+[INFO] [Core] Unloading core...
+[libretro INFO] [Beetle PCE Fast]: Samples / Frame: 737.12667
+[libretro INFO] [Beetle PCE Fast]: Estimated FPS: 59.82690
+[INFO] [Core] Unloading core symbols...
+[INFO] [Core] Saved core options file to "TEST/config/Beetle PCE Fast/Beetle PCE Fast.opt".

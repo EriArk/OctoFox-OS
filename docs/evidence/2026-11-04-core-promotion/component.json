@@ -1,0 +1,27 @@
+{
+  "archive": {
+    "bytes": 298881746,
+    "sha256": "6c56d51e1d50d3fd36789839aadde42ff8760762152e52931faa1d1d90bcc732"
+  },
+  "files": 148,
+  "replaced": [
+    "amiarcadia",
+    "applewin",
+    "arduous",
+    "b2",
+    "dosbox_pure",
+    "emuscv",
+    "ep128emu_core",
+    "gearcoleco",
+    "hatari",
+    "lowresnx",
+    "mednafen_pce_fast",
+    "minivmac",
+    "pokemini",
+    "same_cdi",
+    "uzem",
+    "vircon32",
+    "wasm4",
+    "x1"
+  ]
+}

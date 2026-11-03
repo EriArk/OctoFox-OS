@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "method": "installed core, 600 frames, null video/audio, isolated copy of retained-core state/SRAM",
+  "exitCode": 0,
+  "coreSha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077",
+  "sramUnchanged": true,
+  "sramFiles": 1,
+  "stateLog": [
+    "[INFO] [State] Found auto save state in \"TEST/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto\".",
+    "[INFO] [State] Auto-loading save state from \"TEST/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto\" succeeded.",
+    "[INFO] [State] Loading state \"TEST/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto\", 80616 bytes.",
+    "[INFO] [State] Saving state \"RAM\", 80616 bytes.",
+    "[INFO] [State] Auto save state to \"TEST/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto\" succeeded.",
+    "[INFO] [SRAM] Saving RAM type #0 to \"TEST/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm\".",
+    "[INFO] [SRAM] Saved successfully to \"TEST/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm\"."
+  ]
+}

@@ -1,0 +1,675 @@
+{
+  "schema": 1,
+  "cores": [
+    {
+      "core": "amiarcadia",
+      "commit": "8ca27c925833fe0021475155512c7f467924f647",
+      "sourceSha256": "fb3045b0c9c47ab0626f8ed14262c5a7d136674d16db795dc7a2cb9c323f759d",
+      "previousBinary": {
+        "bytes": 848992,
+        "sha256": "fc97cbcdd12d9b46227adb9c753ead020d74f655dc3c5d4aa63debc6d386a4c8"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/amiarcadia/rebuild-amiarcadia",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 885848,
+      "sha256": "730c1599b4571592eb0b002b77e19b06c10f2d4d67288cdb5db048974b70ba36",
+      "artifact": "amiarcadia_libretro.so",
+      "dynamic": "\nDynamic section at offset 0xcf7e0 contains 26 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x46b98\n 0x000000000000000d (FINI)               0x61c68\n 0x0000000000000019 (INIT_ARRAY)         0xba888\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0xba890\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x2a78\n 0x0000000000000006 (SYMTAB)             0xbe8\n 0x000000000000000a (STRSZ)              3744 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0xdffe8\n 0x0000000000000002 (PLTRELSZ)           2184 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x46310\n 0x0000000000000007 (RELA)               0x3c08\n 0x0000000000000008 (RELASZ)             272136 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x3ba8\n 0x000000006fffffff (VERNEEDNUM)         3\n 0x000000006ffffff0 (VERSYM)             0x3918\n 0x000000006ffffff9 (RELACOUNT)          11143\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "amiarcadia_libretro.so"
+    },
+    {
+      "core": "applewin",
+      "sourceId": "rebuild-applewin-libretro",
+      "buildSystem": "cmake",
+      "commit": "ae584dad0156a03048c7df6e1d31165dce354eba",
+      "sourceSha256": "3d66f54a8aec06e70d5f3b05c3cea460384ac674143929baf2795e46be5b8afb",
+      "previousBinary": {
+        "bytes": 3820680,
+        "sha256": "321cb5cd20a28c6e4540dfc3263c092cd504e4153a7810a63e0072d019f4af8c"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "git",
+          "-C",
+          "/work/attempts/attempt08/applewin/rebuild-applewin-libretro",
+          "apply",
+          "--check",
+          "/work/patches/applewin-relocatable-resources.patch"
+        ],
+        [
+          "git",
+          "-C",
+          "/work/attempts/attempt08/applewin/rebuild-applewin-libretro",
+          "apply",
+          "/work/patches/applewin-relocatable-resources.patch"
+        ],
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt08/applewin/rebuild-applewin-libretro",
+          "-B",
+          "/work/attempts/attempt08/applewin/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DBUILD_LIBRETRO=ON",
+          "-DBUILD_APPLEN=OFF",
+          "-DBUILD_QAPPLE=OFF",
+          "-DBUILD_SA2=OFF",
+          "-DENABLE_NETWORKING=OFF"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt08/applewin/cmake",
+          "-j2"
+        ]
+      ],
+      "patches": [
+        {
+          "file": "patches/applewin-relocatable-resources.patch",
+          "sha256": "f1bb23cb329e1bd207a03ada4ea56f12562de561cae540a17ad3e4b8aa668543"
+        }
+      ],
+      "status": "built",
+      "bytes": 3979416,
+      "sha256": "f1330e1e74614e3c9ddd9710484133507fcd9106ca9e17ed87f223ea18380890",
+      "artifact": "applewin_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x29eeb0 contains 30 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libz.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000e (SONAME)             Library soname: [applewin_libretro.so]\n 0x000000000000000c (INIT)               0x4f5a0\n 0x000000000000000d (FINI)               0x2073c0\n 0x0000000000000019 (INIT_ARRAY)         0x2ac5a8\n 0x000000000000001b (INIT_ARRAYSZ)       192 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x2ac668\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x19ba8\n 0x0000000000000006 (SYMTAB)             0x6240\n 0x000000000000000a (STRSZ)              118329 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x2affe8\n 0x0000000000000002 (PLTRELSZ)           40536 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x45748\n 0x0000000000000007 (RELA)               0x385c0\n 0x0000000000000008 (RELASZ)             53640 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x38400\n 0x000000006fffffff (VERNEEDNUM)         5\n 0x000000006ffffff0 (VERSYM)             0x369e2\n 0x000000006ffffff9 (RELACOUNT)          436\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "applewin_libretro.so"
+    },
+    {
+      "core": "arduous",
+      "commit": "831b83e67ad46e8c86b8165649ff81bc6fc6c157",
+      "sourceSha256": "8e98f04a269cc48a8ef7b2f4afdb429f7478496ffe8faf214250149dc845c215",
+      "previousBinary": {
+        "bytes": 174216,
+        "sha256": "ee8bde607b151ce064e0130a8dedb4fd9ec49ea9bfe236ff12b8bf18ad396549"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt01/arduous/rebuild-arduous",
+          "-B",
+          "/work/attempts/attempt01/arduous/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DLIBRETRO=ON",
+          "-DWERROR=OFF"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt01/arduous/cmake",
+          "-j2"
+        ]
+      ],
+      "status": "built",
+      "bytes": 227368,
+      "sha256": "918fc55fb8fab61d16333a1739909aa08751c5b3b5fb8659e5c271dec3b56eff",
+      "artifact": "arduous_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x2fd40 contains 28 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000e (SONAME)             Library soname: [arduous_libretro.so]\n 0x000000000000000c (INIT)               0x5378\n 0x000000000000000d (FINI)               0x1c0ec\n 0x0000000000000019 (INIT_ARRAY)         0x39ba8\n 0x000000000000001b (INIT_ARRAYSZ)       16 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x39bb8\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x1e08\n 0x0000000000000006 (SYMTAB)             0x758\n 0x000000000000000a (STRSZ)              4558 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x3ffe8\n 0x0000000000000002 (PLTRELSZ)           3720 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x44f0\n 0x0000000000000007 (RELA)               0x3290\n 0x0000000000000008 (RELASZ)             4704 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x31c0\n 0x000000006fffffff (VERNEEDNUM)         4\n 0x000000006ffffff0 (VERSYM)             0x2fd6\n 0x000000006ffffff9 (RELACOUNT)          168\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "arduous_libretro.so"
+    },
+    {
+      "core": "b2",
+      "commit": "9793f6a8040c416d147003cada29363b955b54e7",
+      "sourceSha256": "da80c3f3bf2ce6458006accf95ee328691da6eae156664ca5de6149b834676b7",
+      "previousBinary": {
+        "bytes": 7844872,
+        "sha256": "8d4c6eaed3f7df78871a25d1491a20141a610ebf064fca398a9c4a3414ed6817"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/b2/rebuild-b2/src/libretro",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 7869520,
+      "sha256": "3262c0dbf306d68aa89b306fe4fa59322bf7291a7a1bda204ae139d7d491d800",
+      "artifact": "b2_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x77f580 contains 32 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libmvec.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x199508\n 0x000000000000000d (FINI)               0x5ead70\n 0x0000000000000019 (INIT_ARRAY)         0x688478\n 0x000000000000001b (INIT_ARRAYSZ)       176 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x688528\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x1248\n 0x0000000000000006 (SYMTAB)             0x2e8\n 0x000000000000000a (STRSZ)              3627 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x78ffe8\n 0x0000000000000002 (PLTRELSZ)           2808 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x198a10\n 0x000000006ffffef6 (TLSDESC_PLT)        0x199c70\n 0x000000006ffffef7 (TLSDESC_GOT)        0x78ffd8\n 0x0000000000000007 (RELA)               0x2360\n 0x0000000000000008 (RELASZ)             1664688 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x0000000070000005 (AARCH64_VARIANT_PCS) 0x0\n 0x000000006ffffffe (VERNEED)            0x21c0\n 0x000000006fffffff (VERNEEDNUM)         6\n 0x000000006ffffff0 (VERSYM)             0x2074\n 0x000000006ffffff9 (RELACOUNT)          69269\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "b2_libretro.so"
+    },
+    {
+      "core": "dosbox_pure",
+      "commit": "73e03aa145e0549ed4d5a20f8e65532714da33f5",
+      "sourceSha256": "493974cc40c27dafd573d0bb563847a50b239a5278cffbed062dad104dce5fdb",
+      "previousBinary": {
+        "bytes": 2850928,
+        "sha256": "a391d8708269edca8d7d4e84183fbc30a78a27d4fe45645566d7a8dd3e2cfc90"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/dosbox_pure/rebuild-dosbox_pure",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip",
+          "UNAMEM=aarch64"
+        ]
+      ],
+      "status": "built",
+      "bytes": 2976160,
+      "sha256": "ba7d6fb51628a29aefe003ab6eb6f1af6a4b5dcfb5a23ee16768fd121243a45e",
+      "artifact": "dosbox_pure_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x28f3a8 contains 28 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x34bb0\n 0x000000000000000d (FINI)               0x1f75e8\n 0x0000000000000019 (INIT_ARRAY)         0x288390\n 0x000000000000001b (INIT_ARRAYSZ)       136 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x288418\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x1ed0\n 0x0000000000000006 (SYMTAB)             0x460\n 0x000000000000000a (STRSZ)              9601 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x28ffe8\n 0x0000000000000002 (PLTRELSZ)           5424 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x33680\n 0x0000000000000007 (RELA)               0x4808\n 0x0000000000000008 (RELASZ)             192120 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x4688\n 0x000000006fffffff (VERNEEDNUM)         5\n 0x000000006ffffff0 (VERSYM)             0x4452\n 0x000000006ffffff9 (RELACOUNT)          7740\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "dosbox_pure_libretro.so"
+    },
+    {
+      "core": "emuscv",
+      "commit": "17407117018919545428b753277dabd83630052f",
+      "sourceSha256": "795fa9b2e70237111553ad0059d2737785846f8114e6649ae991345fd3dc3955",
+      "previousBinary": {
+        "bytes": 4181232,
+        "sha256": "cbb19ce5d7187dfe22cc865d1885ae575802bcd45e244e0dbd4dc4bbe9ba4779"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/emuscv/rebuild-emuscv",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 4311208,
+      "sha256": "a5518091a1dec136bb728c2cb74ec74989eb4593bf5bd17497af474368fb6020",
+      "artifact": "emuscv_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x3ff918 contains 28 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0xab18\n 0x000000000000000d (FINI)               0x81174\n 0x0000000000000019 (INIT_ARRAY)         0x40d1c0\n 0x000000000000001b (INIT_ARRAYSZ)       16 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x40d1d0\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x1198\n 0x0000000000000006 (SYMTAB)             0x370\n 0x000000000000000a (STRSZ)              2435 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x40ffe8\n 0x0000000000000002 (PLTRELSZ)           2664 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0xa0b0\n 0x0000000000000007 (RELA)               0x1d40\n 0x0000000000000008 (RELASZ)             33648 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x1c50\n 0x000000006fffffff (VERNEEDNUM)         5\n 0x000000006ffffff0 (VERSYM)             0x1b1c\n 0x000000006ffffff9 (RELACOUNT)          1384\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "emuscv_libretro.so"
+    },
+    {
+      "core": "ep128emu_core",
+      "commit": "6af5d03de220e6effcd0ffcd99e0fb8e8c77cc9e",
+      "sourceSha256": "ddfc8b40b646be74acb8777210e6e85d51e92fd36b145e95d21c25a074a0698b",
+      "previousBinary": {
+        "bytes": 3652528,
+        "sha256": "0a589aefa2946ab7b7dc1c518e6947852ab4c7eb9aafc825446af14b36f4ea08"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/ep128emu_core/rebuild-ep128emu_core",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 3697600,
+      "sha256": "78186615f1fb648cadb8fd204360fb49ff38f4cba67cbf63f564bb552da338f9",
+      "artifact": "ep128emu_core_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x37f4b0 contains 28 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x10d80\n 0x000000000000000d (FINI)               0xa8bfc\n 0x0000000000000019 (INIT_ARRAY)         0x38b980\n 0x000000000000001b (INIT_ARRAYSZ)       88 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x38b9d8\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x1548\n 0x0000000000000006 (SYMTAB)             0x2e8\n 0x000000000000000a (STRSZ)              4498 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x38ffe8\n 0x0000000000000002 (PLTRELSZ)           3456 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x10000\n 0x0000000000000007 (RELA)               0x2998\n 0x0000000000000008 (RELASZ)             54888 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x2868\n 0x000000006fffffff (VERNEEDNUM)         5\n 0x000000006ffffff0 (VERSYM)             0x26da\n 0x000000006ffffff9 (RELACOUNT)          2101\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "ep128emu_core_libretro.so"
+    },
+    {
+      "core": "gearcoleco",
+      "sourceId": "rebuild-gearcoleco",
+      "buildSystem": "make",
+      "commit": "3c3b7b6ef047ac255d413fa89355e9cd99ea91b7",
+      "sourceSha256": "fe32d51295dd4dfeb2c3d941484f15cd32a7fcf5505489ad765832f9eeee9ec4",
+      "previousBinary": {
+        "bytes": 467416,
+        "sha256": "0e9656d318019b4085ae0af431611cc906855f26e279781dbd79c5cb05f28d6c"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt06/gearcoleco/rebuild-gearcoleco/platforms/libretro",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip",
+          "GIT_VERSION=3c3b7b6ef047"
+        ]
+      ],
+      "status": "built",
+      "bytes": 608080,
+      "sha256": "cf04fb0d28b2756db5445a0240b3b1cf7440a37120fa3800d71659e65e0b0022",
+      "artifact": "gearcoleco_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x5fd80 contains 27 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x5338\n 0x000000000000000d (FINI)               0x3f100\n 0x0000000000000019 (INIT_ARRAY)         0x5eed0\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x5eed8\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0xe20\n 0x0000000000000006 (SYMTAB)             0x2c8\n 0x000000000000000a (STRSZ)              3157 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x5ffe8\n 0x0000000000000002 (PLTRELSZ)           1848 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x4c00\n 0x0000000000000007 (RELA)               0x1c48\n 0x0000000000000008 (RELASZ)             12216 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x1b68\n 0x000000006fffffff (VERNEEDNUM)         4\n 0x000000006ffffff0 (VERSYM)             0x1a76\n 0x000000006ffffff9 (RELACOUNT)          452\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "gearcoleco_libretro.so"
+    },
+    {
+      "core": "hatari",
+      "commit": "5831f66e05ae19435bd9d8ef1c6f9c93998ff6f4",
+      "sourceSha256": "03f785630a00bdf618fb04a597edaad2594d9d7b3d82a0b8889877ee5bec389a",
+      "previousBinary": {
+        "bytes": 20347632,
+        "sha256": "317eb58690a748828dd27fd50a0fd80811e2da023bf164b70dbb24c1c3c53c19"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt01/hatari/rebuild-hatari",
+          "-B",
+          "/work/attempts/attempt01/hatari/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DENABLE_LIBRETRO=ON",
+          "-DENABLE_HATARI=OFF",
+          "-DENABLE_TOOLS=OFF"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt01/hatari/cmake",
+          "-j2"
+        ],
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt01/hatari/rebuild-hatari",
+          "-B",
+          "/work/attempts/attempt01/hatari/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DENABLE_LIBRETRO=ON",
+          "-DENABLE_HATARI=OFF",
+          "-DENABLE_TOOLS=OFF",
+          "-DCMAKE_C_STANDARD_LIBRARIES=-lm -ludev",
+          "-DCMAKE_MODULE_LINKER_FLAGS=-Wl,-z,defs"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt01/hatari/cmake",
+          "-j2",
+          "--target",
+          "hatari_libretro"
+        ]
+      ],
+      "status": "built",
+      "bytes": 21714552,
+      "sha256": "8978c238ca8be94ff055b55a0d435b8cfe1213590ee485418f78386c07aac578",
+      "artifact": "hatari_libretro.so",
+      "cachedSourceFilesVerified": 745,
+      "resumedFrom": "attempt01",
+      "sourceId": "rebuild-hatari",
+      "dynamic": "\nDynamic section at offset 0x131ec60 contains 28 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libz.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libudev.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x36ec00\n 0x000000000000000d (FINI)               0xef8b74\n 0x0000000000000019 (INIT_ARRAY)         0x11933a0\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x11933a8\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x126d78\n 0x0000000000000006 (SYMTAB)             0x4c5d0\n 0x000000000000000a (STRSZ)              530333 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x131ffe8\n 0x0000000000000002 (PLTRELSZ)           34560 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x366500\n 0x0000000000000007 (RELA)               0x1ba928\n 0x0000000000000008 (RELASZ)             1752024 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x1ba868\n 0x000000006fffffff (VERNEEDNUM)         5\n 0x000000006ffffff0 (VERSYM)             0x1a8516\n 0x000000006ffffff9 (RELACOUNT)          6118\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "hatari_libretro.so"
+    },
+    {
+      "core": "lowresnx",
+      "commit": "b1ba4da0fd289d316eb23c9454df3a809e6a59f4",
+      "sourceSha256": "532bb76aae8af4da89d439d6bcdfa84de72e7542958cf551e80e19b04ddda564",
+      "previousBinary": {
+        "bytes": 133328,
+        "sha256": "6a28c0d9e095dac15f2769b4bbeadbf2047e2aedfc2486e2cf1af28df323b688"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/lowresnx/rebuild-lowresnx/platform/LibRetro",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 159768,
+      "sha256": "944ce6573f867beb18926459fc66af76a5bf33ef24bfaffed6469f5a604a204e",
+      "artifact": "lowresnx_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x1fce8 contains 26 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x2d08\n 0x000000000000000d (FINI)               0x1633c\n 0x0000000000000019 (INIT_ARRAY)         0x2fcd8\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x2fce0\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x940\n 0x0000000000000006 (SYMTAB)             0x2c8\n 0x000000000000000a (STRSZ)              943 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x2ffe8\n 0x0000000000000002 (PLTRELSZ)           888 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x2990\n 0x0000000000000007 (RELA)               0xe00\n 0x0000000000000008 (RELASZ)             7056 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0xd80\n 0x000000006fffffff (VERNEEDNUM)         3\n 0x000000006ffffff0 (VERSYM)             0xcf0\n 0x000000006ffffff9 (RELACOUNT)          288\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "lowresnx_libretro.so"
+    },
+    {
+      "core": "mednafen_pce_fast",
+      "commit": "1c693c630121366f0b819d785762f1ce5b3a68d0",
+      "sourceSha256": "631b1d1661aa6649bf1e33846928ebe1c05a5f74159dbc4ffac8772f67daf48f",
+      "previousBinary": {
+        "bytes": 4465448,
+        "sha256": "f7686b2bfab6a9ca34d3d48e6eda5c41ae37c430cf5c73b0f256cefd54990a51"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/mednafen_pce_fast/rebuild-mednafen_pce_fast",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 4589240,
+      "sha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077",
+      "artifact": "mednafen_pce_fast_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x15fc20 contains 26 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x863b0\n 0x000000000000000d (FINI)               0x108588\n 0x0000000000000019 (INIT_ARRAY)         0x16f840\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x16f848\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x1210\n 0x0000000000000006 (SYMTAB)             0x3d0\n 0x000000000000000a (STRSZ)              2316 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x16ffe8\n 0x0000000000000002 (PLTRELSZ)           2712 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x85918\n 0x0000000000000007 (RELA)               0x1cc0\n 0x0000000000000008 (RELASZ)             539736 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x1c50\n 0x000000006fffffff (VERNEEDNUM)         3\n 0x000000006ffffff0 (VERSYM)             0x1b1c\n 0x000000006ffffff9 (RELACOUNT)          22480\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "mednafen_pce_fast_libretro.so"
+    },
+    {
+      "core": "minivmac",
+      "commit": "babdf7b53d361a7225858b68a8a64efe8b06f5e5",
+      "sourceSha256": "2bfc3cf49c57e0b82364b6f999370e3bc213ed23859ed91c74f8d37e046de9e5",
+      "previousBinary": {
+        "bytes": 594720,
+        "sha256": "09acdbb9f72352ebf54cdee8ae3864acf681753103183ffcabd9845d90cfffec"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/minivmac/rebuild-minivmac",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 707568,
+      "sha256": "7f83ab0c9cb8743ca1b2eb673bff439797c8cd1233ba0c6d3f7789919fc3b994",
+      "artifact": "minivmac_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x8fac0 contains 26 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x7af8\n 0x000000000000000d (FINI)               0x71d1c\n 0x0000000000000019 (INIT_ARRAY)         0x9e1d0\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x9e1d8\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x12f0\n 0x0000000000000006 (SYMTAB)             0x468\n 0x000000000000000a (STRSZ)              2238 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x9ffe8\n 0x0000000000000002 (PLTRELSZ)           2688 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x7078\n 0x0000000000000007 (RELA)               0x1d68\n 0x0000000000000008 (RELASZ)             21264 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x1ce8\n 0x000000006fffffff (VERNEEDNUM)         3\n 0x000000006ffffff0 (VERSYM)             0x1bae\n 0x000000006ffffff9 (RELACOUNT)          874\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "minivmac_libretro.so"
+    },
+    {
+      "core": "pokemini",
+      "commit": "132111b76343559860532a1ccc094f93f1ed5650",
+      "sourceSha256": "aec1e442307dd6e71a74833945fb39a7b39e044d5bbf8aaa68593fad30354aa0",
+      "previousBinary": {
+        "bytes": 356344,
+        "sha256": "afaf6d425a283b7dce94ab2e8e5da21f267f1fa808f47348044f4f3dc9f943f2"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/pokemini/rebuild-pokemini",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 446872,
+      "sha256": "26f0fd4c9c8869a56edee23e10f4e8dee1451bc2600d1e97f15f52926933a71c",
+      "artifact": "pokemini_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x4f4c8 contains 25 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x61d0\n 0x000000000000000d (FINI)               0x35b34\n 0x0000000000000019 (INIT_ARRAY)         0x5f3f8\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x5f400\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0xe20\n 0x0000000000000006 (SYMTAB)             0x370\n 0x000000000000000a (STRSZ)              1699 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x5ffe8\n 0x0000000000000002 (PLTRELSZ)           1872 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x5a80\n 0x0000000000000007 (RELA)               0x15f8\n 0x0000000000000008 (RELASZ)             17544 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x15a8\n 0x000000006fffffff (VERNEEDNUM)         2\n 0x000000006ffffff0 (VERSYM)             0x14c4\n 0x000000006ffffff9 (RELACOUNT)          720\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "pokemini_libretro.so"
+    },
+    {
+      "core": "same_cdi",
+      "commit": "ff9bb99a50d518aef6d2add1c49b7c44447e3e78",
+      "sourceSha256": "a7078ce9140af693b9395b0a668fdf27981b94445c90d8682b046b3d50f51147",
+      "previousBinary": {
+        "bytes": 11004656,
+        "sha256": "17f8f0b0aa81a4bfc9e09bb399fcfb29d6aa58c7592247d25c079dd9b42a9ef7"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/same_cdi/rebuild-same_cdi",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 15133088,
+      "sha256": "111c91fb1de623f6fd4e6b14054d3d47aec3db8c99c73467d1928df2f2aa9e31",
+      "artifact": "same_cdi_libretro.so",
+      "dynamic": "\nDynamic section at offset 0xaba1c0 contains 30 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0xae360\n 0x000000000000000d (FINI)               0x8119c0\n 0x0000000000000019 (INIT_ARRAY)         0xa8d3b8\n 0x000000000000001b (INIT_ARRAYSZ)       320 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0xa8d4f8\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x2f70\n 0x0000000000000006 (SYMTAB)             0x3d8\n 0x000000000000000a (STRSZ)              13657 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0xacffe8\n 0x0000000000000002 (PLTRELSZ)           8688 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0xac170\n 0x000000006ffffef6 (TLSDESC_PLT)        0xafa20\n 0x000000006ffffef7 (TLSDESC_GOT)        0xacffe0\n 0x0000000000000007 (RELA)               0x6ae0\n 0x0000000000000008 (RELASZ)             677520 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x6870\n 0x000000006fffffff (VERNEEDNUM)         5\n 0x000000006ffffff0 (VERSYM)             0x64ca\n 0x000000006ffffff9 (RELACOUNT)          25636\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "same_cdi_libretro.so"
+    },
+    {
+      "core": "uzem",
+      "commit": "d991ee94547c8294abc1c4cb73d63116aa58b5bc",
+      "sourceSha256": "322bd60ad2a12525e0d681a2a6557c40d70333da9fc537c8bc8595002653df51",
+      "previousBinary": {
+        "bytes": 77056,
+        "sha256": "d75685c9191a2d07422568960ac68e5dc0f3ea5a796c115c4ec1aa43d84ff609"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/uzem/rebuild-uzem",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 159344,
+      "sha256": "dcac43499b5f0e192951844486a5faa69e96f132c246c2a96ea0e01e19b07c68",
+      "artifact": "uzem_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x1fd38 contains 27 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x28f8\n 0x000000000000000d (FINI)               0xd448\n 0x0000000000000019 (INIT_ARRAY)         0x2fcf0\n 0x000000000000001b (INIT_ARRAYSZ)       16 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x2fd00\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x10b0\n 0x0000000000000006 (SYMTAB)             0x3a8\n 0x000000000000000a (STRSZ)              2144 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x2ffe8\n 0x0000000000000002 (PLTRELSZ)           2448 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x1f68\n 0x0000000000000007 (RELA)               0x1ae8\n 0x0000000000000008 (RELASZ)             1152 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x1a28\n 0x000000006fffffff (VERNEEDNUM)         4\n 0x000000006ffffff0 (VERSYM)             0x1910\n 0x000000006ffffff9 (RELACOUNT)          41\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "uzem_libretro.so"
+    },
+    {
+      "core": "vircon32",
+      "commit": "dd78c5cea1fcaa382b7492d0d813d6c1534914d7",
+      "sourceSha256": "afc4281cf926f928e81c8892268a33f91fbb1ef35142a84a1392aeff2fefd4c0",
+      "previousBinary": {
+        "bytes": 2846552,
+        "sha256": "51bad96135f05b3c9c536bacc3f61c2e08b31520924b8164de64fb369180e494"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt01/vircon32/rebuild-vircon32",
+          "-B",
+          "/work/attempts/attempt01/vircon32/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt01/vircon32/cmake",
+          "-j2"
+        ]
+      ],
+      "status": "built",
+      "bytes": 3944728,
+      "sha256": "00d908fb95ff139e2858a259ed5d34411e8439e47deea8af9f88150a15ae0d4b",
+      "artifact": "vircon32_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x30ef80 contains 30 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libGL.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000e (SONAME)             Library soname: [vircon32_libretro.so]\n 0x000000000000000c (INIT)               0xbac88\n 0x000000000000000d (FINI)               0x1b4634\n 0x0000000000000019 (INIT_ARRAY)         0x313868\n 0x000000000000001b (INIT_ARRAYSZ)       120 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x3138e0\n 0x000000000000001c (FINI_ARRAYSZ)       16 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x228\n 0x0000000000000005 (STRTAB)             0x34848\n 0x0000000000000006 (SYMTAB)             0xca50\n 0x000000000000000a (STRSZ)              342106 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x31ffe8\n 0x0000000000000002 (PLTRELSZ)           62136 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0xab9d0\n 0x000000006ffffef6 (TLSDESC_PLT)        0xc4e80\n 0x000000006ffffef7 (TLSDESC_GOT)        0x31ffe0\n 0x0000000000000007 (RELA)               0x8b6c0\n 0x0000000000000008 (RELASZ)             131856 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x8b5d0\n 0x000000006fffffff (VERNEEDNUM)         3\n 0x000000006ffffff0 (VERSYM)             0x880a2\n 0x000000006ffffff9 (RELACOUNT)          1628\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "vircon32_libretro.so"
+    },
+    {
+      "core": "wasm4",
+      "sourceId": "rebuild-wasm4",
+      "buildSystem": "cmake",
+      "commit": "9d6c962785cfe3719d0245fd279ecbe98a4dbb63",
+      "sourceSha256": "ce81eb5a7d8ad581065a08dd993cb6cd53ab52057a544d57e650bb03fd0b6ece",
+      "previousBinary": {
+        "bytes": 153824,
+        "sha256": "3e2328e279173d7de4f942fc5e455aa9b5d4d668e89242ade0738509dcd80bfb"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt06/wasm4/rebuild-wasm4/runtimes/native",
+          "-B",
+          "/work/attempts/attempt06/wasm4/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DLIBRETRO=ON",
+          "-DCMAKE_C_STANDARD_LIBRARIES=-lm"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt06/wasm4/cmake",
+          "-j2"
+        ]
+      ],
+      "status": "built",
+      "bytes": 235352,
+      "sha256": "729878c03aedef094c916039c11ec635a83127540fc03aeeff40e6c440bada81",
+      "artifact": "wasm4_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x2fdb8 contains 27 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libm.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000e (SONAME)             Library soname: [wasm4_libretro.so]\n 0x000000000000000c (INIT)               0x4810\n 0x000000000000000d (FINI)               0x1991c\n 0x0000000000000019 (INIT_ARRAY)         0x3ca00\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x3ca08\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x880\n 0x0000000000000006 (SYMTAB)             0x2c8\n 0x000000000000000a (STRSZ)              915 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x3ffe8\n 0x0000000000000002 (PLTRELSZ)           672 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x4570\n 0x0000000000000007 (RELA)               0xd00\n 0x0000000000000008 (RELASZ)             14448 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0xc90\n 0x000000006fffffff (VERNEEDNUM)         3\n 0x000000006ffffff0 (VERSYM)             0xc14\n 0x000000006ffffff9 (RELACOUNT)          595\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "wasm4_libretro.so"
+    },
+    {
+      "core": "x1",
+      "commit": "3106aa54ffb244cca4019a6e95dacaa698781bc3",
+      "sourceSha256": "c1fdcfabbc794076f0a61b503343c5a2545a650e19a3ce777a4adf9886f3fa41",
+      "previousBinary": {
+        "bytes": 400608,
+        "sha256": "9918001d66e4d49c178ca6599267a0bb0fea75ad7379160c5ef8e5559a943291"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/x1/rebuild-x1/libretro",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "status": "built",
+      "bytes": 522336,
+      "sha256": "1aa99d4c136f229f62f2dd8d6b2692ed62d0a96f4b5e8d5a8a4c358234d2f884",
+      "artifact": "x1_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x6fa20 contains 27 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libmvec.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x9af8\n 0x000000000000000d (FINI)               0x32a3c\n 0x0000000000000019 (INIT_ARRAY)         0x6cf20\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x6cf28\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x968\n 0x0000000000000006 (SYMTAB)             0x2d8\n 0x000000000000000a (STRSZ)              1057 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x6ffe8\n 0x0000000000000002 (PLTRELSZ)           816 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x97c8\n 0x0000000000000007 (RELA)               0xe88\n 0x0000000000000008 (RELASZ)             35136 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x0000000070000005 (AARCH64_VARIANT_PCS) 0x0\n 0x000000006ffffffe (VERNEED)            0xe18\n 0x000000006fffffff (VERNEEDNUM)         3\n 0x000000006ffffff0 (VERSYM)             0xd8a\n 0x000000006ffffff9 (RELACOUNT)          1454\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "x1_libretro.so"
+    }
+  ]
+}
