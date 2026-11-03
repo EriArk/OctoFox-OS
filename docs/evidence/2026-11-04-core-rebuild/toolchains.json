@@ -1,0 +1,33 @@
+{
+  "base": "ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852",
+  "attempts": [
+    {
+      "attempt": "attempt01",
+      "imageId": "sha256:3a833a38dd35e0ea755b2a9334d3a01f8435a66a67cbf12d03681e0f5aef5e2c",
+      "packageInventory": "toolchain-packages-attempt01.tsv"
+    },
+    {
+      "attempt": "attempt02",
+      "imageId": "sha256:4543da803dc6850a22828c87fbbc6e6f7a0e87dd0f58766c4dfe04a8d1bd825d",
+      "packageInventory": "toolchain-packages-attempt02.tsv"
+    },
+    {
+      "attempt": "attempt03",
+      "imageId": "sha256:15f73a7d02faca13985e20eb075ed38a11f6f1739721ad494631adffdfa7ff19",
+      "packageInventory": "toolchain-packages-attempt03.tsv"
+    },
+    {
+      "attempt": "attempt06",
+      "imageId": "sha256:15f73a7d02faca13985e20eb075ed38a11f6f1739721ad494631adffdfa7ff19",
+      "packageInventory": "toolchain-packages-attempt03.tsv"
+    },
+    {
+      "attempt": "attempt07",
+      "imageId": "sha256:15f73a7d02faca13985e20eb075ed38a11f6f1739721ad494631adffdfa7ff19",
+      "packageInventory": "toolchain-packages-attempt03.tsv"
+    }
+  ],
+  "probeImageId": "sha256:15f73a7d02faca13985e20eb075ed38a11f6f1739721ad494631adffdfa7ff19",
+  "packageVersionsRecorded": true,
+  "futureAptSnapshotPinned": false
+}

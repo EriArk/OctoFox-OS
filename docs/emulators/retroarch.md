@@ -1,5 +1,22 @@
 # RetroArch common ARM64 baseline
 
+## Candidate core builds — 4 November 2026
+
+Eighteen cores with unresolved provenance in the retained binary set now have
+separate ARM64 candidate builds from pinned upstream source. All eighteen pass
+isolated QEMU library loading, required libretro symbols and system-info checks.
+This is not installation, game/save/input or netplay acceptance. No emulator
+source patches or installed core changes were made. Recipes record cross-build
+flags, explicit Hatari/WASM-4 libraries, AppleWin tools and Gearcoleco identity.
+
+[Rebuild/maintenance instructions](../../packaging/emulators/core-rebuild/README.md),
+[pinned candidates](../../packaging/emulators/core-rebuild/candidates.json),
+[artifact, logs and acceptance boundary](../evidence/2026-11-04-core-rebuild/README.md).
+Keep the previous binary hashes and managed generation until these replacements
+pass the actual private RetroArch environment. Rollback concerns runtime binaries;
+it must never downgrade or replace personal saves. Existing evidence below applies
+to its recorded builds, not automatically to these candidates.
+
 ## Relay / cross-build admission — 23 October 2026
 
 TrainerOS now selects an official relay using the lobby players' measurements,

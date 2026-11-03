@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "candidateCoresBuilt": 18,
+  "candidateAbiLoaded": 18,
+  "windowsUnitTests": 7,
+  "linuxUnitTests": 7,
+  "archiveEntriesReadBack": 97,
+  "previousBinaryPinsPreserved": 18,
+  "installedGenerationChanged": false,
+  "deviceGameplayChecked": false,
+  "publicReleasePublished": false
+}

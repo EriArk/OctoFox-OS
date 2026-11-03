@@ -1,0 +1,206 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "id": "rebuild-amiarcadia",
+      "file": "rebuild-amiarcadia-8ca27c925833fe0021475155512c7f467924f647.tar.gz",
+      "repository": "https://github.com/warmenhoven/amiarcadia",
+      "commit": "8ca27c925833fe0021475155512c7f467924f647",
+      "bytes": 14184511,
+      "sha256": "fb3045b0c9c47ab0626f8ed14262c5a7d136674d16db795dc7a2cb9c323f759d",
+      "files": 1085,
+      "gitTrees": 1,
+      "noticeFiles": 0
+    },
+    {
+      "id": "rebuild-applewin-libretro",
+      "file": "rebuild-applewin-libretro-ae584dad0156a03048c7df6e1d31165dce354eba.tar.gz",
+      "repository": "https://github.com/audetto/AppleWin.git",
+      "commit": "ae584dad0156a03048c7df6e1d31165dce354eba",
+      "bytes": 8078197,
+      "sha256": "3d66f54a8aec06e70d5f3b05c3cea460384ac674143929baf2795e46be5b8afb",
+      "files": 1197,
+      "gitTrees": 5,
+      "noticeFiles": 9
+    },
+    {
+      "id": "rebuild-arduous",
+      "file": "rebuild-arduous-831b83e67ad46e8c86b8165649ff81bc6fc6c157.tar.gz",
+      "repository": "https://github.com/libretro/arduous.git",
+      "commit": "831b83e67ad46e8c86b8165649ff81bc6fc6c157",
+      "bytes": 4026497,
+      "sha256": "8e98f04a269cc48a8ef7b2f4afdb429f7478496ffe8faf214250149dc845c215",
+      "files": 541,
+      "gitTrees": 2,
+      "noticeFiles": 2
+    },
+    {
+      "id": "rebuild-b2",
+      "file": "rebuild-b2-9793f6a8040c416d147003cada29363b955b54e7.tar.gz",
+      "repository": "https://github.com/zoltanvb/b2-libretro.git",
+      "commit": "9793f6a8040c416d147003cada29363b955b54e7",
+      "bytes": 21876400,
+      "sha256": "da80c3f3bf2ce6458006accf95ee328691da6eae156664ca5de6149b834676b7",
+      "files": 2846,
+      "gitTrees": 1,
+      "noticeFiles": 16
+    },
+    {
+      "id": "rebuild-dosbox_pure",
+      "file": "rebuild-dosbox_pure-73e03aa145e0549ed4d5a20f8e65532714da33f5.tar.gz",
+      "repository": "https://github.com/libretro/dosbox-pure.git",
+      "commit": "73e03aa145e0549ed4d5a20f8e65532714da33f5",
+      "bytes": 2293068,
+      "sha256": "493974cc40c27dafd573d0bb563847a50b239a5278cffbed062dad104dce5fdb",
+      "files": 286,
+      "gitTrees": 1,
+      "noticeFiles": 1
+    },
+    {
+      "id": "rebuild-emuscv",
+      "file": "rebuild-emuscv-17407117018919545428b753277dabd83630052f.tar.gz",
+      "repository": "https://gitlab.com/MaaaX-EmuSCV/libretro-emuscv",
+      "commit": "17407117018919545428b753277dabd83630052f",
+      "bytes": 2975533,
+      "sha256": "795fa9b2e70237111553ad0059d2737785846f8114e6649ae991345fd3dc3955",
+      "files": 540,
+      "gitTrees": 1,
+      "noticeFiles": 10
+    },
+    {
+      "id": "rebuild-ep128emu_core",
+      "file": "rebuild-ep128emu_core-6af5d03de220e6effcd0ffcd99e0fb8e8c77cc9e.tar.gz",
+      "repository": "https://github.com/libretro/ep128emu-core.git",
+      "commit": "6af5d03de220e6effcd0ffcd99e0fb8e8c77cc9e",
+      "bytes": 1260304,
+      "sha256": "ddfc8b40b646be74acb8777210e6e85d51e92fd36b145e95d21c25a074a0698b",
+      "files": 198,
+      "gitTrees": 1,
+      "noticeFiles": 8
+    },
+    {
+      "id": "rebuild-gearcoleco",
+      "file": "rebuild-gearcoleco-3c3b7b6ef047ac255d413fa89355e9cd99ea91b7.tar.gz",
+      "repository": "https://github.com/drhelius/Gearcoleco.git",
+      "commit": "3c3b7b6ef047ac255d413fa89355e9cd99ea91b7",
+      "bytes": 5917339,
+      "sha256": "fe32d51295dd4dfeb2c3d941484f15cd32a7fcf5505489ad765832f9eeee9ec4",
+      "files": 420,
+      "gitTrees": 1,
+      "noticeFiles": 4
+    },
+    {
+      "id": "rebuild-hatari",
+      "file": "rebuild-hatari-5831f66e05ae19435bd9d8ef1c6f9c93998ff6f4.tar.gz",
+      "repository": "https://github.com/libretro/hatari.git",
+      "commit": "5831f66e05ae19435bd9d8ef1c6f9c93998ff6f4",
+      "bytes": 2970724,
+      "sha256": "03f785630a00bdf618fb04a597edaad2594d9d7b3d82a0b8889877ee5bec389a",
+      "files": 745,
+      "gitTrees": 1,
+      "noticeFiles": 0
+    },
+    {
+      "id": "rebuild-lowresnx",
+      "file": "rebuild-lowresnx-b1ba4da0fd289d316eb23c9454df3a809e6a59f4.tar.gz",
+      "repository": "https://github.com/timoinutilis/lowres-nx.git",
+      "commit": "b1ba4da0fd289d316eb23c9454df3a809e6a59f4",
+      "bytes": 5477978,
+      "sha256": "532bb76aae8af4da89d439d6bcdfa84de72e7542958cf551e80e19b04ddda564",
+      "files": 256,
+      "gitTrees": 1,
+      "noticeFiles": 2
+    },
+    {
+      "id": "rebuild-mednafen_pce_fast",
+      "file": "rebuild-mednafen_pce_fast-1c693c630121366f0b819d785762f1ce5b3a68d0.tar.gz",
+      "repository": "https://github.com/libretro/beetle-pce-fast-libretro.git",
+      "commit": "1c693c630121366f0b819d785762f1ce5b3a68d0",
+      "bytes": 1189418,
+      "sha256": "631b1d1661aa6649bf1e33846928ebe1c05a5f74159dbc4ffac8772f67daf48f",
+      "files": 321,
+      "gitTrees": 1,
+      "noticeFiles": 6
+    },
+    {
+      "id": "rebuild-minivmac",
+      "file": "rebuild-minivmac-babdf7b53d361a7225858b68a8a64efe8b06f5e5.tar.gz",
+      "repository": "https://github.com/libretro/libretro-minivmac.git",
+      "commit": "babdf7b53d361a7225858b68a8a64efe8b06f5e5",
+      "bytes": 1455932,
+      "sha256": "2bfc3cf49c57e0b82364b6f999370e3bc213ed23859ed91c74f8d37e046de9e5",
+      "files": 555,
+      "gitTrees": 2,
+      "noticeFiles": 1
+    },
+    {
+      "id": "rebuild-pokemini",
+      "file": "rebuild-pokemini-132111b76343559860532a1ccc094f93f1ed5650.tar.gz",
+      "repository": "https://github.com/libretro/PokeMini.git",
+      "commit": "132111b76343559860532a1ccc094f93f1ed5650",
+      "bytes": 262022,
+      "sha256": "aec1e442307dd6e71a74833945fb39a7b39e044d5bbf8aaa68593fad30354aa0",
+      "files": 135,
+      "gitTrees": 1,
+      "noticeFiles": 1
+    },
+    {
+      "id": "rebuild-same_cdi",
+      "file": "rebuild-same_cdi-ff9bb99a50d518aef6d2add1c49b7c44447e3e78.tar.gz",
+      "repository": "https://github.com/libretro/same_cdi.git",
+      "commit": "ff9bb99a50d518aef6d2add1c49b7c44447e3e78",
+      "bytes": 2625409,
+      "sha256": "a7078ce9140af693b9395b0a668fdf27981b94445c90d8682b046b3d50f51147",
+      "files": 608,
+      "gitTrees": 1,
+      "noticeFiles": 4
+    },
+    {
+      "id": "rebuild-uzem",
+      "file": "rebuild-uzem-d991ee94547c8294abc1c4cb73d63116aa58b5bc.tar.gz",
+      "repository": "https://github.com/libretro/libretro-uzem.git",
+      "commit": "d991ee94547c8294abc1c4cb73d63116aa58b5bc",
+      "bytes": 165256,
+      "sha256": "322bd60ad2a12525e0d681a2a6557c40d70333da9fc537c8bc8595002653df51",
+      "files": 74,
+      "gitTrees": 1,
+      "noticeFiles": 0
+    },
+    {
+      "id": "rebuild-vircon32",
+      "file": "rebuild-vircon32-dd78c5cea1fcaa382b7492d0d813d6c1534914d7.tar.gz",
+      "repository": "https://github.com/vircon32/vircon32-libretro.git",
+      "commit": "dd78c5cea1fcaa382b7492d0d813d6c1534914d7",
+      "bytes": 911090,
+      "sha256": "afc4281cf926f928e81c8892268a33f91fbb1ef35142a84a1392aeff2fefd4c0",
+      "files": 78,
+      "gitTrees": 1,
+      "noticeFiles": 2
+    },
+    {
+      "id": "rebuild-wasm4",
+      "file": "rebuild-wasm4-9d6c962785cfe3719d0245fd279ecbe98a4dbb63.tar.gz",
+      "repository": "https://github.com/aduros/wasm4.git",
+      "commit": "9d6c962785cfe3719d0245fd279ecbe98a4dbb63",
+      "bytes": 8531003,
+      "sha256": "ce81eb5a7d8ad581065a08dd993cb6cd53ab52057a544d57e650bb03fd0b6ece",
+      "files": 2109,
+      "gitTrees": 8,
+      "noticeFiles": 11
+    },
+    {
+      "id": "rebuild-x1",
+      "file": "rebuild-x1-3106aa54ffb244cca4019a6e95dacaa698781bc3.tar.gz",
+      "repository": "https://github.com/libretro/xmil-libretro.git",
+      "commit": "3106aa54ffb244cca4019a6e95dacaa698781bc3",
+      "bytes": 771731,
+      "sha256": "c1fdcfabbc794076f0a61b503343c5a2545a650e19a3ce777a4adf9886f3fa41",
+      "files": 817,
+      "gitTrees": 1,
+      "noticeFiles": 1
+    }
+  ],
+  "count": 18,
+  "bytes": 84972412,
+  "gitTrees": 31
+}

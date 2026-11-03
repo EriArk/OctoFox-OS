@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "scope": "Candidate replacement inputs only; not provenance of installed binaries",
+  "sources": [
+    {
+      "id": "rebuild-amiarcadia",
+      "repository": "https://github.com/warmenhoven/amiarcadia",
+      "commit": "8ca27c925833fe0021475155512c7f467924f647",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-applewin-libretro",
+      "repository": "https://github.com/audetto/AppleWin.git",
+      "commit": "ae584dad0156a03048c7df6e1d31165dce354eba",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-arduous",
+      "repository": "https://github.com/libretro/arduous.git",
+      "commit": "831b83e67ad46e8c86b8165649ff81bc6fc6c157",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-b2",
+      "repository": "https://github.com/zoltanvb/b2-libretro.git",
+      "commit": "9793f6a8040c416d147003cada29363b955b54e7",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-dosbox_pure",
+      "repository": "https://github.com/libretro/dosbox-pure.git",
+      "commit": "73e03aa145e0549ed4d5a20f8e65532714da33f5",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-emuscv",
+      "repository": "https://gitlab.com/MaaaX-EmuSCV/libretro-emuscv",
+      "commit": "17407117018919545428b753277dabd83630052f",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-ep128emu_core",
+      "repository": "https://github.com/libretro/ep128emu-core.git",
+      "commit": "6af5d03de220e6effcd0ffcd99e0fb8e8c77cc9e",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-gearcoleco",
+      "repository": "https://github.com/drhelius/Gearcoleco.git",
+      "commit": "3c3b7b6ef047ac255d413fa89355e9cd99ea91b7",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-hatari",
+      "repository": "https://github.com/libretro/hatari.git",
+      "commit": "5831f66e05ae19435bd9d8ef1c6f9c93998ff6f4",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-lowresnx",
+      "repository": "https://github.com/timoinutilis/lowres-nx.git",
+      "commit": "b1ba4da0fd289d316eb23c9454df3a809e6a59f4",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-mednafen_pce_fast",
+      "repository": "https://github.com/libretro/beetle-pce-fast-libretro.git",
+      "commit": "1c693c630121366f0b819d785762f1ce5b3a68d0",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-minivmac",
+      "repository": "https://github.com/libretro/libretro-minivmac.git",
+      "commit": "babdf7b53d361a7225858b68a8a64efe8b06f5e5",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-pokemini",
+      "repository": "https://github.com/libretro/PokeMini.git",
+      "commit": "132111b76343559860532a1ccc094f93f1ed5650",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-same_cdi",
+      "repository": "https://github.com/libretro/same_cdi.git",
+      "commit": "ff9bb99a50d518aef6d2add1c49b7c44447e3e78",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-uzem",
+      "repository": "https://github.com/libretro/libretro-uzem.git",
+      "commit": "d991ee94547c8294abc1c4cb73d63116aa58b5bc",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-vircon32",
+      "repository": "https://github.com/vircon32/vircon32-libretro.git",
+      "commit": "dd78c5cea1fcaa382b7492d0d813d6c1534914d7",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-wasm4",
+      "repository": "https://github.com/aduros/wasm4.git",
+      "commit": "9d6c962785cfe3719d0245fd279ecbe98a4dbb63",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    },
+    {
+      "id": "rebuild-x1",
+      "repository": "https://github.com/libretro/xmil-libretro.git",
+      "commit": "3106aa54ffb244cca4019a6e95dacaa698781bc3",
+      "evidence": "packaging/emulators/core-rebuild/candidates.json",
+      "components": [
+        "candidate-retroarch-core"
+      ]
+    }
+  ]
+}

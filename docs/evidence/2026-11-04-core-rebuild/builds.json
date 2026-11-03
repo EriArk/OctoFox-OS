@@ -1,0 +1,898 @@
+{
+  "schema": 1,
+  "cores": [
+    {
+      "core": "amiarcadia",
+      "attempt": "attempt01",
+      "repository": "https://github.com/warmenhoven/amiarcadia",
+      "commit": "8ca27c925833fe0021475155512c7f467924f647",
+      "sourceSha256": "fb3045b0c9c47ab0626f8ed14262c5a7d136674d16db795dc7a2cb9c323f759d",
+      "bytes": 885848,
+      "sha256": "730c1599b4571592eb0b002b77e19b06c10f2d4d67288cdb5db048974b70ba36",
+      "previousBinary": {
+        "bytes": 848992,
+        "sha256": "fc97cbcdd12d9b46227adb9c753ead020d74f655dc3c5d4aa63debc6d386a4c8"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "AmiArcadia",
+        "version": "4.60",
+        "extensions": "bin|tvc",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/amiarcadia/rebuild-amiarcadia",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "applewin",
+      "attempt": "attempt03",
+      "repository": "https://github.com/audetto/AppleWin.git",
+      "commit": "ae584dad0156a03048c7df6e1d31165dce354eba",
+      "sourceSha256": "3d66f54a8aec06e70d5f3b05c3cea460384ac674143929baf2795e46be5b8afb",
+      "bytes": 3979288,
+      "sha256": "036b0b223321f748bfbf156c042707989979e22e898a8d8895dc58c5abfa8e09",
+      "previousBinary": {
+        "bytes": 3820680,
+        "sha256": "321cb5cd20a28c6e4540dfc3263c092cd504e4153a7810a63e0072d019f4af8c"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "AppleWin",
+        "version": "1.30.21.0",
+        "extensions": "bin|do|dsk|nib|po|gz|woz|zip|2mg|2img|iie|apl|hdv|yaml|m3u",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt03/applewin/rebuild-applewin-libretro",
+          "-B",
+          "/work/attempts/attempt03/applewin/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DBUILD_LIBRETRO=ON",
+          "-DBUILD_APPLEN=OFF",
+          "-DBUILD_QAPPLE=OFF",
+          "-DBUILD_SA2=OFF",
+          "-DENABLE_NETWORKING=OFF"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt03/applewin/cmake",
+          "-j2"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libz.so.1",
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "arduous",
+      "attempt": "attempt01",
+      "repository": "https://github.com/libretro/arduous.git",
+      "commit": "831b83e67ad46e8c86b8165649ff81bc6fc6c157",
+      "sourceSha256": "8e98f04a269cc48a8ef7b2f4afdb429f7478496ffe8faf214250149dc845c215",
+      "bytes": 227368,
+      "sha256": "918fc55fb8fab61d16333a1739909aa08751c5b3b5fb8659e5c271dec3b56eff",
+      "previousBinary": {
+        "bytes": 174216,
+        "sha256": "ee8bde607b151ce064e0130a8dedb4fd9ec49ea9bfe236ff12b8bf18ad396549"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "arduous",
+        "version": "0.1.0 unknown",
+        "extensions": "hex",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt01/arduous/rebuild-arduous",
+          "-B",
+          "/work/attempts/attempt01/arduous/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DLIBRETRO=ON",
+          "-DWERROR=OFF"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt01/arduous/cmake",
+          "-j2"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libstdc++.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "b2",
+      "attempt": "attempt01",
+      "repository": "https://github.com/zoltanvb/b2-libretro.git",
+      "commit": "9793f6a8040c416d147003cada29363b955b54e7",
+      "sourceSha256": "da80c3f3bf2ce6458006accf95ee328691da6eae156664ca5de6149b834676b7",
+      "bytes": 7869520,
+      "sha256": "3262c0dbf306d68aa89b306fe4fa59322bf7291a7a1bda204ae139d7d491d800",
+      "previousBinary": {
+        "bytes": 7844872,
+        "sha256": "8d4c6eaed3f7df78871a25d1491a20141a610ebf064fca398a9c4a3414ed6817"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "b2",
+        "version": "v0.4",
+        "extensions": "ssd|dsd",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/b2/rebuild-b2/src/libretro",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libmvec.so.1",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "dosbox_pure",
+      "attempt": "attempt01",
+      "repository": "https://github.com/libretro/dosbox-pure.git",
+      "commit": "73e03aa145e0549ed4d5a20f8e65532714da33f5",
+      "sourceSha256": "493974cc40c27dafd573d0bb563847a50b239a5278cffbed062dad104dce5fdb",
+      "bytes": 2976160,
+      "sha256": "ba7d6fb51628a29aefe003ab6eb6f1af6a4b5dcfb5a23ee16768fd121243a45e",
+      "previousBinary": {
+        "bytes": 2850928,
+        "sha256": "a391d8708269edca8d7d4e84183fbc30a78a27d4fe45645566d7a8dd3e2cfc90"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "DOSBox-pure",
+        "version": "1.0-preview6",
+        "extensions": "zip|dosz|exe|com|bat|iso|chd|cue|ins|img|ima|vhd|jrc|m3u|m3u8|conf|/",
+        "fullpath": true,
+        "blockExtract": true
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/dosbox_pure/rebuild-dosbox_pure",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip",
+          "UNAMEM=aarch64"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "emuscv",
+      "attempt": "attempt01",
+      "repository": "https://gitlab.com/MaaaX-EmuSCV/libretro-emuscv",
+      "commit": "17407117018919545428b753277dabd83630052f",
+      "sourceSha256": "795fa9b2e70237111553ad0059d2737785846f8114e6649ae991345fd3dc3955",
+      "bytes": 4311208,
+      "sha256": "a5518091a1dec136bb728c2cb74ec74989eb4593bf5bd17497af474368fb6020",
+      "previousBinary": {
+        "bytes": 4181232,
+        "sha256": "cbb19ce5d7187dfe22cc865d1885ae575802bcd45e244e0dbd4dc4bbe9ba4779"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "Libretro-EmuSCV",
+        "version": "0.15.20260921084155",
+        "extensions": "cart|bin|rom|0|zip",
+        "fullpath": true,
+        "blockExtract": true
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/emuscv/rebuild-emuscv",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "ep128emu_core",
+      "attempt": "attempt01",
+      "repository": "https://github.com/libretro/ep128emu-core.git",
+      "commit": "6af5d03de220e6effcd0ffcd99e0fb8e8c77cc9e",
+      "sourceSha256": "ddfc8b40b646be74acb8777210e6e85d51e92fd36b145e95d21c25a074a0698b",
+      "bytes": 3697600,
+      "sha256": "78186615f1fb648cadb8fd204360fb49ff38f4cba67cbf63f564bb552da338f9",
+      "previousBinary": {
+        "bytes": 3652528,
+        "sha256": "0a589aefa2946ab7b7dc1c518e6947852ab4c7eb9aafc825446af14b36f4ea08"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "ep128emu",
+        "version": "v1.2.13",
+        "extensions": "img|dsk|vhd|tap|dtf|com|trn|128|bas|cas|crt|cdt|tzx|wav|tvcwav|.",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/ep128emu_core/rebuild-ep128emu_core",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "gearcoleco",
+      "attempt": "attempt06",
+      "repository": "https://github.com/drhelius/Gearcoleco.git",
+      "commit": "3c3b7b6ef047ac255d413fa89355e9cd99ea91b7",
+      "sourceSha256": "fe32d51295dd4dfeb2c3d941484f15cd32a7fcf5505489ad765832f9eeee9ec4",
+      "bytes": 608080,
+      "sha256": "cf04fb0d28b2756db5445a0240b3b1cf7440a37120fa3800d71659e65e0b0022",
+      "previousBinary": {
+        "bytes": 467416,
+        "sha256": "0e9656d318019b4085ae0af431611cc906855f26e279781dbd79c5cb05f28d6c"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "Gearcoleco",
+        "version": "3c3b7b6ef047",
+        "extensions": "col|cv|bin|rom|zip|ddp|dsk|m3u",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt06/gearcoleco/rebuild-gearcoleco/platforms/libretro",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip",
+          "GIT_VERSION=3c3b7b6ef047"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "hatari",
+      "attempt": "attempt07",
+      "repository": "https://github.com/libretro/hatari.git",
+      "commit": "5831f66e05ae19435bd9d8ef1c6f9c93998ff6f4",
+      "sourceSha256": "03f785630a00bdf618fb04a597edaad2594d9d7b3d82a0b8889877ee5bec389a",
+      "bytes": 21714552,
+      "sha256": "8978c238ca8be94ff055b55a0d435b8cfe1213590ee485418f78386c07aac578",
+      "previousBinary": {
+        "bytes": 20347632,
+        "sha256": "317eb58690a748828dd27fd50a0fd80811e2da023bf164b70dbb24c1c3c53c19"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "hatari",
+        "version": "2.6.1-devel (Nov  3 2026)",
+        "extensions": "st|msa|dim|stx|ipf|m3u|ide|vhd|gem",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt01/hatari/rebuild-hatari",
+          "-B",
+          "/work/attempts/attempt01/hatari/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DENABLE_LIBRETRO=ON",
+          "-DENABLE_HATARI=OFF",
+          "-DENABLE_TOOLS=OFF"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt01/hatari/cmake",
+          "-j2"
+        ],
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt01/hatari/rebuild-hatari",
+          "-B",
+          "/work/attempts/attempt01/hatari/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DENABLE_LIBRETRO=ON",
+          "-DENABLE_HATARI=OFF",
+          "-DENABLE_TOOLS=OFF",
+          "-DCMAKE_C_STANDARD_LIBRARIES=-lm -ludev",
+          "-DCMAKE_MODULE_LINKER_FLAGS=-Wl,-z,defs"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt01/hatari/cmake",
+          "-j2",
+          "--target",
+          "hatari_libretro"
+        ]
+      ],
+      "cachedSourceFilesVerified": 745,
+      "neededLibraries": [
+        "libz.so.1",
+        "libm.so.6",
+        "libudev.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "lowresnx",
+      "attempt": "attempt01",
+      "repository": "https://github.com/timoinutilis/lowres-nx.git",
+      "commit": "b1ba4da0fd289d316eb23c9454df3a809e6a59f4",
+      "sourceSha256": "532bb76aae8af4da89d439d6bcdfa84de72e7542958cf551e80e19b04ddda564",
+      "bytes": 159768,
+      "sha256": "944ce6573f867beb18926459fc66af76a5bf33ef24bfaffed6469f5a604a204e",
+      "previousBinary": {
+        "bytes": 133328,
+        "sha256": "6a28c0d9e095dac15f2769b4bbeadbf2047e2aedfc2486e2cf1af28df323b688"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "LowRes NX",
+        "version": "1.2",
+        "extensions": "nx",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/lowresnx/rebuild-lowresnx/platform/LibRetro",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "mednafen_pce_fast",
+      "attempt": "attempt01",
+      "repository": "https://github.com/libretro/beetle-pce-fast-libretro.git",
+      "commit": "1c693c630121366f0b819d785762f1ce5b3a68d0",
+      "sourceSha256": "631b1d1661aa6649bf1e33846928ebe1c05a5f74159dbc4ffac8772f67daf48f",
+      "bytes": 4589240,
+      "sha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077",
+      "previousBinary": {
+        "bytes": 4465448,
+        "sha256": "f7686b2bfab6a9ca34d3d48e6eda5c41ae37c430cf5c73b0f256cefd54990a51"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "Beetle PCE Fast",
+        "version": "v1.31.0.0",
+        "extensions": "pce|cue|ccd|chd|toc|m3u",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/mednafen_pce_fast/rebuild-mednafen_pce_fast",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "minivmac",
+      "attempt": "attempt01",
+      "repository": "https://github.com/libretro/libretro-minivmac.git",
+      "commit": "babdf7b53d361a7225858b68a8a64efe8b06f5e5",
+      "sourceSha256": "2bfc3cf49c57e0b82364b6f999370e3bc213ed23859ed91c74f8d37e046de9e5",
+      "bytes": 707568,
+      "sha256": "7f83ab0c9cb8743ca1b2eb673bff439797c8cd1233ba0c6d3f7789919fc3b994",
+      "previousBinary": {
+        "bytes": 594720,
+        "sha256": "09acdbb9f72352ebf54cdee8ae3864acf681753103183ffcabd9845d90cfffec"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "Mini vMac",
+        "version": "b36",
+        "extensions": "dsk|img|zip|hvf|cmd",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/minivmac/rebuild-minivmac",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "pokemini",
+      "attempt": "attempt01",
+      "repository": "https://github.com/libretro/PokeMini.git",
+      "commit": "132111b76343559860532a1ccc094f93f1ed5650",
+      "sourceSha256": "aec1e442307dd6e71a74833945fb39a7b39e044d5bbf8aaa68593fad30354aa0",
+      "bytes": 446872,
+      "sha256": "26f0fd4c9c8869a56edee23e10f4e8dee1451bc2600d1e97f15f52926933a71c",
+      "previousBinary": {
+        "bytes": 356344,
+        "sha256": "afaf6d425a283b7dce94ab2e8e5da21f267f1fa808f47348044f4f3dc9f943f2"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "PokeMini",
+        "version": "v0.60",
+        "extensions": "min",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/pokemini/rebuild-pokemini",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "same_cdi",
+      "attempt": "attempt01",
+      "repository": "https://github.com/libretro/same_cdi.git",
+      "commit": "ff9bb99a50d518aef6d2add1c49b7c44447e3e78",
+      "sourceSha256": "a7078ce9140af693b9395b0a668fdf27981b94445c90d8682b046b3d50f51147",
+      "bytes": 15133088,
+      "sha256": "111c91fb1de623f6fd4e6b14054d3d47aec3db8c99c73467d1928df2f2aa9e31",
+      "previousBinary": {
+        "bytes": 11004656,
+        "sha256": "17f8f0b0aa81a4bfc9e09bb399fcfb29d6aa58c7592247d25c079dd9b42a9ef7"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "SAME_CDI",
+        "version": "0.287",
+        "extensions": "chd|iso|cue|m3u",
+        "fullpath": true,
+        "blockExtract": true
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/same_cdi/rebuild-same_cdi",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "uzem",
+      "attempt": "attempt01",
+      "repository": "https://github.com/libretro/libretro-uzem.git",
+      "commit": "d991ee94547c8294abc1c4cb73d63116aa58b5bc",
+      "sourceSha256": "322bd60ad2a12525e0d681a2a6557c40d70333da9fc537c8bc8595002653df51",
+      "bytes": 159344,
+      "sha256": "dcac43499b5f0e192951844486a5faa69e96f132c246c2a96ea0e01e19b07c68",
+      "previousBinary": {
+        "bytes": 77056,
+        "sha256": "d75685c9191a2d07422568960ac68e5dc0f3ea5a796c115c4ec1aa43d84ff609"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "Uzem",
+        "version": "v2.0",
+        "extensions": "uze",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/uzem/rebuild-uzem",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libstdc++.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "vircon32",
+      "attempt": "attempt01",
+      "repository": "https://github.com/vircon32/vircon32-libretro.git",
+      "commit": "dd78c5cea1fcaa382b7492d0d813d6c1534914d7",
+      "sourceSha256": "afc4281cf926f928e81c8892268a33f91fbb1ef35142a84a1392aeff2fefd4c0",
+      "bytes": 3944728,
+      "sha256": "00d908fb95ff139e2858a259ed5d34411e8439e47deea8af9f88150a15ae0d4b",
+      "previousBinary": {
+        "bytes": 2846552,
+        "sha256": "51bad96135f05b3c9c536bacc3f61c2e08b31520924b8164de64fb369180e494"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "Vircon32",
+        "version": "2026.2.18",
+        "extensions": "v32|V32",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt01/vircon32/rebuild-vircon32",
+          "-B",
+          "/work/attempts/attempt01/vircon32/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt01/vircon32/cmake",
+          "-j2"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libGL.so.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "wasm4",
+      "attempt": "attempt06",
+      "repository": "https://github.com/aduros/wasm4.git",
+      "commit": "9d6c962785cfe3719d0245fd279ecbe98a4dbb63",
+      "sourceSha256": "ce81eb5a7d8ad581065a08dd993cb6cd53ab52057a544d57e650bb03fd0b6ece",
+      "bytes": 235352,
+      "sha256": "729878c03aedef094c916039c11ec635a83127540fc03aeeff40e6c440bada81",
+      "previousBinary": {
+        "bytes": 153824,
+        "sha256": "3e2328e279173d7de4f942fc5e455aa9b5d4d668e89242ade0738509dcd80bfb"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "WASM-4",
+        "version": "v1 unknown",
+        "extensions": "wasm",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/work/attempts/attempt06/wasm4/rebuild-wasm4/runtimes/native",
+          "-B",
+          "/work/attempts/attempt06/wasm4/cmake",
+          "-G",
+          "Ninja",
+          "-DCMAKE_TOOLCHAIN_FILE=/work/aarch64.cmake",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+          "-DLIBRETRO=ON",
+          "-DCMAKE_C_STANDARD_LIBRARIES=-lm"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/work/attempts/attempt06/wasm4/cmake",
+          "-j2"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    },
+    {
+      "core": "x1",
+      "attempt": "attempt01",
+      "repository": "https://github.com/libretro/xmil-libretro.git",
+      "commit": "3106aa54ffb244cca4019a6e95dacaa698781bc3",
+      "sourceSha256": "c1fdcfabbc794076f0a61b503343c5a2545a650e19a3ce777a4adf9886f3fa41",
+      "bytes": 522336,
+      "sha256": "1aa99d4c136f229f62f2dd8d6b2692ed62d0a96f4b5e8d5a8a4c358234d2f884",
+      "previousBinary": {
+        "bytes": 400608,
+        "sha256": "9918001d66e4d49c178ca6599267a0bb0fea75ad7379160c5ef8e5559a943291"
+      },
+      "sourceCorrespondsToPreviousBinary": false,
+      "abi": {
+        "api": 1,
+        "name": "x1",
+        "version": "0.60",
+        "extensions": "dx1|zip|2d|2hd|tfd|d88|88d|hdm|xdf|dup|cmd",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "installed": false,
+      "gameplayAccepted": false,
+      "commands": [
+        [
+          "make",
+          "-C",
+          "/work/attempts/attempt01/x1/rebuild-x1/libretro",
+          "-f",
+          "Makefile.libretro",
+          "-j2",
+          "platform=unix",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "cachedSourceFilesVerified": 0,
+      "neededLibraries": [
+        "libmvec.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ]
+    }
+  ]
+}
