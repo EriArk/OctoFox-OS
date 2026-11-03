@@ -286,13 +286,44 @@ class InstallationTests(unittest.TestCase):
             support.install_support(SimpleNamespace(pw_name='fixture'),
                 lambda path, data, mode: planned.append((path, data, mode)), activate=False)
         self.assertIn('/var/opt/traineros/pc/launch.py', [p for p, _, _ in planned])
+        self.assertIn('/var/opt/traineros/crates/catalogue-key.pem', [p for p, _, _ in planned])
+        # Run the packaged Crates modules in a fresh interpreter, so a checkout
+        # module already imported by this suite cannot hide a missing dependency.
+        subprocess.run([sys.executable, '-I', '-c',
+            'import sys; from pathlib import Path; sys.path.insert(0,sys.argv[1]); '
+            'import installer, catalogue; installer.read_registry(Path(sys.argv[1])/"packages.json"); '
+            'assert catalogue.PUBLIC_KEY.is_file()', str(packaging / 'crates')], check=True)
+        spec = importlib.util.spec_from_file_location('packed_radio', packaging / 'integrations/install-radio-control.py')
+        radio = importlib.util.module_from_spec(spec); spec.loader.exec_module(radio)
+        with patch.object(radio.os, 'geteuid', return_value=0), \
+             patch.object(radio.pwd, 'getpwnam', return_value=SimpleNamespace(pw_uid=1000)):
+            radio.install('fixture', writer=lambda path, data, mode: planned.append((path, data, mode)))
+        policy = next(data for path, data, _ in planned if path == '/etc/sudoers.d/traineros-radio')
+        self.assertIn(b'network-control.py ""', policy)
+        self.assertNotIn(b'*', policy)
         owner = ownership.Ownership(self.root / 'session-journal.json', 'fixture', self.root / 'system')
         for path, data, mode in planned:
             owner.preparing(path, data)
+            destination = owner.target(path)
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(data)
+        personal_network = self.root / 'system/etc/NetworkManager/system-connections/personal.nmconnection'
+        personal_network.parent.mkdir(parents=True)
+        personal_network.write_bytes(b'preserve saved network')
+        owner.uninstall()
+        self.assertTrue(personal_network.is_file())
+        self.assertTrue(all(not owner.target(path).exists() for path, _, _ in planned))
         target = self.root / 'new-install'; target.mkdir()
         installer.bootstrap(target, packaging)
         with self.assertRaisesRegex(ValueError, 'Unexpected owned'):
             owner.preparing('/var/opt/traineros/pc/unrelated.py', b'not an owned helper')
+        with self.assertRaisesRegex(ValueError, 'Unexpected owned'):
+            owner.preparing('/var/opt/traineros/crates/unrelated.py', b'not an owned helper')
+        key = packaging / 'crates/catalogue-key.pem'
+        key_bytes = key.read_bytes(); key.unlink()
+        with self.assertRaisesRegex(ValueError, 'Incomplete Setup'):
+            installer.bootstrap(target, packaging)
+        key.write_bytes(key_bytes)
         (packaging / 'pc/launch.py').unlink()
         with self.assertRaisesRegex(ValueError, 'Incomplete Setup'):
             installer.bootstrap(target, packaging)

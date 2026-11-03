@@ -157,6 +157,11 @@ def main():
         print("Adventure helpers installed. Session, emulators and saves preserved.")
         return
 
+    radio_spec = importlib.util.spec_from_file_location('traineros_install_radio', source.parent / 'integrations/install-radio-control.py')
+    radio_install = importlib.util.module_from_spec(radio_spec)
+    radio_spec.loader.exec_module(radio_install)
+    radio_install.install(args.user, writer=install)
+
     helper = "/var/opt/traineros/session/control.py"
     verbs = ["traineros", "default-traineros", "desktop", "steam", "recover *", "poweroff", "reboot"]
     policy = (args.user + " ALL=(root) NOPASSWD: " + ", ".join(helper + " " + v for v in verbs) + "\n").encode()

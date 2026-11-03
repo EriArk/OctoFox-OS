@@ -34,6 +34,13 @@ Software OTA преимущественно с GitHub и актуальную б
    из native builder и добавляет точные `libfm-qt6` и `libmenu-cache` с лицензиями RPM.
    Он не собирает файлы из домашнего каталога игрока и не разрешает публикацию
    автоматически. Capture helper требует `pipewire-devel` в builder.
+6. Setup содержит клиент Crates, launcher, bootstrap registry и закреплённый
+   ключ каталога. Системная установка записывает эти пять точных файлов в журнал
+   ownership; пакеты, receipts и личные данные Crates в него не входят.
+7. Общая установка сессии включает Wi-Fi/Bluetooth/Nearby helpers и прежние узкие
+   sudoers-права. Radio installer теперь принимает общий writer: все пути проходят
+   managed preflight до первой записи, repair/uninstall используют тот же журнал.
+   Установка не переключает радиомодули и не меняет сохранённые сети.
 
 Проверки распаковывают настоящий Setup archive и исполняют подготовку списка
 session helpers из него, вне development checkout. Linux-тесты проверяют

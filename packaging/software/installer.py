@@ -16,6 +16,8 @@ import shlex
 import installation as install
 import releases as sw
 
+CRATES_FILES = ('catalogue.py', 'catalogue-key.pem', 'installer.py', 'launch.py', 'packages.json')
+
 
 def atomic_file(path, data, mode):
     path = Path(path); install.private(path.parent)
@@ -62,11 +64,15 @@ def bootstrap(root, source):
     wanted = [*source.joinpath('software').glob('*.py'), *source.joinpath('session').glob('*'),
               *source.joinpath('integrations').glob('*.py'),
               *(source / 'pc' / name for name in ('launch.py', 'steam.py', 'runtimes.py')),
-              source / 'crates/catalogue.py']
+              *(source / 'crates' / name for name in CRATES_FILES)]
     # These are consumed by session/install.py, including on a fresh machine.
     # A developer checkout can mask an incomplete Setup archive.
     for name in ('software/launcher.py', 'session/install.py', 'integrations/emulator_support.py',
-                 'pc/launch.py', 'pc/steam.py', 'pc/runtimes.py', 'crates/catalogue.py'):
+                 'pc/launch.py', 'pc/steam.py', 'pc/runtimes.py',
+                 'integrations/install-radio-control.py', 'integrations/radio-control.py',
+                 'integrations/network-control.py', 'integrations/nearby-control.py',
+                 'integrations/nearby-bluetooth.py',
+                 *('crates/' + name for name in CRATES_FILES)):
         path = source / name
         if path.is_symlink() or not path.is_file():
             raise ValueError('Incomplete Setup: missing ' + name)

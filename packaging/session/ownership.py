@@ -7,7 +7,10 @@ from pathlib import Path
 import tempfile
 
 EXACT = {'/etc/systemd/system/inputplumber.service.d/90-traineros-pad-read.conf', '/etc/polkit-1/rules.d/50-traineros-clock.rules', '/etc/systemd/user/traineros-session.service',
-         '/etc/sudoers.d/traineros-session', '/etc/sudoers.d/traineros-power', '/etc/sddm.conf.d/90-traineros.conf',
+         '/etc/sudoers.d/traineros-session', '/etc/sudoers.d/traineros-power', '/etc/sudoers.d/traineros-radio', '/etc/sddm.conf.d/90-traineros.conf',
+         '/var/opt/traineros/crates/catalogue.py', '/var/opt/traineros/crates/catalogue-key.pem',
+         '/var/opt/traineros/crates/installer.py', '/var/opt/traineros/crates/launch.py',
+         '/var/opt/traineros/crates/packages.json',
          '/etc/traineros/wayland-sessions/traineros.desktop',
          '/etc/systemd/user/plasma-kwin_wayland.service.d/50-traineros-brightness.conf',
          '/etc/systemd/user/plasma-plasmashell.service.d/50-traineros-audio-teardown.conf',
