@@ -1,0 +1,61 @@
+{
+  "softwareAudit": {
+    "status": "ready",
+    "scope": "software-files",
+    "sessionIntegration": "recorded-not-audited",
+    "health": "awaiting-first-frame",
+    "problems": []
+  },
+  "runtimeAudit": {
+    "status": "ready",
+    "problems": [],
+    "scope": "user-runtime-files-and-flatpak-identities; privileged helpers checked during activation"
+  },
+  "softwareSource": "2a6c9c9b00b58e914525bd779c76896c8fcf5006",
+  "runtimeSequence": 12,
+  "runtimeGeneration": "c1d501c4beb6a2d9924c32853672ff0be5ac9194af55651130575016acf4841d",
+  "previousRuntimeRetained": true,
+  "personalFilesCompared": 28,
+  "personalFilesUnchanged": true,
+  "changedPersonalFileCount": 0,
+  "appImages": [
+    {
+      "name": "ARMSX2",
+      "mode": "0o755",
+      "sha256Matches": true
+    },
+    {
+      "name": "Azahar-Enhanced",
+      "mode": "0o755",
+      "sha256Matches": true
+    },
+    {
+      "name": "Cemu",
+      "mode": "0o755",
+      "sha256Matches": true
+    },
+    {
+      "name": "DuckStation",
+      "mode": "0o755",
+      "sha256Matches": true
+    },
+    {
+      "name": "eden",
+      "mode": "0o755",
+      "sha256Matches": true
+    },
+    {
+      "name": "melonDS",
+      "mode": "0o755",
+      "sha256Matches": true
+    },
+    {
+      "name": "rpcs3",
+      "mode": "0o755",
+      "sha256Matches": true
+    }
+  ],
+  "pendingTransactions": false,
+  "upstreamDuckStationDownloaded": true,
+  "publicRelease": false
+}

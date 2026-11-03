@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**Owner alpha scope clarification, 3 November (latest):** continue the alpha
+delivery with incomplete features explicitly documented. Completing every planned
+multiplayer route is not a prerequisite for alpha. Prepare and preserve working
+routes in Setup, retain missing features in the readiness register, and distinguish
+installed/runtime checks from gameplay acceptance. This supersedes any reading of
+the multiplayer-ready requirement as an all-platform feature-completion release
+gate; installation/recovery, personal-data protection and distribution obligations
+remain required.
+
 **Owner multiplayer-ready Setup, 3 November (latest):** the installer must prepare
 all accepted multiplayer families from first launch, preserving working modified
 runtimes. Suitable RetroArch replacements or automatic downloads from the original

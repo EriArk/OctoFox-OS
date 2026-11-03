@@ -1,0 +1,10 @@
+{
+  "standaloneServiceActive": true,
+  "plasmaAbsent": true,
+  "defaultTrainerOS": true,
+  "health": "first-frame-confirmed",
+  "privateRuntimeHome": true,
+  "runtimeGeneration": "c1d501c4beb6a2d9924c32853672ff0be5ac9194af55651130575016acf4841d",
+  "pendingSetup": false,
+  "pendingRuntime": false
+}
