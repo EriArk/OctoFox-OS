@@ -56,6 +56,40 @@ class DesktopLogoutTests(unittest.TestCase):
                         execute.assert_called_once_with(['/usr/bin/systemctl', '--no-block', 'restart', 'sddm'])
 
 
+class GracefulTransitionTests(unittest.TestCase):
+    def test_only_same_user_standalone_shell_gets_normal_exit(self):
+        helper = module('control')
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); parent = root/'10'; parent.mkdir()
+            (parent/'status').write_text('Name:\tsudo\nPPid:\t11\nUid:\t0 0 0 0\n')
+            (parent/'cgroup').write_text('0::/user.slice/traineros-session.service\n')
+            shell = root/'11'; shell.mkdir()
+            (shell/'status').write_text('Name:\ttraineros\nPPid:\t1\nUid:\t1000 1000 1000 1000\n')
+            (shell/'cgroup').write_text('0::/user.slice/traineros-session.service\n')
+            self.assertTrue(helper.from_standalone_shell('1000', root, 10))
+            self.assertFalse(helper.from_standalone_shell('1001', root, 10))
+            (shell/'cgroup').write_text('0::/app.slice/desktop.scope\n')
+            self.assertFalse(helper.from_standalone_shell('1000', root, 10))
+
+    def test_ui_handoff_selects_destination_without_killing_launcher(self):
+        helper = module('control')
+        for graceful in (False, True):
+            for mode in ('desktop', 'steam'):
+                with tempfile.TemporaryDirectory() as folder:
+                    helper.MARKER = Path(folder)/'transition'
+                    with patch.object(helper.os, 'geteuid', return_value=0), \
+                         patch.object(helper.sys, 'argv', ['control.py', mode]), \
+                         patch.dict(os.environ, SUDO_UID='1000'), \
+                         patch.object(helper, 'session_pids', return_value=[42]), \
+                         patch.object(helper, 'from_standalone_shell', return_value=graceful), \
+                         patch.object(helper.subprocess, 'call', return_value=0) as execute:
+                        self.assertEqual(helper.main(), 0)
+                        self.assertEqual(execute.call_count, 1 if graceful else 2)
+                        self.assertEqual(execute.call_args_list[0].args[0][-1],
+                                         'default-desktop' if mode == 'desktop' else 'default-gamemode')
+                        self.assertEqual(json.loads(helper.MARKER.read_text())['pids'], [42])
+
+
 class ManagedBootTests(unittest.TestCase):
     def test_removal_restores_desktop_only_for_our_active_session(self):
         helper = module('install'); ownership = module('ownership')

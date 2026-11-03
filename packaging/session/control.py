@@ -47,6 +47,27 @@ def session_pids():
     return result
 
 
+def from_standalone_shell(uid, proc=Path('/proc'), pid=None):
+    """Only the actual shell can finish its own normal, lease-releasing exit."""
+    if not uid.isascii() or not uid.isdigit() or int(uid) == 0:
+        return False
+    pid = os.getppid() if pid is None else pid
+    for _ in range(8):
+        try:
+            entry = proc / str(pid)
+            status = dict(line.split(':', 1) for line in (entry / 'status').read_text().splitlines() if ':' in line)
+            groups = (entry / 'cgroup').read_text().splitlines()
+            if (status.get('Name', '').strip() == 'traineros'
+                    and status.get('Uid', '').split()[0] == uid
+                    and any(line.split(':', 2)[-1].endswith('/traineros-session.service') for line in groups)):
+                return True
+            pid = int(status['PPid'].strip())
+            if pid <= 1: return False
+        except (OSError, ValueError, KeyError, IndexError):
+            return False
+    return False
+
+
 def consume_transition(pid):
     try:
         value = json.loads(MARKER.read_text())
@@ -87,6 +108,7 @@ def main():
     if (action == "recover" and (len(sys.argv) != 3 or not sys.argv[2].isascii() or not sys.argv[2].isdigit())) or (action != "recover" and len(sys.argv) != 2):
         return 2
     caller_uid = os.environ.get('SUDO_UID', '')
+    graceful = action in {'desktop', 'steam'} and from_standalone_shell(caller_uid)
     os.environ.clear()
     os.environ.update(PATH="/usr/sbin:/usr/bin:/sbin:/bin", LANG="C.UTF-8")
     if action == "recover":
@@ -113,8 +135,11 @@ def main():
         # this session. Let Armada choose the destination, then end the actual
         # SDDM session explicitly; never depend on a different desktop's logout.
         result = subprocess.call([ARMADA, "default-desktop" if action == "desktop" else "default-gamemode"])
-        if result == 0:
+        if result == 0 and not graceful:
             result = subprocess.call(["/usr/bin/systemctl", "--no-block", "restart", "sddm"])
+        # The standalone UI saves before this call and exits normally on success.
+        # Let its launcher drain descendants and release the runtime lease before
+        # Gamescope/SDDM close the session. Restarting SDDM here kills that cleanup.
     else:
         result = subprocess.call(["/usr/bin/systemctl", "--no-block", "restart", "sddm"] if action == "traineros"
                                  else ["/usr/bin/systemctl", "--no-block", action])
