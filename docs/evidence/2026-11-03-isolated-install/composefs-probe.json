@@ -1,0 +1,1 @@
+{"supported": true, "architecture": "aarch64", "osStorage": {"source": "/dev/sda26", "filesystem": "btrfs", "disk": "/dev/sda", "location": "internal"}, "errors": []}

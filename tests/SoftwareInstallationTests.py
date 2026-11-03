@@ -403,6 +403,42 @@ class HostAndOwnershipTests(unittest.TestCase):
                 self.assertEqual(host.schemas(root), {'sqlite': 17, 'firstRun': 0})
             finally: db.close()
 
+    def test_composefs_uses_exact_sysroot_mount_not_game_or_home_storage(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ('usr/libexec/armada/device-env', 'usr/libexec/armada/session-control', 'usr/bin/gamescope'):
+                path = root / name; path.parent.mkdir(parents=True, exist_ok=True); path.touch(); path.chmod(0o755)
+            calls = []
+            def run(args):
+                calls.append(args)
+                if args == ['findmnt', '--json', '--target', '/usr', '--output', 'SOURCE,FSTYPE']:
+                    return json.dumps({'filesystems': [{'source': 'composefs', 'fstype': 'overlay'}]})
+                if args == ['findmnt', '--json', '--mountpoint', '/sysroot', '--output', 'SOURCE,FSTYPE']:
+                    return json.dumps({'filesystems': [{'source': '/dev/sda26[/root]', 'fstype': 'btrfs'}]})
+                self.assertEqual(args, ['lsblk', '--json', '--inverse', '--paths', '--output', 'PATH,TYPE,RM', '/dev/sda26'])
+                return json.dumps({'blockdevices': [{'path': '/dev/sda26', 'type': 'part', 'children': [{'path': '/dev/sda', 'type': 'disk', 'rm': False}]}]})
+            report = host.probe(root / 'external-games', run=run, system='Linux', machine='aarch64', filesystem=root)
+            self.assertTrue(report['supported'], report['errors'])
+            self.assertEqual(report['osStorage']['disk'], '/dev/sda')
+            self.assertEqual(report['osStorage']['source'], '/dev/sda26')
+            self.assertEqual(report['osStorage']['location'], 'internal')
+            self.assertEqual(len(calls), 3)
+
+    def test_composefs_refuses_missing_or_non_block_sysroot_without_guessing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ('usr/libexec/armada/device-env', 'usr/libexec/armada/session-control', 'usr/bin/gamescope'):
+                path = root / name; path.parent.mkdir(parents=True, exist_ok=True); path.touch(); path.chmod(0o755)
+            for reply in ({'filesystems': []}, {'filesystems': [{'source': 'tmpfs', 'fstype': 'tmpfs'}]}):
+                calls = []
+                def run(args):
+                    calls.append(args)
+                    self.assertEqual(args[0], 'findmnt')
+                    return json.dumps({'filesystems': [{'source': 'composefs', 'fstype': 'overlay'}]} if '/usr' in args else reply)
+                report = host.probe(root, run=run, system='Linux', machine='aarch64', filesystem=root)
+                self.assertFalse(report['supported']); self.assertEqual(report['osStorage'], {})
+                self.assertEqual(len(calls), 2)
+
     def test_session_journal_handles_interrupted_upgrade_and_preserves_drift(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp); journal = root / 'ledger.json'; name = '/etc/sddm.conf.d/90-traineros.conf'

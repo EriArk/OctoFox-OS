@@ -78,7 +78,18 @@ def probe(destination, *, run=command, system=None, machine=None, filesystem=Pat
     if system == 'Linux':
         try:
             mount = json.loads(run(['findmnt', '--json', '--target', '/usr', '--output', 'SOURCE,FSTYPE']))
+            filesystems = mount.get('filesystems', [])
+            if len(filesystems) != 1: raise ValueError('Cannot identify the OS filesystem')
+            if filesystems[0].get('source') == 'composefs' and filesystems[0].get('fstype') in ('overlay', 'composefs'):
+                # bootc exposes the immutable image at /usr through composefs;
+                # its physical deployment store is the separate /sysroot mount.
+                # Never substitute HOME, /var or the selected game-library disk.
+                mount = json.loads(run(['findmnt', '--json', '--mountpoint', '/sysroot', '--output', 'SOURCE,FSTYPE']))
+                if len(mount.get('filesystems', [])) != 1:
+                    raise ValueError('Cannot identify the composefs deployment filesystem')
             source = mount['filesystems'][0]['source'].split('[')[0]
+            if not source.startswith('/dev/'):
+                raise ValueError('OS storage is not a supported block device')
             disk = storage(mount, json.loads(run(['lsblk', '--json', '--inverse', '--paths', '--output', 'PATH,TYPE,RM', source])))
             # Some MMC drivers mark SD as non-removable; the card type is the
             # physical distinction between SD and soldered eMMC in that case.
