@@ -60,6 +60,15 @@ Corresponding Source and any applicable installation information. Publish the
 exact source revision, patches and build/install material that produced the
 binary, rather than pointing only to a moving branch or an upstream project.
 
+Software source archives exclude standalone avatar model geometry with separate
+asset terms. Code, build recipes, asset manifests and notices remain included;
+the filtered exact-revision archive records the omitted paths and hashes in
+`TRAINEROS-SOURCE-CONTENTS.json`. Future Git exports apply the same boundary via
+`.gitattributes`; original working files and Git history are not rewritten.
+This does not supply a replacement avatar pack or clear distribution of loose
+runtime GLB/cache files. Asset packaging and permissions remain a separate review;
+see [the current release evidence](docs/evidence/2026-11-03-release-delivery/README.md).
+
 The license choice does not certify a future Armada-based image or every emulator
 package. Release artifact/source/relink/notice verification remains in #115 and
 the image work under #70/#71. Independently distributed emulators are not silently

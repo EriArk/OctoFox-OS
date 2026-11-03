@@ -16,6 +16,7 @@ import releases as sw
 import channels
 import installer
 import screenscraper_client
+import source_archive
 
 SOURCE = Path(__file__).resolve().parents[2]
 
@@ -42,6 +43,7 @@ def build(payload, output, private_key, public_key, version, sequence, source, r
     # A working personal installation does not prove a fresh player's client
     # access. Publication requires a separately provisioned application identity.
     screenscraper_client.read(payload / screenscraper_client.RELATIVE_PATH)
+    source_archive.check(record['sourceArchive'], source)
     base = f'https://github.com/{repository}/releases/download/{urllib.parse.quote(tag)}/'
     manifest = sw.build(payload, output, private_key, version, sequence, source, base + 'traineros.tar.gz', data)
     sw.verified(manifest, public_key)  # catches mismatched signing/public keys

@@ -1,0 +1,37 @@
+{
+  "archiveSha256": "8fd20f8852240daffe895c8918848a90ebb0e458febbcde8c9b09925165afa1a",
+  "manifestSha256": "15aa4039439083eeebdc587b6ccd8ea15cb8d2ee718a690215d05bb66f5074ab",
+  "parts": [
+    {
+      "name": "TrainerOS-Full-Setup-CANDIDATE.tar.part001",
+      "sha256": "e7a60e5b90f474b46142a4977d8d8163893489b9cae67d620c0825f589b1e010",
+      "size": 1073741824
+    },
+    {
+      "name": "TrainerOS-Full-Setup-CANDIDATE.tar.part002",
+      "sha256": "73b7a60e089a3fb5008afbd377e01f3467ceaed2fbb089a9e5901b30d7e16fa8",
+      "size": 1073741824
+    },
+    {
+      "name": "TrainerOS-Full-Setup-CANDIDATE.tar.part003",
+      "sha256": "3a31be3d8801cefdc6cd2d925ded02c39e440f6fe4ac4e916250a6f0b69003f7",
+      "size": 1073741824
+    },
+    {
+      "name": "TrainerOS-Full-Setup-CANDIDATE.tar.part004",
+      "sha256": "5e82dd2a4c0c8c79ac2be85face6039e24da27033586634c790bd5cb4124efba",
+      "size": 329412608
+    }
+  ],
+  "allPartsUnder2GiB": true,
+  "assembledArchiveMatches": true,
+  "fullSetupExtractedAndRetryVerified": true,
+  "kit": {
+    "file": "TrainerOS-Download-CANDIDATE.tar.gz",
+    "sha256": "90975a94ebd8f644b97647f3747401edbf02fdef4cc58a0bb338ea5a1303914c",
+    "manifestSha256": "15aa4039439083eeebdc587b6ccd8ea15cb8d2ee718a690215d05bb66f5074ab"
+  },
+  "githubDownloadTested": false,
+  "installed": false,
+  "published": false
+}

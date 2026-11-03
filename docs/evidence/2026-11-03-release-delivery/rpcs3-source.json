@@ -1,0 +1,333 @@
+{
+  "schema": 1,
+  "id": "rpcs3-appimage",
+  "file": "rpcs3-appimage-ffba2bf09ef3980638f9327b25240d81414034ab.tar.gz",
+  "bytes": 374753201,
+  "sha256": "a5315fce853b09ab159e8a9de7073d5875edf35ee576e06640760cbed5f87cf6",
+  "repository": "https://github.com/RPCS3/rpcs3.git",
+  "commit": "ffba2bf09ef3980638f9327b25240d81414034ab",
+  "trees": [
+    {
+      "path": ".",
+      "repository": "https://github.com/RPCS3/rpcs3.git",
+      "commit": "ffba2bf09ef3980638f9327b25240d81414034ab",
+      "tree": "0be7998b5dded1842b45bd5040a2be9bb06112a3"
+    },
+    {
+      "path": "3rdparty/7zip/7zip/",
+      "repository": "https://github.com/ip7z/7zip.git",
+      "commit": "9128b80e3a471108678e2b3ec3c985861c8d7b0f",
+      "tree": "2d5ed6d8d71737408bc0ddf99837171610ac215b"
+    },
+    {
+      "path": "3rdparty/FAudio/",
+      "repository": "https://github.com/FNA-XNA/FAudio.git",
+      "commit": "6839b88e304a046ae1a609ff14a085371e02a4e0",
+      "tree": "e71ecd479ba15e04ec524cc3dffcdf9ff4086add"
+    },
+    {
+      "path": "3rdparty/GPUOpen/VulkanMemoryAllocator/",
+      "repository": "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git",
+      "commit": "3aa921224c154a0d2c43912bc88e1c42ce1f7607",
+      "tree": "564a402c18cbd92b1ebdb2dd4b9ea60ea18994d0"
+    },
+    {
+      "path": "3rdparty/OpenAL/openal-soft/",
+      "repository": "https://github.com/kcat/openal-soft.git",
+      "commit": "b2c48f7718ef3fcf67921a8b6534c4914e328970",
+      "tree": "6db1a18dffdcd9a7022c979354f99417581e5dd0"
+    },
+    {
+      "path": "3rdparty/SoundTouch/soundtouch/",
+      "repository": "https://github.com/RPCS3/soundtouch.git",
+      "commit": "a0fba77b6f9cfbdb71f8bbec58b6ac4e5e3b1097",
+      "tree": "646ec1ddb20d820c193f65e535ec865fad4c5eb2"
+    },
+    {
+      "path": "3rdparty/asmjit/asmjit/",
+      "repository": "https://github.com/asmjit/asmjit.git",
+      "commit": "416f7356967c1f66784dc1580fe157f9406d8bff",
+      "tree": "96a83b9da19a631cc06383b7afe5f11b2bc7599a"
+    },
+    {
+      "path": "3rdparty/cubeb/cubeb/",
+      "repository": "https://github.com/mozilla/cubeb.git",
+      "commit": "484857522c73318c06f18ba0a3e17525fa98c608",
+      "tree": "db7892b72d4817c3b07be84a25d362d069c3a9cb"
+    },
+    {
+      "path": "3rdparty/cubeb/cubeb/cmake/sanitizers-cmake/",
+      "repository": "https://github.com/arsenm/sanitizers-cmake",
+      "commit": "aab6948fa863bc1cbe5d0850bc46b9ef02ed4c1a",
+      "tree": "3816c1ee4a62493f88cb66b221649981515eb938"
+    },
+    {
+      "path": "3rdparty/cubeb/cubeb/googletest/",
+      "repository": "https://github.com/google/googletest",
+      "commit": "40412d85124f7c6f3d88454583c4633e5e10fc8c",
+      "tree": "b3eccdd551219da247b4e72a889c39deac4ec85e"
+    },
+    {
+      "path": "3rdparty/cubeb/cubeb/src/cubeb-coreaudio-rs/",
+      "repository": "https://github.com/mozilla/cubeb-coreaudio-rs",
+      "commit": "2c5675cde871a07d1f456f47346386b02cc776b6",
+      "tree": "d951594cbe1db5547b2914152b327dc347215c8a"
+    },
+    {
+      "path": "3rdparty/cubeb/cubeb/src/cubeb-pulse-rs/",
+      "repository": "https://github.com/mozilla/cubeb-pulse-rs",
+      "commit": "9cebfcceb073e9dd10cfb275a7590bca58d4c251",
+      "tree": "bf071d93421851c7667fba6d233859e0228db92f"
+    },
+    {
+      "path": "3rdparty/curl/curl/",
+      "repository": "https://github.com/curl/curl.git",
+      "commit": "01346829096c61b372692f6dc43ffa778c6caccd",
+      "tree": "6ae23d9333713707a02588b44ed238a50e8b3bde"
+    },
+    {
+      "path": "3rdparty/discord-rpc/discord-rpc/",
+      "repository": "https://github.com/Vestrel/discord-rpc",
+      "commit": "fb04b1766bbbe7d2f47985b8b82fded0366efdf9",
+      "tree": "cc6035362e81e898efa0479c34ee11bfd17b9031"
+    },
+    {
+      "path": "3rdparty/feralinteractive/feralinteractive/",
+      "repository": "https://github.com/FeralInteractive/gamemode.git",
+      "commit": "c54d6d4243b0dd0afcb49f2c9836d432da171a2b",
+      "tree": "9f53a77a8b253a2f8f1a6e278f0205db465bd120"
+    },
+    {
+      "path": "3rdparty/ffmpeg/",
+      "repository": "https://github.com/RPCS3/ffmpeg-core.git",
+      "commit": "649d9d9353184a17ae78d9df4a6fbbe7456f0428",
+      "tree": "588fc416ccc91142889db8082f20c8572f6d13fb"
+    },
+    {
+      "path": "3rdparty/fusion/fusion/",
+      "repository": "https://github.com/xioTechnologies/Fusion.git",
+      "commit": "9325424011892abacc0ce42b8bb1a8ae20264b9b",
+      "tree": "5dc7c0c7573021cb8cbc703d11817e4bac164f5e"
+    },
+    {
+      "path": "3rdparty/glslang/glslang/",
+      "repository": "https://github.com/KhronosGroup/glslang.git",
+      "commit": "f0bd0257c308b9a26562c1a30c4748a0219cc951",
+      "tree": "ee71bf907060016f6004e3b3b107fd8dd66f94c6"
+    },
+    {
+      "path": "3rdparty/hidapi/hidapi/",
+      "repository": "https://github.com/libusb/hidapi.git",
+      "commit": "d6b2a974608dec3b76fb1e36c189f22b9cf3650c",
+      "tree": "3dcff337558b16a0b76f1ffe2d4063d6d9824f4b"
+    },
+    {
+      "path": "3rdparty/libpng/libpng/",
+      "repository": "https://github.com/glennrp/libpng.git",
+      "commit": "cd952f49f95bb27154ae77dbb103032d95f6e580",
+      "tree": "dda3fd3731452de2b2f8f69a03c985118d45f112"
+    },
+    {
+      "path": "3rdparty/libsdl-org/SDL/",
+      "repository": "https://github.com/libsdl-org/SDL.git",
+      "commit": "829a65d769d935c4852f8159e964312c0957260a",
+      "tree": "e6d1f7bc21b4db3be68c99a7ebc45f7a36766fdf"
+    },
+    {
+      "path": "3rdparty/libusb/libusb/",
+      "repository": "https://github.com/libusb/libusb.git",
+      "commit": "87a55632db62c9bdc58cd31d3ccfa673f1bb017f",
+      "tree": "1dab476e854bb3605113e4ff3e78f9130aac5d95"
+    },
+    {
+      "path": "3rdparty/llvm/llvm/",
+      "repository": "https://github.com/llvm/llvm-project.git",
+      "commit": "ca7933e47d3a3451d81e72ac174dcb5aa28b59d1",
+      "tree": "1e4fdb95266974a0cbca9ec4c6f740488322f238"
+    },
+    {
+      "path": "3rdparty/miniupnp/miniupnp/",
+      "repository": "https://github.com/miniupnp/miniupnp.git",
+      "commit": "d66872e34d9ff83a07f8b71371b13419b2089953",
+      "tree": "6c59f9df84de0f93a0051831cea7895c6e5feadc"
+    },
+    {
+      "path": "3rdparty/opencv/opencv/",
+      "repository": "https://github.com/Megamouse/opencv_minimal.git",
+      "commit": "d4dde8afe3098f33f253278e25d45d6554afb10c",
+      "tree": "7065cd0c4a8501c49fe0bbd05c3df6c1e6382f62"
+    },
+    {
+      "path": "3rdparty/protobuf/protobuf/",
+      "repository": "https://github.com/protocolbuffers/protobuf.git",
+      "commit": "edaa823d8b36a8656d7b2b9241b7d0bfe50af878",
+      "tree": "63d247fbede9dfadc7a1d2738f27d31634f326f2"
+    },
+    {
+      "path": "3rdparty/pugixml/",
+      "repository": "https://github.com/zeux/pugixml.git",
+      "commit": "c8033ce9d039e7f9d134877c363397b3cfe20816",
+      "tree": "7ad466917e851c39afe0382f80ac1d62b9e60e0e"
+    },
+    {
+      "path": "3rdparty/rtmidi/rtmidi/",
+      "repository": "https://github.com/thestk/rtmidi",
+      "commit": "1e5b49925aa60065db52de44c366d446a902547b",
+      "tree": "d78f883d2318e00491c19b8a70a2b928421265bf"
+    },
+    {
+      "path": "3rdparty/stblib/stb/",
+      "repository": "https://github.com/nothings/stb.git",
+      "commit": "013ac3beddff3dbffafd5177e7972067cd2b5083",
+      "tree": "a4e2dc3fbb85dd1a999339d96cc096a29aa592dc"
+    },
+    {
+      "path": "3rdparty/wolfssl/wolfssl/",
+      "repository": "https://github.com/wolfSSL/wolfssl.git",
+      "commit": "3c5eead44904df64e6a5a1f4ebdce377d35a849a",
+      "tree": "6ed368fe3b960ae79829b2cd8e18537fdf61bcdd"
+    },
+    {
+      "path": "3rdparty/yaml-cpp/yaml-cpp/",
+      "repository": "https://github.com/RPCS3/yaml-cpp.git",
+      "commit": "51a5d623e3fde1f58829a56ba910f1cb33596222",
+      "tree": "41d887c3ac14a2fcb7103cdf006ae1d135dc8b50"
+    },
+    {
+      "path": "3rdparty/zlib/zlib/",
+      "repository": "https://github.com/madler/zlib",
+      "commit": "da607da739fa6047df13e66a2af6b8bec7c2a498",
+      "tree": "79b5a06f88838dd54f90f821e8650254abfedb7e"
+    },
+    {
+      "path": "3rdparty/zstd/zstd/",
+      "repository": "https://github.com/facebook/zstd",
+      "commit": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "tree": "1a3cb277e9b9b37b01811a3c65f6c25d46a8f241"
+    }
+  ],
+  "files": 195363,
+  "noticeFiles": [
+    "3rdparty/7zip/7zip/DOC/License.txt",
+    "3rdparty/7zip/7zip/DOC/copying.txt",
+    "3rdparty/7zip/7zip/DOC/unRarLicense.txt",
+    "3rdparty/FAudio/LICENSE",
+    "3rdparty/FAudio/csharp/LICENSE",
+    "3rdparty/GPUOpen/VulkanMemoryAllocator/LICENSE.txt",
+    "3rdparty/OpenAL/openal-soft/COPYING",
+    "3rdparty/OpenAL/openal-soft/LICENSE-pffft",
+    "3rdparty/OpenAL/openal-soft/fmt-11.2.0/LICENSE",
+    "3rdparty/OpenAL/openal-soft/fmt-11.2.0/doc/python-license.txt",
+    "3rdparty/OpenAL/openal-soft/gsl/LICENSE",
+    "3rdparty/OpenAL/openal-soft/gsl/ThirdPartyNotices.txt",
+    "3rdparty/SoundTouch/soundtouch/COPYING.TXT",
+    "3rdparty/SoundTouch/soundtouch/source/csharp-example/NAudio-license.txt",
+    "3rdparty/asmjit/asmjit/LICENSE.md",
+    "3rdparty/cubeb/cubeb/LICENSE",
+    "3rdparty/cubeb/cubeb/cmake/sanitizers-cmake/LICENSE",
+    "3rdparty/cubeb/cubeb/googletest/LICENSE",
+    "3rdparty/cubeb/cubeb/src/cubeb-coreaudio-rs/LICENSE",
+    "3rdparty/cubeb/cubeb/src/cubeb-pulse-rs/LICENSE",
+    "3rdparty/curl/curl/COPYING",
+    "3rdparty/discord-rpc/discord-rpc/LICENSE",
+    "3rdparty/discord-rpc/discord-rpc/thirdparty/rapidjson-1.1.0/license.txt",
+    "3rdparty/feralinteractive/feralinteractive/LICENSE.txt",
+    "3rdparty/ffmpeg/copyright",
+    "3rdparty/fusion/fusion/LICENSE.md",
+    "3rdparty/glslang/glslang/LICENSE.txt",
+    "3rdparty/glslang/glslang/license-checker.cfg",
+    "3rdparty/hidapi/hidapi/LICENSE-bsd.txt",
+    "3rdparty/hidapi/hidapi/LICENSE-gpl3.txt",
+    "3rdparty/hidapi/hidapi/LICENSE-orig.txt",
+    "3rdparty/hidapi/hidapi/LICENSE.txt",
+    "3rdparty/libpng/libpng/LICENSE",
+    "3rdparty/libpng/libpng/contrib/gregbook/COPYING",
+    "3rdparty/libpng/libpng/contrib/gregbook/LICENSE",
+    "3rdparty/libpng/libpng/contrib/pngexif/LICENSE_MIT.txt",
+    "3rdparty/libpng/libpng/contrib/pngminus/LICENSE.txt",
+    "3rdparty/libsdl-org/SDL/LICENSE.txt",
+    "3rdparty/libsdl-org/SDL/build-scripts/update-copyright.sh",
+    "3rdparty/libsdl-org/SDL/include/SDL3/SDL_copying.h",
+    "3rdparty/libsdl-org/SDL/src/hidapi/LICENSE-bsd.txt",
+    "3rdparty/libsdl-org/SDL/src/hidapi/LICENSE-gpl3.txt",
+    "3rdparty/libsdl-org/SDL/src/hidapi/LICENSE-orig.txt",
+    "3rdparty/libsdl-org/SDL/src/hidapi/LICENSE.txt",
+    "3rdparty/libsdl-org/SDL/src/video/yuv2rgb/LICENSE",
+    "3rdparty/libsdl-org/SDL/test/COPYING",
+    "3rdparty/libsdl-org/SDL/test/LICENSE.txt",
+    "3rdparty/libsdl-org/SDL/test/unifont-15.1.05-license.txt",
+    "3rdparty/libusb/libusb/COPYING",
+    "3rdparty/llvm/llvm/LICENSE.TXT",
+    "3rdparty/llvm/llvm/bolt/LICENSE.TXT",
+    "3rdparty/llvm/llvm/clang-tools-extra/LICENSE.TXT",
+    "3rdparty/llvm/llvm/clang-tools-extra/clang-tidy/cert/LICENSE.TXT",
+    "3rdparty/llvm/llvm/clang-tools-extra/clang-tidy/hicpp/LICENSE.TXT",
+    "3rdparty/llvm/llvm/clang/LICENSE.TXT",
+    "3rdparty/llvm/llvm/clang/test/SemaObjC/warn-assign-property-nscopying.m",
+    "3rdparty/llvm/llvm/compiler-rt/LICENSE.TXT",
+    "3rdparty/llvm/llvm/cross-project-tests/debuginfo-tests/dexter/LICENSE.txt",
+    "3rdparty/llvm/llvm/flang-rt/LICENSE.TXT",
+    "3rdparty/llvm/llvm/flang/LICENSE.TXT",
+    "3rdparty/llvm/llvm/flang/test/Semantics/OpenMP/copying.f90",
+    "3rdparty/llvm/llvm/libc/LICENSE.TXT",
+    "3rdparty/llvm/llvm/libclc/LICENSE.TXT",
+    "3rdparty/llvm/llvm/libcxx/LICENSE.TXT",
+    "3rdparty/llvm/llvm/libcxx/test/libcxx-03/algorithms/robust_against_copying_comparators.pass.cpp",
+    "3rdparty/llvm/llvm/libcxx/test/libcxx/algorithms/ranges_robust_against_copying_comparators.pass.cpp",
+    "3rdparty/llvm/llvm/libcxx/test/libcxx/algorithms/ranges_robust_against_copying_projections.pass.cpp",
+    "3rdparty/llvm/llvm/libcxx/test/libcxx/algorithms/robust_against_copying_comparators.pass.cpp",
+    "3rdparty/llvm/llvm/libcxxabi/LICENSE.TXT",
+    "3rdparty/llvm/llvm/libsycl/LICENSE.txt",
+    "3rdparty/llvm/llvm/libunwind/LICENSE.TXT",
+    "3rdparty/llvm/llvm/lld/LICENSE.TXT",
+    "3rdparty/llvm/llvm/lldb/LICENSE.TXT",
+    "3rdparty/llvm/llvm/lldb/tools/lldb-dap/extension/LICENSE.TXT",
+    "3rdparty/llvm/llvm/llvm/LICENSE.TXT",
+    "3rdparty/llvm/llvm/llvm/include/llvm/Support/LICENSE.TXT",
+    "3rdparty/llvm/llvm/llvm/lib/Support/BLAKE3/LICENSE",
+    "3rdparty/llvm/llvm/llvm/lib/Support/COPYRIGHT.regex",
+    "3rdparty/llvm/llvm/llvm/test/YAMLParser/LICENSE.txt",
+    "3rdparty/llvm/llvm/llvm/utils/lit/LICENSE.TXT",
+    "3rdparty/llvm/llvm/mlir/LICENSE.TXT",
+    "3rdparty/llvm/llvm/openmp/LICENSE.TXT",
+    "3rdparty/llvm/llvm/openmp/runtime/src/thirdparty/ittnotify/LICENSE.txt",
+    "3rdparty/llvm/llvm/orc-rt/LICENSE.TXT",
+    "3rdparty/llvm/llvm/polly/LICENSE.TXT",
+    "3rdparty/llvm/llvm/polly/lib/External/isl/LICENSE",
+    "3rdparty/llvm/llvm/polly/lib/External/isl/imath/LICENSE",
+    "3rdparty/llvm/llvm/third-party/benchmark/LICENSE",
+    "3rdparty/llvm/llvm/third-party/boost-math/LICENSE",
+    "3rdparty/llvm/llvm/third-party/unittest/googlemock/LICENSE.txt",
+    "3rdparty/llvm/llvm/third-party/unittest/googletest/LICENSE.TXT",
+    "3rdparty/miniupnp/miniupnp/LICENSE",
+    "3rdparty/miniupnp/miniupnp/minissdpd/LICENSE",
+    "3rdparty/miniupnp/miniupnp/miniupnpc/LICENSE",
+    "3rdparty/miniupnp/miniupnp/miniupnpd/LICENSE",
+    "3rdparty/opencv/opencv/LICENSE-OpenCv.txt",
+    "3rdparty/opencv/opencv/LICENSE.txt",
+    "3rdparty/protobuf/protobuf/LICENSE",
+    "3rdparty/protobuf/protobuf/src/google/protobuf/compiler/notices.h",
+    "3rdparty/protobuf/protobuf/third_party/utf8_range/LICENSE",
+    "3rdparty/pugixml/LICENSE.md",
+    "3rdparty/rtmidi/rtmidi/LICENSE",
+    "3rdparty/stblib/stb/LICENSE",
+    "3rdparty/stblib/stb/data/herringbone/license.txt",
+    "3rdparty/stblib/stb/tests/pngsuite/PngSuite.LICENSE",
+    "3rdparty/wolfssl/wolfssl/COPYING",
+    "3rdparty/wolfssl/wolfssl/debian/copyright",
+    "3rdparty/yaml-cpp/yaml-cpp/LICENSE",
+    "3rdparty/yaml-cpp/yaml-cpp/test/googletest-1.13.0/LICENSE",
+    "3rdparty/zlib/zlib/LICENSE",
+    "3rdparty/zlib/zlib/contrib/dotzlib/LICENSE_1_0.txt",
+    "3rdparty/zlib/zlib/contrib/minizip/LICENSE.Info-Zip",
+    "3rdparty/zstd/zstd/COPYING",
+    "3rdparty/zstd/zstd/LICENSE",
+    "3rdparty/zstd/zstd/build/LICENSE",
+    "3rdparty/zstd/zstd/tests/test-license.py",
+    "LICENSE"
+  ],
+  "lfsObjects": [],
+  "externalLinks": [],
+  "upstreamSourceCollected": true,
+  "completeCorrespondingSourceReviewed": false
+}

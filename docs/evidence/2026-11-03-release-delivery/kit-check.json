@@ -1,0 +1,8 @@
+{
+  "release_parts.py": true,
+  "installer.py": true,
+  "shellSyntax": true,
+  "isolatedFromCheckout": true,
+  "guiRun": false,
+  "published": false
+}

@@ -4,6 +4,7 @@ import copy
 from contextlib import closing
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -312,7 +313,12 @@ class InstallationTests(unittest.TestCase):
         payload = self.root / 'arm64'; (payload / 'bin').mkdir(parents=True)
         header = bytearray(64); header[:6] = b'\x7fELF\x02\x01'; struct.pack_into('<H', header, 18, 183)
         (payload / 'bin/traineros').write_bytes(header); (payload / 'bin/traineros').chmod(0o755)
-        source = self.root / 'source.tar.gz'; source.write_bytes(b'fixture source, not a distributable release')
+        source = self.root / 'source.tar.gz'
+        with tarfile.open(source, 'w:gz', format=tarfile.PAX_FORMAT, pax_headers={'comment': 'a' * 40}) as archive:
+            for name in ('LICENSE', 'LICENSING.md', 'CMakeLists.txt'):
+                data = b'fixture source, not a distributable release'
+                member = tarfile.TarInfo(name); member.size = len(data)
+                archive.addfile(member, io.BytesIO(data))
         notices = self.root / 'notices.txt'; notices.write_text('Fixture licence record')
         provenance = self.root / 'provenance.json'
         record = {'source': 'a' * 40, 'target': 'linux-aarch64', 'buildCommand': 'fixture only',

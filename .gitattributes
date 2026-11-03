@@ -6,6 +6,15 @@ packaging/integrations/*.py text eol=lf
 # Preserve the owner's original PS2 research CSV attachments byte-for-byte.
 docs/data/ps2/*.csv -text whitespace=cr-at-eol
 *.ttf binary
+# Software source archives do not distribute standalone avatar model geometry.
+# Originals stay in Git; runtime asset packaging is reviewed independently.
+assets/avatar/**/*.blend export-ignore
+assets/avatar/**/*.blend1 export-ignore
+assets/avatar/**/*.fbx export-ignore
+assets/avatar/**/*.glb export-ignore
+assets/avatar/**/*.gltf export-ignore
+assets/avatar/**/*.obj export-ignore
+assets/avatar/**/*.bin export-ignore
 # Peer recipes hash the raw runtime manifest on Windows and Linux alike.
 assets/avatar/packs/*/manifest.json text eol=lf
 # Preserve hashed approved eye assets and their evidence byte-for-byte.

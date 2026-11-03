@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "id": "melonds-appimage",
+  "file": "melonds-appimage-12891b6d064171e8a70c7ef146b9ba068d702b26.tar.gz",
+  "bytes": 3722450,
+  "sha256": "76381487f7efc44e9dcbfbd647636011a88aa99451fdb42bd8cd5a33188f5d2b",
+  "repository": "https://github.com/melonDS-emu/melonDS.git",
+  "commit": "12891b6d064171e8a70c7ef146b9ba068d702b26",
+  "trees": [
+    {
+      "path": ".",
+      "repository": "https://github.com/melonDS-emu/melonDS.git",
+      "commit": "12891b6d064171e8a70c7ef146b9ba068d702b26",
+      "tree": "7f84e7b39e8a2b2432b79755fe4f022b5bc25adb"
+    }
+  ],
+  "files": 785,
+  "noticeFiles": [
+    "LICENSE",
+    "src/blip-buf/license.txt",
+    "src/dolphin/license_dolphin.txt",
+    "src/fatfs/LICENSE.txt",
+    "src/frontend/qt_sdl/InputConfig/resources/LICENSE.md",
+    "src/net/libslirp/COPYRIGHT",
+    "src/teakra/LICENSE",
+    "src/tiny-AES-c/unlicense.txt"
+  ],
+  "lfsObjects": [],
+  "externalLinks": [],
+  "upstreamSourceCollected": true,
+  "completeCorrespondingSourceReviewed": false
+}

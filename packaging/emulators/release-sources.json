@@ -218,6 +218,33 @@
       "components": [
         "ARMSX2"
       ]
+    },
+    {
+      "id": "azahar-appimage",
+      "repository": "https://github.com/azahar-emu/azahar.git",
+      "commit": "d162991403ff3a77ed623b6dd29b5074c4f45819",
+      "evidence": "docs/evidence/2026-11-03-release-delivery/README.md",
+      "components": [
+        "Azahar-Enhanced"
+      ]
+    },
+    {
+      "id": "melonds-appimage",
+      "repository": "https://github.com/melonDS-emu/melonDS.git",
+      "commit": "12891b6d064171e8a70c7ef146b9ba068d702b26",
+      "evidence": "docs/evidence/2026-11-03-release-delivery/README.md",
+      "components": [
+        "melonDS"
+      ]
+    },
+    {
+      "id": "rpcs3-appimage",
+      "repository": "https://github.com/RPCS3/rpcs3.git",
+      "commit": "ffba2bf09ef3980638f9327b25240d81414034ab",
+      "evidence": "docs/evidence/2026-11-03-release-delivery/README.md",
+      "components": [
+        "rpcs3"
+      ]
     }
   ]
 }

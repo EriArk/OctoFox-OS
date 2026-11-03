@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "method": "Read ELF marker, resolve exact upstream commit, collect pinned source with gitlinks.",
+  "components": [
+    {
+      "id": "Azahar-Enhanced",
+      "appImageSha256": "f2c13c954a23433b7a4d05d397e0871d48be3b058f4963a1736f6e84d6448fd8",
+      "elfPath": "shared/bin/azahar",
+      "elfBytes": 32768280,
+      "elfSha256": "feb29b220975b7e454369a63bdd6a1eeadb384f43ac324a9e2ddbe516f5d6971",
+      "marker": "d162991403ff3a77ed623b6dd29b5074c4f45819",
+      "markerOffset": 3605390,
+      "repository": "https://github.com/azahar-emu/azahar.git",
+      "commit": "d162991403ff3a77ed623b6dd29b5074c4f45819",
+      "upstreamCommitUrl": "https://github.com/azahar-emu/azahar/commit/d162991403ff3a77ed623b6dd29b5074c4f45819",
+      "exactBuildRecipeAndDependenciesReviewed": false,
+      "redistributionReviewed": false
+    },
+    {
+      "id": "melonDS",
+      "appImageSha256": "eb89fb87e08accdb47b6992e8a03f5534bd211b271ebb46e181f3bdce14e1b0c",
+      "elfPath": "usr/bin/melonDS",
+      "elfBytes": 4376161,
+      "elfSha256": "e6401d369badcb4fe92696dd327073a1891d4f5f835d6123925ec3121d99105b",
+      "marker": "Commit: 12891b6d064171e8a70c7ef146b9ba068d702b26",
+      "markerOffset": 3227479,
+      "repository": "https://github.com/melonDS-emu/melonDS.git",
+      "commit": "12891b6d064171e8a70c7ef146b9ba068d702b26",
+      "upstreamCommitUrl": "https://github.com/melonDS-emu/melonDS/commit/12891b6d064171e8a70c7ef146b9ba068d702b26",
+      "exactBuildRecipeAndDependenciesReviewed": false,
+      "redistributionReviewed": false
+    },
+    {
+      "id": "rpcs3",
+      "appImageSha256": "f1ecd9af6073eb3643c4e10e5befff25bdcd4d2da53aec69547da5fa7f8ae1d2",
+      "elfPath": "usr/bin/rpcs3",
+      "elfBytes": 95892649,
+      "elfSha256": "b4177c2dbc5c02c225f3f5116aeb8ff0869a0aef6e039ff9dd983ad4e9fd9d27",
+      "marker": "20291-ffba2bf0",
+      "markerOffset": 5051348,
+      "repository": "https://github.com/RPCS3/rpcs3.git",
+      "commit": "ffba2bf09ef3980638f9327b25240d81414034ab",
+      "upstreamCommitUrl": "https://github.com/RPCS3/rpcs3/commit/ffba2bf09ef3980638f9327b25240d81414034ab",
+      "exactBuildRecipeAndDependenciesReviewed": false,
+      "redistributionReviewed": false
+    }
+  ]
+}

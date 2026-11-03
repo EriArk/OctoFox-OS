@@ -1,0 +1,43 @@
+{
+  "file": "TrainerOS-AppImage-Sources-02-CANDIDATE.tar",
+  "bytes": 628183040,
+  "sha256": "a6d071d0dc7d8c1fd0b03c38fa1a46f17a678d74ebafd7e5f70b07a42fda6784",
+  "files": [
+    {
+      "name": "azahar-appimage-d162991403ff3a77ed623b6dd29b5074c4f45819.tar.gz",
+      "bytes": 249659824,
+      "sha256": "7fb94b6de281e9f737179a48e59df5a9f4b0a738f481ffd52dc0f045b6c0c98c"
+    },
+    {
+      "name": "azahar-appimage.json",
+      "bytes": 17966,
+      "sha256": "e4d1b3bddcb58887c93ee035af2669569ee01c27a1d2f3f0e604254c9b3874ff"
+    },
+    {
+      "name": "melonds-appimage-12891b6d064171e8a70c7ef146b9ba068d702b26.tar.gz",
+      "bytes": 3722450,
+      "sha256": "76381487f7efc44e9dcbfbd647636011a88aa99451fdb42bd8cd5a33188f5d2b"
+    },
+    {
+      "name": "melonds-appimage.json",
+      "bytes": 1010,
+      "sha256": "a00fdab13a6a61ff879b87115da173b99c37c8cde18601de466bb023a4d10efc"
+    },
+    {
+      "name": "rpcs3-appimage-ffba2bf09ef3980638f9327b25240d81414034ab.tar.gz",
+      "bytes": 374753201,
+      "sha256": "a5315fce853b09ab159e8a9de7073d5875edf35ee576e06640760cbed5f87cf6"
+    },
+    {
+      "name": "rpcs3-appimage.json",
+      "bytes": 14530,
+      "sha256": "81b55f8cb5651ba90e0a3e0a9921af7d789cf30b37131b8cf11a01fcee3e707b"
+    }
+  ],
+  "allFilesReadBack": true,
+  "sourceCapsules": 3,
+  "sourceTrees": 87,
+  "completeRuntimeCorrespondingSource": false,
+  "redistributionReviewed": false,
+  "published": false
+}

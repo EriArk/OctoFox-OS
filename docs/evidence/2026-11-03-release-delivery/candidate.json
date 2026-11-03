@@ -1,0 +1,15 @@
+{
+  "file": "TrainerOS-Full-Setup-CANDIDATE.tar",
+  "bytes": 3550638080,
+  "sha256": "8fd20f8852240daffe895c8918848a90ebb0e458febbcde8c9b09925165afa1a",
+  "softwareSource": "2a6c9c9b00b58e914525bd779c76896c8fcf5006",
+  "runtimeSequence": 12,
+  "changedMembers": [
+    "TrainerOS-Setup/sources/traineros-source.tar.gz"
+  ],
+  "unchangedFiles": 82,
+  "allFilesReadBack": true,
+  "redistributionReviewed": false,
+  "published": false,
+  "installed": false
+}

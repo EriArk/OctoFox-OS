@@ -12,6 +12,8 @@
 кандидат собран, публичного выпуска пока нет. ScreenScraper application access
 и hybrid Setup доставлены. Следующие оставшиеся пункты — завершение source/license
 комплекта и GitHub release/OTA. [Текущее состояние и границы проверок](CURRENT_TASKS.md).
+Транспорт большого Setup частями и три новых source capsules подготовлены;
+[результат](evidence/2026-11-03-release-delivery/README.md) не означает публикацию.
 
 ## Предыдущий выбор владельца — Emerald, 2 ноября 2026
 
