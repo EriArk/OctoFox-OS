@@ -632,6 +632,78 @@
       "components": [
         "retroarch-cores"
       ]
+    },
+    {
+      "id": "core-mame",
+      "repository": "https://github.com/libretro/mame.git",
+      "commit": "9069f39340f2d2b1795df8e71bb1d3d0fbc76598",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-scummvm",
+      "repository": "https://github.com/scummvm/scummvm.git",
+      "commit": "fcbce3ae815269dacdc309092bc92ccc6d3e13bb",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-stella",
+      "repository": "https://github.com/stella-emu/stella.git",
+      "commit": "36db8267e443a1ddfe4fabc0a3d42ec2b2332cb4",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-cemu",
+      "repository": "https://github.com/WizzardSK/cemu-libretro.git",
+      "commit": "0c11cf8e79ae5662456d41458d62d099c232ddcc",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-tic80",
+      "repository": "https://github.com/libretro/TIC-80.git",
+      "commit": "ae1195a9d0fbda243bf0ebd861d6876d072a979e",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-fbneo",
+      "repository": "https://github.com/libretro/FBNeo.git",
+      "commit": "aceeebed9e7edc8a28652365a064baee9a16e274",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-fuse",
+      "repository": "https://github.com/libretro/fuse-libretro.git",
+      "commit": "e997e2bc32c888348f862f69f2c53babfedf7791",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-gw",
+      "repository": "https://github.com/libretro/gw-libretro.git",
+      "commit": "dddc9d553f7503f17c3dfd1906bc94c07eff8515",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
     }
   ]
 }

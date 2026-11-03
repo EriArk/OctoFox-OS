@@ -199,8 +199,17 @@
       "path": "cores/cemu_libretro.so",
       "bytes": 21059960,
       "sha256": "a07acf795cd807f759f67a7a869bb24888f790c7d0ec0ad5d3d114badc535074",
-      "source": null,
-      "identity": null,
+      "source": {
+        "id": "core-cemu",
+        "repository": "https://github.com/WizzardSK/cemu-libretro.git",
+        "commit": "0c11cf8e79ae5662456d41458d62d099c232ddcc"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "Cemu 0c11cf8",
+        "abbreviation": "0c11cf8",
+        "dirty": false
+      },
       "localMaterials": [],
       "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
     },
@@ -252,8 +261,17 @@
       "path": "cores/fbneo_libretro.so",
       "bytes": 79284728,
       "sha256": "ffb37315a609317e1a00bf32c0e3d66c5a848d052d1260f4ab7f42da0f9fb9c3",
-      "source": null,
-      "identity": null,
+      "source": {
+        "id": "core-fbneo",
+        "repository": "https://github.com/libretro/FBNeo.git",
+        "commit": "aceeebed9e7edc8a28652365a064baee9a16e274"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "GITaceeebe",
+        "abbreviation": "aceeebe",
+        "dirty": false
+      },
       "localMaterials": [],
       "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
     },
@@ -329,8 +347,17 @@
       "path": "cores/fuse_libretro.so",
       "bytes": 1466176,
       "sha256": "9561c0b4759e3f9301fbe39eb60828b17d3ea6e9950cf3bd721f0a97481d1246",
-      "source": null,
-      "identity": null,
+      "source": {
+        "id": "core-fuse",
+        "repository": "https://github.com/libretro/fuse-libretro.git",
+        "commit": "e997e2bc32c888348f862f69f2c53babfedf7791"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "e997e2bc32c888348f862f69f2c53babfedf7791",
+        "abbreviation": "e997e2bc32c888348f862f69f2c53babfedf7791",
+        "dirty": false
+      },
       "localMaterials": [],
       "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
     },
@@ -399,8 +426,17 @@
       "path": "cores/gw_libretro.so",
       "bytes": 563184,
       "sha256": "56bc41f0e49565ed84d35e7a92949bffa075b4ab6be0f0dc84118ab4fd16b815",
-      "source": null,
-      "identity": null,
+      "source": {
+        "id": "core-gw",
+        "repository": "https://github.com/libretro/gw-libretro.git",
+        "commit": "dddc9d553f7503f17c3dfd1906bc94c07eff8515"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "dddc9d553f7503f17c3dfd1906bc94c07eff8515",
+        "abbreviation": "dddc9d553f7503f17c3dfd1906bc94c07eff8515",
+        "dirty": false
+      },
       "localMaterials": [],
       "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
     },
@@ -443,8 +479,17 @@
       "path": "cores/mame_libretro.so",
       "bytes": 392603432,
       "sha256": "4b37dc1289104b45baa2a3b531ccfaba988a12467084e41298ae0a128742ad2f",
-      "source": null,
-      "identity": null,
+      "source": {
+        "id": "core-mame",
+        "repository": "https://github.com/libretro/mame.git",
+        "commit": "9069f39340f2d2b1795df8e71bb1d3d0fbc76598"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.289 (9069f3934)",
+        "abbreviation": "9069f3934",
+        "dirty": false
+      },
       "localMaterials": [],
       "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
     },
@@ -885,8 +930,17 @@
       "path": "cores/scummvm_libretro.so",
       "bytes": 136131872,
       "sha256": "7e7dde9c7216b68fc09f5c86d847ed912c06c2dba721166444764eb57fa57b3d",
-      "source": null,
-      "identity": null,
+      "source": {
+        "id": "core-scummvm",
+        "repository": "https://github.com/scummvm/scummvm.git",
+        "commit": "fcbce3ae815269dacdc309092bc92ccc6d3e13bb"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "fcbce3ae-2026.3.1git",
+        "abbreviation": "fcbce3ae",
+        "dirty": false
+      },
       "localMaterials": [],
       "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
     },
@@ -911,8 +965,17 @@
       "path": "cores/stella_libretro.so",
       "bytes": 7250712,
       "sha256": "bf2cf27781f9e393079c9a53c71d8676d638025086955498641723a8e121228a",
-      "source": null,
-      "identity": null,
+      "source": {
+        "id": "core-stella",
+        "repository": "https://github.com/stella-emu/stella.git",
+        "commit": "36db8267e443a1ddfe4fabc0a3d42ec2b2332cb4"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": " 36db826",
+        "abbreviation": "36db826",
+        "dirty": false
+      },
       "localMaterials": [],
       "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
     },
@@ -937,8 +1000,17 @@
       "path": "cores/tic80_libretro.so",
       "bytes": 4341592,
       "sha256": "465e54f90ecc581115fbd70cbee9adad9967492cb8c9dfb3390985e67bdc10b0",
-      "source": null,
-      "identity": null,
+      "source": {
+        "id": "core-tic80",
+        "repository": "https://github.com/libretro/TIC-80.git",
+        "commit": "ae1195a9d0fbda243bf0ebd861d6876d072a979e"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.2.38-dev (ae1195a)",
+        "abbreviation": "ae1195a",
+        "dirty": false
+      },
       "localMaterials": [],
       "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
     },

@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "windowsTests": {
+    "CoreSourceTests": 9,
+    "SourceCapsuleTests": 12,
+    "failed": 0
+  },
+  "linuxActualBundle": {
+    "allEntriesReadBack": true,
+    "entries": 121,
+    "sha256": "c58e8b43612a39bc4b1b15c4537094f596dc4dfd7a71aa53950ece5ff9c8d1b0"
+  },
+  "unchangedCoreBinaryPins": 76,
+  "newSourceBindings": [
+    "cores/cemu_libretro.so",
+    "cores/fbneo_libretro.so",
+    "cores/fuse_libretro.so",
+    "cores/gw_libretro.so",
+    "cores/mame_libretro.so",
+    "cores/scummvm_libretro.so",
+    "cores/stella_libretro.so",
+    "cores/tic80_libretro.so"
+  ],
+  "sourceRegistryEntries": 78,
+  "upstreamArchiveCount": 55,
+  "identityUnresolved": 18,
+  "deviceGameplayRetested": false,
+  "publicReleasePublished": false
+}

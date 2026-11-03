@@ -1,21 +1,18 @@
 # Исходники и лицензии полного установщика
 
-## Последнее дополнение: фактические RetroArch cores
+## Последнее дополнение: 58 из 76 cores
 
-Проверен исходный component archive и все **76** ARM64 `.so`. У **50** установлены
-точные upstream inputs: 48 embedded markers разрешены в commits, два handheld core
-совпали с сохранённым build record по размеру/хешу. **26** не определены и явно
-перечислены. Собраны **43 новых capsules**, общий итог с предыдущими проходами —
-**70**. В новом core-source комплекте 47 уникальных архивов, вложенные Git-деревья,
-наши handheld patches/recipes и notices. Source collector также поддерживает
-точный официальный SoundTouch repository в Codeberg.
+После предыдущих 50 подтверждены ещё восемь upstream inputs. Собраны 8 capsules
+с вложенными Git-зависимостями, общий реестр выпуска — **78**. Новый core-source
+комплект **1 866 885 120 байт**, 55 уникальных архивов и 121 проверенное вложение.
+Существующие patches/recipes включены, старые source archives сохранены.
+[Опись, подтверждённые метки и оставшиеся 18](evidence/2026-11-03-core-sources-followup/README.md).
 
-[Артефакт, полное покрытие и проверки](evidence/2026-11-03-core-sources/README.md).
-Совпадение embedded commit не означает полноту локального diff, toolchain и
-библиотек; `dirty` VirtualJaguar сохраняется как отдельный пробел. Устаревшие
-`.info` версии не используются для выбора исходников. Требования к исходникам/
-notices определяются реальными лицензиями, а не единым запретом для всех cores.
-Портативки, бинарный runtime и GitHub/OTA feed в этом проходе не менялись.
+Точное upstream input не заменяет review локальных изменений, toolchain и
+внешних библиотек. Неизвестный VirtualJaguar dirty diff остаётся отдельной задачей.
+Требования к исходникам/notices определяются реальной лицензией компонента.
+Runtime/портативки и GitHub/OTA feed не менялись; source collection не объявлена
+полным разрешением распространения.
 
 ## Новое дополнение: Azahar, melonDS, RPCS3 и транспорт Setup
 
@@ -118,7 +115,7 @@ Upstream-архив без них не считается готовым исх�
 | Область | Подтверждено | Следующий конкретный шаг |
 | --- | --- | --- |
 | Native-сборки | Закреплённые Git-зависимости, наши recipes/patches | Закрыть внешние build/runtime dependencies и соответствие каждому бинарнику |
-| 76 RetroArch cores | Все байты проверены; 50 upstream inputs, source bundle с патчами | 26 неизвестных inputs, dirty diff/build зависимости; лицензионные условия проверяются по компонентам |
+| 76 RetroArch cores | Все байты проверены; 58 upstream inputs, source bundle с патчами | 18 неизвестных inputs, dirty diff/build зависимости; лицензионные условия проверяются по компонентам |
 | 12 Flatpak refs | Manifest inputs точных установленных commits | Собрать исходники платформ/модулей; base manifest PPSSPP не заменяет наш patched build manifest |
 | 7 AppImage | Хеши и embedded metadata без запуска | Exact source и зависимости каждого пакета; у Cemu embedded upstream revision подтверждена, packaging/dependencies ещё нет |
 | DuckStation | LICENSE/README точного commit подтверждены; автор относит преднастроенные пакеты к модификациям | Прямая загрузка неизменённого upstream asset реализована; завершить установку hybrid Setup и сохранить запрет перепакованной публичной поставки |
