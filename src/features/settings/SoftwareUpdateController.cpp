@@ -20,7 +20,8 @@ QString bytes(qint64 n) { return n>=1024*1024 ? QString::number(double(n)/(1024*
 }
 SoftwareUpdateController::SoftwareUpdateController(QObject* parent):QObject(parent) {
     QSettings settings;
-    channel_=settings.value("softwareUpdates/channel","beta").toString();
+    const auto installationChannel=qEnvironmentVariable("TRAINEROS_SOFTWARE_CHANNEL","beta");
+    channel_=settings.value("softwareUpdates/channel",installationChannel).toString();
     if(channel_!="beta" && channel_!="preview")channel_="beta";
     backgroundChecks_=settings.value("softwareUpdates/backgroundChecks",true).toBool();
     persistTimer_.setSingleShot(true);persistTimer_.setInterval(500);

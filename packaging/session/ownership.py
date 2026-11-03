@@ -24,7 +24,9 @@ class Ownership:
         if self.data['user'] != user: raise ValueError('Session belongs to another local account')
 
     def target(self, name):
-        if '..' in name.split('/') or not (name in EXACT or name.startswith('/var/opt/traineros/integrations/') or name.startswith('/var/opt/traineros/session/')):
+        if '..' in name.split('/') or not (name in EXACT or name in {
+                '/var/opt/traineros/pc/launch.py', '/var/opt/traineros/pc/steam.py',
+                '/var/opt/traineros/pc/runtimes.py'} or name.startswith('/var/opt/traineros/integrations/') or name.startswith('/var/opt/traineros/session/')):
             raise ValueError('Unexpected owned session path')
         path = self.filesystem / name.lstrip('/')
         if path.is_symlink() or any(p.is_symlink() for p in path.parents): raise ValueError('Redirected session file')

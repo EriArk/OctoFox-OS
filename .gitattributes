@@ -1,4 +1,6 @@
 *.sh text eol=lf
+# The published OTA bootstrap records the exact public-key PEM fingerprint.
+packaging/software/trusted-release-key.pem text eol=lf
 # Linux executes integration helpers directly through their shebang.
 packaging/integrations/*.py text eol=lf
 # Preserve the owner's original PS2 research CSV attachments byte-for-byte.

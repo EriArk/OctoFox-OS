@@ -14,6 +14,7 @@ import sys
 import tarfile
 import tempfile
 import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import SoftwareChannelTests as channel_tests
@@ -61,6 +62,13 @@ class InstallationTests(unittest.TestCase):
         self.assertEqual(result, again); self.assertEqual(install.audit(self.installation)['status'], 'ready')
         self.assertEqual(self.database.read_bytes(), before)
         self.assertEqual(install.context(self.installation, False)['installedSequence'], 7)
+
+    def test_installed_channel_is_validated_and_retained(self):
+        self.assertEqual(install.selected_channel(self.installation), 'beta')
+        install.select_channel(self.installation, 'preview'); self.install()
+        self.assertEqual(install.selected_channel(self.installation), 'preview')
+        with self.assertRaises(ValueError): install.select_channel(self.installation, 'unknown')
+        self.assertEqual(install.selected_channel(self.installation), 'preview')
 
     def test_rollback_checks_current_schemas_and_never_reverts_data(self):
         self.install(); install.install_prepared(self.installation, self.new_version(maximum=17))
@@ -195,7 +203,8 @@ class InstallationTests(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform == 'linux', 'Requires real Linux launcher; no device is contacted')
     def test_launcher_applies_only_explicit_maintenance_exit(self):
-        ready = "import os\nos.write(int(os.environ['TRAINEROS_READY_FD']),b'R')\n"
+        install.select_channel(self.installation, 'preview')
+        ready = "import os\nassert os.environ['TRAINEROS_SOFTWARE_CHANNEL']=='preview'\nos.write(int(os.environ['TRAINEROS_READY_FD']),b'R')\n"
         install.install_prepared(self.installation, self.executable_release(7, ready))
         install.install_prepared(self.installation, self.executable_release(8, ready + "raise SystemExit(75)\n"))
         install.request(self.installation, 'rollback')
@@ -248,9 +257,9 @@ class InstallationTests(unittest.TestCase):
                   'dependencies': {'fixture': '1'}, 'sourceArchive': str(source), 'notices': str(notices), 'redistributionReviewed': False}
         sw.atomic(provenance, record)
         output = self.root / 'publication'
-        def build():
+        def build(channel='beta'):
             return publisher.build(payload, output, self.key, self.public, 'fixture', 7, 'a' * 40, 'fixture/repo',
-                'fixture-7', 'beta', 7, '2026-10-24T00:00:00Z', '2026-10-31T00:00:00Z',
+                'fixture-7', channel, 7, '2026-10-24T00:00:00Z', '2026-10-31T00:00:00Z',
                 {'sqlite': {'min': 0, 'max': 16}, 'firstRun': {'min': 0, 'max': 2}}, None, provenance)
         with self.assertRaisesRegex(ValueError, 'review'): build()
         self.assertFalse(output.exists())
@@ -264,7 +273,35 @@ class InstallationTests(unittest.TestCase):
             for member in archive.getmembers():
                 if member.isfile(): self.assertNotIn(self.key.read_bytes(), archive.extractfile(member).read())
             self.assertEqual(archive.extractfile('TrainerOS-Setup/trusted-key.pem').read(), self.public.read_bytes())
+            unpacked = self.root / 'unpacked'
+            archive.extractall(unpacked, filter='data')
+        # Exercise the actual session helper inventory from the shipped archive,
+        # without importing absent files from the development checkout or writing
+        # privileged paths. Ownership must accept every planned install target.
+        packaging = unpacked / 'TrainerOS-Setup/packaging'
+        spec = importlib.util.spec_from_file_location('packed_support', packaging / 'integrations/emulator_support.py')
+        support = importlib.util.module_from_spec(spec); spec.loader.exec_module(support)
+        planned = []
+        with patch.object(support, 'prerequisites'):
+            support.install_support(SimpleNamespace(pw_name='fixture'),
+                lambda path, data, mode: planned.append((path, data, mode)), activate=False)
+        self.assertIn('/var/opt/traineros/pc/launch.py', [p for p, _, _ in planned])
+        owner = ownership.Ownership(self.root / 'session-journal.json', 'fixture', self.root / 'system')
+        for path, data, mode in planned:
+            owner.preparing(path, data)
+        target = self.root / 'new-install'; target.mkdir()
+        installer.bootstrap(target, packaging)
+        with self.assertRaisesRegex(ValueError, 'Unexpected owned'):
+            owner.preparing('/var/opt/traineros/pc/unrelated.py', b'not an owned helper')
+        (packaging / 'pc/launch.py').unlink()
+        with self.assertRaisesRegex(ValueError, 'Incomplete Setup'):
+            installer.bootstrap(target, packaging)
         self.assertEqual(sw.verified(output / 'release.json', self.public)['signed']['sequence'], 7)
+        output = self.root / 'preview-publication'
+        build('preview')
+        with tarfile.open(output / 'TrainerOS-Setup.tar.gz') as archive:
+            config = sw.decode(archive.extractfile('TrainerOS-Setup/bootstrap.json').read())
+            self.assertEqual(config['defaultChannel'], 'preview')
 
     def test_progress_closing_or_cancelling_aborts_download(self):
         with patch.object(installer.shutil, 'which', return_value='fixture-qdbus'), patch.object(installer, 'dialog', return_value=subprocess.CompletedProcess([], 0, 'service /path')):

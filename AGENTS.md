@@ -1,5 +1,15 @@
 # TrainerOS — active agent / developer contract
 
+**Owner pre-beta release, 3 November (latest):** prepare the public pre-beta now:
+GitHub-hosted Software OTA and installer over existing Armada, with an up-to-date
+Armada base for the installer/image. This explicitly resumes installer/release
+work in main. Handheld checks are authorized; preserve personal data, boot choices
+and the original host, with builds/download temporaries on Flip microSD. Never
+format or silently migrate devices to demonstrate a clean installation.
+Source, staged candidate, published assets, installed build and clean-device
+acceptance are distinct. Follow [the release record](docs/PREBETA_RELEASE_RU.md).
+Do not label a draft or upstream Armada image as a released TrainerOS pre-beta.
+
 **Owner original-art correction, 3 November (latest):** apply original cuboid
 creatures to every adapter surface, including existing installed profiles. Legacy
 private packs must not activate merely because they exist on disk. Preserve their

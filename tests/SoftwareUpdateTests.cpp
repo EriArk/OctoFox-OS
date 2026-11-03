@@ -10,6 +10,16 @@ class SoftwareUpdateTests : public QObject {
 private slots:
     void initTestCase(){QCoreApplication::setOrganizationName("TrainerTest");QCoreApplication::setApplicationName("SoftwareUpdates");QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settings_.path());}
     void init(){QSettings().clear();}
+    void installerChannelIsDefaultAndExplicitPreferenceWins(){
+        const auto previous=qgetenv("TRAINEROS_SOFTWARE_CHANNEL");
+        qputenv("TRAINEROS_SOFTWARE_CHANNEL","preview");
+        SoftwareUpdateController installed;
+        QSettings().setValue("softwareUpdates/channel","beta");
+        SoftwareUpdateController chosen;
+        if(previous.isNull())qunsetenv("TRAINEROS_SOFTWARE_CHANNEL");
+        else qputenv("TRAINEROS_SOFTWARE_CHANNEL",previous);
+        QCOMPARE(installed.channel(),"preview");QCOMPARE(chosen.channel(),"beta");
+    }
     void unconfiguredDoesNotCheckOrPretendInstalled(){
         SoftwareUpdateController flow;QCOMPARE(flow.status(),"unconfigured");QCOMPARE(flow.installedVersion(),"Development build");
         flow.check();flow.activate(3);QVERIFY(!flow.busy());QVERIFY(flow.tasks().isEmpty());

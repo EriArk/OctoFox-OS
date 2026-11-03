@@ -33,7 +33,7 @@ def run(root, arguments=()):
             payload = root / 'versions' / current['active'] / 'payload'
             reader, writer = os.pipe()
             env = dict(os.environ, TRAINEROS_SOFTWARE_ROOT=str(root), TRAINEROS_READY_FD=str(writer),
-                       TRAINEROS_SOFTWARE_MANAGED='1')
+                       TRAINEROS_SOFTWARE_MANAGED='1', TRAINEROS_SOFTWARE_CHANNEL=install.selected_channel(root))
             # Optional bundled libraries are part of the signed, verified tree.
             if (payload / 'lib').is_dir(): env['LD_LIBRARY_PATH'] = str(payload / 'lib')
             if (payload / 'plugins').is_dir(): env['QT_PLUGIN_PATH'] = str(payload / 'plugins')

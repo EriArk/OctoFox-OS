@@ -60,7 +60,16 @@ def bootstrap(root, source):
     root, source = Path(root), Path(source)
     destination = root / 'bootstrap'
     wanted = [*source.joinpath('software').glob('*.py'), *source.joinpath('session').glob('*'),
-              *source.joinpath('integrations').glob('*.py'), source / 'crates/catalogue.py']
+              *source.joinpath('integrations').glob('*.py'),
+              *(source / 'pc' / name for name in ('launch.py', 'steam.py', 'runtimes.py')),
+              source / 'crates/catalogue.py']
+    # These are consumed by session/install.py, including on a fresh machine.
+    # A developer checkout can mask an incomplete Setup archive.
+    for name in ('software/launcher.py', 'session/install.py', 'integrations/emulator_support.py',
+                 'pc/launch.py', 'pc/steam.py', 'pc/runtimes.py', 'crates/catalogue.py'):
+        path = source / name
+        if path.is_symlink() or not path.is_file():
+            raise ValueError('Incomplete Setup: missing ' + name)
     files = [p for p in wanted if p.is_file() and not p.is_symlink()]
     records = {p.relative_to(source).as_posix(): sw.sha256(p) for p in files}
     if destination.exists():
@@ -157,11 +166,14 @@ def gui(root, config_path):
     source = Path(__file__).resolve().parents[1]
     if not (root / 'config.json').exists():
         config = sw.decode(Path(config_path).read_bytes())
-        if set(config) != {'schema', 'feeds', 'publicKey'} or config['schema'] != 1: raise ValueError('Invalid publisher bootstrap')
+        if not {'schema', 'feeds', 'publicKey'} <= set(config) or set(config) - {'schema', 'feeds', 'publicKey', 'defaultChannel'} or config.get('schema') != 1: raise ValueError('Invalid publisher bootstrap')
+        channel = config.get('defaultChannel', 'beta')
+        if channel not in install.channels.CHANNELS: raise ValueError('Invalid publisher update channel')
         key = Path(config_path).parent / sw.relative(config['publicKey'])
         # The normal Qt application data path; never the Software versions root.
         data = Path(os.environ.get('XDG_DATA_HOME', str(Path.home() / '.local/share'))) / 'TrainerOS/TrainerOS'
         install.initialize(root, config['feeds'], key, data)
+        install.select_channel(root, channel)
     bootstrap(root, source)
     current = install.receipt(root)
     action = 'install'
@@ -192,7 +204,9 @@ def gui(root, config_path):
         dialog('--msgbox', result['status']); return 0
     prerequisites(source)
     shortcuts(root, preflight=True)
-    choice = dialog('--radiolist', 'Choose an update channel', 'beta', 'Beta', 'on', 'preview', 'Preview — experimental', 'off')
+    default_channel = install.selected_channel(root)
+    choice = dialog('--radiolist', 'Choose an update channel', 'beta', 'Beta', 'on' if default_channel == 'beta' else 'off',
+                    'preview', 'Preview — experimental', 'on' if default_channel == 'preview' else 'off')
     if choice.returncode: return 0
     channel = choice.stdout.strip()
     with Progress() as progress:
@@ -213,7 +227,7 @@ def gui(root, config_path):
             payload_dependencies(result['prepared'])
             progress.update('Installing verified files')
             progress.call('showCancelButton', 'false')
-            install.install_prepared(root, result['prepared']); shortcuts(root)
+            install.install_prepared(root, result['prepared']); install.select_channel(root, channel); shortcuts(root)
             # Journal intent before pkexec; a partial privileged install must be
             # removed by its owner before uninstalling the application.
             sw.atomic(root / 'integration.json', {'systemInstalled': True})

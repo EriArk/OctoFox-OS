@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 project(TrainerOS VERSION 0.1.0 LANGUAGES CXX)
+include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -1057,7 +1058,6 @@ if(BUILD_TESTING)
     set_tests_properties(artwork_qml_smoke PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software" TIMEOUT 60)
 endif()
 
-include(GNUInstallDirs)
 set_source_files_properties(src/features/trainer/AvatarAssets.cpp PROPERTIES COMPILE_DEFINITIONS TRAINER_AVATAR_SOURCE_PACK="${CMAKE_SOURCE_DIR}/assets/avatar/packs/trainer-avatar-1")
 install(DIRECTORY assets/avatar/packs DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/avatar)
 install(FILES assets/avatar/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/avatar)
@@ -1078,6 +1078,10 @@ install(FILES LICENSE LICENSING.md THIRD_PARTY_NOTICES.md
         DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros COMPONENT Licensing)
 install(FILES assets/badges/README.md assets/badges/manifest.json DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/badges)
 install(FILES data/licenses/PokeAPI.txt DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/licenses)
+install(FILES data/licenses/CuboidCreatures.md DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/licenses)
+install(DIRECTORY assets/fonts assets/icons/files assets/icons/phosphor assets/crates/examples
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/materials
+        FILES_MATCHING PATTERN "*LICENSE*" PATTERN "*OFL*" PATTERN "AUTHORS" PATTERN "README.md")
 if(UNIX AND NOT APPLE)
     install(PROGRAMS packaging/integrations/controller-bridge.py DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/traineros)
     configure_file(packaging/linux/org.traineros.TrainerOS.desktop.in

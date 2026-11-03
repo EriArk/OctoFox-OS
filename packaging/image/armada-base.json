@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "role": "upstream-base-candidate",
+  "selectedAt": "2026-11-03",
+  "version": "20261102.d4f6880",
+  "channel": "preview",
+  "architecture": "aarch64",
+  "source": "https://github.com/armada-os/armada",
+  "commit": "d4f6880011652dc25522138f17f5c3c4cb5d3aae",
+  "container": "ghcr.io/armada-os/armada@sha256:04e73ff8d3085bc7fb2c21d8c65b7be149436a46bf196c4a49db2c04a7366cca",
+  "kernel": "7.2.14-200.fc44.aarch64",
+  "diskImage": {
+    "url": "https://downloads.armadaos.dev/preview/armada-20261102.d4f6880.img.gz",
+    "sha256": "d98072c107b48d32672e1eb610f5cc3bfd090777342f5ca50c13c7173ec2caeb",
+    "checksumUrl": "https://downloads.armadaos.dev/preview/armada-20261102.d4f6880.img.gz.sha256"
+  },
+  "trainerosImageProduced": false,
+  "cleanFlashAccepted": false
+}

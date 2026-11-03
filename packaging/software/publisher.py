@@ -57,7 +57,7 @@ def build(payload, output, private_key, public_key, version, sequence, source, r
         shutil.copytree(holder / 'bootstrap/packaging', tree / 'packaging')
         shutil.copyfile(public_key, tree / 'trusted-key.pem')
         feeds = {name: f'https://raw.githubusercontent.com/{repository}/updates/{name}.json' for name in ('beta', 'preview')}
-        sw.atomic(tree / 'bootstrap.json', {'schema': 1, 'feeds': feeds, 'publicKey': 'trusted-key.pem'})
+        sw.atomic(tree / 'bootstrap.json', {'schema': 1, 'feeds': feeds, 'publicKey': 'trusted-key.pem', 'defaultChannel': channel})
         launch = tree / 'Install TrainerOS.sh'
         launch.write_bytes(b'#!/bin/sh\nset -eu\nHERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\nexec /usr/bin/python3 "$HERE/packaging/software/installer.py" --gui\n')
         launch.chmod(0o755)

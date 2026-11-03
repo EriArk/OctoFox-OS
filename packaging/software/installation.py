@@ -97,6 +97,18 @@ def receipt(root):
     return result
 
 
+def selected_channel(root):
+    choice = read(Path(root) / 'channel.json', {'channel': 'beta'})
+    if not isinstance(choice, dict) or set(choice) != {'channel'} or choice['channel'] not in channels.CHANNELS:
+        raise ValueError('Invalid installed update channel')
+    return choice['channel']
+
+
+def select_channel(root, channel):
+    if channel not in channels.CHANNELS: raise ValueError('Unknown update channel')
+    sw.atomic(Path(root) / 'channel.json', {'channel': channel})
+
+
 def version(root, identity, verify=True):
     if not sw.HASH.fullmatch(identity): raise ValueError('Invalid installed version identity')
     path = private(Path(root) / 'versions' / identity, False)
