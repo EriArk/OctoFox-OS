@@ -84,7 +84,7 @@ Upstream-архив без них не считается готовым исх�
 | 76 RetroArch cores | Хеши файлов; отдельные source inputs handheld/netplay | Полное соответствие остальных готовых ядер точным source/build recipes |
 | 12 Flatpak refs | Manifest inputs точных установленных commits | Собрать исходники платформ/модулей; base manifest PPSSPP не заменяет наш patched build manifest |
 | 7 AppImage | Хеши и embedded metadata без запуска | Exact source и зависимости каждого пакета; у Cemu embedded upstream revision подтверждена, packaging/dependencies ещё нет |
-| DuckStation | LICENSE/README точного commit подтверждены; автор относит преднастроенные пакеты к модификациям | Выбор владельца: отдельно подключаемая установка либо отдельное разрешение на полный пакет |
+| DuckStation | LICENSE/README точного commit подтверждены; автор относит преднастроенные пакеты к модификациям | Прямая загрузка неизменённого upstream asset реализована; завершить установку hybrid Setup и сохранить запрет перепакованной публичной поставки |
 | Python native dependencies | Все 38 sdist и доступные notices | Исходники нативных библиотек внутри wheels ещё не признаны полными |
 | Две причёски CGTrader | Происхождение и условия зарегистрированы | Incorporated runtime delivery и исключение самостоятельной раздачи моделей из source archive; оригиналы сохранены |
 

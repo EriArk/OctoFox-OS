@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "file": "TrainerOS-Full-Setup-CANDIDATE.tar",
+  "bytes": 3947827200,
+  "sha256": "b8ea4951fafa5066d8d0bef1dc728055bd8f3d81938caa0fd41a21cb31fdce44",
+  "softwareSource": "2a6c9c9b00b58e914525bd779c76896c8fcf5006",
+  "runtimeSequence": 12,
+  "publicKeySha256": "fc6411cce85dd5aec975872922368ac95b7bde919fc732fd100ec2de96be4c0e",
+  "sourceArchiveSha256": "f58ac54924f6e976ceb77b9bd744e7f61a8436fd295da3fd885726699e5c082b",
+  "setupFilesSha256": "7d9b26f438ae048e17a1bc9df7aca15a86a73033bac09c0b0539a11f5c12d9ae",
+  "upstreamDownloads": [
+    "DuckStation"
+  ],
+  "published": false,
+  "redistributionReviewed": false,
+  "cleanDeviceAcceptance": false,
+  "setupSource": "b4efcb2d",
+  "installed": false
+}

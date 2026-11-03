@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "file": "TrainerOS-Full-Setup-CANDIDATE.tar",
+  "sha256": "b8ea4951fafa5066d8d0bef1dc728055bd8f3d81938caa0fd41a21cb31fdce44",
+  "bytes": 3947827200,
+  "bootstrapFilesVerified": 72,
+  "runtimeSignatureAndArchiveVerified": true,
+  "softwareSignatureAndArchiveVerified": true,
+  "sourceArchiveVerified": true,
+  "hybridNoticePresent": true,
+  "setupSource": "b4efcb2df4fc9882c69e08514b799d7f43269b1d",
+  "installed": false,
+  "published": false
+}

@@ -1,5 +1,12 @@
 # Структура TrainerOS: владельцы, контракты и связи
 
+**3 ноября — hybrid runtime:** `packaging/software/runtime_upstream.py` получает
+закреплённый официальный asset до транзакции; `upstream_media.py` заменяет бинарник
+на descriptor при сборке. `packaging/emulators/upstream-arm64.json` хранит pin,
+`tests/RuntimeUpstreamTests.py` — проверку продолжения/идентичности/старых прав.
+[Матрица версий и пробелов](MULTIPLAYER_RELEASE_MATRIX_RU.md),
+[Setup и доказательства](evidence/2026-11-03-hybrid-runtime/README.md).
+
 **3 ноября — S13, исходники выпуска.** `source_capsule.py` собирает pinned Git/LFS
 inputs из `packaging/emulators/release-sources.json`; `source_materials.py` сверяет
 Python sdist/wheels и извлекает notices/patches из runtime media. Сбор материалов
