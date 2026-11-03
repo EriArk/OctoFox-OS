@@ -1,6 +1,6 @@
 # Матрица функций TrainerOS — альфа
 
-**Статус:** матрица живого аудита. [Первый проход по общему UI](GENERAL_UI_AUDIT.md) завершён по исходникам; подробные технические функции Crates и мультиплеер не проаудированы. `CODE` здесь подтверждает **доступный UI/маршрут**, но не полноту backend или физическую работу. `?` = не проаудировано для этой матрицы.
+**Статус:** матрица живого аудита. [Первый проход по общему UI](GENERAL_UI_AUDIT.md) завершён по исходникам; Crates и мультиплеер разобраны отдельно по коду/предыдущим доказательствам; итоговая альфа ещё требует приёмки. `CODE` здесь подтверждает **доступный UI/маршрут**, но не полноту backend или физическую работу. `?` = не проаудировано для этой матрицы.
 
 Для каждой функции в дальнейшем записывать: **точное действие игрока**, ветку/ревизию, код, результат физической проверки, ограничения, ссылку на issue/тест и готовность к публичному описанию. При необходимости дробить строки до отдельных кнопок, меню и сценариев.
 
@@ -22,12 +22,12 @@
 | F14 | Social: друзья, личные сообщения, приглашения | CODE | ? | ? | [SOCIAL](../../SOCIAL.md) |
 | F15 | Сообщества/группы, Discover, права и действия | CODE | ? | ? | [SOCIAL](../../SOCIAL.md) |
 | F16 | Звонки, голос и звуковое поведение в игре | PARTIAL | ? | ? | [CALL83](../../CALL83.md) |
-| F17 | Lobby: типы, выбор игры, места, готовность, старт | ? | ? | ? | [LOBBY](../../LOBBY.md) |
-| F18 | NetPlay: соединение, совместимость, синхронизация | ? | ? | ? | [MULTIPLAYER_MATRIX](../../EMULATOR_MULTIPLAYER_MATRIX.md) |
-| F19 | Remote Play, демонстрация/просмотр и зрители | ? | ? | ? | [REMOTE_PLAY](../../REMOTE_PLAY_TRANSPORT.md) |
-| F20 | LAN/Internet multiplayer, маршруты, прямые подключения/relay | ? | ? | ? | [TRANSPORT_AUDIT](../../MULTIPLAYER_TRANSPORT_AUDIT.md) |
-| F21 | Подготовка игры к лобби, совместимость, импорт, отмена | ? | ? | ? | [GAME_PREPARATION](../../GAME_PREPARATION.md) |
-| F22 | Nearby, Bluetooth, Wi-Fi Direct и локальные возможности | ? | ? | ? | [NEARBY_PLAY](../../NEARBY_PLAY.md) |
+| F17 | Lobby: типы, выбор игры, места, готовность, старт | CODE | PARTIAL | PARTIAL | [AUDIT](MULTIPLAYER_AUDIT.md) · [LOBBY](../../LOBBY.md) |
+| F18 | NetPlay: соединение, совместимость, синхронизация | CODE | PARTIAL | PARTIAL | [AUDIT](MULTIPLAYER_AUDIT.md) · [MULTIPLAYER_MATRIX](../../EMULATOR_MULTIPLAYER_MATRIX.md) |
+| F19 | Remote Play, демонстрация/просмотр и зрители | PARTIAL | PARTIAL | PARTIAL | [AUDIT](MULTIPLAYER_AUDIT.md) · [REMOTE_PLAY](../../REMOTE_PLAY_TRANSPORT.md) |
+| F20 | LAN/Internet multiplayer, маршруты, прямые подключения/relay | PARTIAL | PARTIAL | PARTIAL | [AUDIT](MULTIPLAYER_AUDIT.md) · [TRANSPORT_AUDIT](../../MULTIPLAYER_TRANSPORT_AUDIT.md) |
+| F21 | Подготовка игры к лобби, совместимость, импорт, отмена | CODE | PARTIAL | PARTIAL | [AUDIT](MULTIPLAYER_AUDIT.md) · [GAME_PREPARATION](../../GAME_PREPARATION.md) |
+| F22 | Nearby, Bluetooth, Wi-Fi Direct и локальные возможности | PARTIAL | PARTIAL | PARTIAL | [AUDIT](MULTIPLAYER_AUDIT.md) · [NEARBY_PLAY](../../NEARBY_PLAY.md) |
 | F23 | Apps: Files, Browser и обычные приложения | CODE | ? | ? | [APPS](../../APPS_WORKSPACE_RU.md) |
 | F24 | Crates: каталог, приложения, расширения, установка | CODE | PARTIAL | PARTIAL | [CRATES AUDIT](CRATES_AUDIT.md) · [device evidence](../../CRATES77_CATALOGUE.md) |
 | F25 | QuickApps, многозадачность, быстрые действия/виджеты | CODE | ? | ? | [PRODUCT_SPEC](../../PRODUCT_SPEC.md) |
@@ -40,7 +40,7 @@
 | F32 | Безопасность, offline-режимы, приватность, права | ? | ? | ? | [SECURITY](../../../SECURITY.md) |
 | F33 | FPS/Performance, диагностика, ресурсы, ограничения устройства | ? | ? | ? | [PERFORMANCE](../../GAME_PERFORMANCE.md) |
 
-**Расшифровка этого прохода:** F03/F06/F10/F16/F30/F31 = `PARTIAL` только UI/часть маршрутов, не end-to-end; остальные отмеченные `CODE` = видимый экран и путь к обработчику. `INSTALLED`/`TESTED` оставлены `?`, пока не привязаны к финальному release commit и датированному результату. Для Crates (F24) зафиксированы код и ограниченные *исторические* физические/тестовые подтверждения (см. [Crates audit](CRATES_AUDIT.md)); все части Crates и итоговый альфа-кандидат не приняты. Мультиплеер (F17–F22) пока не проаудирован. Подробности: [общий аудит](GENERAL_UI_AUDIT.md), [приёмка](GENERAL_UI_ACCEPTANCE.md).
+**Расшифровка этого прохода:** F03/F06/F10/F16/F30/F31 = `PARTIAL` только UI/часть маршрутов, не end-to-end; остальные отмеченные `CODE` = видимый экран и путь к обработчику. `INSTALLED`/`TESTED` оставлены `?`, пока не привязаны к финальному release commit и датированному результату. Для Crates (F24) зафиксированы код и ограниченные *исторические* физические/тестовые подтверждения (см. [Crates audit](CRATES_AUDIT.md)); все части Crates и итоговый альфа-кандидат не приняты. Мультиплеер (F17–F22) теперь разобран в [MULTIPLAYER_AUDIT](MULTIPLAYER_AUDIT.md), [PLATFORMS](MULTIPLAYER_PLATFORMS.md), [TESTED_GAMES](MULTIPLAYER_TESTED_GAMES.md), [RISKS](MULTIPLAYER_RISKS.md): PARTIAL у Installed/TESTED означает только **предыдущие узкие проверки**. Не маркировать как PASS релиза. Подробности: [общий аудит](GENERAL_UI_AUDIT.md), [приёмка](GENERAL_UI_ACCEPTANCE.md).
 
 ## Карточка уточнения одной строки
 

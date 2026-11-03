@@ -27,6 +27,13 @@
 | [inventory/GENERAL_UI_AUDIT.md](inventory/GENERAL_UI_AUDIT.md) | **Первый фактический аудит:** вкладки, вложенные страницы и экранные действия |
 | [inventory/GENERAL_UI_ACCEPTANCE.md](inventory/GENERAL_UI_ACCEPTANCE.md) | Сценарии физической проверки общей оболочки |
 | [inventory/CRATES_AUDIT.md](inventory/CRATES_AUDIT.md) | **Второй проход:** Crates, каталог, установка, версии, интеграции и ограничения |
+| [inventory/MULTIPLAYER_AUDIT.md](inventory/MULTIPLAYER_AUDIT.md) | **Третий проход:** полный структурный аудит мультиплеера |
+| [inventory/MULTIPLAYER_LOBBY.md](inventory/MULTIPLAYER_LOBBY.md) | Lobby: экраны, роли, Ready/Start, восстановление |
+| [inventory/MULTIPLAYER_PLATFORMS.md](inventory/MULTIPLAYER_PLATFORMS.md) | Платформы, точные механизмы и границы |
+| [inventory/MULTIPLAYER_TESTED_GAMES.md](inventory/MULTIPLAYER_TESTED_GAMES.md) | Только подтверждённые игровые действия и известные ошибки |
+| [inventory/MULTIPLAYER_TRANSPORT_MEDIA.md](inventory/MULTIPLAYER_TRANSPORT_MEDIA.md) | Транспорт, Remote Play, трансляции, голос, Nearby |
+| [inventory/MULTIPLAYER_RISKS.md](inventory/MULTIPLAYER_RISKS.md) | Риски, противоречия и условия допустимой альфы |
+| [inventory/MULTIPLAYER_ACCEPTANCE.md](inventory/MULTIPLAYER_ACCEPTANCE.md) | Реальный минимальный сценарий приёмки Alpha |
 | [inventory/CRATES_PROJECTS.md](inventory/CRATES_PROJECTS.md) | 18 опубликованных проектов, 17 bundled, источники и доказательства |
 | [inventory/CRATES_CONCEPTS.md](inventory/CRATES_CONCEPTS.md) | Реализованные и пока концептуальные игры/виджеты/расширения |
 | [inventory/CRATES_ACCEPTANCE.md](inventory/CRATES_ACCEPTANCE.md) | Физическая приёмка Crates на альфа-кандидате |

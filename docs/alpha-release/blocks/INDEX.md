@@ -11,7 +11,7 @@
 | RetroAchievements и прогресс | `PROGRESS.md` | Не начат |
 | Адаптеры, Adventures, сохранения | `ADAPTERS.md` | Не начат |
 | Социальная система, друзья, сообщения, сообщества | `SOCIAL.md` | [Аудит UI по коду](./SOCIAL.md); физическая приёмка OPEN |
-| Lobby, NetPlay, Remote Play, Nearby | `MULTIPLAYER.md` | Не начат |
+| Lobby, NetPlay, Remote Play, Nearby | [MULTIPLAYER.md](MULTIPLAYER.md) | Глубокий CODE + исторические device evidence; приёмка финального alpha-кандидата OPEN |
 | Apps, Browser, Files | `APPS.md` | [Аудит UI по коду](./APPS.md); физическая приёмка OPEN |
 | Crates, расширения, виджеты | [CRATES.md](CRATES.md) | Аудит CODE + датированные device evidence; новая приёмка OPEN |
 | Экономика, аккаунт, Sparks, Bazaar | `ECOSYSTEM.md` | Не начат |
