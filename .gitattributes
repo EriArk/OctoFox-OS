@@ -15,6 +15,9 @@ assets/avatar/**/*.glb export-ignore
 assets/avatar/**/*.gltf export-ignore
 assets/avatar/**/*.obj export-ignore
 assets/avatar/**/*.bin export-ignore
+# Preserve byte identities of retained release manifests and source inventories.
+docs/evidence/2026-11-03-release-delivery/*.json text eol=lf
+docs/evidence/2026-11-03-release-delivery/*.log text eol=lf
 # Peer recipes hash the raw runtime manifest on Windows and Linux alike.
 assets/avatar/packs/*/manifest.json text eol=lf
 # Preserve hashed approved eye assets and their evidence byte-for-byte.

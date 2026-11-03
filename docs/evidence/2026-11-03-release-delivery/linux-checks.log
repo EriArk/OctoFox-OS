@@ -1,0 +1,10 @@
+.............................................................{"phase": "download", "bytes": 1, "totalBytes": 10}
+..{"phase": "extract", "bytes": 45, "totalBytes": 45}
+{"phase": "prepared", "bytes": 0, "totalBytes": 0}
+{"phase": "extract", "bytes": 45, "totalBytes": 45}
+{"phase": "prepared", "bytes": 0, "totalBytes": 0}
+.........................
+----------------------------------------------------------------------
+Ran 88 tests in 10.220s
+
+OK
