@@ -13,8 +13,11 @@ import subprocess
 import sys
 import tempfile
 import shlex
+import tarfile
 import installation as install
 import releases as sw
+import runtime_set as runtimes
+import runtime_manager
 
 CRATES_FILES = ('catalogue.py', 'catalogue-key.pem', 'installer.py', 'launch.py', 'packages.json')
 
@@ -165,14 +168,16 @@ def payload_dependencies(prepared):
         raise ValueError('The signed TrainerOS build needs unavailable system libraries. Use a matching Armada build; installation was not activated.')
 
 
-def resolve_offline(root, media, prepare=False, progress=sw.event):
+def resolve_offline(root, media, prepare=False, progress=sw.event, allow_current=False):
     root, media = Path(root), Path(media)
     release = sw.verified(media / 'release.json', root / 'trusted-key.pem')['signed']
     config = install.configuration(root)
     install.host.compatible(release, install.host.schemas(config['dataDirectory']))
     current = install.receipt(root)
-    if current['active'] and release['sequence'] <= install.version(root, current['active'])['sequence']:
-        raise ValueError('Offline media is not newer than the installed release; use Recovery for rollback')
+    if current['active']:
+        previous=install.version(root,current['active'])
+        if release['sequence']<=previous['sequence'] and not (allow_current and release==previous):
+            raise ValueError('Offline media is not newer than the installed release; use Recovery for rollback')
     result = {'status': 'available', 'version': release['version'], 'sequence': release['sequence'], 'downloadBytes': 0}
     if prepare:
         path = sw.prepare(media / 'release.json', root / 'trusted-key.pem', root / 'cache',
@@ -181,7 +186,47 @@ def resolve_offline(root, media, prepare=False, progress=sw.event):
     return result
 
 
-def gui(root, config_path, offline=None):
+def recover_full(root, source):
+    choice=dialog('--menu','An interrupted full installation must be recovered before launching TrainerOS.',
+                  'resume','Continue installation','undo','Restore the previous installation')
+    if choice.returncode: return 0
+    with sw.cache_lock(root/'runtime'),sw.cache_lock(root/'transaction'):
+        install.ensure_no_orphans(root); runtimes.idle()
+        with Progress() as progress:
+            progress.call('showCancelButton','false')
+            result=runtime_manager.apply(root,reverse=choice.stdout.strip()=='undo',checkpoint=lambda phase:progress.update('Recovering '+phase))
+            if result['status']=='installed':
+                prerequisites(source);result=finish_setup(root,'install')
+            elif result['status']=='runtimes-removed':
+                result=finish_setup(root,'uninstall')
+            else:(root/'setup-pending.json').unlink(missing_ok=True)
+    dialog('--msgbox',result['status']); return 0
+
+
+def finish_setup(root, action):
+    job=install.read(root/'setup-pending.json',{'action':action})
+    if job['action']!=action:raise ValueError('Conflicting Setup recovery operation')
+    sw.atomic(root/'setup-pending.json',job)
+    if action=='install':
+        if job.get('prepared') and install.receipt(root)['active']!=job['expected']:
+            payload_dependencies(job['prepared']);install.install_prepared(root,job['prepared'])
+        install.version(root,install.receipt(root)['active'])
+        if job.get('channel'):install.select_channel(root,job['channel'])
+        shortcuts(root);sw.atomic(root/'integration.json',{'systemInstalled':True});integrate(root)
+        result={'status':'installed'}
+    elif action=='uninstall':
+        install.uninstall(root,preflight=True)
+        if runtime_manager.receipt(root)['active']:
+            runtimes.idle();plan=runtime_manager.plan(root,remove=True)
+            runtime_manager.begin(root,plan);runtime_manager.apply(root)
+        if install.read(root/'integration.json',{}).get('systemInstalled'):integrate(root,remove=True)
+        result=install.uninstall(root)
+    else:raise ValueError('Unknown Setup recovery operation')
+    (root/'setup-pending.json').unlink()
+    return result
+
+
+def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=None):
     if not shutil.which('kdialog'): raise ValueError('Armada KDE kdialog is required to run the graphical installer')
     report = install.host.probe(root)
     if not report['supported']: raise ValueError('\n'.join(report['errors']))
@@ -198,32 +243,56 @@ def gui(root, config_path, offline=None):
         install.initialize(root, config['feeds'], key, data)
         install.select_channel(root, channel)
     bootstrap(root, source)
+    if runtime_manager.pending(root): return recover_full(root,source)
+    if (root/'setup-pending.json').exists():
+        job=install.read(root/'setup-pending.json')
+        if dialog('--yesno','Continue finishing '+job['action']+'? Personal data is kept.').returncode:return 0
+        with sw.cache_lock(root/'runtime'),sw.cache_lock(root/'transaction'):
+            install.ensure_no_orphans(root);runtimes.idle()
+            result=finish_setup(root,job['action'])
+        dialog('--msgbox',result['status']);return 0
+    if runtime_manifest is None and (source.parent/'runtime-set.json').is_file():
+        runtime_manifest=source.parent/'runtime-set.json'; runtime_archive=source.parent/'runtimes.tar'
+    if bool(runtime_manifest)!=bool(runtime_archive): raise ValueError('Both the signed runtime manifest and its archive are required')
     current = install.receipt(root)
     action = 'install'
-    if current['active']:
-        choice = dialog('--menu', 'TrainerOS installation and recovery', 'audit', 'Check installation', 'repair', 'Repair installed files',
+    if current['active'] or install.read(root/'shortcuts.json',[]) or runtime_manager.receipt(root)['active']:
+        choice = dialog('--menu', 'TrainerOS installation and recovery', 'install', 'Update / install full runtime set', 'audit', 'Check installation', 'repair', 'Repair installed files',
                         'rollback', 'Return to the previous compatible version', 'cache', 'Clear downloaded update files', 'uninstall', 'Uninstall TrainerOS')
         if choice.returncode: return 0
         action = choice.stdout.strip()
     disk = report['osStorage']
     if action == 'audit':
         result = install.audit(root)
+        if runtime_manager.receipt(root)['active']:
+            runtime_result=runtime_manager.audit(root)
+            result['problems']+=runtime_result['problems']
+            result['problems'].append('Runtime files: '+runtime_result['status'])
         dialog('--msgbox', 'Software files: ' + result['status'] + '\nSession integration: ' + result.get('sessionIntegration', 'not-recorded') + '\n' + '\n'.join(result['problems'])); return 0
     if action != 'install':
         if dialog('--yesno', 'Continue with ' + action + '? Personal profiles, games and saves will be kept.').returncode: return 0
         with sw.cache_lock(root / 'runtime'), sw.cache_lock(root / 'transaction'):
             install.ensure_no_orphans(root)
             if action == 'uninstall':
-                install.uninstall(root, preflight=True)
-                if install.read(root / 'integration.json', {}).get('systemInstalled'): integrate(root, remove=True)
-                result = install.uninstall(root)
+                result=finish_setup(root,'uninstall')
             elif action == 'cache': result = install.clean_cache(root)
-            elif action == 'rollback': result = install.rollback(root)
+            elif action == 'rollback':
+                if runtime_manager.receipt(root)['previous']:
+                    runtimes.idle(); job=runtime_manager.rollback_plan(root)
+                    runtime_manager.begin(root,job); result=runtime_manager.apply(root)
+                else: result = install.rollback(root)
             else:
                 prerequisites(source)
                 with Progress() as progress:
                     progress.update('Repairing installed files')
-                    result = install.repair(root, progress=progress.update, before_install=lambda: progress.call('showCancelButton', 'false')); shortcuts(root); integrate(root)
+                    if install.audit(root)['status']=='ready':
+                        progress.call('showCancelButton','false');result={'status':'installed'}
+                    elif offline is not None:
+                        candidate=resolve_offline(root,offline,prepare=True,progress=progress.update,allow_current=True)
+                        progress.call('showCancelButton','false')
+                        result=install.install_prepared(root,candidate['prepared'],repair=True)
+                    else: result=install.repair(root,progress=progress.update,before_install=lambda:progress.call('showCancelButton','false'))
+                    result=finish_setup(root,'install')
         dialog('--msgbox', result['status']); return 0
     prerequisites(source)
     shortcuts(root, preflight=True)
@@ -234,7 +303,7 @@ def gui(root, config_path, offline=None):
     channel = choice.stdout.strip()
     with Progress() as progress:
         progress.update('Checking update channel')
-        candidate = resolve_offline(root, offline) if offline is not None else install.resolve(root, channel)
+        candidate = resolve_offline(root, offline, allow_current=bool(runtime_manifest)) if offline is not None else install.resolve(root, channel)
     if candidate['status'] != 'available': raise ValueError('No compatible release is available for this installation')
     description = (f"Install TrainerOS {candidate['version']}?\nDownload: {candidate['downloadBytes'] / 1048576:.1f} MiB\n"
                    f"OS: {report['system']}\nOS storage: {disk['location']} ({disk['disk']})\n"
@@ -242,7 +311,7 @@ def gui(root, config_path, offline=None):
                    'Your OS, games, profiles and saves will be kept. A system authorization prompt installs the session choice.')
     if dialog('--yesno', description).returncode: return 0
     with Progress() as progress:
-        result = (resolve_offline(root, offline, prepare=True, progress=progress.update) if offline is not None else
+        result = (resolve_offline(root, offline, prepare=True, progress=progress.update, allow_current=bool(runtime_manifest)) if offline is not None else
                   install.resolve(root, channel, prepare=True, expected=candidate['sequence'], progress=progress.update))
         if result['status'] != 'prepared': raise ValueError('Release changed. Check again before installation')
         if result.get('sequence', candidate['sequence']) != candidate['sequence']:
@@ -251,13 +320,30 @@ def gui(root, config_path, offline=None):
             install.ensure_no_orphans(root)
             progress.update('Checking application dependencies')
             payload_dependencies(result['prepared'])
+            job=None
+            if runtime_manifest:
+                runtimes.idle()
+                if not shutil.which('flatpak'): raise ValueError('The Armada Flatpak utility is required for the full emulator set')
+                progress.update('Verifying the complete offline emulator set')
+                stage=runtimes.prepare(root,runtime_manifest,runtime_archive,progress.update)
+                try: job=runtime_manager.plan(root,stage,result['prepared'],progress=progress.update)
+                except ValueError as error:
+                    if 'requires migration with a backup' not in str(error) and 'needs migration with a recovery copy' not in str(error): raise
+                    if dialog('--yesno','Existing emulator code must be replaced. Setup will retain originals for recovery. Personal saves, BIOS and configuration files are kept.\n\n'+str(error)+'\n\nMigrate this runtime set?').returncode: return 0
+                    job=runtime_manager.plan(root,stage,result['prepared'],migrate=True,progress=progress.update)
             progress.update('Installing verified files')
             progress.call('showCancelButton', 'false')
-            install.install_prepared(root, result['prepared']); install.select_channel(root, channel); shortcuts(root)
-            # Journal intent before pkexec; a partial privileged install must be
-            # removed by its owner before uninstalling the application.
-            sw.atomic(root / 'integration.json', {'systemInstalled': True})
-            integrate(root)
+            if job:
+                install.select_channel(root,channel)
+                runtime_manager.begin(root,job)
+                sw.atomic(root/'setup-pending.json',{'action':'install','channel':channel})
+                runtime_manager.apply(root,checkpoint=lambda phase:progress.update('Installing '+phase))
+            else:
+                release=sw.verified(Path(result['prepared'])/'release.json',root/'trusted-key.pem')['signed']
+                sw.atomic(root/'setup-pending.json',{'action':'install','channel':channel,'prepared':result['prepared'],
+                          'expected':hashlib.sha256(sw.canonical(release)).hexdigest()})
+                install.install_prepared(root,result['prepared'])
+            finish_setup(root,'install')
     if not dialog('--yesno', 'TrainerOS is installed. Open first-time setup now?').returncode:
         subprocess.Popen(['/usr/bin/python3', str(root / 'bootstrap/packaging/software/launcher.py'), '--root', str(root)], start_new_session=True)
     return 0
@@ -269,15 +355,17 @@ def main():
     parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parents[2] / 'bootstrap.json')
     parser.add_argument('--gui', action='store_true')
     parser.add_argument('--offline', type=Path, help='Local signed Software media; no download fallback')
+    parser.add_argument('--runtime-manifest',type=Path,help='Signed full offline runtime set')
+    parser.add_argument('--runtime-archive',type=Path)
     args = parser.parse_args()
     try:
         if sys.platform != 'linux': raise ValueError('The installer requires Armada Linux')
         if os.getuid() == 0: raise ValueError('Run Setup as your desktop user; only session integration requests system authorization')
         if not args.gui: parser.error('Use --gui from the installer launcher')
-        return gui(args.root, args.config, args.offline)
+        return gui(args.root, args.config, args.offline, args.runtime_manifest, args.runtime_archive)
     except Cancelled as error:
         dialog('--msgbox', str(error)); return 0
-    except (OSError, ValueError, RuntimeError, KeyError, ImportError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, RuntimeError, KeyError, TypeError, ImportError, tarfile.TarError, subprocess.SubprocessError) as error:
         if shutil.which('kdialog'): dialog('--error', str(error) + '\nYou can reopen Setup to retry or repair. Personal data is preserved.')
         else: print(str(error), file=sys.stderr)
         return 1

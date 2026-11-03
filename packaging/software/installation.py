@@ -227,6 +227,7 @@ def resolve(root, channel, prepare=False, expected=None, progress=sw.event):
 def request(root, operation, channel='beta', sequence=None):
     if operation not in ('apply', 'rollback', 'repair'): raise ValueError('Unknown maintenance operation')
     root = private(root)
+    if read(root/'runtimes/transaction.json') or read(root/'setup-pending.json'): raise ValueError('Recover the full installation in Setup first')
     if operation == 'apply':
         if not sw.integer(sequence, 1, channels.MAX_SEQUENCE): raise ValueError('Selected sequence is required')
         result = resolve(root, channel, expected=sequence)
@@ -241,6 +242,7 @@ def request(root, operation, channel='beta', sequence=None):
 
 def apply_request(root):
     root = Path(root); job = read(root / 'request.json')
+    if read(root/'runtimes/transaction.json') or read(root/'setup-pending.json'): raise ValueError('Recover the full installation in Setup first')
     if not job: return None
     try:
         if job['active'] != receipt(root)['active'] or not 0 <= time.time() - job['created'] < 3600:
@@ -302,6 +304,7 @@ def remove_owned_tree(path, parent):
 
 def clean_cache(root):
     root = Path(root); reclaimed = 0
+    if read(root/'runtimes/transaction.json'): raise ValueError('Recover the full installation before clearing its staged Software')
     for name in ('cache', 'repair-cache'):
         with sw.cache_lock(root / name) as cache:
             for path in cache.iterdir():
@@ -317,6 +320,8 @@ def clean_cache(root):
 
 def uninstall(root, home=None, preflight=False):
     root = private(root); configuration(root)
+    if not preflight and (read(root/'runtimes/transaction.json') or read(root/'runtimes/receipt.json',{}).get('active')):
+        raise ValueError('Remove the owned emulator set through Setup before uninstalling Software')
     # Integrations are removed separately by their privileged owner. Keep the
     # bootstrap/recovery launcher, trust state and personal data for reinstall.
     integrations = read(root / 'integration.json', {})
@@ -351,6 +356,8 @@ def main():
     args = parser.parse_args()
     try:
         root = private(args.root)
+        if args.command not in ('context','audit') and (read(root/'setup-pending.json') or read(root/'runtimes/transaction.json')):
+            raise ValueError('Recover the interrupted installation in Setup first')
         with sw.cache_lock(root / 'transaction'):
             if args.command == 'context': result = context(root)
             elif args.command == 'audit': result = audit(root)

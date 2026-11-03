@@ -24,6 +24,8 @@ def run(root, arguments=()):
     upstream = os.environ.get('TRAINEROS_READY_FD')
     forwarded = False
     with sw.cache_lock(root / 'runtime'):
+        if install.read(root/'runtimes/transaction.json') or install.read(root/'setup-pending.json'):
+            raise ValueError('Full installation was interrupted. Open TrainerOS Setup and Recovery before launching.')
         install.ensure_no_orphans(root)
         while True:
             current = install.receipt(root)

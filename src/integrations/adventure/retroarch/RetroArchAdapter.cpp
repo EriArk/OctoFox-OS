@@ -87,7 +87,13 @@ RetroArchInstallation RetroArchInstallation::fromJson(const QJsonObject& object)
         }
     }
     result.saveBackups = object.value("backupProtocol").toString() == "mgba-sram-v1";
-    const QFileInfo python(object["linkedSavePython"].toString()), helper(object["linkedSaveHelper"].toString());
+    const auto linkedSaveRoot=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/runtime/linked-save-20261010.1/";
+    // A fresh discovery profile has no developer-machine paths. Use the installed
+    // companion only when neither field was explicitly configured; admission still
+    // verifies the helper's exact digest before any protected-save exchange.
+    const bool installedFallback=!object.contains("linkedSavePython")&&!object.contains("linkedSaveHelper");
+    const QFileInfo python(installedFallback?linkedSaveRoot+"venv/bin/python":object["linkedSavePython"].toString()),
+        helper(installedFallback?linkedSaveRoot+"linked-save.py":object["linkedSaveHelper"].toString());
     if(python.isAbsolute()&&python.isExecutable()&&helper.isAbsolute()&&helper.isFile()&&helper.isReadable()) {
         result.linkedSavePython=python.absoluteFilePath();result.linkedSaveHelper=helper.absoluteFilePath();
     }

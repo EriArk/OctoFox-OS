@@ -25,6 +25,7 @@
 #include <QFile>
 #include <QDir>
 #include <QImage>
+#include <QScopeGuard>
 
 using namespace trainer;
 class RetroArchTests final : public QObject {
@@ -40,6 +41,30 @@ class RetroArchTests final : public QObject {
         );
     }
 private slots:
+    void freshProfileUsesInstalledLinkedSaveWithoutReplacingOverrides() {
+#ifndef Q_OS_LINUX
+        QSKIP("Linux offline installer layout");
+#else
+        QTemporaryDir dir;const auto previous=qgetenv("XDG_DATA_HOME");
+        const bool testMode=QStandardPaths::isTestModeEnabled();QStandardPaths::setTestModeEnabled(false);
+        qputenv("XDG_DATA_HOME",dir.path().toUtf8());
+        const auto restore=qScopeGuard([&]{QStandardPaths::setTestModeEnabled(testMode);if(previous.isNull())qunsetenv("XDG_DATA_HOME");else qputenv("XDG_DATA_HOME",previous);});
+        const auto data=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+        QVERIFY(data.startsWith(dir.path()+"/")||data==dir.path());
+        const auto root=data+"/TrainerOS/runtime/linked-save-20261010.1/";
+        QVERIFY(QDir().mkpath(root+"venv/bin"));
+        QVERIFY(QFile::copy(probe(),root+"venv/bin/python"));touch(root+"linked-save.py");
+        touch(dir.filePath("retroarch.cfg"));
+        const QJsonObject profile{{"version",1},{"program",probe()},{"configFile",dir.filePath("retroarch.cfg")},
+                                  {"coresDirectory",dir.path()},{"prefixArguments",QJsonArray{}}};
+        auto fresh=RetroArchInstallation::fromJson(profile);
+        QCOMPARE(fresh.linkedSaveHelper,root+"linked-save.py");QCOMPARE(fresh.linkedSavePython,root+"venv/bin/python");
+        auto disabled=profile;disabled["linkedSaveHelper"]="";
+        QVERIFY(RetroArchInstallation::fromJson(disabled).linkedSaveHelper.isEmpty());
+        auto explicitProfile=profile;explicitProfile["linkedSavePython"]=probe();explicitProfile["linkedSaveHelper"]=dir.filePath("retroarch.cfg");
+        QCOMPARE(RetroArchInstallation::fromJson(explicitProfile).linkedSaveHelper,dir.filePath("retroarch.cfg"));
+#endif
+    }
     void neoCdNetplayUsesSealedCoreAndPrivateFirmware() {
         QTemporaryDir dir;std::atomic_bool cancel{false};
         const auto write=[&](QString p,QByteArray b){QFile f(p);QVERIFY(f.open(QIODevice::WriteOnly));QCOMPARE(f.write(b),qint64(b.size()));};

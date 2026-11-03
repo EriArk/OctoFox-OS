@@ -48,6 +48,26 @@ class InstallationTests(unittest.TestCase):
 
     def install(self): return install.install_prepared(self.installation, self.prepared)
 
+    def test_setup_finalization_retries_authorization_without_downloading(self):
+        self.install()
+        with patch.object(installer,'shortcuts'),patch.object(installer,'integrate',side_effect=RuntimeError('cancelled authorization')):
+            with self.assertRaisesRegex(RuntimeError,'authorization'):installer.finish_setup(self.installation,'install')
+        self.assertTrue((self.installation/'setup-pending.json').exists())
+        with patch.object(installer,'shortcuts'),patch.object(installer,'integrate') as integrate,patch.object(sw,'download',side_effect=AssertionError('No new download')):
+            self.assertEqual(installer.finish_setup(self.installation,'install')['status'],'installed')
+            integrate.assert_called_once()
+        self.assertFalse((self.installation/'setup-pending.json').exists())
+
+    def test_setup_recovers_interruption_before_software_receipt(self):
+        release=sw.verified(self.prepared/'release.json',self.public)['signed']
+        sw.atomic(self.installation/'setup-pending.json',{'action':'install','prepared':str(self.prepared),
+                  'expected':hashlib.sha256(sw.canonical(release)).hexdigest(),'channel':'preview'})
+        with patch.object(installer,'shortcuts'),patch.object(installer,'integrate'),patch.object(installer,'payload_dependencies'):
+            installer.finish_setup(self.installation,'install')
+        self.assertEqual(install.audit(self.installation)['status'],'ready')
+        self.assertEqual(install.selected_channel(self.installation),'preview')
+        self.assertFalse((self.installation/'setup-pending.json').exists())
+
     def test_offline_candidate_prepares_and_refuses_implicit_downgrade(self):
         with patch.object(sw, 'download', side_effect=AssertionError('Offline installer cannot download')):
             candidate = installer.resolve_offline(self.installation, self.manifest.parent, prepare=True, progress=lambda *args: None)
