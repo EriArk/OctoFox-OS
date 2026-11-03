@@ -1,0 +1,3128 @@
+{
+  "schema": 1,
+  "sourceCapsules": 22,
+  "bytes": 1965733612,
+  "trees": 286,
+  "uniqueTrees": 247,
+  "capsules": [
+    {
+      "schema": 1,
+      "id": "azahar-netplay",
+      "file": "azahar-netplay-219d743a1e698101fe1ab8bef43e6563126c3c27.tar.gz",
+      "bytes": 249663329,
+      "sha256": "bbd19b0bfc84a9fcfe94b04742d3eeb41a3b6dec04228e0cd80e9278095d5517",
+      "repository": "https://github.com/azahar-emu/azahar.git",
+      "commit": "219d743a1e698101fe1ab8bef43e6563126c3c27",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/azahar-emu/azahar.git",
+          "commit": "219d743a1e698101fe1ab8bef43e6563126c3c27",
+          "tree": "a4ed1d9530bee1a98b168d782b3540b2585433ba"
+        },
+        {
+          "path": "dist/compatibility_list/",
+          "repository": "https://github.com/azahar-emu/compatibility-list",
+          "commit": "d282515cd6a66b694ac0657eef250c24b7410495",
+          "tree": "cfc38a9a9c0cb5e57c0cee252e5b7d820f0cbbbe"
+        },
+        {
+          "path": "externals/boost/",
+          "repository": "https://github.com/azahar-emu/ext-boost.git",
+          "commit": "6a85c3100499e886e11c87a5c2109eedacea0a61",
+          "tree": "e5f8f20691d6903c91a59b70622abf9ee6764a1c"
+        },
+        {
+          "path": "externals/catch2/",
+          "repository": "https://github.com/catchorg/Catch2",
+          "commit": "914aeecfe23b1e16af6ea675a4fb5dbd5a5b8d0a",
+          "tree": "1395cc6b7da5cc1b2b0eb63d48cdd7d4f6ec0ae3"
+        },
+        {
+          "path": "externals/cpp-jwt/",
+          "repository": "https://github.com/arun11299/cpp-jwt.git",
+          "commit": "4a970bc302d671476122cbc6b43cc89fbf4a96ec",
+          "tree": "497827c25bed257e2d87b8aa32b2a0fc16c9642a"
+        },
+        {
+          "path": "externals/cryptopp/",
+          "repository": "https://github.com/cryptopp-modern/cryptopp-modern.git",
+          "commit": "8d92d788421483a43e09acf1cd4a2861cb2b8cab",
+          "tree": "81608d0cdef430cbacfb24fd48e549eede6b4bdc"
+        },
+        {
+          "path": "externals/cubeb/",
+          "repository": "https://github.com/mozilla/cubeb",
+          "commit": "832fcf38e600bf80b4b728a3e0227403088d992c",
+          "tree": "e086c81f45e272c7d471814424b0c97c95ef32bc"
+        },
+        {
+          "path": "externals/cubeb/cmake/sanitizers-cmake/",
+          "repository": "https://github.com/arsenm/sanitizers-cmake",
+          "commit": "aab6948fa863bc1cbe5d0850bc46b9ef02ed4c1a",
+          "tree": "3816c1ee4a62493f88cb66b221649981515eb938"
+        },
+        {
+          "path": "externals/cubeb/googletest/",
+          "repository": "https://github.com/google/googletest",
+          "commit": "40412d85124f7c6f3d88454583c4633e5e10fc8c",
+          "tree": "b3eccdd551219da247b4e72a889c39deac4ec85e"
+        },
+        {
+          "path": "externals/cubeb/src/cubeb-coreaudio-rs/",
+          "repository": "https://github.com/mozilla/cubeb-coreaudio-rs",
+          "commit": "8f39e9fc3ad4868e6ff7188c52575087a1a02777",
+          "tree": "1c6e47e22acffea5fdeae54de52bc3923eb22675"
+        },
+        {
+          "path": "externals/cubeb/src/cubeb-pulse-rs/",
+          "repository": "https://github.com/mozilla/cubeb-pulse-rs",
+          "commit": "6bac666467e4a37cf057f0e17e8c9e8a024b060b",
+          "tree": "f8bc4ce96f21539a5d8c724e29bce5c82e5dfde1"
+        },
+        {
+          "path": "externals/dds-ktx/",
+          "repository": "https://github.com/septag/dds-ktx",
+          "commit": "c3ca8febc2457ab5c581604f3236a8a511fc2e45",
+          "tree": "2e6fad33dcae03427c58a10a50d7e7bef1856f88"
+        },
+        {
+          "path": "externals/discord-rpc/",
+          "repository": "https://github.com/azahar-emu/discord-rpc.git",
+          "commit": "049826c3f42875c2f9599552f425e76435789cc7",
+          "tree": "4ca903b59f2af9259b46e6168730cb1d1cf2b5a1"
+        },
+        {
+          "path": "externals/dllwalker/",
+          "repository": "https://github.com/azahar-emu/dllwalker",
+          "commit": "2f8b349c26832cae612aa7082154c0697a9cbc8e",
+          "tree": "6d59c2c035ebee1fecfc03629c9d81e170e573c8"
+        },
+        {
+          "path": "externals/dynarmic/",
+          "repository": "https://github.com/azahar-emu/dynarmic.git",
+          "commit": "e77b1ba0b7da7cbe93021b01a663acfe7c4dd516",
+          "tree": "45c8446a178d3ee1bd9850e2151b10d908c2438c"
+        },
+        {
+          "path": "externals/dynarmic/externals/biscuit/",
+          "repository": "https://github.com/lioncash/biscuit.git",
+          "commit": "8bd0f7538b9ed7bedf90e789ffbd9eaeb484b28d",
+          "tree": "2178098232c07c1bf3e91c1582ec275e65a34fee"
+        },
+        {
+          "path": "externals/dynarmic/externals/catch/",
+          "repository": "https://github.com/catchorg/Catch2.git",
+          "commit": "76f70b1403dbc0781216f49e20e45b71f7eccdd8",
+          "tree": "98a80eb02c3c43aeeb868d9952768950fb58df47"
+        },
+        {
+          "path": "externals/dynarmic/externals/fmt/",
+          "repository": "https://github.com/fmtlib/fmt.git",
+          "commit": "7b273fbb541c7c9058800bc613f4291274b2d26e",
+          "tree": "25a96221d2c2df4f4bf87d491cac0e32f45a14c4"
+        },
+        {
+          "path": "externals/dynarmic/externals/mcl/",
+          "repository": "https://github.com/azahar-emu/mcl.git",
+          "commit": "5fc4beaf331037649b10625736b41365defb4f50",
+          "tree": "9b29d2ad9f9b19a671c139d1f116052389272db9"
+        },
+        {
+          "path": "externals/dynarmic/externals/oaknut/",
+          "repository": "https://github.com/merryhime/oaknut.git",
+          "commit": "94c726ce0338b054eb8cb5ea91de8fe6c19f4392",
+          "tree": "d2d354ecdc53b324fab5593b9c9a677a575465a6"
+        },
+        {
+          "path": "externals/dynarmic/externals/robin-map/",
+          "repository": "https://github.com/Tessil/robin-map.git",
+          "commit": "054ec5ad67440fcd65e0497e5a27ef31f53fcc7f",
+          "tree": "a68adced62fe580b6313d62ab7a4b2cc634e4d18"
+        },
+        {
+          "path": "externals/dynarmic/externals/xbyak/",
+          "repository": "https://github.com/herumi/xbyak.git",
+          "commit": "8c0098b69f95d02dea47efcdd42ab5aa2d03c72d",
+          "tree": "af555753b808bef456c4acd49051ea2507f5a833"
+        },
+        {
+          "path": "externals/dynarmic/externals/zycore/",
+          "repository": "https://github.com/zyantific/zycore-c.git",
+          "commit": "0b2432ced0884fd152b471d97ecf0258ff4d859f",
+          "tree": "c50335ff3b62de66ccc37efe6ea371b7aaff8879"
+        },
+        {
+          "path": "externals/dynarmic/externals/zydis/",
+          "repository": "https://github.com/zyantific/zydis.git",
+          "commit": "bffbb610cfea643b98e87658b9058382f7522807",
+          "tree": "fd5cd1b124885d24890b21bb09898241962f7b8a"
+        },
+        {
+          "path": "externals/dynarmic/externals/zydis/dependencies/zycore/",
+          "repository": "https://github.com/zyantific/zycore-c",
+          "commit": "38d4f0285e6157ee840ea82a9b90aba71c8a705d",
+          "tree": "645c317fccc0bcd5d789e3b1ebd0aea6152cba93"
+        },
+        {
+          "path": "externals/enet/",
+          "repository": "https://github.com/lsalzman/enet.git",
+          "commit": "2662c0de09e36f2a2030ccc2c528a3e4c9e8138a",
+          "tree": "5096e683758d14404d4c9eaaa7f3d9df0eefe1ce"
+        },
+        {
+          "path": "externals/faad2/faad2/",
+          "repository": "https://github.com/knik0/faad2",
+          "commit": "216f00e8ddba6f2c64caf481a04f1ddd78b93e78",
+          "tree": "6b5726f8ad24120f20b0620043a3239e06bfd960"
+        },
+        {
+          "path": "externals/fmt/",
+          "repository": "https://github.com/fmtlib/fmt.git",
+          "commit": "e424e3f2e607da02742f73db84873b8084fc714c",
+          "tree": "cc409a93cfb86f3c466b37341f53e205d87717f5"
+        },
+        {
+          "path": "externals/glslang/",
+          "repository": "https://github.com/KhronosGroup/glslang",
+          "commit": "fc9889c889561c5882e83819dcaffef5ed45529b",
+          "tree": "51cfb22ae8f7b19a3ece8a354c153f3661e6d235"
+        },
+        {
+          "path": "externals/inih/inih/",
+          "repository": "https://github.com/benhoyt/inih.git",
+          "commit": "5cc5e2c24642513aaa5b19126aad42d0e4e0923e",
+          "tree": "1acac53ebd5834fa51189e13d68faeed315d6fbd"
+        },
+        {
+          "path": "externals/libadrenotools/",
+          "repository": "https://github.com/bylaws/libadrenotools",
+          "commit": "8fae8ce254dfc1344527e05301e43f37dea2df80",
+          "tree": "be9ea825da63c65c0ff1e412df1ee6cb155a17c6"
+        },
+        {
+          "path": "externals/libadrenotools/lib/linkernsbypass/",
+          "repository": "https://github.com/bylaws/liblinkernsbypass/",
+          "commit": "aa3975893d83ef1bc84c321ec60c65fbf1287887",
+          "tree": "29d66e90dac2a2df5f49c838cd3297d419ed9deb"
+        },
+        {
+          "path": "externals/library-headers/",
+          "repository": "https://github.com/azahar-emu/ext-library-headers.git",
+          "commit": "3b3e28dbe6d033395ce2967fa8030825e7b89de7",
+          "tree": "4bf6541ed4541b09125cc6ebc78341c563e703ba"
+        },
+        {
+          "path": "externals/libressl/",
+          "repository": "https://github.com/azahar-emu/ext-libressl-portable.git",
+          "commit": "88b8e41b71099fabc57813bc06d8bc1aba050a19",
+          "tree": "aaa894eb9859fbc1b9788ff5b37114f4b86b40ed"
+        },
+        {
+          "path": "externals/libretro-common/libretro-common/",
+          "repository": "https://github.com/libretro/libretro-common.git",
+          "commit": "7fc7feeddca391be65c94e6541381467684b814d",
+          "tree": "848b3d647ecb364e02031a9577b1548e8488ae86"
+        },
+        {
+          "path": "externals/libusb/libusb/",
+          "repository": "https://github.com/libusb/libusb.git",
+          "commit": "d52e355daa09f17ce64819122cb067b8a2ee0d4b",
+          "tree": "b8b07f5722b11a1cc82e3aca71efe19f2948d593"
+        },
+        {
+          "path": "externals/libyuv/",
+          "repository": "https://github.com/lemenkov/libyuv.git",
+          "commit": "6f729fbe658a40dfd993fa8b22bd612bb17cde5c",
+          "tree": "a4cbf2b29c1cbbc00c231aeef1e73c89bc76a44b"
+        },
+        {
+          "path": "externals/lodepng/lodepng/",
+          "repository": "https://github.com/lvandeve/lodepng.git",
+          "commit": "0b1d9ccfc2093e5d6620cd9a11d03ee6ff6705f5",
+          "tree": "6f8af93aad2a7b009937afd4e14df8e7f5c5702d"
+        },
+        {
+          "path": "externals/nihstro/",
+          "repository": "https://github.com/neobrain/nihstro.git",
+          "commit": "f4d8659decbfe5d234f04134b5002b82dc515a44",
+          "tree": "b2e97b03a0569cb593fb49cf4a08c02aeec2ee73"
+        },
+        {
+          "path": "externals/oaknut/",
+          "repository": "https://github.com/merryhime/oaknut.git",
+          "commit": "6b1d57ea7ed4882d32a91eeaa6557b0ecb4da152",
+          "tree": "bfd0ee848b1e792dd6dca46808ab18065589380d"
+        },
+        {
+          "path": "externals/openal-soft/",
+          "repository": "https://github.com/azahar-emu/openal-soft",
+          "commit": "e399840fc6aba5f7bc3f0633e8ff10bba0640906",
+          "tree": "ad9e88ed8fe57158b7f1ec60a50d2f2173454d7a"
+        },
+        {
+          "path": "externals/sdl2/SDL/",
+          "repository": "https://github.com/libsdl-org/SDL",
+          "commit": "5d249570393f7a37e037abf22cd6012a4cc56a71",
+          "tree": "c2fd07672476c3945f498479938743c616ff44e5"
+        },
+        {
+          "path": "externals/sirit/sirit/",
+          "repository": "https://github.com/azahar-emu/sirit",
+          "commit": "37d49d2aa4c0a62f872720d6e5f2eaf90b2c95fa",
+          "tree": "8ae0313478d766a4a4a4ff44b2730980a6b37f8d"
+        },
+        {
+          "path": "externals/sirit/sirit/externals/SPIRV-Headers/",
+          "repository": "https://github.com/KhronosGroup/SPIRV-Headers",
+          "commit": "3f17b2af6784bfa2c5aa5dbb8e0e74a607dd8b3b",
+          "tree": "0898640ea14814a270ab0f9b27c0337512d08b9d"
+        },
+        {
+          "path": "externals/soundtouch/",
+          "repository": "https://github.com/azahar-emu/soundtouch.git",
+          "commit": "9ef8458d8561d9471dd20e9619e3be4cfe564796",
+          "tree": "4a4422697172164c081c41301bb14499f3661803"
+        },
+        {
+          "path": "externals/spirv-headers/",
+          "repository": "https://github.com/KhronosGroup/SPIRV-Headers",
+          "commit": "aa6cef192b8e693916eb713e7a9ccadf06062ceb",
+          "tree": "57d98bf0ffe03aeda686fbf7d461b671395c3465"
+        },
+        {
+          "path": "externals/spirv-tools/",
+          "repository": "https://github.com/KhronosGroup/SPIRV-Tools",
+          "commit": "a62abcb402009b9ca5975e6167c09f237f630e0e",
+          "tree": "9063aa602968757c16c6b9a146f340dabe02b71c"
+        },
+        {
+          "path": "externals/teakra/",
+          "repository": "https://github.com/wwylele/teakra.git",
+          "commit": "3d697a18df504f4677b65129d9ab14c7c597e3eb",
+          "tree": "2cb32e8deda4483e72091241874697101c7f7407"
+        },
+        {
+          "path": "externals/vma/",
+          "repository": "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator",
+          "commit": "c788c52156f3ef7bc7ab769cb03c110a53ac8fcb",
+          "tree": "4b14549c2263bf116eff1665f24fc661db47c61a"
+        },
+        {
+          "path": "externals/vulkan-headers/",
+          "repository": "https://github.com/KhronosGroup/Vulkan-Headers",
+          "commit": "409c16be502e39fe70dd6fe2d9ad4842ef2c9a53",
+          "tree": "ea25474b5013970f5d1a3c1d1a657a20a4d4d2e0"
+        },
+        {
+          "path": "externals/xbyak/",
+          "repository": "https://github.com/herumi/xbyak.git",
+          "commit": "0d67fd1530016b7c56f3cd74b3fca920f4c3e2b4",
+          "tree": "d34febb11c1d9e3fc8cef5b92f597185ad6dd79e"
+        },
+        {
+          "path": "externals/xxHash/",
+          "repository": "https://github.com/Cyan4973/xxHash.git",
+          "commit": "e626a72bc2321cd320e953a0ccf1584cad60f363",
+          "tree": "9d4f447c856962a98e22f144bd9b0315ab4d18f8"
+        },
+        {
+          "path": "externals/zstd/",
+          "repository": "https://github.com/facebook/zstd.git",
+          "commit": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+          "tree": "1a3cb277e9b9b37b01811a3c65f6c25d46a8f241"
+        }
+      ],
+      "files": 21134,
+      "noticeFiles": [
+        ".ci/license-header.rb",
+        ".github/workflows/license-header.yml",
+        "dist/license.md",
+        "dist/qt_themes/qdarkstyle/LICENSE.md",
+        "dist/qt_themes/qdarkstyle_midnight_blue/LICENSE.rst",
+        "externals/boost/LICENSE_1_0.txt",
+        "externals/catch2/LICENSE.txt",
+        "externals/catch2/tools/scripts/checkLicense.py",
+        "externals/cpp-jwt/LICENSE",
+        "externals/cryptopp/LICENSE",
+        "externals/cubeb/LICENSE",
+        "externals/cubeb/cmake/sanitizers-cmake/LICENSE",
+        "externals/cubeb/googletest/LICENSE",
+        "externals/cubeb/src/cubeb-coreaudio-rs/LICENSE",
+        "externals/cubeb/src/cubeb-pulse-rs/LICENSE",
+        "externals/dds-ktx/LICENSE",
+        "externals/discord-rpc/LICENSE",
+        "externals/dllwalker/LICENSE.txt",
+        "externals/dynarmic/LICENSE.txt",
+        "externals/dynarmic/externals/biscuit/LICENSE.md",
+        "externals/dynarmic/externals/catch/LICENSE.txt",
+        "externals/dynarmic/externals/catch/tools/scripts/checkLicense.py",
+        "externals/dynarmic/externals/fmt/LICENSE",
+        "externals/dynarmic/externals/fmt/doc/python-license.txt",
+        "externals/dynarmic/externals/mcl/LICENSE",
+        "externals/dynarmic/externals/oaknut/LICENSE",
+        "externals/dynarmic/externals/robin-map/LICENSE",
+        "externals/dynarmic/externals/xbyak/COPYRIGHT",
+        "externals/dynarmic/externals/zycore/LICENSE",
+        "externals/dynarmic/externals/zydis/LICENSE",
+        "externals/dynarmic/externals/zydis/dependencies/zycore/LICENSE",
+        "externals/enet/LICENSE",
+        "externals/enet/docs/license.dox",
+        "externals/faad2/faad2/COPYING",
+        "externals/fmt/LICENSE",
+        "externals/fmt/doc/python-license.txt",
+        "externals/glslang/LICENSE.txt",
+        "externals/glslang/license-checker.cfg",
+        "externals/inih/inih/LICENSE.txt",
+        "externals/libadrenotools/LICENSE",
+        "externals/libadrenotools/lib/linkernsbypass/LICENSE",
+        "externals/library-headers/fdk-aac/NOTICE",
+        "externals/library-headers/ffmpeg/COPYING.GPLv2",
+        "externals/library-headers/ffmpeg/COPYING.GPLv3",
+        "externals/library-headers/ffmpeg/COPYING.LGPLv2.1",
+        "externals/library-headers/ffmpeg/COPYING.LGPLv3",
+        "externals/library-headers/ffmpeg/LICENSE.md",
+        "externals/libressl/COPYING",
+        "externals/libusb/libusb/COPYING",
+        "externals/libyuv/LICENSE",
+        "externals/lodepng/lodepng/LICENSE",
+        "externals/nihstro/license.txt",
+        "externals/oaknut/LICENSE",
+        "externals/openal-soft/COPYING",
+        "externals/openal-soft/LICENSE-pffft",
+        "externals/openal-soft/fmt-11.0.2/LICENSE",
+        "externals/openal-soft/fmt-11.0.2/doc/python-license.txt",
+        "externals/sdl2/SDL/LICENSE.txt",
+        "externals/sdl2/SDL/Xcode-iOS/Demos/data/bitmapfont/license.txt",
+        "externals/sdl2/SDL/Xcode/SDL/pkg-support/resources/License.txt",
+        "externals/sdl2/SDL/build-scripts/update-copyright.sh",
+        "externals/sdl2/SDL/include/SDL_copying.h",
+        "externals/sdl2/SDL/src/hidapi/LICENSE-bsd.txt",
+        "externals/sdl2/SDL/src/hidapi/LICENSE-gpl3.txt",
+        "externals/sdl2/SDL/src/hidapi/LICENSE-orig.txt",
+        "externals/sdl2/SDL/src/hidapi/LICENSE.txt",
+        "externals/sdl2/SDL/src/video/yuv2rgb/LICENSE",
+        "externals/sdl2/SDL/test/COPYING",
+        "externals/sdl2/SDL/test/unifont-13.0.06-license.txt",
+        "externals/sdl2/SDL/visualtest/COPYING.txt",
+        "externals/sirit/sirit/LICENSE.txt",
+        "externals/sirit/sirit/externals/SPIRV-Headers/LICENSE",
+        "externals/soundtouch/COPYING.TXT",
+        "externals/soundtouch/source/csharp-example/NAudio-license.txt",
+        "externals/spirv-headers/LICENSE",
+        "externals/spirv-tools/LICENSE",
+        "externals/spirv-tools/utils/check_copyright.py",
+        "externals/spirv-tools/utils/vscode/src/lsp/LICENSE",
+        "externals/teakra/LICENSE",
+        "externals/vma/LICENSE.txt",
+        "externals/vulkan-headers/LICENSE.md",
+        "externals/xbyak/COPYRIGHT",
+        "externals/xxHash/LICENSE",
+        "externals/xxHash/cli/COPYING",
+        "externals/xxHash/tests/bench/LICENSE",
+        "externals/xxHash/tests/collisions/LICENSE",
+        "externals/zstd/COPYING",
+        "externals/zstd/LICENSE",
+        "externals/zstd/build/LICENSE",
+        "externals/zstd/tests/test-license.py",
+        "license.txt",
+        "src/android/app/src/main/java/org/citra/citra_emu/adapters/LicenseAdapter.kt",
+        "src/android/app/src/main/java/org/citra/citra_emu/fragments/LicenseBottomSheetDialogFragment.kt",
+        "src/android/app/src/main/java/org/citra/citra_emu/fragments/LicensesFragment.kt",
+        "src/android/app/src/main/java/org/citra/citra_emu/model/License.kt",
+        "src/android/app/src/main/res/layout/dialog_license.xml",
+        "src/android/app/src/main/res/layout/fragment_licenses.xml",
+        "src/android/app/src/main/res/values/licenses.xml"
+      ],
+      "lfsObjects": [
+        {
+          "path": "externals/teakra/src/test_verifier/data/teaklite2_tests_result.bin",
+          "sha256": "baffcd4f805a7480d969401792443a34aa39f813b4f0ae49c6365f1d1f3ce120",
+          "bytes": 357257824
+        }
+      ],
+      "externalLinks": [],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "azahar-netplay"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "dolphin-netplay",
+      "file": "dolphin-netplay-c77bbaa0f372c3f72281602a8b087206706542cb.tar.gz",
+      "bytes": 201660705,
+      "sha256": "174943a64b830b5c1acb1de8ea480f8a55bf8c0f3593bda1ced8d0f83e096220",
+      "repository": "https://github.com/dolphin-emu/dolphin.git",
+      "commit": "c77bbaa0f372c3f72281602a8b087206706542cb",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/dolphin-emu/dolphin.git",
+          "commit": "c77bbaa0f372c3f72281602a8b087206706542cb",
+          "tree": "8d1026cb1983cf104d4bf6011862df3f61835f21"
+        },
+        {
+          "path": "Externals/FFmpeg-bin/",
+          "repository": "https://github.com/dolphin-emu/ext-win-ffmpeg.git",
+          "commit": "9bc087fbca36ce5a85eb4fd73f0c73813593e5a2",
+          "tree": "771cabfc8a8e1bfcb8e3ea8ee87c48dc9e615e8e"
+        },
+        {
+          "path": "Externals/Qt/",
+          "repository": "https://github.com/dolphin-emu/ext-win-qt.git",
+          "commit": "495517af2b922c10c24f543e0fd6ea3ddf774e50",
+          "tree": "4bfbc08631169c5460347f02fc07b31ae8100a8d"
+        },
+        {
+          "path": "Externals/SDL/SDL/",
+          "repository": "https://github.com/libsdl-org/SDL.git",
+          "commit": "5848e584a1b606de26e3dbd1c7e4ecbc34f807a6",
+          "tree": "d120bcbc53c10b76c50ddfb1cf9391036480a24e"
+        },
+        {
+          "path": "Externals/SFML/SFML/",
+          "repository": "https://github.com/SFML/SFML.git",
+          "commit": "0fa201c969e48ecc253581c5841ce73f44d42f49",
+          "tree": "955a3dd8cc7e5a8632380d6e71ec04510c5b1c00"
+        },
+        {
+          "path": "Externals/Vulkan-Headers/",
+          "repository": "https://github.com/KhronosGroup/Vulkan-Headers.git",
+          "commit": "39f924b810e561fd86b2558b6711ca68d4363f68",
+          "tree": "ef25b8ec25b9f1b24bca3832f5d0c7d76fa400d1"
+        },
+        {
+          "path": "Externals/VulkanMemoryAllocator/",
+          "repository": "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git",
+          "commit": "3bab6924988e5f19bf36586a496156cf72f70d9f",
+          "tree": "3bf4355726df4eea1ebb4fac669e54f4b330d097"
+        },
+        {
+          "path": "Externals/bzip2/bzip2/",
+          "repository": "https://gitlab.com/bzip2/bzip2.git",
+          "commit": "6a8690fc8d26c815e798c588f796eabe9d684cf0",
+          "tree": "5c486de7f86667d0f58f2a945c5c13d71235e98e"
+        },
+        {
+          "path": "Externals/cpp-ipc/cpp-ipc/",
+          "repository": "https://github.com/mutouyun/cpp-ipc.git",
+          "commit": "ce0773b3e6d5abaa8d104100c5704321113853ca",
+          "tree": "b4efe261efe7745abf7877ad3ed8c72f444604ba"
+        },
+        {
+          "path": "Externals/cpp-optparse/cpp-optparse/",
+          "repository": "https://github.com/weisslj/cpp-optparse.git",
+          "commit": "2265d647232249a53a03b411099863ceca35f0d3",
+          "tree": "d739b5b8007f89e92f7e0e6be9d6182c7e192408"
+        },
+        {
+          "path": "Externals/cubeb/cubeb/",
+          "repository": "https://github.com/mozilla/cubeb.git",
+          "commit": "54217bca3f3e0cd53c073690a23dd25d83557909",
+          "tree": "a1f868328ad191c0161b5fcea1d3b6b7030cce73"
+        },
+        {
+          "path": "Externals/cubeb/cubeb/cmake/sanitizers-cmake/",
+          "repository": "https://github.com/arsenm/sanitizers-cmake",
+          "commit": "aab6948fa863bc1cbe5d0850bc46b9ef02ed4c1a",
+          "tree": "3816c1ee4a62493f88cb66b221649981515eb938"
+        },
+        {
+          "path": "Externals/cubeb/cubeb/googletest/",
+          "repository": "https://github.com/google/googletest",
+          "commit": "40412d85124f7c6f3d88454583c4633e5e10fc8c",
+          "tree": "b3eccdd551219da247b4e72a889c39deac4ec85e"
+        },
+        {
+          "path": "Externals/curl/curl/",
+          "repository": "https://github.com/curl/curl.git",
+          "commit": "cfbfb65047e85e6b08af65fe9cdbcf68e9ad496a",
+          "tree": "066a607f0e989d8c02527dd19c72429c611a0449"
+        },
+        {
+          "path": "Externals/enet/enet/",
+          "repository": "https://github.com/lsalzman/enet.git",
+          "commit": "2662c0de09e36f2a2030ccc2c528a3e4c9e8138a",
+          "tree": "5096e683758d14404d4c9eaaa7f3d9df0eefe1ce"
+        },
+        {
+          "path": "Externals/fmt/fmt/",
+          "repository": "https://github.com/fmtlib/fmt.git",
+          "commit": "e424e3f2e607da02742f73db84873b8084fc714c",
+          "tree": "cc409a93cfb86f3c466b37341f53e205d87717f5"
+        },
+        {
+          "path": "Externals/glslang/glslang/",
+          "repository": "https://github.com/KhronosGroup/glslang.git",
+          "commit": "a57276bf558f5cf94d3a9854ebdf5a2236849a5a",
+          "tree": "cfec6b90899c2a0c0df59c9aded51669db1a1cac"
+        },
+        {
+          "path": "Externals/gtest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "eb2d85edd0bff7a712b6aff147cd9f789f0d7d0b",
+          "tree": "142e8a14e3be6e1168a3679bb8ad1c2e1ada4668"
+        },
+        {
+          "path": "Externals/hidapi/hidapi-src/",
+          "repository": "https://github.com/libusb/hidapi.git",
+          "commit": "d6b2a974608dec3b76fb1e36c189f22b9cf3650c",
+          "tree": "3dcff337558b16a0b76f1ffe2d4063d6d9824f4b"
+        },
+        {
+          "path": "Externals/imgui/imgui/",
+          "repository": "https://github.com/ocornut/imgui.git",
+          "commit": "45acd5e0e82f4c954432533ae9985ff0e1aad6d5",
+          "tree": "0a96947d7544ace1fb19669d8b54eb184b17ea67"
+        },
+        {
+          "path": "Externals/implot/implot/",
+          "repository": "https://github.com/epezent/implot.git",
+          "commit": "3da8bd34299965d3b0ab124df743fe3e076fa222",
+          "tree": "5923fd272c481c4b9c6233f0439ba382b07ae113"
+        },
+        {
+          "path": "Externals/libadrenotools/",
+          "repository": "https://github.com/bylaws/libadrenotools.git",
+          "commit": "8fae8ce254dfc1344527e05301e43f37dea2df80",
+          "tree": "be9ea825da63c65c0ff1e412df1ee6cb155a17c6"
+        },
+        {
+          "path": "Externals/libadrenotools/lib/linkernsbypass/",
+          "repository": "https://github.com/bylaws/liblinkernsbypass/",
+          "commit": "aa3975893d83ef1bc84c321ec60c65fbf1287887",
+          "tree": "29d66e90dac2a2df5f49c838cd3297d419ed9deb"
+        },
+        {
+          "path": "Externals/libspng/libspng/",
+          "repository": "https://github.com/randy408/libspng.git",
+          "commit": "fb768002d4288590083a476af628e51c3f1d47cd",
+          "tree": "6f98e1ffb7272520991831281282627c6b0ccefb"
+        },
+        {
+          "path": "Externals/libusb/libusb/",
+          "repository": "https://github.com/libusb/libusb.git",
+          "commit": "15a7ebb4d426c5ce196684347d2b7cafad862626",
+          "tree": "aa6aca60590d33b84bdeba19fc4157cfd42904d7"
+        },
+        {
+          "path": "Externals/lz4/lz4/",
+          "repository": "https://github.com/lz4/lz4.git",
+          "commit": "5fc0630a0ed55e9755b0fe3990cd021ae1c3edc1",
+          "tree": "84bc3bfc36f295adfb98866de3f8c54ebd438445"
+        },
+        {
+          "path": "Externals/mGBA/mgba/",
+          "repository": "https://github.com/mgba-emu/mgba.git",
+          "commit": "0b40863f64d0940f333fa1c638e75f86f8a26a33",
+          "tree": "45c2182d3fc056e16e5694e5696cf7aac9ec0b10"
+        },
+        {
+          "path": "Externals/miniupnpc/miniupnp/",
+          "repository": "https://github.com/miniupnp/miniupnp.git",
+          "commit": "bf4215a7574f88aa55859db9db00e3ae58cf42d6",
+          "tree": "e643d7ca88a2b95af0bdd7c200aa294089c7acf8"
+        },
+        {
+          "path": "Externals/minizip-ng/minizip-ng/",
+          "repository": "https://github.com/zlib-ng/minizip-ng.git",
+          "commit": "55db144e03027b43263e5ebcb599bf0878ba58de",
+          "tree": "82ba3217143743aa225232ef784bfd0d2e6b65bb"
+        },
+        {
+          "path": "Externals/pugixml/pugixml/",
+          "repository": "https://github.com/zeux/pugixml.git",
+          "commit": "ee86beb30e4973f5feffe3ce63bfa4fbadf72f38",
+          "tree": "3aaf3c60e8a170f573facc54d5b41e0a9b7a6a4d"
+        },
+        {
+          "path": "Externals/rcheevos/rcheevos/",
+          "repository": "https://github.com/RetroAchievements/rcheevos.git",
+          "commit": "926e4608f8dca7989267c787bbefb3ab1c835ac5",
+          "tree": "d8f44f85af5debde5df71c314fd8c35fa974a012"
+        },
+        {
+          "path": "Externals/spirv_cross/SPIRV-Cross/",
+          "repository": "https://github.com/KhronosGroup/SPIRV-Cross.git",
+          "commit": "ebe2aa0cd80f5eb5cd8a605da604cacf72205f3b",
+          "tree": "54a0935e163ca2f0289c52192f10826f5bed4c62"
+        },
+        {
+          "path": "Externals/tinygltf/tinygltf/",
+          "repository": "https://github.com/syoyo/tinygltf.git",
+          "commit": "c5641f2c22d117da7971504591a8f6a41ece488b",
+          "tree": "a7cf1528184bb3e14fd0a87b8a909088c1de8737"
+        },
+        {
+          "path": "Externals/watcher/watcher/",
+          "repository": "https://github.com/e-dant/watcher.git",
+          "commit": "b03bdcfc11549df595b77239cefe2643943a3e2f",
+          "tree": "013973393c8476d3c379ac2a25c7c6f4a6dd5cc7"
+        },
+        {
+          "path": "Externals/wil/",
+          "repository": "https://github.com/microsoft/wil.git",
+          "commit": "7447d38337abf23a5c2286305b743506455aa9cc",
+          "tree": "75413f56c0d8e11c5c0788dff6b69b8c53ee743c"
+        },
+        {
+          "path": "Externals/xxhash/xxHash/",
+          "repository": "https://github.com/Cyan4973/xxHash.git",
+          "commit": "e626a72bc2321cd320e953a0ccf1584cad60f363",
+          "tree": "9d4f447c856962a98e22f144bd9b0315ab4d18f8"
+        },
+        {
+          "path": "Externals/zlib-ng/zlib-ng/",
+          "repository": "https://github.com/zlib-ng/zlib-ng.git",
+          "commit": "ce01b1e41da298334f8214389cc9369540a7560f",
+          "tree": "c58be0e86cae0c4915679832d0669a76db333283"
+        },
+        {
+          "path": "Externals/zstd/zstd/",
+          "repository": "https://github.com/facebook/zstd.git",
+          "commit": "711e17da98510a3567bf47f85a08a76f64811474",
+          "tree": "0769bb000e7fddc150c46cec89233bc2cc1b251a"
+        }
+      ],
+      "files": 35518,
+      "noticeFiles": [
+        "COPYING",
+        "Data/Sys/GC/font-licenses.txt",
+        "Data/Sys/Resources/OSD_Font_VeraMono_Copyright.txt",
+        "Externals/FatFs/LICENSE.txt",
+        "Externals/LZO/COPYING",
+        "Externals/MoltenVK/LICENSE",
+        "Externals/Qt/Qt6.5.1/ARM64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/COPYING-CMAKE-SCRIPTS",
+        "Externals/Qt/Qt6.5.1/ARM64/lib/cmake/Qt6/3rdparty/kwin/COPYING-CMAKE-SCRIPTS",
+        "Externals/Qt/Qt6.5.1/x64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/COPYING-CMAKE-SCRIPTS",
+        "Externals/Qt/Qt6.5.1/x64/lib/cmake/Qt6/3rdparty/kwin/COPYING-CMAKE-SCRIPTS",
+        "Externals/SDL/SDL/LICENSE.txt",
+        "Externals/SDL/SDL/build-scripts/update-copyright.sh",
+        "Externals/SDL/SDL/include/SDL3/SDL_copying.h",
+        "Externals/SDL/SDL/src/hidapi/LICENSE-bsd.txt",
+        "Externals/SDL/SDL/src/hidapi/LICENSE-gpl3.txt",
+        "Externals/SDL/SDL/src/hidapi/LICENSE-orig.txt",
+        "Externals/SDL/SDL/src/hidapi/LICENSE.txt",
+        "Externals/SDL/SDL/src/video/yuv2rgb/LICENSE",
+        "Externals/SDL/SDL/test/COPYING",
+        "Externals/SDL/SDL/test/LICENSE.txt",
+        "Externals/SDL/SDL/test/unifont-15.1.05-license.txt",
+        "Externals/SFML/SFML/examples/asset_licenses.md",
+        "Externals/SFML/SFML/license.md",
+        "Externals/SFML/license.txt",
+        "Externals/Vulkan-Headers/LICENSE.md",
+        "Externals/VulkanMemoryAllocator/LICENSE.txt",
+        "Externals/bzip2/bzip2/LICENSE",
+        "Externals/cpp-ipc/cpp-ipc/3rdparty/gtest/LICENSE",
+        "Externals/cpp-ipc/cpp-ipc/LICENSE",
+        "Externals/cpp-ipc/cpp-ipc/src/libipc/platform/linux/a0/LICENSE",
+        "Externals/cpp-optparse/cpp-optparse/LICENSE",
+        "Externals/cubeb/cubeb/LICENSE",
+        "Externals/cubeb/cubeb/cmake/sanitizers-cmake/LICENSE",
+        "Externals/cubeb/cubeb/googletest/LICENSE",
+        "Externals/curl/curl/COPYING",
+        "Externals/discord-rpc/LICENSE",
+        "Externals/ed25519/license.txt",
+        "Externals/enet/enet/LICENSE",
+        "Externals/enet/enet/docs/license.dox",
+        "Externals/expr/LICENSE",
+        "Externals/fmt/fmt/LICENSE",
+        "Externals/fmt/fmt/doc/python-license.txt",
+        "Externals/gettext/gettext-license.txt",
+        "Externals/glslang/glslang/LICENSE.txt",
+        "Externals/glslang/glslang/license-checker.cfg",
+        "Externals/gtest/LICENSE",
+        "Externals/hidapi/hidapi-src/LICENSE-bsd.txt",
+        "Externals/hidapi/hidapi-src/LICENSE-gpl3.txt",
+        "Externals/hidapi/hidapi-src/LICENSE-orig.txt",
+        "Externals/hidapi/hidapi-src/LICENSE.txt",
+        "Externals/imgui/imgui/LICENSE.txt",
+        "Externals/imgui/imgui/examples/libs/glfw/COPYING.txt",
+        "Externals/implot/LICENSE",
+        "Externals/implot/implot/LICENSE",
+        "Externals/libadrenotools/LICENSE",
+        "Externals/libadrenotools/lib/linkernsbypass/LICENSE",
+        "Externals/liblzma/COPYING",
+        "Externals/libspng/libspng/LICENSE",
+        "Externals/libspng/libspng/tests/images/PngSuite.LICENSE",
+        "Externals/libusb/libusb/COPYING",
+        "Externals/licenses.md",
+        "Externals/lz4/lz4/LICENSE",
+        "Externals/lz4/lz4/contrib/debian/copyright",
+        "Externals/lz4/lz4/contrib/djgpp/LICENSE",
+        "Externals/lz4/lz4/examples/COPYING",
+        "Externals/lz4/lz4/lib/LICENSE",
+        "Externals/lz4/lz4/programs/COPYING",
+        "Externals/lz4/lz4/tests/COPYING",
+        "Externals/mGBA/mgba/LICENSE",
+        "Externals/mGBA/mgba/cinema/gb/mooneye-gb/LICENSE",
+        "Externals/mGBA/mgba/include/mgba/internal/gba/cart/unlicensed.h",
+        "Externals/mGBA/mgba/res/shaders/gbc-lcd.shader/license.txt",
+        "Externals/mGBA/mgba/src/gb/mbc/licensed.c",
+        "Externals/mGBA/mgba/src/gb/mbc/unlicensed.c",
+        "Externals/mGBA/mgba/src/gba/cart/unlicensed.c",
+        "Externals/mGBA/mgba/src/third-party/discord-rpc/LICENSE",
+        "Externals/mGBA/mgba/src/third-party/discord-rpc/include/mingw-std-threads/LICENSE",
+        "Externals/mGBA/mgba/src/third-party/discord-rpc/include/rapidjson/license.txt",
+        "Externals/mGBA/mgba/src/third-party/inih/LICENSE.txt",
+        "Externals/mGBA/mgba/src/third-party/libpng/LICENSE",
+        "Externals/mGBA/mgba/src/third-party/libpng/contrib/gregbook/COPYING",
+        "Externals/mGBA/mgba/src/third-party/libpng/contrib/gregbook/LICENSE",
+        "Externals/mGBA/mgba/src/third-party/libpng/contrib/pngminus/LICENSE.txt",
+        "Externals/mGBA/mgba/src/third-party/zlib/contrib/dotzlib/LICENSE_1_0.txt",
+        "Externals/mGBA/mgba/tools/debian/copyright",
+        "Externals/mbedtls/LICENSE",
+        "Externals/miniupnpc/miniupnp/LICENSE",
+        "Externals/miniupnpc/miniupnp/minissdpd/LICENSE",
+        "Externals/miniupnpc/miniupnp/miniupnpc/LICENSE",
+        "Externals/miniupnpc/miniupnp/miniupnpd/LICENSE",
+        "Externals/minizip-ng/minizip-ng/LICENSE",
+        "Externals/minizip-ng/minizip-ng/test/fuzz/unzip_fuzzer_seed_corpus/license_zstd.zip",
+        "Externals/picojson/LICENSE",
+        "Externals/pugixml/pugixml/LICENSE.md",
+        "Externals/rcheevos/rcheevos/LICENSE",
+        "Externals/spirv_cross/SPIRV-Cross/LICENSE",
+        "Externals/spirv_cross/SPIRV-Cross/LICENSES/LicenseRef-KhronosFreeUse.txt",
+        "Externals/tinygltf/tinygltf/LICENSE",
+        "Externals/tinygltf/tinygltf/examples/common/LICENSE.lodepng",
+        "Externals/tinygltf/tinygltf/examples/common/glm/util/conan-package/lib_licenses/LICENSE1.txt",
+        "Externals/tinygltf/tinygltf/examples/common/glm/util/conan-package/lib_licenses/LICENSE2.txt",
+        "Externals/tinygltf/tinygltf/examples/common/imgui/ImGuizmo.LICENSE",
+        "Externals/tinygltf/tinygltf/examples/common/nativefiledialog/LICENSE",
+        "Externals/tinygltf/tinygltf/examples/validator/LICENSE.json-schema-validator.MIT",
+        "Externals/tinygltf/tinygltf/examples/validator/LICENSE.jsonhpp.MIT",
+        "Externals/watcher/watcher/license",
+        "Externals/wil/LICENSE",
+        "Externals/wil/ThirdPartyNotices.txt",
+        "Externals/xxhash/xxHash/LICENSE",
+        "Externals/xxhash/xxHash/cli/COPYING",
+        "Externals/xxhash/xxHash/tests/bench/LICENSE",
+        "Externals/xxhash/xxHash/tests/collisions/LICENSE",
+        "Externals/zlib-ng/zlib-ng/LICENSE.md",
+        "Externals/zstd/zstd/COPYING",
+        "Externals/zstd/zstd/LICENSE",
+        "Externals/zstd/zstd/build/LICENSE",
+        "Externals/zstd/zstd/tests/test-license.py",
+        "Tools/update-license-headers.sh"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "dolphin-netplay"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "flycast-lan",
+      "file": "flycast-lan-d0e47e572b1e7b355e88bda8308c89d0c5156cbf.tar.gz",
+      "bytes": 72416821,
+      "sha256": "9a6176a2afae3900527caa7472f29b3b4238942be3ee53bdfb34dcff2371d940",
+      "repository": "https://github.com/blueminder/flycast-dojo.git",
+      "commit": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/blueminder/flycast-dojo.git",
+          "commit": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+          "tree": "b050c34a401967f0d9449724712befde7db9a85b"
+        },
+        {
+          "path": "core/deps/SDL/",
+          "repository": "https://github.com/libsdl-org/SDL.git",
+          "commit": "f070c83a6059c604cbd098680ddaee391b0a7341",
+          "tree": "d9f927753f023cf8ef4676f241bbe7b834b2d13d"
+        },
+        {
+          "path": "core/deps/Vulkan-Headers/",
+          "repository": "https://github.com/KhronosGroup/Vulkan-Headers.git",
+          "commit": "b75e5a02b6933caf86c5822d019067b335492c85",
+          "tree": "d44b03e161d36d815fd9ef13c16b498fc547bda4"
+        },
+        {
+          "path": "core/deps/VulkanMemoryAllocator/",
+          "repository": "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git",
+          "commit": "a6bfc237255a6bac1513f7c1ebde6d8aed6b5191",
+          "tree": "9017d2bf42407d35bcd6cc328d1024d476d4eea5"
+        },
+        {
+          "path": "core/deps/breakpad/",
+          "repository": "https://github.com/flyinghead/mingw-breakpad",
+          "commit": "1ab24bcc817ebe629bf77daa53529d02361cb1e9",
+          "tree": "44faa3966bde212ba9ba21ee957c1baa630f8898"
+        },
+        {
+          "path": "core/deps/glslang/",
+          "repository": "https://github.com/KhronosGroup/glslang.git",
+          "commit": "d1517d64cfca91f573af1bf7341dc3a5113349c0",
+          "tree": "e80f7263ae085bdf3e4775ecbae6f54f24da8102"
+        },
+        {
+          "path": "core/deps/libchdr/",
+          "repository": "https://github.com/flyinghead/libchdr.git",
+          "commit": "8e09bf2badf8866a360babbf722fada2393b26e3",
+          "tree": "4e14ee716f15988c4b5a60bbb53e249450f31d81"
+        },
+        {
+          "path": "core/deps/libzip/",
+          "repository": "https://github.com/nih-at/libzip.git",
+          "commit": "6ed56b74ede3269085d4fd26c225e6e55ce7ca09",
+          "tree": "86205d353ed78502980a3fff791b92f8a3c88a7b"
+        },
+        {
+          "path": "core/deps/luabridge/",
+          "repository": "https://github.com/vinniefalco/LuaBridge.git",
+          "commit": "fab7b33b896a42dcc865ba5ecdbacd9f409137f8",
+          "tree": "74f1f3b1193a55f82009bb46f1ccdc30ef0322fe"
+        },
+        {
+          "path": "core/deps/luabridge/third_party/gtest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "58f3f1005cffce8a9d005d0361d3471cd9947501",
+          "tree": "8ae312b37da975fe7f0e6a6c98ac1e9448c7a577"
+        },
+        {
+          "path": "core/deps/oboe/",
+          "repository": "https://github.com/google/oboe.git",
+          "commit": "8740d0fc321a55489dbbf6067298201b7d2e106d",
+          "tree": "9d934fee518a2413c3e02fa3484d41b06c251309"
+        }
+      ],
+      "files": 17310,
+      "noticeFiles": [
+        "LICENSE",
+        "core/deps/SDL/LICENSE.txt",
+        "core/deps/SDL/Xcode-iOS/Demos/data/bitmapfont/license.txt",
+        "core/deps/SDL/Xcode/SDL/pkg-support/resources/License.txt",
+        "core/deps/SDL/build-scripts/update-copyright.sh",
+        "core/deps/SDL/include/SDL_copying.h",
+        "core/deps/SDL/src/hidapi/LICENSE-bsd.txt",
+        "core/deps/SDL/src/hidapi/LICENSE-gpl3.txt",
+        "core/deps/SDL/src/hidapi/LICENSE-orig.txt",
+        "core/deps/SDL/src/hidapi/LICENSE.txt",
+        "core/deps/SDL/src/video/yuv2rgb/LICENSE",
+        "core/deps/SDL/test/COPYING",
+        "core/deps/SDL/test/unifont-13.0.06-license.txt",
+        "core/deps/SDL/visualtest/COPYING.txt",
+        "core/deps/Vulkan-Headers/LICENSE.txt",
+        "core/deps/Vulkan-Headers/cmake/Copyright_cmake.txt",
+        "core/deps/VulkanMemoryAllocator/LICENSE.txt",
+        "core/deps/breakpad/LICENSE",
+        "core/deps/breakpad/src/third_party/curl/COPYING",
+        "core/deps/breakpad/src/third_party/libdisasm/LICENSE",
+        "core/deps/breakpad/src/third_party/lss/LICENSE",
+        "core/deps/breakpad/src/third_party/musl/COPYRIGHT",
+        "core/deps/glm/copying.txt",
+        "core/deps/glslang/LICENSE.txt",
+        "core/deps/glslang/license-checker.cfg",
+        "core/deps/implot/LICENSE",
+        "core/deps/libchdr/LICENSE.txt",
+        "core/deps/libchdr/deps/lzma-19.00/LICENSE",
+        "core/deps/libchdr/deps/lzma-22.01/LICENSE",
+        "core/deps/libzip/LICENSE",
+        "core/deps/luabridge/Tests/Lua/Lua.5.1.5/COPYRIGHT",
+        "core/deps/luabridge/third_party/gtest/LICENSE",
+        "core/deps/luabridge/third_party/gtest/googlemock/LICENSE",
+        "core/deps/luabridge/third_party/gtest/googlemock/scripts/generator/LICENSE",
+        "core/deps/luabridge/third_party/gtest/googletest/LICENSE",
+        "core/deps/miniupnpc/LICENSE",
+        "core/deps/nowide/COPYING",
+        "core/deps/oboe/LICENSE",
+        "core/deps/oboe/MODULE_LICENSE_APACHE2",
+        "core/deps/oboe/apps/fxlab/LICENSE",
+        "core/deps/picotcp/COPYING",
+        "core/deps/picotcp/LICENSE.GPLv2",
+        "core/deps/picotcp/LICENSE.GPLv3",
+        "core/deps/xbrz/License.txt",
+        "core/deps/xbyak/COPYRIGHT",
+        "core/deps/xxHash/LICENSE",
+        "core/deps/xxHash/tests/bench/LICENSE",
+        "core/deps/xxHash/tests/collisions/LICENSE",
+        "core/dojo/deps/asio-1.22.0/COPYING",
+        "core/dojo/deps/asio-1.22.0/LICENSE_1_0.txt",
+        "shell/apple/emulator-ios/emulator/iCade-iOS/LICENSE"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "flycast-lan"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "flycast-netplay",
+      "file": "flycast-netplay-d0e47e572b1e7b355e88bda8308c89d0c5156cbf.tar.gz",
+      "bytes": 72444602,
+      "sha256": "78fa27469c6fc972faab345ebd50c2f3027fc7dfc7b39a11ad795ef0ca17fba3",
+      "repository": "https://github.com/blueminder/flycast-dojo.git",
+      "commit": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/blueminder/flycast-dojo.git",
+          "commit": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+          "tree": "b050c34a401967f0d9449724712befde7db9a85b"
+        },
+        {
+          "path": "core/deps/SDL/",
+          "repository": "https://github.com/libsdl-org/SDL.git",
+          "commit": "f070c83a6059c604cbd098680ddaee391b0a7341",
+          "tree": "d9f927753f023cf8ef4676f241bbe7b834b2d13d"
+        },
+        {
+          "path": "core/deps/Vulkan-Headers/",
+          "repository": "https://github.com/KhronosGroup/Vulkan-Headers.git",
+          "commit": "b75e5a02b6933caf86c5822d019067b335492c85",
+          "tree": "d44b03e161d36d815fd9ef13c16b498fc547bda4"
+        },
+        {
+          "path": "core/deps/VulkanMemoryAllocator/",
+          "repository": "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git",
+          "commit": "a6bfc237255a6bac1513f7c1ebde6d8aed6b5191",
+          "tree": "9017d2bf42407d35bcd6cc328d1024d476d4eea5"
+        },
+        {
+          "path": "core/deps/breakpad/",
+          "repository": "https://github.com/flyinghead/mingw-breakpad",
+          "commit": "1ab24bcc817ebe629bf77daa53529d02361cb1e9",
+          "tree": "44faa3966bde212ba9ba21ee957c1baa630f8898"
+        },
+        {
+          "path": "core/deps/glslang/",
+          "repository": "https://github.com/KhronosGroup/glslang.git",
+          "commit": "d1517d64cfca91f573af1bf7341dc3a5113349c0",
+          "tree": "e80f7263ae085bdf3e4775ecbae6f54f24da8102"
+        },
+        {
+          "path": "core/deps/libchdr/",
+          "repository": "https://github.com/flyinghead/libchdr.git",
+          "commit": "8e09bf2badf8866a360babbf722fada2393b26e3",
+          "tree": "4e14ee716f15988c4b5a60bbb53e249450f31d81"
+        },
+        {
+          "path": "core/deps/libzip/",
+          "repository": "https://github.com/nih-at/libzip.git",
+          "commit": "6ed56b74ede3269085d4fd26c225e6e55ce7ca09",
+          "tree": "86205d353ed78502980a3fff791b92f8a3c88a7b"
+        },
+        {
+          "path": "core/deps/luabridge/",
+          "repository": "https://github.com/vinniefalco/LuaBridge.git",
+          "commit": "fab7b33b896a42dcc865ba5ecdbacd9f409137f8",
+          "tree": "74f1f3b1193a55f82009bb46f1ccdc30ef0322fe"
+        },
+        {
+          "path": "core/deps/luabridge/third_party/gtest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "58f3f1005cffce8a9d005d0361d3471cd9947501",
+          "tree": "8ae312b37da975fe7f0e6a6c98ac1e9448c7a577"
+        },
+        {
+          "path": "core/deps/oboe/",
+          "repository": "https://github.com/google/oboe.git",
+          "commit": "8740d0fc321a55489dbbf6067298201b7d2e106d",
+          "tree": "9d934fee518a2413c3e02fa3484d41b06c251309"
+        }
+      ],
+      "files": 17310,
+      "noticeFiles": [
+        "LICENSE",
+        "core/deps/SDL/LICENSE.txt",
+        "core/deps/SDL/Xcode-iOS/Demos/data/bitmapfont/license.txt",
+        "core/deps/SDL/Xcode/SDL/pkg-support/resources/License.txt",
+        "core/deps/SDL/build-scripts/update-copyright.sh",
+        "core/deps/SDL/include/SDL_copying.h",
+        "core/deps/SDL/src/hidapi/LICENSE-bsd.txt",
+        "core/deps/SDL/src/hidapi/LICENSE-gpl3.txt",
+        "core/deps/SDL/src/hidapi/LICENSE-orig.txt",
+        "core/deps/SDL/src/hidapi/LICENSE.txt",
+        "core/deps/SDL/src/video/yuv2rgb/LICENSE",
+        "core/deps/SDL/test/COPYING",
+        "core/deps/SDL/test/unifont-13.0.06-license.txt",
+        "core/deps/SDL/visualtest/COPYING.txt",
+        "core/deps/Vulkan-Headers/LICENSE.txt",
+        "core/deps/Vulkan-Headers/cmake/Copyright_cmake.txt",
+        "core/deps/VulkanMemoryAllocator/LICENSE.txt",
+        "core/deps/breakpad/LICENSE",
+        "core/deps/breakpad/src/third_party/curl/COPYING",
+        "core/deps/breakpad/src/third_party/libdisasm/LICENSE",
+        "core/deps/breakpad/src/third_party/lss/LICENSE",
+        "core/deps/breakpad/src/third_party/musl/COPYRIGHT",
+        "core/deps/glm/copying.txt",
+        "core/deps/glslang/LICENSE.txt",
+        "core/deps/glslang/license-checker.cfg",
+        "core/deps/implot/LICENSE",
+        "core/deps/libchdr/LICENSE.txt",
+        "core/deps/libchdr/deps/lzma-19.00/LICENSE",
+        "core/deps/libchdr/deps/lzma-22.01/LICENSE",
+        "core/deps/libzip/LICENSE",
+        "core/deps/luabridge/Tests/Lua/Lua.5.1.5/COPYRIGHT",
+        "core/deps/luabridge/third_party/gtest/LICENSE",
+        "core/deps/luabridge/third_party/gtest/googlemock/LICENSE",
+        "core/deps/luabridge/third_party/gtest/googlemock/scripts/generator/LICENSE",
+        "core/deps/luabridge/third_party/gtest/googletest/LICENSE",
+        "core/deps/miniupnpc/LICENSE",
+        "core/deps/nowide/COPYING",
+        "core/deps/oboe/LICENSE",
+        "core/deps/oboe/MODULE_LICENSE_APACHE2",
+        "core/deps/oboe/apps/fxlab/LICENSE",
+        "core/deps/picotcp/COPYING",
+        "core/deps/picotcp/LICENSE.GPLv2",
+        "core/deps/picotcp/LICENSE.GPLv3",
+        "core/deps/xbrz/License.txt",
+        "core/deps/xbyak/COPYRIGHT",
+        "core/deps/xxHash/LICENSE",
+        "core/deps/xxHash/tests/bench/LICENSE",
+        "core/deps/xxHash/tests/collisions/LICENSE",
+        "core/dojo/deps/asio-1.22.0/COPYING",
+        "core/dojo/deps/asio-1.22.0/LICENSE_1_0.txt",
+        "shell/apple/emulator-ios/emulator/iCade-iOS/LICENSE"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "flycast-netplay"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "flycast-online",
+      "file": "flycast-online-5aa091fde632fb332c8d8c34e280d62dc951954c.tar.gz",
+      "bytes": 169475655,
+      "sha256": "b2e9fabdea6c087bc2282ae2115326c308675d4e5ed9a94ec592d21cd01eb0e1",
+      "repository": "https://github.com/flyinghead/flycast.git",
+      "commit": "5aa091fde632fb332c8d8c34e280d62dc951954c",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/flyinghead/flycast.git",
+          "commit": "5aa091fde632fb332c8d8c34e280d62dc951954c",
+          "tree": "6384bacac6a2be89164a923372052a7ad1dff05a"
+        },
+        {
+          "path": "core/deps/DreamPicoPort-API/",
+          "repository": "https://github.com/OrangeFox86/DreamPicoPort-API.git",
+          "commit": "e06d9f6c59833fc7bb7f2a33c960614489811ef8",
+          "tree": "ad4b71f9fb26ead7d4750eb0b72a184977abd9da"
+        },
+        {
+          "path": "core/deps/DreamPicoPort-API/ext/libusb-cmake/",
+          "repository": "https://github.com/libusb/libusb-cmake.git",
+          "commit": "000e06eb241927db0f34e6867637d39b849ab989",
+          "tree": "cc22863f2ba6b5653f1b0338ee38a4cffa1cbcd4"
+        },
+        {
+          "path": "core/deps/SDL/",
+          "repository": "https://github.com/libsdl-org/SDL.git",
+          "commit": "00d4f1c2c4ad2dc95d26b18743541f57b1dca56d",
+          "tree": "76a95af83dd0ae0759a86203789a671e480eabe4"
+        },
+        {
+          "path": "core/deps/Spout/",
+          "repository": "https://github.com/vkedwardli/Spout2.git",
+          "commit": "2110a918e720688f3cb2118302fd153db8745ace",
+          "tree": "b043178fcf5d36996968baed1a4ec9340721a971"
+        },
+        {
+          "path": "core/deps/Syphon/",
+          "repository": "https://github.com/vkedwardli/Syphon-Framework.git",
+          "commit": "53ec412a78b246c84cedcb4a2a5b92852704d61d",
+          "tree": "993d6e2a5e760c4a6bfec0a30facd1daefec038f"
+        },
+        {
+          "path": "core/deps/Vulkan-Headers/",
+          "repository": "https://github.com/KhronosGroup/Vulkan-Headers.git",
+          "commit": "b5c8f996196ba4aa6d8f97e52b5d3b6e70f7e4e2",
+          "tree": "5ae5f51f37c6a7f597df2b9ec45b46d3ab573b1d"
+        },
+        {
+          "path": "core/deps/VulkanMemoryAllocator/",
+          "repository": "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git",
+          "commit": "1d8f600fd424278486eade7ed3e877c99f0846b1",
+          "tree": "2ae80133b8d9cc6febaaeef61c374d0da711e079"
+        },
+        {
+          "path": "core/deps/asio/",
+          "repository": "https://github.com/flyinghead/asio.git",
+          "commit": "d3402006e84efb6114ff93e4f2b8508412ed80d5",
+          "tree": "512b27d8d1fc62399cba3b0acf7992d646f793a0"
+        },
+        {
+          "path": "core/deps/breakpad/",
+          "repository": "https://github.com/flyinghead/mingw-breakpad",
+          "commit": "1ab24bcc817ebe629bf77daa53529d02361cb1e9",
+          "tree": "44faa3966bde212ba9ba21ee957c1baa630f8898"
+        },
+        {
+          "path": "core/deps/discord-rpc/",
+          "repository": "https://github.com/harmonytf/discord-rpc",
+          "commit": "c62c34d37cd90b75187a1212e13ce4145bafbdd7",
+          "tree": "dca715a060f02b575548cf40248ce2a591bbf766"
+        },
+        {
+          "path": "core/deps/discord-rpc/thirdparty/rapidjson/",
+          "repository": "https://github.com/Tencent/rapidjson.git",
+          "commit": "8261c1ddf43f10de00fd8c9a67811d1486b2c784",
+          "tree": "d4a5888e19c0c8413da5ff03b9dd59299e3b5574"
+        },
+        {
+          "path": "core/deps/discord-rpc/thirdparty/rapidjson/thirdparty/gtest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "ba96d0b1161f540656efdaed035b3c062b60e006",
+          "tree": "f038bb048175150c0cd0833de4d551b1bc688c5b"
+        },
+        {
+          "path": "core/deps/freetype/",
+          "repository": "https://gitlab.freedesktop.org/freetype/freetype.git",
+          "commit": "0a0221a1347e2f1e07c395263540026e9a0aa7c7",
+          "tree": "589225074ab1eb876682820c482069693c251e88"
+        },
+        {
+          "path": "core/deps/freetype/subprojects/dlg/",
+          "repository": "https://github.com/nyorain/dlg.git",
+          "commit": "395ccad2c1e0daae535c4d20bb0a3f2424648e17",
+          "tree": "2cb75941a2859cf0801048f5b613a1e02f500184"
+        },
+        {
+          "path": "core/deps/gamesdk/",
+          "repository": "https://github.com/flyinghead/gamesdk.git",
+          "commit": "4ac9952e6a5b3e0846003cb156b4a664178b7549",
+          "tree": "0d578912bdebd5280ea8e78457ce26d3e0af1154"
+        },
+        {
+          "path": "core/deps/glslang/",
+          "repository": "https://github.com/KhronosGroup/glslang.git",
+          "commit": "fc9889c889561c5882e83819dcaffef5ed45529b",
+          "tree": "51cfb22ae8f7b19a3ece8a354c153f3661e6d235"
+        },
+        {
+          "path": "core/deps/googletest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "e39786088138f2749d64e9e90e0f9902daa77c40",
+          "tree": "ac274cb83b7485b187fdc5fd43c7940017686a24"
+        },
+        {
+          "path": "core/deps/libadrenotools/",
+          "repository": "https://github.com/bylaws/libadrenotools",
+          "commit": "8fae8ce254dfc1344527e05301e43f37dea2df80",
+          "tree": "be9ea825da63c65c0ff1e412df1ee6cb155a17c6"
+        },
+        {
+          "path": "core/deps/libadrenotools/lib/linkernsbypass/",
+          "repository": "https://github.com/bylaws/liblinkernsbypass/",
+          "commit": "aa3975893d83ef1bc84c321ec60c65fbf1287887",
+          "tree": "29d66e90dac2a2df5f49c838cd3297d419ed9deb"
+        },
+        {
+          "path": "core/deps/libchdr/",
+          "repository": "https://github.com/flyinghead/libchdr.git",
+          "commit": "5f82799f2c8cad1e9cd26d39a0f8d36369a5534b",
+          "tree": "42a0b41b083074c321bb0f71e3f69a1b460397a1"
+        },
+        {
+          "path": "core/deps/libjuice/",
+          "repository": "https://github.com/paullouisageneau/libjuice.git",
+          "commit": "77daa8befd828046169adbb012d8de928bfdcdd4",
+          "tree": "1ea44e01a660bb80b3a6dd04a69c2fb91e237124"
+        },
+        {
+          "path": "core/deps/luabridge/",
+          "repository": "https://github.com/vinniefalco/LuaBridge.git",
+          "commit": "5d21e35633a1f87ed08af115b07d3386096f792b",
+          "tree": "da3ea7533ef783b47e46f828399cd5a3fff503b0"
+        },
+        {
+          "path": "core/deps/luabridge/third_party/gtest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "58f3f1005cffce8a9d005d0361d3471cd9947501",
+          "tree": "8ae312b37da975fe7f0e6a6c98ac1e9448c7a577"
+        },
+        {
+          "path": "core/deps/oboe/",
+          "repository": "https://github.com/google/oboe.git",
+          "commit": "a81bb9f87d4105b84b682685d3bfbb5beca371d1",
+          "tree": "c13145692e62ad4b64f916ef672d14a41ada85b5"
+        },
+        {
+          "path": "core/deps/rcheevos/",
+          "repository": "https://github.com/RetroAchievements/rcheevos.git",
+          "commit": "3106e6d3d274b63c59976cb07dda94a292ab45ca",
+          "tree": "e47f9bffe8682130f11a6dbc43671781289cc32c"
+        },
+        {
+          "path": "core/deps/tinygettext/",
+          "repository": "https://github.com/flyinghead/tinygettext",
+          "commit": "41572a67f96013691685a38f0032f3c97aa34f79",
+          "tree": "a858f2ac5d091661c38bd7df0f7826ecd89bfcbc"
+        },
+        {
+          "path": "core/deps/tinygettext/external/tinycmmc/",
+          "repository": "https://github.com/Grumbel/tinycmmc.git",
+          "commit": "9a51e13802d930feb7261ba8876940659b258cb7",
+          "tree": "7db9db2882508e2ec6ac7078a94953bcfdf44e07"
+        },
+        {
+          "path": "core/deps/websocketpp/",
+          "repository": "https://github.com/zaphoyd/websocketpp.git",
+          "commit": "1b11fd301531e6df35a6107c1e8665b1e77a2d8e",
+          "tree": "f361e109af8eb75a4f322c735fcfb968459860cc"
+        },
+        {
+          "path": "core/deps/xbyak/",
+          "repository": "https://github.com/herumi/xbyak.git",
+          "commit": "0d67fd1530016b7c56f3cd74b3fca920f4c3e2b4",
+          "tree": "d34febb11c1d9e3fc8cef5b92f597185ad6dd79e"
+        }
+      ],
+      "files": 19214,
+      "noticeFiles": [
+        "LICENSE",
+        "core/deps/DreamPicoPort-API/LICENSE",
+        "core/deps/DreamPicoPort-API/ext/libusb-cmake/LICENSE",
+        "core/deps/DreamPicoPort-API/ext/libusb-cmake/libusb/COPYING",
+        "core/deps/SDL/LICENSE.txt",
+        "core/deps/SDL/Xcode-iOS/Demos/data/bitmapfont/license.txt",
+        "core/deps/SDL/Xcode/SDL/pkg-support/resources/License.txt",
+        "core/deps/SDL/build-scripts/update-copyright.sh",
+        "core/deps/SDL/include/SDL_copying.h",
+        "core/deps/SDL/src/hidapi/LICENSE-bsd.txt",
+        "core/deps/SDL/src/hidapi/LICENSE-gpl3.txt",
+        "core/deps/SDL/src/hidapi/LICENSE-orig.txt",
+        "core/deps/SDL/src/hidapi/LICENSE.txt",
+        "core/deps/SDL/src/video/yuv2rgb/LICENSE",
+        "core/deps/SDL/test/COPYING",
+        "core/deps/SDL/test/unifont-13.0.06-license.txt",
+        "core/deps/SDL/visualtest/COPYING.txt",
+        "core/deps/Spout/LICENSE",
+        "core/deps/Spout/SPOUTSDK/SpoutLibrary/licence.txt",
+        "core/deps/Spout/SPOUTSDK/licence.txt",
+        "core/deps/Syphon/License.txt",
+        "core/deps/Vulkan-Headers/LICENSE.md",
+        "core/deps/VulkanMemoryAllocator/LICENSE.txt",
+        "core/deps/asio/asio/COPYING",
+        "core/deps/asio/asio/LICENSE_1_0.txt",
+        "core/deps/breakpad/LICENSE",
+        "core/deps/breakpad/src/third_party/curl/COPYING",
+        "core/deps/breakpad/src/third_party/libdisasm/LICENSE",
+        "core/deps/breakpad/src/third_party/lss/LICENSE",
+        "core/deps/breakpad/src/third_party/musl/COPYRIGHT",
+        "core/deps/discord-rpc/LICENSE",
+        "core/deps/discord-rpc/thirdparty/rapidjson/bin/jsonschema/LICENSE",
+        "core/deps/discord-rpc/thirdparty/rapidjson/contrib/natvis/LICENSE",
+        "core/deps/discord-rpc/thirdparty/rapidjson/license.txt",
+        "core/deps/discord-rpc/thirdparty/rapidjson/thirdparty/gtest/LICENSE",
+        "core/deps/discord-rpc/thirdparty/rapidjson/thirdparty/gtest/googlemock/LICENSE",
+        "core/deps/discord-rpc/thirdparty/rapidjson/thirdparty/gtest/googlemock/scripts/generator/LICENSE",
+        "core/deps/discord-rpc/thirdparty/rapidjson/thirdparty/gtest/googletest/LICENSE",
+        "core/deps/freetype/LICENSE.TXT",
+        "core/deps/freetype/src/tools/no-copyright",
+        "core/deps/freetype/src/tools/update-copyright",
+        "core/deps/freetype/src/tools/update-copyright-year",
+        "core/deps/freetype/subprojects/dlg/LICENSE",
+        "core/deps/gamesdk/LICENSE",
+        "core/deps/gamesdk/THIRD_PARTY_NOTICES",
+        "core/deps/gamesdk/games-performance-tuner/tools/plugin/src/main/java/View/License/LicenseTab.java",
+        "core/deps/gamesdk/games-performance-tuner/tools/validation/LICENSE",
+        "core/deps/gamesdk/third_party/cube/COPYRIGHT.txt",
+        "core/deps/gamesdk/third_party/cube/LICENSE.txt",
+        "core/deps/gamesdk/third_party/date/LICENSE.txt",
+        "core/deps/gamesdk/third_party/json11/LICENSE",
+        "core/deps/gamesdk/third_party/json11/LICENSE.txt",
+        "core/deps/gamesdk/third_party/json11/NOTICE",
+        "core/deps/gamesdk/third_party/stream_util/LICENSE",
+        "core/deps/glm/copying.txt",
+        "core/deps/glslang/LICENSE.txt",
+        "core/deps/glslang/license-checker.cfg",
+        "core/deps/googletest/LICENSE",
+        "core/deps/implot/LICENSE",
+        "core/deps/libadrenotools/LICENSE",
+        "core/deps/libadrenotools/lib/linkernsbypass/LICENSE",
+        "core/deps/libchdr/LICENSE.txt",
+        "core/deps/libchdr/deps/lzma-24.05/LICENSE",
+        "core/deps/libchdr/deps/zlib-1.3.1/LICENSE",
+        "core/deps/libchdr/deps/zlib-1.3.1/contrib/dotzlib/LICENSE_1_0.txt",
+        "core/deps/libchdr/deps/zstd-1.5.6/COPYING",
+        "core/deps/libchdr/deps/zstd-1.5.6/LICENSE",
+        "core/deps/libchdr/deps/zstd-1.5.6/build/LICENSE",
+        "core/deps/libchdr/deps/zstd-1.5.6/tests/test-license.py",
+        "core/deps/libjuice/LICENSE",
+        "core/deps/libunwind/libunwind/LICENSE.TXT",
+        "core/deps/libzip/LICENSE",
+        "core/deps/luabridge/Tests/Lua/lua-5.1.5/COPYRIGHT",
+        "core/deps/luabridge/third_party/gtest/LICENSE",
+        "core/deps/luabridge/third_party/gtest/googlemock/LICENSE",
+        "core/deps/luabridge/third_party/gtest/googlemock/scripts/generator/LICENSE",
+        "core/deps/luabridge/third_party/gtest/googletest/LICENSE",
+        "core/deps/miniupnpc/LICENSE",
+        "core/deps/nowide/LICENSE",
+        "core/deps/oboe/LICENSE",
+        "core/deps/oboe/MODULE_LICENSE_APACHE2",
+        "core/deps/oboe/apps/fxlab/LICENSE",
+        "core/deps/picotcp/COPYING",
+        "core/deps/picotcp/LICENSE.GPLv2",
+        "core/deps/picotcp/LICENSE.GPLv3",
+        "core/deps/rcheevos/LICENSE",
+        "core/deps/tinygettext/LICENSE.md",
+        "core/deps/tinygettext/external/tinycmmc/LICENSE.md",
+        "core/deps/websocketpp/COPYING",
+        "core/deps/xbrz/License.txt",
+        "core/deps/xbyak/COPYRIGHT",
+        "core/deps/xxHash/LICENSE",
+        "core/deps/xxHash/cli/COPYING",
+        "core/deps/xxHash/tests/bench/LICENSE",
+        "core/deps/xxHash/tests/collisions/LICENSE",
+        "shell/apple/emulator-ios/emulator/iCade-iOS/LICENSE"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "flycast-online"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "melonds-netplay",
+      "file": "melonds-netplay-906e9ebb27da8c6a715cd7abab4abfe8a8d29427.tar.gz",
+      "bytes": 3676170,
+      "sha256": "fecc6a39b92a47933843fb04c77f58d52073c4efe1f840174ecd536ab4e56faa",
+      "repository": "https://github.com/melonDS-emu/melonDS.git",
+      "commit": "906e9ebb27da8c6a715cd7abab4abfe8a8d29427",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/melonDS-emu/melonDS.git",
+          "commit": "906e9ebb27da8c6a715cd7abab4abfe8a8d29427",
+          "tree": "60c6724f8695bdbe5e21c4367b18293f7f811fc2"
+        }
+      ],
+      "files": 778,
+      "noticeFiles": [
+        "LICENSE",
+        "src/blip-buf/license.txt",
+        "src/dolphin/license_dolphin.txt",
+        "src/fatfs/LICENSE.txt",
+        "src/frontend/qt_sdl/InputConfig/resources/LICENSE.md",
+        "src/net/libslirp/COPYRIGHT",
+        "src/teakra/LICENSE",
+        "src/tiny-AES-c/unlicense.txt"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "melonds-netplay"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "neocd-netplay",
+      "file": "neocd-netplay-b1e04c738cb48a1dae0574b8877f6a116d270ca1.tar.gz",
+      "bytes": 785628,
+      "sha256": "bc70fce2bd1a4987c6b13d89d831870b46989aead2656afeb359baac2bb9fc45",
+      "repository": "https://github.com/libretro/neocd_libretro.git",
+      "commit": "b1e04c738cb48a1dae0574b8877f6a116d270ca1",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/libretro/neocd_libretro.git",
+          "commit": "b1e04c738cb48a1dae0574b8877f6a116d270ca1",
+          "tree": "c85f42340cea26fe938e410804660ae001df9577"
+        }
+      ],
+      "files": 200,
+      "noticeFiles": [
+        "LICENSE.md"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "neocd-netplay"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "ngpc",
+      "file": "ngpc-d0acb0874cc07735d7fa978539bb2471b2c1e71a.tar.gz",
+      "bytes": 3049640,
+      "sha256": "5020da0a30e66a407b1c4182f2697c1f1906ce1d03318a68c30773bca7419da1",
+      "repository": "https://github.com/Tixul/Ngpcraft_emulator.git",
+      "commit": "d0acb0874cc07735d7fa978539bb2471b2c1e71a",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/Tixul/Ngpcraft_emulator.git",
+          "commit": "d0acb0874cc07735d7fa978539bb2471b2c1e71a",
+          "tree": "0488e7341dc4aec7b1f1b4a2cc74d2f5fb128bb5"
+        }
+      ],
+      "files": 426,
+      "noticeFiles": [
+        "LICENSE",
+        "libretro/LICENSE",
+        "tests/test_lobby_peer_left_is_noticed.py"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "ngpc"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "odamex",
+      "file": "odamex-3a763534ac609aee8d22351baa3155809c4ea355.tar.gz",
+      "bytes": 38622719,
+      "sha256": "4be0ce783a449cc663dba7616f8052f0cbf6ba38e8a7d65cd1ee33d2f2318951",
+      "repository": "https://github.com/odamex/odamex.git",
+      "commit": "3a763534ac609aee8d22351baa3155809c4ea355",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/odamex/odamex.git",
+          "commit": "3a763534ac609aee8d22351baa3155809c4ea355",
+          "tree": "50636e7c0060e0949c78bfa93d0bf07081b4fdb4"
+        },
+        {
+          "path": "libraries/cpptrace/",
+          "repository": "https://github.com/jeremy-rifkin/cpptrace.git",
+          "commit": "3db8da80111171c219ab5839905771386bee06b3",
+          "tree": "bd5ba6c37b663c59ee7e7c82f93efccebbb5de83"
+        },
+        {
+          "path": "libraries/curl/",
+          "repository": "https://github.com/curl/curl",
+          "commit": "11b991232fbcaa88e2b1faecac224416b0001e35",
+          "tree": "3ce4603a9a21498fe59da07a0638c78173dd3e51"
+        },
+        {
+          "path": "libraries/fltk/",
+          "repository": "https://github.com/fltk/fltk",
+          "commit": "a9b1113516ffd15fc7602a6d425a317df30f4720",
+          "tree": "9df53c591a408c38ca6bb3ed1a338cfaae5bfe9c"
+        },
+        {
+          "path": "libraries/googletest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "3fbe4db9a39291ae8d7a9c5f1d75896bb4c5a18f",
+          "tree": "3c278872c34f29df8be4a1b05da6b35360ac8fbe"
+        },
+        {
+          "path": "libraries/jsoncpp/",
+          "repository": "https://github.com/open-source-parsers/jsoncpp.git",
+          "commit": "89e2973c754a9c02a49974d839779b151e95afd6",
+          "tree": "ed268efa0c5eab707fb8d7382dd1fd3a7886faec"
+        },
+        {
+          "path": "libraries/libadlmidi/",
+          "repository": "https://github.com/Wohlstand/libADLMIDI.git",
+          "commit": "4412f7b82c8ea1e8a5649646e444b9f1cbd536e6",
+          "tree": "9a99639231cd77d2a62f1c9daec93927b7053037"
+        },
+        {
+          "path": "libraries/libpng/",
+          "repository": "https://github.com/glennrp/libpng.git",
+          "commit": "872555f4ba910252783af1507f9e7fe1653be252",
+          "tree": "a5611ed79a18f8f4b9f2f21724499172d92896b0"
+        },
+        {
+          "path": "libraries/miniupnp/",
+          "repository": "https://github.com/miniupnp/miniupnp.git",
+          "commit": "6576eb611b670c4841cc65095914275d6be008b2",
+          "tree": "0750d9cdf9f3ffb6f76f1855ff7379cf3e0094b3"
+        },
+        {
+          "path": "libraries/portmidi/",
+          "repository": "https://github.com/PortMidi/portmidi.git",
+          "commit": "74fabce5cf23d37d9d5d8c4a87dac347fbe70cc9",
+          "tree": "093e033f6fccd099a6da818b38561d68614addaa"
+        },
+        {
+          "path": "libraries/protobuf/",
+          "repository": "https://github.com/protocolbuffers/protobuf.git",
+          "commit": "e73ed1630fdec85d7fb513c166629ed49cd4eb18",
+          "tree": "970a94893275bfd5eba3ebebcffe5e776f00132e"
+        },
+        {
+          "path": "libraries/protobuf/third_party/benchmark/",
+          "repository": "https://github.com/google/benchmark.git",
+          "commit": "5b7683f49e1e9223cf9927b24f6fd3d6bd82e3f8",
+          "tree": "3951d685b7e2ce52bbd59751423f4809fe0b99d3"
+        },
+        {
+          "path": "libraries/protobuf/third_party/googletest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "5ec7f0c4a113e2f18ac2c6cc7df51ad6afc24081",
+          "tree": "1dcea79edca2cbd2123acd4a920c4f9882b5a4f7"
+        },
+        {
+          "path": "libraries/zlib/",
+          "repository": "https://github.com/madler/zlib.git",
+          "commit": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
+          "tree": "16b86ef85c591c244523c98c71508be7908d1189"
+        }
+      ],
+      "files": 12457,
+      "noticeFiles": [
+        "3RD-PARTY-LICENSES",
+        "LICENSE",
+        "libraries/cpptrace/LICENSE",
+        "libraries/curl/COPYING",
+        "libraries/fltk/COPYING",
+        "libraries/fltk/documentation/copyright.dox.in",
+        "libraries/fltk/documentation/src/license.dox",
+        "libraries/fltk/fluid/documentation/copyright.dox.in",
+        "libraries/fltk/fluid/templates/FLTK_License.fl",
+        "libraries/fltk/libdecor/LICENSE",
+        "libraries/fltk/png/LICENSE",
+        "libraries/fltk/src/xutf8/COPYING",
+        "libraries/fltk/src/xutf8/lcUniConv/COPYRIGHT",
+        "libraries/fmt/LICENSE",
+        "libraries/googletest/LICENSE",
+        "libraries/jsoncpp/LICENSE",
+        "libraries/jsoncpp/devtools/licenseupdater.py",
+        "libraries/libadlmidi/LICENSE",
+        "libraries/libadlmidi/LICENSE.GPL-3.txt",
+        "libraries/libadlmidi/LICENSE.LGPL-2.1.txt",
+        "libraries/libadlmidi/fm_banks/LICENSE-AIL2.txt",
+        "libraries/libadlmidi/fm_banks/LICENSE-DMXOPL.txt",
+        "libraries/libadlmidi/fm_banks/LICENSE-FMSynth.txt",
+        "libraries/libadlmidi/fm_banks/LICENSE-TheFatMan.txt",
+        "libraries/libadlmidi/fm_banks/ibk_files/ibk/IBK_License.txt",
+        "libraries/libadlmidi/fm_banks/ibk_files/license.txt",
+        "libraries/libadlmidi/fm_banks_new/LICENSE-AIL2.txt",
+        "libraries/libadlmidi/fm_banks_new/LICENSE-DMXOPL.txt",
+        "libraries/libadlmidi/fm_banks_new/LICENSE-FMSynth.txt",
+        "libraries/libadlmidi/fm_banks_new/LICENSE-IMF90.txt",
+        "libraries/libadlmidi/fm_banks_new/LICENSE-TheFatMan.txt",
+        "libraries/libadlmidi/src/chips/LICENSE.txt",
+        "libraries/libadlmidi/src/chips/esfmu/LICENSE",
+        "libraries/libadlmidi/src/chips/nuked/LICENSE",
+        "libraries/libadlmidi/src/chips/nuked_cqm/LICENSE",
+        "libraries/libadlmidi/src/chips/nuked_fast/LICENSE",
+        "libraries/libadlmidi/src/chips/opal/LICENSE.txt",
+        "libraries/libadlmidi/src/chips/opal/old/LICENSE.txt",
+        "libraries/libadlmidi/src/chips/vpc_opl3/LICENSE",
+        "libraries/libadlmidi/src/chips/ymf262_lle/LICENSE",
+        "libraries/libadlmidi/src/midiseq/LICENSE.txt",
+        "libraries/libadlmidi/src/models/LICENSE.txt",
+        "libraries/libadlmidi/utils/update-copyright.sh",
+        "libraries/libpng/LICENSE",
+        "libraries/libpng/ci/LICENSE_MIT.txt",
+        "libraries/libpng/contrib/gregbook/COPYING",
+        "libraries/libpng/contrib/gregbook/LICENSE",
+        "libraries/libpng/contrib/pngexif/LICENSE_MIT.txt",
+        "libraries/libpng/contrib/pngminus/LICENSE.txt",
+        "libraries/minilzo/COPYING",
+        "libraries/miniupnp/LICENSE",
+        "libraries/miniupnp/minissdpd/LICENSE",
+        "libraries/miniupnp/miniupnpc/LICENSE",
+        "libraries/miniupnp/miniupnpd/LICENSE",
+        "libraries/portmidi/license.txt",
+        "libraries/portmidi/pm_java/pmdefaults/pmdefaults-license.txt",
+        "libraries/protobuf/LICENSE",
+        "libraries/protobuf/third_party/benchmark/LICENSE",
+        "libraries/protobuf/third_party/googletest/LICENSE",
+        "libraries/protobuf/third_party/googletest/googlemock/LICENSE",
+        "libraries/protobuf/third_party/googletest/googlemock/scripts/generator/LICENSE",
+        "libraries/protobuf/third_party/googletest/googletest/LICENSE",
+        "libraries/protobuf/third_party/utf8_range/LICENSE",
+        "libraries/zlib/LICENSE",
+        "libraries/zlib/contrib/dotzlib/LICENSE_1_0.txt",
+        "wad/dotex/UNLICENSE.txt"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "odamex"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "pcsx-rearmed-cbin",
+      "file": "pcsx-rearmed-cbin-c8816799b50388e61cfe237fe2cdbb7d8175f20a.tar.gz",
+      "bytes": 5598747,
+      "sha256": "231eebd998adcc2f025bec44d2d17dfbf53afe5bad3dc55b4ae00414ea649505",
+      "repository": "https://github.com/libretro/pcsx_rearmed.git",
+      "commit": "c8816799b50388e61cfe237fe2cdbb7d8175f20a",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/libretro/pcsx_rearmed.git",
+          "commit": "c8816799b50388e61cfe237fe2cdbb7d8175f20a",
+          "tree": "bea7c3942c7e2039cc70d39b1f74b5484ef265cf"
+        },
+        {
+          "path": "frontend/libpicofe/",
+          "repository": "https://github.com/notaz/libpicofe.git",
+          "commit": "a2697389e76744cfa0c56c13a172845c45ede719",
+          "tree": "9843389285213e1b6883b9a7237c79faf99ff3b4"
+        }
+      ],
+      "files": 1457,
+      "noticeFiles": [
+        "COPYING",
+        "deps/libchdr/LICENSE.txt",
+        "deps/libchdr/deps/lzma-26.02/LICENSE",
+        "deps/lightning/COPYING",
+        "deps/lightning/COPYING.DOC",
+        "deps/lightning/COPYING.LESSER",
+        "deps/lightrec/COPYING",
+        "frontend/libpicofe/arm/neon_scale_license.txt"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "pcsx-rearmed-cbin"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "rmg-netplay",
+      "file": "rmg-netplay-4777ed3f1fb7f1e4a0e70438a27dc4a5e9fb1927.tar.gz",
+      "bytes": 60699090,
+      "sha256": "70b69f923739c2bd3d2cc18e1248f986a1e8462105e864108305ebf16316fdfe",
+      "repository": "https://github.com/Rosalie241/RMG.git",
+      "commit": "4777ed3f1fb7f1e4a0e70438a27dc4a5e9fb1927",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/Rosalie241/RMG.git",
+          "commit": "4777ed3f1fb7f1e4a0e70438a27dc4a5e9fb1927",
+          "tree": "b92c3c5bde7f3b57bc61eed04fe8bab345ef46aa"
+        }
+      ],
+      "files": 3170,
+      "noticeFiles": [
+        "LICENSE",
+        "Source/3rdParty/SDL_GameControllerDB/LICENSE",
+        "Source/3rdParty/imgui/LICENSE.txt",
+        "Source/3rdParty/imgui/examples/libs/glfw/COPYING.txt",
+        "Source/3rdParty/mupen64plus-core/LICENSES",
+        "Source/3rdParty/mupen64plus-core/doc/font-license",
+        "Source/3rdParty/mupen64plus-core/doc/gpl-license",
+        "Source/3rdParty/mupen64plus-core/doc/lgpl-license",
+        "Source/3rdParty/mupen64plus-input-raphnetraw/COPYING",
+        "Source/3rdParty/mupen64plus-input-raphnetraw/LICENSES",
+        "Source/3rdParty/mupen64plus-rsp-cxd4/COPYING",
+        "Source/3rdParty/mupen64plus-rsp-hle/LICENSES",
+        "Source/3rdParty/mupen64plus-rsp-parallel/LICENSE",
+        "Source/3rdParty/mupen64plus-rsp-parallel/LICENSE.LESSER",
+        "Source/3rdParty/mupen64plus-rsp-parallel/LICENSE.MIT",
+        "Source/3rdParty/mupen64plus-rsp-parallel/lightning/COPYING",
+        "Source/3rdParty/mupen64plus-rsp-parallel/lightning/COPYING.DOC",
+        "Source/3rdParty/mupen64plus-rsp-parallel/lightning/COPYING.LESSER",
+        "Source/3rdParty/mupen64plus-video-GLideN64/LICENSE",
+        "Source/3rdParty/mupen64plus-video-GLideN64/licenses/GLSL-FXAA/LICENSE.md",
+        "Source/3rdParty/mupen64plus-video-GLideN64/licenses/Glow/LICENSE",
+        "Source/3rdParty/mupen64plus-video-GLideN64/licenses/gles2n64/LICENSE",
+        "Source/3rdParty/mupen64plus-video-GLideN64/licenses/readerwriterqueue/LICENSE.md",
+        "Source/3rdParty/mupen64plus-video-angrylion-plus/MAME License.txt",
+        "Source/3rdParty/mupen64plus-video-parallel/LICENSE",
+        "Source/3rdParty/mupen64plus-video-softrdp/LICENSE",
+        "Source/3rdParty/mupen64plus-video-softrdp/THIRD_PARTY_NOTICES.md",
+        "Source/Script/UpdateCopyrightYear.sh"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "rmg-netplay"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "supermodel-link",
+      "file": "supermodel-link-036af1c8d6640c5a60709c1f99144635ed82a184.tar.gz",
+      "bytes": 79108785,
+      "sha256": "202b99137f3ccf2368b8434d42f4f74b851c76293ac746982878b470631e7a64",
+      "repository": "https://github.com/trzy/Supermodel.git",
+      "commit": "036af1c8d6640c5a60709c1f99144635ed82a184",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/trzy/Supermodel.git",
+          "commit": "036af1c8d6640c5a60709c1f99144635ed82a184",
+          "tree": "5dc3650349c559e309fd5122ea3f29090c808c58"
+        }
+      ],
+      "files": 343,
+      "noticeFiles": [
+        "Docs/LICENSE.txt"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "supermodel-link"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "vita3k-netplay",
+      "file": "vita3k-netplay-46602447c7f84d53790b44e1869ab5105178bf16.tar.gz",
+      "bytes": 67619159,
+      "sha256": "c998cf2078967d2793c8c11cb76208c7efdd813a63ffe34961c945fce02dc459",
+      "repository": "https://github.com/Vita3K/Vita3K.git",
+      "commit": "46602447c7f84d53790b44e1869ab5105178bf16",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/Vita3K/Vita3K.git",
+          "commit": "46602447c7f84d53790b44e1869ab5105178bf16",
+          "tree": "c945c5be7e9ae0d0f4c071e013b7443ede41324d"
+        },
+        {
+          "path": "external/LibAtrac9/",
+          "repository": "https://github.com/Vita3K/LibAtrac9.git",
+          "commit": "82767fe38823c32536726ea798f392b0b49e66b9",
+          "tree": "656b80dce1f0e6a2f5837bba6bb572f16a20c974"
+        },
+        {
+          "path": "external/SPIRV-Cross/",
+          "repository": "https://github.com/KhronosGroup/SPIRV-Cross.git",
+          "commit": "d8e3e2b141b8c8a167b2e3984736a6baacff316c",
+          "tree": "84487f6e33ae987877f1f8cd8076d00c8b1f20da"
+        },
+        {
+          "path": "external/VulkanMemoryAllocator-Hpp/",
+          "repository": "https://github.com/YaaZ/VulkanMemoryAllocator-Hpp",
+          "commit": "3843082eaa6a6f67e6780715fcd602fc81942c9c",
+          "tree": "2c12e2b35eeadf83d299d2f2f5beafb88abefb26"
+        },
+        {
+          "path": "external/VulkanMemoryAllocator-Hpp/Vulkan-Headers/",
+          "repository": "https://github.com/KhronosGroup/Vulkan-Headers.git",
+          "commit": "19725e4d48082fe78e26622b15d3080ccd54112b",
+          "tree": "436d4da394b08afb1025b7053e5f676923003884"
+        },
+        {
+          "path": "external/VulkanMemoryAllocator-Hpp/VulkanMemoryAllocator/",
+          "repository": "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git",
+          "commit": "c788c52156f3ef7bc7ab769cb03c110a53ac8fcb",
+          "tree": "4b14549c2263bf116eff1665f24fc661db47c61a"
+        },
+        {
+          "path": "external/boost/",
+          "repository": "https://github.com/Vita3K/ext-boost",
+          "commit": "ff5f55bd97a93b23d6e5cb6d192290fb49b3f002",
+          "tree": "7a1b02f033dffdf5b78dbccb5baffa289b0edcf1"
+        },
+        {
+          "path": "external/capstone/",
+          "repository": "https://github.com/aquynh/capstone.git",
+          "commit": "022575848782a4801fd150fdbc927effcbca0864",
+          "tree": "f924ecf7414aab710f3744ddfaf1af921ec43dbf"
+        },
+        {
+          "path": "external/concurrentqueue/",
+          "repository": "https://github.com/cameron314/concurrentqueue.git",
+          "commit": "9afb99746f0f5fc94ac8aef737053ae0481ba8d1",
+          "tree": "1107658b5b53d3fee7873609ed59581594971862"
+        },
+        {
+          "path": "external/cubeb/",
+          "repository": "https://github.com/mozilla/cubeb.git",
+          "commit": "4274d032355abe24cf6da0b35fad9b8122ea1f61",
+          "tree": "d5623aeac82a389173afeda50d208591aca71acc"
+        },
+        {
+          "path": "external/cubeb/cmake/sanitizers-cmake/",
+          "repository": "https://github.com/arsenm/sanitizers-cmake",
+          "commit": "aab6948fa863bc1cbe5d0850bc46b9ef02ed4c1a",
+          "tree": "3816c1ee4a62493f88cb66b221649981515eb938"
+        },
+        {
+          "path": "external/cubeb/googletest/",
+          "repository": "https://github.com/google/googletest",
+          "commit": "40412d85124f7c6f3d88454583c4633e5e10fc8c",
+          "tree": "b3eccdd551219da247b4e72a889c39deac4ec85e"
+        },
+        {
+          "path": "external/cubeb/src/cubeb-coreaudio-rs/",
+          "repository": "https://github.com/mozilla/cubeb-coreaudio-rs",
+          "commit": "840f69c1b3f95accd582555e10abcef8ee67514b",
+          "tree": "7e6245ef51b08cfd303e9cfc2fe142cd67b80835"
+        },
+        {
+          "path": "external/cubeb/src/cubeb-pulse-rs/",
+          "repository": "https://github.com/mozilla/cubeb-pulse-rs",
+          "commit": "88194f91c8778fa608a19af7b91306094525595d",
+          "tree": "9903a9ec43beec71fe4a3ac66c49be8409958d7b"
+        },
+        {
+          "path": "external/dirent/",
+          "repository": "https://github.com/tronkko/dirent",
+          "commit": "31db6474b5231c180bd4618c8c90e43af50c86d0",
+          "tree": "fe2328fbe8f07f09458da66b92b2a281cf434c3e"
+        },
+        {
+          "path": "external/dlmalloc/",
+          "repository": "https://github.com/Vita3K/dlmalloc",
+          "commit": "e98f4ee160380d7c39dc1f04e7488bcf0770d391",
+          "tree": "74a7af2993d45a9c4532cd5255e69de7a5593df1"
+        },
+        {
+          "path": "external/dynarmic/",
+          "repository": "https://github.com/Vita3K/dynarmic.git",
+          "commit": "86458a0bd369d63ba4c2ef812cacbb6c9080c065",
+          "tree": "250ba9560167f6bb107dd6010a93cc3ed90c2193"
+        },
+        {
+          "path": "external/ffmpeg/",
+          "repository": "https://github.com/Vita3K/ffmpeg-core.git",
+          "commit": "e74419374a148684911404792379cac284f3f603",
+          "tree": "4bea6333e735d7f43638aa06326e42deee3909da"
+        },
+        {
+          "path": "external/fmt/",
+          "repository": "https://github.com/fmtlib/fmt.git",
+          "commit": "1be298e1bd68957e4cd352e1f676f00e07dcfb57",
+          "tree": "efdc46099ef7eaefde5fd7b439f1d65cfc02214e"
+        },
+        {
+          "path": "external/glslang/",
+          "repository": "https://github.com/KhronosGroup/glslang",
+          "commit": "fc9889c889561c5882e83819dcaffef5ed45529b",
+          "tree": "51cfb22ae8f7b19a3ece8a354c153f3661e6d235"
+        },
+        {
+          "path": "external/googletest/",
+          "repository": "https://github.com/google/googletest",
+          "commit": "52eb8108c5bdec04579160ae17225d66034bd723",
+          "tree": "ad23b2ceac4a6eef2278c48545b62ffc1f0c134a"
+        },
+        {
+          "path": "external/libadrenotools/",
+          "repository": "https://github.com/bylaws/libadrenotools",
+          "commit": "8fae8ce254dfc1344527e05301e43f37dea2df80",
+          "tree": "be9ea825da63c65c0ff1e412df1ee6cb155a17c6"
+        },
+        {
+          "path": "external/libadrenotools/lib/linkernsbypass/",
+          "repository": "https://github.com/bylaws/liblinkernsbypass/",
+          "commit": "aa3975893d83ef1bc84c321ec60c65fbf1287887",
+          "tree": "29d66e90dac2a2df5f49c838cd3297d419ed9deb"
+        },
+        {
+          "path": "external/libfat16/",
+          "repository": "https://github.com/Vita3K/libfat16",
+          "commit": "d9a890b712dcdb46d3d33230997efc59f5ad8d62",
+          "tree": "014b9f3cce74ae819736b9d930eb923b13e1c4b3"
+        },
+        {
+          "path": "external/nativefiledialog-extended/",
+          "repository": "https://github.com/btzy/nativefiledialog-extended.git",
+          "commit": "fc168e8605bfa51aaec22ab0c4e46b9de665a437",
+          "tree": "3cbbf7bb8b6a51dc63c223c3e6ae2a46d07c98dc"
+        },
+        {
+          "path": "external/printf/",
+          "repository": "https://github.com/Vita3K/printf",
+          "commit": "f08e577d31a8270a14e64603ff6bfdca614ff4d3",
+          "tree": "e11813aee115e1548e4106af07156062058f0cf1"
+        },
+        {
+          "path": "external/psvpfstools/",
+          "repository": "https://github.com/Vita3K/psvpfstools.git",
+          "commit": "e21df9a74852433f48d6593b8ef203dc7c424e05",
+          "tree": "3143a2542ee51c6b01a91f07815b51497de37c16"
+        },
+        {
+          "path": "external/psvpfstools/libb64/",
+          "repository": "https://github.com/korewawatchful/libb64.git",
+          "commit": "3896b7a74c70baed0e2f6039a1dbd723e5d5cc8f",
+          "tree": "d6549006daee5b96e6f14e9b678ba61bd684e26b"
+        },
+        {
+          "path": "external/psvpfstools/libzrif/",
+          "repository": "https://github.com/KorewaWatchful/libzrif.git",
+          "commit": "7d1e69bee7d2f08ea5754eff4463c041aacd49af",
+          "tree": "243fb79ae11f19c792f5b0ffc35d20895aef55dc"
+        },
+        {
+          "path": "external/psvpfstools/psvpfsparser/",
+          "repository": "https://github.com/Vita3K/psvpfsparser.git",
+          "commit": "d14381f871a69009bd18b2aaec2213a6738bebba",
+          "tree": "3a7e2d7056bf5bf5eddb65a61f475d8af10398fc"
+        },
+        {
+          "path": "external/psvpfstools/zlib/",
+          "repository": "https://github.com/korewawatchful/zlib.git",
+          "commit": "cb210089eb06453199578993566012493f6f7d21",
+          "tree": "5190c25a7e5e387609f0fa2ee8ce0b82349695bf"
+        },
+        {
+          "path": "external/pugixml/",
+          "repository": "https://github.com/zeux/pugixml",
+          "commit": "c8033ce9d039e7f9d134877c363397b3cfe20816",
+          "tree": "7ad466917e851c39afe0382f80ac1d62b9e60e0e"
+        },
+        {
+          "path": "external/sdl/",
+          "repository": "https://github.com/libsdl-org/SDL.git",
+          "commit": "fa2c02bb6e21974a89ea9824bc53c9932abe5f9c",
+          "tree": "63fb5d2d9284bec19789d10d5820c99405a15e45"
+        },
+        {
+          "path": "external/spdlog/",
+          "repository": "https://github.com/gabime/spdlog",
+          "commit": "d6c93f38a08b4ea0f8ffcfd7f7857307d5d5c3fa",
+          "tree": "041e96a379dbc71e4f4194201d05a66f3a6caf63"
+        },
+        {
+          "path": "external/stb/",
+          "repository": "https://github.com/nothings/stb",
+          "commit": "31c1ad37456438565541f4919958214b6e762fb4",
+          "tree": "506e3b566bd72e60049a644f0b6c777f73ff035f"
+        },
+        {
+          "path": "external/substitute/",
+          "repository": "https://github.com/Vita3K/substitute.git",
+          "commit": "319da6b563d8da689f3b9df2fbb839edd41a1943",
+          "tree": "a79c050086e8190fd3cbd090b9bc567e76960e7d"
+        },
+        {
+          "path": "external/tracy/",
+          "repository": "https://github.com/wolfpld/tracy.git",
+          "commit": "05cceee0df3b8d7c6fa87e9638af311dbabc63cb",
+          "tree": "73643da6e9a1abbb659ee5c289f71847e21ad067"
+        },
+        {
+          "path": "external/vita-toolchain/",
+          "repository": "https://github.com/vitasdk/vita-toolchain.git",
+          "commit": "43fc1e3c686a1fc035eca583fdfeaa5e6419a61a",
+          "tree": "e270f88380bf4c810846c9fc205286df2702c0f2"
+        },
+        {
+          "path": "external/vita-toolchain/psp2rela/",
+          "repository": "https://github.com/Princess-of-Sleeping/psp2rela.git",
+          "commit": "9e0f4913866431aef48967cfb7667b085e79428b",
+          "tree": "5f38b6fb2e9eddfcd7dcc04c85e1eb7c78300c8c"
+        },
+        {
+          "path": "external/xxHash/",
+          "repository": "https://github.com/Cyan4973/xxHash",
+          "commit": "e626a72bc2321cd320e953a0ccf1584cad60f363",
+          "tree": "9d4f447c856962a98e22f144bd9b0315ab4d18f8"
+        },
+        {
+          "path": "external/yaml-cpp/",
+          "repository": "https://github.com/jbeder/yaml-cpp",
+          "commit": "56e3bb550c91fd7005566f19c079cb7a503223cf",
+          "tree": "faa8e3bce9b1b8a3391d4eae90f9ff58655571ac"
+        }
+      ],
+      "files": 30076,
+      "noticeFiles": [
+        "COPYING.txt",
+        "external/LibAtrac9/LICENSE",
+        "external/SPIRV-Cross/LICENSE",
+        "external/SPIRV-Cross/LICENSES/LicenseRef-KhronosFreeUse.txt",
+        "external/VulkanMemoryAllocator-Hpp/LICENSE",
+        "external/VulkanMemoryAllocator-Hpp/Vulkan-Headers/LICENSE.md",
+        "external/VulkanMemoryAllocator-Hpp/VulkanMemoryAllocator/LICENSE.txt",
+        "external/boost/LICENSE_1_0.txt",
+        "external/boost/libs/algorithm/LICENSE",
+        "external/boost/libs/concept_check/LICENSE",
+        "external/boost/libs/date_time/LICENSE",
+        "external/boost/libs/date_time/xmldoc/license.xml",
+        "external/boost/libs/exception/LICENSE_1_0.txt",
+        "external/boost/libs/move/LICENSE",
+        "external/boost/libs/mpl/LICENSE",
+        "external/boost/libs/python/LICENSE_1_0.txt",
+        "external/boost/libs/scope/LICENSE",
+        "external/boost/libs/test/LICENSE",
+        "external/boost/libs/unordered/LICENSE",
+        "external/boost/tools/build/LICENSE.txt",
+        "external/boost/tools/build/src/engine/ext_nlohmann_json.hpp.LICENSE",
+        "external/capstone/LICENSE.TXT",
+        "external/capstone/LICENSE_LLVM.TXT",
+        "external/capstone/bindings/python/LICENSE.TXT",
+        "external/capstone/bindings/vb6/Apache_2.0_License.txt",
+        "external/capstone/suite/regress/LICENSE",
+        "external/concurrentqueue/LICENSE.md",
+        "external/concurrentqueue/benchmarks/boost/LICENSE_1_0.txt",
+        "external/concurrentqueue/benchmarks/tbb/COPYING",
+        "external/concurrentqueue/tests/relacy/relacy/LICENSE",
+        "external/cubeb/LICENSE",
+        "external/cubeb/cmake/sanitizers-cmake/LICENSE",
+        "external/cubeb/googletest/LICENSE",
+        "external/cubeb/src/cubeb-coreaudio-rs/LICENSE",
+        "external/cubeb/src/cubeb-pulse-rs/LICENSE",
+        "external/ddspp/LICENSE",
+        "external/dirent/LICENSE",
+        "external/dynarmic/LICENSE.txt",
+        "external/dynarmic/externals/biscuit/LICENSE.md",
+        "external/dynarmic/externals/catch/LICENSE.txt",
+        "external/dynarmic/externals/catch/tools/scripts/checkLicense.py",
+        "external/dynarmic/externals/fmt/LICENSE.rst",
+        "external/dynarmic/externals/fmt/doc/python-license.txt",
+        "external/dynarmic/externals/mcl/LICENSE",
+        "external/dynarmic/externals/oaknut/LICENSE",
+        "external/dynarmic/externals/robin-map/LICENSE",
+        "external/dynarmic/externals/xbyak/COPYRIGHT",
+        "external/dynarmic/externals/zycore/LICENSE",
+        "external/dynarmic/externals/zydis/LICENSE",
+        "external/ffmpeg/copyright",
+        "external/fmt/LICENSE",
+        "external/fmt/doc/LICENSE-exception",
+        "external/glslang/LICENSE.txt",
+        "external/glslang/license-checker.cfg",
+        "external/googletest/LICENSE",
+        "external/libadrenotools/LICENSE",
+        "external/libadrenotools/lib/linkernsbypass/LICENSE",
+        "external/libfat16/LICENSE",
+        "external/miniz/LICENSE",
+        "external/nativefiledialog-extended/LICENSE",
+        "external/printf/LICENSE",
+        "external/psvpfstools/libb64/LICENSE",
+        "external/psvpfstools/zlib/contrib/dotzlib/LICENSE_1_0.txt",
+        "external/pugixml/LICENSE.md",
+        "external/sdl/LICENSE.txt",
+        "external/sdl/build-scripts/update-copyright.sh",
+        "external/sdl/include/SDL3/SDL_copying.h",
+        "external/sdl/src/hidapi/LICENSE-bsd.txt",
+        "external/sdl/src/hidapi/LICENSE-gpl3.txt",
+        "external/sdl/src/hidapi/LICENSE-orig.txt",
+        "external/sdl/src/hidapi/LICENSE.txt",
+        "external/sdl/src/video/yuv2rgb/LICENSE",
+        "external/sdl/test/COPYING",
+        "external/sdl/test/LICENSE.txt",
+        "external/sdl/test/unifont-15.1.05-license.txt",
+        "external/spdlog/LICENSE",
+        "external/spdlog/include/spdlog/fmt/bundled/fmt.license.rst",
+        "external/stb/LICENSE",
+        "external/stb/data/herringbone/license.txt",
+        "external/stb/tests/pngsuite/PngSuite.LICENSE",
+        "external/substitute/LICENSE.txt",
+        "external/tracy/LICENSE",
+        "external/tracy/examples/ToyPathTracer/license.md",
+        "external/tracy/icon/application-tracy.copying",
+        "external/tracy/public/libbacktrace/LICENSE",
+        "external/vita-toolchain/COPYING",
+        "external/vita-toolchain/psp2rela/LICENSE",
+        "external/xxHash/LICENSE",
+        "external/xxHash/cli/COPYING",
+        "external/xxHash/tests/bench/LICENSE",
+        "external/xxHash/tests/collisions/LICENSE",
+        "external/yaml-cpp/LICENSE",
+        "external/yaml-cpp/test/googletest-1.13.0/LICENSE",
+        "vita3k/gui-qt/include/gui-qt/license_install_dialog.h",
+        "vita3k/gui-qt/src/license_install_dialog.cpp",
+        "vita3k/overlay/include/overlay/shader_compile_notice.h",
+        "vita3k/overlay/src/shader_compile_notice.cpp",
+        "vita3k/packages/include/packages/license.h",
+        "vita3k/packages/src/license.cpp"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "vita3k-netplay"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "xemu-lan",
+      "file": "xemu-lan-25e1ee2fd59a451f2ab57e825b4f8a5414220c8b.tar.gz",
+      "bytes": 317196161,
+      "sha256": "35c721d2907125bf51dc64120ad254939b48d7c3b0f97f715b8592a6815d2b3a",
+      "repository": "https://github.com/xemu-project/xemu.git",
+      "commit": "25e1ee2fd59a451f2ab57e825b4f8a5414220c8b",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/xemu-project/xemu.git",
+          "commit": "25e1ee2fd59a451f2ab57e825b4f8a5414220c8b",
+          "tree": "d4442eca26adff1923a35baf6edc80d3f84da775"
+        },
+        {
+          "path": "roms/QemuMacDrivers/",
+          "repository": "https://gitlab.com/qemu-project/QemuMacDrivers.git",
+          "commit": "90c488d5f4a407342247b9ea869df1c2d9c8e266",
+          "tree": "065bb206ca65e095054c153b72ef12df66e08a02"
+        },
+        {
+          "path": "roms/SLOF/",
+          "repository": "https://gitlab.com/qemu-project/SLOF.git",
+          "commit": "b7f755248e2dcc56c02634d288e1c0ff7e0ce1c7",
+          "tree": "615712b5f66960a4f46eb9232858dda3134a2924"
+        },
+        {
+          "path": "roms/edk2/",
+          "repository": "https://gitlab.com/qemu-project/edk2.git",
+          "commit": "4dfdca63a93497203f197ec98ba20e2327e4afe4",
+          "tree": "de49737c6ea7070fa42c550331fd63e4d688a4c0"
+        },
+        {
+          "path": "roms/edk2/ArmPkg/Library/ArmSoftFloatLib/berkeley-softfloat-3/",
+          "repository": "https://github.com/ucb-bar/berkeley-softfloat-3.git",
+          "commit": "b64af41c3276f97f0e181920400ee056b9c88037",
+          "tree": "5f46f374bcf9aef50442ba5fd25f3b5bcdf963c4"
+        },
+        {
+          "path": "roms/edk2/BaseTools/Source/C/BrotliCompress/brotli/",
+          "repository": "https://github.com/google/brotli",
+          "commit": "f4153a09f87cbb9c826d8fc12c74642bb2d879ea",
+          "tree": "9a0c8ca69e15428fa64fef713706cae9baadc423"
+        },
+        {
+          "path": "roms/edk2/CryptoPkg/Library/MbedTlsLib/mbedtls/",
+          "repository": "https://github.com/ARMmbed/mbedtls",
+          "commit": "8c89224991adff88d53cd380f42a2baa36f91454",
+          "tree": "d0dbdb315df84efdb8fbf4475370c96ce9cbbd44"
+        },
+        {
+          "path": "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/",
+          "repository": "https://github.com/openssl/openssl",
+          "commit": "de90e54bbe82e5be4fb9608b6f5c308bb837d355",
+          "tree": "c6699afc9c9330034459f535cb5ce208e51b0c4e"
+        },
+        {
+          "path": "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/gost-engine/",
+          "repository": "https://github.com/gost-engine/engine",
+          "commit": "b2b4d629f100eaee9f5942a106b1ccefe85b8808",
+          "tree": "a2222a1ddb6bb6bf497db12634a97385bb949d7b"
+        },
+        {
+          "path": "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/gost-engine/libprov/",
+          "repository": "https://github.com/provider-corner/libprov.git",
+          "commit": "8a126e09547630ef900177625626b6156052f0ee",
+          "tree": "679ef63697dc45290241c1a49041f4d99fac69e1"
+        },
+        {
+          "path": "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/",
+          "repository": "https://github.com/krb5/krb5",
+          "commit": "aa9b4a2a64046afd2fab7cb49c346295874a5fb6",
+          "tree": "3e077974780e859b3e67dbd3b8e528e24c7f6041"
+        },
+        {
+          "path": "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/",
+          "repository": "https://github.com/pyca/cryptography.git",
+          "commit": "c18d0567386414efa3caef7ed586c4ca75bf3a8b",
+          "tree": "3018efbd947d0557af1eb7681250a641061da2ac"
+        },
+        {
+          "path": "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/wycheproof/",
+          "repository": "https://github.com/google/wycheproof",
+          "commit": "2196000605e45d91097147c9c71f26b72af58003",
+          "tree": "2682a7781159a808e47ee8a9658d75f89e1064fc"
+        },
+        {
+          "path": "roms/edk2/MdeModulePkg/Library/BrotliCustomDecompressLib/brotli/",
+          "repository": "https://github.com/google/brotli",
+          "commit": "f4153a09f87cbb9c826d8fc12c74642bb2d879ea",
+          "tree": "9a0c8ca69e15428fa64fef713706cae9baadc423"
+        },
+        {
+          "path": "roms/edk2/MdeModulePkg/Universal/RegularExpressionDxe/oniguruma/",
+          "repository": "https://github.com/kkos/oniguruma",
+          "commit": "abfc8ff81df4067f309032467785e06975678f0d",
+          "tree": "ad29c4ce4e26c2e75005c0c26b0f7686f1c0b03b"
+        },
+        {
+          "path": "roms/edk2/MdePkg/Library/BaseFdtLib/libfdt/",
+          "repository": "https://github.com/devicetree-org/pylibfdt.git",
+          "commit": "cfff805481bdea27f900c32698171286542b8d3c",
+          "tree": "a7e59b90b2e8c639f227ce924b9050d6ac080710"
+        },
+        {
+          "path": "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/",
+          "repository": "https://github.com/MIPI-Alliance/public-mipi-sys-t.git",
+          "commit": "370b5944c046bab043dd8b133727b2135af7747a",
+          "tree": "52cd06eb04ec483fc065dfa038cbcde1c00fb626"
+        },
+        {
+          "path": "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/external/googletest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "a6f06bf2fd3b832822cd4e9e554b7d47f32ec084",
+          "tree": "a508ec458b7fee2f711bc40a29e197b1ea3f0647"
+        },
+        {
+          "path": "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/external/pugixml/",
+          "repository": "https://github.com/zeux/pugixml.git",
+          "commit": "c53fdab93af76106b963216d85897614b996f8b6",
+          "tree": "cfb68cb076d3f23452639aa9804b7eee3a7948da"
+        },
+        {
+          "path": "roms/edk2/RedfishPkg/Library/JsonLib/jansson/",
+          "repository": "https://github.com/akheron/jansson",
+          "commit": "e9ebfa7e77a6bee77df44e096b100e7131044059",
+          "tree": "b57c47a9220877f62e2f92999795c43cd31b2e24"
+        },
+        {
+          "path": "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/",
+          "repository": "https://github.com/DMTF/libspdm.git",
+          "commit": "50924a4c8145fc721e17208f55814d2b38766fe6",
+          "tree": "2abb6b98bc901f6b56f32ad9642f4b25befc4a7a"
+        },
+        {
+          "path": "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/mbedtlslib/mbedtls/",
+          "repository": "https://github.com/ARMmbed/mbedtls",
+          "commit": "dd79db10014d85b26d11fe57218431f2e5ede6f2",
+          "tree": "a7ba152cfeba4ff6976a814ab6139005c59676aa"
+        },
+        {
+          "path": "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/",
+          "repository": "https://github.com/openssl/openssl",
+          "commit": "de90e54bbe82e5be4fb9608b6f5c308bb837d355",
+          "tree": "c6699afc9c9330034459f535cb5ce208e51b0c4e"
+        },
+        {
+          "path": "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/gost-engine/",
+          "repository": "https://github.com/gost-engine/engine",
+          "commit": "b2b4d629f100eaee9f5942a106b1ccefe85b8808",
+          "tree": "a2222a1ddb6bb6bf497db12634a97385bb949d7b"
+        },
+        {
+          "path": "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/gost-engine/libprov/",
+          "repository": "https://github.com/provider-corner/libprov.git",
+          "commit": "8a126e09547630ef900177625626b6156052f0ee",
+          "tree": "679ef63697dc45290241c1a49041f4d99fac69e1"
+        },
+        {
+          "path": "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/",
+          "repository": "https://github.com/krb5/krb5",
+          "commit": "aa9b4a2a64046afd2fab7cb49c346295874a5fb6",
+          "tree": "3e077974780e859b3e67dbd3b8e528e24c7f6041"
+        },
+        {
+          "path": "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/",
+          "repository": "https://github.com/pyca/cryptography.git",
+          "commit": "c18d0567386414efa3caef7ed586c4ca75bf3a8b",
+          "tree": "3018efbd947d0557af1eb7681250a641061da2ac"
+        },
+        {
+          "path": "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/wycheproof/",
+          "repository": "https://github.com/google/wycheproof",
+          "commit": "2196000605e45d91097147c9c71f26b72af58003",
+          "tree": "2682a7781159a808e47ee8a9658d75f89e1064fc"
+        },
+        {
+          "path": "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/unit_test/cmockalib/cmocka/",
+          "repository": "https://gitlab.com/cmocka/cmocka.git",
+          "commit": "a01cc69ee9536f90e57c61a198f2d1944d3d4313",
+          "tree": "2e87f9a03b8f78f32b1b47461054062764871977"
+        },
+        {
+          "path": "roms/edk2/UnitTestFrameworkPkg/Library/CmockaLib/cmocka/",
+          "repository": "https://github.com/tianocore/edk2-cmocka.git",
+          "commit": "1cc9cde3448cdd2e000886a26acf1caac2db7cf1",
+          "tree": "88ff39f3e8f0c7b666fa7d780aa0a288d57663aa"
+        },
+        {
+          "path": "roms/edk2/UnitTestFrameworkPkg/Library/GoogleTestLib/googletest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "86add13493e5c881d7e4ba77fb91c1f57752b3a4",
+          "tree": "b9a8901984c0d9a46a5415985e04ed948030a787"
+        },
+        {
+          "path": "roms/edk2/UnitTestFrameworkPkg/Library/SubhookLib/subhook/",
+          "repository": "https://github.com/tianocore/edk2-subhook.git",
+          "commit": "83d4e1ebef3588fae48b69a7352cc21801cb70bc",
+          "tree": "e0809fd9ceb10469dca913f10d12a27320388634"
+        },
+        {
+          "path": "roms/ipxe/",
+          "repository": "https://gitlab.com/qemu-project/ipxe.git",
+          "commit": "4bd064de239dab2426b31c9789a1f4d78087dc63",
+          "tree": "f9aa57a681fb2ab61d4480374bbd5c5067191fb6"
+        },
+        {
+          "path": "roms/openbios/",
+          "repository": "https://gitlab.com/qemu-project/openbios.git",
+          "commit": "c3a19c1e54977a53027d6232050e1e3e39a98a1b",
+          "tree": "83caf8b2225c21d6944e83f66679db8d27b4f719"
+        },
+        {
+          "path": "roms/opensbi/",
+          "repository": "https://gitlab.com/qemu-project/opensbi.git",
+          "commit": "a32a91069119e7a5aa31e6bc51d5e00860be3d80",
+          "tree": "efc7b5436489c1959c54e731112bf0e47637004d"
+        },
+        {
+          "path": "roms/qboot/",
+          "repository": "https://gitlab.com/qemu-project/qboot.git",
+          "commit": "8ca302e86d685fa05b16e2b208888243da319941",
+          "tree": "042c4f9c557dc21cd33a2cb434f4cb617d214bea"
+        },
+        {
+          "path": "roms/qemu-palcode/",
+          "repository": "https://gitlab.com/qemu-project/qemu-palcode.git",
+          "commit": "99d9b4dcf27d7fbcbadab71bdc88ef6531baf6bf",
+          "tree": "9fd924386b0e415c4e252c478b1c5c004decdbe6"
+        },
+        {
+          "path": "roms/seabios/",
+          "repository": "https://gitlab.com/qemu-project/seabios.git/",
+          "commit": "b52ca86e094d19b58e2304417787e96b940e39c6",
+          "tree": "00ca2288a3318f220d235c2e2cb9ca4f6f430874"
+        },
+        {
+          "path": "roms/seabios-hppa/",
+          "repository": "https://gitlab.com/qemu-project/seabios-hppa.git",
+          "commit": "a04b6f35c0b7437ce968f64106ee6ff5aadee419",
+          "tree": "d21c096991a02ab0dbdbad0c6064be02d236f659"
+        },
+        {
+          "path": "roms/skiboot/",
+          "repository": "https://gitlab.com/qemu-project/skiboot.git",
+          "commit": "785a5e3070a86e18521e62fe202b87209de30fa2",
+          "tree": "26c13bd9cc99ae3a58d9cf7521160795b24121db"
+        },
+        {
+          "path": "roms/u-boot/",
+          "repository": "https://gitlab.com/qemu-project/u-boot.git",
+          "commit": "840658b093976390e9537724f802281c9c8439f5",
+          "tree": "2c37fb1386a59aa212b5f8bb05d1acff8e7c1002"
+        },
+        {
+          "path": "roms/u-boot-sam460ex/",
+          "repository": "https://gitlab.com/qemu-project/u-boot-sam460ex.git",
+          "commit": "1e5f4a1607cc6713d27ffe48dd9de84e69cfc1c2",
+          "tree": "c980a8df47fcbd1d4b1e65ca21e30ed7e9027c5a"
+        },
+        {
+          "path": "roms/vbootrom/",
+          "repository": "https://gitlab.com/qemu-project/vbootrom.git",
+          "commit": "183c9ff8056b7946db1ae49cc23e8980ac413174",
+          "tree": "ba4da5563b80867b199f62732289e6686507df17"
+        },
+        {
+          "path": "tests/lcitool/libvirt-ci/",
+          "repository": "https://gitlab.com/libvirt/libvirt-ci.git",
+          "commit": "caed407a0f1dfe3a3293a41c378c382deefbac36",
+          "tree": "cdbad660cb1f9bc71a0e1a7d3517f85e23df676a"
+        }
+      ],
+      "files": 115743,
+      "noticeFiles": [
+        "COPYING",
+        "COPYING.LIB",
+        "LICENSE",
+        "data/Roboto-LICENSE.txt",
+        "debian/copyright",
+        "docs/about/license.rst",
+        "licenses/SDL3.license.txt",
+        "licenses/SPIRV-Reflect.license.txt",
+        "licenses/SPIRV-Tools.license.txt",
+        "licenses/VulkanMemoryAllocator.license.txt",
+        "licenses/dsp56300.license.txt",
+        "licenses/fontawesome.license.txt",
+        "licenses/fpng.license.txt",
+        "licenses/gettext.license.txt",
+        "licenses/glib-2.0.license.txt",
+        "licenses/glslang.license.txt",
+        "licenses/gtk.license.txt",
+        "licenses/iconv.license.txt",
+        "licenses/imgui.license.txt",
+        "licenses/implot.license.txt",
+        "licenses/inih.license.txt",
+        "licenses/libcurl.license.txt",
+        "licenses/libepoxy.license.txt",
+        "licenses/libmingw32.license.txt",
+        "licenses/libsamplerate.license.txt",
+        "licenses/miniz.license.txt",
+        "licenses/noc.license.txt",
+        "licenses/nv2a_vsh_cpu.license.txt",
+        "licenses/pcre.license.txt",
+        "licenses/pcre2.license.txt",
+        "licenses/pixman.license.txt",
+        "licenses/qemu.license.txt",
+        "licenses/roboto.license.txt",
+        "licenses/slirp.license.txt",
+        "licenses/stb_image.license.txt",
+        "licenses/tomlplusplus.license.txt",
+        "licenses/volk.license.txt",
+        "licenses/xxHash.license.txt",
+        "licenses/zlib.license.txt",
+        "linux-headers/COPYING",
+        "pc-bios/edk2-licenses.txt",
+        "roms/QemuMacDrivers/COPYING",
+        "roms/SLOF/LICENSE",
+        "roms/SLOF/board-js2x/slof/copyright-oss.fs",
+        "roms/SLOF/board-qemu/slof/copyright-oss.fs",
+        "roms/edk2/.pytool/Plugin/LicenseCheck/LicenseCheck.py",
+        "roms/edk2/.pytool/Plugin/LicenseCheck/LicenseCheck_plug_in.yaml",
+        "roms/edk2/ArmPkg/Library/ArmSoftFloatLib/berkeley-softfloat-3/COPYING.txt",
+        "roms/edk2/BaseTools/Source/C/BrotliCompress/brotli/LICENSE",
+        "roms/edk2/CryptoPkg/Library/MbedTlsLib/mbedtls/LICENSE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/LICENSE.txt",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/external/perl/Text-Template-1.56/LICENSE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/gost-engine/LICENSE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/gost-engine/libprov/LICENSE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/NOTICE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/doc/copyright.rst",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/doc/mitK5license.rst",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/doc/notice.rst",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/src/include/copyright.h",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/src/lib/gssapi/LICENSE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/src/util/et/mit-sipb-copyright.h",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/src/util/krb5-check-copyright.py",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/src/util/ss/copyright.h",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/src/util/ss/mit-sipb-copyright.h",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/krb5/src/windows/installer/wix/lang/license.rtf",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/LICENSE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/LICENSE.APACHE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/LICENSE.BSD",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/LICENSE.PSF",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/LICENSE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/LICENSE.APACHE",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/LICENSE.BSD",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest15EE.crt",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest16EE.crt",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest17EE.crt",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest18EE.crt",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest19EE.crt",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest15EE.p12",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest16EE.p12",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest17EE.p12",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest18EE.p12",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest19EE.p12",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest15.eml",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest16.eml",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest17.eml",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest18.eml",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest19.eml",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/custom/cp_user_notice_no_explicit_text.pem",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/custom/cp_user_notice_with_explicit_text.pem",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/custom/cp_user_notice_with_notice_reference.pem",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/util/perl/OpenSSL/copyright.pm",
+        "roms/edk2/CryptoPkg/Library/OpensslLib/openssl/wycheproof/LICENSE",
+        "roms/edk2/License-History.txt",
+        "roms/edk2/License.txt",
+        "roms/edk2/MdeModulePkg/Library/BrotliCustomDecompressLib/brotli/LICENSE",
+        "roms/edk2/MdeModulePkg/Universal/RegularExpressionDxe/oniguruma/COPYING",
+        "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/LICENSE",
+        "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/external/googletest/LICENSE",
+        "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/external/googletest/googlemock/LICENSE",
+        "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/external/googletest/googlemock/scripts/generator/LICENSE",
+        "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/external/googletest/googletest/LICENSE",
+        "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/external/pugixml/LICENSE.md",
+        "roms/edk2/MdePkg/Library/MipiSysTLib/mipisyst/library/doxygen/License.md",
+        "roms/edk2/OvmfPkg/Bhyve/License.txt",
+        "roms/edk2/OvmfPkg/License.txt",
+        "roms/edk2/RedfishPkg/Library/JsonLib/jansson/LICENSE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/LICENSE.md",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/mbedtlslib/mbedtls/LICENSE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/LICENSE.txt",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/external/perl/Text-Template-1.56/LICENSE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/gost-engine/LICENSE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/gost-engine/libprov/LICENSE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/NOTICE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/doc/copyright.rst",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/doc/mitK5license.rst",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/doc/notice.rst",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/src/include/copyright.h",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/src/lib/gssapi/LICENSE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/src/util/et/mit-sipb-copyright.h",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/src/util/krb5-check-copyright.py",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/src/util/ss/copyright.h",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/src/util/ss/mit-sipb-copyright.h",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/krb5/src/windows/installer/wix/lang/license.rtf",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/LICENSE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/LICENSE.APACHE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/LICENSE.BSD",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/LICENSE.PSF",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/LICENSE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/LICENSE.APACHE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/LICENSE.BSD",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest15EE.crt",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest16EE.crt",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest17EE.crt",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest18EE.crt",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/certs/UserNoticeQualifierTest19EE.crt",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest15EE.p12",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest16EE.p12",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest17EE.p12",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest18EE.p12",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/pkcs12/UserNoticeQualifierTest19EE.p12",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest15.eml",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest16.eml",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest17.eml",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest18.eml",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/PKITS_data/smime/SignedUserNoticeQualifierTest19.eml",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/custom/cp_user_notice_no_explicit_text.pem",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/custom/cp_user_notice_with_explicit_text.pem",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/pyca-cryptography/vectors/cryptography_vectors/x509/custom/cp_user_notice_with_notice_reference.pem",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/util/perl/OpenSSL/copyright.pm",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/os_stub/openssllib/openssl/wycheproof/LICENSE",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/script/check_copyright_date.sh",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/unit_test/cmockalib/cmocka/COPYING",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/unit_test/cmockalib/cmocka/cmake/Modules/COPYING-CMAKE-SCRIPTS",
+        "roms/edk2/SecurityPkg/DeviceSecurity/SpdmLib/libspdm/unit_test/cmockalib/cmocka/doc/that_style/LICENSE",
+        "roms/edk2/UnitTestFrameworkPkg/Library/CmockaLib/cmocka/COPYING",
+        "roms/edk2/UnitTestFrameworkPkg/Library/CmockaLib/cmocka/cmake/Modules/COPYING-CMAKE-SCRIPTS",
+        "roms/edk2/UnitTestFrameworkPkg/Library/CmockaLib/cmocka/doc/that_style/LICENSE",
+        "roms/edk2/UnitTestFrameworkPkg/Library/GoogleTestLib/googletest/LICENSE",
+        "roms/edk2/UnitTestFrameworkPkg/Library/SubhookLib/subhook/LICENSE.txt",
+        "roms/ipxe/COPYING",
+        "roms/ipxe/COPYING.GPLv2",
+        "roms/ipxe/COPYING.UBDL",
+        "roms/ipxe/src/include/ipxe/efi/LICENCE",
+        "roms/ipxe/src/util/licence.pl",
+        "roms/ipxe/src/util/relicense.pl",
+        "roms/openbios/COPYING",
+        "roms/openbios/Documentation/kernel/COPYING",
+        "roms/openbios/utils/devbios/COPYING",
+        "roms/opensbi/COPYING.BSD",
+        "roms/opensbi/ThirdPartyNotices.md",
+        "roms/opensbi/scripts/Kconfiglib/LICENSE.txt",
+        "roms/qboot/LICENSE",
+        "roms/qemu-palcode/COPYING",
+        "roms/seabios-hppa/COPYING",
+        "roms/seabios-hppa/COPYING.LESSER",
+        "roms/seabios/COPYING",
+        "roms/seabios/COPYING.LESSER",
+        "roms/skiboot/LICENCE",
+        "roms/skiboot/ccan/array_size/LICENSE",
+        "roms/skiboot/ccan/build_assert/LICENSE",
+        "roms/skiboot/ccan/check_type/LICENSE",
+        "roms/skiboot/ccan/container_of/LICENSE",
+        "roms/skiboot/ccan/endian/LICENSE",
+        "roms/skiboot/ccan/heap/LICENSE",
+        "roms/skiboot/ccan/list/LICENSE",
+        "roms/skiboot/ccan/short_types/LICENSE",
+        "roms/skiboot/ccan/str/LICENSE",
+        "roms/skiboot/libmctp/LICENSE",
+        "roms/skiboot/libstb/crypto/mbedtls/LICENSE",
+        "roms/u-boot-sam460ex/COPYING",
+        "roms/u-boot-sam460ex/board/ACube/bios_emulator/scitech/src/x86emu/LICENSE",
+        "roms/u-boot-sam460ex/common/cmd_license.c",
+        "roms/u-boot-sam460ex/fs/jffs2/LICENCE",
+        "roms/u-boot-sam460ex/lib/lzma/license.txt",
+        "roms/u-boot/cmd/license.c",
+        "roms/u-boot/fs/jffs2/LICENCE",
+        "roms/u-boot/lib/lzma/license.txt",
+        "roms/vbootrom/LICENSE",
+        "scripts/gen-license.py",
+        "tests/lcitool/libvirt-ci/COPYING",
+        "tests/uefi-test-tools/LICENSE",
+        "thirdparty/nvapi/nvapi_defs.LICENSE.txt",
+        "util/miniz/LICENSE"
+      ],
+      "lfsObjects": [],
+      "externalLinks": [
+        {
+          "path": "roms/edk2/EmulatorPkg/Unix/Host/X11IncludeHack",
+          "target": "/opt/X11/include"
+        }
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "xemu-lan"
+      ],
+      "recipeEvidence": "packaging/emulators/fullbundle-arm64.json"
+    },
+    {
+      "schema": 1,
+      "id": "rmg-server",
+      "file": "rmg-server-bf0f28746971fcb6341fac55c0d2d19f646a6e09.tar.gz",
+      "bytes": 28281,
+      "sha256": "c8150f7d194cf3b3a210a7f252153012d7baa0e803dd6236665f58973783b416",
+      "repository": "https://github.com/Rosalie241/rmg-netplay-server.git",
+      "commit": "bf0f28746971fcb6341fac55c0d2d19f646a6e09",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/Rosalie241/rmg-netplay-server.git",
+          "commit": "bf0f28746971fcb6341fac55c0d2d19f646a6e09",
+          "tree": "18c50bfb140e012b5991aabe30141db5b0032224"
+        }
+      ],
+      "files": 13,
+      "noticeFiles": [
+        "LICENSE"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "rmg-netplay"
+      ],
+      "recipeEvidence": "packaging/emulators/rmg/build.sh"
+    },
+    {
+      "schema": 1,
+      "id": "gpsp",
+      "file": "gpsp-5819380c2ffb0900219d700a382ee68c464ebb99.tar.gz",
+      "bytes": 460755,
+      "sha256": "a33e5a4cc2cfd0316ef708e18fec74950628ab247be97e3f93955e4afa752ed8",
+      "repository": "https://github.com/libretro/gpsp.git",
+      "commit": "5819380c2ffb0900219d700a382ee68c464ebb99",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/libretro/gpsp.git",
+          "commit": "5819380c2ffb0900219d700a382ee68c464ebb99",
+          "tree": "aa956b7c1f9bc3c0621b25de435f4b8916fc0976"
+        }
+      ],
+      "files": 112,
+      "noticeFiles": [
+        "COPYING"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "retroarch-cores"
+      ],
+      "recipeEvidence": "packaging/emulators/handheld/build.sh"
+    },
+    {
+      "schema": 1,
+      "id": "doublecherrygb",
+      "file": "doublecherrygb-03f58ca3dfb4b716f7e66a0e0467f9e85ef82abb.tar.gz",
+      "bytes": 32369855,
+      "sha256": "54274ef88421b6879396e3bd0284489380f3f9cbfd5e0e33b1105532cfa0bd34",
+      "repository": "https://github.com/TimOelrichs/doublecherryGB-libretro.git",
+      "commit": "03f58ca3dfb4b716f7e66a0e0467f9e85ef82abb",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/TimOelrichs/doublecherryGB-libretro.git",
+          "commit": "03f58ca3dfb4b716f7e66a0e0467f9e85ef82abb",
+          "tree": "ce0e1c9ab82aec578722d9509d2d3b525bc94c7a"
+        }
+      ],
+      "files": 576,
+      "noticeFiles": [
+        "LICENSE",
+        "extern/libmobile/COPYING",
+        "extern/libmobile/COPYING.LESSER"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "retroarch-cores"
+      ],
+      "recipeEvidence": "packaging/emulators/handheld/build.sh"
+    },
+    {
+      "schema": 1,
+      "id": "sameboy",
+      "file": "sameboy-aa158a889a48b538a0302873704a34577c8eb67d.tar.gz",
+      "bytes": 3142438,
+      "sha256": "af25367adb903013194c590b15a3a12e6863b3d607065bfb8739947fe4266606",
+      "repository": "https://github.com/libretro/SameBoy.git",
+      "commit": "aa158a889a48b538a0302873704a34577c8eb67d",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/libretro/SameBoy.git",
+          "commit": "aa158a889a48b538a0302873704a34577c8eb67d",
+          "tree": "0346dc637ad438c5adc5c66dd163c345cf052683"
+        }
+      ],
+      "files": 425,
+      "noticeFiles": [
+        ".github/actions/LICENSE",
+        "Cocoa/License.html",
+        "HexFiend/License.txt",
+        "LICENSE"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "retroarch-cores"
+      ],
+      "recipeEvidence": "packaging/emulators/handheld/build.sh"
+    },
+    {
+      "schema": 1,
+      "id": "mgba-linked",
+      "file": "mgba-linked-b66511a35873bda9c961872813e58b35543bcfc5.tar.gz",
+      "bytes": 22985614,
+      "sha256": "3d1db77bc7bee7b2c34078585dcd8dd83051f8de1501f15745f97623a8eea2d4",
+      "repository": "https://github.com/Spuds0588/mgba-splitscreen.git",
+      "commit": "b66511a35873bda9c961872813e58b35543bcfc5",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/Spuds0588/mgba-splitscreen.git",
+          "commit": "b66511a35873bda9c961872813e58b35543bcfc5",
+          "tree": "062d5954e9242aa29ef598bd45811aaee68290b6"
+        }
+      ],
+      "files": 3353,
+      "noticeFiles": [
+        "LICENSE",
+        "cinema/gb/mooneye-gb/LICENSE",
+        "include/mgba/internal/gba/cart/unlicensed.h",
+        "res/shaders/gbc-lcd.shader/license.txt",
+        "src/gb/mbc/licensed.c",
+        "src/gb/mbc/unlicensed.c",
+        "src/gba/cart/unlicensed.c",
+        "src/third-party/discord-rpc/LICENSE",
+        "src/third-party/discord-rpc/include/mingw-std-threads/LICENSE",
+        "src/third-party/discord-rpc/include/rapidjson/license.txt",
+        "src/third-party/inih/LICENSE.txt",
+        "src/third-party/libpng/LICENSE",
+        "src/third-party/libpng/ci/LICENSE_MIT.txt",
+        "src/third-party/libpng/contrib/gregbook/COPYING",
+        "src/third-party/libpng/contrib/gregbook/LICENSE",
+        "src/third-party/libpng/contrib/pngexif/LICENSE_MIT.txt",
+        "src/third-party/libpng/contrib/pngminus/LICENSE.txt",
+        "src/third-party/zlib/contrib/dotzlib/LICENSE_1_0.txt",
+        "tools/debian/copyright"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "retroarch-cores"
+      ],
+      "recipeEvidence": "packaging/emulators/handheld/build-mgba-linked.sh"
+    },
+    {
+      "schema": 1,
+      "id": "ppsspp",
+      "file": "ppsspp-fa50bb1976065c4f8b1b47af227d367fe9771555.tar.gz",
+      "bytes": 560315998,
+      "sha256": "0e2d22c167b6f1ef4c34daaca0b64cb63f4e98bd005fc79f1c0634a3af55fafc",
+      "repository": "https://github.com/hrydgard/ppsspp.git",
+      "commit": "fa50bb1976065c4f8b1b47af227d367fe9771555",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/hrydgard/ppsspp.git",
+          "commit": "fa50bb1976065c4f8b1b47af227d367fe9771555",
+          "tree": "d76acd887f4202ab78bf87cc926c8c9b17e0728c"
+        },
+        {
+          "path": "SDL/macOS/",
+          "repository": "https://github.com/hrydgard/ppsspp-mac-sdl",
+          "commit": "c387d93ab5910b5a6be78b4840a5bbbc452f3ac8",
+          "tree": "d3b5635b6f65c01c246de0a85be08a95c298de2c"
+        },
+        {
+          "path": "assets/debugger/",
+          "repository": "https://github.com/unknownbrackets/ppsspp-debugger.git",
+          "commit": "9776332f720c854ef26f325a0cf9e32c02115a9c",
+          "tree": "475a7e604c503b1d8c13305efd6e7a776816b134"
+        },
+        {
+          "path": "ext/OpenXR-SDK/",
+          "repository": "https://github.com/KhronosGroup/OpenXR-SDK.git",
+          "commit": "be392bf6949adeeabad5082aa79d12aacbda781f",
+          "tree": "833c5f7b62c6195f822d4e7ba2427dc616ddd102"
+        },
+        {
+          "path": "ext/SPIRV-Cross/",
+          "repository": "https://github.com/KhronosGroup/SPIRV-Cross.git",
+          "commit": "4212eef67ed0ca048cb726a6767185504e7695e5",
+          "tree": "ba2893fa4e0298d4d974e899449f37458e5b8470"
+        },
+        {
+          "path": "ext/aemu_postoffice/",
+          "repository": "https://github.com/Kethen/aemu_postoffice.git",
+          "commit": "530fee545c27ffb8524a8f496cbbcfdb687fe8c5",
+          "tree": "bc264a6d019d66df1894a17e7c69b4fb9ef8d4dd"
+        },
+        {
+          "path": "ext/armips/",
+          "repository": "https://github.com/Kingcom/armips.git",
+          "commit": "a8d71f0f279eb0d30ecf6af51473b66ae0cf8e8d",
+          "tree": "3f18db3383b5591f00d8795b071842c88d3483f0"
+        },
+        {
+          "path": "ext/armips/ext/filesystem/",
+          "repository": "https://github.com/Kingcom/filesystem.git",
+          "commit": "3f1c185ab414e764c694b8171d1c4d8c5c437517",
+          "tree": "5c7c9bfe9f06a0b2acbb9ba17e3f8ab57cd62c6e"
+        },
+        {
+          "path": "ext/cpu_features/",
+          "repository": "https://github.com/google/cpu_features.git",
+          "commit": "fd4ffc1632db7b4e763bd28ffa6fc9d761cf3587",
+          "tree": "2643bb06c4954bde4ad7bb6bf7ec99bfa0d8f216"
+        },
+        {
+          "path": "ext/discord-rpc/",
+          "repository": "https://github.com/discordapp/discord-rpc.git",
+          "commit": "963aa9f3e5ce81a4682c6ca3d136cddda614db33",
+          "tree": "85aac7652923a8fc0a0d2ac43ecdd62f1caa8106"
+        },
+        {
+          "path": "ext/freetype/",
+          "repository": "https://github.com/hrydgard/freetype.git",
+          "commit": "063ed27f481f0bcd3962fd468e1546739d7d285a",
+          "tree": "fbe7cb237b8bd87a7d2d6af92a893f2d42666f15"
+        },
+        {
+          "path": "ext/freetype/subprojects/dlg/",
+          "repository": "https://github.com/nyorain/dlg.git",
+          "commit": "395ccad2c1e0daae535c4d20bb0a3f2424648e17",
+          "tree": "2cb75941a2859cf0801048f5b613a1e02f500184"
+        },
+        {
+          "path": "ext/glslang/",
+          "repository": "https://github.com/hrydgard/glslang.git",
+          "commit": "50e0708ec3a5c16020c4f845c654b80b8edb80bd",
+          "tree": "cfca3d5614f06af80059eeafc5240ef0ca81ae98"
+        },
+        {
+          "path": "ext/libadrenotools/",
+          "repository": "https://github.com/bylaws/libadrenotools.git",
+          "commit": "8fae8ce254dfc1344527e05301e43f37dea2df80",
+          "tree": "be9ea825da63c65c0ff1e412df1ee6cb155a17c6"
+        },
+        {
+          "path": "ext/libadrenotools/lib/linkernsbypass/",
+          "repository": "https://github.com/bylaws/liblinkernsbypass/",
+          "commit": "aa3975893d83ef1bc84c321ec60c65fbf1287887",
+          "tree": "29d66e90dac2a2df5f49c838cd3297d419ed9deb"
+        },
+        {
+          "path": "ext/libchdr/",
+          "repository": "https://github.com/rtissera/libchdr.git",
+          "commit": "8bba7745d758627258b315997a860039244cedaf",
+          "tree": "550e9e36c100627998c27fd0b8ba2d60c1c298f3"
+        },
+        {
+          "path": "ext/lua/",
+          "repository": "https://github.com/hrydgard/ppsspp-lua.git",
+          "commit": "7648485f14e8e5ee45e8e39b1eb4d3206dbd405a",
+          "tree": "b141d1551e26b3c9a5ad0e985466bfeb9787b7ed"
+        },
+        {
+          "path": "ext/miniupnp/",
+          "repository": "https://github.com/miniupnp/miniupnp.git",
+          "commit": "27d13ca9beeb5541f5fbf11959dced03dac39972",
+          "tree": "38a9e80b7c7ff5037da287034a27813f9d70ae03"
+        },
+        {
+          "path": "ext/naett/",
+          "repository": "https://github.com/erkkah/naett.git",
+          "commit": "5f695cfa9fcbf30668a4d3ac4b4abf1cd89a1302",
+          "tree": "043efad2e1f7645f54f1e83c4e995a149cfa0747"
+        },
+        {
+          "path": "ext/nanosvg/",
+          "repository": "https://github.com/hrydgard/nanosvg.git",
+          "commit": "478dbb8f7ed11c3d9b20b3986a8ee2283f483ef7",
+          "tree": "32fa923f2f36bef74e77c42be049453c5ba01726"
+        },
+        {
+          "path": "ext/rapidjson/",
+          "repository": "https://github.com/Tencent/rapidjson.git",
+          "commit": "73063f5002612c6bf64fe24f851cd5cc0d83eef9",
+          "tree": "62d722d5e877a6465ce5e465197acc8ed5076c22"
+        },
+        {
+          "path": "ext/rapidjson/thirdparty/gtest/",
+          "repository": "https://github.com/google/googletest.git",
+          "commit": "0a439623f75c029912728d80cb7f1b8b48739ca4",
+          "tree": "fb39b50c555771d81f02301b4df090a73459a6fe"
+        },
+        {
+          "path": "ext/rcheevos/",
+          "repository": "https://github.com/RetroAchievements/rcheevos.git",
+          "commit": "ebfe8ca1bf944358e27200d66964fcb4e00e2487",
+          "tree": "ed6d9112ddf6a48d83734e2e6c57d5fffc15344f"
+        },
+        {
+          "path": "ext/zstd/",
+          "repository": "https://github.com/facebook/zstd.git",
+          "commit": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+          "tree": "1a3cb277e9b9b37b01811a3c65f6c25d46a8f241"
+        },
+        {
+          "path": "ffmpeg/",
+          "repository": "https://github.com/hrydgard/ppsspp-ffmpeg.git",
+          "commit": "1e3b4965632f60b1d85360261d1b9dd45444bc71",
+          "tree": "afecedfd2a7fc86ae26fa63c066b51854a14f15c"
+        },
+        {
+          "path": "ffmpeg/gas-preprocessor/",
+          "repository": "https://github.com/FFmpeg/gas-preprocessor.git",
+          "commit": "cbe88474ec196370161032a3863ec65050f70ba4",
+          "tree": "a07f2b893f073c74b9ed94be5ff5d9abdd73412b"
+        },
+        {
+          "path": "ios/MoltenVK/",
+          "repository": "https://github.com/hrydgard/ppsspp-moltenvk.git",
+          "commit": "0bf904d2d1d159eb95bdefcd8432eee79ee1da14",
+          "tree": "34467bfe9480bbdd923b5927569c947a73ce990d"
+        },
+        {
+          "path": "libretro/libretro-common/",
+          "repository": "https://github.com/libretro/libretro-common.git",
+          "commit": "76a3d54feb0ee0ce9d59b90aa24694f3782063d3",
+          "tree": "31f7e1d15fbb62b1d5ab4c54390c34023985f3c4"
+        },
+        {
+          "path": "pspautotests/",
+          "repository": "https://github.com/hrydgard/pspautotests.git",
+          "commit": "4374348477b425f48f99c8fd58a853c439f78acd",
+          "tree": "d0761a151397f450d75b4d25dc3645e654de51a7"
+        },
+        {
+          "path": "pspautotests/common/ext/zstd/",
+          "repository": "https://github.com/facebook/zstd.git",
+          "commit": "e47e674cd09583ff0503f0f6defd6d23d8b718d3",
+          "tree": "26861146b0d50513119a11cb745d7c4a33b30a16"
+        }
+      ],
+      "files": 24897,
+      "noticeFiles": [
+        "Common/UI/Notice.cpp",
+        "Common/UI/Notice.h",
+        "LICENSE.TXT",
+        "SDL/macOS/SDL2.framework/Versions/A/Headers/SDL_copying.h",
+        "SDL/macOS/SDL2.framework/Versions/A/Resources/License.txt",
+        "assets/debugger/static/js/main.fe87e942.js.LICENSE.txt",
+        "ext/OpenXR-SDK/.github/scripts/CMakePresets.json.license",
+        "ext/OpenXR-SDK/COPYING.adoc",
+        "ext/OpenXR-SDK/LICENSE",
+        "ext/OpenXR-SDK/LICENSES/LicenseRef-Khronos-Free-Use-License-for-Software-and-Documentation.txt",
+        "ext/OpenXR-SDK/LICENSES/LicenseRef-KhronosSpecCopyright-WithNormativeWording-v10.txt",
+        "ext/OpenXR-SDK/LICENSES/LicenseRef-jsoncpp-public-domain.txt",
+        "ext/OpenXR-SDK/LICENSES/Unlicense.txt",
+        "ext/OpenXR-SDK/include/generated_header_list.txt.license",
+        "ext/OpenXR-SDK/src/external/jnipp/LICENSE",
+        "ext/OpenXR-SDK/src/external/jsoncpp/LICENSE",
+        "ext/OpenXR-SDK/src/external/jsoncpp/devtools/licenseupdater.py",
+        "ext/OpenXR-SDK/src/loader/abi.json.license",
+        "ext/OpenXR-SDK/src/loader/additional_manifest.mf.in.license",
+        "ext/OpenXR-SDK/src/loader/module.json.license",
+        "ext/OpenXR-SDK/src/loader/prefab.json.license",
+        "ext/SPIRV-Cross/LICENSE",
+        "ext/armips/LICENSE.txt",
+        "ext/armips/ext/filesystem/LICENSE",
+        "ext/cityhash/COPYING",
+        "ext/cpu_features/LICENSE",
+        "ext/discord-rpc/LICENSE",
+        "ext/freetype/LICENSE.TXT",
+        "ext/freetype/src/tools/no-copyright",
+        "ext/freetype/src/tools/update-copyright",
+        "ext/freetype/src/tools/update-copyright-year",
+        "ext/freetype/subprojects/dlg/LICENSE",
+        "ext/gason/LICENSE",
+        "ext/glslang/LICENSE.txt",
+        "ext/glslang/license-checker.cfg",
+        "ext/libadrenotools/LICENSE",
+        "ext/libadrenotools/lib/linkernsbypass/LICENSE",
+        "ext/libchdr/LICENSE.txt",
+        "ext/libchdr/deps/lzma-24.05/LICENSE",
+        "ext/libchdr/deps/zlib-1.3.1/LICENSE",
+        "ext/libchdr/deps/zlib-1.3.1/contrib/dotzlib/LICENSE_1_0.txt",
+        "ext/libchdr/deps/zstd-1.5.6/COPYING",
+        "ext/libchdr/deps/zstd-1.5.6/LICENSE",
+        "ext/libchdr/deps/zstd-1.5.6/build/LICENSE",
+        "ext/libchdr/deps/zstd-1.5.6/tests/test-license.py",
+        "ext/miniupnp/LICENSE",
+        "ext/miniupnp/minissdpd/LICENSE",
+        "ext/miniupnp/miniupnpc/LICENSE",
+        "ext/miniupnp/miniupnpd/LICENSE",
+        "ext/naett/LICENSE",
+        "ext/nanosvg/LICENSE.txt",
+        "ext/portable-file-dialogs/COPYING",
+        "ext/rapidjson/bin/jsonschema/LICENSE",
+        "ext/rapidjson/contrib/natvis/LICENSE",
+        "ext/rapidjson/license.txt",
+        "ext/rapidjson/thirdparty/gtest/googlemock/LICENSE",
+        "ext/rapidjson/thirdparty/gtest/googlemock/scripts/generator/LICENSE",
+        "ext/rapidjson/thirdparty/gtest/googletest/LICENSE",
+        "ext/rcheevos/LICENSE",
+        "ext/snappy/COPYING",
+        "ext/udis86/LICENSE",
+        "ext/zlib/LICENSE",
+        "ext/zstd/COPYING",
+        "ext/zstd/LICENSE",
+        "ext/zstd/build/LICENSE",
+        "ext/zstd/tests/test-license.py",
+        "ffmpeg/COPYING.GPLv2",
+        "ffmpeg/COPYING.GPLv3",
+        "ffmpeg/COPYING.LGPLv2.1",
+        "ffmpeg/COPYING.LGPLv3",
+        "ffmpeg/LICENSE.md",
+        "pspautotests/LICENSE.txt",
+        "pspautotests/common/ext/zstd/COPYING",
+        "pspautotests/common/ext/zstd/LICENSE",
+        "pspautotests/common/ext/zstd/build/LICENSE",
+        "pspautotests/common/ext/zstd/tests/test-license.py"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "org.ppsspp.PPSSPP"
+      ],
+      "recipeEvidence": "docs/emulators/ppsspp.md"
+    },
+    {
+      "schema": 1,
+      "id": "libchdr",
+      "file": "libchdr-8bba7745d758627258b315997a860039244cedaf.tar.gz",
+      "bytes": 4181279,
+      "sha256": "edee10fd77af4baa9e42aa97e028c2cd6527d64048068f0da7863ab0f07bd092",
+      "repository": "https://github.com/rtissera/libchdr.git",
+      "commit": "8bba7745d758627258b315997a860039244cedaf",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/rtissera/libchdr.git",
+          "commit": "8bba7745d758627258b315997a860039244cedaf",
+          "tree": "550e9e36c100627998c27fd0b8ba2d60c1c298f3"
+        }
+      ],
+      "files": 947,
+      "noticeFiles": [
+        "LICENSE.txt",
+        "deps/lzma-24.05/LICENSE",
+        "deps/zlib-1.3.1/LICENSE",
+        "deps/zlib-1.3.1/contrib/dotzlib/LICENSE_1_0.txt",
+        "deps/zstd-1.5.6/COPYING",
+        "deps/zstd-1.5.6/LICENSE",
+        "deps/zstd-1.5.6/build/LICENSE",
+        "deps/zstd-1.5.6/tests/test-license.py"
+      ],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "psp-content"
+      ],
+      "recipeEvidence": "docs/emulators/ppsspp.md"
+    },
+    {
+      "schema": 1,
+      "id": "aemu-postoffice",
+      "file": "aemu-postoffice-572de778fabcbda819ab0f677368c3fbc3033e19.tar.gz",
+      "bytes": 232181,
+      "sha256": "1052e05e4d83ddfaf6cae744f679d43c727ddd40bc76309c6e5801ef3dd1a3e8",
+      "repository": "https://github.com/Kethen/aemu_postoffice.git",
+      "commit": "572de778fabcbda819ab0f677368c3fbc3033e19",
+      "trees": [
+        {
+          "path": ".",
+          "repository": "https://github.com/Kethen/aemu_postoffice.git",
+          "commit": "572de778fabcbda819ab0f677368c3fbc3033e19",
+          "tree": "e290f33264e11e01ad90d02b9e2253c6038836d6"
+        }
+      ],
+      "files": 60,
+      "noticeFiles": [],
+      "lfsObjects": [],
+      "externalLinks": [],
+      "upstreamSourceCollected": true,
+      "completeCorrespondingSourceReviewed": false,
+      "components": [
+        "psp-network",
+        "org.ppsspp.PPSSPP"
+      ],
+      "recipeEvidence": "tools/ppsspp-relay/build.sh"
+    }
+  ],
+  "completeRuntimeCorrespondingSource": false,
+  "redistributionReviewed": false,
+  "published": false
+}

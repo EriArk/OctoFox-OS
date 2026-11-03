@@ -9,8 +9,11 @@
 Production `2a6c9c9b` установлен через GUI Setup: ScreenScraper вошёл с доступом
 приложения из пакета, без developer-полей в исходном личном файле. Полный кандидат 08
 собран; повторной полной установки с нуля и публичного выпуска нет. Опись runtime
-составлена, все 38 Python sdist скачаны и сверены. Далее — точные исходники/лицензии
-эмуляторов, сборка notices, упаковка моделей и публикация GitHub/OTA. Odin не менялся.
+составлена; 38 Python sdist/notices упакованы, 22 pinned source capsules собраны
+на сервере. [Новый состав и конкретные пробелы](RELEASE_SOURCE_BUNDLE_RU.md) отделяют
+готовые материалы от полного corresponding-source review. Далее — оставшиеся
+готовые ядра/AppImage/Flatpak и библиотеки, условия DuckStation, упаковка моделей
+и публикация GitHub/OTA. Установленный runtime и Odin не менялись.
 Подробности: [доказательства](evidence/2026-11-03-isolated-install/README.md).
 
 

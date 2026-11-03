@@ -1,0 +1,205 @@
+{
+  "schema": 1,
+  "scope": "Pinned upstream inputs; binary coverage and external build dependencies require separate review",
+  "sources": [
+    {
+      "id": "azahar-netplay",
+      "repository": "https://github.com/azahar-emu/azahar.git",
+      "commit": "219d743a1e698101fe1ab8bef43e6563126c3c27",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "azahar-netplay"
+      ]
+    },
+    {
+      "id": "dolphin-netplay",
+      "repository": "https://github.com/dolphin-emu/dolphin.git",
+      "commit": "c77bbaa0f372c3f72281602a8b087206706542cb",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "dolphin-netplay"
+      ]
+    },
+    {
+      "id": "flycast-lan",
+      "repository": "https://github.com/blueminder/flycast-dojo.git",
+      "commit": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "flycast-lan"
+      ]
+    },
+    {
+      "id": "flycast-netplay",
+      "repository": "https://github.com/blueminder/flycast-dojo.git",
+      "commit": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "flycast-netplay"
+      ]
+    },
+    {
+      "id": "flycast-online",
+      "repository": "https://github.com/flyinghead/flycast.git",
+      "commit": "5aa091fde632fb332c8d8c34e280d62dc951954c",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "flycast-online"
+      ]
+    },
+    {
+      "id": "melonds-netplay",
+      "repository": "https://github.com/melonDS-emu/melonDS.git",
+      "commit": "906e9ebb27da8c6a715cd7abab4abfe8a8d29427",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "melonds-netplay"
+      ]
+    },
+    {
+      "id": "neocd-netplay",
+      "repository": "https://github.com/libretro/neocd_libretro.git",
+      "commit": "b1e04c738cb48a1dae0574b8877f6a116d270ca1",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "neocd-netplay"
+      ]
+    },
+    {
+      "id": "ngpc",
+      "repository": "https://github.com/Tixul/Ngpcraft_emulator.git",
+      "commit": "d0acb0874cc07735d7fa978539bb2471b2c1e71a",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "ngpc"
+      ]
+    },
+    {
+      "id": "odamex",
+      "repository": "https://github.com/odamex/odamex.git",
+      "commit": "3a763534ac609aee8d22351baa3155809c4ea355",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "odamex"
+      ]
+    },
+    {
+      "id": "pcsx-rearmed-cbin",
+      "repository": "https://github.com/libretro/pcsx_rearmed.git",
+      "commit": "c8816799b50388e61cfe237fe2cdbb7d8175f20a",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "pcsx-rearmed-cbin"
+      ]
+    },
+    {
+      "id": "rmg-netplay",
+      "repository": "https://github.com/Rosalie241/RMG.git",
+      "commit": "4777ed3f1fb7f1e4a0e70438a27dc4a5e9fb1927",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "rmg-netplay"
+      ]
+    },
+    {
+      "id": "supermodel-link",
+      "repository": "https://github.com/trzy/Supermodel.git",
+      "commit": "036af1c8d6640c5a60709c1f99144635ed82a184",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "supermodel-link"
+      ]
+    },
+    {
+      "id": "vita3k-netplay",
+      "repository": "https://github.com/Vita3K/Vita3K.git",
+      "commit": "46602447c7f84d53790b44e1869ab5105178bf16",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "vita3k-netplay"
+      ]
+    },
+    {
+      "id": "xemu-lan",
+      "repository": "https://github.com/xemu-project/xemu.git",
+      "commit": "25e1ee2fd59a451f2ab57e825b4f8a5414220c8b",
+      "evidence": "packaging/emulators/fullbundle-arm64.json",
+      "components": [
+        "xemu-lan"
+      ]
+    },
+    {
+      "id": "rmg-server",
+      "repository": "https://github.com/Rosalie241/rmg-netplay-server.git",
+      "commit": "bf0f28746971fcb6341fac55c0d2d19f646a6e09",
+      "evidence": "packaging/emulators/rmg/build.sh",
+      "components": [
+        "rmg-netplay"
+      ]
+    },
+    {
+      "id": "gpsp",
+      "repository": "https://github.com/libretro/gpsp.git",
+      "commit": "5819380c2ffb0900219d700a382ee68c464ebb99",
+      "evidence": "packaging/emulators/handheld/build.sh",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "doublecherrygb",
+      "repository": "https://github.com/TimOelrichs/doublecherryGB-libretro.git",
+      "commit": "03f58ca3dfb4b716f7e66a0e0467f9e85ef82abb",
+      "evidence": "packaging/emulators/handheld/build.sh",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "sameboy",
+      "repository": "https://github.com/libretro/SameBoy.git",
+      "commit": "aa158a889a48b538a0302873704a34577c8eb67d",
+      "evidence": "packaging/emulators/handheld/build.sh",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "mgba-linked",
+      "repository": "https://github.com/Spuds0588/mgba-splitscreen.git",
+      "commit": "b66511a35873bda9c961872813e58b35543bcfc5",
+      "evidence": "packaging/emulators/handheld/build-mgba-linked.sh",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "ppsspp",
+      "repository": "https://github.com/hrydgard/ppsspp.git",
+      "commit": "fa50bb1976065c4f8b1b47af227d367fe9771555",
+      "evidence": "docs/emulators/ppsspp.md",
+      "components": [
+        "org.ppsspp.PPSSPP"
+      ]
+    },
+    {
+      "id": "libchdr",
+      "repository": "https://github.com/rtissera/libchdr.git",
+      "commit": "8bba7745d758627258b315997a860039244cedaf",
+      "evidence": "docs/emulators/ppsspp.md",
+      "components": [
+        "psp-content"
+      ]
+    },
+    {
+      "id": "aemu-postoffice",
+      "repository": "https://github.com/Kethen/aemu_postoffice.git",
+      "commit": "572de778fabcbda819ab0f677368c3fbc3033e19",
+      "evidence": "tools/ppsspp-relay/build.sh",
+      "components": [
+        "psp-network",
+        "org.ppsspp.PPSSPP"
+      ]
+    }
+  ]
+}

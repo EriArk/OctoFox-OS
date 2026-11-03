@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "method": "Read packaged metadata and ELF strings with unsquashfs/DwarFS; no emulator execution",
+  "components": [
+    {
+      "id": "ARMSX2",
+      "sha256": "1c40028a0464bcfab57826518500dcd11ceb472bea16d0900d7146abb11a4224",
+      "componentArchiveSha256": "a00c2b53083162207cbc19e7379c9d29029c9f03db03a43e1981a8df597ac709",
+      "format": "SquashFS",
+      "noticeFiles": 75,
+      "projectLicense": [
+        "GPL-3.0+"
+      ],
+      "embeddedCommitCandidates": [
+        "90126bdfea7a3ffb1fd288b2f7f0ae0b033af2d6"
+      ],
+      "completeSourceMatched": false
+    },
+    {
+      "id": "Azahar-Enhanced",
+      "sha256": "f2c13c954a23433b7a4d05d397e0871d48be3b058f4963a1736f6e84d6448fd8",
+      "componentArchiveSha256": "9fcd1f20213f3b8257776fbe262126bcf4d88f0620b4f7720d988ef8dc1f1d12",
+      "format": "DwarFS",
+      "noticeFiles": 0,
+      "projectLicense": [],
+      "embeddedCommitCandidates": [
+        "d162991403ff3a77ed623b6dd29b5074c4f45819"
+      ],
+      "completeSourceMatched": false
+    },
+    {
+      "id": "Cemu",
+      "sha256": "8b6920d40b0eee45148833d735b1b40fe40888e11d75a708493c126b8cf853cc",
+      "componentArchiveSha256": "44dcb1adbbabc0b07f0b3e3b645f293e6c761e1552628aa683055c6b34733fd5",
+      "format": "DwarFS",
+      "noticeFiles": 0,
+      "projectLicense": [],
+      "embeddedCommitCandidates": [],
+      "completeSourceMatched": false
+    },
+    {
+      "id": "DuckStation",
+      "sha256": "dce6ca77055ace60491781b6b57f3e55e9b54678777ac575ac2471c22ad1128e",
+      "componentArchiveSha256": "e9bd313a32a77dfac33461705a3bbc15dd7d303b8fad80c2cb76e780aa11b892",
+      "format": "SquashFS",
+      "noticeFiles": 1,
+      "projectLicense": [
+        "CC-BY-NC-ND-4.0"
+      ],
+      "embeddedCommitCandidates": [
+        "dd4a0eb779296a525f8b10b6d9a45911ad6d088f"
+      ],
+      "completeSourceMatched": false
+    },
+    {
+      "id": "eden",
+      "sha256": "b64f926cbf74fd870a39b144971084323d895d51919b91e906328e7f81bea087",
+      "componentArchiveSha256": "29a5465b10e40017c4f2ed62d9b1f10a96a1137013c11a0a5d5fd34e13cceeb8",
+      "format": "DwarFS",
+      "noticeFiles": 1,
+      "projectLicense": [],
+      "embeddedCommitCandidates": [
+        "da42070c4ad25840c9ee25344bde9d0a8584f5a9"
+      ],
+      "completeSourceMatched": false
+    },
+    {
+      "id": "melonDS",
+      "sha256": "eb89fb87e08accdb47b6992e8a03f5534bd211b271ebb46e181f3bdce14e1b0c",
+      "componentArchiveSha256": "036930492e54df1e63f7e3b575a14242ee3559a4c43534b2f4ff65f06c06df7e",
+      "format": "SquashFS",
+      "noticeFiles": 92,
+      "projectLicense": [],
+      "embeddedCommitCandidates": [],
+      "completeSourceMatched": false
+    },
+    {
+      "id": "rpcs3",
+      "sha256": "f1ecd9af6073eb3643c4e10e5befff25bdcd4d2da53aec69547da5fa7f8ae1d2",
+      "componentArchiveSha256": "2023f5baaf27efb5b8a3dd9c68059c25ab169b7b7b680c1262d096eb5cf26f9e",
+      "format": "DwarFS",
+      "noticeFiles": 92,
+      "projectLicense": [
+        "GPL-2.0-only"
+      ],
+      "embeddedCommitCandidates": [],
+      "completeSourceMatched": false
+    }
+  ],
+  "redistributionReviewed": false
+}

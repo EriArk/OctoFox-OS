@@ -1,5 +1,10 @@
 # Структура TrainerOS: владельцы, контракты и связи
 
+**3 ноября — S13, исходники выпуска.** `source_capsule.py` собирает pinned Git/LFS
+inputs из `packaging/emulators/release-sources.json`; `source_materials.py` сверяет
+Python sdist/wheels и извлекает notices/patches из runtime media. Сбор материалов
+не включает runtime и не разрешает публикацию. [Состав и границы](RELEASE_SOURCE_BUNDLE_RU.md).
+
 **3 ноября — S04/S14, границы Home-карточки.** HomeDashboard выделяет адаптеру
 верхнюю область, а достижениям, скриншотам и запуску — отдельный нижний ряд.
 Адаптер подстраивает заголовок, прогресс и команду под полученный размер; левая

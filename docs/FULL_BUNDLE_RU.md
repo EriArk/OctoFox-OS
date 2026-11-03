@@ -13,6 +13,11 @@ Armada остаётся отдельной базовой ОС. Обновлен
 
 ### Опись перед публичной упаковкой
 
+**Продолжение 3 ноября:** собраны 22 закреплённых source capsules с Git/LFS
+зависимостями и отдельный Python/source/notices supplement. Новые материалы
+ещё не подменяют runtime archive полного кандидата 08.
+[Конкретный состав и незакрытые пункты](RELEASE_SOURCE_BUNDLE_RU.md).
+
 [Машинная опись](evidence/2026-11-03-full-bundle/release-inventory.json) повторно
 прочитана из фактического архива инструментом
 [`release_inventory.py`](../packaging/software/release_inventory.py): 29 компонентов,
