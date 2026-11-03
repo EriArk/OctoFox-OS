@@ -1,0 +1,7 @@
+{
+  "logicalBytes": 38887073992,
+  "freeBefore": 10232324096,
+  "freeAfter": 32458080256,
+  "scope": "Only obsolete development shell ELF files in TrainerOS delivery caches. Personal data, current managed installation, managed rollback and verified backups preserved.",
+  "removedFiles": 334
+}

@@ -21,7 +21,8 @@ Item {
                 visible: !root.flow.keypad; x: 28; y: 66; width: 526; height: parent.height - y - 30
                 spacing: 0; clip: true; interactive: contentHeight > height
                 keyNavigationEnabled: false
-                readonly property real rowHeight: Math.max(52, Math.min(66, height / Math.max(1, count)))
+                readonly property bool identityRows: root.flow.stage === "identity"
+                readonly property real rowHeight: Math.max(identityRows ? 44 : 60, Math.min(66, height / Math.max(1, count)))
                 model: root.flow.rows; currentIndex: root.flow.focusIndex
                 onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
                 onCountChanged: positionViewAtIndex(currentIndex, ListView.Contain)
@@ -31,7 +32,16 @@ Item {
                     CapButton {
                         focus: true
                         objectName: "setup-action-" + index
-                        x: 8; y: 6; width: 510; height: Math.min(48, parent.height - 12); label: modelData.label; detail: modelData.detail
+                        x: 8; y: 6; width: 510; height: Math.min(48, parent.height - 12)
+                        label: modelData.label; detail: setupList.identityRows ? "" : modelData.detail
+                        Accessible.name: modelData.label + (modelData.detail.length ? ", " + modelData.detail : "")
+                        Text {
+                            visible: setupList.identityRows
+                            anchors.right: parent.right; anchors.rightMargin: 13; anchors.verticalCenter: parent.verticalCenter
+                            width: 300; text: modelData.detail; textFormat: Text.PlainText
+                            horizontalAlignment: Text.AlignRight; elide: Text.ElideRight
+                            color: Theme.muted; font.pixelSize: 12
+                        }
                         tint: index % 2 ? Theme.blue : Theme.yellow
                         selected: root.takesFocus && !root.flow.keypad && root.flow.focusIndex === index
                         onActivated: root.entry ? root.flow.activate(index) : root.shell.activate(index)
