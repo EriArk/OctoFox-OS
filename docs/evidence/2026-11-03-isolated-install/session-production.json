@@ -1,0 +1,9 @@
+{
+  "exit": 0,
+  "step": 2,
+  "source": "2434f41f28be66921fb0d629f3add77377b4559e",
+  "binarySha256": "78f01966290d493edca1ce6e31fed2fa9eb480a108b4cc2a89a42fb0758e74b3",
+  "sourceArchive": "TrainerOS-2434f41f-source.tar.gz",
+  "sourceArchiveSha256": "113138aea3e2fc54981d83a1d4958a8a1f4632146e8c551a4dc6a2d5ba5ec681",
+  "buildTesting": false
+}

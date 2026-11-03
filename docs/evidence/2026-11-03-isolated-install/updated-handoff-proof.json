@@ -1,0 +1,8 @@
+{
+  "desktopLive": true,
+  "runtimeFenceReleased": true,
+  "browserExited": true,
+  "openAppGuardObserved": true,
+  "minimizeMethod": "installed app helper minimize command; not physical input",
+  "normalExit": true
+}

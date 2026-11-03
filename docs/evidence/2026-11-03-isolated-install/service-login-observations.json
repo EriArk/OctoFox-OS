@@ -1,0 +1,20 @@
+{
+  "source": "2434f41f28be66921fb0d629f3add77377b4559e",
+  "backendOAuthViaRememberedBrowser": true,
+  "backendProfileRetainedAfterSessionRestart": true,
+  "chatBrowserHandoffApproved": true,
+  "chatContactsVisible": true,
+  "chatRetainedAfterSessionRestart": true,
+  "shellPidsBeforeAfter": [
+    51432,
+    70427
+  ],
+  "screenScraperSettingsConnectionAccepted": true,
+  "retroAchievementsTokenAccepted": "ra-token-check.json",
+  "steamRememberedLogin": "steam-retained-login.json",
+  "freshPasswordEntryTested": false,
+  "messagesSent": false,
+  "callsStarted": false,
+  "patreonBound": false,
+  "odinChanged": false
+}
