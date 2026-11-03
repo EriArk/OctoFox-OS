@@ -1,0 +1,1231 @@
+{
+  "schema": 1,
+  "componentArchiveSha256": "b0bc151b3d9e8cb7b977e45da7eba3e2ba82050f70a000913f6ac684668647c7",
+  "coreCount": 76,
+  "upstreamSourceCollected": 50,
+  "identityUnresolved": 26,
+  "recipeReferenceCollected": true,
+  "cores": [
+    {
+      "path": "cores/81_libretro.so",
+      "sha256": "7a2d2a01381fb476fa4a3f7648d5c31b95e6056c15420b397e93eb4fc052c0e2",
+      "sourceId": "core-81",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/DoubleCherryGB_libretro.so",
+      "sha256": "e49b43151b22b568ce64af80992e9abffa4dd48db9d906a792e5c69f8bd5d087",
+      "sourceId": "doublecherrygb",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [
+        "packaging/emulators/handheld/bundle.json",
+        "packaging/emulators/handheld/build.sh",
+        "packaging/emulators/handheld/doublecherry-rtc.patch",
+        "packaging/emulators/handheld/TrainerMbc3Rtc.h"
+      ],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/a5200_libretro.so",
+      "sha256": "7998a4b8c9592efd29502da9f9739e4cbcc58e3ffd6ca2495ca46fe78f630c11",
+      "sourceId": "core-a5200",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/amiarcadia_libretro.so",
+      "sha256": "fc97cbcdd12d9b46227adb9c753ead020d74f655dc3c5d4aa63debc6d386a4c8",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/applewin_libretro.so",
+      "sha256": "321cb5cd20a28c6e4540dfc3263c092cd504e4153a7810a63e0072d019f4af8c",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/arduous_libretro.so",
+      "sha256": "ee8bde607b151ce064e0130a8dedb4fd9ec49ea9bfe236ff12b8bf18ad396549",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/armsx2_libretro.so",
+      "sha256": "cf66f1b18f31fa373401c6417dab563fe747a0d8f0b375f92a786c52abf60679",
+      "sourceId": "core-armsx2",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/atari800_libretro.so",
+      "sha256": "076ccae83c6887dc26e49edd98e2de4c07768ce4d22ed2c6c50c2deb3bf0efb3",
+      "sourceId": "core-atari800",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/b2_libretro.so",
+      "sha256": "8d4c6eaed3f7df78871a25d1491a20141a610ebf064fca398a9c4a3414ed6817",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/bk_libretro.so",
+      "sha256": "1b836672e223348f80ae2cbbb2042322ee91c72bbde862b6224116b70f977997",
+      "sourceId": "core-bk",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/bluemsx_libretro.so",
+      "sha256": "cb6a7d33d93a23e4089f5cf3d44406b6e45dadc2d0ba429fa7157012d2ac301b",
+      "sourceId": "core-bluemsx",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/cap32_libretro.so",
+      "sha256": "cc89e9c18c472f679402f7a78679f2084b2d5019bdb22ad9b88519c19587903b",
+      "sourceId": "core-cap32",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/cemu_libretro.so",
+      "sha256": "a07acf795cd807f759f67a7a869bb24888f790c7d0ec0ad5d3d114badc535074",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/citra_libretro.so",
+      "sha256": "d983fe8a3329478e10f2dbbb617ddae9a6652339a038fdf714762785b238dc93",
+      "sourceId": "core-citra",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/dosbox_pure_libretro.so",
+      "sha256": "a391d8708269edca8d7d4e84183fbc30a78a27d4fe45645566d7a8dd3e2cfc90",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/emuscv_libretro.so",
+      "sha256": "cbb19ce5d7187dfe22cc865d1885ae575802bcd45e244e0dbd4dc4bbe9ba4779",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/ep128emu_core_libretro.so",
+      "sha256": "0a589aefa2946ab7b7dc1c518e6947852ab4c7eb9aafc825446af14b36f4ea08",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/fbneo_libretro.so",
+      "sha256": "ffb37315a609317e1a00bf32c0e3d66c5a848d052d1260f4ab7f42da0f9fb9c3",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/fceumm_libretro.so",
+      "sha256": "1b13b00d4680394dad8000d5175f97be727107e0945bc9b412da91d70c07b267",
+      "sourceId": "core-fceumm",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/flycast_libretro.so",
+      "sha256": "0f18e86be41e800fe84604192824ae37726f1937ab503d37519bd42b15b7bc1e",
+      "sourceId": "core-flycast",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/freechaf_libretro.so",
+      "sha256": "f0f24b56d2fd9d5befce8e5915be0ae1c79fe7d2346ac89e72234779d1349baa",
+      "sourceId": "core-freechaf",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/freeintv_libretro.so",
+      "sha256": "f0e6dfb5089bdcef32c0cc2fecfc724be5acb9d6a7a2a7e1522b013b1f7a38f8",
+      "sourceId": "core-freeintv",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/fuse_libretro.so",
+      "sha256": "9561c0b4759e3f9301fbe39eb60828b17d3ea6e9950cf3bd721f0a97481d1246",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/gambatte_libretro.so",
+      "sha256": "8db8742add1b9e0b4918145411f54c0050eed61638c1d3f15d011644f9a5eeaf",
+      "sourceId": "core-gambatte",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/gearcoleco_libretro.so",
+      "sha256": "0e9656d318019b4085ae0af431611cc906855f26e279781dbd79c5cb05f28d6c",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/genesis_plus_gx_libretro.so",
+      "sha256": "de8ad971eee89fa5e4e00dd1c048f0a8cc53cd9558b8c143aa022f5d7623d273",
+      "sourceId": "core-genesis-plus-gx",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/gpsp_libretro.so",
+      "sha256": "bf0aee3cbb0bbb6d5dcee715a7b3a4da24631bf925a620ab02b937b43a626b4c",
+      "sourceId": "gpsp",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [
+        "packaging/emulators/handheld/bundle.json",
+        "packaging/emulators/handheld/build.sh"
+      ],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/gw_libretro.so",
+      "sha256": "56bc41f0e49565ed84d35e7a92949bffa075b4ab6be0f0dc84118ab4fd16b815",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/handy_libretro.so",
+      "sha256": "3efb38b73e44b561d89f4877e9ac86a1fe99bcb23a1ad0843204d2dd254d892e",
+      "sourceId": "core-handy",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/hatari_libretro.so",
+      "sha256": "317eb58690a748828dd27fd50a0fd80811e2da023bf164b70dbb24c1c3c53c19",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/lowresnx_libretro.so",
+      "sha256": "6a28c0d9e095dac15f2769b4bbeadbf2047e2aedfc2486e2cf1af28df323b688",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/mame_libretro.so",
+      "sha256": "4b37dc1289104b45baa2a3b531ccfaba988a12467084e41298ae0a128742ad2f",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/mednafen_ngp_libretro.so",
+      "sha256": "b67d6a649117a9d82f015b5b5530e749fe5c5c198005d71061aa3e46e3da1b9d",
+      "sourceId": "core-mednafen-ngp",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/mednafen_pce_fast_libretro.so",
+      "sha256": "f7686b2bfab6a9ca34d3d48e6eda5c41ae37c430cf5c73b0f256cefd54990a51",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/mednafen_pcfx_libretro.so",
+      "sha256": "9a6ca3bfd16cd480ba4c94602c1103838899a770e83584ea809891d6acca6e1e",
+      "sourceId": "core-mednafen-pcfx",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/mednafen_supergrafx_libretro.so",
+      "sha256": "574c4b61e83b1a4034a42cfceed62e09ae8f0809c85527ca979fe9c5e18865e3",
+      "sourceId": "core-mednafen-supergrafx",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/mednafen_vb_libretro.so",
+      "sha256": "f0aa440c5e76c9f2b7b3f9d18c9e5ff8dac252d5539ab69adf03d32bcbfa10be",
+      "sourceId": "core-mednafen-vb",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/mednafen_wswan_libretro.so",
+      "sha256": "700b6eb5678a3283db9818cf22c68783d0d7f1607142b1d069c366eab81dfbaa",
+      "sourceId": "core-mednafen-wswan",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/mgba_libretro.so",
+      "sha256": "abde7a0764f08fa0cc2c7d3d9a29b9d1245a9f3b7df0e7a594b74df642ee53c6",
+      "sourceId": "core-mgba",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/mgba_splitscreen_libretro.so",
+      "sha256": "fbf14e74472aa9f298f9a8a964b6bd00cae37ccc6563f347a92d2a3f1a088977",
+      "sourceId": "mgba-linked",
+      "status": "upstream-source-collected",
+      "dirtyMarker": true,
+      "localMaterials": [
+        "packaging/emulators/handheld/build-mgba-linked.sh",
+        "packaging/emulators/handheld/mgba-linked-pair.patch"
+      ],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/minivmac_libretro.so",
+      "sha256": "09acdbb9f72352ebf54cdee8ae3864acf681753103183ffcabd9845d90cfffec",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/neocd_libretro.so",
+      "sha256": "4e113c99a14b1ab96181ded0e5a879a2c87b29a495a8e30315ec6efc96465ad4",
+      "sourceId": "core-neocd",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/np2kai_libretro.so",
+      "sha256": "5c5123d16da656c9a7a8a9db1caed89ed5832cfd465437e5057d5224fef3e3e1",
+      "sourceId": "core-np2kai",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/o2em_libretro.so",
+      "sha256": "155fa5caa73687cadd9c5ba22706b3be3560157165873eca1b52daa0f2bdc588",
+      "sourceId": "core-o2em",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/opera_libretro.so",
+      "sha256": "ef88a7040a6a97c0ac14399c12151c68c69d05f09f301d447a4596c6621e9aaa",
+      "sourceId": "core-opera",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/parallel_n64_libretro.so",
+      "sha256": "7301ca3ea5030c23c8bbaec53f90379b15c93cf2aba77fcaf746d206dc5c1560",
+      "sourceId": "core-parallel-n64",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/pcsx_rearmed_libretro.so",
+      "sha256": "25bfeb6336d7ef573903775fe53733af974c90edd268cf4fb9afa497e188609d",
+      "sourceId": "core-pcsx-rearmed",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/picodrive_libretro.so",
+      "sha256": "6b0dbe4e21f0e47afbf8a89d59b92e5b48a316dd7c5fae8c74d7351f341de044",
+      "sourceId": "core-picodrive",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/pokemini_libretro.so",
+      "sha256": "afaf6d425a283b7dce94ab2e8e5da21f267f1fa808f47348044f4f3dc9f943f2",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/potator_libretro.so",
+      "sha256": "6ce04f01c2ee993cda6b83131d9434a56bf3817e2590b2e4e2d1118f7d140937",
+      "sourceId": "core-potator",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/ppsspp_libretro.so",
+      "sha256": "a508773e5a4942ba32f19dc7cb4a32802f693eb93336438b2f0d2fe01145ba70",
+      "sourceId": "core-ppsspp",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/prosystem_libretro.so",
+      "sha256": "284a5c1390d47c00967bed8c8b83a14a04234508fff69ffac906d532f7db8a51",
+      "sourceId": "core-prosystem",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/puae_libretro.so",
+      "sha256": "01c3a33921240657c73d66e10fab607fb674e0d4b9ecc9d66a01f8da5d32d8ad",
+      "sourceId": "core-puae",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/px68k_libretro.so",
+      "sha256": "4faa50da0016e80e5397ca2ca2f8d7bb7b57c80ce004faf6bd4388d82f2837b7",
+      "sourceId": "core-px68k",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/quasi88_libretro.so",
+      "sha256": "366e9fc72877d40d6878611ab3b7bc8f6aa1d2b1053d42d48c93bf4b02bf53a7",
+      "sourceId": "core-quasi88",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/retro8_libretro.so",
+      "sha256": "b1054563ab2e548d62597f32a6bcaf12e4c1ff1a5d331ecd128b30ccacfed84c",
+      "sourceId": "core-retro8",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/same_cdi_libretro.so",
+      "sha256": "17f8f0b0aa81a4bfc9e09bb399fcfb29d6aa58c7592247d25c079dd9b42a9ef7",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/sameboy_libretro.so",
+      "sha256": "f0f6d03669761544b90b95596894fec41dee311c3fe8be5c0ffd7fe7866b1533",
+      "sourceId": "sameboy",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [
+        "packaging/emulators/handheld/build.sh",
+        "packaging/emulators/handheld/sameboy-linked-pair.patch"
+      ],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/sameduck_libretro.so",
+      "sha256": "d0a75d3772d4c1d9d66fbddf95d8fb0a2496205144157c586f10f3998028a8be",
+      "sourceId": "core-sameduck",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/scummvm_libretro.so",
+      "sha256": "7e7dde9c7216b68fc09f5c86d847ed912c06c2dba721166444764eb57fa57b3d",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/snes9x_libretro.so",
+      "sha256": "e8d8f5cf93898c7be3ca2590d4d75dc8e9a89b891589c2da1a7917fa27411d21",
+      "sourceId": "core-snes9x",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/stella_libretro.so",
+      "sha256": "bf2cf27781f9e393079c9a53c71d8676d638025086955498641723a8e121228a",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/theodore_libretro.so",
+      "sha256": "2ddb36c0f34fbd84782b2799f28e2e94faff70b62ea0887e1c581b978000b3cc",
+      "sourceId": "core-theodore",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/tic80_libretro.so",
+      "sha256": "465e54f90ecc581115fbd70cbee9adad9967492cb8c9dfb3390985e67bdc10b0",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/uzem_libretro.so",
+      "sha256": "d75685c9191a2d07422568960ac68e5dc0f3ea5a796c115c4ec1aa43d84ff609",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/vecx_libretro.so",
+      "sha256": "d9d86dadab9098e2c9847ddee10af553a8b883589c7c41107d4806eb45759ec9",
+      "sourceId": "core-vecx",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/vice_x128_libretro.so",
+      "sha256": "1676b8b13ce00884ee3861849bc7755d2f3a5b04b7dc400a2839323ce040280f",
+      "sourceId": "core-vice",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/vice_x64_libretro.so",
+      "sha256": "e3bb88342920ed43a18d8b01698bdaa1dc92b7e45a56ac65c33917d4eae9621c",
+      "sourceId": "core-vice",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/vice_xpet_libretro.so",
+      "sha256": "8bf51453b95e6f1d8e55eae918c433538388ce4254f29e08f9b314086008075e",
+      "sourceId": "core-vice",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/vice_xplus4_libretro.so",
+      "sha256": "1ddcaf46c5e51aeaa419b45d873eec3919a844a7729e92a9eb39d6ad86669646",
+      "sourceId": "core-vice",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/vice_xvic_libretro.so",
+      "sha256": "e607670898ed84e1fab13d1f36f2e4c0fd3f87e57ce25e5f99f50a07008a9eca",
+      "sourceId": "core-vice",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/vircon32_libretro.so",
+      "sha256": "51bad96135f05b3c9c536bacc3f61c2e08b31520924b8164de64fb369180e494",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/virtualjaguar_libretro.so",
+      "sha256": "7ef3c2344e130ff69ab7c0f2c717e9aa5be47ad212840db4875d0a8c21dc997b",
+      "sourceId": "core-virtualjaguar",
+      "status": "upstream-source-collected",
+      "dirtyMarker": true,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/wasm4_libretro.so",
+      "sha256": "3e2328e279173d7de4f942fc5e455aa9b5d4d668e89242ade0738509dcd80bfb",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/x1_libretro.so",
+      "sha256": "9918001d66e4d49c178ca6599267a0bb0fea75ad7379160c5ef8e5559a943291",
+      "sourceId": null,
+      "status": "identity-unresolved",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    },
+    {
+      "path": "cores/yabasanshiro_libretro.so",
+      "sha256": "a22ab8993b30edbd029bd593a353f9db1080546ac577e7f8f0c7b98dbfec714c",
+      "sourceId": "core-yabasanshiro",
+      "status": "upstream-source-collected",
+      "dirtyMarker": false,
+      "localMaterials": [],
+      "completeBinaryBuildReviewed": false
+    }
+  ],
+  "completeCorrespondingSourceReviewed": false,
+  "redistributionReviewed": false,
+  "files": [
+    {
+      "path": "traineros/LICENSE",
+      "bytes": 34906,
+      "sha256": "cde3a5c4c116f8cde7ba83ee7a4a885bc591164195b6123bfcbcdc3a52f9a88c"
+    },
+    {
+      "path": "traineros/LICENSING.md",
+      "bytes": 6183,
+      "sha256": "56ec82a754702d6fd0c8d79ae56ae1d72f924582545133e072ade98ad6ae39ec"
+    },
+    {
+      "path": "traineros/packaging/emulators/handheld/TrainerMbc3Rtc.h",
+      "bytes": 2438,
+      "sha256": "712710661ecbde53b7c23692b0ed6b4b3c403b8895a1b169437057a3498c3bf6"
+    },
+    {
+      "path": "traineros/packaging/emulators/handheld/build-mgba-linked.sh",
+      "bytes": 1170,
+      "sha256": "e20afd215fb3146f4c2ed0c8932a329806d4dea86db8db0dc9f3d669cec22954"
+    },
+    {
+      "path": "traineros/packaging/emulators/handheld/build.sh",
+      "bytes": 2215,
+      "sha256": "60f56a3ef80eeb968fc7db095e7c0f99486f9d7720d174c284299c196386fe37"
+    },
+    {
+      "path": "traineros/packaging/emulators/handheld/bundle.json",
+      "bytes": 442,
+      "sha256": "b9ce20e6413996536ac284d0f2b2658108534fad4c4aa4560f647691f028c332"
+    },
+    {
+      "path": "traineros/packaging/emulators/handheld/doublecherry-rtc.patch",
+      "bytes": 5582,
+      "sha256": "1b73202f225a01c397cd3143dd2045316290da5c6a387fe03778d5e23814aa02"
+    },
+    {
+      "path": "traineros/packaging/emulators/handheld/mgba-linked-pair.patch",
+      "bytes": 7301,
+      "sha256": "3cec82cc04714214dd6b517076071abec0681783ef1a60c7b9feddaf29ccabbb"
+    },
+    {
+      "path": "traineros/packaging/emulators/handheld/sameboy-linked-pair.patch",
+      "bytes": 7966,
+      "sha256": "8cfc7a1e6b29fd1deb3f0cb5223147360842f8f35653c6671a018eb78d573be2"
+    },
+    {
+      "path": "upstream/core-81-fa7094910d040baa5fd8b11dbf6a1a618330ecd9.tar.gz",
+      "bytes": 1195276,
+      "sha256": "df581b851c8174d85e58906da9a729fce7b898371c6a117c743bf62940b842be"
+    },
+    {
+      "path": "upstream/core-81.json",
+      "bytes": 767,
+      "sha256": "aeb9d399f59a35f9380968536df37dfeb21af93e194eaff11c36799c9126c879"
+    },
+    {
+      "path": "upstream/core-a5200-40c6f2f1ad4a3145b328d5baaf010fae6c7e752b.tar.gz",
+      "bytes": 315152,
+      "sha256": "e8d25dc369c77932bcb325b312efe0f29309405cf3f6cc67b2b2b69f1c72086e"
+    },
+    {
+      "path": "upstream/core-a5200.json",
+      "bytes": 734,
+      "sha256": "89d51af5124c91a7775f06e1ede1ef9bffcf3503b1d7bb00d20d69faaaada6ca"
+    },
+    {
+      "path": "upstream/core-armsx2-df1290dffec32553a3c28cb69c64d01695182fe7.tar.gz",
+      "bytes": 121402201,
+      "sha256": "18b32cbfbc0ef012e396b7b4b8e4159d336a11b8cdb10adb60db53c8ef8f7186"
+    },
+    {
+      "path": "upstream/core-armsx2.json",
+      "bytes": 8379,
+      "sha256": "eaa8ae52b2a510024d6c01262094349ca1954fbc5c66c53ab87f153e00c3a1fb"
+    },
+    {
+      "path": "upstream/core-atari800-4e7fbc73765c1a9670c7506616046ad1d4ccda51.tar.gz",
+      "bytes": 1982876,
+      "sha256": "69d2a096afac04ecf13b1d62298219bd39546bf9f7e2ad69ed63d34e763249c9"
+    },
+    {
+      "path": "upstream/core-atari800.json",
+      "bytes": 804,
+      "sha256": "a1a52b11ac3e5ff692cd369f81c23a45b32b664a91257781f5ffd7a0058610c2"
+    },
+    {
+      "path": "upstream/core-bk-92042a753289cedf05e7e6bd8e75849f83e48966.tar.gz",
+      "bytes": 151751,
+      "sha256": "06de4c286ac9626342e76b1f82ecfd337fd63bd79f896e2340ace10c947bbeb9"
+    },
+    {
+      "path": "upstream/core-bk.json",
+      "bytes": 736,
+      "sha256": "3f7da932e13ab87073af61a79a0fedf233b12ab6627a0d79fb44b83074170f88"
+    },
+    {
+      "path": "upstream/core-bluemsx-e3086eb5d36d77fa11704cf53dc176686e70127d.tar.gz",
+      "bytes": 5751425,
+      "sha256": "3ed2b31ed19a92953db2477fa60da2eda708c27102a7ca2503509abd2bcf1350"
+    },
+    {
+      "path": "upstream/core-bluemsx.json",
+      "bytes": 762,
+      "sha256": "4c126a11b57b1b27dbb8f5a9828d47de305fc7054eb2ec8edb88c44a45570c03"
+    },
+    {
+      "path": "upstream/core-cap32-7aae30274fc969efd28f2206ddb6c413a981127c.tar.gz",
+      "bytes": 1349552,
+      "sha256": "0a698d55c03d2f45b11f57673efe05efbd3984d1af420dcdeb3d574af5981dc0"
+    },
+    {
+      "path": "upstream/core-cap32.json",
+      "bytes": 760,
+      "sha256": "5859f60f252a105647c4fb5e702ed35c82985870275deb89c88215be33cba071"
+    },
+    {
+      "path": "upstream/core-citra-a0483e9abe8134ae6b290cdca7d49cb77689f05b.tar.gz",
+      "bytes": 57755610,
+      "sha256": "2fe019e6764f631e1adeef7ee695f46d3b8a27770edd31c7f825ebf7badfe842"
+    },
+    {
+      "path": "upstream/core-citra.json",
+      "bytes": 12718,
+      "sha256": "d2a096b19df79a10839a6022c310c09f472ec1694038fddf2bc140e97fffb014"
+    },
+    {
+      "path": "upstream/core-fceumm-236ccdfc911e84c60fea6b9d0699c2d440a8de14.tar.gz",
+      "bytes": 1107019,
+      "sha256": "ff5d01353194b71fd66e8c8d64a739a481494d1007883c3e8f6925ff87581fba"
+    },
+    {
+      "path": "upstream/core-fceumm.json",
+      "bytes": 782,
+      "sha256": "d4d57d585c50ebc939619d4478569c3040386a4abf41b10d683682629b790474"
+    },
+    {
+      "path": "upstream/core-flycast-ea087b9140ff5a3b1809e090da0f8d644ee2db95.tar.gz",
+      "bytes": 170603065,
+      "sha256": "c4ac4389958d180cf685cdfae8a27d6362964f0a2f614599fdb74ba0e0c2cefd"
+    },
+    {
+      "path": "upstream/core-flycast.json",
+      "bytes": 12502,
+      "sha256": "015533d96da83a6b5395021c017266485e639ccd6a63d18dd58ef7eeb04a20e2"
+    },
+    {
+      "path": "upstream/core-freechaf-76c7a84f1f7e80f3e6f2bba96fe100cb24e99124.tar.gz",
+      "bytes": 770845,
+      "sha256": "0b029f32d17007b95fa6c7b60cf4106e04cbde417b144d2f570c93853b93cda6"
+    },
+    {
+      "path": "upstream/core-freechaf.json",
+      "bytes": 987,
+      "sha256": "cf7690aa9c8db390b43c2b7ce6c0d86f11cabf1aba93bd35ea1fb8dce039cc0b"
+    },
+    {
+      "path": "upstream/core-freeintv-ef3e0fe322bec62a7f916c0bb0834c08c348d0b4.tar.gz",
+      "bytes": 25863119,
+      "sha256": "6f0cd99200454b40f4254783b9a0d6eed8c48c5859334bd11440501cbef57657"
+    },
+    {
+      "path": "upstream/core-freeintv.json",
+      "bytes": 784,
+      "sha256": "3702e190f5e8373eb6950bf995614b28f6334c28ebd75ace01ecb30edd939c17"
+    },
+    {
+      "path": "upstream/core-gambatte-d9d6cd06382d1ced30de34d56d3609452323dab1.tar.gz",
+      "bytes": 1067434,
+      "sha256": "0cb7e9f23730c43bea4cc7dfd274971e7867c7ab5e15c3426cbd608ec3c3529b"
+    },
+    {
+      "path": "upstream/core-gambatte.json",
+      "bytes": 762,
+      "sha256": "ee2e9532d531f730a787ea21525144f34b7d40fc268263a8e44426840045a12b"
+    },
+    {
+      "path": "upstream/core-genesis-plus-gx-c2838c7dc4236fc2fe94e5dbd08b41486067918e.tar.gz",
+      "bytes": 16971876,
+      "sha256": "9d6fd4ab0c150f703b7bccba0df50037d0b09e269d153e8267a26b207d42d0c2"
+    },
+    {
+      "path": "upstream/core-genesis-plus-gx.json",
+      "bytes": 1213,
+      "sha256": "f43b9c63297172c0ecbcb0f78f6f003afae115e2404b365df894a06475af0eba"
+    },
+    {
+      "path": "upstream/core-handy-bc55d462f0b2d6b073ea93dc552ebd73cec60fd1.tar.gz",
+      "bytes": 226953,
+      "sha256": "63f68d9af12ff8025455f55667e70634b7690e7406f26a919c124ad65bc1ff71"
+    },
+    {
+      "path": "upstream/core-handy.json",
+      "bytes": 757,
+      "sha256": "ca1ec8e626d4dab93221af8eedc434763084c02872015b8fc935265a08e1cfaa"
+    },
+    {
+      "path": "upstream/core-mednafen-ngp-a50d5ac288a81f2104ddf43195a4efdd15c72227.tar.gz",
+      "bytes": 206861,
+      "sha256": "60be723e3ea0e7ed444bfb52e26259f702bae8bf19090632a7e85c944731d936"
+    },
+    {
+      "path": "upstream/core-mednafen-ngp.json",
+      "bytes": 773,
+      "sha256": "37a5369650d7e635556f9011095b4c82b44dc792a4787d43f7f1699208fc44a3"
+    },
+    {
+      "path": "upstream/core-mednafen-pcfx-c1650bad5fbdcc3c3ccd45e29e3983e1ccf16cff.tar.gz",
+      "bytes": 1002393,
+      "sha256": "b202056f03b44a4b4fee4553c2665b777fdc125945e997a4deecefa773610489"
+    },
+    {
+      "path": "upstream/core-mednafen-pcfx.json",
+      "bytes": 922,
+      "sha256": "f194f047b52197c17c922f6d52f4cd623cbb71abc1f9e0b55fca213e2cfe6d3c"
+    },
+    {
+      "path": "upstream/core-mednafen-supergrafx-3c6fcd3deded54ebecd69408f108407ac03d11b5.tar.gz",
+      "bytes": 910068,
+      "sha256": "402697e378b01b05811fd01cad630174c4ed116589d8b6fae9b2bde2e6a7dd61"
+    },
+    {
+      "path": "upstream/core-mednafen-supergrafx.json",
+      "bytes": 895,
+      "sha256": "19ab3c31ea2b67a8683a667d9edfff02ec2374d0217c7790c4918bee9594f45b"
+    },
+    {
+      "path": "upstream/core-mednafen-vb-83ed42608601fb7b01d41e4f8fb2007a37b8c84e.tar.gz",
+      "bytes": 185247,
+      "sha256": "c2ab786fb97b979f99b2ee03ffe43c835ccad57d70afb639b5cb6bd7cc21565b"
+    },
+    {
+      "path": "upstream/core-mednafen-vb.json",
+      "bytes": 768,
+      "sha256": "ecc423ef9e14c9c74d8aac299e8e7a83bee3ab6b5ebd145e90f2647e13125a29"
+    },
+    {
+      "path": "upstream/core-mednafen-wswan-4b01295838ea89e3f1355bbe4cb5cf98aa6108cd.tar.gz",
+      "bytes": 206008,
+      "sha256": "7e7c9317d0b5c8216beba25058b03314774cdcc01601f5999c66555d057bb6d8"
+    },
+    {
+      "path": "upstream/core-mednafen-wswan.json",
+      "bytes": 780,
+      "sha256": "06c178b5386ea7d84bdd459f26a873409548a64437123a2f83c4dc795f0be7cf"
+    },
+    {
+      "path": "upstream/core-mgba-e31759b24e7a4e3899285ff720d7b573ac328ae7.tar.gz",
+      "bytes": 16107183,
+      "sha256": "297c1fd03512d48efcb2bf0cd8501d5c10ae92a574eb4b196ed30a10b694ab9a"
+    },
+    {
+      "path": "upstream/core-mgba.json",
+      "bytes": 1581,
+      "sha256": "320e6f5e0730aed7bda037e0ace76eaa0019e146a367b49d66714d1e3ac3cfd5"
+    },
+    {
+      "path": "upstream/core-neocd-3118c6901787e863e80e79170d02d47657b3b0ab.tar.gz",
+      "bytes": 792888,
+      "sha256": "65b49b2f0f7ddbcaa451139584c3edc105e10983310f87b3f2f6aa0a8b4ee11f"
+    },
+    {
+      "path": "upstream/core-neocd.json",
+      "bytes": 752,
+      "sha256": "c3343c77c8b5c4d2b146252a36c4a0357ff369b8b578044ce12861b96b5bacd8"
+    },
+    {
+      "path": "upstream/core-np2kai-1ea561cd7fd62b33f4e7b3f1c2e30fc3e6089f28.tar.gz",
+      "bytes": 61282757,
+      "sha256": "6ce37c4bcd824d853c668b0d46703328d784c6e017a9ef540b2d4a42ad5efe96"
+    },
+    {
+      "path": "upstream/core-np2kai.json",
+      "bytes": 4135,
+      "sha256": "8ee0ed308d27fabc686325b2d06b764f058b71c640b85893af804a1223e4be5b"
+    },
+    {
+      "path": "upstream/core-o2em-679d6fec04963f6e70a7ec217e3d0ebb1fe472fc.tar.gz",
+      "bytes": 497059,
+      "sha256": "7116c34796b4924c77a796297386d1e3d70ab2ea3b30c2eccdd80efb99c23166"
+    },
+    {
+      "path": "upstream/core-o2em.json",
+      "bytes": 745,
+      "sha256": "0a2207464a082aedc05b202f7bc9b837604d0438dbd29983039cb2e518f9e855"
+    },
+    {
+      "path": "upstream/core-opera-a501a278d057b952d1ad6165549c59ab178ca497.tar.gz",
+      "bytes": 4030675,
+      "sha256": "6d5018c601af5f7d53d506b1535bf95b06c1029d63d3afb5fc574421d91346e9"
+    },
+    {
+      "path": "upstream/core-opera.json",
+      "bytes": 768,
+      "sha256": "91cc7e1ef80f03edb2229d18d4cb8d413aa3718bba94317e67d91b73b61f4230"
+    },
+    {
+      "path": "upstream/core-parallel-n64-2f3bf60dcd969ae13e60731eab681504256272db.tar.gz",
+      "bytes": 6203163,
+      "sha256": "317ea7ebe3db804e2035e32f1e089c460afcfa58c47165aeabbdd3e2efc63e17"
+    },
+    {
+      "path": "upstream/core-parallel-n64.json",
+      "bytes": 1226,
+      "sha256": "ff51e616fb5f12148534e5486990155eb36f2921aa44c3a6aa6e8f7538ec5c7c"
+    },
+    {
+      "path": "upstream/core-pcsx-rearmed-ff81ed17a15241d2f3730cdd7585b38e172532ca.tar.gz",
+      "bytes": 5665676,
+      "sha256": "e3c625fc37282f28508da012dd662cfaad16d252de2e346b9ae1144e4070652f"
+    },
+    {
+      "path": "upstream/core-pcsx-rearmed.json",
+      "bytes": 1249,
+      "sha256": "bc0a78eb3e8d2847345bb8b2483544b29b3e55c3ff6d6bc7587bf0c24b33acf6"
+    },
+    {
+      "path": "upstream/core-picodrive-ab021146b70eef7ec0ac2afe06a94e9b4c16ef74.tar.gz",
+      "bytes": 7711087,
+      "sha256": "27a5a8ffbf5778d45f930feab00baefc0d9dcfbd24026dffc2e55a9542339e26"
+    },
+    {
+      "path": "upstream/core-picodrive.json",
+      "bytes": 2876,
+      "sha256": "f12c6d7020171be2a9710612b5cc755d2421cfb2275fd4091df86d1905083525"
+    },
+    {
+      "path": "upstream/core-potator-227c5f6f3ce74d32e9002ce24c1420288559a860.tar.gz",
+      "bytes": 76960,
+      "sha256": "c535831db56c2e04eb37b9559a842467f51f64024d9bb2af78ece1fc833c7aa2"
+    },
+    {
+      "path": "upstream/core-potator.json",
+      "bytes": 737,
+      "sha256": "dd382fcb87134c811822464309232584d9e7a9a6b7f5f0626622c3b5694d309d"
+    },
+    {
+      "path": "upstream/core-ppsspp-9fc4eb3e4d0cc161c7a4a003b3098b0ce5387dc0.tar.gz",
+      "bytes": 606199503,
+      "sha256": "88dd83305062b17fc927d6f417de742bcb4d76428342ac26fb644b2327832441"
+    },
+    {
+      "path": "upstream/core-ppsspp.json",
+      "bytes": 10715,
+      "sha256": "c44fde5c8b0aa78893febdd654ea95e2a2923afa6155cc971d676298434a6e8f"
+    },
+    {
+      "path": "upstream/core-prosystem-8a88014287c7a01cd568067e5a557d0a2b2a051f.tar.gz",
+      "bytes": 179806,
+      "sha256": "565f0f463a3fc11b3c17b2eab8316ff0083b63f5e7d78553a8d11b33e902e877"
+    },
+    {
+      "path": "upstream/core-prosystem.json",
+      "bytes": 795,
+      "sha256": "cf11ef104464912c94ac34e96d50db52163cc6e8e31adf37006a7b184832c261"
+    },
+    {
+      "path": "upstream/core-puae-6536174a80d74e6c325aaa5390ff091fac8761d0.tar.gz",
+      "bytes": 21457314,
+      "sha256": "6695eba0294081df7c4699146281daf7a267dceee02f1c30bb5cc425e90aacd5"
+    },
+    {
+      "path": "upstream/core-puae.json",
+      "bytes": 962,
+      "sha256": "f90ac79b91b3bc7aaf39367ac489389dc42ef70caca12f9f840b1086d26433f3"
+    },
+    {
+      "path": "upstream/core-px68k-0ad84d7058a12b7db4f7f7a906e87fad4e2f26f6.tar.gz",
+      "bytes": 649587,
+      "sha256": "bef49765b1a7a8b814c48abcaaf67a0a648f9e78cceefa3d030897434c5b0df6"
+    },
+    {
+      "path": "upstream/core-px68k.json",
+      "bytes": 749,
+      "sha256": "9097b198bc3aff9342e22555d39181af7b4d950e1a9e4231ea64fdf88de6915c"
+    },
+    {
+      "path": "upstream/core-quasi88-d43ef693eb93b65a1564229c05b32567cde1ae4e.tar.gz",
+      "bytes": 931667,
+      "sha256": "eab68ca3eb69325f3c8bab52fc1bc65dd3860243c4325b2a5ac9b83c8dadae25"
+    },
+    {
+      "path": "upstream/core-quasi88.json",
+      "bytes": 787,
+      "sha256": "c94c1183dd11b28bf137f75b3239667be19d38026935b1135931341e71a88a6e"
+    },
+    {
+      "path": "upstream/core-retro8-ddc06a142398ee9755894b3f0bb17c8dc428151d.tar.gz",
+      "bytes": 489078,
+      "sha256": "7eb226e9d11207ad5598dc0900f726bacaed121b3f34d6f145b766a4d4725fd2"
+    },
+    {
+      "path": "upstream/core-retro8.json",
+      "bytes": 735,
+      "sha256": "3961a175364fd30a9b40c36bd40333aaf9fc766de945aa17a8f49f9056cc1630"
+    },
+    {
+      "path": "upstream/core-sameduck-040e19c379f00dae10afe0eb0c1b2b019b985bbe.tar.gz",
+      "bytes": 1095441,
+      "sha256": "fb2a49a96053319c47fc860b0b326cf7bb35e117cfb4c9400e73fc208449d423"
+    },
+    {
+      "path": "upstream/core-sameduck.json",
+      "bytes": 829,
+      "sha256": "a864a9f82012ba6ff61560592046f518f9e0bcc1c4e242dd72c0499fd17aaed3"
+    },
+    {
+      "path": "upstream/core-snes9x-890b5d445538fe790aa3add3d5702c80f551e0ae.tar.gz",
+      "bytes": 641473,
+      "sha256": "b9d0dc3649c1dbcd8cd91a29caeee6a8097afb6d99c816df4fa172c0f8d8dea9"
+    },
+    {
+      "path": "upstream/core-snes9x.json",
+      "bytes": 771,
+      "sha256": "141f8891f358712cac2f2a86ecf71779a6fba71160abe437c74aa1b4109f7cf3"
+    },
+    {
+      "path": "upstream/core-theodore-4d469ce0f71ee046ceb78cdbf8e9f18364aaa918.tar.gz",
+      "bytes": 4868737,
+      "sha256": "65bb72a4ad8c258285de126ae6dc24fbbe36caee3355cb7a8925d4fb39b0b692"
+    },
+    {
+      "path": "upstream/core-theodore.json",
+      "bytes": 977,
+      "sha256": "f04d8494ddfc3afd85e85a653518b026e4b5c8d731dc37df036f3c2fe8db4226"
+    },
+    {
+      "path": "upstream/core-vecx-8f671cc9d737f2890c3ce19e177e2984dcae121f.tar.gz",
+      "bytes": 237208,
+      "sha256": "2a0d266a3844d763ca82536e10696edbc5c86d54b3d9093dbc9f3032ad55aa19"
+    },
+    {
+      "path": "upstream/core-vecx.json",
+      "bytes": 747,
+      "sha256": "c826361585fe6f37479eaaf0056c85f1bface7f98e3b5c2ace81415ecc1c1c48"
+    },
+    {
+      "path": "upstream/core-vice-9d7983826ea792f6cce7fdfe6c09488129c6f886.tar.gz",
+      "bytes": 17837424,
+      "sha256": "2921c6284457aa776c3ba430ca704173d895f8f2cf45780c3429246a8585a4e7"
+    },
+    {
+      "path": "upstream/core-vice.json",
+      "bytes": 1183,
+      "sha256": "e58704c75d554c40cc423f7f0494ce3af88ed8e9cd09b8ab426b3d75cd50ce73"
+    },
+    {
+      "path": "upstream/core-virtualjaguar-f9a3c89f58836cb2c45a42ad4edfac047050f30a.tar.gz",
+      "bytes": 7827452,
+      "sha256": "4235d65704dd8f3ad14a68e1a82ec1d626829a7501623b6680c5d27914136869"
+    },
+    {
+      "path": "upstream/core-virtualjaguar.json",
+      "bytes": 858,
+      "sha256": "6378a719c90c492861e57060767190d0627607e87524b8d360a8abdb94774c00"
+    },
+    {
+      "path": "upstream/core-yabasanshiro-09ed8e5b2e97e7a848ea2514545c34c7b809e399.tar.gz",
+      "bytes": 56380340,
+      "sha256": "fd2f7fe4358d148890c37529e577354d7fb1dca09324ec67faefc3136152630b"
+    },
+    {
+      "path": "upstream/core-yabasanshiro.json",
+      "bytes": 2202,
+      "sha256": "5213f0471257e64243cf475067e53cac367cbbd3ebb1f95ee41c0bc19b97f12b"
+    },
+    {
+      "path": "upstream/doublecherrygb-03f58ca3dfb4b716f7e66a0e0467f9e85ef82abb.tar.gz",
+      "bytes": 32369855,
+      "sha256": "54274ef88421b6879396e3bd0284489380f3f9cbfd5e0e33b1105532cfa0bd34"
+    },
+    {
+      "path": "upstream/doublecherrygb.json",
+      "bytes": 811,
+      "sha256": "1548ea267a77c51f263ef00f51c78908d44b02e40e34f773ab923a84270ec1ed"
+    },
+    {
+      "path": "upstream/gpsp-5819380c2ffb0900219d700a382ee68c464ebb99.tar.gz",
+      "bytes": 460755,
+      "sha256": "a33e5a4cc2cfd0316ef708e18fec74950628ab247be97e3f93955e4afa752ed8"
+    },
+    {
+      "path": "upstream/gpsp.json",
+      "bytes": 674,
+      "sha256": "fd663484be47c2a9810402d6d9b9ec21024429ca7c8149f7254228bbfbec8978"
+    },
+    {
+      "path": "upstream/libretro-super-recipes-43c6483ae90d5c5a9a6073465ec0902515a6ef8a.tar.gz",
+      "bytes": 677778,
+      "sha256": "6de70917708a1bf5e842593d2ca5fce20f8d51e7c89301a8fe37c7e922307075"
+    },
+    {
+      "path": "upstream/libretro-super-recipes.json",
+      "bytes": 815,
+      "sha256": "38e7a4cae1e64a5fd46f65755fd9b3ff98e27b52cc15b3f0da51a566ece6cda5"
+    },
+    {
+      "path": "upstream/mgba-linked-b66511a35873bda9c961872813e58b35543bcfc5.tar.gz",
+      "bytes": 22985614,
+      "sha256": "3d1db77bc7bee7b2c34078585dcd8dd83051f8de1501f15745f97623a8eea2d4"
+    },
+    {
+      "path": "upstream/mgba-linked.json",
+      "bytes": 1568,
+      "sha256": "83bcfc8d23685cc8677f288c516ae92e9c8edd31e891c93fcba81e7907e7709e"
+    },
+    {
+      "path": "upstream/sameboy-aa158a889a48b538a0302873704a34577c8eb67d.tar.gz",
+      "bytes": 3142438,
+      "sha256": "af25367adb903013194c590b15a3a12e6863b3d607065bfb8739947fe4266606"
+    },
+    {
+      "path": "upstream/sameboy.json",
+      "bytes": 772,
+      "sha256": "b123b5c78c123d60cdfc24f7d0e9179cc358399b227dfaa764fa99f998e618b5"
+    }
+  ],
+  "file": "TrainerOS-Core-Sources-02-CANDIDATE.tar",
+  "bytes": 1290147840,
+  "sha256": "2f53e323234e82edcfd5ba50ac2f24fdb758029eff400a6a79a63d6c272b2d9b",
+  "allEntriesReadBack": true
+}

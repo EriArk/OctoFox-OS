@@ -1,0 +1,651 @@
+{
+  "componentArchiveSha256": "b0bc151b3d9e8cb7b977e45da7eba3e2ba82050f70a000913f6ac684668647c7",
+  "note": "Bundled metadata is a hint, not exact binary version or licence acceptance. Some display versions are stale.",
+  "files": [
+    {
+      "path": "info/81_libretro.info",
+      "bytes": 1395,
+      "sha256": "06036186b108b32901290288cde80b817a22f5a0cd0454da0ce520ad7ab647ec",
+      "display_name": "Sinclair - ZX 81 (EightyOne)",
+      "license": "GPLv3",
+      "authors": "Michael D Wynne",
+      "display_version": "1.0a"
+    },
+    {
+      "path": "info/a5200_libretro.info",
+      "bytes": 1005,
+      "sha256": "e707b742d0c12e87483986742e316ea530b2592ce74aaa74f5617267a9abafab",
+      "display_name": "Atari - 5200 (a5200)",
+      "license": "GPLv2",
+      "authors": "Petr Stehlik|zx81|Alekmaul|wavemotion-dave",
+      "display_version": "2.0.2"
+    },
+    {
+      "path": "info/amiarcadia_libretro.info",
+      "bytes": 873,
+      "sha256": "3112656d2916ba1713011ebd988008287aba8bdc4a8c3370e48d5e4447d57bf5",
+      "display_name": "Arcadia 2001 / Interton VC 4000 (AmiArcadia)",
+      "license": "Non-commercial",
+      "authors": "James Jacobs",
+      "display_version": "4.42"
+    },
+    {
+      "path": "info/applewin_libretro.info",
+      "bytes": 849,
+      "sha256": "bcf72c8e61843457bd92f87de1e553cc6bf7465eeb9d37a2ccc09eb4dae828a4",
+      "display_name": "Apple II (AppleWin)",
+      "license": "GPLv2",
+      "authors": "AppleWin Team",
+      "display_version": "1.30.21.0"
+    },
+    {
+      "path": "info/arduous_libretro.info",
+      "bytes": 632,
+      "sha256": "165c3fe582bc71298a34d480124b6abe17baf267a79381c1abcd1565d19ea908",
+      "display_name": "Arduboy (Arduous)",
+      "license": "GPLv3",
+      "authors": "James Roeder",
+      "display_version": "0.1.0"
+    },
+    {
+      "path": "info/armsx2_libretro.info",
+      "bytes": 2573,
+      "sha256": "824073a510d0c988c460f21290aaacd35b679bd8d2785f1d061028fd096f3677",
+      "display_name": "Sony - PlayStation 2 (ARMSX2)",
+      "license": "GPLv3",
+      "authors": "PCSX2 Team|ARMSX2 Team|bmdhacks|WizzardSK",
+      "display_version": "Git"
+    },
+    {
+      "path": "info/atari800_libretro.info",
+      "bytes": 2720,
+      "sha256": "4b56fa399760a8c48e6ac8b08ecc2ae2f7163bbfb34f3f08351bc7e092602e5e",
+      "display_name": "Atari - 400/800/600XL/800XL/130XE/5200 (Atari800)",
+      "license": "GPLv2",
+      "authors": "Petr Stehlik",
+      "display_version": "7.0.0"
+    },
+    {
+      "path": "info/b2_libretro.info",
+      "bytes": 3560,
+      "sha256": "2c67883d4a7338891cbf5f7fe3a67a89db6db06e22da8d6de8f4431ba7573aa5",
+      "display_name": "Acorn - BBC Micro (b2)",
+      "license": "GPLv3",
+      "authors": "Tom Seddon|Zoltan Balogh",
+      "display_version": "v0.1"
+    },
+    {
+      "path": "info/bk_libretro.info",
+      "bytes": 2699,
+      "sha256": "301db16c021a46f656179fd292e5c4c6424f5bb0e39785ec94235dd2e2b500fd",
+      "display_name": "Elektronika - BK-0010/BK-0011(M)",
+      "license": "HPND",
+      "authors": "Eric A. Edwards, Leonid A. Broukhis, emestee, arcade-mini, phcoder",
+      "display_version": "1.00"
+    },
+    {
+      "path": "info/bluemsx_libretro.info",
+      "bytes": 2286,
+      "sha256": "e3840e08ff90f8567beedc9f96ee3597d48ea7a568cfd51aadca20850800257e",
+      "display_name": "MSX/SVI/ColecoVision/SG-1000 (blueMSX)",
+      "license": "GPLv2",
+      "authors": "Daniel Vik",
+      "display_version": "SVN"
+    },
+    {
+      "path": "info/cap32_libretro.info",
+      "bytes": 1282,
+      "sha256": "7ef5d3ad67d195a5dc87ed62d9edf6732169cbde6da045583cc81a1264aad6fb",
+      "display_name": "Amstrad - CPC/GX4000 (Caprice32)",
+      "license": "GPLv2",
+      "authors": "Ulrich Doewich|dantoine",
+      "display_version": "v4.2.0"
+    },
+    {
+      "path": "info/cemu_libretro.info",
+      "bytes": 1547,
+      "sha256": "08d3893153a02783df31f12a7f39273977fe40a7cfe6d2b320fd25d958be9876",
+      "display_name": "Nintendo - Wii U (Cemu)",
+      "license": "MPL-2.0",
+      "authors": "Cemu Project|WizzardSK",
+      "display_version": "2.6"
+    },
+    {
+      "path": "info/citra_libretro.info",
+      "bytes": 963,
+      "sha256": "c13cc4432cc2ff3347a23710b514bdd312e8123baf6e1f009ade04635eeac896",
+      "display_name": "Nintendo - 3DS (Citra)",
+      "license": "GPLv2+",
+      "authors": "Citra Emulation Project",
+      "display_version": "Git"
+    },
+    {
+      "path": "info/dosbox_pure_libretro.info",
+      "bytes": 1236,
+      "sha256": "e59629d975653c3c2a9ec64a112c524efe5aa16b7cf4093c2085222262fb88dd",
+      "display_name": "DOS (DOSBox-Pure)",
+      "license": "GPLv2",
+      "authors": "DOSBox Team|Psyraven",
+      "display_version": "0.9.9"
+    },
+    {
+      "path": "info/emuscv_libretro.info",
+      "bytes": 950,
+      "sha256": "7abe849a1d9769225076d32292a3d141fb4f9cb301e23c20d5a1b96e4ea82c53",
+      "display_name": "EPOCH/YENO Super Cassette Vision",
+      "license": "GPLv3",
+      "authors": "Maxime MARCONATO (aka MaaaX) - maxime@maaax.com"
+    },
+    {
+      "path": "info/ep128emu_core_libretro.info",
+      "bytes": 8069,
+      "sha256": "8f3c82f87d352c353f66ddc0f92bc16a7f5661b8efc335209e3baf881951f995",
+      "display_name": "Enterprise - 64/128 (ep128emu)",
+      "license": "GPLv2",
+      "authors": "Istvan Varga|Zoltan Balogh",
+      "display_version": "v1.2.10"
+    },
+    {
+      "path": "info/fbneo_libretro.info",
+      "bytes": 4156,
+      "sha256": "c95c3e177d61adf6662af7adf7361d7fefd9cd87ab0773d105a97818767e5815",
+      "display_name": "Arcade (FinalBurn Neo)",
+      "license": "Non-commercial",
+      "authors": "Team FBNeo",
+      "display_version": "v1.0.0.03"
+    },
+    {
+      "path": "info/fceumm_libretro.info",
+      "bytes": 1871,
+      "sha256": "eda6fbfdc1fda5ea80c2caed205345b0cbbfa9427acf3626e0cffd6ee5a96721",
+      "display_name": "Nintendo - NES / Famicom (FCEUmm)",
+      "license": "GPLv2",
+      "authors": "FCEU Team|CaH4e3",
+      "display_version": "SVN"
+    },
+    {
+      "path": "info/flycast_libretro.info",
+      "bytes": 2236,
+      "sha256": "d32663d9bd4dfcbe8bf84cdf806ac1d7437512c2b5d75287b9a918ebed968898",
+      "display_name": "Sega - Dreamcast/Naomi (Flycast)",
+      "license": "GPLv2",
+      "authors": "flyinghead",
+      "display_version": "Git"
+    },
+    {
+      "path": "info/freechaf_libretro.info",
+      "bytes": 1317,
+      "sha256": "d66cf527d20808993234f05b59c410c37ed349f310360ffc5c9dcc0973840e9b",
+      "display_name": "Fairchild - ChannelF (FreeChaF)",
+      "license": "GPLv3",
+      "authors": "David Richardson",
+      "display_version": "GIT"
+    },
+    {
+      "path": "info/freeintv_libretro.info",
+      "bytes": 1112,
+      "sha256": "8a688f4c8aa5048d9086451dd8d33873cef34b4458d5766593d911ffa60eda52",
+      "display_name": "Mattel - Intellivision (FreeIntv)",
+      "license": "GPLv2+",
+      "authors": "David Richardson",
+      "display_version": "2018.1.5"
+    },
+    {
+      "path": "info/fuse_libretro.info",
+      "bytes": 1914,
+      "sha256": "a87806db8485cbb186f3704d33b04fab7bd4a56da6af538a33af315072f59519",
+      "display_name": "Sinclair - ZX Spectrum (Fuse)",
+      "license": "GPLv3",
+      "authors": "Team Fuse",
+      "display_version": "1.6.0"
+    },
+    {
+      "path": "info/gambatte_libretro.info",
+      "bytes": 1322,
+      "sha256": "084975942c06a658972890c12a8251fe8d0f6c7ffd2b268850458628bbbe68f4",
+      "display_name": "Nintendo - Game Boy / Color (Gambatte)",
+      "license": "GPLv2",
+      "authors": "Sinamas",
+      "display_version": "v0.5.0"
+    },
+    {
+      "path": "info/gearcoleco_libretro.info",
+      "bytes": 1942,
+      "sha256": "ebc7293724350790b31ef0245c4e0fe790c5876438a7eb830076e6a16dc80ecf",
+      "display_name": "Coleco - ColecoVision / ADAM (Gearcoleco)",
+      "license": "GPLv3",
+      "authors": "Nacho Sanchez",
+      "display_version": "1.7.0"
+    },
+    {
+      "path": "info/genesis_plus_gx_libretro.info",
+      "bytes": 2788,
+      "sha256": "9793bff8d9e298a7ee0c94c0511dab242200ca60fbe87e3720eb9231a3e0166a",
+      "display_name": "Sega - MS/GG/MD/CD (Genesis Plus GX)",
+      "license": "Non-commercial",
+      "authors": "Charles McDonald|Eke-Eke",
+      "display_version": "v1.7.4"
+    },
+    {
+      "path": "info/gw_libretro.info",
+      "bytes": 862,
+      "sha256": "d3b7f032de94344fc07f368aa6f1686ca8abd5c6acb25dba7449105e8127c5f8",
+      "display_name": "Handheld Electronic (GW)",
+      "license": "zlib",
+      "authors": "Andre Leiradella",
+      "display_version": "Git"
+    },
+    {
+      "path": "info/handy_libretro.info",
+      "bytes": 1299,
+      "sha256": "a059661e377deb24ede5a77c725fbbdd4829666d0996f30bb9c2c9a10ee0461d",
+      "display_name": "Atari - Lynx (Handy)",
+      "license": "Zlib",
+      "authors": "K. Wilkins",
+      "display_version": "0.95"
+    },
+    {
+      "path": "info/hatari_libretro.info",
+      "bytes": 1286,
+      "sha256": "0b7989b23dd997000c341a0b1cee7baa7746ae318053537ef4c28a1aa05b4bee",
+      "display_name": "Atari - ST / STE / TT / Falcon (Hatari)",
+      "license": "GPLv2",
+      "authors": "Nicolas Pomar\u00e8de, Thomas Huth, Eero Tamminen et al.",
+      "display_version": "tech preview"
+    },
+    {
+      "path": "info/lowresnx_libretro.info",
+      "bytes": 1233,
+      "sha256": "3e6b2bf33038acb57158183eb030ac069ce95febc65bc61b79d1305273ad8d7a",
+      "display_name": "LowRes NX",
+      "license": "zlib",
+      "authors": "timoinutilis",
+      "display_version": "v1.2"
+    },
+    {
+      "path": "info/mame_libretro.info",
+      "bytes": 1852,
+      "sha256": "c3a2f1e0d816debfd06e76d427c46fccbce6a7d5fd9b0199754f046348e55509",
+      "display_name": "Arcade (MAME)",
+      "license": "GPLv2+",
+      "authors": "MAMEdev",
+      "display_version": "Git"
+    },
+    {
+      "path": "info/mednafen_ngp_libretro.info",
+      "bytes": 788,
+      "sha256": "1e7485277cffaf01ae4c4c5406a7dfc6f85f4d2a6949273feae5634781ec396b",
+      "display_name": "SNK - Neo Geo Pocket / Color (Beetle NeoPop)",
+      "license": "GPLv2",
+      "authors": "neopop_uk|Mednafen Team",
+      "display_version": "v0.9.36.1"
+    },
+    {
+      "path": "info/mednafen_pce_fast_libretro.info",
+      "bytes": 1772,
+      "sha256": "b75e4f64518d4161bef48068f6d4be24c4ea0f478431b749b490251430d8ec35",
+      "display_name": "NEC - PC Engine / CD (Beetle PCE FAST)",
+      "license": "GPLv2",
+      "authors": "Mednafen Team",
+      "display_version": "v0.9.38.7"
+    },
+    {
+      "path": "info/mednafen_pcfx_libretro.info",
+      "bytes": 700,
+      "sha256": "d352e83266f1d965e1b0fcb190dc3300158f419985b8d77374a2994d00f38f19",
+      "display_name": "NEC - PC-FX (Beetle PC-FX)",
+      "license": "GPLv2",
+      "authors": "Mednafen Team",
+      "display_version": "v0.9.33.3"
+    },
+    {
+      "path": "info/mednafen_supergrafx_libretro.info",
+      "bytes": 1921,
+      "sha256": "ab7f73bbfe0f8c94413f1db6981ec51c82f772f8278cd4564c839124c2a3411c",
+      "display_name": "NEC - PC Engine SuperGrafx (Beetle SuperGrafx)",
+      "license": "GPLv2",
+      "authors": "Mednafen Team",
+      "display_version": "v1.23.0"
+    },
+    {
+      "path": "info/mednafen_vb_libretro.info",
+      "bytes": 645,
+      "sha256": "425e0ef983f72b7e938af8cc170d2ddc1cb6b0a19a98aa4fce49bb2957567236",
+      "display_name": "Nintendo - Virtual Boy (Beetle VB)",
+      "license": "GPLv2",
+      "authors": "Mednafen Team",
+      "display_version": "v0.9.36.1"
+    },
+    {
+      "path": "info/mednafen_wswan_libretro.info",
+      "bytes": 627,
+      "sha256": "07f595bdc27cf7ee145091ae226b2dc37eeefa499ef9720b64d5384e54ac5ac1",
+      "display_name": "Bandai - WonderSwan/Color (Beetle Wonderswan)",
+      "license": "GPLv2",
+      "authors": "Dox|Mednafen Team",
+      "display_version": "v0.9.35.1"
+    },
+    {
+      "path": "info/mgba_libretro.info",
+      "bytes": 1794,
+      "sha256": "64444beb8268d3a57d53a45564c55049f39ff621315401fef86e82f3849042d6",
+      "display_name": "Nintendo - Game Boy Advance (mGBA)",
+      "license": "MPLv2.0",
+      "authors": "endrift",
+      "display_version": "0.10-dev"
+    },
+    {
+      "path": "info/minivmac_libretro.info",
+      "bytes": 794,
+      "sha256": "347a45c17caa9fb913ecd841d7506e7f6bb6f7ddc75a4789c2bb0051211ddc42",
+      "display_name": "Mac II (minivmac)",
+      "license": "GPLv2",
+      "authors": "Paul C. Pratt|Philip Cummins|Bernd Schmidt|Weston Pawlowski|Richard F. Bannister|Sam Lantinga|Michael Hanni|Michael Fort|Jesus A. Alvarez|Manuel Alfayate|Christian Bauer|Lazyone",
+      "display_version": "GIT"
+    },
+    {
+      "path": "info/neocd_libretro.info",
+      "bytes": 3123,
+      "sha256": "6ea290bc3814131091c08eec089386492264fc3aaa3f678b7b130874cac0cc37",
+      "display_name": "SNK - Neo Geo CD (NeoCD)",
+      "license": "LGPLv3",
+      "authors": "Elta",
+      "display_version": "2019"
+    },
+    {
+      "path": "info/np2kai_libretro.info",
+      "bytes": 2575,
+      "sha256": "b68e1c4aa673840f6bb8f6c29838430d2c5af15b7fb7315deb5a36a5945b490e",
+      "display_name": "NEC - PC-98 (Neko Project II Kai)",
+      "license": "MIT",
+      "authors": "Neko Project II Team, Tomohiro Yoshidomi",
+      "display_version": "0.86"
+    },
+    {
+      "path": "info/o2em_libretro.info",
+      "bytes": 1387,
+      "sha256": "d8cbfb38f736448d16817a4b2f17d61843e43c1b8bf64fae228a9d9e95e48378",
+      "display_name": "Magnavox - Odyssey2 / Philips Videopac+ (O2EM)",
+      "license": "Artistic License",
+      "authors": "Daniel Boris|Andre de la Rocha|Arlindo M. de Oliveira",
+      "display_version": "1.18"
+    },
+    {
+      "path": "info/opera_libretro.info",
+      "bytes": 3550,
+      "sha256": "3edce84cd4bd8afba0727a07a70fef7ccc44e7db7e1e0f00897ed6805087d94f",
+      "display_name": "The 3DO Company - 3DO (Opera)",
+      "license": "LGPL/Non-commercial",
+      "authors": "trapexit|JohnnyDude|FreeDO team",
+      "display_version": "1.0.0"
+    },
+    {
+      "path": "info/parallel_n64_libretro.info",
+      "bytes": 1638,
+      "sha256": "f32a557f5e4aa3327e182dc6ffcceebd35ea07f60b04874d29a96c638dbdddad",
+      "display_name": "Nintendo - Nintendo 64 (ParaLLEl N64)",
+      "license": "GPLv2",
+      "authors": "Hacktarux|Mupen64Plus Team|TinyTiger|Libretro",
+      "display_version": "2.0-rc2"
+    },
+    {
+      "path": "info/pcsx_rearmed_libretro.info",
+      "bytes": 1876,
+      "sha256": "83e98e7b7068b99330db52741a369f217ebadcdbd1eb182a5a435c76ab6ae704",
+      "display_name": "Sony - PlayStation (PCSX ReARMed)",
+      "license": "GPLv2",
+      "authors": "PCSX Team|notaz|Exophase",
+      "display_version": "r24"
+    },
+    {
+      "path": "info/picodrive_libretro.info",
+      "bytes": 1892,
+      "sha256": "35cef57b4b61d95a86e1ceee3a7c325d9d16bbdc136b4b3a556e808864de06c5",
+      "display_name": "Sega - MS/GG/MD/CD/32X (PicoDrive)",
+      "license": "MAME",
+      "authors": "notaz|fdave|irixxxx",
+      "display_version": "1.99"
+    },
+    {
+      "path": "info/pokemini_libretro.info",
+      "bytes": 1045,
+      "sha256": "514da066db31dd673aabf9c0e54b1b24e485775615217a02ac7de635d621b8b2",
+      "display_name": "Nintendo - Pokemon Mini (PokeMini)",
+      "license": "GPLv3",
+      "authors": "JustBurn",
+      "display_version": "v0.60"
+    },
+    {
+      "path": "info/potator_libretro.info",
+      "bytes": 497,
+      "sha256": "1e7155841e4dcdb7feef31018432d2e259cbfd2b349add6d4731165cee8ede1a",
+      "display_name": "Watara - Supervision (Potator)",
+      "license": "Public Domain",
+      "authors": "Normmatt|Cal2|infval|Alekmaul",
+      "display_version": "1.0.5"
+    },
+    {
+      "path": "info/ppsspp_libretro.info",
+      "bytes": 1793,
+      "sha256": "2e9becab17d0db4222e9655bb9b065167e5bcf599ca16256be72beb8f38e646d",
+      "display_name": "Sony - PlayStation Portable (PPSSPP)",
+      "license": "GPLv2",
+      "authors": "Henrik Hrydgard",
+      "display_version": "Git"
+    },
+    {
+      "path": "info/prosystem_libretro.info",
+      "bytes": 1021,
+      "sha256": "22e9bc148612082f41147b4de167bb7ade705ec5f4642b8b70c0eb9ad1971681",
+      "display_name": "Atari - 7800 (ProSystem)",
+      "license": "GPLv2",
+      "authors": "Greg Stanton|Brian Berlin|Leonis|Greg DeMent",
+      "display_version": "1.3e"
+    },
+    {
+      "path": "info/puae_libretro.info",
+      "bytes": 3695,
+      "sha256": "fc400817a4e304fe2721b9c7fbe3b4a0dfe7d9429366938abe48946aa56b43a3",
+      "display_name": "Commodore - Amiga (PUAE)",
+      "license": "GPLv2",
+      "authors": "UAE Team",
+      "display_version": "5.3.1"
+    },
+    {
+      "path": "info/px68k_libretro.info",
+      "bytes": 1435,
+      "sha256": "9b4aae3ac3721bdcc11394a9a855a3fee1a7de787cee935aa568057c2684c915",
+      "display_name": "Sharp - X68000 (PX68k)",
+      "license": "Custom Non-Commercial",
+      "authors": "hissorii",
+      "display_version": "0.15+"
+    },
+    {
+      "path": "info/quasi88_libretro.info",
+      "bytes": 3915,
+      "sha256": "ec33106f058bcdc95ac93226c9b11d164d4e1cadf0c731e73eabd2380c50104a",
+      "display_name": "NEC - PC-88 series (QUASI88)",
+      "license": "BSD 3-Clause and MAME non-commercial",
+      "authors": "Showzoh Fukunaga",
+      "display_version": "0.6.4"
+    },
+    {
+      "path": "info/retro8_libretro.info",
+      "bytes": 749,
+      "sha256": "d84decc90209dc6a38aaab6ca754cd659f9d037ceb9978ffb8aef337e2c8a895",
+      "display_name": "PICO-8 (Retro8)",
+      "license": "GPLv3",
+      "authors": "jakz",
+      "display_version": "Git"
+    },
+    {
+      "path": "info/same_cdi_libretro.info",
+      "bytes": 1293,
+      "sha256": "ee928ed46d44e2415eb2cc61f83fa9376d6230377e7583d08100b233e5a9b060",
+      "display_name": "Philips - CDi (SAME CDi)",
+      "license": "GPLv2+",
+      "authors": "MAMEdev",
+      "display_version": "Git"
+    },
+    {
+      "path": "info/sameduck_libretro.info",
+      "bytes": 599,
+      "sha256": "1b0844ec4fbbcc595ada875c7f1e80de467d8e0b2713119f6e41ec8bd5b4fd29",
+      "display_name": "Mega Duck / Cougar Boy (SameDuck)",
+      "license": "MIT",
+      "authors": "LIJI32",
+      "display_version": "git"
+    },
+    {
+      "path": "info/scummvm_libretro.info",
+      "bytes": 5118,
+      "sha256": "dfd544230a99cda60eb907b93b3387419b5b1eda9c582beba2120b0c29f8899c",
+      "display_name": "ScummVM",
+      "license": "GPLv3",
+      "authors": "SCUMMVMdev",
+      "display_version": "2.8.0git"
+    },
+    {
+      "path": "info/snes9x_libretro.info",
+      "bytes": 1806,
+      "sha256": "fa62b78d58bc4c30f4e0a4a581f0cb3252447b7f198b55bd6ebe2e4b9bde5cc2",
+      "display_name": "Nintendo - SNES / SFC (Snes9x)",
+      "license": "Non-commercial",
+      "authors": "Snes9x Team",
+      "display_version": "1.61"
+    },
+    {
+      "path": "info/stella_libretro.info",
+      "bytes": 1084,
+      "sha256": "ad01fae0d3c0b620a97fe84c5879ee96d241024f58f3d609cabb98eef6f67a35",
+      "display_name": "Atari - 2600 (Stella)",
+      "license": "GPLv2",
+      "authors": "Stephen Anthony|Bradford Mott|Eckhard Stolberg|Brian Watson",
+      "display_version": "6.6"
+    },
+    {
+      "path": "info/theodore_libretro.info",
+      "bytes": 1237,
+      "sha256": "1e335df620e8e9eeca8365fc8a892b9a73571c9a1fb348e71ea5b73fe7152188",
+      "display_name": "Thomson - MO/TO (Theodore)",
+      "license": "GPLv3",
+      "authors": "T. Lorblanches",
+      "display_version": "Git"
+    },
+    {
+      "path": "info/tic80_libretro.info",
+      "bytes": 833,
+      "sha256": "f8a1cf3a7e35e834abbc8b51cefcaa9e0753289300363665ea56d3768e2cfdf8",
+      "display_name": "TIC-80",
+      "license": "MIT",
+      "authors": "Nesbox|RobLoach",
+      "display_version": "0.80.0"
+    },
+    {
+      "path": "info/uzem_libretro.info",
+      "bytes": 770,
+      "sha256": "ad1e429e11e0084b5844493f72fbb0164c570b333c9707ccb91faef415a998cc",
+      "display_name": "Uzebox (Uzem)",
+      "license": "MIT"
+    },
+    {
+      "path": "info/vecx_libretro.info",
+      "bytes": 1148,
+      "sha256": "9eec259b2b84256aca32cdcd37b084732b17d2fce829dac01bab9a84ea01b4e3",
+      "display_name": "GCE - Vectrex (vecx)",
+      "license": "GPLv3",
+      "authors": "Valavan Manohararajah|John Hawthorn|Nikita Zimin|Demeth",
+      "display_version": "SVN"
+    },
+    {
+      "path": "info/vice_x128_libretro.info",
+      "bytes": 2157,
+      "sha256": "4437aa06d31462f58fcc9d4702e3b1760d3e01501a292a665ea932d567c80f06",
+      "display_name": "Commodore - C128 (VICE x128)",
+      "license": "GPLv2",
+      "authors": "VICE Team",
+      "display_version": "3.10"
+    },
+    {
+      "path": "info/vice_x64_libretro.info",
+      "bytes": 2211,
+      "sha256": "5b3f59e050c260e53d29e4a13a3983e9b77e77b7b3b4512dded8e313d756b168",
+      "display_name": "Commodore - C64 (VICE x64, fast)",
+      "license": "GPLv2",
+      "authors": "VICE Team",
+      "display_version": "3.10"
+    },
+    {
+      "path": "info/vice_xpet_libretro.info",
+      "bytes": 1251,
+      "sha256": "38da60f07b51374dc997101f0423d050d58a9a130ee61708febac0c9debf4e0f",
+      "display_name": "Commodore - PET (VICE xpet)",
+      "license": "GPLv2",
+      "authors": "VICE Team",
+      "display_version": "3.10"
+    },
+    {
+      "path": "info/vice_xplus4_libretro.info",
+      "bytes": 1312,
+      "sha256": "759a836bcdd2ae1bcb33404c4dbe9eeab6feceb48d1b3337f0a307ecdce4b597",
+      "display_name": "Commodore - PLUS/4 (VICE xplus4)",
+      "license": "GPLv2",
+      "authors": "VICE Team",
+      "display_version": "3.10"
+    },
+    {
+      "path": "info/vice_xvic_libretro.info",
+      "bytes": 1054,
+      "sha256": "98e64ee0e0400726cbc0e35bbea7df4107ee51fd4602de58c1c7b0d6a3a5fce4",
+      "display_name": "Commodore - VIC-20 (VICE xvic)",
+      "license": "GPLv2",
+      "authors": "VICE Team",
+      "display_version": "3.10"
+    },
+    {
+      "path": "info/vircon32_libretro.info",
+      "bytes": 1103,
+      "sha256": "a1db6e87791e4629dcb5fa25d70f9ae35c5f3029aca03e132f6e7bbc3a302c57",
+      "display_name": "Vircon32",
+      "license": "3-clause BSD",
+      "authors": "Carra",
+      "display_version": "2024.08.28"
+    },
+    {
+      "path": "info/virtualjaguar_libretro.info",
+      "bytes": 3647,
+      "sha256": "c6338c31a4d72706a110e89a94686254a08718479735ad5df156059a1144500a",
+      "display_name": "Atari - Jaguar (Virtual Jaguar)",
+      "license": "GPLv3",
+      "authors": "Joseph Mattiello|David Raingeard|Shamus",
+      "display_version": "v3.6.1"
+    },
+    {
+      "path": "info/wasm4_libretro.info",
+      "bytes": 960,
+      "sha256": "e6e069d1259c2362da7b1e8b52a7dcd0532f420e34f193fa8257a45a6ebfd5fb",
+      "display_name": "WASM-4",
+      "license": "ISC",
+      "authors": "Bruno Garcia",
+      "display_version": "2.1.0"
+    },
+    {
+      "path": "info/x1_libretro.info",
+      "bytes": 1021,
+      "sha256": "487597e95f31a81eb9ac36bdd500eca17ab78c1f4649f824d14e86646d27d57d",
+      "display_name": "Sharp X1 (X Millennium)",
+      "license": "BSD",
+      "authors": "yui",
+      "display_version": "0.60"
+    },
+    {
+      "path": "info/yabasanshiro_libretro.info",
+      "bytes": 1528,
+      "sha256": "13d82a10c642d03ada31e798e1d6a232775292ceacfde281d0a3d0fbd8efc5ba",
+      "display_name": "Sega - Saturn (YabaSanshiro)",
+      "license": "GPLv2",
+      "authors": "Guillaume Duhammel|Theo Berkau|Anders Montonen|devmiyax",
+      "display_version": "v2.6.8"
+    }
+  ]
+}

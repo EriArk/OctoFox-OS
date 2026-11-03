@@ -11,6 +11,13 @@ m = importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(m)
 
 
 class SourceCapsuleTests(unittest.TestCase):
+    def test_reviewed_soundtouch_repository_is_exact(self):
+        url = 'https://codeberg.org/soundtouch/soundtouch.git'
+        self.assertEqual(m.repository(url), url)
+        for other in (url + '/other', url + '?ref=main', url.replace('soundtouch.git', 'other.git'),
+                      url.replace('codeberg.org', 'codeberg.org.example.invalid')):
+            with self.assertRaises(ValueError): m.repository(other)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name)
         self.repo = self.root / 'repo'; self.repo.mkdir()

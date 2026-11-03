@@ -20,6 +20,10 @@ import urllib.parse
 import urllib.request
 
 HOSTS = {'github.com', 'gitlab.com', 'gitlab.freedesktop.org'}
+# Official SoundTouch source, pinned by the Citra gitlink. Its upstream site
+# https://surina.net/soundtouch/sourcecode.html identifies this repository.
+EXACT_REPOSITORIES = {'https://codeberg.org/soundtouch/soundtouch.git',
+                      'https://codeberg.org/soundtouch/soundtouch'}
 
 
 def revision(value):
@@ -32,7 +36,7 @@ def repository(value, parent=None):
     if parent and value.startswith(('./', '../')):
         value = urllib.parse.urljoin(parent.rstrip('/') + '/', value)
     u = urllib.parse.urlsplit(value)
-    if (u.scheme != 'https' or u.hostname not in HOSTS or u.username or u.password
+    if (u.scheme != 'https' or (u.hostname not in HOSTS and value not in EXACT_REPOSITORIES) or u.username or u.password
             or u.port or u.query or u.fragment or not re.fullmatch(r'/[A-Za-z0-9_.\-/]+', u.path)
             or any(p in ('.', '..') for p in u.path.split('/'))):
         raise ValueError('Unsupported source repository URL')

@@ -245,6 +245,393 @@
       "components": [
         "rpcs3"
       ]
+    },
+    {
+      "id": "core-a5200",
+      "repository": "https://github.com/libretro/a5200.git",
+      "commit": "40c6f2f1ad4a3145b328d5baaf010fae6c7e752b",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-atari800",
+      "repository": "https://github.com/libretro/libretro-atari800.git",
+      "commit": "4e7fbc73765c1a9670c7506616046ad1d4ccda51",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-bk",
+      "repository": "https://github.com/libretro/bk-emulator.git",
+      "commit": "92042a753289cedf05e7e6bd8e75849f83e48966",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-bluemsx",
+      "repository": "https://github.com/libretro/blueMSX-libretro.git",
+      "commit": "e3086eb5d36d77fa11704cf53dc176686e70127d",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-cap32",
+      "repository": "https://github.com/libretro/libretro-cap32.git",
+      "commit": "7aae30274fc969efd28f2206ddb6c413a981127c",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-freechaf",
+      "repository": "https://github.com/libretro/FreeChaF.git",
+      "commit": "76c7a84f1f7e80f3e6f2bba96fe100cb24e99124",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-freeintv",
+      "repository": "https://github.com/libretro/FreeIntv.git",
+      "commit": "ef3e0fe322bec62a7f916c0bb0834c08c348d0b4",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-gambatte",
+      "repository": "https://github.com/libretro/gambatte-libretro.git",
+      "commit": "d9d6cd06382d1ced30de34d56d3609452323dab1",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-genesis-plus-gx",
+      "repository": "https://github.com/libretro/Genesis-Plus-GX.git",
+      "commit": "c2838c7dc4236fc2fe94e5dbd08b41486067918e",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-handy",
+      "repository": "https://github.com/libretro/libretro-handy.git",
+      "commit": "bc55d462f0b2d6b073ea93dc552ebd73cec60fd1",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-mednafen-ngp",
+      "repository": "https://github.com/libretro/beetle-ngp-libretro.git",
+      "commit": "a50d5ac288a81f2104ddf43195a4efdd15c72227",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-mednafen-pcfx",
+      "repository": "https://github.com/libretro/beetle-pcfx-libretro.git",
+      "commit": "c1650bad5fbdcc3c3ccd45e29e3983e1ccf16cff",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-mednafen-supergrafx",
+      "repository": "https://github.com/libretro/beetle-supergrafx-libretro.git",
+      "commit": "3c6fcd3deded54ebecd69408f108407ac03d11b5",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-mednafen-vb",
+      "repository": "https://github.com/libretro/beetle-vb-libretro.git",
+      "commit": "83ed42608601fb7b01d41e4f8fb2007a37b8c84e",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-mednafen-wswan",
+      "repository": "https://github.com/libretro/beetle-wswan-libretro.git",
+      "commit": "4b01295838ea89e3f1355bbe4cb5cf98aa6108cd",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-mgba",
+      "repository": "https://github.com/libretro/mgba.git",
+      "commit": "e31759b24e7a4e3899285ff720d7b573ac328ae7",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-neocd",
+      "repository": "https://github.com/libretro/neocd_libretro.git",
+      "commit": "3118c6901787e863e80e79170d02d47657b3b0ab",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-o2em",
+      "repository": "https://github.com/libretro/libretro-o2em.git",
+      "commit": "679d6fec04963f6e70a7ec217e3d0ebb1fe472fc",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-opera",
+      "repository": "https://github.com/libretro/opera-libretro.git",
+      "commit": "a501a278d057b952d1ad6165549c59ab178ca497",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-parallel-n64",
+      "repository": "https://github.com/libretro/parallel-n64.git",
+      "commit": "2f3bf60dcd969ae13e60731eab681504256272db",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-picodrive",
+      "repository": "https://github.com/libretro/picodrive.git",
+      "commit": "ab021146b70eef7ec0ac2afe06a94e9b4c16ef74",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-potator",
+      "repository": "https://github.com/libretro/potator.git",
+      "commit": "227c5f6f3ce74d32e9002ce24c1420288559a860",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-prosystem",
+      "repository": "https://github.com/libretro/prosystem-libretro.git",
+      "commit": "8a88014287c7a01cd568067e5a557d0a2b2a051f",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-puae",
+      "repository": "https://github.com/libretro/libretro-uae.git",
+      "commit": "6536174a80d74e6c325aaa5390ff091fac8761d0",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-px68k",
+      "repository": "https://github.com/libretro/px68k-libretro.git",
+      "commit": "0ad84d7058a12b7db4f7f7a906e87fad4e2f26f6",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-quasi88",
+      "repository": "https://github.com/libretro/quasi88-libretro.git",
+      "commit": "d43ef693eb93b65a1564229c05b32567cde1ae4e",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-retro8",
+      "repository": "https://github.com/libretro/retro8.git",
+      "commit": "ddc06a142398ee9755894b3f0bb17c8dc428151d",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-sameduck",
+      "repository": "https://github.com/libretro/sameduck.git",
+      "commit": "040e19c379f00dae10afe0eb0c1b2b019b985bbe",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-snes9x",
+      "repository": "https://github.com/libretro/snes9x.git",
+      "commit": "890b5d445538fe790aa3add3d5702c80f551e0ae",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-theodore",
+      "repository": "https://github.com/Zlika/theodore.git",
+      "commit": "4d469ce0f71ee046ceb78cdbf8e9f18364aaa918",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-vecx",
+      "repository": "https://github.com/libretro/libretro-vecx.git",
+      "commit": "8f671cc9d737f2890c3ce19e177e2984dcae121f",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-vice",
+      "repository": "https://github.com/libretro/vice-libretro.git",
+      "commit": "9d7983826ea792f6cce7fdfe6c09488129c6f886",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-virtualjaguar",
+      "repository": "https://github.com/libretro/virtualjaguar-libretro.git",
+      "commit": "f9a3c89f58836cb2c45a42ad4edfac047050f30a",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-yabasanshiro",
+      "repository": "https://github.com/libretro/yabause.git",
+      "commit": "09ed8e5b2e97e7a848ea2514545c34c7b809e399",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-fceumm",
+      "repository": "https://github.com/libretro/libretro-fceumm.git",
+      "commit": "236ccdfc911e84c60fea6b9d0699c2d440a8de14",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-pcsx-rearmed",
+      "repository": "https://github.com/libretro/pcsx_rearmed.git",
+      "commit": "ff81ed17a15241d2f3730cdd7585b38e172532ca",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-citra",
+      "repository": "https://github.com/libretro/citra.git",
+      "commit": "a0483e9abe8134ae6b290cdca7d49cb77689f05b",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-np2kai",
+      "repository": "https://github.com/libretro/NP2kai.git",
+      "commit": "1ea561cd7fd62b33f4e7b3f1c2e30fc3e6089f28",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "libretro-super-recipes",
+      "repository": "https://github.com/libretro/libretro-super.git",
+      "commit": "43c6483ae90d5c5a9a6073465ec0902515a6ef8a",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-81",
+      "repository": "https://github.com/libretro/81-libretro.git",
+      "commit": "fa7094910d040baa5fd8b11dbf6a1a618330ecd9",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-armsx2",
+      "repository": "https://github.com/ARMSX2/ARMSX2.git",
+      "commit": "df1290dffec32553a3c28cb69c64d01695182fe7",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-flycast",
+      "repository": "https://github.com/flyinghead/flycast.git",
+      "commit": "ea087b9140ff5a3b1809e090da0f8d644ee2db95",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    {
+      "id": "core-ppsspp",
+      "repository": "https://github.com/hrydgard/ppsspp.git",
+      "commit": "9fc4eb3e4d0cc161c7a4a003b3098b0ce5387dc0",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
     }
   ]
 }
