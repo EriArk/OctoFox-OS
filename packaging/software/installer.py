@@ -66,7 +66,7 @@ def shortcuts(root, home=None, preflight=False):
     for path, (data, mode) in contents.items(): atomic_file(path, data, mode)
 
 
-def bootstrap(root, source):
+def bootstrap(root, source, confirm_update=None):
     root, source = Path(root), Path(source)
     destination = root / 'bootstrap'
     wanted = [*source.joinpath('software').glob('*.py'), *source.joinpath('session').glob('*'),
@@ -87,14 +87,14 @@ def bootstrap(root, source):
     files = [p for p in wanted if p.is_file() and not p.is_symlink()]
     records = {p.relative_to(source).as_posix(): sw.sha256(p) for p in files}
     if destination.exists():
-        # Bootstrap updates need their own reviewed installer; OTA cannot silently
-        # replace the trust/launcher code while it is executing.
         old = install.read(root / 'bootstrap-files.json')
-        if old != records: raise ValueError('Installed bootstrap differs; use the matching recovery installer')
+        if old != records or (root/'bootstrap-update.json').exists():
+            import bootstrap_update
+            return bootstrap_update.replace(root, source, files, records, confirm_update)
         for name, digest in records.items():
             path = destination / 'packaging' / name
             if path.is_symlink() or not path.is_file() or sw.sha256(path) != digest: raise ValueError('Bootstrap was modified')
-        return
+        return True
     with tempfile.TemporaryDirectory(dir=root, prefix='.bootstrap-') as tmp:
         stage = Path(tmp) / 'tree'; stage.mkdir()
         for path in files:
@@ -103,6 +103,7 @@ def bootstrap(root, source):
             shutil.copyfile(path, target); target.chmod(0o755 if path.suffix in ('.py', '.sh') else 0o644)
         sw.atomic(root / 'bootstrap-files.json', records)
         os.replace(stage, destination)
+    return True
 
 
 def integrate(root, remove=False):
@@ -247,7 +248,9 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
         data = Path(os.environ.get('XDG_DATA_HOME', str(Path.home() / '.local/share'))) / 'TrainerOS/TrainerOS'
         install.initialize(root, config['feeds'], key, data)
         install.select_channel(root, channel)
-    bootstrap(root, source)
+    if not bootstrap(root, source, confirm_update=lambda: dialog('--yesno',
+            'Update TrainerOS Setup and Recovery components?\nThe previous version will be retained for recovery. '
+            'Close TrainerOS and games first. Personal data and the trusted signing key are kept.').returncode == 0): return 0
     if runtime_manager.pending(root): return recover_full(root,source)
     if (root/'setup-pending.json').exists():
         job=install.read(root/'setup-pending.json')
