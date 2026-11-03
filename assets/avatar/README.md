@@ -64,10 +64,10 @@ redistribution review, not a final public asset library.
 
 | Component | Source / attribution | Changes |
 | --- | --- | --- |
-| Body, round/almond face | Owner-supplied approved Trainer character and accepted local revisions; upstream ownership record remains to be completed | Approved head scale 0.92 and shorts seam repair; skin and 46 correctives retained; sparse packing, face patches, palette masks |
+| Body, round/almond face | Owner-created AI-generated body, based on an image generated for the owner by the assistant; origin confirmed by the owner on 3 November 2026 | Approved head scale 0.92 and shorts seam repair; skin and 46 correctives retained; sparse packing, face patches, palette masks |
 | Swept hair | [Anime Hair 19](https://sketchfab.com/3d-models/anime-hair-19-b0a497ba4aad4b9aadb37a60b7a6c24a), neutralize, CC BY 4.0 | Fitted, simplified, recolorable, head binding |
 | Ponytail | [Anime Hair 17](https://sketchfab.com/3d-models/anime-hair-17-bb43ed9ad59c4216a09c89557fdf0ee4), neutralize, CC BY 4.0 | Fitted, simplified, recolorable, head binding |
-| Crop / bob | Owner-supplied Hair Anime20.fbx / Hair Anime14.blend from CGTrader | Fitted, simplified, recolorable; redistribution terms not yet independently verified |
+| Crop / bob | Owner-supplied Hair Anime20.fbx / Hair Anime14.blend, previously recorded as CGTrader; owner confirms a free library permitting use (3 November 2026), source links to follow | Fitted, simplified, recolorable; exact licence/attribution terms awaiting source links |
 | Historical tank (revision 3 only) | [Tank Top](https://sketchfab.com/3d-models/tank-top-d6b2561de39f423f9c7a2e7944485beb), Shift4cube / Mohan M, CC BY 4.0 | Loose fitting, reduced polygons, skin/corrective binding; source garment openings retained |
 | Current sports tank / modular eyes | Owner-approved original authoring | Separate fitted tank and 12 eye pairs; shared rig and palette |
 | Facial rig / mouths (revision 5) | Original procedural geometry and morph authoring for TrainerOS | Eight mouth poses, eye/brow expressions; visual owner acceptance pending |
@@ -75,8 +75,12 @@ redistribution review, not a final public asset library.
 
 [CC BY 4.0 terms](https://creativecommons.org/licenses/by/4.0/) apply to the
 attributed components and adaptations. No endorsement by their authors is implied.
-Complete the body and CGTrader source/redistribution records before a public
-binary asset release; the software license does not settle those records.
+The body origin above is an owner statement, not an independent audit of an
+unnamed generation service. The owner also confirms permitted use of the two
+supplied hairstyles and is locating their source links. Record those exact
+licence/attribution terms before closing the public asset review; no blanket
+GPL or CC licence is inferred from a free download. This updates the earlier
+unknown-body-origin note without changing any approved models.
 
 `packs/trainer-avatar-1/manifest.json` contains source and output hashes, rig,
 palette/material roles and action mapping. `template.glb` is the shared body and
