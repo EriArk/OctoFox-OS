@@ -54,6 +54,7 @@ private slots:
         QTemporaryDir dir;AppsController apps;apps.configure(dir.path(),"alice");seed(apps);
         apps.options(1);apps.menuAction(0); // Writer sorts after Calculator but is pinned first.
         apps.accept({{"event","state"},{"running",QJsonArray{"a.desktop","z.desktop"}},{"current",""}});
+        QVERIFY(apps.hasRunningApps()); // Minimized windows still prevent a destructive session handoff.
         const auto rail=apps.rail();QCOMPARE(rail.size(),2);
         QCOMPARE(rail[0].toMap()["id"].toString(),"z.desktop");
         QVERIFY(rail[0].toMap()["railPinned"].toBool());QVERIFY(rail[0].toMap()["running"].toBool());

@@ -43,6 +43,7 @@ public:
     bool railFocused() const{return railFocused_;}
     bool hiddenView() const{return hidden_;}
     bool ready() const{return ready_;}
+    bool hasRunningApps() const{return !running_.isEmpty() || !current_.isEmpty() || !launching_.isEmpty() || webPending_;}
     QString status() const{return status_;}
     QString current() const{return current_;}
     qint64 processId() const{return processId_;}

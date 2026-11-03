@@ -1249,6 +1249,9 @@ int main(int argc, char* argv[]) {
         bindings.connect(&shell, &ShellController::modeRequested, &session, [&](const QString& mode) {
             if(shell.gamePreparation()->busy()){shell.showNotice("Finish or cancel game preparation before restarting or powering off.");return;}
             if (adventureLaunch.active()) return;
+            if ((mode=="desktop" || mode=="steam") && shell.apps()->hasRunningApps()) {
+                shell.showNotice("Close running apps in Quick Apps before switching environments. Your open windows are kept.");return;
+            }
             pendingMode = mode; session.requestExit();
         });
         bindings.connect(&session, &SessionState::changed, &session, [&] {
