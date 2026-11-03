@@ -112,6 +112,17 @@ receive a full snapshot in that one request. Unchanged currently takes 109 bytes
 Signed fields include project identity, manual crate ordering, all release
 records and optional content-addressed PNG artwork. Bounds: 12 MiB response,
 2 MiB presentation, 128 images/8 MiB total, 2048×2048 and 1 MiB per image.
+
+Owner presentation policy, 3 November 2026: current Crates games, apps and
+modules are **Alpha Preview**. Keep ` (Alpha Preview)` in project and package
+display titles (replace older `(alpha)`/`(альфа)` suffixes), and explain the
+preview status at the start of the project description. This describes the
+TrainerOS offering, not the maturity of upstream third-party projects. Keep
+package IDs, versions, payload hashes, compatibility and release channels
+independent. Do not invent an `Alpha Preview` channel: existing clients accept
+Stable/Beta/Experimental only. Preserve the label in future release presentations,
+including projects published from separate game worktrees. Catalogue 43 applies
+this to all 18 current projects without changing package payloads.
 No remote scripts, path-based assets, arbitrary download hosts or installer
 commands are accepted. GitHub release URLs, exact size and digest are required.
 Withdraw a release with `withdrawn:true`, or remove a project and its releases

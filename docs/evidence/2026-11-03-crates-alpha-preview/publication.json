@@ -1,0 +1,86 @@
+{
+  "checkedUtc": "2026-11-03T18:47:06.116665+00:00",
+  "catalogueRevision": 43,
+  "previousRevision": 42,
+  "signatureVerified": true,
+  "publicSnapshotVerified": true,
+  "publicDeltaVerified": true,
+  "onlyProjectTitlesDescriptionsAndPackageTitlesChanged": true,
+  "packagePayloadsVersionsCompatibilityUnchanged": true,
+  "handheldsTouched": false,
+  "projects": [
+    {
+      "id": "2048",
+      "title": "2048 (Alpha Preview)"
+    },
+    {
+      "id": "hextris",
+      "title": "Hextris (Alpha Preview)"
+    },
+    {
+      "id": "breakout",
+      "title": "Breakout (Alpha Preview)"
+    },
+    {
+      "id": "featherpad",
+      "title": "FeatherPad (Alpha Preview)"
+    },
+    {
+      "id": "qalculate",
+      "title": "Qalculate! (Alpha Preview)"
+    },
+    {
+      "id": "session-timer",
+      "title": "Session Timer (Alpha Preview)"
+    },
+    {
+      "id": "pocket-artillery",
+      "title": "Pocket Artillery (Alpha Preview)"
+    },
+    {
+      "id": "pong",
+      "title": "Pong (Alpha Preview)"
+    },
+    {
+      "id": "snake-arena",
+      "title": "Snake Arena (Alpha Preview)"
+    },
+    {
+      "id": "light-cycles",
+      "title": "Light Cycles (Alpha Preview)"
+    },
+    {
+      "id": "falling-blocks",
+      "title": "Falling Blocks (Alpha Preview)"
+    },
+    {
+      "id": "minesweeper-race",
+      "title": "Minesweeper Race (Alpha Preview)"
+    },
+    {
+      "id": "chain-reaction",
+      "title": "Chain Reaction (Alpha Preview)"
+    },
+    {
+      "id": "mini-racing",
+      "title": "Brick Racing (Alpha Preview)"
+    },
+    {
+      "id": "tanks",
+      "title": "Brick Tanks (Alpha Preview)"
+    },
+    {
+      "id": "pocket-golf",
+      "title": "Pocket Golf (Alpha Preview)"
+    },
+    {
+      "id": "micro-rally",
+      "title": "Micro Rally (Alpha Preview)"
+    },
+    {
+      "id": "home-companion",
+      "title": "Companion (Alpha Preview)"
+    }
+  ],
+  "releaseRecords": 81
+}
