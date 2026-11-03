@@ -1,0 +1,67 @@
+[INFO] RetroArch 1.22.2 (Git 69a4f0ea1e)
+[INFO] === Build =======================================
+[INFO] Capabilities: ASIMD 
+[INFO] Version: 1.22.2
+[INFO] Git: 69a4f0ea1e
+[INFO] Built: Nov 11 2011
+[INFO] =================================================
+[INFO] [Input] Found input driver: "null".
+RA2: retro_get_system_info
+RA2: retro_set_environment
+RA2: retro_set_environment
+[INFO] [Core] Loading dynamic libretro core from: "<check-stage>/patched-cores/applewin_libretro.so".
+RA2: retro_get_system_info
+[INFO] [Override] Redirecting save file to "<check-stage>/native-smoke03/applewin-fixed/saves/AppleWin/AppleWin.srm".
+[INFO] [Override] Redirecting save state to "<check-stage>/native-smoke03/applewin-fixed/states/AppleWin/AppleWin.state".
+RA2: retro_set_environment
+[INFO] [Environ] GET_LOG_INTERFACE.
+[INFO] [Environ] SET_CONTROLLER_INFO.
+[INFO] [Environ] SET_INPUT_DESCRIPTORS.
+[INFO] [Environ] SET_KEYBOARD_CALLBACK.
+[INFO] [Environ] SET_SUPPORT_ACHIEVEMENTS: yes.
+[INFO] [Environ] GET_SAVE_DIRECTORY: "<check-stage>/native-smoke03/applewin-fixed/saves/AppleWin".
+[INFO] [Environ] GET_DISK_CONTROL_INTERFACE_VERSION.
+[INFO] [Environ] SET_DISK_CONTROL_EXT_INTERFACE.
+[INFO] [Environ] SET_SUPPORT_NO_GAME: yes.
+[INFO] [Environ] GET_CORE_OPTIONS_VERSION.
+[INFO] [Environ] SET_CORE_OPTIONS_V2_INTL.
+[libretro INFO] RA2: retro_init
+[libretro INFO] RA2: retro_load_game
+[INFO] [Environ] SET_PIXEL_FORMAT: XRGB8888.
+[DSInit] PC=00000000, WC=00000000, Diff=00000000
+[INFO] [Environ] SET_MESSAGE: Enhanced Apple //e Emulator -  50% Color (RGB Card/Monitor)
+[INFO] [Environ] SET_MESSAGE: Enhanced Apple //e Emulator -  50% Color (RGB Card/Monitor)
+[INFO] [Environ] SET_MESSAGE: Enable Game Focus Mode for better keyboard handling
+[libretro INFO] RA2: retro_get_memory_size (0)
+[libretro INFO] RA2: retro_get_memory_data (0)
+[libretro INFO] RA2: retro_get_memory_size (1)
+[libretro INFO] RA2: retro_get_memory_data (1)
+[INFO] [SRAM] Skipping SRAM load.
+[INFO] [Core] Version of libretro API: 1, Compiled against API: 1
+[libretro INFO] RA2: retro_get_system_av_info
+[INFO] [Core] Geometry: 560x384, Aspect: 0.000, FPS: 60.00, Sample rate: 44100.00 Hz.
+[libretro INFO] RA2: retro_get_system_info
+[INFO] [Video] Set video size to: 1575x1080.
+[INFO] [Video] Graphics driver did not initialize an input driver. Attempting to pick a suitable driver.
+[INFO] [Input] Found joypad driver: "udev".
+[INFO] [Video] Found display server: "null".
+[INFO] [Audio] Set audio input rate to: 44100.00 Hz.
+[libretro INFO] RA2: retro_get_system_info
+[libretro INFO] RA2: retro_set_environment
+RA2: retro_set_environment
+RA2: retro_set_controller_port_device, Plugging device 1 into port 0
+[INFO] [Playlist] Loading favorites file: "<check-stage>/native-smoke03/applewin-fixed/playlists/builtin/content_favorites.lpl".
+[ERROR] failed_to_start_audio_driver
+[ERROR] failed_to_start_audio_driver
+RA2: retro_get_system_info
+RA2: retro_get_memory_size (0)
+RA2: retro_get_memory_data (0)
+RA2: retro_get_memory_size (1)
+RA2: retro_get_memory_data (1)
+[INFO] [Runtime] Content ran for a total of: 00 hours, 00 minutes, 09 seconds.
+[INFO] [Core] Unloading game...
+RA2: retro_unload_game
+[INFO] [Core] Unloading core...
+RA2: retro_deinit
+[INFO] [Core] Unloading core symbols...
+[INFO] [Core] Saved core options file to "<check-stage>/native-smoke03/applewin-fixed/config/AppleWin/AppleWin.opt".

@@ -1,0 +1,189 @@
+[gamescope] [Info]  console: gamescope version 3.16.31-ogc1+ (gcc 16.2.1)
+No CAP_SYS_NICE, falling back to regular-priority compute and threads.
+Performance will be affected.
+[gamescope] [Info]  scriptmgr: Loading scripts from: '/usr/share/gamescope/scripts'
+[gamescope] [Info]  scriptmgr: Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [Info]  scriptmgr: Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [Info]  scriptmgr: Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 4)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 5)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 6)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 7)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 8)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 9)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 10)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 11)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 12)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 13)
+[gamescope] [Info]  scriptmgr: Loading scripts from: '/usr/share/gamescope/scripts/10-armada'
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/10-armada/ayn.icna3512.oled.lua' (id: 14)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/10-armada/ayn.icna3520.oled.lua' (id: 15)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/10-armada/retroid.ch13726a.oled.lua' (id: 16)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/10-armada/retroid.il97680a.oled.lua' (id: 17)
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/10-armada/retroid.vtdr6130.oled.lua' (id: 18)
+[gamescope] [Info]  scriptmgr: Loading scripts from: '/usr/share/gamescope/scripts/50-custom'
+[gamescope] [Info]  scriptmgr: Loading scripts from: '/usr/share/gamescope/scripts/50-custom/50-disable-explicit-sync.lua'
+[gamescope] [Info]  scriptmgr: Running script file '/usr/share/gamescope/scripts/50-custom/50-disable-explicit-sync.lua/50-disable-explicit-sync.lua' (id: 19)
+[gamescope] [Info]  scriptmgr: Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [Warn]  scriptmgr: Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [Info]  scriptmgr: Loading scripts from: '<check-stage>/vircon-headless01/compositor-home/config/gamescope/scripts'
+[gamescope] [Warn]  scriptmgr: Directory '<check-stage>/vircon-headless01/compositor-home/config/gamescope/scripts' does not exist
+[gamescope] [Info]  vulkan: selecting physical device 'Turnip Adreno (TM) 650': queue family 0 (general queue family 0)
+[gamescope] [Info]  vulkan: physical device supports DRM format modifiers
+[gamescope] [Info]  wlserver: [backend/headless/backend.c:60] Creating headless backend
+[gamescope] [Info]  vulkan: supported DRM formats for sampling usage:
+[gamescope] [Info]  vulkan:   AR24 (0x34325241)
+[gamescope] [Info]  vulkan:   XR24 (0x34325258)
+[gamescope] [Info]  vulkan:   AB24 (0x34324241)
+[gamescope] [Info]  vulkan:   XB24 (0x34324258)
+[gamescope] [Info]  vulkan:   RG16 (0x36314752)
+[gamescope] [Info]  vulkan:   NV12 (0x3231564E)
+[gamescope] [Info]  vulkan:   AB4H (0x48344241)
+[gamescope] [Info]  vulkan:   XB4H (0x48344258)
+[gamescope] [Info]  vulkan:   AB48 (0x38344241)
+[gamescope] [Info]  vulkan:   XB48 (0x38344258)
+[gamescope] [Info]  vulkan:   AB30 (0x30334241)
+[gamescope] [Info]  vulkan:   XB30 (0x30334258)
+[gamescope] [Info]  vulkan:   AR30 (0x30335241)
+[gamescope] [Info]  vulkan:   XR30 (0x30335258)
+[gamescope] [Info]  wlserver: Using explicit sync when available
+[gamescope] [Info]  wlserver: [wayland] unable to lock lockfile <user-runtime>/gamescope-0.lock, maybe another compositor is running
+[gamescope] [Info]  wlserver: Running compositor on wayland display 'gamescope-1'
+[gamescope] [Info]  wlserver: [backend/headless/backend.c:17] Starting headless backend
+[gamescope] [Info]  wlserver: Successfully initialized libei for input emulation!
+[gamescope] [Info]  wlserver: [xwayland/server.c:108] Starting Xwayland on :1
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Multiple symbols for level 1/group 1 on key <FK23>
+>                   Using F23, ignoring XF86TouchpadOff
+> Warning:          Symbol map for key <FK23> redefined
+>                   Using last definition for conflicting fields
+> Warning:          Symbol map for key <FK24> redefined
+>                   Using last definition for conflicting fields
+Errors from xkbcomp are not fatal to the X server
+[gamescope] [Info]  pipewire: stream state changed: connecting
+[gamescope] [Info]  pipewire: stream state changed: paused
+[gamescope] [Info]  pipewire: stream available on node ID: 48
+[gamescope] [Info]  xwm: Embedded, no cursor set. Using left_ptr by default.
+[gamescope] [Info]  vblank: Using timerfd.
+[INFO] RetroArch 1.22.2 (Git 69a4f0ea1e)
+[INFO] === Build =======================================
+[INFO] Capabilities: ASIMD 
+[INFO] Version: 1.22.2
+[INFO] Git: 69a4f0ea1e
+[INFO] Built: Nov 11 2011
+[INFO] =================================================
+[INFO] [Input] Found input driver: "null".
+[INFO] [Core] Loading dynamic libretro core from: "<check-stage>/payload/cores/vircon32_libretro.so".
+[INFO] [Override] Redirecting save file to "<check-stage>/vircon-headless01/saves/Vircon32/Vircon32.srm".
+[INFO] [Override] Redirecting save state to "<check-stage>/vircon-headless01/states/Vircon32/Vircon32.state".
+[INFO] [Environ] SET_SUPPORT_NO_GAME: yes.
+[INFO] [Environ] SET_INPUT_DESCRIPTORS.
+[INFO] [Environ] SET_CONTROLLER_INFO.
+[INFO] [Environ] SET_VARIABLES.
+[INFO] [Environ] GET_LOG_INTERFACE.
+[libretro INFO] Received signal: Init
+[libretro INFO] Received signal: Load game
+[libretro INFO] Automatic frame skip disabled
+[INFO] [Environ] SET_AUDIO_BUFFER_STATUS_CALLBACK.
+[INFO] [Environ] SET_SERIALIZATION_QUIRKS.
+[INFO] [Environ] SET_PIXEL_FORMAT: XRGB8888.
+[libretro INFO] Received signal: Init HW context
+[INFO] [Environ] SET_HW_RENDER, context type: glcore.
+[INFO] [HW] Requesting core OpenGL context (3.0).
+[libretro INFO] Core loaded with no game
+[INFO] [SRAM] Skipping SRAM load.
+[INFO] [Core] Version of libretro API: 1, Compiled against API: 1
+[INFO] [Core] Geometry: 640x360, Aspect: 0.000, FPS: 60.00, Sample rate: 44100.00 Hz.
+[INFO] [Video] Set video size to: 1920x1080.
+[INFO] [Video] Using HW render, glcore driver forced.
+[ERROR] [Wayland] Failed to connect to Wayland server.
+[INFO] [GLX] GLX_EXT_swap_control_tear supported.
+[INFO] [GLCore] Found GL context: "x".
+[INFO] [GLCore] Detecting screen resolution: 640x360.
+[INFO] [GLX] Creating shared HW context.
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Unsupported maximum keycode 709, clipping.
+>                   X11 cannot support keycodes above 255.
+> Warning:          Virtual modifier Hyper multiply defined
+>                   Using 0, ignoring 0
+> Warning:          Virtual modifier ScrollLock multiply defined
+>                   Using 0, ignoring 0
+Errors from xkbcomp are not fatal to the X server
+[INFO] [GLX] Found swap function: glXSwapIntervalEXT.
+[INFO] [GLCore] Initializing HW render (1024x1024).
+[INFO] [GLCore] Max texture size: 16384 px, renderbuffer size: 16384 px.
+[INFO] [GLCore] Vendor: freedreno, Renderer: FD650.
+[INFO] [GLCore] Version: 4.6 (Compatibility Profile) Mesa 26.2.2 (git-3281a69a8b).
+[INFO] [GLCore] Using resolution 1920x1080.
+[INFO] [X11] Master pointer, 2 "Virtual core pointer".
+[INFO] [Input] Found joypad driver: "udev".
+[INFO] [GLCore] Using Slang shader backend.
+[INFO] [GLCore] Loading stock shader.
+[INFO] [GLCore] Building pass #0 (N/A)
+[INFO] [GLCore] Not using frame history.
+[INFO] [GLCore] Not using framebuffer feedback.
+[ERROR] [DBus] Failed to suspend screensaver via DBus.
+[INFO] [X11] Suspending screensaver (X11, xdg-screensaver).
+sh: line 1: xdg-screensaver: command not found
+[WARN] [X11] Could not suspend screensaver.
+[INFO] [Video] Found display server: "x11".
+[libretro INFO] Received signal: Reset context
+[libretro INFO] Initializing rendering
+[libretro INFO] OpenGL context info:
+[libretro INFO] Version: 4.6 (Compatibility Profile) Mesa 26.2.2 (git-3281a69a8b)
+[libretro INFO] Vendor: freedreno
+[libretro INFO] Renderer: FD650
+[libretro INFO] GLSL version: 4.60
+[libretro INFO] Compiling GLSL shader program
+[libretro INFO] Compiling shader program
+[libretro INFO] Vertex shader compiled successfully! ID = 28
+[libretro INFO] Fragment shader compiled successfully! ID = 29
+[libretro INFO] Shader program linked successfully! ID = 30
+[libretro INFO] Finding variables in shader program
+[libretro INFO] Creating vertex arrays and buffers
+[libretro INFO] Creating white texture
+[libretro INFO] Finished creating white texture
+[libretro INFO] Initializing vertex info buffer
+[libretro INFO] Initializing vertex index buffer
+[libretro INFO] Finished initializing rendering
+[INFO] [Environ] GET_SYSTEM_DIRECTORY: "<check-stage>/vircon-headless01/system".
+[libretro INFO] Loading embedded bios
+[libretro INFO] Loading bios data
+[libretro INFO] BIOS title: "Vircon32 standard BIOS"
+[libretro INFO] BIOS texture is 480x328
+[libretro INFO] Loading texture with ID = -1
+[libretro INFO] BIOS sound is 105728 samples
+[libretro INFO] Finished loading BIOS
+[INFO] [Audio] Set audio input rate to: 44100.00 Hz.
+[INFO] [Display] Found display driver: "glcore".
+[INFO] [Playlist] Loading favorites file: "<check-stage>/vircon-headless01/playlists/builtin/content_favorites.lpl".
+[ERROR] failed_to_start_audio_driver
+[libretro INFO] Console power ON
+[libretro INFO] Console reset
+[INFO] [Screenshot] Taking a screenshot before exiting...
+[ERROR] failed_to_start_audio_driver
+[INFO] [Runtime] Content ran for a total of: 00 hours, 00 minutes, 01 seconds.
+[libretro INFO] Received signal: Destroy context
+[libretro INFO] Unloading bios
+[libretro INFO] Releasing OpenGL texture with ID = 4
+[libretro INFO] Destroying video context
+[libretro INFO] Releasing all textures
+[libretro INFO] Releasing OpenGL texture with ID = 3
+[libretro INFO] Deleting OpenGL vertex buffers
+[libretro INFO] Destroying OpenGL vertex arrays
+[libretro INFO] Deleting shader program
+[INFO] [Core] Unloading game...
+[libretro INFO] Received signal: Unload game
+[INFO] [Core] Unloading core...
+[libretro INFO] Received signal: Deinit
+[INFO] [Core] Unloading core symbols...
+[INFO] [Core] Saved core options file to "<check-stage>/vircon-headless01/config/Vircon32/Vircon32.opt".
+[INFO] [XINERAMA] Xinerama version: 1.1.
+[INFO] [XINERAMA] Xinerama screens: 1.
+[INFO] [XINERAMA] Saved monitor #0.
+[gamescope] [Info]  launch: Primary child shut down!
+(EE) failed to read Wayland events: Broken pipe

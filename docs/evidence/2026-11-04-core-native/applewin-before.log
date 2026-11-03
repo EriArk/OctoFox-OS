@@ -1,0 +1,36 @@
+[INFO] RetroArch 1.22.2 (Git 69a4f0ea1e)
+[INFO] === Build =======================================
+[INFO] Capabilities: ASIMD 
+[INFO] Version: 1.22.2
+[INFO] Git: 69a4f0ea1e
+[INFO] Built: Nov 11 2011
+[INFO] =================================================
+[INFO] [Input] Found input driver: "null".
+RA2: retro_get_system_info
+RA2: retro_set_environment
+RA2: retro_set_environment
+[INFO] [Core] Loading dynamic libretro core from: "<check-stage>/payload/cores/applewin_libretro.so".
+RA2: retro_get_system_info
+[INFO] [Override] Redirecting save file to "<check-stage>/native-smoke01/applewin/saves/AppleWin/AppleWin.srm".
+[INFO] [Override] Redirecting save state to "<check-stage>/native-smoke01/applewin/states/AppleWin/AppleWin.state".
+RA2: retro_set_environment
+[INFO] [Environ] GET_LOG_INTERFACE.
+[INFO] [Environ] SET_CONTROLLER_INFO.
+[INFO] [Environ] SET_INPUT_DESCRIPTORS.
+[INFO] [Environ] SET_KEYBOARD_CALLBACK.
+[INFO] [Environ] SET_SUPPORT_ACHIEVEMENTS: yes.
+[INFO] [Environ] GET_SAVE_DIRECTORY: "<check-stage>/native-smoke01/applewin/saves/AppleWin".
+[INFO] [Environ] GET_DISK_CONTROL_INTERFACE_VERSION.
+[INFO] [Environ] SET_DISK_CONTROL_EXT_INTERFACE.
+[INFO] [Environ] SET_SUPPORT_NO_GAME: yes.
+[INFO] [Environ] GET_CORE_OPTIONS_VERSION.
+[INFO] [Environ] SET_CORE_OPTIONS_V2_INTL.
+[libretro INFO] RA2: retro_init
+[libretro INFO] RA2: retro_load_game
+[INFO] [Environ] SET_PIXEL_FORMAT: XRGB8888.
+[libretro INFO] Exception: filesystem error: cannot make canonical path: No such file or directory [/app/bin/../rebuild-applewin-libretro]
+[ERROR] [Content] Failed to load content.
+[INFO] [Core] Unloading core...
+[libretro INFO] RA2: retro_deinit
+[INFO] [Core] Unloading core symbols...
+[INFO] [Core] Saved core options file to "<check-stage>/native-smoke01/applewin/config/AppleWin/AppleWin.opt".
