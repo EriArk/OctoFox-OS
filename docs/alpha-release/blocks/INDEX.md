@@ -5,17 +5,17 @@
 | Блок | Будущий файл | Состояние |
 | --- | --- | --- |
 | Система, запуск, первый вход, профили | `SYSTEM.md` | Не начат |
-| Home, навигация, Game Options, QuickApps | `SHELL.md` | Не начат |
-| Games, коллекции, платформы, GameHub | `GAMES.md` | Не начат |
+| Home, навигация, Game Options, QuickApps | `SHELL.md` | [Аудит UI по коду](./SHELL.md); физическая приёмка OPEN |
+| Games, коллекции, платформы, GameHub | `GAMES.md` | [Аудит UI по коду](./GAMES.md); физическая приёмка OPEN |
 | Эмуляторы и PC-игры | `RUNTIMES.md` | Не начат |
 | RetroAchievements и прогресс | `PROGRESS.md` | Не начат |
 | Адаптеры, Adventures, сохранения | `ADAPTERS.md` | Не начат |
-| Социальная система, друзья, сообщения, сообщества | `SOCIAL.md` | Не начат |
+| Социальная система, друзья, сообщения, сообщества | `SOCIAL.md` | [Аудит UI по коду](./SOCIAL.md); физическая приёмка OPEN |
 | Lobby, NetPlay, Remote Play, Nearby | `MULTIPLAYER.md` | Не начат |
-| Apps, Browser, Files | `APPS.md` | Не начат |
+| Apps, Browser, Files | `APPS.md` | [Аудит UI по коду](./APPS.md); физическая приёмка OPEN |
 | Crates, расширения, виджеты | `CRATES.md` | Не начат |
 | Экономика, аккаунт, Sparks, Bazaar | `ECOSYSTEM.md` | Не начат |
-| Settings, сеть, контроллеры, диагностика | `SETTINGS.md` | Не начат |
+| Settings, сеть, контроллеры, диагностика | `SETTINGS.md` | [Аудит UI по коду](./SETTINGS.md); физическая приёмка OPEN |
 | Установка, обновления, восстановление | `INSTALLATION.md` | Не начат |
 | SDK, интеграции, внешние разработчики | `SDK.md` | Не начат |
 

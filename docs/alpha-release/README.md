@@ -24,6 +24,8 @@
 | --- | --- |
 | [00_WORKLOG.md](00_WORKLOG.md) | Ход инвентаризации и принятые решения |
 | [inventory/FEATURES.md](inventory/FEATURES.md) | Полная функциональная матрица по блокам |
+| [inventory/GENERAL_UI_AUDIT.md](inventory/GENERAL_UI_AUDIT.md) | **Первый фактический аудит:** вкладки, вложенные страницы и экранные действия |
+| [inventory/GENERAL_UI_ACCEPTANCE.md](inventory/GENERAL_UI_ACCEPTANCE.md) | Сценарии физической проверки общей оболочки |
 | [inventory/PLATFORMS.md](inventory/PLATFORMS.md) | Отдельная проверка ОС, устройств и сценариев |
 | [inventory/RELEASE_GATES.md](inventory/RELEASE_GATES.md) | Проверки для публикации, известные риски и границы |
 | [blocks/INDEX.md](blocks/INDEX.md) | Каталог отдельных описаний блоков |
