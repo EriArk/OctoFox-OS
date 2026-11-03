@@ -26,6 +26,10 @@
 | [inventory/FEATURES.md](inventory/FEATURES.md) | Полная функциональная матрица по блокам |
 | [inventory/GENERAL_UI_AUDIT.md](inventory/GENERAL_UI_AUDIT.md) | **Первый фактический аудит:** вкладки, вложенные страницы и экранные действия |
 | [inventory/GENERAL_UI_ACCEPTANCE.md](inventory/GENERAL_UI_ACCEPTANCE.md) | Сценарии физической проверки общей оболочки |
+| [inventory/CRATES_AUDIT.md](inventory/CRATES_AUDIT.md) | **Второй проход:** Crates, каталог, установка, версии, интеграции и ограничения |
+| [inventory/CRATES_PROJECTS.md](inventory/CRATES_PROJECTS.md) | 18 опубликованных проектов, 17 bundled, источники и доказательства |
+| [inventory/CRATES_CONCEPTS.md](inventory/CRATES_CONCEPTS.md) | Реализованные и пока концептуальные игры/виджеты/расширения |
+| [inventory/CRATES_ACCEPTANCE.md](inventory/CRATES_ACCEPTANCE.md) | Физическая приёмка Crates на альфа-кандидате |
 | [inventory/PLATFORMS.md](inventory/PLATFORMS.md) | Отдельная проверка ОС, устройств и сценариев |
 | [inventory/RELEASE_GATES.md](inventory/RELEASE_GATES.md) | Проверки для публикации, известные риски и границы |
 | [blocks/INDEX.md](blocks/INDEX.md) | Каталог отдельных описаний блоков |

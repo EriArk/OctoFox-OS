@@ -29,7 +29,7 @@
 | F21 | Подготовка игры к лобби, совместимость, импорт, отмена | ? | ? | ? | [GAME_PREPARATION](../../GAME_PREPARATION.md) |
 | F22 | Nearby, Bluetooth, Wi-Fi Direct и локальные возможности | ? | ? | ? | [NEARBY_PLAY](../../NEARBY_PLAY.md) |
 | F23 | Apps: Files, Browser и обычные приложения | CODE | ? | ? | [APPS](../../APPS_WORKSPACE_RU.md) |
-| F24 | Crates: каталог, приложения, расширения, установка | ? | ? | ? | [CRATES](../../CRATES77_CATALOGUE.md) |
+| F24 | Crates: каталог, приложения, расширения, установка | CODE | PARTIAL | PARTIAL | [CRATES AUDIT](CRATES_AUDIT.md) · [device evidence](../../CRATES77_CATALOGUE.md) |
 | F25 | QuickApps, многозадачность, быстрые действия/виджеты | CODE | ? | ? | [PRODUCT_SPEC](../../PRODUCT_SPEC.md) |
 | F26 | Settings: ввод, экран, аудио, сеть, аккаунты | CODE | ? | ? | [DEVICE_CONTROLS](../../DEVICE_CONTROLS.md) |
 | F27 | Установка, Software/OTA, обновление, откат, удаление | ? | ? | ? | [FULL_BUNDLE](../../FULL_BUNDLE_RU.md) |
@@ -40,7 +40,7 @@
 | F32 | Безопасность, offline-режимы, приватность, права | ? | ? | ? | [SECURITY](../../../SECURITY.md) |
 | F33 | FPS/Performance, диагностика, ресурсы, ограничения устройства | ? | ? | ? | [PERFORMANCE](../../GAME_PERFORMANCE.md) |
 
-**Расшифровка этого прохода:** F03/F06/F10/F16/F30/F31 = `PARTIAL` только UI/часть маршрутов, не end-to-end; остальные отмеченные `CODE` = видимый экран и путь к обработчику. `INSTALLED`/`TESTED` оставлены `?`, пока не привязаны к финальному release commit и датированному результату. Для Crates (F24) и мультиплеера (F17–F22) статус намеренно не повышен. Подробности: [общий аудит](GENERAL_UI_AUDIT.md), [приёмка](GENERAL_UI_ACCEPTANCE.md).
+**Расшифровка этого прохода:** F03/F06/F10/F16/F30/F31 = `PARTIAL` только UI/часть маршрутов, не end-to-end; остальные отмеченные `CODE` = видимый экран и путь к обработчику. `INSTALLED`/`TESTED` оставлены `?`, пока не привязаны к финальному release commit и датированному результату. Для Crates (F24) зафиксированы код и ограниченные *исторические* физические/тестовые подтверждения (см. [Crates audit](CRATES_AUDIT.md)); все части Crates и итоговый альфа-кандидат не приняты. Мультиплеер (F17–F22) пока не проаудирован. Подробности: [общий аудит](GENERAL_UI_AUDIT.md), [приёмка](GENERAL_UI_ACCEPTANCE.md).
 
 ## Карточка уточнения одной строки
 
