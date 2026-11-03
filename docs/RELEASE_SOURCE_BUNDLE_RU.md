@@ -1,5 +1,20 @@
 # Исходники и лицензии полного установщика
 
+## Дополнение: Cemu/ARMSX2 и DuckStation, 3 ноября
+
+Теперь собраны **24 source capsules**: 2 126 557 701 байт, 297 Git-деревьев с
+повторами. Новые Cemu/ARMSX2 привязаны к embedded identity фактических AppImage.
+[Дополнение 160 849 920 байт](evidence/2026-11-03-appimage-provenance/README.md)
+собрано отдельно; шесть вложений повторно прочитаны и сверены. Предыдущий единый
+архив из 22 capsules ниже сохранён и не переписывался.
+
+Cemu: встроенная ревизия `cee557d46d63e3407dc3bbda6480c0c674e8bb80` подтверждена;
+неизвестными остаются точный packaging build и его внешние библиотеки.
+DuckStation: LICENSE/README **нашего** commit `dd4a0eb...` подтверждают CC-BY-NC-ND
+и позицию автора о преднастроенных пакетах как модификациях. Владелец выбирает
+отдельно подключаемый DuckStation либо включение после отдельного разрешения.
+До выбора состав кандидата не меняется; публичного разрешения для него нет.
+
 ## Результат 3 ноября 2026
 
 Для текущего автономного кандидата подготовлены **22 архива закреплённых исходников**:
@@ -60,15 +75,14 @@ Upstream-архив без них не считается готовым исх�
 | Native-сборки | Закреплённые Git-зависимости, наши recipes/patches | Закрыть внешние build/runtime dependencies и соответствие каждому бинарнику |
 | 76 RetroArch cores | Хеши файлов; отдельные source inputs handheld/netplay | Полное соответствие остальных готовых ядер точным source/build recipes |
 | 12 Flatpak refs | Manifest inputs точных установленных commits | Собрать исходники платформ/модулей; base manifest PPSSPP не заменяет наш patched build manifest |
-| 7 AppImage | Хеши и embedded metadata без запуска | Exact source и зависимости каждого пакета; у старого Cemu исходная ревизия ещё не подтверждена |
-| DuckStation | Metadata указывает CC-BY-NC-ND-4.0; найден полный commit candidate | Отдельно проверить условия поставки TrainerOS, не считать его GPL-компонентом |
+| 7 AppImage | Хеши и embedded metadata без запуска | Exact source и зависимости каждого пакета; у Cemu embedded upstream revision подтверждена, packaging/dependencies ещё нет |
+| DuckStation | LICENSE/README точного commit подтверждены; автор относит преднастроенные пакеты к модификациям | Выбор владельца: отдельно подключаемая установка либо отдельное разрешение на полный пакет |
 | Python native dependencies | Все 38 sdist и доступные notices | Исходники нативных библиотек внутри wheels ещё не признаны полными |
 | Две причёски CGTrader | Происхождение и условия зарегистрированы | Incorporated runtime delivery и исключение самостоятельной раздачи моделей из source archive; оригиналы сохранены |
 
-[Upstream LICENSE DuckStation](https://github.com/stenzek/duckstation/blob/master/LICENSE)
-согласуется с метаданными пакета по типу лицензии; проверка конкретного commit и
-сценария распространения остаётся отдельной. Это не утверждение, что любое
-включение запрещено. [Условия CGTrader, 21A.3/21B](https://www.cgtrader.com/pages/terms-and-conditions)
+[LICENSE/README точной версии DuckStation](evidence/2026-11-03-appimage-provenance/README.md)
+уточняют условия конкретной сборки; текущий настроенный набор ещё не допущен к
+публичной поставке. Это не утверждение, что любое включение запрещено. [Условия CGTrader, 21A.3/21B](https://www.cgtrader.com/pages/terms-and-conditions)
 требуют мер против извлечения и отличают incorporated use от самостоятельной раздачи.
 Сбор материалов не выставляет `redistributionReviewed=true`.
 

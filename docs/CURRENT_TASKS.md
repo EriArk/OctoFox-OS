@@ -9,11 +9,15 @@
 Production `2a6c9c9b` установлен через GUI Setup: ScreenScraper вошёл с доступом
 приложения из пакета, без developer-полей в исходном личном файле. Полный кандидат 08
 собран; повторной полной установки с нуля и публичного выпуска нет. Опись runtime
-составлена; 38 Python sdist/notices упакованы, 22 pinned source capsules собраны
+составлена; 38 Python sdist/notices упакованы, 24 pinned source capsules собраны
 на сервере. [Новый состав и конкретные пробелы](RELEASE_SOURCE_BUNDLE_RU.md) отделяют
 готовые материалы от полного corresponding-source review. Далее — оставшиеся
 готовые ядра/AppImage/Flatpak и библиотеки, условия DuckStation, упаковка моделей
-и публикация GitHub/OTA. Установленный runtime и Odin не менялись.
+и публикация GitHub/OTA. Cemu/ARMSX2: embedded identity подтверждена, исходники
+собраны; точные packaging dependencies остаются. DuckStation: условия нашей версии
+проверены, требуется выбор владельца по преднастроенному публичному пакету.
+[Новые доказательства и варианты](evidence/2026-11-03-appimage-provenance/README.md).
+Установленный runtime и Odin не менялись.
 Подробности: [доказательства](evidence/2026-11-03-isolated-install/README.md).
 
 

@@ -1,5 +1,15 @@
 # Cemu: Wii U online-service boundary
 
+## Source identity correction — 3 November 2026
+
+The retained Flip AppImage SHA-256 `8b6920d40b0eee45148833d735b1b40fe40888e11d75a708493c126b8cf853cc`
+contains `Cemu cee557d` in its actual `shared/bin/cemu` ELF. This resolves to upstream
+`cee557d46d63e3407dc3bbda6480c0c674e8bb80`; source with all ten Git trees is collected.
+This supersedes the unknown embedded revision below. It is fresh binary evidence,
+not reuse of historical gameplay logs. Exact packager/build dependencies and bundled
+library sources remain unreviewed; there is no new device build or gameplay proof.
+[Provenance, source digest and limitations](../evidence/2026-11-03-appimage-provenance/README.md).
+
 **2 November 2026 — native Online source integration.** The separate
 [Nintendo Online service route](nintendo-online.md) adds provider selection,
 bounded local prerequisite checks and ordinary Lobby/explicit Start/Home/exit.

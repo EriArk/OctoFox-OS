@@ -200,6 +200,24 @@
         "psp-network",
         "org.ppsspp.PPSSPP"
       ]
+    },
+    {
+      "id": "cemu-appimage",
+      "repository": "https://github.com/cemu-project/Cemu.git",
+      "commit": "cee557d46d63e3407dc3bbda6480c0c674e8bb80",
+      "evidence": "docs/evidence/2026-11-03-appimage-provenance/README.md",
+      "components": [
+        "Cemu"
+      ]
+    },
+    {
+      "id": "armsx2-appimage",
+      "repository": "https://github.com/ARMSX2/ARMSX2.git",
+      "commit": "90126bdfea7a3ffb1fd288b2f7f0ae0b033af2d6",
+      "evidence": "docs/evidence/2026-11-03-appimage-provenance/README.md",
+      "components": [
+        "ARMSX2"
+      ]
     }
   ]
 }

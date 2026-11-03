@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "id": "cemu-appimage",
+  "file": "cemu-appimage-cee557d46d63e3407dc3bbda6480c0c674e8bb80.tar.gz",
+  "bytes": 33193211,
+  "sha256": "e342bd8c545d7f664fe493511b52c2a60157b899b914c1f912f8f2474ace1ee6",
+  "repository": "https://github.com/cemu-project/Cemu.git",
+  "commit": "cee557d46d63e3407dc3bbda6480c0c674e8bb80",
+  "trees": [
+    {
+      "path": ".",
+      "repository": "https://github.com/cemu-project/Cemu.git",
+      "commit": "cee557d46d63e3407dc3bbda6480c0c674e8bb80",
+      "tree": "cb587ec273dd78667c6a81feea2386055085e3f9"
+    },
+    {
+      "path": "dependencies/Vulkan-Headers/",
+      "repository": "https://github.com/KhronosGroup/Vulkan-Headers",
+      "commit": "01393c3df0e5285b54ee6527466513f9e614be94",
+      "tree": "7a79287d11cb2b1a4f62bfd4516d253d6e4bc4ec"
+    },
+    {
+      "path": "dependencies/ZArchive/",
+      "repository": "https://github.com/Exzap/ZArchive",
+      "commit": "d2c717730092c7bf8cbb033b12fd4001b7c4d932",
+      "tree": "f5d4ac152f303264cf87cfcc6acb08118014f2cb"
+    },
+    {
+      "path": "dependencies/cubeb/",
+      "repository": "https://github.com/mozilla/cubeb",
+      "commit": "2071354a69aca7ed6df3b4222e305746c2113f60",
+      "tree": "8c52b2c28984fad00e5319b30ebe3712db9cfe2f"
+    },
+    {
+      "path": "dependencies/cubeb/cmake/sanitizers-cmake/",
+      "repository": "https://github.com/arsenm/sanitizers-cmake",
+      "commit": "aab6948fa863bc1cbe5d0850bc46b9ef02ed4c1a",
+      "tree": "3816c1ee4a62493f88cb66b221649981515eb938"
+    },
+    {
+      "path": "dependencies/cubeb/googletest/",
+      "repository": "https://github.com/google/googletest",
+      "commit": "800f5422ac9d9e0ad59cd860a2ef3a679588acb4",
+      "tree": "4bafa72b6022ac8aa3ba7bb3e53d9262ee3d9404"
+    },
+    {
+      "path": "dependencies/imgui/",
+      "repository": "https://github.com/ocornut/imgui",
+      "commit": "f65bcf481ab34cd07d3909aab1479f409fa79f2f",
+      "tree": "9b9c127802b65b3081e7b59aeecb6dbeebbb57de"
+    },
+    {
+      "path": "dependencies/metal-cpp/",
+      "repository": "https://github.com/bkaradzic/metal-cpp.git",
+      "commit": "a63bd172ddcba73a3d87ca32032b66ad41ddb9a6",
+      "tree": "dfb8c8ae6fbe0ad0fb939c363d8f3b2a308a73a3"
+    },
+    {
+      "path": "dependencies/vcpkg/",
+      "repository": "https://github.com/microsoft/vcpkg",
+      "commit": "9849e070ad4c3383890fb1c80ae0c54325e2484a",
+      "tree": "964e08d487e4630c259c92ea56e742920281bfe7"
+    },
+    {
+      "path": "dependencies/xbyak_aarch64/",
+      "repository": "https://github.com/fujitsu/xbyak_aarch64",
+      "commit": "904b8923457f3ec0d6f82ea2d6832a792851194d",
+      "tree": "decc6690359152f3a5dc37b523b47316afbea481"
+    }
+  ],
+  "files": 16662,
+  "noticeFiles": [
+    "LICENSE.txt",
+    "dependencies/Vulkan-Headers/LICENSE.md",
+    "dependencies/ZArchive/LICENSE",
+    "dependencies/cubeb/LICENSE",
+    "dependencies/cubeb/cmake/sanitizers-cmake/LICENSE",
+    "dependencies/cubeb/googletest/COPYING",
+    "dependencies/ih264d/NOTICE",
+    "dependencies/imgui/LICENSE.txt",
+    "dependencies/imgui/examples/libs/glfw/COPYING.txt",
+    "dependencies/metal-cpp/LICENSE.txt",
+    "dependencies/vcpkg/LICENSE.txt",
+    "dependencies/vcpkg/NOTICE.txt",
+    "dependencies/vcpkg/NOTICE_pt.txt",
+    "dependencies/vcpkg/ports/comms-ublox/copyright",
+    "dependencies/vcpkg/ports/cspice/License.txt",
+    "dependencies/vcpkg/ports/discord-game-sdk/copyright",
+    "dependencies/vcpkg/ports/egl-registry/copyright",
+    "dependencies/vcpkg/ports/ffnvcodec/LICENSE.txt",
+    "dependencies/vcpkg/ports/ffnvcodec/copyright",
+    "dependencies/vcpkg/ports/gdcm/copyright.diff",
+    "dependencies/vcpkg/ports/gettimeofday/LICENSE",
+    "dependencies/vcpkg/ports/hungarian/LICENSE.txt",
+    "dependencies/vcpkg/ports/iausofa/LICENSE",
+    "dependencies/vcpkg/ports/irrlicht/LICENSE.txt",
+    "dependencies/vcpkg/ports/kdreports/fix-license-text.patch",
+    "dependencies/vcpkg/ports/kdsingleapplication/fix-license-text.patch",
+    "dependencies/vcpkg/ports/kdsoap/fix-license-text.patch",
+    "dependencies/vcpkg/ports/libunistring/copyright",
+    "dependencies/vcpkg/ports/loguru/copyright",
+    "dependencies/vcpkg/ports/mmx/copyright",
+    "dependencies/vcpkg/ports/monkeys-audio/license",
+    "dependencies/vcpkg/ports/opengl-registry/copyright",
+    "dependencies/vcpkg/ports/pdcurses/LICENSE",
+    "dependencies/vcpkg/ports/pffft/copyright",
+    "dependencies/vcpkg/ports/physac/LICENSE",
+    "dependencies/vcpkg/ports/pqp/LICENSE",
+    "dependencies/vcpkg/ports/qt5-base/cmake/qt_install_copyright.cmake",
+    "dependencies/vcpkg/ports/qtbase/cmake/qt_install_copyright.cmake",
+    "dependencies/vcpkg/ports/sigslot/LICENSE",
+    "dependencies/vcpkg/ports/strtk/copyright",
+    "dependencies/vcpkg/ports/tensorflow-common/LICENSE.txt",
+    "dependencies/vcpkg/ports/tinyxml/License.txt",
+    "dependencies/vcpkg/ports/treehh/copyright",
+    "dependencies/vcpkg/ports/vcpkg-cmake-config/copyright",
+    "dependencies/vcpkg/ports/vcpkg-get-python-packages/copyright",
+    "dependencies/vcpkg/ports/vulkan-sdk-components/LICENSE.txt",
+    "dependencies/vcpkg/ports/webrtc/build-0009-disable-copying-msvc-dlls.patch",
+    "dependencies/vcpkg/scripts/cmake/vcpkg_install_copyright.cmake",
+    "dependencies/vcpkg/versions/l-/licensepp.json",
+    "dependencies/xbyak_aarch64/LICENSE"
+  ],
+  "lfsObjects": [],
+  "externalLinks": [],
+  "upstreamSourceCollected": true,
+  "completeCorrespondingSourceReviewed": false
+}

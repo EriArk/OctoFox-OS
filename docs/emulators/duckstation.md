@@ -1,5 +1,17 @@
 # DuckStation — ordinary standalone launch
 
+## Distribution review — 3 November 2026
+
+The full installer candidate contains the AppImage with embedded commit
+`dd4a0eb779296a525f8b10b6d9a45911ad6d088f`. Its exact upstream LICENSE is
+CC-BY-NC-ND-4.0; the same revision's README considers preconfigured settings/packages
+modifications. Keeping the executable bytes unchanged alone is insufficient to clear
+the configured TrainerOS bundle. Owner choice between a separately obtained external
+installation and separate permission for the configured bundle is pending. Existing
+installations/memory cards and public-candidate composition are unchanged; no message
+to upstream was sent. PS1 PCSX-ReARMed remains a distinct supplied route.
+[Exact sources, SHA-256 and proposed choices](../evidence/2026-11-03-appimage-provenance/README.md).
+
 ## LAUNCH-80 integration, 18 October 2026
 
 TrainerOS reuses the installed DuckStation package without emulator patches.

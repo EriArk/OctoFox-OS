@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "method": "Verified AppImage SHA-256; read ELF without execution; resolve embedded identity against pinned upstream commit. Cemu PAX export is the retained verified-tool inspection artifact.",
+  "components": [
+    {
+      "id": "Cemu",
+      "appImageSha256": "8b6920d40b0eee45148833d735b1b40fe40888e11d75a708493c126b8cf853cc",
+      "elfPath": "shared/bin/cemu",
+      "elfBytes": 22677624,
+      "elfSha256": "69df88c933e243ee3322f950f1666a9ea839c18f30362ac6d69ee5ca9612ac5c",
+      "versionMarker": "Cemu cee557d",
+      "markerOffset": 15410734,
+      "repository": "https://github.com/cemu-project/Cemu.git",
+      "commit": "cee557d46d63e3407dc3bbda6480c0c674e8bb80",
+      "upstreamCommitUrl": "https://github.com/cemu-project/Cemu/commit/cee557d46d63e3407dc3bbda6480c0c674e8bb80",
+      "upstreamProjectLicense": "MPL-2.0",
+      "embeddedIdentityResolved": true,
+      "exactBuildRecipeAndDependenciesReviewed": false,
+      "redistributionReviewed": false,
+      "license": {
+        "url": "https://raw.githubusercontent.com/cemu-project/Cemu/cee557d46d63e3407dc3bbda6480c0c674e8bb80/LICENSE.txt",
+        "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5"
+      }
+    },
+    {
+      "id": "ARMSX2",
+      "appImageSha256": "1c40028a0464bcfab57826518500dcd11ceb472bea16d0900d7146abb11a4224",
+      "elfPath": "usr/bin/armsx2-qt",
+      "elfBytes": 67847760,
+      "elfSha256": "b94092f05101df327c850e8d319120a481733b1ac717d98600b3f2af77a7c54f",
+      "versionMarker": "90126bdfea7a3ffb1fd288b2f7f0ae0b033af2d6",
+      "markerOffset": 1441103,
+      "repository": "https://github.com/ARMSX2/ARMSX2.git",
+      "commit": "90126bdfea7a3ffb1fd288b2f7f0ae0b033af2d6",
+      "upstreamCommitUrl": "https://github.com/ARMSX2/ARMSX2/commit/90126bdfea7a3ffb1fd288b2f7f0ae0b033af2d6",
+      "upstreamProjectLicense": "GPL-3.0-or-later",
+      "embeddedIdentityResolved": true,
+      "exactBuildRecipeAndDependenciesReviewed": false,
+      "redistributionReviewed": false
+    },
+    {
+      "id": "DuckStation",
+      "appImageSha256": "dce6ca77055ace60491781b6b57f3e55e9b54678777ac575ac2471c22ad1128e",
+      "elfPath": "usr/bin/duckstation-qt",
+      "elfBytes": 34357456,
+      "elfSha256": "7356ed5b865b2439a5a09fa5ae72922698213d1f98319a98ef85906c21a64542",
+      "versionMarker": "dd4a0eb779296a525f8b10b6d9a45911ad6d088f",
+      "markerOffset": 1029639,
+      "repository": "https://github.com/stenzek/duckstation.git",
+      "commit": "dd4a0eb779296a525f8b10b6d9a45911ad6d088f",
+      "upstreamCommitUrl": "https://github.com/stenzek/duckstation/commit/dd4a0eb779296a525f8b10b6d9a45911ad6d088f",
+      "upstreamProjectLicense": "CC-BY-NC-ND-4.0",
+      "embeddedIdentityResolved": true,
+      "exactBuildRecipeAndDependenciesReviewed": false,
+      "redistributionReviewed": false,
+      "license": {
+        "url": "https://raw.githubusercontent.com/stenzek/duckstation/dd4a0eb779296a525f8b10b6d9a45911ad6d088f/LICENSE",
+        "sha256": "38762e3777f4ec00a6f769062a7c3f704fb78ce08303ecff88558da4c49cf9ea"
+      },
+      "distributionGuidance": {
+        "url": "https://raw.githubusercontent.com/stenzek/duckstation/dd4a0eb779296a525f8b10b6d9a45911ad6d088f/README.md",
+        "sha256": "52c0c0c65e3bd94c46cd60d827b2e2b5439aeb910255773f6af0d9ca1da34ee4",
+        "unmodifiedReleaseSharingConditional": true,
+        "preconfiguredPackagesConsideredModificationsByAuthor": true,
+        "trainerosFullBundleDecision": "pending-owner-choice-or-separate-permission"
+      }
+    }
+  ],
+  "installedRuntimeChanged": false,
+  "completeRuntimeCorrespondingSource": false,
+  "redistributionReviewed": false
+}

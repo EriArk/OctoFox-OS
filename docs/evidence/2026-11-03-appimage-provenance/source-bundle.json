@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "file": "TrainerOS-AppImage-Sources-CANDIDATE.tar",
+  "bytes": 160849920,
+  "sha256": "eefb53e83436922c76555bf88493a2775e78f48cbbcc5fd46d68103b3b1ffd41",
+  "entries": 6,
+  "allEntriesReadBack": true,
+  "sourceCapsules": 2,
+  "sourceArchiveBytes": 160824089,
+  "sourceTrees": 11,
+  "sourceFiles": 29560,
+  "completeRuntimeCorrespondingSource": false,
+  "redistributionReviewed": false,
+  "published": false
+}
