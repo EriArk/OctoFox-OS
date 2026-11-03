@@ -20,6 +20,11 @@ import runtime_set as runtimes
 import runtime_manager
 
 CRATES_FILES = ('catalogue.py', 'catalogue-key.pem', 'installer.py', 'launch.py', 'packages.json')
+SESSION_FILES = ('armada-session-default.conf', 'client.py', 'compositor.sh', 'control.py',
+                 'desktop-entry.py', 'desktop-logout.py', 'install.py', 'ownership.py',
+                 'org.traineros.Session.desktop', 'plasma-brightness.conf',
+                 'plasma-brightness.py', 'start-session.sh', 'traineros-session.service',
+                 'traineros.desktop')
 
 
 def atomic_file(path, data, mode):
@@ -70,7 +75,7 @@ def bootstrap(root, source):
               *(source / 'crates' / name for name in CRATES_FILES)]
     # These are consumed by session/install.py, including on a fresh machine.
     # A developer checkout can mask an incomplete Setup archive.
-    for name in ('software/launcher.py', 'session/install.py', 'integrations/emulator_support.py',
+    for name in ('software/launcher.py', *('session/' + name for name in SESSION_FILES), 'integrations/emulator_support.py',
                  'pc/launch.py', 'pc/steam.py', 'pc/runtimes.py',
                  'integrations/install-radio-control.py', 'integrations/radio-control.py',
                  'integrations/network-control.py', 'integrations/nearby-control.py',

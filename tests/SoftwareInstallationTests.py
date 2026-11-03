@@ -203,6 +203,24 @@ class InstallationTests(unittest.TestCase):
         helper = self.installation / 'bootstrap/packaging/software/launcher.py'; helper.write_text('changed')
         with self.assertRaisesRegex(ValueError, 'modified'): installer.bootstrap(self.installation, SOURCE / 'packaging')
 
+    def test_incomplete_session_source_is_rejected_before_bootstrap_is_created(self):
+        installer.bootstrap(self.installation, SOURCE / 'packaging')
+        packaging = self.installation / 'bootstrap/packaging'
+        destination = self.root / 'incomplete-source-install'
+        destination.mkdir()
+        for name in installer.SESSION_FILES:
+            with self.subTest(name=name):
+                path = packaging / 'session' / name
+                content = path.read_bytes()
+                path.unlink()
+                try:
+                    with self.assertRaisesRegex(ValueError, 'Incomplete Setup: missing session/'):
+                        installer.bootstrap(destination, packaging)
+                    self.assertFalse((destination / 'bootstrap').exists())
+                    self.assertFalse((destination / 'bootstrap-files.json').exists())
+                finally:
+                    path.write_bytes(content)
+
     def executable_release(self, sequence, script):
         payload = self.root / ('executable-' + str(sequence)); (payload / 'bin').mkdir(parents=True)
         executable = payload / 'bin/traineros'; executable.write_bytes(b'#!/usr/bin/python3\n' + script.encode()); executable.chmod(0o755)

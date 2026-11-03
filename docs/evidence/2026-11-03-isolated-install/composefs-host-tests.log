@@ -1,0 +1,12 @@
+ACTUAL_HOST {"supported": true, "architecture": "aarch64", "osStorage": {"source": "/dev/sda26", "filesystem": "btrfs", "disk": "/dev/sda", "location": "internal"}, "errors": []}
+test_armada_probe_distinguishes_sd_from_emmc_even_when_rm_is_false (SoftwareInstallationTests.HostAndOwnershipTests.test_armada_probe_distinguishes_sd_from_emmc_even_when_rm_is_false) ... ok
+test_composefs_refuses_missing_or_non_block_sysroot_without_guessing (SoftwareInstallationTests.HostAndOwnershipTests.test_composefs_refuses_missing_or_non_block_sysroot_without_guessing) ... ok
+test_composefs_uses_exact_sysroot_mount_not_game_or_home_storage (SoftwareInstallationTests.HostAndOwnershipTests.test_composefs_uses_exact_sysroot_mount_not_game_or_home_storage) ... ok
+test_os_storage_is_derived_from_system_mount_not_game_disk (SoftwareInstallationTests.HostAndOwnershipTests.test_os_storage_is_derived_from_system_mount_not_game_disk) ... ok
+test_schema_probe_reads_wal_without_migration (SoftwareInstallationTests.HostAndOwnershipTests.test_schema_probe_reads_wal_without_migration) ... ok
+test_session_journal_handles_interrupted_upgrade_and_preserves_drift (SoftwareInstallationTests.HostAndOwnershipTests.test_session_journal_handles_interrupted_upgrade_and_preserves_drift) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.012s
+
+OK
