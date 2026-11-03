@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "purpose": "Release inventory of existing session policy; not a replacement for player preferences",
+  "implementationSource": "2a11bff8813246a9b5db5ae2f37d85cd4d6dc510",
+  "policy": {
+    "configurationScope": "private game session",
+    "preserveConsoleIdentity": true,
+    "preserveUserControllerMappings": true,
+    "preserveOrdinarySaves": true,
+    "restoreOnlyOwnedSessionState": true,
+    "runtimeChangeDuringSession": false,
+    "copyAccountsFromBuildMachine": false,
+    "copyUserFirmware": false,
+    "automaticLibraryWideContentHashing": false
+  },
+  "retroarch": {
+    "implementation": "src/integrations/adventure/retroarch/RetroArchNetplay.cpp",
+    "privateConfig": true,
+    "automaticOverridesAndRemaps": false,
+    "rewind": false,
+    "runAhead": false,
+    "preemptiveFrames": false,
+    "automaticSavestateLoadAndSave": false,
+    "pauseOnFocusLoss": false,
+    "controllerPorts": "from admitted game and assigned lobby seats",
+    "network": "existing direct or public relay route selected by the session",
+    "contentAndCoreIdentity": "verified on deliberate admission, never inferred from player count"
+  },
+  "ppsspp": {
+    "implementation": "src/integrations/adventure/standalone/PpssppNetplay.cpp",
+    "flatpakRef": "org.ppsspp.PPSSPP/aarch64/traineros-relay",
+    "runtimeSha256": "01eafca876b8bc05ec2e087f6619bd127d5f6cfbc68aff804b6d362f5fdc25d5",
+    "EnableWlan": true,
+    "EnableUPnP": false,
+    "PortOffset": 10000,
+    "AllowSavestateWhileConnected": false,
+    "AllowSpeedControlWhileConnected": false,
+    "PauseOnLostFocus": false,
+    "PauseWhenMinimized": false,
+    "MAC": "keep the player's existing console identity; never distribute one shared MAC",
+    "ForceLagSync2": "only runtime.ppsspp.lumines-us.v1",
+    "serverAndRole": "generated for the accepted invitation, never copied from the build device"
+  },
+  "nativeBundles": {
+    "recipe": "packaging/emulators/fullbundle-arm64.json",
+    "manifest": "retain exact source/settings/protocol/runtime identities",
+    "homePaths": "render ${HOME} for the installing player",
+    "python": "recreate environments from offline locked wheels; verify interpreter compatibility",
+    "firmware": "user import through Game Preparation; unavailable firmware leaves the route unavailable"
+  },
+  "remotePlay": {
+    "interactiveMedia": "direct P2P",
+    "signaling": "Fluxer invitations and existing lightweight directory",
+    "publicStun": "address discovery only",
+    "ownerHostedMediaRelayRequired": false,
+    "limitation": "some networks cannot connect directly; same-router checks do not prove different-network play"
+  },
+  "notDeliveredByCollection": [
+    "new multiplayer support for an unadmitted game",
+    "melonDS WFC native-online runtime delivery",
+    "PS2 shared-console libretro runtime admission",
+    "different-network or physical gameplay acceptance",
+    "automatic migration of existing unmanaged emulator installations"
+  ]
+}

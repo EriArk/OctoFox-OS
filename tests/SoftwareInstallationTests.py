@@ -48,6 +48,15 @@ class InstallationTests(unittest.TestCase):
 
     def install(self): return install.install_prepared(self.installation, self.prepared)
 
+    def test_offline_candidate_prepares_and_refuses_implicit_downgrade(self):
+        with patch.object(sw, 'download', side_effect=AssertionError('Offline installer cannot download')):
+            candidate = installer.resolve_offline(self.installation, self.manifest.parent, prepare=True, progress=lambda *args: None)
+        self.assertEqual(candidate['status'], 'prepared')
+        self.assertEqual(candidate['downloadBytes'], 0)
+        install.install_prepared(self.installation, candidate['prepared'])
+        with self.assertRaisesRegex(ValueError, 'not newer'):
+            installer.resolve_offline(self.installation, self.manifest.parent)
+
     def new_version(self, sequence=8, maximum=16):
         payload = self.root / ('payload-' + str(sequence)); (payload / 'bin').mkdir(parents=True)
         (payload / 'bin/traineros').write_bytes(b'fixture-new-' + str(sequence).encode())

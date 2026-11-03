@@ -1,0 +1,21 @@
+{
+  "offlineInstalledRefs": [
+    "org.freedesktop.Platform.GL.default/aarch64/25.08",
+    "org.freedesktop.Platform.GL.default/aarch64/25.08-extra",
+    "org.freedesktop.Platform.codecs-extra/aarch64/25.08-extra",
+    "org.freedesktop.Platform/aarch64/25.08",
+    "org.kde.KStyle.Adwaita/aarch64/6.10",
+    "org.kde.KStyle.Adwaita/aarch64/6.11",
+    "org.kde.Platform/aarch64/6.10",
+    "org.kde.Platform/aarch64/6.11",
+    "org.DolphinEmu.dolphin-emu/aarch64/stable",
+    "org.flycast.Flycast/aarch64/stable",
+    "org.libretro.RetroArch/aarch64/stable",
+    "org.ppsspp.PPSSPP/aarch64/traineros-relay"
+  ],
+  "ppssppSha256": "01eafca876b8bc05ec2e087f6619bd127d5f6cfbc68aff804b6d362f5fdc25d5",
+  "gameplayTested": false,
+  "bubblewrapNamespaceWarnings": true,
+  "sandboxLaunchTested": false,
+  "limitation": "Container disallows nested bubblewrap namespaces; only offline import and identity checks are accepted."
+}

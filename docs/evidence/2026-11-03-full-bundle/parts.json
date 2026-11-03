@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "product": "traineros-offline-parts",
+  "bytes": 3104686080,
+  "sha256": "ef32232bc2c0737aeaabda7cf3a7729b11a32035755dc02d901f92ef91d9e0da",
+  "parts": [
+    {
+      "path": "TrainerOS-Full.tar.part001",
+      "bytes": 1887436800,
+      "sha256": "802beaaa59b31e136d1a95edb643fa6e69391390428741e966f6ba0d1f7ab98b"
+    },
+    {
+      "path": "TrainerOS-Full.tar.part002",
+      "bytes": 1217249280,
+      "sha256": "8e716798ea09d6d8cc2ea80c74be8a227826713a87ce5663c94b2fc72f72d106"
+    }
+  ],
+  "published": false
+}

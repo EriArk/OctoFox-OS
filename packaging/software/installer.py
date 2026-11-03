@@ -165,11 +165,28 @@ def payload_dependencies(prepared):
         raise ValueError('The signed TrainerOS build needs unavailable system libraries. Use a matching Armada build; installation was not activated.')
 
 
-def gui(root, config_path):
+def resolve_offline(root, media, prepare=False, progress=sw.event):
+    root, media = Path(root), Path(media)
+    release = sw.verified(media / 'release.json', root / 'trusted-key.pem')['signed']
+    config = install.configuration(root)
+    install.host.compatible(release, install.host.schemas(config['dataDirectory']))
+    current = install.receipt(root)
+    if current['active'] and release['sequence'] <= install.version(root, current['active'])['sequence']:
+        raise ValueError('Offline media is not newer than the installed release; use Recovery for rollback')
+    result = {'status': 'available', 'version': release['version'], 'sequence': release['sequence'], 'downloadBytes': 0}
+    if prepare:
+        path = sw.prepare(media / 'release.json', root / 'trusted-key.pem', root / 'cache',
+                          progress=progress, archive_path=media / 'traineros.tar.gz')
+        result.update(status='prepared', prepared=str(path))
+    return result
+
+
+def gui(root, config_path, offline=None):
     if not shutil.which('kdialog'): raise ValueError('Armada KDE kdialog is required to run the graphical installer')
     report = install.host.probe(root)
     if not report['supported']: raise ValueError('\n'.join(report['errors']))
     source = Path(__file__).resolve().parents[1]
+    if offline is None and (source.parent / 'offline').is_dir(): offline = source.parent / 'offline'
     if not (root / 'config.json').exists():
         config = sw.decode(Path(config_path).read_bytes())
         if not {'schema', 'feeds', 'publicKey'} <= set(config) or set(config) - {'schema', 'feeds', 'publicKey', 'defaultChannel'} or config.get('schema') != 1: raise ValueError('Invalid publisher bootstrap')
@@ -217,7 +234,7 @@ def gui(root, config_path):
     channel = choice.stdout.strip()
     with Progress() as progress:
         progress.update('Checking update channel')
-        candidate = install.resolve(root, channel)
+        candidate = resolve_offline(root, offline) if offline is not None else install.resolve(root, channel)
     if candidate['status'] != 'available': raise ValueError('No compatible release is available for this installation')
     description = (f"Install TrainerOS {candidate['version']}?\nDownload: {candidate['downloadBytes'] / 1048576:.1f} MiB\n"
                    f"OS: {report['system']}\nOS storage: {disk['location']} ({disk['disk']})\n"
@@ -225,8 +242,11 @@ def gui(root, config_path):
                    'Your OS, games, profiles and saves will be kept. A system authorization prompt installs the session choice.')
     if dialog('--yesno', description).returncode: return 0
     with Progress() as progress:
-        result = install.resolve(root, channel, prepare=True, expected=candidate['sequence'], progress=progress.update)
+        result = (resolve_offline(root, offline, prepare=True, progress=progress.update) if offline is not None else
+                  install.resolve(root, channel, prepare=True, expected=candidate['sequence'], progress=progress.update))
         if result['status'] != 'prepared': raise ValueError('Release changed. Check again before installation')
+        if result.get('sequence', candidate['sequence']) != candidate['sequence']:
+            raise ValueError('Release changed. Check again before installation')
         with sw.cache_lock(root / 'runtime'), sw.cache_lock(root / 'transaction'):
             install.ensure_no_orphans(root)
             progress.update('Checking application dependencies')
@@ -248,12 +268,13 @@ def main():
     parser.add_argument('--root', type=Path, default=install.DEFAULT_ROOT)
     parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parents[2] / 'bootstrap.json')
     parser.add_argument('--gui', action='store_true')
+    parser.add_argument('--offline', type=Path, help='Local signed Software media; no download fallback')
     args = parser.parse_args()
     try:
         if sys.platform != 'linux': raise ValueError('The installer requires Armada Linux')
         if os.getuid() == 0: raise ValueError('Run Setup as your desktop user; only session integration requests system authorization')
         if not args.gui: parser.error('Use --gui from the installer launcher')
-        return gui(args.root, args.config)
+        return gui(args.root, args.config, args.offline)
     except Cancelled as error:
         dialog('--msgbox', str(error)); return 0
     except (OSError, ValueError, RuntimeError, KeyError, ImportError, subprocess.SubprocessError) as error:

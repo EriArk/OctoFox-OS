@@ -13,6 +13,12 @@ support = importlib.util.module_from_spec(spec); spec.loader.exec_module(support
 
 
 class EmulatorSupportInstallTests(unittest.TestCase):
+    def test_fresh_install_contains_pc_and_voice_imports(self):
+        self.assertTrue({'game_input.py', 'fluxer-voice.py', 'voice_presence.py', 'fluxer_streams.py',
+                         'game_capture.py', 'overlay_support.py'} <= set(support.HELPERS))
+        for name in support.HELPERS:
+            compile((source.parent / name).read_bytes(), name, 'exec')
+
     def test_stock_upgrade_keeps_original_and_custom_bridge(self):
         with tempfile.TemporaryDirectory() as directory:
             account = SimpleNamespace(pw_dir=directory, pw_uid=os.getuid(), pw_gid=os.getgid())

@@ -1,0 +1,397 @@
+{
+  "schema": 1,
+  "components": [
+    {
+      "id": "ARMSX2",
+      "archive": {
+        "bytes": 62355409,
+        "sha256": "a00c2b53083162207cbc19e7379c9d29029c9f03db03a43e1981a8df597ac709"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 1
+    },
+    {
+      "id": "Azahar-Enhanced",
+      "archive": {
+        "bytes": 84605801,
+        "sha256": "9fcd1f20213f3b8257776fbe262126bcf4d88f0620b4f7720d988ef8dc1f1d12"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 1
+    },
+    {
+      "id": "Cemu",
+      "archive": {
+        "bytes": 73961632,
+        "sha256": "44dcb1adbbabc0b07f0b3e3b645f293e6c761e1552628aa683055c6b34733fd5"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 1
+    },
+    {
+      "id": "DuckStation",
+      "archive": {
+        "bytes": 87579395,
+        "sha256": "e9bd313a32a77dfac33461705a3bbc15dd7d303b8fad80c2cb76e780aa11b892"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 1
+    },
+    {
+      "id": "azahar-netplay",
+      "archive": {
+        "bytes": 18064401,
+        "sha256": "7259506501cdd257620c372d76a9f2560e56eac192098b6fa06a89f9ec651992"
+      },
+      "metadata": {
+        "source": "219d743a1e698101fe1ab8bef43e6563126c3c27",
+        "settings": "native-room-group-private-v2",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 15
+    },
+    {
+      "id": "dolphin-lan",
+      "archive": {
+        "bytes": 890521,
+        "sha256": "e8d86bfddff56059ac997437550f4089ef1acf2946fdc5e02d41ddd8feb58a97"
+      },
+      "metadata": {
+        "source": null,
+        "settings": "dolphin-bba-group-isolated-v2",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 13
+    },
+    {
+      "id": "dolphin-netplay",
+      "archive": {
+        "bytes": 18463721,
+        "sha256": "8641a182fb7c95382a763371520419d4c58b9d78781bd5b2098d38d19eea259b"
+      },
+      "metadata": {
+        "source": "c77bbaa0f372c3f72281602a8b087206706542cb",
+        "settings": null,
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 2642
+    },
+    {
+      "id": "eden",
+      "archive": {
+        "bytes": 63103129,
+        "sha256": "29a5465b10e40017c4f2ed62d9b1f10a96a1137013c11a0a5d5fd34e13cceeb8"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 1
+    },
+    {
+      "id": "flycast-lan",
+      "archive": {
+        "bytes": 5501302,
+        "sha256": "cb0a8ce1f05142e315f5f585a7d33fbaeed5c84c93bfca058c11ca14c1961c30"
+      },
+      "metadata": {
+        "source": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+        "settings": "flycast-cabinet-private-v2",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 10
+    },
+    {
+      "id": "flycast-netplay",
+      "archive": {
+        "bytes": 4490369,
+        "sha256": "e5eb468acaea078661ef95d9079e50d3c56daf364ffe1cb59641140cb31252ab"
+      },
+      "metadata": {
+        "source": "d0e47e572b1e7b355e88bda8308c89d0c5156cbf",
+        "settings": null,
+        "requiredUserFiles": [
+          "firmware/dc_boot.bin",
+          "firmware/dc_flash.bin"
+        ],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 7
+    },
+    {
+      "id": "flycast-online",
+      "archive": {
+        "bytes": 8301804,
+        "sha256": "1392e04a4c96ce0e30aba69d8d6626f406e6ec0b4aa42f9c8eb9a5540e54ce16"
+      },
+      "metadata": {
+        "source": "5aa091fde632fb332c8d8c34e280d62dc951954c",
+        "settings": "dcnet-owned-vmu-v1",
+        "requiredUserFiles": [
+          "firmware/dc_boot.bin",
+          "firmware/dc_flash.bin"
+        ],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 5
+    },
+    {
+      "id": "game-capture",
+      "archive": {
+        "bytes": 17569,
+        "sha256": "ff1e4037c48a60525f4c216312e75d2b10d9e9ec3711e02b8e88c483f1ae7853"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 1
+    },
+    {
+      "id": "linked-save",
+      "archive": {
+        "bytes": 3747,
+        "sha256": "13051a85aa372843e18cae141cbb61fba60a86cf29e8bb44642ec91a0c9a3e83"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 2
+    },
+    {
+      "id": "melonDS",
+      "archive": {
+        "bytes": 34056160,
+        "sha256": "036930492e54df1e63f7e3b575a14242ee3559a4c43534b2f4ff65f06c06df7e"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 1
+    },
+    {
+      "id": "melonds-netplay",
+      "archive": {
+        "bytes": 1050006,
+        "sha256": "5aed49412b122a2003b7df43243c84c9d9cf4919cde23c0236a6addec71f9627"
+      },
+      "metadata": {
+        "source": "906e9ebb27da8c6a715cd7abab4abfe8a8d29427",
+        "settings": "detmp-two-owned-v1",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 4
+    },
+    {
+      "id": "neocd-netplay",
+      "archive": {
+        "bytes": 1159797,
+        "sha256": "28a4cf701104df8b8dfa09360888378c7e439479d29ca8a64fa2cbbf4ede26a8"
+      },
+      "metadata": {
+        "source": "b1e04c738cb48a1dae0574b8877f6a116d270ca1",
+        "settings": "neocd-two-pad-private-bios-aslr-v1",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 5
+    },
+    {
+      "id": "ngpc",
+      "archive": {
+        "bytes": 1630935,
+        "sha256": "36100244a0e39b4521d72714396168dd364755a9bab41c49b9ee108c3ef73d85"
+      },
+      "metadata": {
+        "source": "d0acb0874cc07735d7fa978539bb2471b2c1e71a",
+        "settings": "ngpc-mirror-own-flash-v1",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 16
+    },
+    {
+      "id": "odamex",
+      "archive": {
+        "bytes": 14492860,
+        "sha256": "406d83ec6636f9ec9b6024b50d37963ba7aee1d90bb9a29aa5422d57f1dc66c5"
+      },
+      "metadata": {
+        "source": "3a763534ac609aee8d22351baa3155809c4ea355",
+        "settings": "odamex-owned-native-v1",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 28
+    },
+    {
+      "id": "pcsx-rearmed-cbin",
+      "archive": {
+        "bytes": 6307027,
+        "sha256": "b772f2f7bb11b7083ab308a69b0e83f73736c2f4be796e48f7c77216b7a04365"
+      },
+      "metadata": {
+        "source": "c8816799b50388e61cfe237fe2cdbb7d8175f20a",
+        "settings": null,
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 7
+    },
+    {
+      "id": "ps2-lan",
+      "archive": {
+        "bytes": 1210812,
+        "sha256": "e4b9d5b17d8eb538d5c0eef6f51449196a443e0b8e53bc38066b3318c8f2489a"
+      },
+      "metadata": {
+        "source": null,
+        "settings": "eclx1-group-own-cards-v2",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 20
+    },
+    {
+      "id": "psp-content",
+      "archive": {
+        "bytes": 200069,
+        "sha256": "ed19f336a8aeadd50970ae8aaf77c7a979336dc2c865ed7dbcdc28546f5e8df0"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 9
+    },
+    {
+      "id": "psp-network",
+      "archive": {
+        "bytes": 1047777,
+        "sha256": "8f438d8f75d2364b8bc4345efc36465a42266091f56a43bdaeffe4d8404949e4"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 14
+    },
+    {
+      "id": "remote-play",
+      "archive": {
+        "bytes": 1358364,
+        "sha256": "a547c6e21ec3fef55c245e305c8c293108cc3dd96006192930c8d0b079f38f01"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 28
+    },
+    {
+      "id": "retroarch-cores",
+      "archive": {
+        "bytes": 303417915,
+        "sha256": "b0bc151b3d9e8cb7b977e45da7eba3e2ba82050f70a000913f6ac684668647c7"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 148
+    },
+    {
+      "id": "rmg-netplay",
+      "archive": {
+        "bytes": 13040367,
+        "sha256": "26f0ac42e46131030f23c0828ba2036f2fd1d089db0dddbd1ced2f11f8db12ca"
+      },
+      "metadata": {
+        "source": "4777ed3f1fb7f1e4a0e70438a27dc4a5e9fb1927",
+        "settings": null,
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 32
+    },
+    {
+      "id": "rpcs3",
+      "archive": {
+        "bytes": 80090270,
+        "sha256": "2023f5baaf27efb5b8a3dd9c68059c25ab169b7b7b680c1262d096eb5cf26f9e"
+      },
+      "metadata": {},
+      "redistributionReviewed": false,
+      "files": 1
+    },
+    {
+      "id": "supermodel-link",
+      "archive": {
+        "bytes": 2846732,
+        "sha256": "62477ff52ae308da18cce3aab8b072d2b77766db18aa05190ff7e5a23fb88d1c"
+      },
+      "metadata": {
+        "source": "036af1c8d6640c5a60709c1f99144635ed82a184",
+        "settings": "supermodel-native-ring-owned-v1",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 13
+    },
+    {
+      "id": "vita3k-netplay",
+      "archive": {
+        "bytes": 81956521,
+        "sha256": "4f509390915b8c2fe9b35d346231ee1f9f1ce8f6dfe94cc121d30c51e70a4912"
+      },
+      "metadata": {
+        "source": "46602447c7f84d53790b44e1869ab5105178bf16",
+        "settings": "native-lan-two-owned-v1",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 319
+    },
+    {
+      "id": "xemu-lan",
+      "archive": {
+        "bytes": 17158637,
+        "sha256": "fd0cd45b6588d3c44d259e1769ea31d50517915c57d2ed33f3627ffdd20036d7"
+      },
+      "metadata": {
+        "source": "25e1ee2fd59a451f2ab57e825b4f8a5414220c8b",
+        "settings": "xemu-system-link-owned-v1",
+        "requiredUserFiles": [],
+        "manifestTemplate": true,
+        "recipeRevision": "20261103.1"
+      },
+      "redistributionReviewed": false,
+      "files": 5
+    }
+  ]
+}

@@ -252,7 +252,7 @@ def check_tree(directory, release):
             raise ValueError('Prepared permissions changed')
 
 
-def prepare(envelope_path, public_key, cache, progress=event, opener=None):
+def prepare(envelope_path, public_key, cache, progress=event, opener=None, archive_path=None):
     envelope = verified(envelope_path, public_key)
     release = envelope['signed']; identity = hashlib.sha256(canonical(release)).hexdigest()
     with cache_lock(cache) as root:
@@ -268,7 +268,26 @@ def prepare(envelope_path, public_key, cache, progress=event, opener=None):
         if shutil.disk_usage(root).free < needed:
             raise ValueError('Not enough space to prepare the complete release')
         part = root / (release['archive']['sha256'] + '.part')
-        download(release['archive'], part, progress, opener)
+        if archive_path is None:
+            download(release['archive'], part, progress, opener)
+        else:
+            # Offline media is subject to the same signed archive identity.
+            source = Path(archive_path)
+            if source.is_symlink() or not source.is_file() or source.stat().st_size != release['archive']['size']:
+                raise ValueError('Offline Software archive is missing or has the wrong size')
+            if part.is_symlink(): raise ValueError('Redirected offline cache')
+            if part.exists() and os.path.samefile(source, part):
+                raise ValueError('Offline source must be outside its destination cache file')
+            copied = 0; digest = hashlib.sha256()
+            with source.open('rb') as incoming, part.open('wb') as target:
+                while chunk := incoming.read(CHUNK):
+                    copied += len(chunk)
+                    if copied > release['archive']['size']: raise ValueError('Offline archive changed while copying')
+                    target.write(chunk); digest.update(chunk)
+                    progress('verify-archive', copied, release['archive']['size'])
+            if copied != release['archive']['size'] or digest.hexdigest() != release['archive']['sha256']:
+                part.unlink(missing_ok=True)
+                raise ValueError('Offline Software archive checksum mismatch')
         # No active pointer: a verified directory means prepared, never installed.
         with tempfile.TemporaryDirectory(dir=root, prefix='.extract-') as temporary:
             staged = Path(temporary) / 'release'; staged.mkdir()

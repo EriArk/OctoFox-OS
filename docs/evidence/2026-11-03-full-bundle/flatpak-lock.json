@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "refs": [
+    {
+      "ref": "org.freedesktop.Platform.GL.default/aarch64/25.08",
+      "kind": "runtime",
+      "commit": "ae808301ba0e5d8366326d9e80594f75600e8c6deee5f301c66e794998bfb4af",
+      "file": "runtime-org.freedesktop.Platform.GL.default-aarch64-25.08.flatpak",
+      "bytes": 87089608,
+      "sha256": "639eea761f6da09a283d6d6948bdb69260192eab892cdfaca23c8659752f7bdd"
+    },
+    {
+      "ref": "org.freedesktop.Platform.GL.default/aarch64/25.08-extra",
+      "kind": "runtime",
+      "commit": "331f0e5700c561a46dca8812693956a4a03218ab3758d444a690359fc8f60142",
+      "file": "runtime-org.freedesktop.Platform.GL.default-aarch64-25.08-extra.flatpak",
+      "bytes": 87075712,
+      "sha256": "7effbcb07c458813cfee23d3fd2a590e73c4fad797428e17b8591e020bd21b16"
+    },
+    {
+      "ref": "org.freedesktop.Platform.codecs-extra/aarch64/25.08-extra",
+      "kind": "runtime",
+      "commit": "3b594ed9ba51cb7c7003535a8d8c0c1b38ecd147b93546b312f26e2bf153d305",
+      "file": "runtime-org.freedesktop.Platform.codecs-extra-aarch64-25.08-extra.flatpak",
+      "bytes": 9966296,
+      "sha256": "759be244c92dafbb826d5e0f159a2bbcc68633d4946b461a0b155144289c7a7a"
+    },
+    {
+      "ref": "org.freedesktop.Platform/aarch64/25.08",
+      "kind": "runtime",
+      "commit": "d56d30d8b124c41b689ae2adfb7cb01f7b1850d1d4741b83782607a074788339",
+      "file": "runtime-org.freedesktop.Platform-aarch64-25.08.flatpak",
+      "bytes": 167110056,
+      "sha256": "6c51beee3fca00cb481d8efa4db8684b10178b36c4a71335e1994638127a7052"
+    },
+    {
+      "ref": "org.kde.KStyle.Adwaita/aarch64/6.10",
+      "kind": "runtime",
+      "commit": "e48ba0982bc0e658f9e7adb51ac4a109bbf7640f7fb47940662d5c392807e472",
+      "file": "runtime-org.kde.KStyle.Adwaita-aarch64-6.10.flatpak",
+      "bytes": 5087688,
+      "sha256": "df61e000bfcadbd50e4714bb224c4d3f942aeecb6da85a4e9ccc4d3b87fa244d"
+    },
+    {
+      "ref": "org.kde.KStyle.Adwaita/aarch64/6.11",
+      "kind": "runtime",
+      "commit": "98c31fe1d493deef5ee04592ff1420a441b7c23e8f18cbee23088fc8f8406346",
+      "file": "runtime-org.kde.KStyle.Adwaita-aarch64-6.11.flatpak",
+      "bytes": 5186480,
+      "sha256": "3aa5ef47a8a390711172662efb134c92ab5ff089c5a7b6c6e8a67229e9fab490"
+    },
+    {
+      "ref": "org.kde.Platform/aarch64/6.10",
+      "kind": "runtime",
+      "commit": "cb026317831ec841a6b0f6d9808805891bad06fbac5b16d14546a7ce7a0ef1bb",
+      "file": "runtime-org.kde.Platform-aarch64-6.10.flatpak",
+      "bytes": 253600760,
+      "sha256": "174ac0c1bfdefcae1eb198f324c1da578d78383dcd0c594ef60588ed0841ed87"
+    },
+    {
+      "ref": "org.kde.Platform/aarch64/6.11",
+      "kind": "runtime",
+      "commit": "dd61759582a4069c720d45c369d89ccd618c96fe2462987542b1ad4e87414076",
+      "file": "runtime-org.kde.Platform-aarch64-6.11.flatpak",
+      "bytes": 269705328,
+      "sha256": "cb0ba1a4cfa87cfc2d8c461319547ebd1739582d1ac65ba6e5f5056b8d01b1c5"
+    },
+    {
+      "ref": "org.DolphinEmu.dolphin-emu/aarch64/stable",
+      "kind": "app",
+      "commit": "50741ae7267181560aa88d3a1ba7177321629c171ad2677504409afa6b4462db",
+      "file": "app-org.DolphinEmu.dolphin-emu-aarch64-stable.flatpak",
+      "bytes": 19410872,
+      "sha256": "1d737d52fc64832bbb8835712d1c5c8470546b7fecfc73e6a989699226f10a82"
+    },
+    {
+      "ref": "org.flycast.Flycast/aarch64/stable",
+      "kind": "app",
+      "commit": "1d48669e88c0261c5c07d93bc0d48efbdbcf4be8ec5f6865825f47a7100982ef",
+      "file": "app-org.flycast.Flycast-aarch64-stable.flatpak",
+      "bytes": 10225440,
+      "sha256": "fe398e764829c5ba02a253e8d2c65ea9181e8d7421a028cecd54f6dfed1ceb96"
+    },
+    {
+      "ref": "org.libretro.RetroArch/aarch64/stable",
+      "kind": "app",
+      "commit": "a72a8a0a7cde5c24a0134a32fdc1469fb644c459e9974f644e95170ae5dba8bc",
+      "file": "app-org.libretro.RetroArch-aarch64-stable.flatpak",
+      "bytes": 334137488,
+      "sha256": "b6081d4a84c8a302fd3e7ca1ccbc364606375a8295daef4d6453e792aa9ee68e"
+    },
+    {
+      "ref": "org.ppsspp.PPSSPP/aarch64/traineros-relay",
+      "kind": "app",
+      "commit": "bc01e5f451519ba4af4ebb735f35aa49333c7e6f34ec6717891a74dde5856652",
+      "file": "app-org.ppsspp.PPSSPP-aarch64-traineros-relay.flatpak",
+      "bytes": 29421816,
+      "sha256": "dbe31425eb28c3d0eace9258d28584dcde90cbc2a245033a1da8b7826cff25cf"
+    }
+  ]
+}

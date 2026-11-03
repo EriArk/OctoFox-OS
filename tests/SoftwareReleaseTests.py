@@ -67,6 +67,26 @@ class SoftwareReleaseTests(unittest.TestCase):
         def no_network(*a, **kw): self.fail('Repeated preparation downloaded again')
         self.assertEqual(self.prepare(no_network), path)
 
+    def test_offline_media_uses_signature_and_never_opens_network(self):
+        with patch.object(sw, 'download', side_effect=AssertionError('Network must not be used')):
+            path = sw.prepare(self.manifest, self.public, self.cache, archive_path=self.archive)
+        self.assertEqual((path / 'payload/bin/traineros').read_bytes(), (self.payload / 'bin/traineros').read_bytes())
+
+    def test_offline_corruption_does_not_fall_back_to_download(self):
+        raw = bytearray(self.archive.read_bytes()); raw[len(raw) // 2] ^= 1; self.archive.write_bytes(raw)
+        with patch.object(sw, 'download', side_effect=AssertionError('No network fallback')):
+            with self.assertRaisesRegex(ValueError, 'checksum mismatch'):
+                sw.prepare(self.manifest, self.public, self.cache, archive_path=self.archive)
+        self.assertFalse(list(self.cache.glob('*/payload')))
+
+    def test_offline_source_cannot_be_truncated_by_cache_alias(self):
+        self.cache.mkdir()
+        source = self.cache / (self.release['archive']['sha256'] + '.part')
+        original = self.archive.read_bytes(); source.write_bytes(original)
+        with self.assertRaisesRegex(ValueError, 'outside its destination'):
+            sw.prepare(self.manifest, self.public, self.cache, archive_path=source)
+        self.assertEqual(source.read_bytes(), original)
+
     def test_bad_signature_never_downloads_or_creates_cache(self):
         self.envelope['signed']['version'] = 'tampered'; sw.atomic(self.manifest, self.envelope)
         with self.assertRaises(ValueError): self.prepare()
