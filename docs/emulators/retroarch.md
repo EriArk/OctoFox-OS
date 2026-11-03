@@ -1,5 +1,21 @@
 # RetroArch common ARM64 baseline
 
+## Native candidate follow-up — 4 November 2026
+
+Native ABI passed for all 18 selected candidates in the private Flatpak on Flip.
+Ten cores additionally ran a machine, game or demo; eight retain only ABI proof
+or a documented missing-content/ADAM-firmware condition. AppleWin needed one local
+source patch for a throwing build-tree resource lookup; attempt08 supersedes
+attempt03. Its source commit, patch, binary hash, tests and rollback boundary are
+in the [native evidence](../evidence/2026-11-04-core-native/README.md) and
+[maintenance recipe](../../packaging/emulators/core-rebuild/README.md).
+PCE/WASM-4 state restore and bounded PCE same/mixed-build loopback passed. GPU
+checks used a separate headless Gamescope, not the physical display. Installed
+cores remain unchanged. Package the new component/generation next; do not turn
+all pending gameplay/physical/network acceptance into an alpha gate. The earlier
+"no source patches" statement below describes the preceding candidate only.
+
+
 ## Candidate core builds — 4 November 2026
 
 Eighteen cores with unresolved provenance in the retained binary set now have

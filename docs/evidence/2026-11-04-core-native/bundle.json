@@ -1,0 +1,509 @@
+{
+  "schema": 1,
+  "kind": "core-rebuild-candidate-only",
+  "coreCount": 18,
+  "installed": false,
+  "gameplayAccepted": false,
+  "redistributionReviewed": false,
+  "files": [
+    {
+      "path": "abi-probes.json",
+      "bytes": 8764,
+      "sha256": "889fda479725bb1f2591f8836ca6db4f92a9c7959d4eb45e9911f455fcd51516"
+    },
+    {
+      "path": "build-logs/amiarcadia.log",
+      "bytes": 17468,
+      "sha256": "cb0522d16fc98ef25a9f84d4516dc477632dee6afc88a791e2681b4a695146da"
+    },
+    {
+      "path": "build-logs/applewin.log",
+      "bytes": 24487,
+      "sha256": "4433574fc166bd3e6a6e681697c29d0f2f4ccd55b1d7199b6785d2a7fae2b608"
+    },
+    {
+      "path": "build-logs/arduous.log",
+      "bytes": 3461,
+      "sha256": "165d6e9f4bee781e025588adcc080755a132a4090bed629d1d6016239416c233"
+    },
+    {
+      "path": "build-logs/b2.log",
+      "bytes": 29099,
+      "sha256": "6f6e4d5fe17f8d4694b2700ed2fe18ec7f95096f4e1d83dea27a8ca77ba6bfd9"
+    },
+    {
+      "path": "build-logs/dosbox_pure.log",
+      "bytes": 9227,
+      "sha256": "f72aebd08a55f94e691d8ce85be203524b3ce3bf240d08617bccaaa0348eba73"
+    },
+    {
+      "path": "build-logs/emuscv.log",
+      "bytes": 59493,
+      "sha256": "03f9c9be61c56a6e19f3c4c3111b956d1bd9ec36853ab13ca18a817e5cc12b91"
+    },
+    {
+      "path": "build-logs/ep128emu_core.log",
+      "bytes": 39710,
+      "sha256": "fd4d40db010cddfffb151e435707907d54b515603ff713f0ea875bc440556072"
+    },
+    {
+      "path": "build-logs/gearcoleco.log",
+      "bytes": 9170,
+      "sha256": "17fea3fbebf9184d0bd1a0428e33a496c8e13c57af4bd725bc1848a09f57b5db"
+    },
+    {
+      "path": "build-logs/hatari.log",
+      "bytes": 20547,
+      "sha256": "cd3ac5e0bbd0371de36eddd472f630648c901c8e911b45a89c7893b6d5e18fe0"
+    },
+    {
+      "path": "build-logs/lowresnx.log",
+      "bytes": 18413,
+      "sha256": "e5a0b657c897debed745ffff4af60257875814197216ee516a2ed9eabfa23933"
+    },
+    {
+      "path": "build-logs/mednafen_pce_fast.log",
+      "bytes": 68788,
+      "sha256": "c3dfada7c823b0ee8c1294ac8b5b40e5bcf8974f0b429155cfaf2a1bdc2f5c8a"
+    },
+    {
+      "path": "build-logs/minivmac.log",
+      "bytes": 21699,
+      "sha256": "d17bba8202c6b15146eb1ceed398f7dde0b5b48d892e465f11914a14043b2521"
+    },
+    {
+      "path": "build-logs/pokemini.log",
+      "bytes": 17848,
+      "sha256": "836f1565a2213f68005bdd48e61999855471466a3ff3c7c06f83625310ff4b4f"
+    },
+    {
+      "path": "build-logs/same_cdi.log",
+      "bytes": 14074,
+      "sha256": "04958864d6dd0ed825d69479598794c4448240fd0f11d7c9144c05ae49998d14"
+    },
+    {
+      "path": "build-logs/uzem.log",
+      "bytes": 4961,
+      "sha256": "f98475e61ceb4421174cd6dca8bdb20747f1884a41cc068556f0b18a8c2ab528"
+    },
+    {
+      "path": "build-logs/vircon32.log",
+      "bytes": 3168,
+      "sha256": "41f1ccf7a792fb36e6d9e175a70de1bb23a89008cdd1833ca27b201fd84e4663"
+    },
+    {
+      "path": "build-logs/wasm4.log",
+      "bytes": 3352,
+      "sha256": "84149a164234fe17155456323cdbd182c6e8cfb9622fb2f1189978eaeb78950e"
+    },
+    {
+      "path": "build-logs/x1.log",
+      "bytes": 39858,
+      "sha256": "b7b9c59f5dd24249d37f406d6f8c98da024f8cee9405ba7e75c9042680e4e55a"
+    },
+    {
+      "path": "build-records/attempt01.json",
+      "bytes": 44256,
+      "sha256": "adbbb889279741f654c3864d3c7bbcd1c4f56a7cdfef6e5add23ae241b59e07f"
+    },
+    {
+      "path": "build-records/attempt03.json",
+      "bytes": 3225,
+      "sha256": "1e77c97efe1ea1bd90c12d7cef175fdbb280ff435838db5312a4e1adcb8a0b0a"
+    },
+    {
+      "path": "build-records/attempt06.json",
+      "bytes": 5527,
+      "sha256": "071168e75313115e7e9d1fe9db60fe00242270203be780ae102f8889e382a90b"
+    },
+    {
+      "path": "build-records/attempt07.json",
+      "bytes": 3777,
+      "sha256": "101dc6297b7b1110f309f9785199e935f3dde61b4d1cb0f6a99bd899b2e593e4"
+    },
+    {
+      "path": "build-records/attempt08.json",
+      "bytes": 3865,
+      "sha256": "c4b33ff7c9a32357c4eb4f37147a9f672bbc8428f95059e728e6ea527ac0fc0a"
+    },
+    {
+      "path": "candidates.json",
+      "bytes": 16924,
+      "sha256": "9b68b5fbb12c120ab5130e5a551ede6a6f2807ab2fc126f078309d1ce1e5ee9d"
+    },
+    {
+      "path": "cores/amiarcadia_libretro.so",
+      "bytes": 885848,
+      "sha256": "730c1599b4571592eb0b002b77e19b06c10f2d4d67288cdb5db048974b70ba36"
+    },
+    {
+      "path": "cores/applewin_libretro.so",
+      "bytes": 3979416,
+      "sha256": "f1330e1e74614e3c9ddd9710484133507fcd9106ca9e17ed87f223ea18380890"
+    },
+    {
+      "path": "cores/arduous_libretro.so",
+      "bytes": 227368,
+      "sha256": "918fc55fb8fab61d16333a1739909aa08751c5b3b5fb8659e5c271dec3b56eff"
+    },
+    {
+      "path": "cores/b2_libretro.so",
+      "bytes": 7869520,
+      "sha256": "3262c0dbf306d68aa89b306fe4fa59322bf7291a7a1bda204ae139d7d491d800"
+    },
+    {
+      "path": "cores/dosbox_pure_libretro.so",
+      "bytes": 2976160,
+      "sha256": "ba7d6fb51628a29aefe003ab6eb6f1af6a4b5dcfb5a23ee16768fd121243a45e"
+    },
+    {
+      "path": "cores/emuscv_libretro.so",
+      "bytes": 4311208,
+      "sha256": "a5518091a1dec136bb728c2cb74ec74989eb4593bf5bd17497af474368fb6020"
+    },
+    {
+      "path": "cores/ep128emu_core_libretro.so",
+      "bytes": 3697600,
+      "sha256": "78186615f1fb648cadb8fd204360fb49ff38f4cba67cbf63f564bb552da338f9"
+    },
+    {
+      "path": "cores/gearcoleco_libretro.so",
+      "bytes": 608080,
+      "sha256": "cf04fb0d28b2756db5445a0240b3b1cf7440a37120fa3800d71659e65e0b0022"
+    },
+    {
+      "path": "cores/hatari_libretro.so",
+      "bytes": 21714552,
+      "sha256": "8978c238ca8be94ff055b55a0d435b8cfe1213590ee485418f78386c07aac578"
+    },
+    {
+      "path": "cores/lowresnx_libretro.so",
+      "bytes": 159768,
+      "sha256": "944ce6573f867beb18926459fc66af76a5bf33ef24bfaffed6469f5a604a204e"
+    },
+    {
+      "path": "cores/mednafen_pce_fast_libretro.so",
+      "bytes": 4589240,
+      "sha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077"
+    },
+    {
+      "path": "cores/minivmac_libretro.so",
+      "bytes": 707568,
+      "sha256": "7f83ab0c9cb8743ca1b2eb673bff439797c8cd1233ba0c6d3f7789919fc3b994"
+    },
+    {
+      "path": "cores/pokemini_libretro.so",
+      "bytes": 446872,
+      "sha256": "26f0fd4c9c8869a56edee23e10f4e8dee1451bc2600d1e97f15f52926933a71c"
+    },
+    {
+      "path": "cores/same_cdi_libretro.so",
+      "bytes": 15133088,
+      "sha256": "111c91fb1de623f6fd4e6b14054d3d47aec3db8c99c73467d1928df2f2aa9e31"
+    },
+    {
+      "path": "cores/uzem_libretro.so",
+      "bytes": 159344,
+      "sha256": "dcac43499b5f0e192951844486a5faa69e96f132c246c2a96ea0e01e19b07c68"
+    },
+    {
+      "path": "cores/vircon32_libretro.so",
+      "bytes": 3944728,
+      "sha256": "00d908fb95ff139e2858a259ed5d34411e8439e47deea8af9f88150a15ae0d4b"
+    },
+    {
+      "path": "cores/wasm4_libretro.so",
+      "bytes": 235352,
+      "sha256": "729878c03aedef094c916039c11ec635a83127540fc03aeeff40e6c440bada81"
+    },
+    {
+      "path": "cores/x1_libretro.so",
+      "bytes": 522336,
+      "sha256": "1aa99d4c136f229f62f2dd8d6b2692ed62d0a96f4b5e8d5a8a4c358234d2f884"
+    },
+    {
+      "path": "patches/applewin-relocatable-resources.patch",
+      "bytes": 769,
+      "sha256": "f1bb23cb329e1bd207a03ada4ea56f12562de561cae540a17ad3e4b8aa668543"
+    },
+    {
+      "path": "recipes/.dockerignore",
+      "bytes": 18,
+      "sha256": "4bf08ac23a1b60a06668be4ef0a7972f09e10609feb0fdad86a67d1704fe8ff9"
+    },
+    {
+      "path": "recipes/Dockerfile",
+      "bytes": 1763,
+      "sha256": "623bf0fa8bac9c6bb8dd2b550840ad29d575f0105151126cc612d7bfe6f5c441"
+    },
+    {
+      "path": "recipes/LICENSE",
+      "bytes": 34906,
+      "sha256": "cde3a5c4c116f8cde7ba83ee7a4a885bc591164195b6123bfcbcdc3a52f9a88c"
+    },
+    {
+      "path": "recipes/LICENSING.md",
+      "bytes": 6183,
+      "sha256": "56ec82a754702d6fd0c8d79ae56ae1d72f924582545133e072ade98ad6ae39ec"
+    },
+    {
+      "path": "recipes/README.md",
+      "bytes": 5845,
+      "sha256": "e39d920f4a67b0da5440f68e0a03359a481789fd207c3d6ac609059900b4a6d3"
+    },
+    {
+      "path": "recipes/aarch64.cmake",
+      "bytes": 390,
+      "sha256": "f6463425ed331470c1483ee7e8b168e88130a2fd645219d06b99a992cbde05f6"
+    },
+    {
+      "path": "recipes/build.py",
+      "bytes": 7437,
+      "sha256": "2e686fff0e08551479787efefbcbbefae83eda427a3e8d0b4bda0c3ab08512ec"
+    },
+    {
+      "path": "recipes/candidates.json",
+      "bytes": 16924,
+      "sha256": "9b68b5fbb12c120ab5130e5a551ede6a6f2807ab2fc126f078309d1ce1e5ee9d"
+    },
+    {
+      "path": "recipes/package.py",
+      "bytes": 7341,
+      "sha256": "5f85f801ee22854719205314294b408e5f81325bee0ed227d4468d6785297eb6"
+    },
+    {
+      "path": "recipes/patches/applewin-relocatable-resources.patch",
+      "bytes": 769,
+      "sha256": "f1bb23cb329e1bd207a03ada4ea56f12562de561cae540a17ad3e4b8aa668543"
+    },
+    {
+      "path": "recipes/probe.c",
+      "bytes": 2254,
+      "sha256": "0ba64ee922b9b1108eeedbe8db6970a0c25bfa5d5676712046005b45e4e3bcf7"
+    },
+    {
+      "path": "recipes/probe.py",
+      "bytes": 2131,
+      "sha256": "8465472c422dc4a434d6dc80ce6e9deff1421a63e128b1829383f37f3ae33fa4"
+    },
+    {
+      "path": "recipes/source_capsule.py",
+      "bytes": 11840,
+      "sha256": "9c4892a451a76255d7157459bcb5d69bcb403f6d93068feab6d2d1368daf3750"
+    },
+    {
+      "path": "recipes/sources.json",
+      "bytes": 5830,
+      "sha256": "d61a377be18b7f145664a53a5926f9ec28392de6412d3e7fed42af0e550f923a"
+    },
+    {
+      "path": "selection.json",
+      "bytes": 486,
+      "sha256": "596a0f70f1dfc238f488fa5fcec16bf460b5cef098f4d9af532f86576e6b863d"
+    },
+    {
+      "path": "sources/rebuild-amiarcadia-8ca27c925833fe0021475155512c7f467924f647.tar.gz",
+      "bytes": 14184511,
+      "sha256": "fb3045b0c9c47ab0626f8ed14262c5a7d136674d16db795dc7a2cb9c323f759d"
+    },
+    {
+      "path": "sources/rebuild-amiarcadia.json",
+      "bytes": 741,
+      "sha256": "baeb9393fb426f29689431b91c300cf784bc556dff5df529919469a841099f3a"
+    },
+    {
+      "path": "sources/rebuild-applewin-libretro-ae584dad0156a03048c7df6e1d31165dce354eba.tar.gz",
+      "bytes": 8078197,
+      "sha256": "3d66f54a8aec06e70d5f3b05c3cea460384ac674143929baf2795e46be5b8afb"
+    },
+    {
+      "path": "sources/rebuild-applewin-libretro.json",
+      "bytes": 2134,
+      "sha256": "36964921d7ebe72bb7371db9d9c777bc665be873632eb834d6a6e6b2c9037832"
+    },
+    {
+      "path": "sources/rebuild-arduous-831b83e67ad46e8c86b8165649ff81bc6fc6c157.tar.gz",
+      "bytes": 4026497,
+      "sha256": "8e98f04a269cc48a8ef7b2f4afdb429f7478496ffe8faf214250149dc845c215"
+    },
+    {
+      "path": "sources/rebuild-arduous.json",
+      "bytes": 985,
+      "sha256": "e0905bcbf146e8a81155455d53308cc6cb9cf55012268a3d6f622cc4bda99a9e"
+    },
+    {
+      "path": "sources/rebuild-b2-9793f6a8040c416d147003cada29363b955b54e7.tar.gz",
+      "bytes": 21876400,
+      "sha256": "da80c3f3bf2ce6458006accf95ee328691da6eae156664ca5de6149b834676b7"
+    },
+    {
+      "path": "sources/rebuild-b2.json",
+      "bytes": 1508,
+      "sha256": "40dfaf4f14f504712bebbcf57804d47158dfad59dbb34d669d19957c0e1ee126"
+    },
+    {
+      "path": "sources/rebuild-dosbox_pure-73e03aa145e0549ed4d5a20f8e65532714da33f5.tar.gz",
+      "bytes": 2293068,
+      "sha256": "493974cc40c27dafd573d0bb563847a50b239a5278cffbed062dad104dce5fdb"
+    },
+    {
+      "path": "sources/rebuild-dosbox_pure.json",
+      "bytes": 762,
+      "sha256": "da2be68e448a43b4aa3160b76feb95f94ecf0b8bf209212afe27bc6f241b4e9e"
+    },
+    {
+      "path": "sources/rebuild-emuscv-17407117018919545428b753277dabd83630052f.tar.gz",
+      "bytes": 2975533,
+      "sha256": "795fa9b2e70237111553ad0059d2737785846f8114e6649ae991345fd3dc3955"
+    },
+    {
+      "path": "sources/rebuild-emuscv.json",
+      "bytes": 1052,
+      "sha256": "b4a3d6a32c7c036ac250cea750775e8435b2be9644d9818f07386500e43893d0"
+    },
+    {
+      "path": "sources/rebuild-ep128emu_core-6af5d03de220e6effcd0ffcd99e0fb8e8c77cc9e.tar.gz",
+      "bytes": 1260304,
+      "sha256": "ddfc8b40b646be74acb8777210e6e85d51e92fd36b145e95d21c25a074a0698b"
+    },
+    {
+      "path": "sources/rebuild-ep128emu_core.json",
+      "bytes": 967,
+      "sha256": "1588cab977f1612cae4024b7b550967b6d93fd5654bcda9dacdf6d5d7987b1c1"
+    },
+    {
+      "path": "sources/rebuild-gearcoleco-3c3b7b6ef047ac255d413fa89355e9cd99ea91b7.tar.gz",
+      "bytes": 5917339,
+      "sha256": "fe32d51295dd4dfeb2c3d941484f15cd32a7fcf5505489ad765832f9eeee9ec4"
+    },
+    {
+      "path": "sources/rebuild-gearcoleco.json",
+      "bytes": 881,
+      "sha256": "d941621ab7bd71bfaf6d16d57db80d6a3451f5591d7003b5c36f01bb340b2c74"
+    },
+    {
+      "path": "sources/rebuild-hatari-5831f66e05ae19435bd9d8ef1c6f9c93998ff6f4.tar.gz",
+      "bytes": 2970724,
+      "sha256": "03f785630a00bdf618fb04a597edaad2594d9d7b3d82a0b8889877ee5bec389a"
+    },
+    {
+      "path": "sources/rebuild-hatari.json",
+      "bytes": 725,
+      "sha256": "40e1c696f311fde9b7b51ab7d947ff82cae58b3cacf5e7f2e8b54c5403a0efc7"
+    },
+    {
+      "path": "sources/rebuild-lowresnx-b1ba4da0fd289d316eb23c9454df3a809e6a59f4.tar.gz",
+      "bytes": 5477978,
+      "sha256": "532bb76aae8af4da89d439d6bcdfa84de72e7542958cf551e80e19b04ddda564"
+    },
+    {
+      "path": "sources/rebuild-lowresnx.json",
+      "bytes": 784,
+      "sha256": "96db8103e2cf8e91794761eb2793e49bf56a2ba2588ba5c165c452088d30566f"
+    },
+    {
+      "path": "sources/rebuild-mednafen_pce_fast-1c693c630121366f0b819d785762f1ce5b3a68d0.tar.gz",
+      "bytes": 1189418,
+      "sha256": "631b1d1661aa6649bf1e33846928ebe1c05a5f74159dbc4ffac8772f67daf48f"
+    },
+    {
+      "path": "sources/rebuild-mednafen_pce_fast.json",
+      "bytes": 944,
+      "sha256": "f58306e9baf128a32ccda7b134b9469c506809e983fad07fe0ff9fbf941270fe"
+    },
+    {
+      "path": "sources/rebuild-minivmac-babdf7b53d361a7225858b68a8a64efe8b06f5e5.tar.gz",
+      "bytes": 1455932,
+      "sha256": "2bfc3cf49c57e0b82364b6f999370e3bc213ed23859ed91c74f8d37e046de9e5"
+    },
+    {
+      "path": "sources/rebuild-minivmac.json",
+      "bytes": 1012,
+      "sha256": "9e382ba7620d8627617ea2ce785004d98df3306f5553fb1234a744f936b6a8b0"
+    },
+    {
+      "path": "sources/rebuild-pokemini-132111b76343559860532a1ccc094f93f1ed5650.tar.gz",
+      "bytes": 262022,
+      "sha256": "aec1e442307dd6e71a74833945fb39a7b39e044d5bbf8aaa68593fad30354aa0"
+    },
+    {
+      "path": "sources/rebuild-pokemini.json",
+      "bytes": 749,
+      "sha256": "1353e0e17d4b0ac5d19b036377ca71a974638b871e7eecc910eda219818bee67"
+    },
+    {
+      "path": "sources/rebuild-same_cdi-ff9bb99a50d518aef6d2add1c49b7c44447e3e78.tar.gz",
+      "bytes": 2625409,
+      "sha256": "a7078ce9140af693b9395b0a668fdf27981b94445c90d8682b046b3d50f51147"
+    },
+    {
+      "path": "sources/rebuild-same_cdi.json",
+      "bytes": 849,
+      "sha256": "00007fce9b82b82dcd66c0eea682a458c9f3ae080732894e8ff70afbdd30d7b2"
+    },
+    {
+      "path": "sources/rebuild-uzem-d991ee94547c8294abc1c4cb73d63116aa58b5bc.tar.gz",
+      "bytes": 165256,
+      "sha256": "322bd60ad2a12525e0d681a2a6557c40d70333da9fc537c8bc8595002653df51"
+    },
+    {
+      "path": "sources/rebuild-uzem.json",
+      "bytes": 733,
+      "sha256": "313dc18723a6099bc4fd6a2c00f7f38b1d0689ffaec94cbd26feba6f6de06e69"
+    },
+    {
+      "path": "sources/rebuild-vircon32-dd78c5cea1fcaa382b7492d0d813d6c1534914d7.tar.gz",
+      "bytes": 911090,
+      "sha256": "afc4281cf926f928e81c8892268a33f91fbb1ef35142a84a1392aeff2fefd4c0"
+    },
+    {
+      "path": "sources/rebuild-vircon32.json",
+      "bytes": 799,
+      "sha256": "e4024477950aceb5c2f49f7993dafaa2649879c7221354c950f72bcc23402a0f"
+    },
+    {
+      "path": "sources/rebuild-wasm4-9d6c962785cfe3719d0245fd279ecbe98a4dbb63.tar.gz",
+      "bytes": 8531003,
+      "sha256": "ce81eb5a7d8ad581065a08dd993cb6cd53ab52057a544d57e650bb03fd0b6ece"
+    },
+    {
+      "path": "sources/rebuild-wasm4.json",
+      "bytes": 2868,
+      "sha256": "2425a9aa8d696dfc92c6dfcf0989a3c2a89cd151b1f84318270f12493bccd276"
+    },
+    {
+      "path": "sources/rebuild-x1-3106aa54ffb244cca4019a6e95dacaa698781bc3.tar.gz",
+      "bytes": 771731,
+      "sha256": "c1fdcfabbc794076f0a61b503343c5a2545a650e19a3ce777a4adf9886f3fa41"
+    },
+    {
+      "path": "sources/rebuild-x1.json",
+      "bytes": 747,
+      "sha256": "431401375f2060e5e42981d0d33c60706bab89c27c2bb7799eac2434873d8292"
+    },
+    {
+      "path": "toolchain-packages-attempt01.tsv",
+      "bytes": 14327,
+      "sha256": "e9e8fc1ac8541e7fb83c0512b561ccab0485efb0bc149d47f78f70ef49f1b995"
+    },
+    {
+      "path": "toolchain-packages-attempt02.tsv",
+      "bytes": 14854,
+      "sha256": "69e8d643cdade48f30cd6138cdc31934f53282b4dbbd3734960a8f96c80ec10a"
+    },
+    {
+      "path": "toolchain-packages-attempt03.tsv",
+      "bytes": 14881,
+      "sha256": "c520076e3e1a70782fc9fd258d32a04b5043b1b49b31a64b121ced31b870e5a5"
+    },
+    {
+      "path": "toolchains.json",
+      "bytes": 1265,
+      "sha256": "c6a7970a0e43b004be8a044140acb720ce21da58bdf9592666fb736b34de8b06"
+    }
+  ],
+  "file": "TrainerOS-Core-Rebuild-02-CANDIDATE.tar",
+  "bytes": 157900800,
+  "sha256": "dd64a917d92d85cde4bc73b0f8313bc365e60783dd1ed7a4154a5b5bd7f55b8e",
+  "allEntriesReadBack": true
+}

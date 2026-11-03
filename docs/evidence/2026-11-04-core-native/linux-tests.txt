@@ -1,0 +1,16 @@
+test_bundle_readback_preserves_candidate_boundary_and_prior_archive (CoreRebuildTests.CoreRebuildPackageTests.test_bundle_readback_preserves_candidate_boundary_and_prior_archive) ... ok
+test_exact_patch_is_packaged_and_tampering_rejected (CoreRebuildTests.CoreRebuildPackageTests.test_exact_patch_is_packaged_and_tampering_rejected) ... ok
+test_missing_probe_or_ambiguous_build_cannot_be_packaged (CoreRebuildTests.CoreRebuildPackageTests.test_missing_probe_or_ambiguous_build_cannot_be_packaged) ... ok
+test_patch_recipe_cannot_be_claimed_for_an_unpatched_binary (CoreRebuildTests.CoreRebuildPackageTests.test_patch_recipe_cannot_be_claimed_for_an_unpatched_binary) ... ok
+test_tampered_built_core_cannot_be_packaged (CoreRebuildTests.CoreRebuildPackageTests.test_tampered_built_core_cannot_be_packaged) ... ok
+test_candidate_keeps_original_identity_and_cannot_overwrite_attempt (CoreRebuildTests.CoreRebuildTests.test_candidate_keeps_original_identity_and_cannot_overwrite_attempt) ... ok
+test_host_binary_cannot_be_delivered_as_arm64 (CoreRebuildTests.CoreRebuildTests.test_host_binary_cannot_be_delivered_as_arm64) ... ok
+test_patch_cannot_escape_recipe_directory (CoreRebuildTests.CoreRebuildTests.test_patch_cannot_escape_recipe_directory) ... ok
+test_patch_change_is_rejected_before_source_or_build_mutation (CoreRebuildTests.CoreRebuildTests.test_patch_change_is_rejected_before_source_or_build_mutation) ... ok
+test_tampered_source_stops_before_build (CoreRebuildTests.CoreRebuildTests.test_tampered_source_stops_before_build) ... ok
+test_wrong_source_revision_and_artifact_escape_are_rejected (CoreRebuildTests.CoreRebuildTests.test_wrong_source_revision_and_artifact_escape_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.030s
+
+OK

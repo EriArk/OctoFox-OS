@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "method": "private RetroArch 1.22.2 native ARM64, headless null video/audio, 600 frames; no physical input or multiplayer proof",
+  "installed": false,
+  "cases": [
+    {
+      "id": "applewin-fixed",
+      "core": "applewin",
+      "kind": "no-content",
+      "coreSha256": "f1330e1e74614e3c9ddd9710484133507fcd9106ca9e17ed87f223ea18380890",
+      "firmwareCopied": [],
+      "firmwareMissing": [],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 1.101,
+        "logSha256": "3eaff5aec0911e781907587e03cdce275b0a2eddf41cf8a9e45b136178b143bf",
+        "geometry": "[INFO] [Core] Geometry: 560x384, Aspect: 0.000, FPS: 60.00, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": []
+    }
+  ],
+  "personalConfigsUnchanged": true,
+  "retainedCoresUnchanged": true
+}

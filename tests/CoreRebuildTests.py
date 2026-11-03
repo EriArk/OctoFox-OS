@@ -55,6 +55,19 @@ class CoreRebuildTests(unittest.TestCase):
         self.assertEqual(result['previousBinary'],self.row['previousBinary'])
         with self.assertRaises(FileExistsError):m.build(self.row,self.root,'test')
 
+    def test_patch_change_is_rejected_before_source_or_build_mutation(self):
+        (self.root/'patches').mkdir()
+        (self.root/'patches/fix.patch').write_text('changed')
+        self.row['patches']=[{'file':'patches/fix.patch','sha256':'0'*64}]
+        with patch.object(m.subprocess,'run') as run:
+            with self.assertRaisesRegex(ValueError,'patch differs'):m.build(self.row,self.root,'test')
+            run.assert_not_called()
+        self.assertFalse((self.root/'attempts').exists())
+
+    def test_patch_cannot_escape_recipe_directory(self):
+        self.row['patches']=[{'file':'../outside.patch','sha256':'0'*64}]
+        with self.assertRaisesRegex(ValueError,'patch path'):m.build(self.row,self.root,'test')
+
 
 pack_spec = importlib.util.spec_from_file_location('core_rebuild_package', Path(__file__).resolve().parents[1] / 'packaging/emulators/core-rebuild/package.py')
 pack = importlib.util.module_from_spec(pack_spec); pack_spec.loader.exec_module(pack)
@@ -78,6 +91,24 @@ class CoreRebuildPackageTests(unittest.TestCase):
         output=self.root/'candidate.tar';result=pack.package(self.root,output,['original'],self.probes)
         self.assertTrue(result['allEntriesReadBack']);self.assertFalse(result['installed']);self.assertFalse(result['redistributionReviewed'])
         with self.assertRaisesRegex(ValueError,'retained'):pack.package(self.root,output,['original'],self.probes)
+
+    def test_patch_recipe_cannot_be_claimed_for_an_unpatched_binary(self):
+        self.row['patches']=[{'file':'patches/fix.patch','sha256':'0'*64}]
+        (self.root/'candidates.json').write_text(json.dumps({'schema':1,'stage':'candidate-only','cores':[self.row]}))
+        with self.assertRaisesRegex(ValueError,'build identity differs'):
+            pack.package(self.root,self.root/'candidate.tar',['original'],self.probes)
+
+    def test_exact_patch_is_packaged_and_tampering_rejected(self):
+        (self.root/'patches').mkdir();p=self.root/'patches/fix.patch';p.write_bytes(b'patch fixture\n')
+        spec={'file':'patches/fix.patch','sha256':m.digest(p)}
+        self.row['patches']=[spec];self.result['patches']=[spec]
+        (self.root/'candidates.json').write_text(json.dumps({'schema':1,'stage':'candidate-only','cores':[self.row]}))
+        (self.root/'original.json').write_text(json.dumps({'cores':[self.result]}))
+        output=self.root/'candidate.tar';pack.package(self.root,output,['original'],self.probes)
+        with tarfile.open(output) as t:self.assertEqual(t.extractfile(spec['file']).read(),b'patch fixture\n')
+        p.write_bytes(b'altered patch\n')
+        with self.assertRaisesRegex(ValueError,'patch differs'):
+            pack.package(self.root,self.root/'second.tar',['original'],self.probes)
     def test_tampered_built_core_cannot_be_packaged(self):
         (self.root/'artifacts/original'/self.row['artifact']).write_bytes(b'tampered')
         with self.assertRaisesRegex(ValueError,'differs'):pack.package(self.root,self.root/'candidate.tar',['original'],self.probes)

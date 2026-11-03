@@ -1,0 +1,276 @@
+{
+  "schema": 1,
+  "environment": "Flip native ARM64, installed private RetroArch Flatpak runtime",
+  "cores": [
+    {
+      "file": "amiarcadia_libretro.so",
+      "sha256": "730c1599b4571592eb0b002b77e19b06c10f2d4d67288cdb5db048974b70ba36",
+      "bytes": 885848,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "AmiArcadia",
+        "version": "4.60",
+        "extensions": "bin|tvc",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "applewin_libretro.so",
+      "sha256": "f1330e1e74614e3c9ddd9710484133507fcd9106ca9e17ed87f223ea18380890",
+      "bytes": 3979416,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "AppleWin",
+        "version": "1.30.21.0",
+        "extensions": "bin|do|dsk|nib|po|gz|woz|zip|2mg|2img|iie|apl|hdv|yaml|m3u",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "arduous_libretro.so",
+      "sha256": "918fc55fb8fab61d16333a1739909aa08751c5b3b5fb8659e5c271dec3b56eff",
+      "bytes": 227368,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "arduous",
+        "version": "0.1.0 unknown",
+        "extensions": "hex",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "b2_libretro.so",
+      "sha256": "3262c0dbf306d68aa89b306fe4fa59322bf7291a7a1bda204ae139d7d491d800",
+      "bytes": 7869520,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "b2",
+        "version": "v0.4",
+        "extensions": "ssd|dsd",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "dosbox_pure_libretro.so",
+      "sha256": "ba7d6fb51628a29aefe003ab6eb6f1af6a4b5dcfb5a23ee16768fd121243a45e",
+      "bytes": 2976160,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "DOSBox-pure",
+        "version": "1.0-preview6",
+        "extensions": "zip|dosz|exe|com|bat|iso|chd|cue|ins|img|ima|vhd|jrc|m3u|m3u8|conf|/",
+        "fullpath": true,
+        "blockExtract": true
+      },
+      "error": ""
+    },
+    {
+      "file": "emuscv_libretro.so",
+      "sha256": "a5518091a1dec136bb728c2cb74ec74989eb4593bf5bd17497af474368fb6020",
+      "bytes": 4311208,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "Libretro-EmuSCV",
+        "version": "0.15.20260921084155",
+        "extensions": "cart|bin|rom|0|zip",
+        "fullpath": true,
+        "blockExtract": true
+      },
+      "error": ""
+    },
+    {
+      "file": "ep128emu_core_libretro.so",
+      "sha256": "78186615f1fb648cadb8fd204360fb49ff38f4cba67cbf63f564bb552da338f9",
+      "bytes": 3697600,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "ep128emu",
+        "version": "v1.2.13",
+        "extensions": "img|dsk|vhd|tap|dtf|com|trn|128|bas|cas|crt|cdt|tzx|wav|tvcwav|.",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "gearcoleco_libretro.so",
+      "sha256": "cf04fb0d28b2756db5445a0240b3b1cf7440a37120fa3800d71659e65e0b0022",
+      "bytes": 608080,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "Gearcoleco",
+        "version": "3c3b7b6ef047",
+        "extensions": "col|cv|bin|rom|zip|ddp|dsk|m3u",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "hatari_libretro.so",
+      "sha256": "8978c238ca8be94ff055b55a0d435b8cfe1213590ee485418f78386c07aac578",
+      "bytes": 21714552,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "hatari",
+        "version": "2.6.1-devel (Nov  3 2026)",
+        "extensions": "st|msa|dim|stx|ipf|m3u|ide|vhd|gem",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "lowresnx_libretro.so",
+      "sha256": "944ce6573f867beb18926459fc66af76a5bf33ef24bfaffed6469f5a604a204e",
+      "bytes": 159768,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "LowRes NX",
+        "version": "1.2",
+        "extensions": "nx",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "mednafen_pce_fast_libretro.so",
+      "sha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077",
+      "bytes": 4589240,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "Beetle PCE Fast",
+        "version": "v1.31.0.0",
+        "extensions": "pce|cue|ccd|chd|toc|m3u",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "minivmac_libretro.so",
+      "sha256": "7f83ab0c9cb8743ca1b2eb673bff439797c8cd1233ba0c6d3f7789919fc3b994",
+      "bytes": 707568,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "Mini vMac",
+        "version": "b36",
+        "extensions": "dsk|img|zip|hvf|cmd",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "pokemini_libretro.so",
+      "sha256": "26f0fd4c9c8869a56edee23e10f4e8dee1451bc2600d1e97f15f52926933a71c",
+      "bytes": 446872,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "PokeMini",
+        "version": "v0.60",
+        "extensions": "min",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "same_cdi_libretro.so",
+      "sha256": "111c91fb1de623f6fd4e6b14054d3d47aec3db8c99c73467d1928df2f2aa9e31",
+      "bytes": 15133088,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "SAME_CDI",
+        "version": "0.287",
+        "extensions": "chd|iso|cue|m3u",
+        "fullpath": true,
+        "blockExtract": true
+      },
+      "error": ""
+    },
+    {
+      "file": "uzem_libretro.so",
+      "sha256": "dcac43499b5f0e192951844486a5faa69e96f132c246c2a96ea0e01e19b07c68",
+      "bytes": 159344,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "Uzem",
+        "version": "v2.0",
+        "extensions": "uze",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "vircon32_libretro.so",
+      "sha256": "00d908fb95ff139e2858a259ed5d34411e8439e47deea8af9f88150a15ae0d4b",
+      "bytes": 3944728,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "Vircon32",
+        "version": "2026.2.18",
+        "extensions": "v32|V32",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "wasm4_libretro.so",
+      "sha256": "729878c03aedef094c916039c11ec635a83127540fc03aeeff40e6c440bada81",
+      "bytes": 235352,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "WASM-4",
+        "version": "v1 unknown",
+        "extensions": "wasm",
+        "fullpath": false,
+        "blockExtract": false
+      },
+      "error": ""
+    },
+    {
+      "file": "x1_libretro.so",
+      "sha256": "1aa99d4c136f229f62f2dd8d6b2692ed62d0a96f4b5e8d5a8a4c358234d2f884",
+      "bytes": 522336,
+      "exitCode": 0,
+      "info": {
+        "api": 1,
+        "name": "x1",
+        "version": "0.60",
+        "extensions": "dx1|zip|2d|2hd|tfd|d88|88d|hdm|xdf|dup|cmd",
+        "fullpath": true,
+        "blockExtract": false
+      },
+      "error": ""
+    }
+  ]
+}

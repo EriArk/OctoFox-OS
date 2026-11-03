@@ -42,6 +42,13 @@ expected output is an ARM64 ELF; this is not a gameplay result.
 
 - AppleWin: build the libretro frontend only, networking disabled as in the
   libretro-super recipe. Boost headers and `xxd` are build dependencies.
+  `patches/applewin-relocatable-resources.patch` fixes an exception found on Flip:
+  the optional debug/printer resource lookup canonicalized a missing build-tree
+  path beside the RetroArch executable before reaching its existing fallback.
+  Use the non-throwing filesystem overload and retain that fallback. Embedded
+  firmware, emulation and save formats are unchanged. The patch is tied to the
+  pinned upstream commit and its own SHA-256; do not create the old build path
+  on an installed machine as a workaround.
 - Hatari: build the `hatari_libretro` target only. The unrelated gzip manpage
   target rejects the normalized source timestamps. Explicit `-lm -ludev`
   supplies libraries omitted from the upstream module's link line. `-z defs`
@@ -55,11 +62,18 @@ expected output is an ARM64 ELF; this is not a gameplay result.
   neither that asset nor this candidate is silently substituted for it.
 
 All other recipes retain upstream builds, with explicit cross compilers and
-CMake ARM64 target configuration. Core code is unmodified. For an update, pin a
+CMake ARM64 target configuration. AppleWin is the only local source patch in
+this set. For an update, pin a
 new full input, collect its dependencies, use a fresh attempt, repeat affected
 ABI/load and runtime checks, then prepare a new managed runtime generation.
 Existing cores and saves must remain recoverable; never downgrade saves with a
 binary rollback.
+
+For patch-bearing recipes, copy the declared `patches/` files beside `build.py`.
+The builder verifies their hashes before extracting/building, checks and applies
+them with `git apply`, and records them with the output. The packager requires
+the exact same patch list in the selected build and includes those bytes. A
+patched recipe cannot retroactively claim a previously unpatched binary.
 
 ## Probe and package
 

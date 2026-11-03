@@ -17,6 +17,6 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 ENV QEMU_LD_PREFIX=/usr/aarch64-linux-gnu
 RUN apt-get update \
- && apt-get install -y --no-install-recommends xxd \
+ && apt-get install -y --no-install-recommends xxd libudev-dev:arm64 \
  && dpkg-query -W -f='${binary:Package}\t${Version}\n' > /toolchain-packages.tsv \
  && rm -rf /var/lib/apt/lists/*

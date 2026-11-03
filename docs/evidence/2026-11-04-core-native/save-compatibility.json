@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "method": "retained core creates isolated SRAM/state; replacement loads copies; no personal saves",
+  "runs": {
+    "retained": {
+      "exitCode": 0,
+      "coreSha256": "f7686b2bfab6a9ca34d3d48e6eda5c41ae37c430cf5c73b0f256cefd54990a51",
+      "files": [
+        {
+          "path": "states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto",
+          "sha256": "c1dd6b29d823a396d323e8f5afb2e07e60e65aa4288b567053ce14656189e5a3",
+          "bytes": 80616
+        },
+        {
+          "path": "saves/Beetle PCE Fast/Reflectron (aetherbyte).srm",
+          "sha256": "7e631b4e463a04481939fde974cd341a1478af8c1f75350fd73c94a3430a0887",
+          "bytes": 2048
+        }
+      ],
+      "stateLog": [
+        "[INFO] [SRAM] Skipping SRAM load.",
+        "[INFO] [State] Auto save state to \"<check-stage>/pce-save-compat01/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto\" succeeded.",
+        "[INFO] [SRAM] Saving RAM type #0 to \"<check-stage>/pce-save-compat01/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm\".",
+        "[INFO] [SRAM] Saved successfully to \"<check-stage>/pce-save-compat01/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm\"."
+      ]
+    },
+    "candidate": {
+      "exitCode": 0,
+      "coreSha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077",
+      "files": [
+        {
+          "path": "states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto",
+          "sha256": "4c9b69425846e6052eecc5b1ebdd0aa090976fb82914a03b0579979475d69f08",
+          "bytes": 80616
+        },
+        {
+          "path": "saves/Beetle PCE Fast/Reflectron (aetherbyte).srm",
+          "sha256": "7e631b4e463a04481939fde974cd341a1478af8c1f75350fd73c94a3430a0887",
+          "bytes": 2048
+        }
+      ],
+      "stateLog": [
+        "[INFO] [State] Found auto save state in \"<check-stage>/pce-save-compat01/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto\".",
+        "[INFO] [State] Auto-loading save state from \"<check-stage>/pce-save-compat01/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto\" succeeded.",
+        "[INFO] [State] Loading state \"<check-stage>/pce-save-compat01/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto\", 80616 bytes.",
+        "[INFO] [State] Saving state \"RAM\", 80616 bytes.",
+        "[INFO] [State] Auto save state to \"<check-stage>/pce-save-compat01/states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto\" succeeded.",
+        "[INFO] [SRAM] Saving RAM type #0 to \"<check-stage>/pce-save-compat01/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm\".",
+        "[INFO] [SRAM] Saved successfully to \"<check-stage>/pce-save-compat01/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm\"."
+      ]
+    }
+  }
+}

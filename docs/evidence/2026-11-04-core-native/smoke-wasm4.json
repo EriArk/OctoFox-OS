@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "method": "private RetroArch 1.22.2 native ARM64, headless null video/audio, 600 frames; no physical input or multiplayer proof",
+  "installed": false,
+  "cases": [
+    {
+      "id": "wasm4-future-avoid",
+      "core": "wasm4",
+      "kind": "upstream-game",
+      "content": "<check-stage>/wasm4-future-avoid.wasm",
+      "contentSha256": "7dc676c3f468d5e10364beb1fac7f84f047c4a637906ddf9dafe0068ce65ec8b",
+      "coreSha256": "729878c03aedef094c916039c11ec635a83127540fc03aeeff40e6c440bada81",
+      "firmwareCopied": [],
+      "firmwareMissing": [],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.431,
+        "logSha256": "4dc129e4abdc306460ade1091073eafd7481727d1ad1fdea8fea6b0ff9fdfb7f",
+        "geometry": "[INFO] [Core] Geometry: 160x160, Aspect: 1.000, FPS: 60.00, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": [
+        {
+          "file": "states/WASM-4/wasm4-future-avoid.state.auto",
+          "bytes": 66592,
+          "sha256": "6dcf72ecde5cc5c9ca31a15fa1e28ab0ae18d2e21d5b1e239f799d51c5223bf4"
+        }
+      ],
+      "restore": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.366,
+        "logSha256": "b11d38450d6553118c29a719d62e050626f75eda06d63d52ba50f5d4ef18a1d5",
+        "geometry": "[INFO] [Core] Geometry: 160x160, Aspect: 1.000, FPS: 60.00, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": true,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      }
+    }
+  ],
+  "personalConfigsUnchanged": true,
+  "retainedCoresUnchanged": true
+}

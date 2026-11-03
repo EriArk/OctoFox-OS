@@ -53,7 +53,13 @@
         "-DENABLE_NETWORKING=OFF"
       ],
       "artifact": "applewin_libretro.so",
-      "sourceCorrespondsToPreviousBinary": false
+      "sourceCorrespondsToPreviousBinary": false,
+      "patches": [
+        {
+          "file": "patches/applewin-relocatable-resources.patch",
+          "sha256": "f1bb23cb329e1bd207a03ada4ea56f12562de561cae540a17ad3e4b8aa668543"
+        }
+      ]
     },
     {
       "core": "arduous",

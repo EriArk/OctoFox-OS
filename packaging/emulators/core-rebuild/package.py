@@ -58,8 +58,17 @@ def package(root, output, attempts, probe_path):
     for spec in plan['cores']:
         attempt, row = results[spec['core']]
         if (row['commit'] != spec['commit'] or row['artifact'] != spec['core'] + '_libretro.so'
-                or row['previousBinary'] != spec['previousBinary']):
+                or row['previousBinary'] != spec['previousBinary']
+                or row.get('patches', []) != spec.get('patches', [])):
             raise ValueError('Candidate build identity differs')
+        for patch in spec.get('patches', []):
+            name = patch['file']
+            if not re.fullmatch(r'patches/[a-z0-9_-]+\.patch', name):
+                raise ValueError('Invalid candidate patch path')
+            path = root / name
+            if digest(path) != patch['sha256']:
+                raise ValueError('Candidate patch differs from build')
+            add(path, name)
         probe = next((p for p in probes if p['file'] == row['artifact']), None)
         if not probe or probe['status'] != 'abi-loaded' or any(probe[k] != row[k] for k in ('bytes', 'sha256')):
             raise ValueError('Missing successful probe of exact candidate')

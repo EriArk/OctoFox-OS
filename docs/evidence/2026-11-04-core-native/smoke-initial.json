@@ -1,0 +1,328 @@
+{
+  "schema": 1,
+  "method": "private RetroArch 1.22.2 native ARM64, headless null video/audio, 600 frames; no physical input or multiplayer proof",
+  "installed": false,
+  "cases": [
+    {
+      "id": "applewin",
+      "core": "applewin",
+      "kind": "no-content",
+      "coreSha256": "036b0b223321f748bfbf156c042707989979e22e898a8d8895dc58c5abfa8e09",
+      "firmwareCopied": [],
+      "firmwareMissing": [],
+      "first": {
+        "exitCode": 1,
+        "elapsedSeconds": 0.323,
+        "logSha256": "00abbd757211fef59d9082dee8d1a1b8c1997ec5ca773ed8280cc27279e9d242",
+        "geometry": null,
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[libretro INFO] Exception: filesystem error: cannot make canonical path: No such file or directory [/app/bin/../rebuild-applewin-libretro]",
+          "[ERROR] [Content] Failed to load content."
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "b2",
+      "core": "b2",
+      "kind": "no-content",
+      "coreSha256": "3262c0dbf306d68aa89b306fe4fa59322bf7291a7a1bda204ae139d7d491d800",
+      "firmwareCopied": [],
+      "firmwareMissing": [],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 3.043,
+        "logSha256": "af17e7ad100ccb96d66286b71638f1f26350f33b3a816f010974d690fa22e819",
+        "geometry": "[INFO] [Core] Geometry: 736x288, Aspect: 1.333, FPS: 50.00, Sample rate: 250000.00 Hz.",
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "dosbox_pure",
+      "core": "dosbox_pure",
+      "kind": "no-content",
+      "coreSha256": "ba7d6fb51628a29aefe003ab6eb6f1af6a4b5dcfb5a23ee16768fd121243a45e",
+      "firmwareCopied": [],
+      "firmwareMissing": [],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 1.653,
+        "logSha256": "0f7deb034d95e5c10e1ecdfd84695c550e3ae53adbc8bcff17e18d5fcf7e897d",
+        "geometry": "[INFO] [Core] Geometry: 640x400, Aspect: 1.600, FPS: 70.09, Sample rate: 48000.00 Hz.",
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] [Environ] SET_MESSAGE_EXT: The frontend MIDI output is not set up correctly",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "emuscv",
+      "core": "emuscv",
+      "kind": "no-content",
+      "coreSha256": "a5518091a1dec136bb728c2cb74ec74989eb4593bf5bd17497af474368fb6020",
+      "firmwareCopied": [
+        "upd7801g.s01"
+      ],
+      "firmwareMissing": [],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.706,
+        "logSha256": "5abbbc34311674324bd9dc666e62daf81274f62136a9f2eca82e5da8f95c7f48",
+        "geometry": "[INFO] [Core] Geometry: 1152x864, Aspect: 1.333, FPS: 60.00, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "ep128emu_core",
+      "core": "ep128emu_core",
+      "kind": "no-content",
+      "coreSha256": "78186615f1fb648cadb8fd204360fb49ff38f4cba67cbf63f564bb552da338f9",
+      "firmwareCopied": [],
+      "firmwareMissing": [
+        "ep128emu/roms/exos21.rom",
+        "ep128emu/roms/basic21.rom",
+        "ep128emu/roms/exdos13.rom",
+        "ep128emu/roms/exos20.rom",
+        "ep128emu/roms/basic20.rom",
+        "ep128emu/roms/epfileio.rom",
+        "ep128emu/roms/exos24uk.rom",
+        "ep128emu/roms/hun.rom",
+        "ep128emu/roms/epd19hft.rom",
+        "ep128emu/roms/zt19hfnt.rom",
+        "ep128emu/roms/brd.rom",
+        "ep128emu/roms/zt19uk.rom",
+        "ep128emu/roms/tvc22_sys.rom",
+        "ep128emu/roms/tvc22_ext.rom",
+        "ep128emu/roms/tvcfileio.rom",
+        "ep128emu/roms/tvc_dos12d.rom",
+        "ep128emu/roms/cpc464.rom",
+        "ep128emu/roms/cpc664.rom",
+        "ep128emu/roms/cpc6128.rom",
+        "ep128emu/roms/cpc_amsdos.rom",
+        "ep128emu/roms/zx128.rom",
+        "ep128emu/roms/zx48.rom"
+      ],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.34,
+        "logSha256": "2a1caf1bc616c5b74bdc43598e694bfc01097ffebcaf4c5fbfad5bbcb64c9ce1",
+        "geometry": "[INFO] [Core] Geometry: 768x288, Aspect: 1.333, FPS: 50.00, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "gearcoleco",
+      "core": "gearcoleco",
+      "kind": "no-content",
+      "coreSha256": "cf04fb0d28b2756db5445a0240b3b1cf7440a37120fa3800d71659e65e0b0022",
+      "firmwareCopied": [
+        "colecovision.rom"
+      ],
+      "firmwareMissing": [
+        "eos.rom",
+        "writer.rom"
+      ],
+      "first": {
+        "exitCode": 1,
+        "elapsedSeconds": 0.329,
+        "logSha256": "db09200fd68cd7faf67963de28f69848c231d6af99f8ca31f0e197ba00e4edc4",
+        "geometry": null,
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] [Content] Failed to load content."
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "hatari",
+      "core": "hatari",
+      "kind": "no-content",
+      "coreSha256": "8978c238ca8be94ff055b55a0d435b8cfe1213590ee485418f78386c07aac578",
+      "firmwareCopied": [
+        "tos.img"
+      ],
+      "firmwareMissing": [],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 2.001,
+        "logSha256": "c2348f745d81456df88477d2f253d9842278253b687e6299e71787025c61da7d",
+        "geometry": "[INFO] [Core] Geometry: 320x200, Aspect: 1.600, FPS: 60.00, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "vircon32",
+      "core": "vircon32",
+      "kind": "no-content",
+      "coreSha256": "00d908fb95ff139e2858a259ed5d34411e8439e47deea8af9f88150a15ae0d4b",
+      "firmwareCopied": [],
+      "firmwareMissing": [
+        "Vircon32Bios.v32"
+      ],
+      "first": {
+        "exitCode": 139,
+        "elapsedSeconds": 1.392,
+        "logSha256": "26ac0dc3863fd501ffb840cbd8c5b9e15323ad041e0d4c07d73dac4e060899a7",
+        "geometry": "[INFO] [Core] Geometry: 640x360, Aspect: 0.000, FPS: 60.00, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] [Wayland] Failed to connect to Wayland server.",
+          "[ERROR] [KMS] Couldn't find a suitable DRM device."
+        ]
+      },
+      "states": []
+    },
+    {
+      "id": "pce-reflectron",
+      "core": "mednafen_pce_fast",
+      "kind": "game",
+      "content": "<personal-library>/roms/pcengine/Multiverse/Reflectron (aetherbyte).pce",
+      "contentSha256": "ca418662637bacab78fa05dea0f346a876994ecc58b636d4121a4409c2979e48",
+      "coreSha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077",
+      "firmwareCopied": [
+        "syscard3.pce"
+      ],
+      "firmwareMissing": [
+        "syscard2.pce",
+        "syscard1.pce",
+        "gexpress.pce"
+      ],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.5,
+        "logSha256": "a997f19a2b30e6a8792c5b240783928dfa829955b2abd76aba8b93e1964db433",
+        "geometry": "[INFO] [Core] Geometry: 256x243, Aspect: 1.200, FPS: 59.82, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": [
+        {
+          "file": "states/Beetle PCE Fast/Reflectron (aetherbyte).state.auto",
+          "bytes": 80616,
+          "sha256": "c1dd6b29d823a396d323e8f5afb2e07e60e65aa4288b567053ce14656189e5a3"
+        }
+      ],
+      "restore": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.496,
+        "logSha256": "f79bdb8dbae9b79d73d32aabd1db4b47b5360d0b894c2300e08826537e35f472",
+        "geometry": "[INFO] [Core] Geometry: 256x243, Aspect: 1.200, FPS: 59.82, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": true,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      }
+    },
+    {
+      "id": "pce-santatlantean",
+      "core": "mednafen_pce_fast",
+      "kind": "game",
+      "content": "<personal-library>/roms/pcengine/Multiverse/Santatlantean (aetherbyte).pce",
+      "contentSha256": "d5efc0bee6a78e61faa13f9d97d700cb8a377ca150b3bfa5ff0cd2ccdf2262d5",
+      "coreSha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077",
+      "firmwareCopied": [
+        "syscard3.pce"
+      ],
+      "firmwareMissing": [
+        "syscard2.pce",
+        "syscard1.pce",
+        "gexpress.pce"
+      ],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.557,
+        "logSha256": "4d3b4c995fbeeeb11b8791489d588f148efe3f282cf59867284cf64ed0ce6762",
+        "geometry": "[INFO] [Core] Geometry: 256x243, Aspect: 1.200, FPS: 59.82, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": [
+        {
+          "file": "states/Beetle PCE Fast/Santatlantean (aetherbyte).state.auto",
+          "bytes": 80616,
+          "sha256": "7ca3e65e3ae91ce09c2705c72adfd5874d6874b1a81659d236ae5fc2b5b40f91"
+        }
+      ],
+      "restore": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.599,
+        "logSha256": "42440ddfdfe1becd78bf7eb54917a3aae3200965455c25ccae9550196f2187f8",
+        "geometry": "[INFO] [Core] Geometry: 256x243, Aspect: 1.200, FPS: 59.82, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": true,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      }
+    },
+    {
+      "id": "lowresnx-demo",
+      "core": "lowresnx",
+      "kind": "upstream-demo",
+      "content": "<check-stage>/lowresnx-demo.nx",
+      "contentSha256": "626155b8e9839dbdc3476a9e8d68b2d949c042b1faac024585e1ba43c3887e52",
+      "coreSha256": "944ce6573f867beb18926459fc66af76a5bf33ef24bfaffed6469f5a604a204e",
+      "firmwareCopied": [],
+      "firmwareMissing": [],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.547,
+        "logSha256": "a800c0bcff1501bef3099084043275323f74a9f90a28533878dfe39b7196f76f",
+        "geometry": "[INFO] [Core] Geometry: 160x128, Aspect: 0.000, FPS: 60.00, Sample rate: 44100.00 Hz.",
+        "autoStateSaved": false,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": []
+    }
+  ],
+  "personalConfigsUnchanged": true,
+  "retainedCoresUnchanged": true
+}

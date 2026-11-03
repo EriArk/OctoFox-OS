@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "method": "two native RetroArch processes in one network-isolated Flatpak namespace, loopback only",
+  "internetAccepted": false,
+  "physicalInputAccepted": false,
+  "exitCode": 0,
+  "statuses": "0 0\n",
+  "elapsedSeconds": 14.146,
+  "logs": {
+    "host": [
+      "[INFO] [Override] Redirecting save file to \"<check-stage>/pce-netplay01/host/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm\".",
+      "[INFO] [Override] Redirecting save state to \"<check-stage>/pce-netplay01/host/states/Beetle PCE Fast/Reflectron (aetherbyte).state\".",
+      "[INFO] [Environ] GET_SYSTEM_DIRECTORY: \"<check-stage>/pce-netplay01/host/system\".",
+      "[INFO] [Netplay] You have joined as player 1",
+      "[INFO] [Playlist] Loading favorites file: \"<check-stage>/pce-netplay01/host/playlists/builtin/content_favorites.lpl\".",
+      "[INFO] [Content] CRC32: 0x6a3727e2.",
+      "[INFO] [Netplay] Connection slot 0",
+      "[INFO] [Netplay] Got connection from: \"CoreCheck-client\"",
+      "[INFO] [Netplay] CoreCheck-client has joined as player 2 (ping: 1 ms)",
+      "[INFO] [SRAM] Saving RAM type #0 to \"<check-stage>/pce-netplay01/host/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm\".",
+      "[INFO] [SRAM] Saved successfully to \"<check-stage>/pce-netplay01/host/saves/Beetle PCE Fast/Reflectron (aetherbyte).srm\".",
+      "[INFO] [Runtime] Content ran for a total of: 00 hours, 08 minutes, 21 seconds.",
+      "[INFO] [Core] Saved core options file to \"<check-stage>/pce-netplay01/host/config/Beetle PCE Fast/Beetle PCE Fast.opt\"."
+    ],
+    "client": [
+      "[INFO] [Override] Redirecting save file to \"<check-stage>/pce-netplay01/client/saves/Beetle PCE Fast/.netplay/Reflectron (aetherbyte).srm\".",
+      "[INFO] [Override] Redirecting save state to \"<check-stage>/pce-netplay01/client/states/Beetle PCE Fast/Reflectron (aetherbyte).state\".",
+      "[INFO] [Environ] GET_SYSTEM_DIRECTORY: \"<check-stage>/pce-netplay01/client/system\".",
+      "[INFO] [Playlist] Loading favorites file: \"<check-stage>/pce-netplay01/client/playlists/builtin/content_favorites.lpl\".",
+      "[INFO] [Content] CRC32: 0x6a3727e2.",
+      "[INFO] [Netplay] Connected to: \"CoreCheck-host\"",
+      "[INFO] [Netplay] You have joined as player 2 (ping: 0 ms)",
+      "[INFO] [Netplay] Netplay disconnected",
+      "[INFO] [SRAM] Saving RAM type #0 to \"<check-stage>/pce-netplay01/client/saves/Beetle PCE Fast/.netplay/Reflectron (aetherbyte).srm\".",
+      "[INFO] [SRAM] Saved successfully to \"<check-stage>/pce-netplay01/client/saves/Beetle PCE Fast/.netplay/Reflectron (aetherbyte).srm\".",
+      "[INFO] [Runtime] Content ran for a total of: 00 hours, 08 minutes, 21 seconds.",
+      "[INFO] [Core] Saved core options file to \"<check-stage>/pce-netplay01/client/config/Beetle PCE Fast/Beetle PCE Fast.opt\"."
+    ]
+  }
+}

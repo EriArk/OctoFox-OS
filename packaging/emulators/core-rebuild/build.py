@@ -21,6 +21,24 @@ def digest(path):
         return hashlib.file_digest(f, 'sha256').hexdigest()
 
 
+def patches(row, root):
+    """Resolve only hash-pinned, in-tree patches before touching source/builds."""
+    result = []
+    for spec in row.get('patches', []):
+        name = spec['file']
+        if not re.fullmatch(r'patches/[a-z0-9_-]+\.patch', name):
+            raise ValueError('Invalid candidate patch path')
+        path = root / name
+        if (not path.is_file() or path.is_symlink()
+                or not path.resolve().is_relative_to(root.resolve())
+                or digest(path) != spec['sha256']):
+            raise ValueError('Candidate patch differs from pinned input')
+        result.append((path, spec))
+    if len({str(path) for path, _ in result}) != len(result):
+        raise ValueError('Duplicate candidate patch')
+    return result
+
+
 def build(row, root, attempt):
     name = row['core']
     if not re.fullmatch(r'[A-Za-z0-9_]+', name):
@@ -37,6 +55,7 @@ def build(row, root, attempt):
     if (metadata['id'] != source_id or metadata['commit'] != row['commit'] or metadata['repository'] != row['repository']
             or archive.stat().st_size != metadata['bytes'] or digest(archive) != metadata['sha256']):
         raise ValueError('Source capsule differs from pinned candidate')
+    patch_inputs = patches(row, root)
     work = root / 'attempts' / attempt / name
     work.mkdir(parents=True, exist_ok=False)
     with tarfile.open(archive) as t:
@@ -50,6 +69,7 @@ def build(row, root, attempt):
     result = {'core': name, 'sourceId': source_id, 'buildSystem': row['buildSystem'], 'commit': row['commit'], 'sourceSha256': metadata['sha256'],
               'previousBinary': row['previousBinary'], 'installed': False,
               'runtimeAccepted': False, 'commands': []}
+    result['patches'] = [spec for _, spec in patch_inputs]
     log = work / 'build.log'
     try:
         if row['buildSystem'] == 'cmake':
@@ -63,6 +83,11 @@ def build(row, root, attempt):
             binary = source
             commands = [['make', '-C', str(directory), '-f', row['makefile'], '-j2', *row['arguments']]]
         with log.open('x') as stream:
+            for path, _ in patch_inputs:
+                for flags in (['--check'], []):
+                    command = ['git', '-C', str(source), 'apply', *flags, str(path.resolve())]
+                    result['commands'].append(command)
+                    subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT, check=True, timeout=30)
             for command in commands:
                 result['commands'].append(command)
                 subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT, check=True, timeout=1800)
