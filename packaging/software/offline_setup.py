@@ -13,7 +13,7 @@ import releases as sw
 import runtime_set
 
 
-def build(archive, software, key, public, output, sequence, source_archive, source_root=None):
+def build(archive, software, key, public, output, sequence, source_archive, source_root=None, runtime_manifest=None):
     archive,software,output=Path(archive),Path(software),Path(output)
     source_root=Path(source_root or Path(__file__).resolve().parents[2])
     if output.exists(): raise ValueError('Use a new candidate output directory')
@@ -27,6 +27,15 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         raise ValueError('Software archive changed')
     fullbundle.verify(archive)
     with tarfile.open(archive,'r:') as tar: index=json.load(tar.extractfile('fullbundle.json'))
+    upstream = index.get('upstreamDownloads', [])
+    if runtime_manifest is not None:
+        # Split signing and large-archive assembly across owner machines without
+        # moving a private signing key. Every signed input must still match.
+        signed = runtime_set.signed(runtime_manifest, public)['signed']
+        if (signed['sequence'] != sequence or signed['softwareSource'] != release['source']
+                or signed['files'] != index['files']
+                or signed['archive'] != {'bytes': archive.stat().st_size, 'sha256': sw.sha256(archive)}):
+            raise ValueError('Pre-signed runtime manifest differs from this Setup')
     output.mkdir(parents=True)
     with tempfile.TemporaryDirectory(dir=output,prefix='.setup-') as temp:
         temp=Path(temp); tree=temp/'TrainerOS-Setup';tree.mkdir()
@@ -38,13 +47,16 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         sw.atomic(tree/'bootstrap.json',{'schema':1,'publicKey':'trusted-key.pem','defaultChannel':'preview',
             'feeds':{name:'https://raw.githubusercontent.com/EriArk/TrainerOS/updates/'+name+'.json' for name in ('beta','preview')}})
         media_index=temp/'inventory.json';sw.atomic(media_index,index)
-        runtime_set.publish_manifest(media_index,archive,key,tree/'runtime-set.json',sequence,release['source'])
+        if runtime_manifest is not None:
+            shutil.copyfile(runtime_manifest,tree/'runtime-set.json')
+        else:
+            runtime_set.publish_manifest(media_index,archive,key,tree/'runtime-set.json',sequence,release['source'])
         runtime_set.signed(tree/'runtime-set.json',public)
         shutil.copyfile(source_root/'LICENSE',tree/'LICENSE')
         launch=tree/'Install TrainerOS.sh'
         launch.write_text('#!/bin/sh\nset -eu\nHERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\nexec /usr/bin/python3 "$HERE/packaging/software/installer.py" --gui\n')
         launch.chmod(0o755)
-        (tree/'README.txt').write_text('OFFLINE SETUP CANDIDATE - NOT A PUBLIC RELEASE\n'
+        (tree/'README.txt').write_text(('HYBRID' if upstream else 'OFFLINE') + ' SETUP CANDIDATE - NOT A PUBLIC RELEASE\n'
             'Extract the entire archive onto storage with enough free space, then open Install TrainerOS.sh in Armada Desktop.\n'
             'Setup installs the signed Software, emulator set and pinned offline dependencies. Run as your desktop user.\n'
             'System helpers/session registration request normal administrator authorization. TrainerOS becomes the initial boot default; Desktop and Steam remain available.\n'
@@ -52,7 +64,9 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
             'Only TrainerOS-owned code is updated or removed. Personal games, firmware, saves and accounts are not included.\n'
             'Use Setup and Recovery after interruption; do not launch an incomplete installation.\n'
             'Requires the compatible Armada Python and system libraries. No network fallback for offline packages.\n'
-            'Redistribution/source review and clean privileged device acceptance remain pending.\n')
+            + ('Internet is required to obtain these exact official upstream packages: ' + ', '.join(upstream)
+               + '. Setup verifies their pinned bytes before activation; interrupted downloads can be resumed.\n' if upstream else '')
+            + 'Redistribution/source review and clean privileged device acceptance remain pending.\n')
         def permissions(info):
             info.uid=info.gid=0;info.uname=info.gname='';info.mode=0o755 if info.isdir() or info.name.endswith('.sh') else 0o644
             return info
@@ -69,12 +83,16 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
             'softwareSource':release['source'],'runtimeSequence':sequence,'publicKeySha256':sw.sha256(public),
             'sourceArchiveSha256':sw.sha256(source_archive),
             'setupFilesSha256':setup_inventory_sha,
+            'upstreamDownloads':upstream,
             'published':False,'redistributionReviewed':False,'cleanDeviceAcceptance':False}
     sw.atomic(output/'candidate.json',record);return record
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
-    for name in ('archive','software','key','public','output','source-archive'):p.add_argument('--'+name,type=Path,required=True)
+    for name in ('archive','software','public','output','source-archive'):p.add_argument('--'+name,type=Path,required=True)
+    signing=p.add_mutually_exclusive_group(required=True)
+    signing.add_argument('--key',type=Path)
+    signing.add_argument('--runtime-manifest',type=Path)
     p.add_argument('--sequence',type=int,required=True)
-    a=p.parse_args();print(json.dumps(build(a.archive,a.software,a.key,a.public,a.output,a.sequence,a.source_archive)))
+    a=p.parse_args();print(json.dumps(build(a.archive,a.software,a.key,a.public,a.output,a.sequence,a.source_archive,runtime_manifest=a.runtime_manifest)))

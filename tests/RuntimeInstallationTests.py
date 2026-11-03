@@ -54,7 +54,7 @@ class RuntimeInstallationTests(unittest.TestCase):
 
     def test_private_deployment_ignores_existing_emulators_and_environment(self):
         stage=self.base/'private-stage';component=stage/'media/runtimes/Cemu';component.mkdir(parents=True)
-        record={'files':[{'path':'Cemu.AppImage','bytes':14,'sha256':sw.sha256(self.src),'mode':0o755}]}
+        record={'files':[{'path':'Cemu.AppImage','bytes':14,'sha256':sw.sha256(self.src),'mode':0o644}]}
         sw.atomic(component/'component.json',record)
         source=self.base/'image-source';source.mkdir();(source/'Cemu.AppImage').write_bytes(self.src.read_bytes())
         existing=self.home/'Applications/Cemu.AppImage';existing.write_bytes(b'EmuDeck runtime')
@@ -63,6 +63,8 @@ class RuntimeInstallationTests(unittest.TestCase):
         target=self.root/'runtime-home/Applications/Cemu.AppImage'
         self.assertEqual(set(desired),{str(target)});self.assertEqual(aliases,{})
         files.begin(files.plan(desired,'private'));files.apply()
+        self.assertEqual(target.stat().st_mode & 0o777, 0o755)
+        self.assertEqual(target.read_bytes(), self.src.read_bytes())
         files.begin(files.plan({},'remove'));files.apply()
         self.assertEqual(existing.read_bytes(),b'EmuDeck runtime');self.assertFalse(target.exists())
 

@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "components": [
+    {
+      "id": "DuckStation",
+      "delivery": {
+        "kind": "github-release-asset",
+        "repository": "stenzek/duckstation",
+        "assetId": 673935636
+      },
+      "sha256": "dce6ca77055ace60491781b6b57f3e55e9b54678777ac575ac2471c22ad1128e",
+      "bytes": 87900416,
+      "upstreamCommit": "dd4a0eb779296a525f8b10b6d9a45911ad6d088f",
+      "releasePage": "https://github.com/stenzek/duckstation/releases/tag/latest",
+      "scope": "Official unchanged AppImage downloaded by the user during Setup; PS1 netplay remains PCSX-ReARMed"
+    }
+  ]
+}

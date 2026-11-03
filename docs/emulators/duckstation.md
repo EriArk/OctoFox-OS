@@ -1,5 +1,15 @@
 # DuckStation — ordinary standalone launch
 
+## Owner-authorized direct delivery — later on 3 November 2026
+
+The owner chose automatic original-source download followed by local configuration.
+The hybrid runtime now carries a descriptor, not DuckStation's binary. Setup fetches
+GitHub release asset `673935636` directly from stenzek/duckstation and verifies its
+87,900,416 bytes and SHA-256 before activation. The actual download matched the old
+installed AppImage. PS1 multiplayer remains PCSX-ReARMed. This supersedes the pending
+choice below, not the author's redistribution restrictions. Managed activation of
+the new Setup is still pending. [Evidence](../evidence/2026-11-03-hybrid-runtime/README.md).
+
 ## Distribution review — 3 November 2026
 
 The full installer candidate contains the AppImage with embedded commit

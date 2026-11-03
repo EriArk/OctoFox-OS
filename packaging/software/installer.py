@@ -366,7 +366,7 @@ def main():
     parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parents[2] / 'bootstrap.json')
     parser.add_argument('--gui', action='store_true')
     parser.add_argument('--offline', type=Path, help='Local signed Software media; no download fallback')
-    parser.add_argument('--runtime-manifest',type=Path,help='Signed full offline runtime set')
+    parser.add_argument('--runtime-manifest',type=Path,help='Signed runtime set with optional pinned upstream downloads')
     parser.add_argument('--runtime-archive',type=Path)
     args = parser.parse_args()
     try:

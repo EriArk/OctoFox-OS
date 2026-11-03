@@ -1,5 +1,16 @@
 # TrainerOS — active agent / developer contract
 
+**Owner multiplayer-ready Setup, 3 November (latest):** the installer must prepare
+all accepted multiplayer families from first launch, preserving working modified
+runtimes. Suitable RetroArch replacements or automatic downloads from the original
+upstream followed by local configuration are authorized. Pin compatible versions,
+cores, protocols and settings; never silently fetch arbitrary latest builds or
+weaken multiplayer identity checks. DuckStation may be obtained unchanged directly
+from upstream during Setup; PS1 netplay stays PCSX-ReARMed. This supersedes the pending
+DuckStation delivery-choice question. Keep actual missing routes explicit and follow
+[the release matrix](docs/MULTIPLAYER_RELEASE_MATRIX_RU.md); package presence is not
+a multiplayer acceptance result.
+
 
 **Owner standalone default, 3 November (latest):** the standalone TrainerOS
 session is the default after installation, including upgrade of the earlier

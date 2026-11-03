@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "originalFiles": 128,
+  "hybridFiles": 127,
+  "removed": [
+    "runtimes/DuckStation/component.tar.gz"
+  ],
+  "changed": [
+    "runtimes/DuckStation/component.json"
+  ],
+  "added": [],
+  "otherFilesRetainExactIdentity": true,
+  "remainingUnchanged": 126,
+  "installedRuntimeChanged": false
+}

@@ -1,0 +1,12 @@
+{
+  "files": 127,
+  "bytes": 3016971831,
+  "redistributionReviewed": false,
+  "file": "TrainerOS-Hybrid-Runtimes-CANDIDATE.tar",
+  "archiveBytes": 3017103360,
+  "sha256": "7f4543254d460507c4676af15534e81d41b0c3a41036d9bb771c9b9a1a825f97",
+  "upstreamDownloads": [
+    "DuckStation"
+  ],
+  "published": false
+}

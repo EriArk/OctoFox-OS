@@ -68,6 +68,12 @@ def build(media, sources, source_index, supplement, output):
                 component = json.loads(manifest.read_text()); component_id = relative(component['id'])
                 if '/' in component_id: raise ValueError('Invalid component ID')
                 archive = manifest.parent / 'component.tar.gz'
+                if 'delivery' in component:
+                    import runtime_upstream
+                    runtime_upstream.validate(component)
+                    if archive.exists(): raise ValueError('Upstream runtime must not be bundled')
+                    add('runtime/upstream/' + component_id + '.json', manifest.read_bytes())
+                    continue
                 if archive.is_symlink() or digest(archive) != component['archive']['sha256']:
                     raise ValueError('Runtime component changed: ' + component_id)
                 with tarfile.open(archive) as source:

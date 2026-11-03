@@ -53,7 +53,9 @@ def build(root, includes, output, identity, expected=None, metadata=None):
         sha = digest(path)
         if expected and name in expected and sha != expected[name]: raise ValueError('Changed runtime input: ' + name)
         records.append({'path': name, 'sha256': sha, 'bytes': path.stat().st_size,
-                        'mode': 0o755 if path.stat().st_mode & 0o111 else 0o644})
+                        # Downloaded AppImages and FAT/exFAT staging may not
+                        # retain Unix execute bits. Their role is executable.
+                        'mode': 0o755 if name == identity + '.AppImage' or path.stat().st_mode & 0o111 else 0o644})
     if expected and set(expected) - set(files): raise ValueError('Required runtime files were not selected')
     output.mkdir(parents=True)
     archive = output / 'component.tar.gz'

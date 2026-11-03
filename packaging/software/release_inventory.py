@@ -34,7 +34,8 @@ def inspect(archive):
             if name.startswith('runtimes/') and name.endswith('/component.json'):
                 data = json.loads(read(member, 8 * 1024**2))
                 files = data['files']
-                row = {'id': data['id'], 'archive': data['archive'],
+                row = {'id': data['id'], 'archive': data.get('archive'),
+                       'delivery': data.get('delivery', {'kind': 'bundled'}),
                        'declaredSource': data.get('metadata', {}).get('source'),
                        'noticeFiles': [item['path'] for item in files if notice(item['path'])],
                        'patchFiles': [item['path'] for item in files if 'patch' in item['path'].lower()],

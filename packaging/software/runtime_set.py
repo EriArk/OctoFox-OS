@@ -126,7 +126,7 @@ def prepare(root, manifest, archive, progress=lambda *args: None):
     return stage
 
 
-def component(stage, identity):
+def component(stage, identity, progress=lambda *args: None):
     media = stage / 'media/runtimes' / identity
     record = json.loads((media / 'component.json').read_text())
     if record['id'] != identity or record['schema'] != 1 or len(record['files']) > 30000:
@@ -138,13 +138,25 @@ def component(stage, identity):
             raise ValueError('Invalid runtime file metadata')
         if row['path'].startswith('firmware/'):
             raise ValueError('User firmware must not enter the runtime installer')
-    archive = media / 'component.tar.gz'
-    if sw.sha256(archive) != record['archive']['sha256']: raise ValueError('Component archive changed')
+    upstream = 'delivery' in record
+    if upstream:
+        import runtime_upstream
+        runtime_upstream.validate(record)
+        if (media / 'component.tar.gz').exists(): raise ValueError('Upstream runtime must not be bundled')
+    else:
+        archive = media / 'component.tar.gz'
+        if sw.sha256(archive) != record['archive']['sha256']: raise ValueError('Component archive changed')
     target = stage / 'components' / identity
     if not target.exists():
         target.parent.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=target.parent, prefix='.component-') as tmp:
-            extract(archive, Path(tmp), record['files']); os.replace(tmp, target)
+            if upstream:
+                part = runtime_upstream.prepare(stage, record, progress)
+                row = record['files'][0]; output = Path(tmp) / row['path']
+                shutil.copyfile(part, output); output.chmod(row['mode'])
+            else:
+                extract(archive, Path(tmp), record['files'])
+            os.replace(tmp, target)
     for row in record['files']:
         path = checked_path(target, row['path'])
         if path.stat().st_size != row['bytes'] or sw.sha256(path) != row['sha256']:
@@ -214,7 +226,7 @@ def deployment(root, stage, home=None, data=None, make_environments=True, progre
     aliases = {}
     for identity in sorted(present):
         progress('Preparing emulator: '+identity)
-        record, source = component(stage, identity)
+        record, source = component(stage, identity, progress)
         for row in record['files']:
             name = row['path']; path = source / name
             if identity in {'remote-play', 'game-capture'}:
@@ -227,7 +239,10 @@ def deployment(root, stage, home=None, data=None, make_environments=True, progre
                 value = path.read_text().replace('${HOME}', json.dumps(str(home))[1:-1])
                 rendered = stage / 'rendered' / identity / name; rendered.parent.mkdir(parents=True, exist_ok=True)
                 rendered.write_text(value); path = rendered
-            desired[str(dest)] = files.import_file(path, row['mode'])
+            # Older candidates recorded downloaded AppImages as 0644. Repair
+            # that metadata during projection without changing binary bytes or
+            # adopting any other launcher's installation.
+            desired[str(dest)] = files.import_file(path, 0o755 if identity in IMAGES else row['mode'])
     if make_environments:
         for name in sorted(ENVIRONMENTS):
             progress('Preparing offline Python: '+name)
