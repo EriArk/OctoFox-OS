@@ -1,0 +1,57 @@
+{
+  "software": {
+    "status": "ready",
+    "scope": "software-files",
+    "sessionIntegration": "recorded-not-audited",
+    "health": "first-frame-confirmed",
+    "problems": []
+  },
+  "runtime": {
+    "status": "ready",
+    "problems": [],
+    "scope": "user-runtime-files-and-flatpak-identities; privileged helpers checked during activation"
+  },
+  "firstRun": {
+    "inputChoice": "touch",
+    "libraryRoot": "/var/mnt/games/TrainerOS-Library/roms",
+    "stage": "complete",
+    "version": 2
+  },
+  "pendingSetup": false,
+  "pendingRuntime": false,
+  "softwareSource": "1a18406508894dd72dc11d0aaa32635a5d3464bc",
+  "runtimeLayout": "private-home-v1",
+  "flatpakRefs": [
+    "org.DolphinEmu.dolphin-emu/aarch64/stable",
+    "org.flycast.Flycast/aarch64/stable",
+    "org.freedesktop.Platform/aarch64/25.08",
+    "org.freedesktop.Platform.GL.default/aarch64/25.08",
+    "org.freedesktop.Platform.GL.default/aarch64/25.08-extra",
+    "org.freedesktop.Platform.codecs-extra/aarch64/25.08-extra",
+    "org.kde.KStyle.Adwaita/aarch64/6.10",
+    "org.kde.KStyle.Adwaita/aarch64/6.11",
+    "org.kde.Platform/aarch64/6.10",
+    "org.kde.Platform/aarch64/6.11",
+    "org.libretro.RetroArch/aarch64/stable",
+    "org.ppsspp.PPSSPP/aarch64/traineros-relay"
+  ],
+  "gameCheck": {
+    "game": "NES Pong",
+    "core": "fceumm",
+    "privateRuntimeEnvironmentObserved": true,
+    "ordinaryRetroArchExitReturnedToShell": true,
+    "physicalControls": false,
+    "audio": false,
+    "evidenceFrom": "candidate03; game launch not repeated for unchanged core"
+  },
+  "softwarePreviousRetained": true,
+  "runtimePreviousRetained": true,
+  "binarySha256": "ad93e8b9a2259ec808c25b18779e3a1742f86b6a9bd21aa7ca912775513b43ce",
+  "pendingBootstrap": false,
+  "steamDiscovery": {
+    "games": 1,
+    "warnings": [],
+    "movedGameFound": true
+  },
+  "publicRelease": false
+}
