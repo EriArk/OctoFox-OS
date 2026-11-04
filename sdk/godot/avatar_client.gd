@@ -79,7 +79,7 @@ func _process(_delta: float) -> void:
 	if connecting:
 		if tcp.get_status()==StreamPeerTCP.STATUS_CONNECTED:
 			connecting=false
-			_request("hello", {"protocol":1,"token":token,"app":app_id})
+			_request("hello", {"protocol":1,"token":token,"app":app_id,"avatarFormats":["tav1"]})
 			token=""
 		else:
 			if Time.get_ticks_msec()>deadline or tcp.get_status()==StreamPeerTCP.STATUS_ERROR: _fail("TrainerOS connection timed out")

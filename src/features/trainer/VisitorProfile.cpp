@@ -20,7 +20,7 @@ VisitorProfile::VisitorProfile(BackendAccount& account,QObject* parent):QObject(
         if(renderGeneration_!=generation_){if(open_)render();return;}
         const auto result=job_.result();
         if(result["error"].toString().isEmpty())previewUrl_=QUrl::fromLocalFile(result["preview"].toString()).toString();
-        const auto files=QDir(cache_.path()).entryInfoList({"*.glb"},QDir::Files,QDir::Time);
+        const auto files=QDir(cache_.path()).entryInfoList({"*.tav","*.glb"},QDir::Files,QDir::Time);
         for(int i=2;i<files.size();++i)QFile::remove(files[i].absoluteFilePath());
         emit changed();
     });

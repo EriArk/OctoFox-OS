@@ -1,4 +1,5 @@
 #include <QtTest>
+#include "../sdk/qt/AvatarResource.h"
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonDocument>
@@ -13,6 +14,48 @@ using namespace trainer;
 class AvatarTests:public QObject {
     Q_OBJECT
 private slots:
+    void incorporatedResourceRejectsDamageAndBounds() {
+        for(const int length:{1,15,16,17,4096}) {
+            const QByteArray plain(length,'x');const auto packed=AvatarResource::encode(plain);
+            QCOMPARE(AvatarResource::decode(packed),plain);
+            QVERIFY(AvatarResource::encode(plain)!=packed); // independent IVs
+            QVERIFY(AvatarResource::decode(packed,length-1).isEmpty());
+            for(const auto offset:{0,4,8,24,int(packed.size()-1)}) {
+                auto damaged=packed;damaged[offset]=char(damaged[offset]^1);
+                QVERIFY(AvatarResource::decode(damaged).isEmpty());
+            }
+            QVERIFY(AvatarResource::decode(packed.chopped(1)).isEmpty());
+            QVERIFY(AvatarResource::decode(packed+'x').isEmpty());
+        }
+        QVERIFY(AvatarResource::decode(QByteArray(71,'x')).isEmpty());
+        QVERIFY(AvatarResource::encode({}).isEmpty());
+    }
+    void packedAssetsPreserveRecipesAndGeometryAndRepairCache() {
+        if(!AvatarAssets::available())QSKIP("Avatar pack unavailable");
+        QTemporaryDir pack,rawCache,packedCache;
+        const QDir original(AvatarAssets::packRoot());
+        for(const auto& file:original.entryInfoList(QDir::Files)) {
+            const auto bytes=AvatarResource::read(file.absoluteFilePath());QVERIFY(!bytes.isEmpty());
+            auto name=file.fileName();if(name.endsWith(".tav"))name.chop(4);
+            if(name.endsWith(".glb")||name.endsWith(".bin"))QVERIFY(AvatarResource::write(pack.filePath(name+".tav"),bytes));
+            else QVERIFY(QFile::copy(file.absoluteFilePath(),pack.filePath(name)));
+        }
+        QVERIFY(QDir(pack.path()).entryList({"*.glb","*.bin"},QDir::Files).isEmpty());
+        auto look=AvatarAssets::defaults();look["hair"]="bob";look["eyes"]="almond";look["top"]="racing-suit";
+        const auto plain=AvatarAssets::resolve(look,original.path(),rawCache.path());
+        const auto packed=AvatarAssets::resolve(look,pack.path(),packedCache.path());
+        QVERIFY2(!packed.contains("error"),qPrintable(packed["error"].toString()));
+        QCOMPARE(packed["recipe"],plain["recipe"]);QCOMPARE(packed["sha256"],plain["sha256"]);
+        QCOMPARE(AvatarResource::read(packed["glb"].toString()),AvatarResource::read(plain["glb"].toString()));
+        QCOMPARE(AvatarResource::read(packed["preview"].toString()),AvatarResource::read(plain["preview"].toString()));
+        QVERIFY(QDir(packedCache.path()).entryList({"*.glb"},QDir::Files).isEmpty());
+        QFile broken(packed["glb"].toString());QVERIFY(broken.open(QIODevice::WriteOnly));broken.write("corrupt");broken.close();
+        QCOMPARE(AvatarAssets::resolve(look,pack.path(),packedCache.path())["sha256"],plain["sha256"]);
+        // A damaged packaged asset must not silently fall back to an adjacent loose model.
+        QFile bad(pack.filePath("template.glb.tav"));QVERIFY(bad.open(QIODevice::WriteOnly));bad.write("corrupt");bad.close();
+        QFile fallback(pack.filePath("template.glb"));QVERIFY(fallback.open(QIODevice::WriteOnly));fallback.write("not a fallback");fallback.close();
+        QVERIFY(AvatarResource::read(pack.filePath("template.glb")).isEmpty());
+    }
     void facialLinesDarkenWithSkinWithoutChangingOtherMaterialsOrGeometry() {
         if(!AvatarAssets::available())QSKIP("Avatar pack unavailable");
         QTemporaryDir cache;
@@ -25,8 +68,7 @@ private slots:
             appearance["hairColor"]="#e9dcd0";appearance["eyes"]="rogue-feminine";
             const auto result=AvatarAssets::resolve(appearance,{},cache.path());
             QVERIFY2(!result.contains("error"),qPrintable(result["error"].toString()));
-            QFile file(result["glb"].toString());QVERIFY(file.open(QIODevice::ReadOnly));
-            const auto bytes=file.readAll();const int jsonSize=qFromLittleEndian<quint32>(bytes.constData()+12);
+            const auto bytes=AvatarResource::read(result["glb"].toString());QVERIFY(!bytes.isEmpty());const int jsonSize=qFromLittleEndian<quint32>(bytes.constData()+12);
             const auto g=QJsonDocument::fromJson(bytes.mid(20,jsonSize)).object();
             const auto accessors=g["accessors"].toArray(),views=g["bufferViews"].toArray();
             for(const auto& entry:g["materials"].toArray()){
@@ -69,8 +111,7 @@ private slots:
         auto inspect=[&](const QJsonObject& a,const QString& name) {
             const auto r=AvatarAssets::resolve(a,{},cachePath);
             if(r.contains("error"))qWarning()<<r;
-            QFile f(r["glb"].toString());if(!f.open(QIODevice::ReadOnly))return QJsonObject();
-            auto bytes=f.readAll();if(bytes.size()>=64*1024*1024)return QJsonObject();
+            auto bytes=AvatarResource::read(r["glb"].toString());if(bytes.isEmpty())return QJsonObject();if(bytes.size()>=64*1024*1024)return QJsonObject();
             if(!destination.isEmpty()){QFile d(QFileInfo(destination).absolutePath()+"/"+name+".json");if(d.open(QIODevice::WriteOnly))d.write(QJsonDocument(r).toJson());}
             return QJsonDocument::fromJson(bytes.mid(20,qFromLittleEndian<quint32>(bytes.constData()+12))).object();
         };
@@ -115,7 +156,7 @@ private slots:
         QTemporaryDir cache;auto appearance=AvatarAssets::defaults();appearance["shoesColor"]="#f4f0df";
         const auto resolved=AvatarAssets::resolve(appearance,{},cache.path());
         QVERIFY2(!resolved.contains("error"),qPrintable(resolved["error"].toString()));
-        QFile file(resolved["glb"].toString());QVERIFY(file.open(QIODevice::ReadOnly));const auto bytes=file.readAll();
+        const auto bytes=AvatarResource::read(resolved["glb"].toString());QVERIFY(!bytes.isEmpty());
         const auto gltf=QJsonDocument::fromJson(bytes.mid(20,qFromLittleEndian<quint32>(bytes.constData()+12))).object();
         bool found=false;
         for(const auto entry:gltf["materials"].toArray())if(entry.toObject()["name"]=="SandalStrap"){
@@ -175,7 +216,7 @@ private slots:
             a["shirtColor"]=female?"#234f43":"#f4f0df";a["shortsColor"]=female?"#f4f0df":"#234f43";
             a["skinColor"]=female?"#614132":"#f0c4a5";
             auto r=AvatarAssets::resolve(a,{},cache);QVERIFY2(!r.contains("error"),qPrintable(r["error"].toString()));
-            QFile file(r["glb"].toString());QVERIFY(file.open(QIODevice::ReadOnly));const auto bytes=file.readAll();
+            const auto bytes=AvatarResource::read(r["glb"].toString());QVERIFY(!bytes.isEmpty());
             QVERIFY(bytes.size()<64*1024*1024);
             const auto g=QJsonDocument::fromJson(bytes.mid(20,qFromLittleEndian<quint32>(bytes.constData()+12))).object();
             const auto nodes=g["nodes"].toArray();const auto meshes=g["meshes"].toArray();QSet<int> wardrobeNodes;
@@ -220,8 +261,7 @@ private slots:
         QTemporaryDir cache;QSet<QString> hashes;int index=0;
         QFile manifest(AvatarAssets::packRoot()+"/manifest.json");QVERIFY(manifest.open(QIODevice::ReadOnly));
         const auto pack=QJsonDocument::fromJson(manifest.readAll()).object();QCOMPARE(pack["revision"].toInt(),10);
-        QFile templateFile(AvatarAssets::packRoot()+"/template.glb");QVERIFY(templateFile.open(QIODevice::ReadOnly));
-        const auto templateBytes=templateFile.readAll();
+        const auto templateBytes=AvatarResource::read(AvatarAssets::packRoot()+"/template.glb");QVERIFY(!templateBytes.isEmpty());
         const auto templateJson=QJsonDocument::fromJson(templateBytes.mid(20,qFromLittleEndian<quint32>(templateBytes.constData()+12))).object();
         const auto face=templateJson["extras"].toObject()["trainerFace"].toObject();
         QCOMPARE(face["schema"].toInt(),1);
@@ -257,7 +297,7 @@ private slots:
             const auto r=AvatarAssets::resolve(a,AvatarAssets::packRoot(),cachePath);
             QVERIFY2(!r.contains("error"),qPrintable(eyes+": "+r["error"].toString()));
             QVERIFY(!hashes.contains(r["sha256"].toString()));hashes.insert(r["sha256"].toString());
-            QFile f(r["glb"].toString());QVERIFY(f.open(QIODevice::ReadOnly));const auto bytes=f.readAll();
+            const auto bytes=AvatarResource::read(r["glb"].toString());QVERIFY(!bytes.isEmpty());
             QVERIFY(bytes.size()<64*1024*1024);
             const auto g=QJsonDocument::fromJson(bytes.mid(20,qFromLittleEndian<quint32>(bytes.constData()+12))).object();
             const auto nodes=g["nodes"].toArray();int visibleHair=0,visibleEyes=0;

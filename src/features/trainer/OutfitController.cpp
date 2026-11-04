@@ -1,4 +1,6 @@
 #include "OutfitController.h"
+#include "../../../sdk/qt/AvatarResource.h"
+#include <QBuffer>
 #include "TrainerController.h"
 #include "AvatarAssets.h"
 #include "features/accounts/BackendAccount.h"
@@ -49,7 +51,7 @@ OutfitController::OutfitController(BackendAccount& account,TrainerController& tr
         if(jobGeneration_!=generation_){if(open_)startPreview();return;}
         const auto result=job_.result();previewError_=result["error"].toString();
         if(previewError_.isEmpty())previewUrl_=QUrl::fromLocalFile(result["preview"].toString()).toString();
-        const auto files=QDir(cache_.path()).entryInfoList({"*.glb"},QDir::Files,QDir::Time);
+        const auto files=QDir(cache_.path()).entryInfoList({"*.tav","*.glb"},QDir::Files,QDir::Time);
         for(int i=4;i<files.size();++i)QFile::remove(files[i].absoluteFilePath());
         emit changed();
     });
@@ -60,11 +62,15 @@ int OutfitController::posePreview(QObject* loader,qreal amount){
     const QMap<QString,QVector3D> poses{{"head",{12,12,0}},{"neck",{3,0,0}},
         {"upper_arm.L",{0,0,-12}},{"upper_arm.R",{0,0,12}},
         {"forearm.L",{0,-16,0}},{"forearm.R",{0,16,0}}};
+    if(loader->property("pose").isValid()) {
+        QVariantMap pose;for(auto it=poses.begin();it!=poses.end();++it)pose[it.key()]=QVariant::fromValue(it.value()*amount);
+        loader->setProperty("pose",pose);return poses.size();
+    }
     const auto source=loader->property("source").toUrl();
     // RuntimeLoader does not retain glTF node names and Assimp may reduce each
     // mesh's joint list. Match bind matrices, never guessed QObject/list indices.
     if(loader->property("wardrobeBoundSource").toUrl()!=source) {
-        QFile file(source.toLocalFile());
+        QBuffer file;file.setData(AvatarResource::read(source.toLocalFile()));
         if(!source.isLocalFile()||!file.open(QIODevice::ReadOnly))return 0;
         const auto header=file.read(20);
         if(header.size()!=20||qFromLittleEndian<quint32>(header.constData())!=0x46546c67)return 0;

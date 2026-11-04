@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "AvatarScene.h"
+#include "AvatarResource.h"
 #include <QQuick3DGeometry>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -34,8 +35,8 @@ struct Glb {
     std::shared_ptr<std::atomic_bool> cancelled;
     QJsonObject json;QByteArray binary;
     explicit Glb(const QUrl& url,std::shared_ptr<std::atomic_bool> stop):cancelled(std::move(stop)){
-        require(url.isLocalFile());QFile f(url.toLocalFile());require(f.open(QIODevice::ReadOnly)&&f.size()<=64*1024*1024);
-        const auto b=f.readAll();require(b.size()>=28&&qFromLittleEndian<quint32>(b.constData())==0x46546c67&&qFromLittleEndian<quint32>(b.constData()+4)==2);
+        require(url.isLocalFile());
+        const auto b=AvatarResource::read(url.toLocalFile());require(b.size()>=28&&qFromLittleEndian<quint32>(b.constData())==0x46546c67&&qFromLittleEndian<quint32>(b.constData()+4)==2);
         const auto n=qFromLittleEndian<quint32>(b.constData()+12);require(n<=8*1024*1024&&qint64(n)+28<=b.size());
         json=QJsonDocument::fromJson(b.mid(20,n)).object();binary=b.mid(28+n);
         require(!json.isEmpty()&&json["buffers"].toArray().size()==1);

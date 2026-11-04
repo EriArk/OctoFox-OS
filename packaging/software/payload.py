@@ -14,6 +14,7 @@ import shutil
 import subprocess
 import struct
 import screenscraper_client
+import avatar_resources
 
 
 def output(args):
@@ -53,6 +54,7 @@ def stage(build, destination, screenscraper=None):
                         'package': output(['rpm', '-q', package]), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
     destination.mkdir(parents=True, mode=0o700)
     subprocess.run(['cmake', '--install', str(build), '--prefix', str(destination)], check=True)
+    avatar_resources.validate(destination / 'share/traineros/avatar/packs')
     if screenscraper is not None: screenscraper_client.stage(screenscraper, destination)
     # The managed launcher and dependency preflight expose this signed lib
     # directory. RUNPATH alone does not resolve libfm's transitive menu-cache.

@@ -3,12 +3,14 @@
 ## Live avatar scene
 
 `AvatarScene.h/.cpp` and `AvatarView3D.qml` provide a shared live presenter,
-independent of Home care state. They consume the full, host-resolved SDK GLB,
+independent of Home care state. They decode the host-resolved TAV1 resource in memory
+(and retain old GLB host compatibility),
 including the selected wardrobe, skeletal clips and signed sparse morph deltas.
 The approved source model is not rewritten. The neutral portrait path below
 remains useful for static cards.
 
-Build with C++20, AUTOMOC and Qt Core/Gui/Qml/Quick/Quick3D/Concurrent. Register `AvatarScene`
+Build with C++20, AUTOMOC, Qt Core/Gui/Qml/Quick/Quick3D/Concurrent and OpenSSL 3 Crypto.
+Copy `AvatarResource.h` alongside the presenter. Register `AvatarScene`
 and `AvatarView3D.qml` in the `TrainerOS` QML module (see the standalone example
 in `tests/home-companion-preview`). Link matching Qt Quick 3D runtime plugins.
 Use a descriptor already verified by the host or `AvatarCards`; `source` is a
@@ -131,3 +133,6 @@ Checks: `cmake -S sdk/qt/tests -B build/avatar-cards-checks`, build, then CTest.
 The socket fixture covers replacement/withdrawal/revocation, not mesh rendering.
 `avatar-portrait-preview MODEL-preview.glb OUTPUT.png` separately exercises the
 actual QML importer, capture and renderer release. Device acceptance is separate.
+
+Resource format, SDK negotiation and the transient Linux compatibility export:
+[incorporated avatar resources](../../docs/AVATAR_RESOURCES.md).

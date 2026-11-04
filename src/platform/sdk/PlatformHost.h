@@ -14,6 +14,7 @@ namespace trainer {
 class ControlsDashboard;
 class SdkNetwork;
 class BackendAccount;
+struct LegacyAvatarCache;
 
 // Local, optional app-to-host API. This bridge exposes only the services that
 // are actually bound here; it owns neither game execution nor application data.
@@ -41,6 +42,8 @@ private:
         QString app;
         bool authenticated = false, subscribed = false;
         bool avatarSubscribed = false;
+        bool avatarResource = false;
+        std::shared_ptr<LegacyAvatarCache> legacyAvatarCache, legacyRecipeCache;
         bool avatarResolving = false;
         bool playBusy = false;
         QString playChannel;

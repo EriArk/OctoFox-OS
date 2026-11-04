@@ -5,6 +5,7 @@
 #include <QQuickWindow>
 #include <QTimer>
 #include <QImage>
+#include <QSet>
 int main(int argc,char** argv){
     QGuiApplication app(argc,argv);if(argc<3)return 2;
     QQmlApplicationEngine engine;
@@ -19,7 +20,11 @@ PlayerCard {x:20;y:28;width:300;height:180;descriptor:fixture;label:"YOU";detail
     QTimer::singleShot(6000,&app,[&]{
         auto* renderer=window->findChild<QObject*>("portraitRenderer");
         bool stopped=renderer&&!renderer->property("active").toBool();
-        app.exit(window->grabWindow().save(QString::fromLocal8Bit(argv[2]))&&stopped?0:4);
+        const auto frame=window->grabWindow();QSet<QRgb> portraitColours;
+        // Exclude text/borders: a transparent 3D capture used to pass this check.
+        for(int y=50;y<175&&y<frame.height();++y)for(int x=50;x<170&&x<frame.width();++x)
+            portraitColours.insert(frame.pixel(x,y));
+        app.exit(frame.save(QString::fromLocal8Bit(argv[2]))&&stopped&&portraitColours.size()>128?0:4);
     });
     return app.exec();
 }

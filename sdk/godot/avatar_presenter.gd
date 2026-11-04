@@ -45,13 +45,40 @@ class CorrectiveWeights:
 		return null
 
 
+# Same bounded resource envelope as sdk/qt/AvatarResource.h. Keys are public;
+# this is incorporated asset storage, not an authorization or secrecy mechanism.
+static func _resource_bytes(resource: PackedByteArray) -> PackedByteArray:
+	if resource.size()<72 or resource.size()>67108936 or resource.slice(0,4).get_string_from_ascii()!="TAV1": return PackedByteArray()
+	var length := resource.decode_u32(4)
+	if length==0 or length>67108864 or resource.size()!=24+((length >> 4)+1)*16+32: return PackedByteArray()
+	var mac := HMACContext.new()
+	if mac.start(HashingContext.HASH_SHA256,"TrainerOS/avatar-resource/v1/authentication".sha256_buffer())!=OK: return PackedByteArray()
+	if mac.update(resource.slice(0,resource.size()-32))!=OK: return PackedByteArray()
+	var tag := mac.finish()
+	var mismatch := 0
+	for i in 32: mismatch |= tag[i]^resource[resource.size()-32+i]
+	if mismatch!=0: return PackedByteArray()
+	var aes := AESContext.new()
+	if aes.start(AESContext.MODE_CBC_DECRYPT,"TrainerOS/avatar-resource/v1/encryption".sha256_buffer(),resource.slice(8,24))!=OK: return PackedByteArray()
+	var plain := aes.update(resource.slice(24,resource.size()-32))
+	aes.finish()
+	var padding := plain.size()-length
+	if padding<1 or padding>16: return PackedByteArray()
+	for i in range(length,plain.size()):
+		if plain[i]!=padding: return PackedByteArray()
+	return plain.slice(0,length)
+
 static func from_descriptor(descriptor: Dictionary) -> TrainerAvatarPresenter:
 	if descriptor.get("schema") != 1 or descriptor.get("rig") != "trainer-humanoid-54-v1": return null
 	var path: String = descriptor.get("glb", "")
-	if not path.is_absolute_path() or not path.ends_with(".glb"): return null
+	var format: String = descriptor.get("format", "glb")
+	if not path.is_absolute_path() or not format in ["glb","tav1"]: return null
+	if not path.ends_with(".tav" if format=="tav1" else ".glb"): return null
 	var file := FileAccess.open(path, FileAccess.READ)
-	if file == null or file.get_length() > 67108864: return null
+	if file == null or file.get_length() > 67108936: return null
 	var bytes := file.get_buffer(file.get_length())
+	if format=="tav1": bytes=_resource_bytes(bytes)
+	if bytes.is_empty() or bytes.size()>67108864: return null
 	var hash_context := HashingContext.new()
 	hash_context.start(HashingContext.HASH_SHA256)
 	hash_context.update(bytes)

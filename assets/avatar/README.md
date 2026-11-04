@@ -84,7 +84,9 @@ links above; their author and displayed licence were checked on the product page
 sections 21A, 21B and 24, distinguish incorporated software use from standalone
 model redistribution and require reasonable safeguards against extraction.
 The No AI variant prohibits model-training use. These meshes are not GPL/CC assets.
-The current loose GLB/BLEND delivery needs a packaging review before public release;
+The earlier loose GLB/BLEND delivery is superseded in new CMake installs by TAV1
+resources with in-memory readers; see [the storage/SDK contract](../../docs/AVATAR_RESOURCES.md).
+Original private source assets are retained. This is not blanket asset/license clearance;
 the source question is resolved, but the release's redistribution review stays open.
 Keep the approved originals intact; this record does not authorize deleting files,
 rewriting repository history or changing the accepted hairstyles.

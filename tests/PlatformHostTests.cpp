@@ -2,6 +2,8 @@
 #include <QFile>
 #include <QCryptographicHash>
 #include <QJsonDocument>
+#include <QJsonArray>
+#include "../sdk/qt/AvatarResource.h"
 #include <QProcess>
 #include <QSettings>
 #include <QTcpSocket>
@@ -32,7 +34,7 @@ struct Client {
         return QJsonDocument::fromJson(socket.readLine()).object();
     }
     QJsonObject hello(const QString& app="org.test.one",int version=1) {
-        send("hello",{{"protocol",version},{"token",discovery["token"]},{"app",app}});return receive();
+        send("hello",{{"protocol",version},{"token",discovery["token"]},{"app",app},{"avatarFormats",QJsonArray{"tav1"}}});return receive();
     }
 };
 QJsonObject context(const QString& owner="alice",const QString& game="game-a") {
@@ -67,6 +69,27 @@ class PlatformHostTests final: public QObject {
     Q_OBJECT
     QTemporaryDir settings_;
 private slots:
+    void legacyAvatarIsTransientAndRemovedOnRevocation() {
+#ifdef Q_OS_LINUX
+        Fixture f;const QByteArray bytes("glTF SDK compatibility fixture");
+        const auto file=f.dir.filePath("avatar.tav");QVERIFY(AvatarResource::write(file,bytes));
+        const QJsonObject descriptor{{"schema",1},{"format","tav1"},{"glb",file},{"preview",file},
+            {"sha256",QString::fromLatin1(QCryptographicHash::hash(bytes,QCryptographicHash::Sha256).toHex())}};
+        f.host.setAvatar(descriptor,true);QVERIFY(f.start());Client c(f.endpoint);
+        c.send("hello",{{"protocol",1},{"token",c.discovery["token"]},{"app","org.test.legacy"}});
+        QVERIFY(c.receive().contains("result"));c.send("avatar.get");
+        const auto result=c.receive()["result"].toObject()["avatar"].toObject();
+        QCOMPARE(result["format"],"glb");const auto path=result["glb"].toString();
+        QVERIFY(path.startsWith("/dev/shm/trainer-avatar-sdk-"));
+        QVERIFY(QFileInfo(path).isSymLink());
+        QFile raw(path);QVERIFY(raw.open(QIODevice::ReadOnly));QCOMPARE(raw.readAll(),bytes);raw.close();
+        QVERIFY(raw.open(QIODevice::ReadWrite|QIODevice::Unbuffered));QCOMPARE(raw.write("x"),qint64(-1));raw.close();
+        QVERIFY(!(QFile::permissions(path)&(QFile::ReadGroup|QFile::ReadOther)));
+        f.host.setContext(context("bob"));c.receive();QVERIFY(!QFile::exists(path));
+#else
+        QSKIP("Legacy no-disk compatibility is Linux-only; other hosts use tav1 SDK");
+#endif
+    }
     void homeOnlyAppsCannotPopulateStartAndOtherAppsRemainAvailable() {
         Fixture f;bool restricted=false;
         f.host.permitsStartWidgets=[&](const QString& app){return !restricted||app!="home-companion";};

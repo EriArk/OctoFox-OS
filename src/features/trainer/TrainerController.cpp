@@ -22,7 +22,7 @@ TrainerController::TrainerController(TrainerRepository& repository, QObject* par
             if(avatarJobDraft_){
                 previewAvatar_=result;
                 const QDir dir(avatarDraftCache_.path());
-                for(const auto& file:dir.entryInfoList({"*.glb"},QDir::Files))
+                for(const auto& file:dir.entryInfoList({"*.tav","*.glb"},QDir::Files))
                     if(file.absoluteFilePath()!=result["glb"].toString()&&file.absoluteFilePath()!=result["preview"].toString())QFile::remove(file.absoluteFilePath());
             }else liveAvatar_=result;
         }

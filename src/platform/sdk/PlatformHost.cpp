@@ -1,4 +1,5 @@
 #include "PlatformHost.h"
+#include "AvatarLegacy.h"
 #include "SdkNetwork.h"
 #include "features/accounts/BackendAccount.h"
 #include "features/trainer/AvatarAssets.h"
@@ -45,7 +46,11 @@ void PlatformHost::setAvatar(const QJsonObject& descriptor,bool available) {
     if(descriptor==avatar_)return;
     avatar_=descriptor;
     for(auto* socket:peers_.keys())if(peers_.value(socket).authenticated&&peers_.value(socket).avatarSubscribed)
-        send(socket,{{"event","avatar.changed"},{"avatar",avatar_}});
+        {
+            auto& peer=peers_[socket];
+            const auto value=peer.avatarResource?avatar_:legacyAvatar(avatar_,peer.legacyAvatarCache);
+            send(socket,{{"event","avatar.changed"},{"avatar",value.contains("error")?QJsonObject():value},{"error",value["error"]}});
+        }
 }
 void PlatformHost::setNetwork(SdkNetwork* service) {
     if(network_)disconnect(network_,nullptr,this,nullptr);
@@ -204,10 +209,11 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         const auto app = args["app"].toString();
         if (!identifier(app)) { fail("invalid_app"); return; }
         for (const auto& other : peers_) if (other.authenticated && other.app == app) { fail("app_in_use"); return; }
+        peer.avatarResource=args["avatarFormats"].toArray().contains("tav1");
         peer.authenticated = true; peer.app = app;peer.playChannel=QUuid::createUuid().toString(QUuid::WithoutBraces);
         auto caps=capabilities();
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
-        if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;}
+        if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}
         if(backend_)caps["play.scorecards"]=1;
         if(selectHomeWidget)caps["ui.home.widget"]=1;
@@ -237,7 +243,9 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         if(method=="avatar.unsubscribe"){peer.avatarSubscribed=false;ok({});return;}
         if(method=="avatar.subscribe")peer.avatarSubscribed=true;
         if(avatar_.isEmpty()){fail("avatar_not_ready");return;}
-        auto descriptor=avatar_;descriptor["profile"]=context_["profile"];
+        auto descriptor=peer.avatarResource?avatar_:legacyAvatar(avatar_,peer.legacyAvatarCache);
+        if(descriptor.contains("error")){fail(descriptor["error"].toString());return;}
+        descriptor["profile"]=context_["profile"];
         ok({{"avatar",descriptor}});return;
     }
     if(method=="avatar.resolve") {
@@ -259,7 +267,9 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
             else {
                 current.avatarCache=cache;
                 // A renderable recipe is not an authenticated account/profile.
-                send(target,{{"id",id},{"result",QJsonObject{{"avatar",result}}}});
+                const auto value=current.avatarResource?result:legacyAvatar(result,current.legacyRecipeCache);
+                if(value.contains("error"))send(target,{{"id",id},{"error",QJsonObject{{"code",value["error"]}}}});
+                else send(target,{{"id",id},{"result",QJsonObject{{"avatar",value}}}});
             }
         });
         const auto recipe=args["recipe"].toObject();

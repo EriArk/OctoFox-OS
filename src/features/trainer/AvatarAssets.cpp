@@ -1,5 +1,6 @@
 #include "AvatarAssets.h"
 #include "AvatarWearables.h"
+#include "../../../sdk/qt/AvatarResource.h"
 #include <QBuffer>
 #include <QCoreApplication>
 #include <QColor>
@@ -95,10 +96,10 @@ QString AvatarAssets::packRoot(){
     for(const auto& path:candidates)if(QFile::exists(path+"/manifest.json"))return QDir::cleanPath(path);
     return candidates.first();
 }
-bool AvatarAssets::available(){return QFile::exists(packRoot()+"/manifest.json")&&QFile::exists(packRoot()+"/template.glb");}
+bool AvatarAssets::available(){return QFile::exists(packRoot()+"/manifest.json")&&(QFile::exists(packRoot()+"/template.glb.tav")||QFile::exists(packRoot()+"/template.glb"));}
 namespace {
-QByteArray read(const QString& p,qint64 max=64*1024*1024){QFile f(p);if(!f.open(QIODevice::ReadOnly)||f.size()>max)return {};return f.readAll();}
-bool write(const QString& p,const QByteArray& b){QSaveFile f(p);return f.open(QIODevice::WriteOnly)&&f.write(b)==b.size()&&f.commit();}
+QByteArray read(const QString& p,qint64 max=64*1024*1024){return AvatarResource::read(p,max);}
+bool write(const QString& p,const QByteArray& b){return AvatarResource::write(p,b);}
 void u32(QByteArray& b,quint32 v){char raw[4];qToLittleEndian(v,reinterpret_cast<uchar*>(raw));b.append(raw,4);}
 QByteArray glb(QJsonObject g,QByteArray binary){
     while(binary.size()%4)binary.append('\0');
@@ -120,9 +121,9 @@ QJsonObject AvatarAssets::resolve(const QJsonObject& input,const QString& explic
     auto revision=QString::fromLatin1(QCryptographicHash::hash(manifestBytes+"wardrobe-face-contrast-v5"+QJsonDocument(a).toJson(QJsonDocument::Compact),QCryptographicHash::Sha256).toHex());
     const auto cache=explicitCache.isEmpty()?QStandardPaths::writableLocation(QStandardPaths::CacheLocation)+"/avatars":explicitCache;
     if(!QDir().mkpath(cache))return fail("avatar_cache_unavailable");
-    const auto path=QDir(cache).absoluteFilePath(revision+".glb"),preview=QDir(cache).absoluteFilePath(revision+"-preview.glb");
-    QByteArray output;
-    if(!QFile::exists(path)||!QFile::exists(preview)) {
+    const auto path=QDir(cache).absoluteFilePath(revision+".tav"),preview=QDir(cache).absoluteFilePath(revision+"-preview.tav");
+    QByteArray output=read(path);
+    if(output.isEmpty()||read(preview).isEmpty()) {
         const auto data=read(root+"/template.glb");
         if(data.size()<28||qFromLittleEndian<quint32>(data.constData())!=0x46546c67)return fail("invalid_avatar_pack");
         const auto size=qFromLittleEndian<quint32>(data.constData()+12);
@@ -230,9 +231,15 @@ QJsonObject AvatarAssets::resolve(const QJsonObject& input,const QString& explic
         g.remove("animations");auto meshes=g["meshes"].toArray();for(int i=0;i<meshes.size();++i){auto mesh=meshes[i].toObject();mesh.remove("weights");auto ps=mesh["primitives"].toArray();for(int j=0;j<ps.size();++j){auto p=ps[j].toObject();p.remove("targets");ps[j]=p;}mesh["primitives"]=ps;meshes[i]=mesh;}g["meshes"]=meshes;
         if(!write(preview,glb(g,binary)))return fail("avatar_cache_write_failed");
     }
-    if(output.isEmpty())output=read(path);
+    if(output.isEmpty())return fail("avatar_cache_invalid");
+    if(explicitCache.isEmpty()) {
+        // Only disposable, host-generated cache entries. Never touch source/user packs.
+        static const QRegularExpression legacy("^[0-9a-f]{64}(-preview)?\\.glb$");
+        for(const auto& file:QDir(cache).entryInfoList({"*.glb"},QDir::Files))
+            if(!file.isSymLink()&&legacy.match(file.fileName()).hasMatch())QFile::remove(file.absoluteFilePath());
+    }
     const QJsonObject recipe{{"schema",1},{"packRevision",QString::fromLatin1(QCryptographicHash::hash(manifestBytes,QCryptographicHash::Sha256).toHex())},{"appearance",a}};
-    return {{"schema",1},{"recipe",recipe},{"pack",m["pack"]},{"revision",revision},{"appearance",a},{"glb",path},{"preview",preview},
+    return {{"schema",1},{"format","tav1"},{"recipe",recipe},{"pack",m["pack"]},{"revision",revision},{"appearance",a},{"glb",path},{"preview",preview},
         {"sha256",QString::fromLatin1(QCryptographicHash::hash(output,QCryptographicHash::Sha256).toHex())},{"rig",m["rig"]},{"units","metres"},{"forward","+Z"},{"eyeHeight",m["eyeHeight"]},{"actions",m["actions"]}};
 }
 QJsonObject AvatarAssets::resolveRecipe(const QJsonObject& recipe,const QString& cache) {

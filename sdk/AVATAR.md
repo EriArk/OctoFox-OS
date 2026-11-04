@@ -1,5 +1,14 @@
 # Shared avatar v1: local model and peer recipes
 
+**4 ноября 2026 — упаковка ресурсов.** Новые клиенты передают
+`avatarFormats: ["tav1"]` в `hello`; поля `glb`/`preview` содержат путь к `.tav`,
+`format` — `tav1`, а `sha256` по-прежнему относится к распакованным байтам GLB.
+Обновляйте client и presenter вместе. На Linux прежний SDK получает временную
+модель через анонимную память, без постоянной копии GLB. Формат, зависимости Qt
+и границы совместимости: [AVATAR_RESOURCES](../docs/AVATAR_RESOURCES.md).
+Описание GLB ниже относится к данным модели после чтения ресурса и старому SDK.
+
+
 New integration? Start with the [step-by-step guide and runnable Godot demo](AVATAR_QUICKSTART.md).
 This page is the protocol/reference companion.
 

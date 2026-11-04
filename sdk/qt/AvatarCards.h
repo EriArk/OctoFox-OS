@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
+#include "AvatarResource.h"
 #include <QObject>
 #include <QTcpSocket>
 #include <QTimer>
@@ -8,6 +9,7 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QStandardPaths>
 #include <QCryptographicHash>
 #include <QUrl>
@@ -24,7 +26,7 @@ class AvatarCards final : public QObject {
 public:
     explicit AvatarCards(QString app, QString endpoint={}, QObject* parent=nullptr)
         :QObject(parent),app_(app),endpoint_(endpoint) {
-        connect(&socket_,&QTcpSocket::connected,this,[this]{request("hello",{{"protocol",1},{"token",token_},{"app",app_}});token_.clear();});
+        connect(&socket_,&QTcpSocket::connected,this,[this]{request("hello",{{"protocol",1},{"token",token_},{"app",app_},{"avatarFormats",QJsonArray{"tav1"}}});token_.clear();});
         connect(&socket_,&QTcpSocket::readyRead,this,&AvatarCards::read);
         connect(&socket_,&QTcpSocket::disconnected,this,&AvatarCards::stop);
         connect(&socket_,&QTcpSocket::errorOccurred,this,[this](auto){stop();});
@@ -80,11 +82,13 @@ private:
         socket_.write(QJsonDocument(QJsonObject{{"id",id},{"method",method},{"params",params}}).toJson(QJsonDocument::Compact)+'\n');
     }
     static QVariantMap descriptor(const QJsonObject& d){
-        const auto path=d["glb"].toString();QFile file(path);
-        if(d["schema"]!=1||d["rig"]!="trainer-humanoid-54-v1"||!QFileInfo(path).isAbsolute()||!path.endsWith(".glb")||!file.open(QIODevice::ReadOnly)||file.size()>67108864)return {};
-        if(QString::fromLatin1(QCryptographicHash::hash(file.readAll(),QCryptographicHash::Sha256).toHex())!=d["sha256"].toString())return {};
+        const auto path=d["glb"].toString();const auto format=d["format"].toString("glb");
+        if(d["schema"]!=1||d["rig"]!="trainer-humanoid-54-v1"||!QFileInfo(path).isAbsolute()||
+            (format!="glb"&&format!="tav1")||!path.endsWith(format=="tav1"?".tav":".glb"))return {};
+        const auto bytes=trainer::AvatarResource::read(path);
+        if(bytes.isEmpty()||QString::fromLatin1(QCryptographicHash::hash(bytes,QCryptographicHash::Sha256).toHex())!=d["sha256"].toString())return {};
         auto preview=d["preview"].toString();
-        if(!QFileInfo(preview).isAbsolute()||!preview.endsWith(".glb")||!QFileInfo(preview).isFile()||QFileInfo(preview).size()>67108864)preview=path;
+        if(!QFileInfo(preview).isAbsolute()||!preview.endsWith(format=="tav1"?".tav":".glb")||trainer::AvatarResource::read(preview).isEmpty())preview=path;
         auto result=d.toVariantMap();result["source"]=QUrl::fromLocalFile(preview);return result;
     }
     void appearance(const QJsonObject& d){

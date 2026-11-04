@@ -1,4 +1,5 @@
 #include "AvatarWearables.h"
+#include "../../../sdk/qt/AvatarResource.h"
 #include <QFile>
 #include <QColor>
 #include <QCryptographicHash>
@@ -15,9 +16,7 @@ namespace {
 QByteArray hashedFile(const QString& root,const QJsonObject& entry) {
     const auto name=entry["file"].toString();
     if(name.isEmpty()||name.contains('/')||name.contains('\\')||name.contains(".."))return {};
-    QFile file(root+"/"+name);
-    if(!file.open(QIODevice::ReadOnly)||file.size()>16*1024*1024)return {};
-    const auto bytes=file.readAll();
+    const auto bytes=AvatarResource::read(root+"/"+name,16*1024*1024);
     return QCryptographicHash::hash(bytes,QCryptographicHash::Sha256).toHex()==entry["sha256"].toString().toLatin1()?bytes:QByteArray();
 }
 QByteArray accessorBytes(const QJsonObject& g,const QByteArray& binary,int index) {

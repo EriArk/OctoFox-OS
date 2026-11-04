@@ -15,7 +15,7 @@ public:
     static QJsonObject equipped(const QJsonObject&, const QString& key, const QString& value);
     static QString packRoot();
     static bool available();
-    // Worker-thread operation: resolve a content-addressed standard GLB, never game files.
+    // Worker-thread operation: resolve a content-addressed incorporated TAV1 resource containing standard GLB, never game files.
     static QJsonObject resolve(const QJsonObject&, const QString& root = {}, const QString& cache = {});
     static QJsonObject resolveRecipe(const QJsonObject&, const QString& cache);
 };
