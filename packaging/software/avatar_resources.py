@@ -45,6 +45,8 @@ def validate(root):
     if not manifests or not count:
         raise ValueError('Empty incorporated avatar packs')
     for manifest in manifests:
+        if b'\r\n' in manifest.read_bytes():
+            raise ValueError('Noncanonical avatar manifest line endings')
         for name in ['template.glb', *files(json.loads(manifest.read_text(encoding='utf-8')))]:
             if not name or '/' in name or '\\' in name or '..' in name:
                 raise ValueError('Invalid avatar manifest resource')

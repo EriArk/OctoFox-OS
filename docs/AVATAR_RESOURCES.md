@@ -2,7 +2,8 @@
 
 The installed avatar pack and resolved-avatar disk cache use TAV1 resources.
 The approved source models, rig, palette, hair choices and appearance schema are
-unchanged. The manifest stays byte-identical: saved/network wardrobe recipes keep
+unchanged. The installed manifest keeps its canonical Git LF bytes (the packer
+normalizes Windows CRLF checkouts): saved/network wardrobe recipes keep
 their existing `packRevision`. This is asset encapsulation, not a claim of secrecy,
 unextractability, DRM, ownership of third-party assets or legal clearance.
 

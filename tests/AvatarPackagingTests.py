@@ -1,6 +1,8 @@
 import json
+import os
 from pathlib import Path
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -9,6 +11,23 @@ import avatar_resources
 
 
 class AvatarPackagingTests(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get('AVATAR_PACKER'), 'Requires native resource packer')
+    def test_windows_and_linux_manifest_keep_same_installed_recipe_identity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = b'{\n  "revision": 10\n}\n'
+            for name, data in [('lf', manifest), ('crlf', manifest.replace(b'\n', b'\r\n'))]:
+                source, output = root / name, root / (name + '-packed')
+                source.mkdir()
+                (source / 'manifest.json').write_bytes(data)
+                (source / 'template.glb').write_bytes(b'geometry fixture')
+                subprocess.run([os.environ['AVATAR_PACKER'], str(source), str(output)], check=True)
+                self.assertEqual((output / 'manifest.json').read_bytes(), manifest)
+                self.assertEqual(avatar_resources.validate(output), 1)
+            (output / 'manifest.json').write_bytes(manifest.replace(b'\n', b'\r\n'))
+            with self.assertRaisesRegex(ValueError, 'Noncanonical'):
+                avatar_resources.validate(output)
+
     def test_staged_pack_shape_and_manifest_references(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

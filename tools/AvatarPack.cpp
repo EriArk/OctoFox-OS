@@ -18,8 +18,11 @@ int main(int argc,char** argv) {
         const bool geometry=ext=="glb"||ext=="bin";
         const auto dest=output.absoluteFilePath(source.relativeFilePath(path)+(geometry?".tav":""));
         if(!QDir().mkpath(QFileInfo(dest).absolutePath()))return 4;
-        const auto bytes=trainer::AvatarResource::read(path);
+        auto bytes=trainer::AvatarResource::read(path);
         if(bytes.isEmpty())return 4;
+        // Git's canonical LF manifest is also the installed recipe identity.
+        // Windows checkouts may use CRLF; never ship that host-specific hash.
+        if(info.fileName()=="manifest.json")bytes.replace("\r\n","\n");
         if(geometry) {if(!trainer::AvatarResource::write(dest,bytes)||trainer::AvatarResource::read(dest)!=bytes)return 5;}
         else {QSaveFile f(dest);if(!f.open(QIODevice::WriteOnly)||f.write(bytes)!=bytes.size()||!f.commit())return 5;}
         ++count;
