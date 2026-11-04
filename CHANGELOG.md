@@ -15,6 +15,7 @@ Runtime 13 → 14 установлен через GUI на Flip: 76 cores све
 и health — `first-frame-confirmed`. Odin не менялся; фактический rollback не
 выполнялся. Полный Setup 3,45 ГБ собран и перечитан.
 [Состав, проверки и границы](docs/evidence/2026-11-04-release-source-repair/README.md).
+Изменения и доставка: [2f3ce380](https://github.com/EriArk/TrainerOS/commit/2f3ce380).
 
 ## 2026-11-04 — новые ядра в Setup и обновление Flip
 
