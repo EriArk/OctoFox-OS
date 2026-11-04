@@ -1,0 +1,1431 @@
+{
+  "schema": 1,
+  "component": "retroarch-cores",
+  "archive": {
+    "bytes": 298793086,
+    "sha256": "7193bb644ecc3403b6a2e81b394b5b98326adc42baee4dc1fb4f7cd41e5c561b"
+  },
+  "recipeReference": {
+    "source": {
+      "id": "libretro-super-recipes",
+      "repository": "https://github.com/libretro/libretro-super.git",
+      "commit": "43c6483ae90d5c5a9a6073465ec0902515a6ef8a",
+      "evidence": "packaging/emulators/core-source-bindings.json",
+      "components": [
+        "retroarch-cores"
+      ]
+    },
+    "file": "rules.d/core-rules.sh",
+    "sha256": "d4a6b37afbff2195aabfd26152b502d3a5bccfd7c0c87df57cf4eb852f253c30",
+    "binaryBuildProvenance": false
+  },
+  "cores": [
+    {
+      "path": "cores/81_libretro.so",
+      "bytes": 415880,
+      "sha256": "7a2d2a01381fb476fa4a3f7648d5c31b95e6056c15420b397e93eb4fc052c0e2",
+      "source": {
+        "id": "core-81",
+        "repository": "https://github.com/libretro/81-libretro.git",
+        "commit": "fa7094910d040baa5fd8b11dbf6a1a618330ecd9"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "fa7094910d040baa5fd8b11dbf6a1a618330ecd9",
+        "abbreviation": "fa7094910d040baa5fd8b11dbf6a1a618330ecd9",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/DoubleCherryGB_libretro.so",
+      "bytes": 950576,
+      "sha256": "e49b43151b22b568ce64af80992e9abffa4dd48db9d906a792e5c69f8bd5d087",
+      "source": {
+        "id": "doublecherrygb",
+        "repository": "https://github.com/TimOelrichs/doublecherryGB-libretro.git",
+        "commit": "03f58ca3dfb4b716f7e66a0e0467f9e85ef82abb"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/handheld/bundle.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/handheld/bundle.json",
+        "packaging/emulators/handheld/build.sh",
+        "packaging/emulators/handheld/doublecherry-rtc.patch",
+        "packaging/emulators/handheld/TrainerMbc3Rtc.h"
+      ]
+    },
+    {
+      "path": "cores/a5200_libretro.so",
+      "bytes": 287272,
+      "sha256": "7998a4b8c9592efd29502da9f9739e4cbcc58e3ffd6ca2495ca46fe78f630c11",
+      "source": {
+        "id": "core-a5200",
+        "repository": "https://github.com/libretro/a5200.git",
+        "commit": "40c6f2f1ad4a3145b328d5baaf010fae6c7e752b"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "2.0.2  40c6f2f",
+        "abbreviation": "40c6f2f",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/amiarcadia_libretro.so",
+      "bytes": 885848,
+      "sha256": "730c1599b4571592eb0b002b77e19b06c10f2d4d67288cdb5db048974b70ba36",
+      "source": {
+        "id": "rebuild-amiarcadia",
+        "repository": "https://github.com/warmenhoven/amiarcadia",
+        "commit": "8ca27c925833fe0021475155512c7f467924f647"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/applewin_libretro.so",
+      "bytes": 3979416,
+      "sha256": "f1330e1e74614e3c9ddd9710484133507fcd9106ca9e17ed87f223ea18380890",
+      "source": {
+        "id": "rebuild-applewin-libretro",
+        "repository": "https://github.com/audetto/AppleWin.git",
+        "commit": "ae584dad0156a03048c7df6e1d31165dce354eba"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake",
+        "packaging/emulators/core-rebuild/patches/applewin-relocatable-resources.patch"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/arduous_libretro.so",
+      "bytes": 227368,
+      "sha256": "918fc55fb8fab61d16333a1739909aa08751c5b3b5fb8659e5c271dec3b56eff",
+      "source": {
+        "id": "rebuild-arduous",
+        "repository": "https://github.com/libretro/arduous.git",
+        "commit": "831b83e67ad46e8c86b8165649ff81bc6fc6c157"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/armsx2_libretro.so",
+      "bytes": 32757432,
+      "sha256": "cf66f1b18f31fa373401c6417dab563fe747a0d8f0b375f92a786c52abf60679",
+      "source": {
+        "id": "core-armsx2",
+        "repository": "https://github.com/ARMSX2/ARMSX2.git",
+        "commit": "df1290dffec32553a3c28cb69c64d01695182fe7"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "df1290dffec32553a3c28cb69c64d01695182fe7",
+        "abbreviation": "df1290dffec32553a3c28cb69c64d01695182fe7",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/atari800_libretro.so",
+      "bytes": 963120,
+      "sha256": "076ccae83c6887dc26e49edd98e2de4c07768ce4d22ed2c6c50c2deb3bf0efb3",
+      "source": {
+        "id": "core-atari800",
+        "repository": "https://github.com/libretro/libretro-atari800.git",
+        "commit": "4e7fbc73765c1a9670c7506616046ad1d4ccda51"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "7.0.0 4e7fbc7",
+        "abbreviation": "4e7fbc7",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/b2_libretro.so",
+      "bytes": 7869520,
+      "sha256": "3262c0dbf306d68aa89b306fe4fa59322bf7291a7a1bda204ae139d7d491d800",
+      "source": {
+        "id": "rebuild-b2",
+        "repository": "https://github.com/zoltanvb/b2-libretro.git",
+        "commit": "9793f6a8040c416d147003cada29363b955b54e7"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/bk_libretro.so",
+      "bytes": 189584,
+      "sha256": "1b836672e223348f80ae2cbbb2042322ee91c72bbde862b6224116b70f977997",
+      "source": {
+        "id": "core-bk",
+        "repository": "https://github.com/libretro/bk-emulator.git",
+        "commit": "92042a753289cedf05e7e6bd8e75849f83e48966"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v1.0 92042a7",
+        "abbreviation": "92042a7",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/bluemsx_libretro.so",
+      "bytes": 1629984,
+      "sha256": "cb6a7d33d93a23e4089f5cf3d44406b6e45dadc2d0ba429fa7157012d2ac301b",
+      "source": {
+        "id": "core-bluemsx",
+        "repository": "https://github.com/libretro/blueMSX-libretro.git",
+        "commit": "e3086eb5d36d77fa11704cf53dc176686e70127d"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "git e3086eb",
+        "abbreviation": "e3086eb",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/cap32_libretro.so",
+      "bytes": 1571456,
+      "sha256": "cc89e9c18c472f679402f7a78679f2084b2d5019bdb22ad9b88519c19587903b",
+      "source": {
+        "id": "core-cap32",
+        "repository": "https://github.com/libretro/libretro-cap32.git",
+        "commit": "7aae30274fc969efd28f2206ddb6c413a981127c"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "4.5.4 7aae302 HI",
+        "abbreviation": "7aae302",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/cemu_libretro.so",
+      "bytes": 21059960,
+      "sha256": "a07acf795cd807f759f67a7a869bb24888f790c7d0ec0ad5d3d114badc535074",
+      "source": {
+        "id": "core-cemu",
+        "repository": "https://github.com/WizzardSK/cemu-libretro.git",
+        "commit": "0c11cf8e79ae5662456d41458d62d099c232ddcc"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "Cemu 0c11cf8",
+        "abbreviation": "0c11cf8",
+        "dirty": false
+      },
+      "localMaterials": [],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/citra_libretro.so",
+      "bytes": 29271288,
+      "sha256": "d983fe8a3329478e10f2dbbb617ddae9a6652339a038fdf714762785b238dc93",
+      "source": {
+        "id": "core-citra",
+        "repository": "https://github.com/libretro/citra.git",
+        "commit": "a0483e9abe8134ae6b290cdca7d49cb77689f05b"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "a0483e9abe8134ae6b290cdca7d49cb77689f05b",
+        "abbreviation": "a0483e9abe8134ae6b290cdca7d49cb77689f05b",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/dosbox_pure_libretro.so",
+      "bytes": 2976160,
+      "sha256": "ba7d6fb51628a29aefe003ab6eb6f1af6a4b5dcfb5a23ee16768fd121243a45e",
+      "source": {
+        "id": "rebuild-dosbox_pure",
+        "repository": "https://github.com/libretro/dosbox-pure.git",
+        "commit": "73e03aa145e0549ed4d5a20f8e65532714da33f5"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/emuscv_libretro.so",
+      "bytes": 4311208,
+      "sha256": "a5518091a1dec136bb728c2cb74ec74989eb4593bf5bd17497af474368fb6020",
+      "source": {
+        "id": "rebuild-emuscv",
+        "repository": "https://gitlab.com/MaaaX-EmuSCV/libretro-emuscv",
+        "commit": "17407117018919545428b753277dabd83630052f"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/ep128emu_core_libretro.so",
+      "bytes": 3697600,
+      "sha256": "78186615f1fb648cadb8fd204360fb49ff38f4cba67cbf63f564bb552da338f9",
+      "source": {
+        "id": "rebuild-ep128emu_core",
+        "repository": "https://github.com/libretro/ep128emu-core.git",
+        "commit": "6af5d03de220e6effcd0ffcd99e0fb8e8c77cc9e"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/fbneo_libretro.so",
+      "bytes": 79284728,
+      "sha256": "ffb37315a609317e1a00bf32c0e3d66c5a848d052d1260f4ab7f42da0f9fb9c3",
+      "source": {
+        "id": "core-fbneo",
+        "repository": "https://github.com/libretro/FBNeo.git",
+        "commit": "aceeebed9e7edc8a28652365a064baee9a16e274"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "GITaceeebe",
+        "abbreviation": "aceeebe",
+        "dirty": false
+      },
+      "localMaterials": [],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/fceumm_libretro.so",
+      "bytes": 4451672,
+      "sha256": "1b13b00d4680394dad8000d5175f97be727107e0945bc9b412da91d70c07b267",
+      "source": {
+        "id": "core-fceumm",
+        "repository": "https://github.com/libretro/libretro-fceumm.git",
+        "commit": "236ccdfc911e84c60fea6b9d0699c2d440a8de14"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "(SVN) 236ccdf",
+        "abbreviation": "236ccdf",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/flycast_libretro.so",
+      "bytes": 38743272,
+      "sha256": "0f18e86be41e800fe84604192824ae37726f1937ab503d37519bd42b15b7bc1e",
+      "source": {
+        "id": "core-flycast",
+        "repository": "https://github.com/flyinghead/flycast.git",
+        "commit": "ea087b9140ff5a3b1809e090da0f8d644ee2db95"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "ea087b9",
+        "abbreviation": "ea087b9",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/freechaf_libretro.so",
+      "bytes": 84520,
+      "sha256": "f0f24b56d2fd9d5befce8e5915be0ae1c79fe7d2346ac89e72234779d1349baa",
+      "source": {
+        "id": "core-freechaf",
+        "repository": "https://github.com/libretro/FreeChaF.git",
+        "commit": "76c7a84f1f7e80f3e6f2bba96fe100cb24e99124"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.0 76c7a84",
+        "abbreviation": "76c7a84",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/freeintv_libretro.so",
+      "bytes": 626056,
+      "sha256": "f0e6dfb5089bdcef32c0cc2fecfc724be5acb9d6a7a2a7e1522b013b1f7a38f8",
+      "source": {
+        "id": "core-freeintv",
+        "repository": "https://github.com/libretro/FreeIntv.git",
+        "commit": "ef3e0fe322bec62a7f916c0bb0834c08c348d0b4"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.2  ef3e0fe",
+        "abbreviation": "ef3e0fe",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/fuse_libretro.so",
+      "bytes": 1466176,
+      "sha256": "9561c0b4759e3f9301fbe39eb60828b17d3ea6e9950cf3bd721f0a97481d1246",
+      "source": {
+        "id": "core-fuse",
+        "repository": "https://github.com/libretro/fuse-libretro.git",
+        "commit": "e997e2bc32c888348f862f69f2c53babfedf7791"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "e997e2bc32c888348f862f69f2c53babfedf7791",
+        "abbreviation": "e997e2bc32c888348f862f69f2c53babfedf7791",
+        "dirty": false
+      },
+      "localMaterials": [],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/gambatte_libretro.so",
+      "bytes": 4818136,
+      "sha256": "8db8742add1b9e0b4918145411f54c0050eed61638c1d3f15d011644f9a5eeaf",
+      "source": {
+        "id": "core-gambatte",
+        "repository": "https://github.com/libretro/gambatte-libretro.git",
+        "commit": "d9d6cd06382d1ced30de34d56d3609452323dab1"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v0.5.0-netlink d9d6cd0",
+        "abbreviation": "d9d6cd0",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/gearcoleco_libretro.so",
+      "bytes": 608080,
+      "sha256": "cf04fb0d28b2756db5445a0240b3b1cf7440a37120fa3800d71659e65e0b0022",
+      "source": {
+        "id": "rebuild-gearcoleco",
+        "repository": "https://github.com/drhelius/Gearcoleco.git",
+        "commit": "3c3b7b6ef047ac255d413fa89355e9cd99ea91b7"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/genesis_plus_gx_libretro.so",
+      "bytes": 12585120,
+      "sha256": "de8ad971eee89fa5e4e00dd1c048f0a8cc53cd9558b8c143aa022f5d7623d273",
+      "source": {
+        "id": "core-genesis-plus-gx",
+        "repository": "https://github.com/libretro/Genesis-Plus-GX.git",
+        "commit": "c2838c7dc4236fc2fe94e5dbd08b41486067918e"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v1.7.4 c2838c7",
+        "abbreviation": "c2838c7",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/gpsp_libretro.so",
+      "bytes": 1096232,
+      "sha256": "bf0aee3cbb0bbb6d5dcee715a7b3a4da24631bf925a620ab02b937b43a626b4c",
+      "source": {
+        "id": "gpsp",
+        "repository": "https://github.com/libretro/gpsp.git",
+        "commit": "5819380c2ffb0900219d700a382ee68c464ebb99"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/handheld/bundle.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/handheld/bundle.json",
+        "packaging/emulators/handheld/build.sh"
+      ]
+    },
+    {
+      "path": "cores/gw_libretro.so",
+      "bytes": 563184,
+      "sha256": "56bc41f0e49565ed84d35e7a92949bffa075b4ab6be0f0dc84118ab4fd16b815",
+      "source": {
+        "id": "core-gw",
+        "repository": "https://github.com/libretro/gw-libretro.git",
+        "commit": "dddc9d553f7503f17c3dfd1906bc94c07eff8515"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "dddc9d553f7503f17c3dfd1906bc94c07eff8515",
+        "abbreviation": "dddc9d553f7503f17c3dfd1906bc94c07eff8515",
+        "dirty": false
+      },
+      "localMaterials": [],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/handy_libretro.so",
+      "bytes": 887120,
+      "sha256": "3efb38b73e44b561d89f4877e9ac86a1fe99bcb23a1ad0843204d2dd254d892e",
+      "source": {
+        "id": "core-handy",
+        "repository": "https://github.com/libretro/libretro-handy.git",
+        "commit": "bc55d462f0b2d6b073ea93dc552ebd73cec60fd1"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.97 bc55d46",
+        "abbreviation": "bc55d46",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/hatari_libretro.so",
+      "bytes": 21714552,
+      "sha256": "8978c238ca8be94ff055b55a0d435b8cfe1213590ee485418f78386c07aac578",
+      "source": {
+        "id": "rebuild-hatari",
+        "repository": "https://github.com/libretro/hatari.git",
+        "commit": "5831f66e05ae19435bd9d8ef1c6f9c93998ff6f4"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/lowresnx_libretro.so",
+      "bytes": 159768,
+      "sha256": "944ce6573f867beb18926459fc66af76a5bf33ef24bfaffed6469f5a604a204e",
+      "source": {
+        "id": "rebuild-lowresnx",
+        "repository": "https://github.com/timoinutilis/lowres-nx.git",
+        "commit": "b1ba4da0fd289d316eb23c9454df3a809e6a59f4"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/mame_libretro.so",
+      "bytes": 392603432,
+      "sha256": "4b37dc1289104b45baa2a3b531ccfaba988a12467084e41298ae0a128742ad2f",
+      "source": {
+        "id": "core-mame",
+        "repository": "https://github.com/libretro/mame.git",
+        "commit": "9069f39340f2d2b1795df8e71bb1d3d0fbc76598"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.289 (9069f3934)",
+        "abbreviation": "9069f3934",
+        "dirty": false
+      },
+      "localMaterials": [],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/mednafen_ngp_libretro.so",
+      "bytes": 375880,
+      "sha256": "b67d6a649117a9d82f015b5b5530e749fe5c5c198005d71061aa3e46e3da1b9d",
+      "source": {
+        "id": "core-mednafen-ngp",
+        "repository": "https://github.com/libretro/beetle-ngp-libretro.git",
+        "commit": "a50d5ac288a81f2104ddf43195a4efdd15c72227"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v1.29.0.0 a50d5ac",
+        "abbreviation": "a50d5ac",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/mednafen_pce_fast_libretro.so",
+      "bytes": 4589240,
+      "sha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077",
+      "source": {
+        "id": "rebuild-mednafen_pce_fast",
+        "repository": "https://github.com/libretro/beetle-pce-fast-libretro.git",
+        "commit": "1c693c630121366f0b819d785762f1ce5b3a68d0"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/mednafen_pcfx_libretro.so",
+      "bytes": 1876640,
+      "sha256": "9a6ca3bfd16cd480ba4c94602c1103838899a770e83584ea809891d6acca6e1e",
+      "source": {
+        "id": "core-mednafen-pcfx",
+        "repository": "https://github.com/libretro/beetle-pcfx-libretro.git",
+        "commit": "c1650bad5fbdcc3c3ccd45e29e3983e1ccf16cff"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v0.9.36.5 c1650ba",
+        "abbreviation": "c1650ba",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/mednafen_supergrafx_libretro.so",
+      "bytes": 3669872,
+      "sha256": "574c4b61e83b1a4034a42cfceed62e09ae8f0809c85527ca979fe9c5e18865e3",
+      "source": {
+        "id": "core-mednafen-supergrafx",
+        "repository": "https://github.com/libretro/beetle-supergrafx-libretro.git",
+        "commit": "3c6fcd3deded54ebecd69408f108407ac03d11b5"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v1.29.0 3c6fcd3",
+        "abbreviation": "3c6fcd3",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/mednafen_vb_libretro.so",
+      "bytes": 169048,
+      "sha256": "f0aa440c5e76c9f2b7b3f9d18c9e5ff8dac252d5539ab69adf03d32bcbfa10be",
+      "source": {
+        "id": "core-mednafen-vb",
+        "repository": "https://github.com/libretro/beetle-vb-libretro.git",
+        "commit": "83ed42608601fb7b01d41e4f8fb2007a37b8c84e"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v1.31.0 83ed426",
+        "abbreviation": "83ed426",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/mednafen_wswan_libretro.so",
+      "bytes": 1168952,
+      "sha256": "700b6eb5678a3283db9818cf22c68783d0d7f1607142b1d069c366eab81dfbaa",
+      "source": {
+        "id": "core-mednafen-wswan",
+        "repository": "https://github.com/libretro/beetle-wswan-libretro.git",
+        "commit": "4b01295838ea89e3f1355bbe4cb5cf98aa6108cd"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v0.9.35.1 4b01295",
+        "abbreviation": "4b01295",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/mgba_libretro.so",
+      "bytes": 3280408,
+      "sha256": "abde7a0764f08fa0cc2c7d3d9a29b9d1245a9f3b7df0e7a594b74df642ee53c6",
+      "source": {
+        "id": "core-mgba",
+        "repository": "https://github.com/libretro/mgba.git",
+        "commit": "e31759b24e7a4e3899285ff720d7b573ac328ae7"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.11-219-e31759b",
+        "abbreviation": "e31759b",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/mgba_splitscreen_libretro.so",
+      "bytes": 1734968,
+      "sha256": "fbf14e74472aa9f298f9a8a964b6bd00cae37ccc6563f347a92d2a3f1a088977",
+      "source": {
+        "id": "mgba-linked",
+        "repository": "https://github.com/Spuds0588/mgba-splitscreen.git",
+        "commit": "b66511a35873bda9c961872813e58b35543bcfc5"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.11-1-b66511a-dirty",
+        "abbreviation": "b66511a",
+        "dirty": true
+      },
+      "localMaterials": [
+        "packaging/emulators/handheld/build-mgba-linked.sh",
+        "packaging/emulators/handheld/mgba-linked-pair.patch"
+      ]
+    },
+    {
+      "path": "cores/minivmac_libretro.so",
+      "bytes": 707568,
+      "sha256": "7f83ab0c9cb8743ca1b2eb673bff439797c8cd1233ba0c6d3f7789919fc3b994",
+      "source": {
+        "id": "rebuild-minivmac",
+        "repository": "https://github.com/libretro/libretro-minivmac.git",
+        "commit": "babdf7b53d361a7225858b68a8a64efe8b06f5e5"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/neocd_libretro.so",
+      "bytes": 1167856,
+      "sha256": "4e113c99a14b1ab96181ded0e5a879a2c87b29a495a8e30315ec6efc96465ad4",
+      "source": {
+        "id": "core-neocd",
+        "repository": "https://github.com/libretro/neocd_libretro.git",
+        "commit": "3118c6901787e863e80e79170d02d47657b3b0ab"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "2022 3118c69",
+        "abbreviation": "3118c69",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/np2kai_libretro.so",
+      "bytes": 2656352,
+      "sha256": "5c5123d16da656c9a7a8a9db1caed89ed5832cfd465437e5057d5224fef3e3e1",
+      "source": {
+        "id": "core-np2kai",
+        "repository": "https://github.com/libretro/NP2kai.git",
+        "commit": "1ea561cd7fd62b33f4e7b3f1c2e30fc3e6089f28"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1ea561c",
+        "abbreviation": "1ea561c",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/o2em_libretro.so",
+      "bytes": 337984,
+      "sha256": "155fa5caa73687cadd9c5ba22706b3be3560157165873eca1b52daa0f2bdc588",
+      "source": {
+        "id": "core-o2em",
+        "repository": "https://github.com/libretro/libretro-o2em.git",
+        "commit": "679d6fec04963f6e70a7ec217e3d0ebb1fe472fc"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.18 679d6fe",
+        "abbreviation": "679d6fe",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/opera_libretro.so",
+      "bytes": 513224,
+      "sha256": "ef88a7040a6a97c0ac14399c12151c68c69d05f09f301d447a4596c6621e9aaa",
+      "source": {
+        "id": "core-opera",
+        "repository": "https://github.com/libretro/opera-libretro.git",
+        "commit": "a501a278d057b952d1ad6165549c59ab178ca497"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.0.0 a501a27",
+        "abbreviation": "a501a27",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/parallel_n64_libretro.so",
+      "bytes": 7630016,
+      "sha256": "7301ca3ea5030c23c8bbaec53f90379b15c93cf2aba77fcaf746d206dc5c1560",
+      "source": {
+        "id": "core-parallel-n64",
+        "repository": "https://github.com/libretro/parallel-n64.git",
+        "commit": "2f3bf60dcd969ae13e60731eab681504256272db"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.0 2f3bf60",
+        "abbreviation": "2f3bf60",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/pcsx_rearmed_libretro.so",
+      "bytes": 1747256,
+      "sha256": "25bfeb6336d7ef573903775fe53733af974c90edd268cf4fb9afa497e188609d",
+      "source": {
+        "id": "core-pcsx-rearmed",
+        "repository": "https://github.com/libretro/pcsx_rearmed.git",
+        "commit": "ff81ed17a15241d2f3730cdd7585b38e172532ca"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "r26 ff81ed1",
+        "abbreviation": "ff81ed1",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/picodrive_libretro.so",
+      "bytes": 1863928,
+      "sha256": "6b0dbe4e21f0e47afbf8a89d59b92e5b48a316dd7c5fae8c74d7351f341de044",
+      "source": {
+        "id": "core-picodrive",
+        "repository": "https://github.com/libretro/picodrive.git",
+        "commit": "ab021146b70eef7ec0ac2afe06a94e9b4c16ef74"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "2.05-ab02114",
+        "abbreviation": "ab02114",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/pokemini_libretro.so",
+      "bytes": 446872,
+      "sha256": "26f0fd4c9c8869a56edee23e10f4e8dee1451bc2600d1e97f15f52926933a71c",
+      "source": {
+        "id": "rebuild-pokemini",
+        "repository": "https://github.com/libretro/PokeMini.git",
+        "commit": "132111b76343559860532a1ccc094f93f1ed5650"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/potator_libretro.so",
+      "bytes": 62568,
+      "sha256": "6ce04f01c2ee993cda6b83131d9434a56bf3817e2590b2e4e2d1118f7d140937",
+      "source": {
+        "id": "core-potator",
+        "repository": "https://github.com/libretro/potator.git",
+        "commit": "227c5f6f3ce74d32e9002ce24c1420288559a860"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.0.5  227c5f6",
+        "abbreviation": "227c5f6",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/ppsspp_libretro.so",
+      "bytes": 19969048,
+      "sha256": "a508773e5a4942ba32f19dc7cb4a32802f693eb93336438b2f0d2fe01145ba70",
+      "source": {
+        "id": "core-ppsspp",
+        "repository": "https://github.com/hrydgard/ppsspp.git",
+        "commit": "9fc4eb3e4d0cc161c7a4a003b3098b0ce5387dc0"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "9fc4eb3",
+        "abbreviation": "9fc4eb3",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/prosystem_libretro.so",
+      "bytes": 201208,
+      "sha256": "284a5c1390d47c00967bed8c8b83a14a04234508fff69ffac906d532f7db8a51",
+      "source": {
+        "id": "core-prosystem",
+        "repository": "https://github.com/libretro/prosystem-libretro.git",
+        "commit": "8a88014287c7a01cd568067e5a557d0a2b2a051f"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.3e 8a88014",
+        "abbreviation": "8a88014",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/puae_libretro.so",
+      "bytes": 21289480,
+      "sha256": "01c3a33921240657c73d66e10fab607fb674e0d4b9ecc9d66a01f8da5d32d8ad",
+      "source": {
+        "id": "core-puae",
+        "repository": "https://github.com/libretro/libretro-uae.git",
+        "commit": "6536174a80d74e6c325aaa5390ff091fac8761d0"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "5.3.1 6536174",
+        "abbreviation": "6536174",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/px68k_libretro.so",
+      "bytes": 942864,
+      "sha256": "4faa50da0016e80e5397ca2ca2f8d7bb7b57c80ce004faf6bd4388d82f2837b7",
+      "source": {
+        "id": "core-px68k",
+        "repository": "https://github.com/libretro/px68k-libretro.git",
+        "commit": "0ad84d7058a12b7db4f7f7a906e87fad4e2f26f6"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.15+ 0ad84d7",
+        "abbreviation": "0ad84d7",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/quasi88_libretro.so",
+      "bytes": 2218192,
+      "sha256": "366e9fc72877d40d6878611ab3b7bc8f6aa1d2b1053d42d48c93bf4b02bf53a7",
+      "source": {
+        "id": "core-quasi88",
+        "repository": "https://github.com/libretro/quasi88-libretro.git",
+        "commit": "d43ef693eb93b65a1564229c05b32567cde1ae4e"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.6.4 d43ef69",
+        "abbreviation": "d43ef69",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/retro8_libretro.so",
+      "bytes": 363896,
+      "sha256": "b1054563ab2e548d62597f32a6bcaf12e4c1ff1a5d331ecd128b30ccacfed84c",
+      "source": {
+        "id": "core-retro8",
+        "repository": "https://github.com/libretro/retro8.git",
+        "commit": "ddc06a142398ee9755894b3f0bb17c8dc428151d"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.1b ddc06a1",
+        "abbreviation": "ddc06a1",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/same_cdi_libretro.so",
+      "bytes": 15133088,
+      "sha256": "111c91fb1de623f6fd4e6b14054d3d47aec3db8c99c73467d1928df2f2aa9e31",
+      "source": {
+        "id": "rebuild-same_cdi",
+        "repository": "https://github.com/libretro/same_cdi.git",
+        "commit": "ff9bb99a50d518aef6d2add1c49b7c44447e3e78"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/sameboy_libretro.so",
+      "bytes": 374280,
+      "sha256": "f0f6d03669761544b90b95596894fec41dee311c3fe8be5c0ffd7fe7866b1533",
+      "source": {
+        "id": "sameboy",
+        "repository": "https://github.com/libretro/SameBoy.git",
+        "commit": "aa158a889a48b538a0302873704a34577c8eb67d"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.15.4 aa158a8",
+        "abbreviation": "aa158a8",
+        "dirty": false
+      },
+      "localMaterials": [
+        "packaging/emulators/handheld/build.sh",
+        "packaging/emulators/handheld/sameboy-linked-pair.patch"
+      ]
+    },
+    {
+      "path": "cores/sameduck_libretro.so",
+      "bytes": 110112,
+      "sha256": "d0a75d3772d4c1d9d66fbddf95d8fb0a2496205144157c586f10f3998028a8be",
+      "source": {
+        "id": "core-sameduck",
+        "repository": "https://github.com/libretro/sameduck.git",
+        "commit": "040e19c379f00dae10afe0eb0c1b2b019b985bbe"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "0.13.6 040e19c",
+        "abbreviation": "040e19c",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/scummvm_libretro.so",
+      "bytes": 136131872,
+      "sha256": "7e7dde9c7216b68fc09f5c86d847ed912c06c2dba721166444764eb57fa57b3d",
+      "source": {
+        "id": "core-scummvm",
+        "repository": "https://github.com/scummvm/scummvm.git",
+        "commit": "fcbce3ae815269dacdc309092bc92ccc6d3e13bb"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "fcbce3ae-2026.3.1git",
+        "abbreviation": "fcbce3ae",
+        "dirty": false
+      },
+      "localMaterials": [],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/snes9x_libretro.so",
+      "bytes": 2989608,
+      "sha256": "e8d8f5cf93898c7be3ca2590d4d75dc8e9a89b891589c2da1a7917fa27411d21",
+      "source": {
+        "id": "core-snes9x",
+        "repository": "https://github.com/libretro/snes9x.git",
+        "commit": "890b5d445538fe790aa3add3d5702c80f551e0ae"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.63 890b5d4",
+        "abbreviation": "890b5d4",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/stella_libretro.so",
+      "bytes": 7250712,
+      "sha256": "bf2cf27781f9e393079c9a53c71d8676d638025086955498641723a8e121228a",
+      "source": {
+        "id": "core-stella",
+        "repository": "https://github.com/stella-emu/stella.git",
+        "commit": "36db8267e443a1ddfe4fabc0a3d42ec2b2332cb4"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": " 36db826",
+        "abbreviation": "36db826",
+        "dirty": false
+      },
+      "localMaterials": [],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/theodore_libretro.so",
+      "bytes": 2286040,
+      "sha256": "2ddb36c0f34fbd84782b2799f28e2e94faff70b62ea0887e1c581b978000b3cc",
+      "source": {
+        "id": "core-theodore",
+        "repository": "https://github.com/Zlika/theodore.git",
+        "commit": "4d469ce0f71ee046ceb78cdbf8e9f18364aaa918"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v3.2-9-g4d469ce",
+        "abbreviation": "4d469ce",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/tic80_libretro.so",
+      "bytes": 4341592,
+      "sha256": "465e54f90ecc581115fbd70cbee9adad9967492cb8c9dfb3390985e67bdc10b0",
+      "source": {
+        "id": "core-tic80",
+        "repository": "https://github.com/libretro/TIC-80.git",
+        "commit": "ae1195a9d0fbda243bf0ebd861d6876d072a979e"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.2.38-dev (ae1195a)",
+        "abbreviation": "ae1195a",
+        "dirty": false
+      },
+      "localMaterials": [],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/uzem_libretro.so",
+      "bytes": 159344,
+      "sha256": "dcac43499b5f0e192951844486a5faa69e96f132c246c2a96ea0e01e19b07c68",
+      "source": {
+        "id": "rebuild-uzem",
+        "repository": "https://github.com/libretro/libretro-uzem.git",
+        "commit": "d991ee94547c8294abc1c4cb73d63116aa58b5bc"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/vecx_libretro.so",
+      "bytes": 207688,
+      "sha256": "d9d86dadab9098e2c9847ddee10af553a8b883589c7c41107d4806eb45759ec9",
+      "source": {
+        "id": "core-vecx",
+        "repository": "https://github.com/libretro/libretro-vecx.git",
+        "commit": "8f671cc9d737f2890c3ce19e177e2984dcae121f"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "1.2 8f671cc",
+        "abbreviation": "8f671cc",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/vice_x128_libretro.so",
+      "bytes": 3903744,
+      "sha256": "1676b8b13ce00884ee3861849bc7755d2f3a5b04b7dc400a2839323ce040280f",
+      "source": {
+        "id": "core-vice",
+        "repository": "https://github.com/libretro/vice-libretro.git",
+        "commit": "9d7983826ea792f6cce7fdfe6c09488129c6f886"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "3.10 9d79838",
+        "abbreviation": "9d79838",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/vice_x64_libretro.so",
+      "bytes": 3560544,
+      "sha256": "e3bb88342920ed43a18d8b01698bdaa1dc92b7e45a56ac65c33917d4eae9621c",
+      "source": {
+        "id": "core-vice",
+        "repository": "https://github.com/libretro/vice-libretro.git",
+        "commit": "9d7983826ea792f6cce7fdfe6c09488129c6f886"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "3.10 9d79838",
+        "abbreviation": "9d79838",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/vice_xpet_libretro.so",
+      "bytes": 2731168,
+      "sha256": "8bf51453b95e6f1d8e55eae918c433538388ce4254f29e08f9b314086008075e",
+      "source": {
+        "id": "core-vice",
+        "repository": "https://github.com/libretro/vice-libretro.git",
+        "commit": "9d7983826ea792f6cce7fdfe6c09488129c6f886"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "3.10 9d79838",
+        "abbreviation": "9d79838",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/vice_xplus4_libretro.so",
+      "bytes": 2850288,
+      "sha256": "1ddcaf46c5e51aeaa419b45d873eec3919a844a7729e92a9eb39d6ad86669646",
+      "source": {
+        "id": "core-vice",
+        "repository": "https://github.com/libretro/vice-libretro.git",
+        "commit": "9d7983826ea792f6cce7fdfe6c09488129c6f886"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "3.10 9d79838",
+        "abbreviation": "9d79838",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/vice_xvic_libretro.so",
+      "bytes": 2867256,
+      "sha256": "e607670898ed84e1fab13d1f36f2e4c0fd3f87e57ce25e5f99f50a07008a9eca",
+      "source": {
+        "id": "core-vice",
+        "repository": "https://github.com/libretro/vice-libretro.git",
+        "commit": "9d7983826ea792f6cce7fdfe6c09488129c6f886"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "3.10 9d79838",
+        "abbreviation": "9d79838",
+        "dirty": false
+      },
+      "localMaterials": []
+    },
+    {
+      "path": "cores/vircon32_libretro.so",
+      "bytes": 3944728,
+      "sha256": "00d908fb95ff139e2858a259ed5d34411e8439e47deea8af9f88150a15ae0d4b",
+      "source": {
+        "id": "rebuild-vircon32",
+        "repository": "https://github.com/vircon32/vircon32-libretro.git",
+        "commit": "dd78c5cea1fcaa382b7492d0d813d6c1534914d7"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/virtualjaguar_libretro.so",
+      "bytes": 2375520,
+      "sha256": "5443803109eaee66b542929a5c8fd78c63eb99279a036f2eb8001f1632ee7c7d",
+      "source": {
+        "id": "core-virtualjaguar",
+        "repository": "https://github.com/libretro/virtualjaguar-libretro.git",
+        "commit": "f9a3c89f58836cb2c45a42ad4edfac047050f30a"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake",
+        "packaging/emulators/core-rebuild/patches/virtualjaguar-source-identity.patch"
+      ]
+    },
+    {
+      "path": "cores/wasm4_libretro.so",
+      "bytes": 235352,
+      "sha256": "729878c03aedef094c916039c11ec635a83127540fc03aeeff40e6c440bada81",
+      "source": {
+        "id": "rebuild-wasm4",
+        "repository": "https://github.com/aduros/wasm4.git",
+        "commit": "9d6c962785cfe3719d0245fd279ecbe98a4dbb63"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/x1_libretro.so",
+      "bytes": 522336,
+      "sha256": "1aa99d4c136f229f62f2dd8d6b2692ed62d0a96f4b5e8d5a8a4c358234d2f884",
+      "source": {
+        "id": "rebuild-x1",
+        "repository": "https://github.com/libretro/xmil-libretro.git",
+        "commit": "3106aa54ffb244cca4019a6e95dacaa698781bc3"
+      },
+      "identity": {
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
+      },
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake"
+      ],
+      "remaining": "Exact source revision and build provenance are not established; do not infer from a version label or current upstream HEAD."
+    },
+    {
+      "path": "cores/yabasanshiro_libretro.so",
+      "bytes": 1864688,
+      "sha256": "a22ab8993b30edbd029bd593a353f9db1080546ac577e7f8f0c7b98dbfec714c",
+      "source": {
+        "id": "core-yabasanshiro",
+        "repository": "https://github.com/libretro/yabause.git",
+        "commit": "09ed8e5b2e97e7a848ea2514545c34c7b809e399"
+      },
+      "identity": {
+        "kind": "embedded-marker",
+        "marker": "v3.4.2 09ed8e5",
+        "abbreviation": "09ed8e5",
+        "dirty": false
+      },
+      "localMaterials": []
+    }
+  ],
+  "completeCorrespondingSourceReviewed": false
+}

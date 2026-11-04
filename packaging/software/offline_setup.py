@@ -11,6 +11,8 @@ import fullbundle
 import installer
 import releases as sw
 import runtime_set
+import source_archive as software_sources
+import release_source_media
 
 
 def build(archive, software, key, public, output, sequence, source_archive, source_root=None, runtime_manifest=None):
@@ -36,6 +38,10 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
                 or signed['files'] != index['files']
                 or signed['archive'] != {'bytes': archive.stat().st_size, 'sha256': sw.sha256(archive)}):
             raise ValueError('Pre-signed runtime manifest differs from this Setup')
+    # Both source copies enter the distributed Setup. A filtered outer archive
+    # must not conceal old loose geometry inside signed runtime media.
+    software_sources.check(source_archive, release['source'])
+    release_source_media.check(archive, release['source'])
     output.mkdir(parents=True)
     with tempfile.TemporaryDirectory(dir=output,prefix='.setup-') as temp:
         temp=Path(temp); tree=temp/'TrainerOS-Setup';tree.mkdir()

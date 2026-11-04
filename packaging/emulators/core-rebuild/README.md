@@ -98,6 +98,24 @@ python3 package.py --root STAGE --attempts ATTEMPT... \
 
 The archive is independently read back, but deliberately contains no signed
 `runtime-set.json`: Setup cannot mistake it for an approved runtime update.
+
+## VirtualJaguar source repair
+
+`jaguar-candidate.json` is a separate one-core plan for the former
+`v3.6.1 f9a3c89-dirty` binary. Copy it to `STAGE/candidates.json` in a new staging
+directory and use the same build/probe/package tools. It pins the exact upstream
+`f9a3c89f58836cb2c45a42ad4edfac047050f30a` capsule and the previous binary hash.
+This is a replacement build, not a claim to have recovered the unknown dirty diff.
+`patches/virtualjaguar-source-identity.patch` supplies that revision only when
+upstream build-id has no Git metadata; it does not change emulation or save code.
+The ordinary Git/dirty identity remains effective in a Git checkout.
+
+After exact native checks, `core_promotion.component(..., prior_builds=...)`
+requires the previous build records for already promoted cores. The new record
+set retains all unchanged identities. `media(...)` adds later candidate kits
+under their SHA-256 names and preserves earlier kits, rather than overwriting
+their corresponding sources. Missing or mismatched retained build records fail
+before output. See the dated release evidence for installation and acceptance.
 Promote only after checks in the actual private RetroArch environment and
 review of affected launch/save/input and multiplayer paths. Keep source/notices
 and external dependency review distinct from those runtime checks.

@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "method": "private RetroArch 1.22.2 native ARM64, headless null video/audio, 600 frames; no physical input or multiplayer proof",
+  "installed": false,
+  "cases": [
+    {
+      "id": "pattern-fill",
+      "core": "virtualjaguar",
+      "kind": "upstream-test-rom",
+      "content": "<isolated-test>/pattern_fill.jag",
+      "contentSha256": "848340fbff5c69ba47cf4cb66c7c022b63e614d8462842de53711b9345ff133d",
+      "coreSha256": "5443803109eaee66b542929a5c8fd78c63eb99279a036f2eb8001f1632ee7c7d",
+      "firmwareCopied": [],
+      "firmwareMissing": [
+        "[BIOS] Atari Jaguar CD (World).j64",
+        "[BIOS] Atari Jaguar Developer CD (World).j64",
+        "jagboot_m.rom",
+        "jagboot.rom"
+      ],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.6,
+        "logSha256": "e4088fd499c075584052ba613925e1eb5cd16c55be500dbfa01450c772f3f27d",
+        "geometry": "[INFO] [Core] Geometry: 320x240, Aspect: 1.333, FPS: 60.05, Sample rate: 48043.56 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": [
+        {
+          "file": "states/Virtual Jaguar/pattern_fill.state.auto",
+          "bytes": 2621464,
+          "sha256": "7e219c40248cbd1a94fd00fd1e25f596affc541e185d0b2b6d14809b34682b15"
+        }
+      ],
+      "restore": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.644,
+        "logSha256": "3c8c040cdf3a5360263051057bc0a4371310a156af2bb32ea2a377b39827f55a",
+        "geometry": "[INFO] [Core] Geometry: 320x240, Aspect: 1.333, FPS: 60.05, Sample rate: 48043.56 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": true,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      }
+    }
+  ],
+  "personalConfigsUnchanged": true
+}

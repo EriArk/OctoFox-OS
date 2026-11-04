@@ -30,7 +30,26 @@ def verify_archive(path, expected):
         raise ValueError('Archive differs from pinned input')
 
 
-def component(base, base_record, bindings, candidate, candidate_record, native, output):
+def retained_records(bindings, builds):
+    """Require a matching build record for every active identity we own."""
+    rows = builds.get('cores', []) if builds else []
+    records = {r['name']: r for r in rows}
+    if len(records) != len(rows):
+        raise ValueError('Duplicate retained build record')
+    required = {Path(r['path']).name: r for r in bindings['cores']
+                if (r.get('identity') or {}).get('record') == BUILD_RECORD}
+    if set(records) != set(required):
+        raise ValueError('Incomplete retained build records')
+    for name, row in required.items():
+        record = records[name]
+        if (record.get('status') != 'built'
+                or any(record.get(k) != row[k] for k in ('bytes', 'sha256'))
+                or record.get('commit') != row['source']['commit']):
+            raise ValueError('Retained build identity differs')
+    return copy.deepcopy(records)
+
+
+def component(base, base_record, bindings, candidate, candidate_record, native, output, prior_builds=None):
     """Keep every base info/other core; only replace pinned, native-loaded inputs."""
     base, candidate, output = Path(base), Path(candidate), Path(output)
     if output.exists() or output.is_symlink() or any(p.is_symlink() for p in output.parents):
@@ -57,7 +76,7 @@ def component(base, base_record, bindings, candidate, candidate_record, native, 
     if len(checks) != len(native['cores']):
         raise ValueError('Duplicate native checks')
     promoted = copy.deepcopy(bindings)
-    records = []
+    records = retained_records(bindings, prior_builds)
     with tarfile.open(candidate) as new, tarfile.open(base) as previous:
         inventory = read_json(new, 'candidate.json')
         expected = {r['path']: r for r in inventory['files']}
@@ -97,7 +116,7 @@ def component(base, base_record, bindings, candidate, candidate_record, native, 
             if (any(build[k] != row[k] for k in ('bytes', 'sha256')) or build['commit'] != spec['commit']
                     or build.get('patches', []) != spec.get('patches', [])):
                 raise ValueError('Selected build differs')
-            records.append({**build, 'name': Path(path).name})
+            records[Path(path).name] = {**build, 'name': Path(path).name}
             binding = next(r for r in promoted['cores'] if r['path'] == path)
             binding.update(bytes=row['bytes'], sha256=row['sha256'],
                            source={'id': spec['sourceId'], 'repository': spec['repository'], 'commit': spec['commit']},
@@ -136,12 +155,12 @@ def component(base, base_record, bindings, candidate, candidate_record, native, 
                             'gameplayAcceptance': 'bounded native smoke only; see release evidence'})
     promoted['archive'] = result['archive']
     (output / 'core-source-bindings.json').write_text(json.dumps(promoted, indent=2) + '\n', encoding='utf-8')
-    (output / 'promoted-builds.json').write_text(json.dumps({'schema': 1, 'cores': records}, indent=2) + '\n', encoding='utf-8')
+    (output / 'promoted-builds.json').write_text(json.dumps({'schema': 1, 'cores': list(records.values())}, indent=2) + '\n', encoding='utf-8')
     return result, promoted
 
 
 def media(base, base_identity, component_dir, candidate, candidate_identity, bindings, builds, output):
-    """Repack only two core entries; append the exact build/source kit and bindings."""
+    """Replace cores and current bindings; retain every prior exact source kit."""
     base, output = Path(base), Path(output)
     if output.exists() or output.is_symlink() or any(p.is_symlink() for p in output.parents):
         raise ValueError('Existing or redirected runtime media')
@@ -151,21 +170,29 @@ def media(base, base_identity, component_dir, candidate, candidate_identity, bin
     bound = json.loads(Path(bindings).read_text())
     if record.get('id') != 'retroarch-cores' or bound.get('archive') != record['archive']:
         raise ValueError('Replacement component binding differs')
+    retained_records(bound, json.loads(Path(builds).read_text()))
     verify_archive(Path(component_dir) / 'component.tar.gz', record['archive'])
     fullbundle.verify(base)
     changes = {'runtimes/retroarch-cores/component.json': Path(component_dir) / 'component.json',
                'runtimes/retroarch-cores/component.tar.gz': Path(component_dir) / 'component.tar.gz'}
-    additions = {'sources/core-rebuild-candidate.tar': Path(candidate),
-                 'sources/core-source-bindings.json': Path(bindings),
-                 'sources/core-promoted-builds.json': Path(builds)}
+    metadata = {'sources/core-source-bindings.json': Path(bindings),
+                'sources/core-promoted-builds.json': Path(builds)}
     with tarfile.open(base) as source:
         inventory = read_json(source, 'fullbundle.json')
         names = {r['path'] for r in inventory['files']}
-        if not set(changes) <= names or set(additions) & names:
+        if not set(changes) <= names or len(names & set(metadata)) not in (0, len(metadata)):
             raise ValueError('Unexpected existing media layout')
-        changes.update(additions)
+        # The original fixed name remains readable. Later kits use their digest,
+        # so a second promotion cannot discard the first promotion's sources.
+        kit = ('sources/core-rebuild-' + candidate_identity['sha256'] + '.tar'
+               if 'sources/core-rebuild-candidate.tar' in names else 'sources/core-rebuild-candidate.tar')
+        if kit in names:
+            raise ValueError('Candidate source kit already retained')
+        changes.update(metadata)
+        changes[kit] = Path(candidate)
+        additions = set(changes) - names
         rows = {n: {'path': n, 'bytes': p.stat().st_size, 'sha256': payload.digest(p)} for n, p in changes.items()}
-        inventory['files'] = [rows.get(r['path'], r) for r in inventory['files']] + [rows[n] for n in additions]
+        inventory['files'] = [rows.get(r['path'], r) for r in inventory['files']] + [rows[n] for n in sorted(additions)]
         inventory['redistributionReviewed'] = False
         with tarfile.open(output, 'x:') as target:
             raw = (json.dumps(inventory, indent=2) + '\n').encode()

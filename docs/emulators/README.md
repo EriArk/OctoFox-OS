@@ -29,6 +29,7 @@ a second execution plan or a claim that all installed runtimes are validated.
 | melonDS DS WFC | [Native WFC](melonds-wfc.md) | Source integration, automatic AP/DNS and own progress; native Windows checks, no handheld delivery |
 | melonDS | [DS delivery](melonds.md) | Installed two-player Nearby/Online invitations, native wireless race/soak and own-save return on Flip/Odin; four-player, broader games/saves, frontend polish and physical/distinct-network acceptance remain open |
 | RetroArch | [Common ARM64 baseline](retroarch.md) | Exact core bundle, two-device alignment, recoverable update/rollback and remaining image/standalone gates |
+| VirtualJaguar | [Pinned ARM64 replacement](virtualjaguar.md) | Documented replacement for an unknown dirty binary; source identity patch, native test-ROM state checks and retained recovery |
 | LRPS2 | [PS2 candidate](lrps2.md) | Isolated ARM64 build and native state-restore investigation; ordinary ARMSX2 retained, no shared-console profile admitted |
 | PCSX ReARMed | [PS1 integration](pcsx-rearmed.md) | Existing RetroArch network route, private BIOS/cards and paired CTR on Flip/Odin; ordered handoff and retained physical/network acceptance remain open |
 | RMG / Mupen64Plus | [N64 Nearby and private Online](RMG.md) | Installed native bundle, paired Nearby/forced-relay Mario Kart 64 and ordinary invitations/Home/minimize/peer exit on Flip/Odin; wider groups/games, physical/distinct-network and production service acceptance remain open |

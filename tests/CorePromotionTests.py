@@ -40,9 +40,10 @@ class CorePromotionTests(unittest.TestCase):
         self.make_candidate()
 
     def make_candidate(self, extra=None):
-        files = {'cores/changed_libretro.so': self.new,
+        name = self.spec['core']
+        files = {'cores/' + name + '_libretro.so': self.new,
                  'candidates.json': json.dumps({'cores':[self.spec]}).encode(),
-                 'selection.json': b'{"changed":"attempt01"}',
+                 'selection.json': json.dumps({name:'attempt01'}).encode(),
                  'build-records/attempt01.json':json.dumps({'cores':[self.build]}).encode()}
         if extra: files.update(extra)
         inventory={'files':[{'path':n,'bytes':len(b),'sha256':sha(b)} for n,b in files.items()]}
@@ -107,6 +108,44 @@ class CorePromotionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Archive differs'):
             m.media(base,{'bytes':base.stat().st_size,'sha256':old['sha256']},d/'component',self.candidate,self.pinned,d/'core-source-bindings.json',d/'promoted-builds.json',self.root/'tampered-media.tar')
         self.assertFalse((self.root/'tampered-media.tar').exists())
+
+    def test_second_promotion_retains_previous_build_records_and_source_kits(self):
+        first, bound = self.promote(); d = self.root/'promotion'
+        retained = json.loads((d/'promoted-builds.json').read_text())
+        plan = {'schema':1,'files':[{'path':'runtimes/retroarch-cores/'+n,
+                'source':str(self.root/'base'/n),'sha256':runtime_payload.digest(self.root/'base'/n)}
+                for n in ['component.json','component.tar.gz']]}
+        media = fullbundle.build(plan,self.root/'media-base')
+        base = self.root/'media-base/TrainerOS-Full-CANDIDATE.tar'
+        first_media = self.root/'media-first.tar'
+        first_result = m.media(base,{'bytes':base.stat().st_size,'sha256':media['sha256']},
+                d/'component',self.candidate,self.pinned,d/'core-source-bindings.json',d/'promoted-builds.json',first_media)
+        first_kit = self.candidate.read_bytes()
+        keep = next(r for r in first['files'] if r['path']=='cores/keep_libretro.so')
+        self.spec.update(core='keep',previousBinary={k:keep[k] for k in ('bytes','sha256')})
+        self.new = b'new second core'
+        self.build.update(core='keep',bytes=len(self.new),sha256=sha(self.new))
+        self.native = {'cores':[{'file':'keep_libretro.so','exitCode':0,'bytes':len(self.new),'sha256':sha(self.new)}]}
+        self.make_candidate()
+        second_dir = self.root/'second'
+        args = (d/'component/component.tar.gz',first,bound,self.candidate,self.pinned,self.native,second_dir)
+        with self.assertRaisesRegex(ValueError,'Incomplete retained'):
+            m.component(*args)
+        invalid = copy.deepcopy(retained); invalid['cores'][0]['sha256'] = '0'*64
+        with self.assertRaisesRegex(ValueError,'Retained build identity'):
+            m.component(*args,prior_builds=invalid)
+        self.assertFalse(second_dir.exists())
+        second, bound2 = m.component(*args,prior_builds=retained)
+        records2 = json.loads((second_dir/'promoted-builds.json').read_text())
+        self.assertEqual(len(records2['cores']),2)
+        self.assertIn(retained['cores'][0],records2['cores'])
+        result = m.media(first_media,first_result['archive'],second_dir/'component',self.candidate,self.pinned,
+                second_dir/'core-source-bindings.json',second_dir/'promoted-builds.json',self.root/'media-second.tar')
+        with tarfile.open(self.root/'media-second.tar') as t:
+            self.assertEqual(t.extractfile('sources/core-rebuild-candidate.tar').read(),first_kit)
+            self.assertEqual(t.extractfile('sources/core-rebuild-'+self.pinned['sha256']+'.tar').read(),self.candidate.read_bytes())
+            self.assertEqual(json.load(t.extractfile('sources/core-promoted-builds.json')),records2)
+        self.assertFalse(result['published'])
 
 
 if __name__=='__main__': unittest.main()

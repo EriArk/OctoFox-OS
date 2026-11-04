@@ -1,0 +1,908 @@
+{
+  "schema": 1,
+  "id": "retroarch-cores",
+  "target": "linux-aarch64",
+  "files": [
+    {
+      "path": "cores/81_libretro.so",
+      "sha256": "7a2d2a01381fb476fa4a3f7648d5c31b95e6056c15420b397e93eb4fc052c0e2",
+      "bytes": 415880,
+      "mode": 420
+    },
+    {
+      "path": "cores/DoubleCherryGB_libretro.so",
+      "sha256": "e49b43151b22b568ce64af80992e9abffa4dd48db9d906a792e5c69f8bd5d087",
+      "bytes": 950576,
+      "mode": 493
+    },
+    {
+      "path": "cores/a5200_libretro.so",
+      "sha256": "7998a4b8c9592efd29502da9f9739e4cbcc58e3ffd6ca2495ca46fe78f630c11",
+      "bytes": 287272,
+      "mode": 420
+    },
+    {
+      "path": "cores/amiarcadia_libretro.so",
+      "sha256": "730c1599b4571592eb0b002b77e19b06c10f2d4d67288cdb5db048974b70ba36",
+      "bytes": 885848,
+      "mode": 420
+    },
+    {
+      "path": "cores/applewin_libretro.so",
+      "sha256": "f1330e1e74614e3c9ddd9710484133507fcd9106ca9e17ed87f223ea18380890",
+      "bytes": 3979416,
+      "mode": 420
+    },
+    {
+      "path": "cores/arduous_libretro.so",
+      "sha256": "918fc55fb8fab61d16333a1739909aa08751c5b3b5fb8659e5c271dec3b56eff",
+      "bytes": 227368,
+      "mode": 420
+    },
+    {
+      "path": "cores/armsx2_libretro.so",
+      "sha256": "cf66f1b18f31fa373401c6417dab563fe747a0d8f0b375f92a786c52abf60679",
+      "bytes": 32757432,
+      "mode": 420
+    },
+    {
+      "path": "cores/atari800_libretro.so",
+      "sha256": "076ccae83c6887dc26e49edd98e2de4c07768ce4d22ed2c6c50c2deb3bf0efb3",
+      "bytes": 963120,
+      "mode": 420
+    },
+    {
+      "path": "cores/b2_libretro.so",
+      "sha256": "3262c0dbf306d68aa89b306fe4fa59322bf7291a7a1bda204ae139d7d491d800",
+      "bytes": 7869520,
+      "mode": 420
+    },
+    {
+      "path": "cores/bk_libretro.so",
+      "sha256": "1b836672e223348f80ae2cbbb2042322ee91c72bbde862b6224116b70f977997",
+      "bytes": 189584,
+      "mode": 420
+    },
+    {
+      "path": "cores/bluemsx_libretro.so",
+      "sha256": "cb6a7d33d93a23e4089f5cf3d44406b6e45dadc2d0ba429fa7157012d2ac301b",
+      "bytes": 1629984,
+      "mode": 420
+    },
+    {
+      "path": "cores/cap32_libretro.so",
+      "sha256": "cc89e9c18c472f679402f7a78679f2084b2d5019bdb22ad9b88519c19587903b",
+      "bytes": 1571456,
+      "mode": 420
+    },
+    {
+      "path": "cores/cemu_libretro.so",
+      "sha256": "a07acf795cd807f759f67a7a869bb24888f790c7d0ec0ad5d3d114badc535074",
+      "bytes": 21059960,
+      "mode": 420
+    },
+    {
+      "path": "cores/citra_libretro.so",
+      "sha256": "d983fe8a3329478e10f2dbbb617ddae9a6652339a038fdf714762785b238dc93",
+      "bytes": 29271288,
+      "mode": 420
+    },
+    {
+      "path": "cores/dosbox_pure_libretro.so",
+      "sha256": "ba7d6fb51628a29aefe003ab6eb6f1af6a4b5dcfb5a23ee16768fd121243a45e",
+      "bytes": 2976160,
+      "mode": 420
+    },
+    {
+      "path": "cores/emuscv_libretro.so",
+      "sha256": "a5518091a1dec136bb728c2cb74ec74989eb4593bf5bd17497af474368fb6020",
+      "bytes": 4311208,
+      "mode": 420
+    },
+    {
+      "path": "cores/ep128emu_core_libretro.so",
+      "sha256": "78186615f1fb648cadb8fd204360fb49ff38f4cba67cbf63f564bb552da338f9",
+      "bytes": 3697600,
+      "mode": 420
+    },
+    {
+      "path": "cores/fbneo_libretro.so",
+      "sha256": "ffb37315a609317e1a00bf32c0e3d66c5a848d052d1260f4ab7f42da0f9fb9c3",
+      "bytes": 79284728,
+      "mode": 420
+    },
+    {
+      "path": "cores/fceumm_libretro.so",
+      "sha256": "1b13b00d4680394dad8000d5175f97be727107e0945bc9b412da91d70c07b267",
+      "bytes": 4451672,
+      "mode": 420
+    },
+    {
+      "path": "cores/flycast_libretro.so",
+      "sha256": "0f18e86be41e800fe84604192824ae37726f1937ab503d37519bd42b15b7bc1e",
+      "bytes": 38743272,
+      "mode": 420
+    },
+    {
+      "path": "cores/freechaf_libretro.so",
+      "sha256": "f0f24b56d2fd9d5befce8e5915be0ae1c79fe7d2346ac89e72234779d1349baa",
+      "bytes": 84520,
+      "mode": 420
+    },
+    {
+      "path": "cores/freeintv_libretro.so",
+      "sha256": "f0e6dfb5089bdcef32c0cc2fecfc724be5acb9d6a7a2a7e1522b013b1f7a38f8",
+      "bytes": 626056,
+      "mode": 420
+    },
+    {
+      "path": "cores/fuse_libretro.so",
+      "sha256": "9561c0b4759e3f9301fbe39eb60828b17d3ea6e9950cf3bd721f0a97481d1246",
+      "bytes": 1466176,
+      "mode": 420
+    },
+    {
+      "path": "cores/gambatte_libretro.so",
+      "sha256": "8db8742add1b9e0b4918145411f54c0050eed61638c1d3f15d011644f9a5eeaf",
+      "bytes": 4818136,
+      "mode": 420
+    },
+    {
+      "path": "cores/gearcoleco_libretro.so",
+      "sha256": "cf04fb0d28b2756db5445a0240b3b1cf7440a37120fa3800d71659e65e0b0022",
+      "bytes": 608080,
+      "mode": 420
+    },
+    {
+      "path": "cores/genesis_plus_gx_libretro.so",
+      "sha256": "de8ad971eee89fa5e4e00dd1c048f0a8cc53cd9558b8c143aa022f5d7623d273",
+      "bytes": 12585120,
+      "mode": 420
+    },
+    {
+      "path": "cores/gpsp_libretro.so",
+      "sha256": "bf0aee3cbb0bbb6d5dcee715a7b3a4da24631bf925a620ab02b937b43a626b4c",
+      "bytes": 1096232,
+      "mode": 493
+    },
+    {
+      "path": "cores/gw_libretro.so",
+      "sha256": "56bc41f0e49565ed84d35e7a92949bffa075b4ab6be0f0dc84118ab4fd16b815",
+      "bytes": 563184,
+      "mode": 420
+    },
+    {
+      "path": "cores/handy_libretro.so",
+      "sha256": "3efb38b73e44b561d89f4877e9ac86a1fe99bcb23a1ad0843204d2dd254d892e",
+      "bytes": 887120,
+      "mode": 420
+    },
+    {
+      "path": "cores/hatari_libretro.so",
+      "sha256": "8978c238ca8be94ff055b55a0d435b8cfe1213590ee485418f78386c07aac578",
+      "bytes": 21714552,
+      "mode": 420
+    },
+    {
+      "path": "cores/lowresnx_libretro.so",
+      "sha256": "944ce6573f867beb18926459fc66af76a5bf33ef24bfaffed6469f5a604a204e",
+      "bytes": 159768,
+      "mode": 420
+    },
+    {
+      "path": "cores/mame_libretro.so",
+      "sha256": "4b37dc1289104b45baa2a3b531ccfaba988a12467084e41298ae0a128742ad2f",
+      "bytes": 392603432,
+      "mode": 420
+    },
+    {
+      "path": "cores/mednafen_ngp_libretro.so",
+      "sha256": "b67d6a649117a9d82f015b5b5530e749fe5c5c198005d71061aa3e46e3da1b9d",
+      "bytes": 375880,
+      "mode": 420
+    },
+    {
+      "path": "cores/mednafen_pce_fast_libretro.so",
+      "sha256": "defc98f6005e320023818006cef2df18a0626da2d1c9f56b8cd61dc2249ed077",
+      "bytes": 4589240,
+      "mode": 420
+    },
+    {
+      "path": "cores/mednafen_pcfx_libretro.so",
+      "sha256": "9a6ca3bfd16cd480ba4c94602c1103838899a770e83584ea809891d6acca6e1e",
+      "bytes": 1876640,
+      "mode": 420
+    },
+    {
+      "path": "cores/mednafen_supergrafx_libretro.so",
+      "sha256": "574c4b61e83b1a4034a42cfceed62e09ae8f0809c85527ca979fe9c5e18865e3",
+      "bytes": 3669872,
+      "mode": 420
+    },
+    {
+      "path": "cores/mednafen_vb_libretro.so",
+      "sha256": "f0aa440c5e76c9f2b7b3f9d18c9e5ff8dac252d5539ab69adf03d32bcbfa10be",
+      "bytes": 169048,
+      "mode": 420
+    },
+    {
+      "path": "cores/mednafen_wswan_libretro.so",
+      "sha256": "700b6eb5678a3283db9818cf22c68783d0d7f1607142b1d069c366eab81dfbaa",
+      "bytes": 1168952,
+      "mode": 420
+    },
+    {
+      "path": "cores/mgba_libretro.so",
+      "sha256": "abde7a0764f08fa0cc2c7d3d9a29b9d1245a9f3b7df0e7a594b74df642ee53c6",
+      "bytes": 3280408,
+      "mode": 420
+    },
+    {
+      "path": "cores/mgba_splitscreen_libretro.so",
+      "sha256": "fbf14e74472aa9f298f9a8a964b6bd00cae37ccc6563f347a92d2a3f1a088977",
+      "bytes": 1734968,
+      "mode": 493
+    },
+    {
+      "path": "cores/minivmac_libretro.so",
+      "sha256": "7f83ab0c9cb8743ca1b2eb673bff439797c8cd1233ba0c6d3f7789919fc3b994",
+      "bytes": 707568,
+      "mode": 420
+    },
+    {
+      "path": "cores/neocd_libretro.so",
+      "sha256": "4e113c99a14b1ab96181ded0e5a879a2c87b29a495a8e30315ec6efc96465ad4",
+      "bytes": 1167856,
+      "mode": 420
+    },
+    {
+      "path": "cores/np2kai_libretro.so",
+      "sha256": "5c5123d16da656c9a7a8a9db1caed89ed5832cfd465437e5057d5224fef3e3e1",
+      "bytes": 2656352,
+      "mode": 420
+    },
+    {
+      "path": "cores/o2em_libretro.so",
+      "sha256": "155fa5caa73687cadd9c5ba22706b3be3560157165873eca1b52daa0f2bdc588",
+      "bytes": 337984,
+      "mode": 420
+    },
+    {
+      "path": "cores/opera_libretro.so",
+      "sha256": "ef88a7040a6a97c0ac14399c12151c68c69d05f09f301d447a4596c6621e9aaa",
+      "bytes": 513224,
+      "mode": 420
+    },
+    {
+      "path": "cores/parallel_n64_libretro.so",
+      "sha256": "7301ca3ea5030c23c8bbaec53f90379b15c93cf2aba77fcaf746d206dc5c1560",
+      "bytes": 7630016,
+      "mode": 420
+    },
+    {
+      "path": "cores/pcsx_rearmed_libretro.so",
+      "sha256": "25bfeb6336d7ef573903775fe53733af974c90edd268cf4fb9afa497e188609d",
+      "bytes": 1747256,
+      "mode": 420
+    },
+    {
+      "path": "cores/picodrive_libretro.so",
+      "sha256": "6b0dbe4e21f0e47afbf8a89d59b92e5b48a316dd7c5fae8c74d7351f341de044",
+      "bytes": 1863928,
+      "mode": 420
+    },
+    {
+      "path": "cores/pokemini_libretro.so",
+      "sha256": "26f0fd4c9c8869a56edee23e10f4e8dee1451bc2600d1e97f15f52926933a71c",
+      "bytes": 446872,
+      "mode": 420
+    },
+    {
+      "path": "cores/potator_libretro.so",
+      "sha256": "6ce04f01c2ee993cda6b83131d9434a56bf3817e2590b2e4e2d1118f7d140937",
+      "bytes": 62568,
+      "mode": 420
+    },
+    {
+      "path": "cores/ppsspp_libretro.so",
+      "sha256": "a508773e5a4942ba32f19dc7cb4a32802f693eb93336438b2f0d2fe01145ba70",
+      "bytes": 19969048,
+      "mode": 420
+    },
+    {
+      "path": "cores/prosystem_libretro.so",
+      "sha256": "284a5c1390d47c00967bed8c8b83a14a04234508fff69ffac906d532f7db8a51",
+      "bytes": 201208,
+      "mode": 420
+    },
+    {
+      "path": "cores/puae_libretro.so",
+      "sha256": "01c3a33921240657c73d66e10fab607fb674e0d4b9ecc9d66a01f8da5d32d8ad",
+      "bytes": 21289480,
+      "mode": 420
+    },
+    {
+      "path": "cores/px68k_libretro.so",
+      "sha256": "4faa50da0016e80e5397ca2ca2f8d7bb7b57c80ce004faf6bd4388d82f2837b7",
+      "bytes": 942864,
+      "mode": 420
+    },
+    {
+      "path": "cores/quasi88_libretro.so",
+      "sha256": "366e9fc72877d40d6878611ab3b7bc8f6aa1d2b1053d42d48c93bf4b02bf53a7",
+      "bytes": 2218192,
+      "mode": 420
+    },
+    {
+      "path": "cores/retro8_libretro.so",
+      "sha256": "b1054563ab2e548d62597f32a6bcaf12e4c1ff1a5d331ecd128b30ccacfed84c",
+      "bytes": 363896,
+      "mode": 420
+    },
+    {
+      "path": "cores/same_cdi_libretro.so",
+      "sha256": "111c91fb1de623f6fd4e6b14054d3d47aec3db8c99c73467d1928df2f2aa9e31",
+      "bytes": 15133088,
+      "mode": 420
+    },
+    {
+      "path": "cores/sameboy_libretro.so",
+      "sha256": "f0f6d03669761544b90b95596894fec41dee311c3fe8be5c0ffd7fe7866b1533",
+      "bytes": 374280,
+      "mode": 493
+    },
+    {
+      "path": "cores/sameduck_libretro.so",
+      "sha256": "d0a75d3772d4c1d9d66fbddf95d8fb0a2496205144157c586f10f3998028a8be",
+      "bytes": 110112,
+      "mode": 420
+    },
+    {
+      "path": "cores/scummvm_libretro.so",
+      "sha256": "7e7dde9c7216b68fc09f5c86d847ed912c06c2dba721166444764eb57fa57b3d",
+      "bytes": 136131872,
+      "mode": 420
+    },
+    {
+      "path": "cores/snes9x_libretro.so",
+      "sha256": "e8d8f5cf93898c7be3ca2590d4d75dc8e9a89b891589c2da1a7917fa27411d21",
+      "bytes": 2989608,
+      "mode": 420
+    },
+    {
+      "path": "cores/stella_libretro.so",
+      "sha256": "bf2cf27781f9e393079c9a53c71d8676d638025086955498641723a8e121228a",
+      "bytes": 7250712,
+      "mode": 420
+    },
+    {
+      "path": "cores/theodore_libretro.so",
+      "sha256": "2ddb36c0f34fbd84782b2799f28e2e94faff70b62ea0887e1c581b978000b3cc",
+      "bytes": 2286040,
+      "mode": 420
+    },
+    {
+      "path": "cores/tic80_libretro.so",
+      "sha256": "465e54f90ecc581115fbd70cbee9adad9967492cb8c9dfb3390985e67bdc10b0",
+      "bytes": 4341592,
+      "mode": 420
+    },
+    {
+      "path": "cores/uzem_libretro.so",
+      "sha256": "dcac43499b5f0e192951844486a5faa69e96f132c246c2a96ea0e01e19b07c68",
+      "bytes": 159344,
+      "mode": 420
+    },
+    {
+      "path": "cores/vecx_libretro.so",
+      "sha256": "d9d86dadab9098e2c9847ddee10af553a8b883589c7c41107d4806eb45759ec9",
+      "bytes": 207688,
+      "mode": 420
+    },
+    {
+      "path": "cores/vice_x128_libretro.so",
+      "sha256": "1676b8b13ce00884ee3861849bc7755d2f3a5b04b7dc400a2839323ce040280f",
+      "bytes": 3903744,
+      "mode": 420
+    },
+    {
+      "path": "cores/vice_x64_libretro.so",
+      "sha256": "e3bb88342920ed43a18d8b01698bdaa1dc92b7e45a56ac65c33917d4eae9621c",
+      "bytes": 3560544,
+      "mode": 420
+    },
+    {
+      "path": "cores/vice_xpet_libretro.so",
+      "sha256": "8bf51453b95e6f1d8e55eae918c433538388ce4254f29e08f9b314086008075e",
+      "bytes": 2731168,
+      "mode": 420
+    },
+    {
+      "path": "cores/vice_xplus4_libretro.so",
+      "sha256": "1ddcaf46c5e51aeaa419b45d873eec3919a844a7729e92a9eb39d6ad86669646",
+      "bytes": 2850288,
+      "mode": 420
+    },
+    {
+      "path": "cores/vice_xvic_libretro.so",
+      "sha256": "e607670898ed84e1fab13d1f36f2e4c0fd3f87e57ce25e5f99f50a07008a9eca",
+      "bytes": 2867256,
+      "mode": 420
+    },
+    {
+      "path": "cores/vircon32_libretro.so",
+      "sha256": "00d908fb95ff139e2858a259ed5d34411e8439e47deea8af9f88150a15ae0d4b",
+      "bytes": 3944728,
+      "mode": 420
+    },
+    {
+      "path": "cores/virtualjaguar_libretro.so",
+      "sha256": "5443803109eaee66b542929a5c8fd78c63eb99279a036f2eb8001f1632ee7c7d",
+      "bytes": 2375520,
+      "mode": 420
+    },
+    {
+      "path": "cores/wasm4_libretro.so",
+      "sha256": "729878c03aedef094c916039c11ec635a83127540fc03aeeff40e6c440bada81",
+      "bytes": 235352,
+      "mode": 420
+    },
+    {
+      "path": "cores/x1_libretro.so",
+      "sha256": "1aa99d4c136f229f62f2dd8d6b2692ed62d0a96f4b5e8d5a8a4c358234d2f884",
+      "bytes": 522336,
+      "mode": 420
+    },
+    {
+      "path": "cores/yabasanshiro_libretro.so",
+      "sha256": "a22ab8993b30edbd029bd593a353f9db1080546ac577e7f8f0c7b98dbfec714c",
+      "bytes": 1864688,
+      "mode": 420
+    },
+    {
+      "path": "info/81_libretro.info",
+      "sha256": "06036186b108b32901290288cde80b817a22f5a0cd0454da0ce520ad7ab647ec",
+      "bytes": 1395,
+      "mode": 420
+    },
+    {
+      "path": "info/a5200_libretro.info",
+      "sha256": "e707b742d0c12e87483986742e316ea530b2592ce74aaa74f5617267a9abafab",
+      "bytes": 1005,
+      "mode": 420
+    },
+    {
+      "path": "info/amiarcadia_libretro.info",
+      "sha256": "3112656d2916ba1713011ebd988008287aba8bdc4a8c3370e48d5e4447d57bf5",
+      "bytes": 873,
+      "mode": 420
+    },
+    {
+      "path": "info/applewin_libretro.info",
+      "sha256": "bcf72c8e61843457bd92f87de1e553cc6bf7465eeb9d37a2ccc09eb4dae828a4",
+      "bytes": 849,
+      "mode": 420
+    },
+    {
+      "path": "info/arduous_libretro.info",
+      "sha256": "165c3fe582bc71298a34d480124b6abe17baf267a79381c1abcd1565d19ea908",
+      "bytes": 632,
+      "mode": 420
+    },
+    {
+      "path": "info/armsx2_libretro.info",
+      "sha256": "824073a510d0c988c460f21290aaacd35b679bd8d2785f1d061028fd096f3677",
+      "bytes": 2573,
+      "mode": 420
+    },
+    {
+      "path": "info/atari800_libretro.info",
+      "sha256": "4b56fa399760a8c48e6ac8b08ecc2ae2f7163bbfb34f3f08351bc7e092602e5e",
+      "bytes": 2720,
+      "mode": 420
+    },
+    {
+      "path": "info/b2_libretro.info",
+      "sha256": "2c67883d4a7338891cbf5f7fe3a67a89db6db06e22da8d6de8f4431ba7573aa5",
+      "bytes": 3560,
+      "mode": 420
+    },
+    {
+      "path": "info/bk_libretro.info",
+      "sha256": "301db16c021a46f656179fd292e5c4c6424f5bb0e39785ec94235dd2e2b500fd",
+      "bytes": 2699,
+      "mode": 420
+    },
+    {
+      "path": "info/bluemsx_libretro.info",
+      "sha256": "e3840e08ff90f8567beedc9f96ee3597d48ea7a568cfd51aadca20850800257e",
+      "bytes": 2286,
+      "mode": 420
+    },
+    {
+      "path": "info/cap32_libretro.info",
+      "sha256": "7ef5d3ad67d195a5dc87ed62d9edf6732169cbde6da045583cc81a1264aad6fb",
+      "bytes": 1282,
+      "mode": 420
+    },
+    {
+      "path": "info/cemu_libretro.info",
+      "sha256": "08d3893153a02783df31f12a7f39273977fe40a7cfe6d2b320fd25d958be9876",
+      "bytes": 1547,
+      "mode": 420
+    },
+    {
+      "path": "info/citra_libretro.info",
+      "sha256": "c13cc4432cc2ff3347a23710b514bdd312e8123baf6e1f009ade04635eeac896",
+      "bytes": 963,
+      "mode": 420
+    },
+    {
+      "path": "info/dosbox_pure_libretro.info",
+      "sha256": "e59629d975653c3c2a9ec64a112c524efe5aa16b7cf4093c2085222262fb88dd",
+      "bytes": 1236,
+      "mode": 420
+    },
+    {
+      "path": "info/emuscv_libretro.info",
+      "sha256": "7abe849a1d9769225076d32292a3d141fb4f9cb301e23c20d5a1b96e4ea82c53",
+      "bytes": 950,
+      "mode": 420
+    },
+    {
+      "path": "info/ep128emu_core_libretro.info",
+      "sha256": "8f3c82f87d352c353f66ddc0f92bc16a7f5661b8efc335209e3baf881951f995",
+      "bytes": 8069,
+      "mode": 420
+    },
+    {
+      "path": "info/fbneo_libretro.info",
+      "sha256": "c95c3e177d61adf6662af7adf7361d7fefd9cd87ab0773d105a97818767e5815",
+      "bytes": 4156,
+      "mode": 420
+    },
+    {
+      "path": "info/fceumm_libretro.info",
+      "sha256": "eda6fbfdc1fda5ea80c2caed205345b0cbbfa9427acf3626e0cffd6ee5a96721",
+      "bytes": 1871,
+      "mode": 420
+    },
+    {
+      "path": "info/flycast_libretro.info",
+      "sha256": "d32663d9bd4dfcbe8bf84cdf806ac1d7437512c2b5d75287b9a918ebed968898",
+      "bytes": 2236,
+      "mode": 420
+    },
+    {
+      "path": "info/freechaf_libretro.info",
+      "sha256": "d66cf527d20808993234f05b59c410c37ed349f310360ffc5c9dcc0973840e9b",
+      "bytes": 1317,
+      "mode": 420
+    },
+    {
+      "path": "info/freeintv_libretro.info",
+      "sha256": "8a688f4c8aa5048d9086451dd8d33873cef34b4458d5766593d911ffa60eda52",
+      "bytes": 1112,
+      "mode": 420
+    },
+    {
+      "path": "info/fuse_libretro.info",
+      "sha256": "a87806db8485cbb186f3704d33b04fab7bd4a56da6af538a33af315072f59519",
+      "bytes": 1914,
+      "mode": 420
+    },
+    {
+      "path": "info/gambatte_libretro.info",
+      "sha256": "084975942c06a658972890c12a8251fe8d0f6c7ffd2b268850458628bbbe68f4",
+      "bytes": 1322,
+      "mode": 420
+    },
+    {
+      "path": "info/gearcoleco_libretro.info",
+      "sha256": "ebc7293724350790b31ef0245c4e0fe790c5876438a7eb830076e6a16dc80ecf",
+      "bytes": 1942,
+      "mode": 420
+    },
+    {
+      "path": "info/genesis_plus_gx_libretro.info",
+      "sha256": "9793bff8d9e298a7ee0c94c0511dab242200ca60fbe87e3720eb9231a3e0166a",
+      "bytes": 2788,
+      "mode": 420
+    },
+    {
+      "path": "info/gw_libretro.info",
+      "sha256": "d3b7f032de94344fc07f368aa6f1686ca8abd5c6acb25dba7449105e8127c5f8",
+      "bytes": 862,
+      "mode": 420
+    },
+    {
+      "path": "info/handy_libretro.info",
+      "sha256": "a059661e377deb24ede5a77c725fbbdd4829666d0996f30bb9c2c9a10ee0461d",
+      "bytes": 1299,
+      "mode": 420
+    },
+    {
+      "path": "info/hatari_libretro.info",
+      "sha256": "0b7989b23dd997000c341a0b1cee7baa7746ae318053537ef4c28a1aa05b4bee",
+      "bytes": 1286,
+      "mode": 420
+    },
+    {
+      "path": "info/lowresnx_libretro.info",
+      "sha256": "3e6b2bf33038acb57158183eb030ac069ce95febc65bc61b79d1305273ad8d7a",
+      "bytes": 1233,
+      "mode": 420
+    },
+    {
+      "path": "info/mame_libretro.info",
+      "sha256": "c3a2f1e0d816debfd06e76d427c46fccbce6a7d5fd9b0199754f046348e55509",
+      "bytes": 1852,
+      "mode": 420
+    },
+    {
+      "path": "info/mednafen_ngp_libretro.info",
+      "sha256": "1e7485277cffaf01ae4c4c5406a7dfc6f85f4d2a6949273feae5634781ec396b",
+      "bytes": 788,
+      "mode": 420
+    },
+    {
+      "path": "info/mednafen_pce_fast_libretro.info",
+      "sha256": "b75e4f64518d4161bef48068f6d4be24c4ea0f478431b749b490251430d8ec35",
+      "bytes": 1772,
+      "mode": 420
+    },
+    {
+      "path": "info/mednafen_pcfx_libretro.info",
+      "sha256": "d352e83266f1d965e1b0fcb190dc3300158f419985b8d77374a2994d00f38f19",
+      "bytes": 700,
+      "mode": 420
+    },
+    {
+      "path": "info/mednafen_supergrafx_libretro.info",
+      "sha256": "ab7f73bbfe0f8c94413f1db6981ec51c82f772f8278cd4564c839124c2a3411c",
+      "bytes": 1921,
+      "mode": 420
+    },
+    {
+      "path": "info/mednafen_vb_libretro.info",
+      "sha256": "425e0ef983f72b7e938af8cc170d2ddc1cb6b0a19a98aa4fce49bb2957567236",
+      "bytes": 645,
+      "mode": 420
+    },
+    {
+      "path": "info/mednafen_wswan_libretro.info",
+      "sha256": "07f595bdc27cf7ee145091ae226b2dc37eeefa499ef9720b64d5384e54ac5ac1",
+      "bytes": 627,
+      "mode": 420
+    },
+    {
+      "path": "info/mgba_libretro.info",
+      "sha256": "64444beb8268d3a57d53a45564c55049f39ff621315401fef86e82f3849042d6",
+      "bytes": 1794,
+      "mode": 420
+    },
+    {
+      "path": "info/minivmac_libretro.info",
+      "sha256": "347a45c17caa9fb913ecd841d7506e7f6bb6f7ddc75a4789c2bb0051211ddc42",
+      "bytes": 794,
+      "mode": 420
+    },
+    {
+      "path": "info/neocd_libretro.info",
+      "sha256": "6ea290bc3814131091c08eec089386492264fc3aaa3f678b7b130874cac0cc37",
+      "bytes": 3123,
+      "mode": 420
+    },
+    {
+      "path": "info/np2kai_libretro.info",
+      "sha256": "b68e1c4aa673840f6bb8f6c29838430d2c5af15b7fb7315deb5a36a5945b490e",
+      "bytes": 2575,
+      "mode": 420
+    },
+    {
+      "path": "info/o2em_libretro.info",
+      "sha256": "d8cbfb38f736448d16817a4b2f17d61843e43c1b8bf64fae228a9d9e95e48378",
+      "bytes": 1387,
+      "mode": 420
+    },
+    {
+      "path": "info/opera_libretro.info",
+      "sha256": "3edce84cd4bd8afba0727a07a70fef7ccc44e7db7e1e0f00897ed6805087d94f",
+      "bytes": 3550,
+      "mode": 420
+    },
+    {
+      "path": "info/parallel_n64_libretro.info",
+      "sha256": "f32a557f5e4aa3327e182dc6ffcceebd35ea07f60b04874d29a96c638dbdddad",
+      "bytes": 1638,
+      "mode": 420
+    },
+    {
+      "path": "info/pcsx_rearmed_libretro.info",
+      "sha256": "83e98e7b7068b99330db52741a369f217ebadcdbd1eb182a5a435c76ab6ae704",
+      "bytes": 1876,
+      "mode": 420
+    },
+    {
+      "path": "info/picodrive_libretro.info",
+      "sha256": "35cef57b4b61d95a86e1ceee3a7c325d9d16bbdc136b4b3a556e808864de06c5",
+      "bytes": 1892,
+      "mode": 420
+    },
+    {
+      "path": "info/pokemini_libretro.info",
+      "sha256": "514da066db31dd673aabf9c0e54b1b24e485775615217a02ac7de635d621b8b2",
+      "bytes": 1045,
+      "mode": 420
+    },
+    {
+      "path": "info/potator_libretro.info",
+      "sha256": "1e7155841e4dcdb7feef31018432d2e259cbfd2b349add6d4731165cee8ede1a",
+      "bytes": 497,
+      "mode": 420
+    },
+    {
+      "path": "info/ppsspp_libretro.info",
+      "sha256": "2e9becab17d0db4222e9655bb9b065167e5bcf599ca16256be72beb8f38e646d",
+      "bytes": 1793,
+      "mode": 420
+    },
+    {
+      "path": "info/prosystem_libretro.info",
+      "sha256": "22e9bc148612082f41147b4de167bb7ade705ec5f4642b8b70c0eb9ad1971681",
+      "bytes": 1021,
+      "mode": 420
+    },
+    {
+      "path": "info/puae_libretro.info",
+      "sha256": "fc400817a4e304fe2721b9c7fbe3b4a0dfe7d9429366938abe48946aa56b43a3",
+      "bytes": 3695,
+      "mode": 420
+    },
+    {
+      "path": "info/px68k_libretro.info",
+      "sha256": "9b4aae3ac3721bdcc11394a9a855a3fee1a7de787cee935aa568057c2684c915",
+      "bytes": 1435,
+      "mode": 420
+    },
+    {
+      "path": "info/quasi88_libretro.info",
+      "sha256": "ec33106f058bcdc95ac93226c9b11d164d4e1cadf0c731e73eabd2380c50104a",
+      "bytes": 3915,
+      "mode": 420
+    },
+    {
+      "path": "info/retro8_libretro.info",
+      "sha256": "d84decc90209dc6a38aaab6ca754cd659f9d037ceb9978ffb8aef337e2c8a895",
+      "bytes": 749,
+      "mode": 420
+    },
+    {
+      "path": "info/same_cdi_libretro.info",
+      "sha256": "ee928ed46d44e2415eb2cc61f83fa9376d6230377e7583d08100b233e5a9b060",
+      "bytes": 1293,
+      "mode": 420
+    },
+    {
+      "path": "info/sameduck_libretro.info",
+      "sha256": "1b0844ec4fbbcc595ada875c7f1e80de467d8e0b2713119f6e41ec8bd5b4fd29",
+      "bytes": 599,
+      "mode": 420
+    },
+    {
+      "path": "info/scummvm_libretro.info",
+      "sha256": "dfd544230a99cda60eb907b93b3387419b5b1eda9c582beba2120b0c29f8899c",
+      "bytes": 5118,
+      "mode": 420
+    },
+    {
+      "path": "info/snes9x_libretro.info",
+      "sha256": "fa62b78d58bc4c30f4e0a4a581f0cb3252447b7f198b55bd6ebe2e4b9bde5cc2",
+      "bytes": 1806,
+      "mode": 420
+    },
+    {
+      "path": "info/stella_libretro.info",
+      "sha256": "ad01fae0d3c0b620a97fe84c5879ee96d241024f58f3d609cabb98eef6f67a35",
+      "bytes": 1084,
+      "mode": 420
+    },
+    {
+      "path": "info/theodore_libretro.info",
+      "sha256": "1e335df620e8e9eeca8365fc8a892b9a73571c9a1fb348e71ea5b73fe7152188",
+      "bytes": 1237,
+      "mode": 420
+    },
+    {
+      "path": "info/tic80_libretro.info",
+      "sha256": "f8a1cf3a7e35e834abbc8b51cefcaa9e0753289300363665ea56d3768e2cfdf8",
+      "bytes": 833,
+      "mode": 420
+    },
+    {
+      "path": "info/uzem_libretro.info",
+      "sha256": "ad1e429e11e0084b5844493f72fbb0164c570b333c9707ccb91faef415a998cc",
+      "bytes": 770,
+      "mode": 420
+    },
+    {
+      "path": "info/vecx_libretro.info",
+      "sha256": "9eec259b2b84256aca32cdcd37b084732b17d2fce829dac01bab9a84ea01b4e3",
+      "bytes": 1148,
+      "mode": 420
+    },
+    {
+      "path": "info/vice_x128_libretro.info",
+      "sha256": "4437aa06d31462f58fcc9d4702e3b1760d3e01501a292a665ea932d567c80f06",
+      "bytes": 2157,
+      "mode": 420
+    },
+    {
+      "path": "info/vice_x64_libretro.info",
+      "sha256": "5b3f59e050c260e53d29e4a13a3983e9b77e77b7b3b4512dded8e313d756b168",
+      "bytes": 2211,
+      "mode": 420
+    },
+    {
+      "path": "info/vice_xpet_libretro.info",
+      "sha256": "38da60f07b51374dc997101f0423d050d58a9a130ee61708febac0c9debf4e0f",
+      "bytes": 1251,
+      "mode": 420
+    },
+    {
+      "path": "info/vice_xplus4_libretro.info",
+      "sha256": "759a836bcdd2ae1bcb33404c4dbe9eeab6feceb48d1b3337f0a307ecdce4b597",
+      "bytes": 1312,
+      "mode": 420
+    },
+    {
+      "path": "info/vice_xvic_libretro.info",
+      "sha256": "98e64ee0e0400726cbc0e35bbea7df4107ee51fd4602de58c1c7b0d6a3a5fce4",
+      "bytes": 1054,
+      "mode": 420
+    },
+    {
+      "path": "info/vircon32_libretro.info",
+      "sha256": "a1db6e87791e4629dcb5fa25d70f9ae35c5f3029aca03e132f6e7bbc3a302c57",
+      "bytes": 1103,
+      "mode": 420
+    },
+    {
+      "path": "info/virtualjaguar_libretro.info",
+      "sha256": "c6338c31a4d72706a110e89a94686254a08718479735ad5df156059a1144500a",
+      "bytes": 3647,
+      "mode": 420
+    },
+    {
+      "path": "info/wasm4_libretro.info",
+      "sha256": "e6e069d1259c2362da7b1e8b52a7dcd0532f420e34f193fa8257a45a6ebfd5fb",
+      "bytes": 960,
+      "mode": 420
+    },
+    {
+      "path": "info/x1_libretro.info",
+      "sha256": "487597e95f31a81eb9ac36bdd500eca17ab78c1f4649f824d14e86646d27d57d",
+      "bytes": 1021,
+      "mode": 420
+    },
+    {
+      "path": "info/yabasanshiro_libretro.info",
+      "sha256": "13d82a10c642d03ada31e798e1d6a232775292ceacfde281d0a3d0fbd8efc5ba",
+      "bytes": 1528,
+      "mode": 420
+    }
+  ],
+  "archive": {
+    "bytes": 298793086,
+    "sha256": "7193bb644ecc3403b6a2e81b394b5b98326adc42baee4dc1fb4f7cd41e5c561b"
+  },
+  "metadata": {
+    "replacedCores": [
+      "virtualjaguar"
+    ],
+    "candidateSha256": "9b7882ac52a54869b817f5e7b85ceb9c77583dbdb82de90f4d8cbe1a92758033",
+    "gameplayAcceptance": "bounded native smoke only; see release evidence"
+  },
+  "redistributionReviewed": false,
+  "installed": false
+}

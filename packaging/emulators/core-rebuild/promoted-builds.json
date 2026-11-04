@@ -670,6 +670,61 @@
       "artifact": "x1_libretro.so",
       "dynamic": "\nDynamic section at offset 0x6fa20 contains 27 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libmvec.so.1]\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x9af8\n 0x000000000000000d (FINI)               0x32a3c\n 0x0000000000000019 (INIT_ARRAY)         0x6cf20\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x6cf28\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0x968\n 0x0000000000000006 (SYMTAB)             0x2d8\n 0x000000000000000a (STRSZ)              1057 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x6ffe8\n 0x0000000000000002 (PLTRELSZ)           816 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x97c8\n 0x0000000000000007 (RELA)               0xe88\n 0x0000000000000008 (RELASZ)             35136 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x0000000070000005 (AARCH64_VARIANT_PCS) 0x0\n 0x000000006ffffffe (VERNEED)            0xe18\n 0x000000006fffffff (VERNEEDNUM)         3\n 0x000000006ffffff0 (VERSYM)             0xd8a\n 0x000000006ffffff9 (RELACOUNT)          1454\n 0x0000000000000000 (NULL)               0x0\n",
       "name": "x1_libretro.so"
+    },
+    {
+      "core": "virtualjaguar",
+      "sourceId": "core-virtualjaguar",
+      "buildSystem": "make",
+      "commit": "f9a3c89f58836cb2c45a42ad4edfac047050f30a",
+      "sourceSha256": "4235d65704dd8f3ad14a68e1a82ec1d626829a7501623b6680c5d27914136869",
+      "previousBinary": {
+        "bytes": 2575416,
+        "sha256": "7ef3c2344e130ff69ab7c0f2c717e9aa5be47ad212840db4875d0a8c21dc997b"
+      },
+      "installed": false,
+      "runtimeAccepted": false,
+      "commands": [
+        [
+          "git",
+          "-C",
+          "/work/attempts/jaguar02/virtualjaguar/core-virtualjaguar",
+          "apply",
+          "--check",
+          "/work/patches/virtualjaguar-source-identity.patch"
+        ],
+        [
+          "git",
+          "-C",
+          "/work/attempts/jaguar02/virtualjaguar/core-virtualjaguar",
+          "apply",
+          "/work/patches/virtualjaguar-source-identity.patch"
+        ],
+        [
+          "make",
+          "-C",
+          "/work/attempts/jaguar02/virtualjaguar/core-virtualjaguar",
+          "-f",
+          "Makefile",
+          "-j2",
+          "platform=arm64",
+          "CC=aarch64-linux-gnu-gcc",
+          "CXX=aarch64-linux-gnu-g++",
+          "AR=aarch64-linux-gnu-ar",
+          "STRIP=aarch64-linux-gnu-strip"
+        ]
+      ],
+      "patches": [
+        {
+          "file": "patches/virtualjaguar-source-identity.patch",
+          "sha256": "070121daf68de52217e00a2b1b0bf295470dcb311cb40665e1ee7b02053f9a6b"
+        }
+      ],
+      "status": "built",
+      "bytes": 2375520,
+      "sha256": "5443803109eaee66b542929a5c8fd78c63eb99279a036f2eb8001f1632ee7c7d",
+      "artifact": "virtualjaguar_libretro.so",
+      "dynamic": "\nDynamic section at offset 0x19fde0 contains 25 entries:\n  Tag        Type                         Name/Value\n 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]\n 0x0000000000000001 (NEEDED)             Shared library: [ld-linux-aarch64.so.1]\n 0x000000000000000c (INIT)               0x23ca8\n 0x000000000000000d (FINI)               0xdad20\n 0x0000000000000019 (INIT_ARRAY)         0x1a1650\n 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)\n 0x000000000000001a (FINI_ARRAY)         0x1a1658\n 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)\n 0x000000006ffffef5 (GNU_HASH)           0x1f0\n 0x0000000000000005 (STRTAB)             0xdf0\n 0x0000000000000006 (SYMTAB)             0x2c8\n 0x000000000000000a (STRSZ)              1395 (bytes)\n 0x000000000000000b (SYMENT)             24 (bytes)\n 0x0000000000000003 (PLTGOT)             0x1affe8\n 0x0000000000000002 (PLTRELSZ)           2088 (bytes)\n 0x0000000000000014 (PLTREL)             RELA\n 0x0000000000000017 (JMPREL)             0x23480\n 0x0000000000000007 (RELA)               0x14a8\n 0x0000000000000008 (RELASZ)             139224 (bytes)\n 0x0000000000000009 (RELAENT)            24 (bytes)\n 0x000000006ffffffe (VERNEED)            0x1458\n 0x000000006fffffff (VERNEEDNUM)         2\n 0x000000006ffffff0 (VERSYM)             0x1364\n 0x000000006ffffff9 (RELACOUNT)          5795\n 0x0000000000000000 (NULL)               0x0\n",
+      "name": "virtualjaguar_libretro.so"
     }
   ]
 }

@@ -1,0 +1,19 @@
+{
+  "changedCores": [
+    "cores/virtualjaguar_libretro.so"
+  ],
+  "unchangedCores": 75,
+  "unchangedInfoFiles": 72,
+  "previousBuildRecordsRetained": 18,
+  "currentBuildRecords": 19,
+  "previousSourceKitRetained": true,
+  "mediaChangedPaths": [
+    "runtimes/retroarch-cores/component.json",
+    "runtimes/retroarch-cores/component.tar.gz",
+    "sources/core-promoted-builds.json",
+    "sources/core-rebuild-9b7882ac52a54869b817f5e7b85ceb9c77583dbdb82de90f4d8cbe1a92758033.tar",
+    "sources/core-source-bindings.json",
+    "sources/corresponding-source-app.tar.gz"
+  ],
+  "removedMediaPaths": []
+}

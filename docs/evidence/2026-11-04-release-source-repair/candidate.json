@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "kind": "core-rebuild-candidate-only",
+  "coreCount": 1,
+  "installed": false,
+  "gameplayAccepted": false,
+  "redistributionReviewed": false,
+  "files": [
+    {
+      "path": "abi-probes.json",
+      "bytes": 636,
+      "sha256": "5ca555f335e409583ccf7925d92dfe41ee7cd35e79638019b0a0b3dbfecb20e0"
+    },
+    {
+      "path": "build-logs/virtualjaguar.log",
+      "bytes": 70396,
+      "sha256": "9704cf79a6cb0e373bc8bd5e15ad6098293dafa233f0ca6244d77b3ec7e4da73"
+    },
+    {
+      "path": "build-records/jaguar01.json",
+      "bytes": 1214,
+      "sha256": "24f95606e1dd960071d5d892a23798644324cf728d922d60d6dee7a91ed64836"
+    },
+    {
+      "path": "build-records/jaguar02.json",
+      "bytes": 3170,
+      "sha256": "4885ef4cec654b8af966409a7734af11722e9ab5e7e7664d648907c29bf40f0b"
+    },
+    {
+      "path": "candidates.json",
+      "bytes": 1229,
+      "sha256": "7d8867f1e9d20cc6582248e4ff758de953d7566b9e9d49021464ebb71a65dca2"
+    },
+    {
+      "path": "cores/virtualjaguar_libretro.so",
+      "bytes": 2375520,
+      "sha256": "5443803109eaee66b542929a5c8fd78c63eb99279a036f2eb8001f1632ee7c7d"
+    },
+    {
+      "path": "patches/virtualjaguar-source-identity.patch",
+      "bytes": 459,
+      "sha256": "070121daf68de52217e00a2b1b0bf295470dcb311cb40665e1ee7b02053f9a6b"
+    },
+    {
+      "path": "recipes/Dockerfile",
+      "bytes": 1763,
+      "sha256": "623bf0fa8bac9c6bb8dd2b550840ad29d575f0105151126cc612d7bfe6f5c441"
+    },
+    {
+      "path": "recipes/aarch64.cmake",
+      "bytes": 390,
+      "sha256": "f6463425ed331470c1483ee7e8b168e88130a2fd645219d06b99a992cbde05f6"
+    },
+    {
+      "path": "recipes/build.py",
+      "bytes": 7437,
+      "sha256": "2e686fff0e08551479787efefbcbbefae83eda427a3e8d0b4bda0c3ab08512ec"
+    },
+    {
+      "path": "recipes/jaguar-candidate.json",
+      "bytes": 1229,
+      "sha256": "7d8867f1e9d20cc6582248e4ff758de953d7566b9e9d49021464ebb71a65dca2"
+    },
+    {
+      "path": "recipes/package.py",
+      "bytes": 7341,
+      "sha256": "5f85f801ee22854719205314294b408e5f81325bee0ed227d4468d6785297eb6"
+    },
+    {
+      "path": "recipes/patches/virtualjaguar-source-identity.patch",
+      "bytes": 459,
+      "sha256": "070121daf68de52217e00a2b1b0bf295470dcb311cb40665e1ee7b02053f9a6b"
+    },
+    {
+      "path": "recipes/probe.c",
+      "bytes": 2254,
+      "sha256": "0ba64ee922b9b1108eeedbe8db6970a0c25bfa5d5676712046005b45e4e3bcf7"
+    },
+    {
+      "path": "recipes/probe.py",
+      "bytes": 2131,
+      "sha256": "8465472c422dc4a434d6dc80ce6e9deff1421a63e128b1829383f37f3ae33fa4"
+    },
+    {
+      "path": "selection.json",
+      "bytes": 30,
+      "sha256": "7bb9c4cdaf863bcf29da3e57338dc88ef90d327eef8e975a6f92c55dec3301b7"
+    },
+    {
+      "path": "sources/core-virtualjaguar-f9a3c89f58836cb2c45a42ad4edfac047050f30a.tar.gz",
+      "bytes": 7827452,
+      "sha256": "4235d65704dd8f3ad14a68e1a82ec1d626829a7501623b6680c5d27914136869"
+    },
+    {
+      "path": "sources/core-virtualjaguar.json",
+      "bytes": 858,
+      "sha256": "6378a719c90c492861e57060767190d0627607e87524b8d360a8abdb94774c00"
+    },
+    {
+      "path": "toolchain-packages-attempt03.tsv",
+      "bytes": 14881,
+      "sha256": "c520076e3e1a70782fc9fd258d32a04b5043b1b49b31a64b121ced31b870e5a5"
+    },
+    {
+      "path": "toolchains.json",
+      "bytes": 1265,
+      "sha256": "c6a7970a0e43b004be8a044140acb720ce21da58bdf9592666fb736b34de8b06"
+    }
+  ],
+  "file": "TrainerOS-Jaguar-Rebuild-CANDIDATE.tar",
+  "bytes": 10342400,
+  "sha256": "9b7882ac52a54869b817f5e7b85ceb9c77583dbdb82de90f4d8cbe1a92758033",
+  "allEntriesReadBack": true
+}

@@ -19,6 +19,8 @@ assets/avatar/**/*.bin export-ignore
 docs/evidence/2026-11-03-release-delivery/*.json text eol=lf
 docs/evidence/2026-11-03-release-delivery/*.log text eol=lf
 packaging/emulators/core-source-bindings.json text eol=lf
+packaging/emulators/core-rebuild/promoted-builds.json text eol=lf
+docs/evidence/2026-11-04-release-source-repair/*.json text eol=lf
 docs/evidence/2026-11-03-core-sources/*.json text eol=lf
 docs/evidence/2026-11-03-core-sources/*.log text eol=lf
 docs/evidence/2026-11-04-core-native/*.json text eol=lf

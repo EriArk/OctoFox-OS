@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "stage": "candidate-only",
+  "installedRuntimeChanged": false,
+  "selection": "Replace the retained dirty binary with a documented build of its known upstream base; the old unknown diff is not inferred.",
+  "cores": [
+    {
+      "core": "virtualjaguar",
+      "repository": "https://github.com/libretro/virtualjaguar-libretro.git",
+      "commit": "f9a3c89f58836cb2c45a42ad4edfac047050f30a",
+      "sourceId": "core-virtualjaguar",
+      "previousBinary": {
+        "bytes": 2575416,
+        "sha256": "7ef3c2344e130ff69ab7c0f2c717e9aa5be47ad212840db4875d0a8c21dc997b"
+      },
+      "directory": ".",
+      "buildSystem": "make",
+      "makefile": "Makefile",
+      "arguments": [
+        "platform=arm64",
+        "CC=aarch64-linux-gnu-gcc",
+        "CXX=aarch64-linux-gnu-g++",
+        "AR=aarch64-linux-gnu-ar",
+        "STRIP=aarch64-linux-gnu-strip"
+      ],
+      "artifact": "virtualjaguar_libretro.so",
+      "sourceCorrespondsToPreviousBinary": false,
+      "patches": [
+        {
+          "file": "patches/virtualjaguar-source-identity.patch",
+          "sha256": "070121daf68de52217e00a2b1b0bf295470dcb311cb40665e1ee7b02053f9a6b"
+        }
+      ]
+    }
+  ]
+}

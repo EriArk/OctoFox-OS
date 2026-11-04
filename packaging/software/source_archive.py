@@ -32,7 +32,7 @@ def safe_name(name):
 def check(archive, revision):
     """Reject wrong revisions and loose third-party geometry before publication."""
     if not re.fullmatch('[0-9a-f]{40}', revision): raise ValueError('Exact source revision required')
-    with tarfile.open(archive) as source:
+    with (tarfile.open(fileobj=archive) if hasattr(archive, 'read') else tarfile.open(archive)) as source:
         if source.pax_headers.get('comment') != revision: raise ValueError('Source archive revision differs from Software')
         seen = set()
         for member in source:

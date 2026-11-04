@@ -1,0 +1,13 @@
+--- a/scripts/build-id.sh
++++ b/scripts/build-id.sh
+@@ -42,6 +42,10 @@
+ fi
+ 
+ REV=$(cd "$ROOT" && git rev-parse --short HEAD 2>/dev/null || echo unknown)
++# TrainerOS capsule fallback, pinned to this upstream revision by the recipe.
++if [ "$REV" = "unknown" ]; then
++  REV=f9a3c89
++fi
+ if [ "$REV" != "unknown" ]; then
+   # Name filtering rather than an ':(exclude)' pathspec: it needs no
+   # pathspec-magic support, and a malformed entry can only ever fail

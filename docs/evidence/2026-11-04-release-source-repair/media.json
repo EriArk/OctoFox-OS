@@ -1,0 +1,15 @@
+{
+  "file": "TrainerOS-Core-Runtimes-14-CANDIDATE.tar",
+  "bytes": 2918727680,
+  "sha256": "abd2f0d02539741d8d5d8392bd7a0ac28a7ed914849b6784c7c62a810fca168f",
+  "changedPaths": [
+    "sources/corresponding-source-app.tar.gz"
+  ],
+  "source": {
+    "source": "2a6c9c9b00b58e914525bd779c76896c8fcf5006",
+    "entries": 3370,
+    "separateAvatarGeometry": false
+  },
+  "published": false,
+  "runtimeArtRedistributionReviewed": false
+}

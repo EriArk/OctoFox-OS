@@ -1,12 +1,14 @@
 # Глобальный план снят
 
-**4 ноября, доставка завершена:** [18 новых cores в sequence 13 / Setup](evidence/2026-11-04-core-promotion/README.md)
-установлены через GUI на Flip; аудиты, сохранность, установленный PCE и возврат
-Home проверены. Source inputs собраны для 76/76 нового набора. Следующий результат:
-оставшиеся build/source dependencies и notices (включая VirtualJaguar dirty diff),
-упаковка моделей, финальный публичный комплект и GitHub/OTA. Полный каталог игр и
-все сетевые режимы не становятся gate альфы. Ниже — прежние этапы; очередь native
-smoke/упаковки замен уже выполнена, повторять её не нужно.
+**4 ноября, текущий этап:** [VirtualJaguar и вложенные исходники](evidence/2026-11-04-release-source-repair/README.md)
+доставлены в sequence 14 через GUI на Flip; 76 core hashes и 31 личный файл
+сверены, предыдущий набор сохранён, Home работает. Новый Jaguar имеет точные
+исходники/patch и native state smoke; runtime сохраняет предыдущие 18 build/source
+kits. Обе копии application source очищены от отдельных моделей. Далее:
+incorporated avatar pack/cache и совместимость reader/SDK, внешние build/source
+зависимости и notices, затем финальный публичный комплект и GitHub/OTA.
+Полный каталог игр и все сетевые режимы не становятся gate альфы. Старый
+VirtualJaguar dirty diff не восстановлен: вместо него установлена новая сборка.
 
 ## Текущий выбор владельца — пре-бета и отдельная сессия, 3 ноября 2026
 

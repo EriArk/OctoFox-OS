@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "method": "private RetroArch 1.22.2 native ARM64, headless null video/audio, 600 frames; no physical input or multiplayer proof",
+  "installed": false,
+  "cases": [
+    {
+      "id": "pattern-fill",
+      "core": "virtualjaguar",
+      "kind": "upstream-test-rom",
+      "content": "<isolated-test>/pattern_fill.jag",
+      "contentSha256": "848340fbff5c69ba47cf4cb66c7c022b63e614d8462842de53711b9345ff133d",
+      "coreSha256": "7ef3c2344e130ff69ab7c0f2c717e9aa5be47ad212840db4875d0a8c21dc997b",
+      "firmwareCopied": [],
+      "firmwareMissing": [
+        "[BIOS] Atari Jaguar CD (World).j64",
+        "[BIOS] Atari Jaguar Developer CD (World).j64",
+        "jagboot_m.rom",
+        "jagboot.rom"
+      ],
+      "first": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.551,
+        "logSha256": "c97c45ed97961c536c04626d24dd864a40e29ab4fa288ad1184c0dc73fcc2f46",
+        "geometry": "[INFO] [Core] Geometry: 320x240, Aspect: 1.333, FPS: 60.05, Sample rate: 48043.56 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": false,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      },
+      "states": [
+        {
+          "file": "states/Virtual Jaguar/pattern_fill.state.auto",
+          "bytes": 2621464,
+          "sha256": "7e219c40248cbd1a94fd00fd1e25f596affc541e185d0b2b6d14809b34682b15"
+        }
+      ],
+      "replacementSha256": "5443803109eaee66b542929a5c8fd78c63eb99279a036f2eb8001f1632ee7c7d",
+      "restore": {
+        "exitCode": 0,
+        "elapsedSeconds": 0.723,
+        "logSha256": "13ec8f6eda43e5a8288b53d23833dd3998d6a890f2932a49e02624b0dfc38915",
+        "geometry": "[INFO] [Core] Geometry: 320x240, Aspect: 1.333, FPS: 60.05, Sample rate: 48043.56 Hz.",
+        "autoStateSaved": true,
+        "autoStateLoaded": true,
+        "errors": [
+          "[ERROR] failed_to_start_audio_driver",
+          "[ERROR] failed_to_start_audio_driver"
+        ]
+      }
+    }
+  ],
+  "personalConfigsUnchanged": true
+}

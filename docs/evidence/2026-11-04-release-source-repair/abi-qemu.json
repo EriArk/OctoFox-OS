@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "method": "QEMU ARM64 dlopen RTLD_NOW + 25 libretro symbols + API/system_info only",
+  "cores": [
+    {
+      "file": "virtualjaguar_libretro.so",
+      "sha256": "5443803109eaee66b542929a5c8fd78c63eb99279a036f2eb8001f1632ee7c7d",
+      "bytes": 2375520,
+      "gameplayAccepted": false,
+      "deviceAccepted": false,
+      "exitCode": 0,
+      "status": "abi-loaded",
+      "info": {
+        "api": 1,
+        "name": "Virtual Jaguar",
+        "version": "v3.6.1 f9a3c89",
+        "extensions": "j64|jag|rom|abs|cof|bin|prg|cue|cdi|chd",
+        "fullpath": false,
+        "blockExtract": false
+      }
+    }
+  ]
+}

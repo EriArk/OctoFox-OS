@@ -2,8 +2,8 @@
   "schema": 1,
   "component": "retroarch-cores",
   "archive": {
-    "bytes": 298881746,
-    "sha256": "6c56d51e1d50d3fd36789839aadde42ff8760762152e52931faa1d1d90bcc732"
+    "bytes": 298793086,
+    "sha256": "7193bb644ecc3403b6a2e81b394b5b98326adc42baee4dc1fb4f7cd41e5c561b"
   },
   "recipeReference": {
     "source": {
@@ -1345,20 +1345,25 @@
     },
     {
       "path": "cores/virtualjaguar_libretro.so",
-      "bytes": 2575416,
-      "sha256": "7ef3c2344e130ff69ab7c0f2c717e9aa5be47ad212840db4875d0a8c21dc997b",
+      "bytes": 2375520,
+      "sha256": "5443803109eaee66b542929a5c8fd78c63eb99279a036f2eb8001f1632ee7c7d",
       "source": {
         "id": "core-virtualjaguar",
         "repository": "https://github.com/libretro/virtualjaguar-libretro.git",
         "commit": "f9a3c89f58836cb2c45a42ad4edfac047050f30a"
       },
       "identity": {
-        "kind": "embedded-marker",
-        "marker": "v3.6.1 f9a3c89-dirty",
-        "abbreviation": "f9a3c89",
-        "dirty": true
+        "kind": "retained-build-record",
+        "record": "packaging/emulators/core-rebuild/promoted-builds.json"
       },
-      "localMaterials": []
+      "localMaterials": [
+        "packaging/emulators/core-rebuild/promoted-builds.json",
+        "packaging/emulators/core-rebuild/README.md",
+        "packaging/emulators/core-rebuild/build.py",
+        "packaging/emulators/core-rebuild/Dockerfile",
+        "packaging/emulators/core-rebuild/aarch64.cmake",
+        "packaging/emulators/core-rebuild/patches/virtualjaguar-source-identity.patch"
+      ]
     },
     {
       "path": "cores/wasm4_libretro.so",
