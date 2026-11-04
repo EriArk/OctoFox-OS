@@ -1,0 +1,17 @@
+{
+  "source": "7fb9b0ec55df06ccb699a487adcee29227fd00cc",
+  "softwareSequence": 8,
+  "runtimeSequence": 15,
+  "activationVerified": false,
+  "installedVisualChecks": false,
+  "lastObservedPhase": "Preparing offline Python: melonds-netplay",
+  "lastObservedActiveSoftwareSequence": 7,
+  "lastObservedActiveRuntimeSequence": 14,
+  "lastObservedRuntimePending": false,
+  "lastObservedSetupPending": false,
+  "originalPersonalBaselineFiles": 31,
+  "retryBaselineMatched": true,
+  "sshFailure": "Session channel timeout, then key exchange/banner timeouts from two owner machines",
+  "physicalDeviceStatusRequested": true,
+  "published": false
+}

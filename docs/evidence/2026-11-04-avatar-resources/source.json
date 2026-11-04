@@ -1,0 +1,9 @@
+{
+  "source": "7fb9b0ec55df06ccb699a487adcee29227fd00cc",
+  "file": "TrainerOS-7fb9b0ec-software-source.tar.gz",
+  "bytes": 344779706,
+  "sha256": "b7df4e1e44712777cc595a81890ef7b7a5bd8bfaf3fae6dc4dda6e5eda2284a9",
+  "includedFiles": 3588,
+  "omittedGeometryFiles": 0,
+  "runtimeArtRedistributionReviewed": false
+}

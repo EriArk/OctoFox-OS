@@ -1,0 +1,104 @@
+Start testing: Nov 04 00:51 UTC
+----------------------------------------------------------
+14/124 Testing: avatar
+14/124 Test: avatar
+Command: "/work/build/trainer_avatar_tests"
+Directory: /work/build
+"avatar" start time: Nov 04 00:51 UTC
+Output:
+----------------------------------------------------------
+********* Start testing of AvatarTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (arm64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : AvatarTests::initTestCase()
+PASS   : AvatarTests::incorporatedResourceRejectsDamageAndBounds()
+PASS   : AvatarTests::packedAssetsPreserveRecipesAndGeometryAndRepairCache()
+PASS   : AvatarTests::facialLinesDarkenWithSkinWithoutChangingOtherMaterialsOrGeometry()
+PASS   : AvatarTests::starterCollectionsAndReversibleCoverage()
+PASS   : AvatarTests::shoePalettePreservesLegacyAndAppliesIvory()
+PASS   : AvatarTests::wardrobeAutosaveAndOfflineSlots()
+PASS   : AvatarTests::wardrobeCompatibilityAndRig()
+PASS   : AvatarTests::savedLookAppliesWholeAppearanceAndPreservesTrainer()
+PASS   : AvatarTests::schema()
+PASS   : AvatarTests::approvedVariants()
+PASS   : AvatarTests::editingIsolation()
+PASS   : AvatarTests::externalPackAndResolvedGlb()
+PASS   : AvatarTests::cleanupTestCase()
+Totals: 14 passed, 0 failed, 0 skipped, 0 blacklisted, 250550ms
+********* Finished testing of AvatarTests *********
+<end of output>
+Test time = 250.88 sec
+----------------------------------------------------------
+Test Passed.
+"avatar" end time: Nov 04 00:55 UTC
+"avatar" time elapsed: 00:04:10
+----------------------------------------------------------
+
+15/124 Testing: platform_sdk
+15/124 Test: platform_sdk
+Command: "/work/build/trainer_platform_tests"
+Directory: /work/build
+"platform_sdk" start time: Nov 04 00:55 UTC
+Output:
+----------------------------------------------------------
+********* Start testing of PlatformHostTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (arm64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : PlatformHostTests::initTestCase()
+PASS   : PlatformHostTests::legacyAvatarIsTransientAndRemovedOnRevocation()
+PASS   : PlatformHostTests::homeOnlyAppsCannotPopulateStartAndOtherAppsRemainAvailable()
+PASS   : PlatformHostTests::installedHomeSelectionRequiresBoundCapabilityAndCurrentProfile()
+PASS   : PlatformHostTests::backendGameFacadeUsesRealSdkSocketAndHidesCredentials()
+PASS   : PlatformHostTests::discoveryAndExclusiveEndpoint()
+PASS   : PlatformHostTests::localAvatarSubscriptionAndRevocation()
+PASS   : PlatformHostTests::savedLookReachesSubscribedGameWithoutIdentityChange()
+PASS   : PlatformHostTests::accountIdentityChangeRevokesOldClient()
+PASS   : PlatformHostTests::asynchronousAvatarRecipes()
+SKIP   : PlatformHostTests::realGodotAvatarConsumer() External Godot and local pack required
+   Loc: [/work/source/tests/PlatformHostTests.cpp(233)]
+PASS   : PlatformHostTests::authVersionAndMalformedInput()
+PASS   : PlatformHostTests::widgetActivationAndCrashCleanup()
+PASS   : PlatformHostTests::namespaceAndStaleContext()
+PASS   : PlatformHostTests::pipelinedFramesAreNotOneOversizedMessage()
+PASS   : PlatformHostTests::subscribeUnsubscribeAndNoProfile()
+PASS   : PlatformHostTests::layoutSurvivesReconnectWithoutChangingBuiltins()
+PASS   : PlatformHostTests::realPythonProcess()
+PASS   : PlatformHostTests::cleanupTestCase()
+Totals: 18 passed, 0 failed, 1 skipped, 0 blacklisted, 16704ms
+********* Finished testing of PlatformHostTests *********
+<end of output>
+Test time =  17.08 sec
+----------------------------------------------------------
+Test Passed.
+"platform_sdk" end time: Nov 04 00:55 UTC
+"platform_sdk" time elapsed: 00:00:17
+----------------------------------------------------------
+
+93/124 Testing: avatar_scene
+93/124 Test: avatar_scene
+Command: "/work/build/trainer_avatar_scene_tests"
+Directory: /work/build
+"avatar_scene" start time: Nov 04 00:55 UTC
+Output:
+----------------------------------------------------------
+********* Start testing of AvatarSceneTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (arm64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : AvatarSceneTests::initTestCase()
+PASS   : AvatarSceneTests::idleDirectorVarietyEligibilityAndPause()
+PASS   : AvatarSceneTests::runningClipChangesBlendAndCanBeInterrupted()
+QINFO  : AvatarSceneTests::gpuSkinMatchesCpuWithoutPoseUploads() 24 dressed pose frames CPU reference ms 592.779 GPU palette ms 6.65963
+PASS   : AvatarSceneTests::gpuSkinMatchesCpuWithoutPoseUploads()
+QINFO  : AvatarSceneTests::resolvedModelFacesAndSkin() Background avatar load milliseconds 1611 vertices 217092
+PASS   : AvatarSceneTests::resolvedModelFacesAndSkin()
+PASS   : AvatarSceneTests::rejectInvalidSource()
+PASS   : AvatarSceneTests::revokeWhileLoading()
+PASS   : AvatarSceneTests::cleanupTestCase()
+Totals: 8 passed, 0 failed, 0 skipped, 0 blacklisted, 21850ms
+********* Finished testing of AvatarSceneTests *********
+<end of output>
+Test time =  21.99 sec
+----------------------------------------------------------
+Test Passed.
+"avatar_scene" end time: Nov 04 00:56 UTC
+"avatar_scene" time elapsed: 00:00:21
+----------------------------------------------------------
+
+End testing: Nov 04 00:56 UTC

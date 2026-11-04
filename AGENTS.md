@@ -1,5 +1,13 @@
 # TrainerOS — active agent / developer contract
 
+**Owner routine cleanup, 4 November (latest):** remove superseded build outputs,
+temporary packages and obsolete test/deployment copies after verifying their
+replacement. Do not accumulate them on internal storage or merely move the junk
+to microSD. Keep the working installation and one verified compatible rollback
+set, including its required Software pairing and recovery blobs. Personal games,
+BIOS, saves, accounts and original source assets are not disposable build cache.
+Before pruning, exclude active/pending generations and live runtime references.
+
 **Owner alpha scope clarification, 3 November (latest):** continue the alpha
 delivery with incomplete features explicitly documented. Completing every planned
 multiplayer route is not a prerequisite for alpha. Prepare and preserve working

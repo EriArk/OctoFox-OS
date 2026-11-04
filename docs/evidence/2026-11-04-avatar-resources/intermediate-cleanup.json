@@ -1,0 +1,30 @@
+{
+  "localGeneratedArchivesRemoved": [
+    {
+      "file": "TrainerOS-49235446-original-source.tar.gz",
+      "bytes": 344516148
+    },
+    {
+      "file": "TrainerOS-49235446-software-source.tar.gz",
+      "bytes": 344779524
+    },
+    {
+      "file": "TrainerOS-07424a1a-original-source.tar.gz",
+      "bytes": 344516451
+    },
+    {
+      "file": "TrainerOS-07424a1a-software-source.tar.gz",
+      "bytes": 344779656
+    },
+    {
+      "file": "TrainerOS-7fb9b0ec-original-source.tar.gz",
+      "bytes": 344516181
+    }
+  ],
+  "serverSupersededInputsRemoved": [
+    "TrainerOS-49235446-software-source.tar.gz",
+    "TrainerOS-07424a1a-software-source.tar.gz",
+    "TrainerOS-Core-Runtimes-15-CANDIDATE.tar",
+    "checkout"
+  ]
+}

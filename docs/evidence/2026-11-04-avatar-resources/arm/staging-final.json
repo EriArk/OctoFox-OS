@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "payload": "avatar-resource-payload03",
+  "files": 92,
+  "bytes": 304878819,
+  "bundledLibraries": [
+    {
+      "soname": "libfm-qt6.so.17",
+      "sourcePackage": "libfm-qt-2.4.0-2.fc44.src.rpm",
+      "package": "libfm-qt-2.4.0-2.fc44.aarch64",
+      "sha256": "a19691c4a3def122b89967412b26dd8dd0663b139f1e7d674e04885a6a2eee90"
+    },
+    {
+      "soname": "libmenu-cache.so.3",
+      "sourcePackage": "menu-cache-1.1.1-3.fc44.src.rpm",
+      "package": "menu-cache-1.1.1-3.fc44.aarch64",
+      "sha256": "e5fbb690e74a60dcc15fe86a1a8e92886c6b9ba84b903f4ef4efbc15b4d334e8"
+    }
+  ],
+  "screenScraperClientIncluded": true,
+  "redistributionReviewed": false,
+  "published": false
+}

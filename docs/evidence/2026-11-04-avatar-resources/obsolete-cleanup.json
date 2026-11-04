@@ -1,0 +1,18 @@
+{
+  "ownerRequestedOldJunkRemoval": true,
+  "removedRuntimeSequences": [
+    6,
+    8,
+    12
+  ],
+  "removedSoftwareGenerations": 3,
+  "retainedRuntimeSequences": [
+    13,
+    14
+  ],
+  "activeAndPreviousMediaVerifiedBeforeCleanup": true,
+  "obsoleteMicrosdCopiesRemoved": true,
+  "freeInternalGiBAfterCleanup": 27.6,
+  "freeMicrosdGiBAfterCleanup": 15.83,
+  "evidence": "Observed completed remote cleanup report; remote original retained on Flip"
+}

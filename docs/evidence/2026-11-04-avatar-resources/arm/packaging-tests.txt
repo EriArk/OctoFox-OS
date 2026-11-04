@@ -1,0 +1,7 @@
+vatarPackagingTests.py']
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.049s
+
+OK
+STEP 2 ['python3', '/work/source/packaging/software/payload.py', '--build'
