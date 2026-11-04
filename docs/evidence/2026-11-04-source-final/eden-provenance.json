@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "appimageSha256": "b64f926cbf74fd870a39b144971084323d895d51919b91e906328e7f81bea087",
+  "elfSha256": "03ba7d98e46e13f46f8aac66774ea71e36c676082d61b5f618e4ed78dd2b0263",
+  "embeddedRevision": "58c1e20ee5",
+  "embeddedVersion": "v0.2.1",
+  "embeddedBuildTime": "2026-06-01T18:14:49Z",
+  "resolvedTagCommit": "58c1e20ee58efa3900ba616207d460886214480b",
+  "rejectedCandidate": "da42070c4ad25840c9ee25344bde9d0a8584f5a9",
+  "rejectedCandidateContext": "NintendoSDK Firmware for NX; not emulator build revision",
+  "sourceCapsule": {
+    "schema": 1,
+    "id": "eden-appimage",
+    "file": "eden-appimage-58c1e20ee58efa3900ba616207d460886214480b.tar.gz",
+    "bytes": 11470277,
+    "sha256": "77763cf68602014a49cc6f4c3fd3753c43e30efe8a64adebb058b48210c646f3",
+    "repository": "https://git.eden-emu.dev/eden-emu/eden.git",
+    "commit": "58c1e20ee58efa3900ba616207d460886214480b",
+    "trees": [
+      {
+        "path": ".",
+        "repository": "https://git.eden-emu.dev/eden-emu/eden.git",
+        "commit": "58c1e20ee58efa3900ba616207d460886214480b",
+        "tree": "ef0c631905f31ea026cb2a475d0012d1289044a4"
+      }
+    ],
+    "files": 4451,
+    "noticeFiles": [
+      ".ci/license-header.sh",
+      ".forgejo/workflows/license-header.yml",
+      "LICENSE.txt",
+      "LICENSES/Unlicense.txt",
+      "dist/qt_themes/qdarkstyle/LICENSE.md",
+      "dist/qt_themes/qdarkstyle_midnight_blue/LICENSE.rst",
+      "externals/FidelityFX-FSR/license.txt",
+      "src/android/app/src/main/java/org/yuzu/yuzu_emu/adapters/LicenseAdapter.kt",
+      "src/android/app/src/main/java/org/yuzu/yuzu_emu/fragments/LicenseBottomSheetDialogFragment.kt",
+      "src/android/app/src/main/java/org/yuzu/yuzu_emu/fragments/LicensesFragment.kt",
+      "src/android/app/src/main/java/org/yuzu/yuzu_emu/model/License.kt",
+      "src/android/app/src/main/res/layout/dialog_license.xml",
+      "src/android/app/src/main/res/layout/fragment_licenses.xml"
+    ],
+    "lfsObjects": [],
+    "externalLinks": [],
+    "upstreamSourceCollected": true,
+    "completeCorrespondingSourceReviewed": false
+  },
+  "runtimeBytesChanged": false,
+  "completeCorrespondingSourceReviewed": false
+}

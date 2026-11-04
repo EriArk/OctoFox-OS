@@ -1,0 +1,14 @@
+{
+  "removedRuntimeSequences": [
+    13
+  ],
+  "retainedRuntimeSequences": [
+    14,
+    15
+  ],
+  "requiredSoftwarePairingsRetained": true,
+  "removedSoftwareGenerations": [],
+  "liveReferencesChecked": true,
+  "freeInternalGiB": 28.01,
+  "freeMicrosdGiB": 15.54
+}

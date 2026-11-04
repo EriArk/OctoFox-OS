@@ -1,0 +1,13 @@
+{
+  "game": "NES Pong",
+  "privateRuntimeHome": true,
+  "core": "fceumm",
+  "startedFromLibrary": true,
+  "titleAndGameplayVisuallyConfirmed": true,
+  "remoteKeyboardStartWorked": true,
+  "physicalInputChecked": false,
+  "softwareHealth": "first-frame-confirmed",
+  "normalExitFromMenu": true,
+  "returnedToShell": true,
+  "firstRunComplete": true
+}

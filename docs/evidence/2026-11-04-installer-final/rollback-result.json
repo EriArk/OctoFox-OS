@@ -1,0 +1,19 @@
+{
+  "softwareSequence": 7,
+  "runtimeSequence": 14,
+  "softwareAudit": {
+    "status": "ready",
+    "scope": "software-files",
+    "sessionIntegration": "recorded-not-audited",
+    "health": "awaiting-first-frame",
+    "problems": []
+  },
+  "runtimeAudit": {
+    "status": "ready",
+    "problems": [],
+    "scope": "user-runtime-files-and-flatpak-identities; privileged helpers checked during activation"
+  },
+  "unchangedPersonalFiles": 36,
+  "rollbackExecuted": true,
+  "pendingTransaction": false
+}

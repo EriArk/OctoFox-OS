@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "bootIdChanged": true,
+  "shellProcesses": 1,
+  "plasmaRunning": false,
+  "softwareHealth": "first-frame-confirmed",
+  "firstRunComplete": true,
+  "softwareActive": "1b0984f72ac366adff62ca2b91d2f6bfb3965c90ac0a3f055f4480884f8dbc39",
+  "uptimeSeconds": 55.11,
+  "restartViaPowerMenu": true
+}
