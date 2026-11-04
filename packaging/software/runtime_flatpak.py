@@ -41,13 +41,19 @@ class Flatpaks:
         previous = {r['ref']:r for r in install.read(self.root/'current.json',[])}
         owned = install.read(self.root / 'owned.json', {})
         for row in sorted(rows, key=lambda x:(x['kind']=='app', x['ref'])):
+            source = Path(row.get('preparedFile', stage / 'media/flatpak' / row['file']))
+            if 'preparedFile' in row:
+                if (source.is_symlink() or source.parent != stage / 'downloads/flathub'
+                        or any(p.is_symlink() for p in source.parents)
+                        or sw.sha256(source) != row['sha256']):
+                    raise ValueError('Upstream Flatpak preparation changed')
             ref = row['ref']; before = self.commit(ref); expected = row['commit']
             if ref in owned and before != owned[ref]['commit']:
                 raise ValueError('Flatpak changed outside TrainerOS: ' + ref)
             if before and before != expected and ref not in owned and not migrate:
                 raise ValueError('Existing Flatpak version requires migration with a backup: ' + ref)
             record = {'ref': ref, 'kind': row['kind'], 'before': before, 'after': expected,
-                      'file': str(stage / 'media/flatpak' / row['file']), 'sha256': row['sha256'],
+                      'file': str(source), 'sha256': row['sha256'],
                       'currentBefore': self.current(ref.split('/')[0]) if row['kind']=='app' else '',
                       'currentAfter': '/'.join(ref.split('/')[1:]) if row['kind']=='app' else ''}
             if before:

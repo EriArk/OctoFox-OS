@@ -1,4 +1,4 @@
-﻿# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 import copy
 import hashlib
 import io
@@ -69,6 +69,37 @@ class RuntimeUpstreamTests(unittest.TestCase):
         with self.assertRaises(ValueError):upstream_media.build(original,self.plan,self.root/'hybrid.tar')
         self.assertFalse((self.root/'hybrid.tar').exists())
 
+    def test_explicit_replacement_requires_exact_previous_image(self):
+        original=self.media();spec=self.plan['components'][0]
+        spec['replaces']={'sha256':self.sha,'bytes':len(self.body)}
+        spec['sha256']=hashlib.sha256(b'next reviewed image').hexdigest();spec['bytes']=len(b'next reviewed image')
+        output=self.root/'next.tar';upstream_media.build(original,self.plan,output)
+        with tarfile.open(output) as tar:
+            record=json.load(tar.extractfile('runtimes/DuckStation/component.json'))
+            self.assertEqual(record['files'][0]['sha256'],spec['sha256'])
+        spec['replaces']['sha256']='f'*64
+        with self.assertRaises(ValueError):upstream_media.build(original,self.plan,self.root/'bad-next.tar')
+
+    def test_flathub_conversion_preserves_modified_ppsspp_bundle(self):
+        inputs=self.root/'flatpak-inputs';inputs.mkdir();files=[];refs=[]
+        for name,ref in [('flycast','org.flycast.Flycast/aarch64/stable'),('ppsspp','org.ppsspp.PPSSPP/aarch64/traineros-relay')]:
+            p=inputs/(name+'.flatpak');p.write_bytes(name.encode())
+            refs.append({'kind':'app','ref':ref,'commit':'a'*64,'file':p.name,'bytes':p.stat().st_size,'sha256':runtime_payload.digest(p)})
+            files.append({'path':'flatpak/'+p.name,'source':str(p),'sha256':runtime_payload.digest(p)})
+        lock=inputs/'flatpak-lock.json';lock.write_text(json.dumps({'refs':refs}))
+        files.append({'path':'flatpak/'+lock.name,'source':str(lock),'sha256':runtime_payload.digest(lock)})
+        original=fullbundle.build({'schema':1,'files':files},self.root/'flatpak-media')
+        key=self.root/'flathub.gpg';key.write_bytes(b'official key')
+        plan={'schema':1,'flatpak':{'refs':[refs[0]['ref']],'keyFile':str(key),'keySha256':runtime_payload.digest(key)}}
+        output=self.root/'flatpak-hybrid.tar'
+        upstream_media.build(self.root/'flatpak-media/TrainerOS-Full-CANDIDATE.tar',plan,output)
+        with tarfile.open(output) as tar:
+            self.assertNotIn('flatpak/flycast.flatpak',tar.getnames())
+            self.assertEqual(tar.extractfile('flatpak/ppsspp.flatpak').read(),b'ppsspp')
+            changed=json.load(tar.extractfile('flatpak/flatpak-lock.json'))['refs']
+            self.assertEqual(changed[1],refs[1]);self.assertEqual(changed[0]['commit'],refs[0]['commit'])
+            self.assertEqual(tar.extractfile('flatpak/flathub.gpg').read(),b'official key')
+
     def test_downloaded_appimage_gets_executable_metadata(self):
         folder=self.root/'download';folder.mkdir();image=folder/'DuckStation.AppImage'
         image.write_bytes(self.body);image.chmod(0o644)
@@ -94,6 +125,14 @@ class RuntimeUpstreamTests(unittest.TestCase):
         self.assertEqual(result.read_bytes(),self.body)
         self.assertEqual(requests[0].full_url,'https://api.github.com/repos/stenzek/duckstation/releases/assets/673935636')
         self.assertEqual(requests[0].get_header('Accept'),'application/octet-stream')
+
+    def test_eden_requires_official_versioned_aarch64_url(self):
+        record=copy.deepcopy(self.record);record['id']='eden';record['files'][0]['path']='eden.AppImage'
+        url='https://stable.eden-emu.dev/v0.2.1/Eden-Linux-v0.2.1-aarch64-clang-pgo.AppImage'
+        record['delivery']={'kind':'eden-release-file','url':url};runtime_upstream.validate(record)
+        for wrong in [url.replace('https:','http:'),url.replace('stable.eden-emu.dev','example.org'),url+'?other=1',url.replace('v0.2.1','latest')]:
+            record['delivery']['url']=wrong
+            with self.subTest(url=wrong),self.assertRaises(ValueError):runtime_upstream.validate(record)
 
     def test_interruption_resumes_verified_download_without_activation(self):
         with self.assertRaisesRegex(ValueError,'interrupted'):

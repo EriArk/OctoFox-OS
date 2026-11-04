@@ -76,7 +76,7 @@ def plan(root, stage=None, prepared=None, *, remove=False, migrate=False, home=N
         files,desired,system_rows,aliases=runtime.deployment(root,stage,home,data,make_environments,progress,
                                                            recover_incomplete=recover_incomplete)
         progress('Preparing Flatpak recovery copies')
-        flatplan=Flatpaks(root/'runtimes/flatpak',data,runner).plan(stage,runtime.flatpak_rows(stage),migrate)
+        flatplan=Flatpaks(root/'runtimes/flatpak',data,runner).plan(stage,runtime.flatpak_rows(stage,progress),migrate)
         next_receipt={'layout':runtime_layout.LAYOUT,'active':expected,'previous':before['active'] if expected!=before['active'] else before['previous'],
                       'software':''}
     fileplan=files.plan(desired,ident,False)

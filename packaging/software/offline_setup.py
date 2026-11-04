@@ -15,7 +15,7 @@ import source_archive as software_sources
 import release_source_media
 
 
-def build(archive, software, key, public, output, sequence, source_archive, source_root=None, runtime_manifest=None):
+def build(archive, software, key, public, output, sequence, source_archive, source_root=None, runtime_manifest=None, release=False):
     archive,software,output=Path(archive),Path(software),Path(output)
     source_root=Path(source_root or Path(__file__).resolve().parents[2])
     if output.exists(): raise ValueError('Use a new candidate output directory')
@@ -62,7 +62,8 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         launch=tree/'Install TrainerOS.sh'
         launch.write_text('#!/bin/sh\nset -eu\nHERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\nexec /usr/bin/python3 "$HERE/packaging/software/installer.py" --gui\n')
         launch.chmod(0o755)
-        (tree/'README.txt').write_text(('HYBRID' if upstream else 'OFFLINE') + ' SETUP CANDIDATE - NOT A PUBLIC RELEASE\n'
+        (tree/'README.txt').write_text(('TrainerOS pre-beta Setup\n' if release else
+            ('HYBRID' if upstream else 'OFFLINE') + ' SETUP CANDIDATE - NOT A PUBLIC RELEASE\n') +
             'Extract the entire archive onto storage with enough free space, then open Install TrainerOS.sh in Armada Desktop.\n'
             'Setup installs the signed Software, emulator set and pinned offline dependencies. Run as your desktop user.\n'
             'System helpers/session registration request normal administrator authorization. TrainerOS becomes the initial boot default; Desktop and Steam remain available.\n'
@@ -72,11 +73,13 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
             'Requires the compatible Armada Python and system libraries. No network fallback for offline packages.\n'
             + ('Internet is required to obtain these exact official upstream packages: ' + ', '.join(upstream)
                + '. Setup verifies their pinned bytes before activation; interrupted downloads can be resumed.\n' if upstream else '')
-            + 'Redistribution/source review and clean privileged device acceptance remain pending.\n')
+            + ('This is an early test release. See the GitHub release notes for supported hardware and known feature limitations.\n'
+               'Corresponding source, dependency notices and recovery instructions accompany the release.\n' if release else
+               'Redistribution/source review and clean privileged device acceptance remain pending.\n'))
         def permissions(info):
             info.uid=info.gid=0;info.uname=info.gname='';info.mode=0o755 if info.isdir() or info.name.endswith('.sh') else 0o644
             return info
-        target=output/'TrainerOS-Full-Setup-CANDIDATE.tar'
+        target=output/('TrainerOS-Full-Setup.tar' if release else 'TrainerOS-Full-Setup-CANDIDATE.tar')
         with tarfile.open(target,'x:') as tar:
             tar.add(tree,arcname=tree.name,filter=permissions)
             tar.add(archive,arcname=tree.name+'/runtimes.tar',filter=permissions)
@@ -101,4 +104,5 @@ if __name__=='__main__':
     signing.add_argument('--key',type=Path)
     signing.add_argument('--runtime-manifest',type=Path)
     p.add_argument('--sequence',type=int,required=True)
-    a=p.parse_args();print(json.dumps(build(a.archive,a.software,a.key,a.public,a.output,a.sequence,a.source_archive,runtime_manifest=a.runtime_manifest)))
+    p.add_argument('--release',action='store_true',help='Use distribution filenames/text; does not publish or set acceptance flags')
+    a=p.parse_args();print(json.dumps(build(a.archive,a.software,a.key,a.public,a.output,a.sequence,a.source_archive,runtime_manifest=a.runtime_manifest,release=a.release)))

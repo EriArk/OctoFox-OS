@@ -1,0 +1,91 @@
+[
+  {
+    "ref": "org.freedesktop.Platform.GL.default/aarch64/25.08",
+    "kind": "runtime",
+    "commit": "ae808301ba0e5d8366326d9e80594f75600e8c6deee5f301c66e794998bfb4af",
+    "bytes": 87089600,
+    "sha256": "f36840f9ae00e77578b7fb1aadaf53a8a96424594e65d8e526790a33685e4575",
+    "status": "verified"
+  },
+  {
+    "ref": "org.freedesktop.Platform.GL.default/aarch64/25.08-extra",
+    "kind": "runtime",
+    "commit": "331f0e5700c561a46dca8812693956a4a03218ab3758d444a690359fc8f60142",
+    "bytes": 87075712,
+    "sha256": "f4afc72665b6b0442abcae9c510d27af3d76689a516822b61f8861a387d98e82",
+    "status": "verified"
+  },
+  {
+    "ref": "org.freedesktop.Platform.codecs-extra/aarch64/25.08-extra",
+    "kind": "runtime",
+    "commit": "3b594ed9ba51cb7c7003535a8d8c0c1b38ecd147b93546b312f26e2bf153d305",
+    "bytes": 9966296,
+    "sha256": "36ab1752c38926a4dd1919d741ad99c1713e1ebc70ab70942886c559ef1f60f7",
+    "status": "verified"
+  },
+  {
+    "ref": "org.freedesktop.Platform/aarch64/25.08",
+    "kind": "runtime",
+    "commit": "d56d30d8b124c41b689ae2adfb7cb01f7b1850d1d4741b83782607a074788339",
+    "bytes": 167110080,
+    "sha256": "ab9277b4a307b65ce40c89c2d6bae71c698831bcaba4f1d5cd2b0c8df7822748",
+    "status": "verified"
+  },
+  {
+    "ref": "org.kde.KStyle.Adwaita/aarch64/6.10",
+    "kind": "runtime",
+    "commit": "e48ba0982bc0e658f9e7adb51ac4a109bbf7640f7fb47940662d5c392807e472",
+    "bytes": 5087688,
+    "sha256": "f513790bcfb53f91ad5e8102343624659450a8435af03b2e41a42fed2e377466",
+    "status": "verified"
+  },
+  {
+    "ref": "org.kde.KStyle.Adwaita/aarch64/6.11",
+    "kind": "runtime",
+    "commit": "98c31fe1d493deef5ee04592ff1420a441b7c23e8f18cbee23088fc8f8406346",
+    "bytes": 5186480,
+    "sha256": "ee134f3b036d16a38c38590f88e6109d6cdace95c5d7104f75a5dcca387210b3",
+    "status": "verified"
+  },
+  {
+    "ref": "org.kde.Platform/aarch64/6.10",
+    "kind": "runtime",
+    "commit": "cb026317831ec841a6b0f6d9808805891bad06fbac5b16d14546a7ce7a0ef1bb",
+    "bytes": 253600280,
+    "sha256": "a897e96577a12286f014f32bce7b1516cf43ede620f02c6982e075e535f7a1cd",
+    "status": "verified"
+  },
+  {
+    "ref": "org.kde.Platform/aarch64/6.11",
+    "kind": "runtime",
+    "commit": "dd61759582a4069c720d45c369d89ccd618c96fe2462987542b1ad4e87414076",
+    "bytes": 269680536,
+    "sha256": "31b4d2beb5513166b4a61b73180fa89fe649873153629b4dc217b32f01f0ef79",
+    "status": "verified"
+  },
+  {
+    "ref": "org.DolphinEmu.dolphin-emu/aarch64/stable",
+    "kind": "app",
+    "commit": "50741ae7267181560aa88d3a1ba7177321629c171ad2677504409afa6b4462db",
+    "bytes": 19410872,
+    "sha256": "1d737d52fc64832bbb8835712d1c5c8470546b7fecfc73e6a989699226f10a82",
+    "status": "unresolved",
+    "error": "Preparing Flathub package failed: error: Server returned HTTP 404\n"
+  },
+  {
+    "ref": "org.flycast.Flycast/aarch64/stable",
+    "kind": "app",
+    "commit": "1d48669e88c0261c5c07d93bc0d48efbdbcf4be8ec5f6865825f47a7100982ef",
+    "bytes": 10225448,
+    "sha256": "4f7a62d83526671f797fa087b15ac42cf4657963551c239e169cbbb1c99d210b",
+    "status": "verified"
+  },
+  {
+    "ref": "org.libretro.RetroArch/aarch64/stable",
+    "kind": "app",
+    "commit": "a72a8a0a7cde5c24a0134a32fdc1469fb644c459e9974f644e95170ae5dba8bc",
+    "bytes": 334134832,
+    "sha256": "0987a60809c772dc99855817fd69e0c27e916c785aa17b5779a6ae8cb1ac7fd9",
+    "status": "verified"
+  }
+]

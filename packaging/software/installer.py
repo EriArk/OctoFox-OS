@@ -334,7 +334,8 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
             job=None
             if runtime_manifest:
                 runtimes.idle()
-                if not shutil.which('flatpak'): raise ValueError('The Armada Flatpak utility is required for the full emulator set')
+                for utility in ('flatpak', 'ostree', 'unsquashfs'):
+                    if not shutil.which(utility): raise ValueError('The Armada ' + utility + ' utility is required for the full emulator set')
                 progress.update('Verifying the complete offline emulator set')
                 stage=runtimes.prepare(root,runtime_manifest,runtime_archive,progress.update)
                 try: job=runtime_manager.plan(root,stage,result['prepared'],progress=progress.update)

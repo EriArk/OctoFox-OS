@@ -13,6 +13,94 @@
       "upstreamCommit": "dd4a0eb779296a525f8b10b6d9a45911ad6d088f",
       "releasePage": "https://github.com/stenzek/duckstation/releases/tag/latest",
       "scope": "Official unchanged AppImage downloaded by the user during Setup; PS1 netplay remains PCSX-ReARMed"
+    },
+    {
+      "id": "ARMSX2",
+      "delivery": {
+        "kind": "github-release-asset",
+        "repository": "ARMSX2/ARMSX2",
+        "assetId": 669324126
+      },
+      "bytes": 62880264,
+      "sha256": "1c40028a0464bcfab57826518500dcd11ceb472bea16d0900d7146abb11a4224"
+    },
+    {
+      "id": "Azahar-Enhanced",
+      "delivery": {
+        "kind": "github-release-asset",
+        "repository": "virtudude/Azahar-AppImage-Enhanced",
+        "assetId": 536965997
+      },
+      "bytes": 84838974,
+      "sha256": "f2c13c954a23433b7a4d05d397e0871d48be3b058f4963a1736f6e84d6448fd8"
+    },
+    {
+      "id": "rpcs3",
+      "delivery": {
+        "kind": "github-release-asset",
+        "repository": "RPCS3/rpcs3-binaries-linux-arm64",
+        "assetId": 638824236
+      },
+      "bytes": 80506009,
+      "sha256": "f1ecd9af6073eb3643c4e10e5befff25bdcd4d2da53aec69547da5fa7f8ae1d2"
+    },
+    {
+      "id": "melonDS",
+      "delivery": {
+        "kind": "github-release-asset",
+        "repository": "virtudude/melonDS",
+        "assetId": 546340861
+      },
+      "sha256": "eb89fb87e08accdb47b6992e8a03f5534bd211b271ebb46e181f3bdce14e1b0c",
+      "bytes": 34626056
+    },
+    {
+      "id": "eden",
+      "delivery": {
+        "kind": "eden-release-file",
+        "url": "https://stable.eden-emu.dev/v0.2.1/Eden-Linux-v0.2.1-aarch64-clang-pgo.AppImage"
+      },
+      "sha256": "b64f926cbf74fd870a39b144971084323d895d51919b91e906328e7f81bea087",
+      "bytes": 63437527
+    },
+    {
+      "id": "Cemu",
+      "delivery": {
+        "kind": "github-release-asset",
+        "repository": "pkgforge-dev/Cemu-AppImage-Enhanced",
+        "assetId": 349019170
+      },
+      "sha256": "7f6eb4bd721759f2bddb65bd369ff52cc03085b77415154218ae3e596795e8ff",
+      "bytes": 63140494,
+      "replaces": {
+        "sha256": "8b6920d40b0eee45148833d735b1b40fe40888e11d75a708493c126b8cf853cc",
+        "bytes": 74216476
+      },
+      "version": "2.6-4",
+      "scope": "Pinned stable upstream; first-run and main window checked on Flip. Newer nightly a53cf0ece crashes on startup; no gameplay claim."
     }
-  ]
+  ],
+  "flatpak": {
+    "refs": [
+      "org.flycast.Flycast/aarch64/stable",
+      "org.freedesktop.Platform.GL.default/aarch64/25.08",
+      "org.freedesktop.Platform.GL.default/aarch64/25.08-extra",
+      "org.freedesktop.Platform.codecs-extra/aarch64/25.08-extra",
+      "org.freedesktop.Platform/aarch64/25.08",
+      "org.kde.KStyle.Adwaita/aarch64/6.10",
+      "org.kde.KStyle.Adwaita/aarch64/6.11",
+      "org.kde.Platform/aarch64/6.10",
+      "org.kde.Platform/aarch64/6.11",
+      "org.libretro.RetroArch/aarch64/stable"
+    ],
+    "keyFile": "flathub.gpg",
+    "keySha256": "8bdc20abc4e19c0796460beb5bfe0e7aa4138716999e19c6f2dbdd78cc41aeaa"
+  },
+  "vita": {
+    "repository": "Vita3K/Vita3K-builds",
+    "assetId": 630852874,
+    "bytes": 70814216,
+    "sha256": "8a6b8ec4b65cc6769d69e4a48449d286ecd564ebe3a945a39218d0fa5ae3bf58",
+    "squashfsOffset": 936456
+  }
 }

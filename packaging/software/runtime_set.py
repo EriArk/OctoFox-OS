@@ -146,7 +146,16 @@ def component(stage, identity, progress=lambda *args: None):
     else:
         archive = media / 'component.tar.gz'
         if sw.sha256(archive) != record['archive']['sha256']: raise ValueError('Component archive changed')
+    external = []
+    if 'upstreamRuntime' in record:
+        import runtime_vita_upstream
+        external = runtime_vita_upstream.rows(record)
     target = stage / 'components' / identity
+    def verify_component(directory):
+        for row in record['files']:
+            path = checked_path(directory, row['path'])
+            if path.stat().st_size != row['bytes'] or sw.sha256(path) != row['sha256']:
+                raise ValueError('Prepared component changed')
     if not target.exists():
         target.parent.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=target.parent, prefix='.component-') as tmp:
@@ -155,12 +164,11 @@ def component(stage, identity, progress=lambda *args: None):
                 row = record['files'][0]; output = Path(tmp) / row['path']
                 shutil.copyfile(part, output); output.chmod(row['mode'])
             else:
-                extract(archive, Path(tmp), record['files'])
+                extract(archive, Path(tmp), [row for row in record['files'] if row not in external])
+                if external: runtime_vita_upstream.prepare(stage, record, Path(tmp), progress)
+            verify_component(Path(tmp))
             os.replace(tmp, target)
-    for row in record['files']:
-        path = checked_path(target, row['path'])
-        if path.stat().st_size != row['bytes'] or sw.sha256(path) != row['sha256']:
-            raise ValueError('Prepared component changed')
+    verify_component(target)
     return record, target
 
 
@@ -228,7 +236,7 @@ def deployment(root, stage, home=None, data=None, make_environments=True, progre
     if present != NATIVE | IMAGES | EXTRAS: raise ValueError('Incomplete or unknown runtime family set')
     expanded=sum(sum(f['bytes'] for f in json.loads((stage/'media/runtimes'/name/'component.json').read_text())['files']) for name in present)
     if expanded>20*1024**3: raise ValueError('Runtime files exceed the installation budget')
-    bundles=sum(p.stat().st_size for p in (stage/'media/flatpak').glob('*.flatpak'))
+    bundles=sum(row['bytes'] for row in install.read(stage/'media/flatpak/flatpak-lock.json')['refs']) if (stage/'media/flatpak/flatpak-lock.json').exists() else 0
     needed=expanded*3+bundles*4+2*1024**3
     # Account for both managed staging/backups and projections on another disk.
     for location in {Path(root),home,data}:
@@ -265,18 +273,31 @@ def deployment(root, stage, home=None, data=None, make_environments=True, progre
     return files, desired, system, aliases
 
 
-def flatpak_rows(stage):
+def flatpak_rows(stage, progress=lambda *args: None):
     rows = install.read(stage / 'media/flatpak/flatpak-lock.json')['refs']
     refs = set()
     for row in rows:
         if row['kind'] not in ('app', 'runtime') or not re.fullmatch(r'[A-Za-z][A-Za-z0-9_.-]+/aarch64/[A-Za-z0-9_.-]+', row['ref']):
             raise ValueError('Invalid Flatpak reference')
         if row['ref'] in refs or not sw.HASH.fullmatch(row['commit']): raise ValueError('Invalid Flatpak identity')
-        refs.add(row['ref']); path = checked_path(stage / 'media/flatpak', row['file'])
+        refs.add(row['ref'])
+        if 'delivery' in row:
+            import runtime_flathub
+            runtime_flathub.validate(row)
+            if checked_path(stage / 'media/flatpak', row['file']).exists():
+                raise ValueError('Upstream Flatpak must not be bundled')
+            continue
+        path = checked_path(stage / 'media/flatpak', row['file'])
         if path.stat().st_size != row['bytes'] or sw.sha256(path) != row['sha256']: raise ValueError('Flatpak bundle changed')
     if {r['ref'] for r in rows if r['kind']=='app'} != APP_REFS or len(rows) != 12:
         raise ValueError('Incomplete offline Flatpak set')
-    return rows
+    result = []
+    for row in rows:
+        if 'delivery' in row:
+            import runtime_flathub
+            row = runtime_flathub.prepare(stage, row, progress)
+        result.append(row)
+    return result
 
 
 def check_aliases(aliases):
