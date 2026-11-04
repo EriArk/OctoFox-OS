@@ -73,7 +73,7 @@ No public release is asserted. Runtime 14/emulator code is unchanged by this wor
 External runtime source/notices and public GitHub/OTA delivery remain later tasks.
 
 
-## Delivery pending: device access lost
+## Earlier interruption: device access lost (recovered below)
 
 Cleanup completed: runtime 6/8/12, three unneeded Software generations, temporary
 offload copies and rejected build inputs were removed. Active runtime 14 and
@@ -98,3 +98,35 @@ device recovery and ordinary Setup continuation, followed by those checks;
 external source/notices and public release remain after that.
 [Pending record](delivery-pending.json), [last Setup frame](setup-before-disconnect.png),
 [pre-update profile reference](profile-before-update.png).
+
+
+## Recovery and installed candidate (not clean-install acceptance)
+
+The owner rebooted Flip. Software 7/runtime 14 were still active without a pending
+transaction. No retained panic/OOM/pstore evidence explains the whole-device freeze;
+automatic suspend was disabled. The owner's last frame was Vita3K Python preparation.
+Vita3K/voice preparation succeeded after reboot. A normal GUI retry then correctly
+refused incomplete melonDS/RMG environments: their ready receipts survived but files
+were missing. Those inactive staging environments were rebuilt from pinned offline
+inputs using the existing preparation function. All six environments then verified.
+This operator recovery is explicitly NOT the ordinary first-user acceptance result.
+
+The next GUI run completed Software 8/runtime 15, retained runtime 14 and its valid
+Software pairing. Both audits are ready, 76 cores and 19 prior-core recovery blobs
+match. No real rollback was executed in this candidate pass. After reboot, three
+original baseline files (configuration, commerce cache, chat history) had changed
+while Software 7 was still active; the other 28 matched. A fresh 31-file baseline
+was taken after normal shell shutdown; all 31 matched after this installation.
+This distinction avoids claiming the original pre-hang baseline stayed identical.
+
+The installed Return to TrainerOS entry reached standalone Gamescope, with no Plasma
+or running game and first-frame-confirmed health. Profile, wardrobe and animation
+frames were visually inspected; the character and Mika balance remained intact.
+No outfit change was saved. Odin was not touched.
+
+[Installed audits](installed.json), [session](session.json), [visual](visual.json),
+[completed Setup](setup-installed.png), [profile](profile-installed.png),
+[wardrobe](wardrobe-installed.png), [Home](home-installed.png).
+
+The final installer must pass a new clean one-launch journey without manual staging
+repair, then recovery and publication. Candidate delivery is not that acceptance.

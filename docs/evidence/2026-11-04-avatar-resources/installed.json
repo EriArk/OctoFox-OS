@@ -1,0 +1,29 @@
+{
+  "softwareSequence": 8,
+  "protectedAvatarResources": 45,
+  "sameInstalledAvatarManifest": true,
+  "screenScraperClientIncluded": true,
+  "schema": 1,
+  "runtimeSequence": 15,
+  "previousRuntimeSequence": 14,
+  "softwareSource": "7fb9b0ec55df06ccb699a487adcee29227fd00cc",
+  "softwareAudit": {
+    "status": "ready",
+    "scope": "software-files",
+    "sessionIntegration": "recorded-not-audited",
+    "health": "awaiting-first-frame",
+    "problems": []
+  },
+  "runtimeAudit": {
+    "status": "ready",
+    "problems": [],
+    "scope": "user-runtime-files-and-flatpak-identities; privileged helpers checked during activation"
+  },
+  "coresVerified": 76,
+  "oldCoreRecoveryBlobsVerified": 19,
+  "previousSoftwarePairValid": true,
+  "unchangedPersonalFiles": 31,
+  "pendingTransaction": false,
+  "rollbackExecuted": false,
+  "freeInternalGiB": 23.12
+}

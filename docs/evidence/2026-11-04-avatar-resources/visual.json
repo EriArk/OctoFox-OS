@@ -1,0 +1,15 @@
+{
+  "profile": true,
+  "wardrobe": true,
+  "animatedPose": true,
+  "outfitSaved": false,
+  "source": "7fb9b0ec55df06ccb699a487adcee29227fd00cc",
+  "softwareSequence": 8,
+  "screenshots": [
+    "profile-installed.png",
+    "wardrobe-installed.png",
+    "wardrobe-animation-a.png",
+    "wardrobe-animation-b.png",
+    "home-installed.png"
+  ]
+}

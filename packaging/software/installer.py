@@ -355,8 +355,10 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
                           'expected':hashlib.sha256(sw.canonical(release)).hexdigest()})
                 install.install_prepared(root,result['prepared'])
             finish_setup(root,'install')
-    if not dialog('--yesno', 'TrainerOS is installed. Open first-time setup now?').returncode:
-        subprocess.Popen(['/usr/bin/python3', str(root / 'bootstrap/packaging/software/launcher.py'), '--root', str(root)], start_new_session=True)
+    if not dialog('--yesno', 'TrainerOS is installed. Start TrainerOS now?\nSave any open desktop work before switching.').returncode:
+        # Follow the installed Return to TrainerOS entry: the product runs in
+        # its own session, including first run, rather than inside Plasma.
+        subprocess.Popen(['/usr/bin/sudo', '-n', '/var/opt/traineros/session/control.py', 'traineros'], start_new_session=True)
     return 0
 
 

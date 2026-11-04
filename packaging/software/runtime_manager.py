@@ -70,7 +70,11 @@ def plan(root, stage=None, prepared=None, *, remove=False, migrate=False, home=N
             old=runtime.signed(root/'runtimes/versions'/before['active']/'release.json',root/'trusted-key.pem')['signed']
             if envelope['signed']['sequence'] <= old['sequence'] and expected!=before['active']:
                 raise ValueError('Runtime downgrade or reused sequence requires Recovery')
-        files,desired,system_rows,aliases=runtime.deployment(root,stage,home,data,make_environments,progress)
+        # Recreate incomplete preparation only for a fresh, inactive generation.
+        # Active and rollback environments retain strict integrity checks.
+        recover_incomplete = expected not in {before['active'], before['previous']}
+        files,desired,system_rows,aliases=runtime.deployment(root,stage,home,data,make_environments,progress,
+                                                           recover_incomplete=recover_incomplete)
         progress('Preparing Flatpak recovery copies')
         flatplan=Flatpaks(root/'runtimes/flatpak',data,runner).plan(stage,runtime.flatpak_rows(stage),migrate)
         next_receipt={'layout':runtime_layout.LAYOUT,'active':expected,'previous':before['active'] if expected!=before['active'] else before['previous'],

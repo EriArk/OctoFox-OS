@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**Owner final installer acceptance, 4 November (latest):** finish the public
+installer and release now. The ordinary journey is download -> one installer
+launch -> installed usable TrainerOS. A recovered operator run, multiple installer
+launches, crashes or manual staging repair cannot count as the clean acceptance.
+Prepare the final package, validate that full journey on Flip with personal data
+preserved, check recovery, then publish. Do not reopen deferred feature completion
+or confuse the unexplained device freeze with a proven Vita3K defect.
+
+
 **Owner routine cleanup, 4 November (latest):** remove superseded build outputs,
 temporary packages and obsolete test/deployment copies after verifying their
 replacement. Do not accumulate them on internal storage or merely move the junk

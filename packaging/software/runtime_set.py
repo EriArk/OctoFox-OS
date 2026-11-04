@@ -164,7 +164,7 @@ def component(stage, identity, progress=lambda *args: None):
     return record, target
 
 
-def environment(stage, name, python=sys.executable):
+def environment(stage, name, python=sys.executable, *, recover_incomplete=False):
     locks = json.loads((stage / 'media/python/interpreters.json').read_text()); spec = locks[name]
     if sw.sha256(python) != spec['pythonSha256']:
         raise ValueError('Armada Python differs from the approved multiplayer runtime; use a compatible runtime set')
@@ -172,10 +172,21 @@ def environment(stage, name, python=sys.executable):
     if sorted(lines) != sorted(spec['requirements']) or any(not re.fullmatch(r'[A-Za-z0-9_.-]+==[A-Za-z0-9_.+!-]+', x) for x in lines):
         raise ValueError('Invalid pinned Python requirements')
     dest = stage / 'venvs' / name; ready = stage / 'venvs' / (name + '.json')
+    if ready.exists() and recover_incomplete:
+        # Only the coordinator may authorize rebuilding an unactivated stage.
+        # A power loss can preserve the receipt before all venv files reach disk.
+        try:
+            intact = install.read(ready)['files'] == environment_files(dest)
+        except (OSError, ValueError, KeyError, TypeError):
+            intact = False
+        if not intact:
+            if ready.is_symlink() or ready.resolve().parent != (stage / 'venvs').resolve():
+                raise ValueError('Redirected Python environment receipt')
+            ready.unlink()
     if not ready.exists():
         if dest.exists(): install.remove_owned_tree(dest, stage / 'venvs')
         dest.parent.mkdir(exist_ok=True)
-        subprocess.run([python, '-m', 'venv', str(dest)], check=True)
+        subprocess.run([python, '-m', 'venv', str(dest)], check=True, timeout=120)
         env = dict(os.environ, TMPDIR=str(stage / 'tmp')); (stage / 'tmp').mkdir(exist_ok=True)
         subprocess.run([str(dest / 'bin/python'), '-m', 'pip', 'install', '--no-index', '--no-cache-dir', '--disable-pip-version-check',
                         '--no-deps', '--find-links', str(stage / 'media/python/wheels'), '-r', str(stage / 'media/python' / (name + '.lock'))],
@@ -184,7 +195,7 @@ def environment(stage, name, python=sys.executable):
         sw.atomic(ready, {'requirements': lines, 'pythonSha256': spec['pythonSha256'],
                          'files': environment_files(dest)})
     if sw.sha256(dest / 'bin/python') != spec['pythonSha256']: raise ValueError('Python runtime changed')
-    if install.read(ready)['files'] != environment_files(dest): raise ValueError('Prepared Python environment changed')
+    if install.read(ready)['files'] != environment_files(dest): raise ValueError('Prepared Python environment changed: ' + name)
     return dest
 
 
@@ -209,7 +220,7 @@ def destination(home, data, identity, name):
     raise ValueError('Unknown user runtime destination')
 
 
-def deployment(root, stage, home=None, data=None, make_environments=True, progress=lambda *args:None):
+def deployment(root, stage, home=None, data=None, make_environments=True, progress=lambda *args:None, *, recover_incomplete=False):
     import runtime_layout
     home, data = runtime_layout.paths(root)
     files = Files(Path(root) / 'runtimes/files', [home, data]); desired = {}; system = []
@@ -246,7 +257,7 @@ def deployment(root, stage, home=None, data=None, make_environments=True, progre
     if make_environments:
         for name in sorted(ENVIRONMENTS):
             progress('Preparing offline Python: '+name)
-            built = environment(stage, name)
+            built = environment(stage, name, recover_incomplete=recover_incomplete)
             if name == 'voice': dest = data / 'traineros-voice'
             elif name == 'linked-save': dest = data / 'TrainerOS/runtime/linked-save-20261010.1/venv'
             else: dest = data / 'TrainerOS/emulators' / name / 'transport/venv'
