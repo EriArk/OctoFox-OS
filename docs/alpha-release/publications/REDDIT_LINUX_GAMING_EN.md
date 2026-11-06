@@ -1,33 +1,86 @@
-# r/linux_gaming — Linux system integration angle
+# r/linux_gaming — full project, Linux-first opening
 
-> DRAFT, not posted. Check current subreddit self-promotion and AI rules at publication time. Attach an actual TrainerOS shell clip, not an AI render. Replace [ALPHA_RELEASE_URL]. No claim of SteamOS/Bazzite support until an installer is released.
+> DRAFT, NOT POSTED. Use after the public alpha release is verified; replace [ALPHA_RELEASE_URL]. Adjust flair and follow the current community rules. Attach real handheld screenshots/video rather than promotional mockups. All main TrainerOS systems are intentionally included: different opening angles, not amputated features.
 
-## Title
+> Relevant moderator reminder: real, developed and tested Linux projects can be discussed when contributors engage, disclose AI assistance and avoid link-only promotion. Check the latest rules before posting.
 
-I started with a Pokémon system and ended up building a controller-first Linux gaming environment (TrainerOS alpha)
+## Suggested title
 
-## Body
+I started a Pokémon project and ended up building TrainerOS — a controller-first Linux gaming environment (alpha)
 
-I didn't start by trying to build another Linux desktop or a Steam replacement.
+## Post
 
-I wanted a handheld system where a Pokémon game's party, storage and activities could live outside the emulator. That grew into a bigger question: could ordinary games, social features and applications all share one controller-first environment?
+I didn't set out to replace Linux, Steam or Proton. **I started with a Pokémon-focused handheld environment** where you could see the real party, boxes and progress without launching the game for every little interaction.
 
-That's how **TrainerOS** happened. 😁
+Then I wanted the same handheld to bring together ordinary games, friend groups, multiplayer and applications in one controller-first session. That grew into **TrainerOS**, a Linux gaming environment I've been developing on my Flip 2 and Odin 2. The first public alpha is for compatible **ArmadaOS** systems. Here's how it fits together — including the game-specific parts, because those are a big reason it exists.
 
-It's a Linux gaming shell with a game library, collections, several library views, a customizable Start panel, apps, file management and a browser. Steam games are discovered and launched through Steam itself — TrainerOS doesn't try to take over Proton, Steam Input or Steam's installation management.
+## The handheld itself
 
-The odd part is what sits around games:
+TrainerOS is a **controller-first Linux gaming environment**. Games are organized by platforms and collections, and you can browse by wheel, list, cover shelves or screenshot grid. The Home screen follows the selected game, while quick drawers bring up recent/favorite games and running apps without forcing a trip through a desktop.
 
-- A single Lobby that coordinates supported multiplayer routes across RetroArch, PSP, GameCube and other emulators.
-- Shared Fluxer chat and calls that can continue while people play different games.
-- Game-specific adapters, starting with real Pokémon save data and activities.
-- Crates, an installable games/apps/widgets catalogue, and an early local SDK for avatars, Lobby sessions and scorecards.
+Start is a customizable panel for widgets and device controls. There are also ordinary apps, a file manager, a browser, downloads, and Steam-library integration. Steam still owns its own installs, Proton and Steam Input; TrainerOS brings installed titles into the same game-focused experience. The idea is to pick up the handheld, choose something to play, and come back to your games, people and history when you're done.
 
-I've tested a clean one-run setup, game launch, return and reboot on a Retroid Pocket Flip 2 running ArmadaOS. The project has also been exercised on an Odin 2. There are real paired-game results, but I won't pretend that every emulator/game/network combination is solved.
+## The part that started it: games that extend beyond the game window
 
-The first public alpha targets **compatible ArmadaOS handhelds**. **SteamOS/Bazzite packages are planned, not available in this alpha.** Original project code is GPL-3.0-or-later; third-party components keep their own terms.
+The first deep integration is Pokémon. With **supported, exact game builds**, TrainerOS reads actual game saves for party members, boxes, Pokédex progress and milestones. For supported Emerald saves, it can also heal the party, manage members and held items, and buy things in a shop using real in-game currency. Launch Emerald afterward and the game sees the changes.
 
-**Code:** https://github.com/EriArk/TrainerOS
-**Alpha installer:** [ALPHA_RELEASE_URL]
+There's a little **Playroom** where the actual Pokémon in your team wander around and react to each other. I may have gotten slightly carried away with that one. 😁
 
-I'm especially interested in practical Linux handheld feedback: controls, process handoff, game compatibility and what you'd want a game-focused shell to handle without switching to a desktop.
+There are also protected **Nearby Link** activities such as trades, gifts and battles between handhelds. These are separate from normal emulator multiplayer.
+
+The bigger idea is **optional game adapters**: a game doesn't need one just to appear in the library and run, but a supported game can gain its own space and tools around the ordinary save. Future series can have completely different integrations rather than Pokémon features pasted onto everything.
+
+## One Lobby for a ridiculous variety of multiplayer
+
+Retro multiplayer is a zoo: NetPlay, link cables, wireless, PSP Ad Hoc, LAN adapters, arcade links, original online services... I wanted players to deal with *one familiar flow* instead of memorizing the network configuration of every emulator.
+
+Create or join a **Lobby**, invite people, choose a game (or suggest several and vote), prepare local copies, confirm readiness, and have the organizer press **Start**. TrainerOS coordinates whichever supported mechanism is needed underneath.
+
+Actual paired gameplay has already been exercised between a Flip 2 and an Odin 2 with games including **Super Smash Bros. Melee, Contra III, Streets of Rage 2, Mario Kart DS**, and PSP titles such as **Virtua Tennis, Tekken 6 and Killzone**. Those are specific tested routes, not a claim that all games, servers or Internet connections work. There are also experimental Local Lobby, Remote Play and game-viewing routes.
+
+## Friends, chat, voice, and spectators
+
+Fluxer powers friends, direct messages, communities, invitations and group calls inside the environment. A voice call can continue even when different people leave a game or start playing something else.
+
+During a supported game there's a compact overlay for chat, participant avatars, voice activity and microphone controls. Watching a supported game stream doesn't require installing that game yourself. I wanted hanging out and playing to feel like one activity, not two unrelated apps.
+
+## One player identity across games
+
+TrainerOS has a **shared customizable 3D character** with outfits, hair, face expressions and animations. Games can use the same character and appearance through the SDK instead of creating separate avatars. **Pocket Golf** is already a working example.
+
+You can even install **Companion**, a little Home-screen character based on your own avatar. It rests, looks around, reacts to notifications, and celebrates achievements by holding their real icons over its head. It's basically a low-maintenance tamagotchi. 🤣
+
+Your profile also gathers RetroAchievements, gaming history, screenshots, trophies, outfits, levels, XP and experimental **Sparks** currency. For supported achievements, TrainerOS can save the actual screenshot of the moment you earned one. I like the idea that a console should help you keep memories of games, not only launch them.
+
+## Crates: games, apps, widgets — and the SDK underneath
+
+**Crates** is the installable project catalogue. A Crates game joins the ordinary Games library, an app joins Apps, and a compatible widget appears on system screens. It isn't another isolated launcher.
+
+The experimental catalogue already includes things like **Pocket Golf**, **Micro Rally**, Pocket Artillery, Pong, Snake Arena, Light Cycles, Brick Tanks and more.
+
+Pocket Golf has actual 3D greens, ball physics, shared TrainerOS characters and supported online matches. Micro Rally somehow grew from a small racer into a driving/combat game with suspension, weapons, arena battles, Battle Royale and even a long Nordschleife finale. Yes, the name is still *Micro*. 🤣
+
+The **TrainerOS SDK** lets other developers connect their own games or apps to the shared avatar, Lobby, admitted multiplayer channels, match scorecards and widgets. Games keep their own engine and gameplay — they don't need to rebuild the surrounding social and platform infrastructure.
+
+## Where this could go
+
+I'm also designing **Bazaar**: shared spaces where players could meet, show off characters and items, take part in activities and jump into games together. That's a direction I'm building toward, **not a feature included in this alpha**.
+
+What keeps me interested is the combination: games, people, avatars, achievements and little activities all becoming part of one gaming environment instead of separate utilities.
+
+## The first public alpha
+
+**The first installer targets compatible handhelds running ArmadaOS.** It installs over that Linux environment; it is **not an Android APK**, a universal handheld firmware image, or a SteamOS/Bazzite installer. Broader Linux installers are planned separately.
+
+This is an **experimental alpha**. Several real game/device scenarios have been tested, but others are early integrations. I'd love reports about specific handhelds, games, controls and networking setups — **successful launches are useful reports too**.
+
+TrainerOS is free, and the source is available. If you enjoy this slightly ridiculous project, you can help by testing, reporting bugs, joining the community or sharing the project.
+
+**Alpha:** [ALPHA_RELEASE_URL]  
+**Source:** https://github.com/EriArk/TrainerOS  
+**Discord:** https://discord.gg/xBN9DXt8Q  
+**Support:** https://www.patreon.com/AbyssTail/membership
+
+Development disclosure: I use Codex/AI-assisted tools as part of the development workflow, with project design decisions and device testing guided by me.
+
+Have fun breaking things — just please tell me how you did it! 😁
