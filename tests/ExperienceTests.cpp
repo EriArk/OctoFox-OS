@@ -135,7 +135,7 @@ private slots:
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
         auto* dashboard=shell.dashboard();auto* pet=dashboard->companion();
         QTemporaryDir packages;dashboard->setInstalledWidgets(packages.path(),{homeWidgetPackage(packages.path())});
-        shell.openOnlineFace("crates");
+        shell.openAppsFace("crates");
         QVERIFY(dashboard->selectPackageWidget("home-companion"));
         QCOMPARE(dashboard->widget()["id"].toString(),QString("crates:home-companion:pet"));
         QVERIFY(!dashboard->widgetPicking());
@@ -721,12 +721,12 @@ private slots:
         shell.restoreNavigation({{"version",3},{"page","home"},{"socialFace","lobby"}});
         QCOMPARE(shell.primaryId(),"home");QCOMPARE(shell.hubFace(),"spaces");
         shell.goToSection("social");QCOMPARE(shell.socialSurface(),"chats");
-        QCOMPARE(shell.faceNames(),QStringList({"Lobby","Bazaar","Crates","Chats"}));
+        QCOMPARE(shell.faceNames(),QStringList({"Lobby","Bazaar","Chats"}));
         shell.goToSection("gamehub");QCOMPARE(shell.primaryId(),"home");
         shell.goToSection("games");shell.dispatch(Action::NextPage);QCOMPARE(shell.primaryId(),"online");
         shell.dispatch(Action::PreviousPage);QCOMPARE(shell.primaryId(),"games");
-        shell.goToSection("apps");QCOMPARE(shell.faceNames(),QStringList({"Apps","Browser","Files"}));
-        shell.selectFace(2);QCOMPARE(shell.appsFace(),"files");
+        shell.goToSection("apps");QCOMPARE(shell.faceNames(),QStringList({"Apps","Crates","Browser","Files"}));
+        shell.selectFace(3);QCOMPARE(shell.appsFace(),"files");
         shell.goToSection("social");QCOMPARE(shell.onlineFace(),"chats");
     }
     void legacyRoutesMigrateToTheCorrectOwner() {

@@ -1,5 +1,6 @@
 #include "adapters/pokemon/PokemonExperience.h"
 #include "core/model/SeriesCatalog.h"
+#include "core/storage/LocalStateStore.h"
 #include "core/navigation/ShellController.h"
 #include "integrations/adventure/mock/MockAdventureAdapter.h"
 #include <QtTest>
@@ -51,6 +52,32 @@ public:
 class SeriesTests: public QObject {
     Q_OBJECT
 private slots:
+    void romImportFromGamesReturnsToTheImportedPlatform() {
+        QTemporaryDir dir;const auto source=dir.filePath("Imported.gba");
+        {QFile f(source);QVERIFY(f.open(QIODevice::WriteOnly));f.write("Synthetic ROM picker fixture");}
+        LocalStateStore library(dir.filePath("profile"));library.open();QTRY_VERIFY(library.ready());
+        MockTrainerRepository profiles;MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        LocalFileCatalog files;shell.libraryManager()->files()->setCatalog(&files);shell.libraryManager()->setInitialFolder(dir.path());
+        shell.goToSection("games");QVERIFY(shell.collectionsRoot());
+        shell.dispatch(Action::Secondary);QVERIFY(shell.quickAppsOpen());shell.dispatch(Action::ChangeView);
+        QVERIFY(!shell.serviceOpen());shell.dispatch(Action::Back);
+        shell.dispatch(Action::ToggleContinue);QVERIFY(shell.drawerOpen());shell.dispatch(Action::ChangeView);
+        QVERIFY(!shell.serviceOpen());shell.dispatch(Action::Back);
+        shell.dispatch(Action::ChangeView);QCOMPARE(shell.service(),"library");QVERIFY(shell.libraryManager()->importing());
+        auto* picker=shell.libraryManager()->files();QTRY_VERIFY(!picker->busy());
+        int file=-1;for(int i=0;i<picker->rows().size();++i)if(picker->rows()[i].toMap()["id"].toString()==source)file=i;
+        QVERIFY(file>=0);picker->select(file);picker->choose();QCOMPARE(shell.libraryManager()->route(),"edition");
+        int platformIndex=-1;const auto choices=shell.libraryManager()->choices();
+        for(int i=0;i<choices.size();++i){QVERIFY(choices[i].toMap()["id"]!="steam");if(choices[i].toMap()["id"]=="gba")platformIndex=i;}
+        QVERIFY(platformIndex>=0);shell.activate(platformIndex);QCOMPARE(shell.libraryManager()->route(),"edit");
+        shell.activate(6);QTRY_COMPARE(library.registrations().size(),1);QTRY_VERIFY(!shell.serviceOpen());
+        QCOMPARE(shell.primaryId(),"games");QVERIFY(shell.collectionsRoot());QCOMPARE(shell.gamesRootZone(),"platforms");
+        QCOMPARE(shell.gamesPlatforms()[shell.gamesPlatformIndex()].toMap()["id"].toString(),"gba");
+        QVERIFY(!shell.menuOpen());shell.dispatch(Action::ChangeView);QVERIFY(picker->isOpen());picker->cancel();
+        QVERIFY(!shell.serviceOpen());QVERIFY(!shell.menuOpen());QCOMPARE(library.registrations().size(),1);
+    }
     void repeatedCollectionNavigationReusesProjection() {
         SeriesLibrary library;library.records.clear();library.revision=1;
         for(int i=0;i<400;++i) {
@@ -228,8 +255,9 @@ private slots:
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
         const auto home=shell.currentAdventureId();shell.goToPage(1);shell.openGamesRootItem("platforms","snes");
         shell.dispatch(Action::LocalAction);QCOMPARE(shell.libraryTools()->route(),"game");
-        QCOMPARE(shell.libraryTools()->rows()[5].toMap()["label"].toString(),"Add to collection");
-        shell.activate(5);QCOMPARE(shell.collectionManager()->route(),"membership");QVERIFY(!shell.libraryTools()->isOpen());
+        shell.libraryTools()->selectSection(1);
+        QCOMPARE(shell.libraryTools()->rows()[0].toMap()["id"].toString(),"collection");
+        shell.activate(0);QCOMPARE(shell.collectionManager()->route(),"membership");QVERIFY(!shell.libraryTools()->isOpen());
         shell.activate(0);QVERIFY(shell.keyboard()->isOpen());shell.keyboard()->cancel();
         shell.collectionManager()->applyText("Weekend");shell.activate(1);QVERIFY(!shell.collectionManager()->isOpen());
         QVERIFY(shell.collectionManager()->definitions()[0].toObject()["games"].toArray().contains("m1"));
@@ -408,8 +436,9 @@ private slots:
         shell.dispatch(Action::Secondary);shell.dispatch(Action::ChangeView);shell.focusLibraryGame(0);
         QCOMPARE(shell.multiverse()->viewStyle(),"list");QCOMPARE(shell.multiverse()->detail()["id"],id);
         shell.dispatch(Action::Back);shell.openContext();QVERIFY(shell.libraryTools()->isOpen());
+        shell.libraryTools()->selectSection(2);
         const auto rows=shell.libraryTools()->rows();int wheel=-1;
-        for(int i=0;i<rows.size();++i)if(rows[i].toMap()["label"].toString().startsWith("View: Wheel"))wheel=i;
+        for(int i=0;i<rows.size();++i)if(rows[i].toMap()["id"].toString()=="view:wheel")wheel=i;
         QVERIFY(wheel>=0);shell.libraryTools()->activate(wheel);
         QVERIFY(!shell.libraryTools()->isOpen());QCOMPARE(shell.multiverse()->viewStyle(),"wheel");
         QCOMPARE(shell.multiverse()->detail()["id"],id);QCOMPARE(shell.currentAdventureId(),home);QVERIFY(adapter.launched.isEmpty());

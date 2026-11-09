@@ -31,10 +31,10 @@ inline void startOnlineSmoke(QQuickWindow* window,trainer::ShellController& shel
             capture("online-lobby-wide");shell.dispatch(Action::NextFace);break;
         case 2:
             check(shell.onlineFace()=="bazaar" && !shell.socialActive(),"Bazaar independent of conversation");
-            capture("online-bazaar-wide");shell.dispatch(Action::NextFace);break;
+            capture("online-bazaar-wide");shell.openAppsFace("crates");break;
         case 3:
-            check(shell.onlineFace()=="crates" && !shell.socialActive(),"Crates entry");
-            capture("online-crates-wide");shell.dispatch(Action::NextFace);break;
+            check(shell.primaryId()=="apps" && shell.appsFace()=="crates" && !shell.socialActive(),"Crates entry");
+            capture("apps-crates-wide");shell.openOnlineFace("chats");break;
         case 4:
             check(shell.onlineFace()=="chats" && shell.socialActive(),"Chats entry");
             capture("online-chats-wide");shell.dispatch(Action::Up);shell.dispatch(Action::Right);break;
@@ -46,11 +46,11 @@ inline void startOnlineSmoke(QQuickWindow* window,trainer::ShellController& shel
             shell.dispatch(Action::Back);window->resize(960,540);break;
         case 7:
             check(shell.onlineFace()=="chats" && shell.socialFace()=="communities" && !shell.serviceOpen(),"Profile returns to chats");
-            capture("online-chats-compact");shell.openOnlineFace("crates");break;
+            capture("online-chats-compact");shell.openAppsFace("crates");break;
         case 8:
-            capture("online-crates-compact");shell.goToPage(4);break;
+            capture("apps-crates-compact");shell.openAppsFace("apps");break;
         case 9:
-            check(shell.faceNames()==QStringList({"Apps","Browser","Files"}),"Apps faces");
+            check(shell.faceNames()==QStringList({"Apps","Crates","Browser","Files"}),"Apps faces");
             capture("apps-compact");shell.openGameHubFace("spaces");break;
         case 10:
             check(shell.faceNames().size()<=2,"GameHub excludes profile and lobby");

@@ -1,5 +1,21 @@
 # Структура TrainerOS: владельцы, контракты и связи
 
+**9 ноября — S04 → S12/S13: Crates возвращён в Apps.** Навигация и QML
+открывают тот же каталог через Apps / Crates / Browser / Files; Online содержит
+Lobby / Bazaar / Chats. Существующий формат навигации v4 переносит прежний активный адрес
+Online/Crates и сохраняет старый Apps/Crates. Переходы из Software Settings
+используют новый адрес; владельцы установки, Downloads и аккаунтов не меняются.
+Установка изменённой сборки на устройства ещё не подтверждена.
+
+
+**9 ноября — импорт ROM, S04 → существующая библиотека.** `ShellController::importRom`
+подключает R3 и кнопку `SeriesPage` к `LibraryManagementController::beginImport`.
+`FilePickerController`/`LocalFileCatalog` выбирают файл; общий `saveAdventureAsync`
+сохраняет регистрацию `multiverse` с платформой и исходным путём. `LibraryPanel`
+показывает подтверждение и компактную форму; `prepareInstallation` использует
+прежний router. Отдельного импортного backend, копии ROM или новой схемы хранения нет.
+PC-мастер и точный импорт для Lobby продолжают использовать собственные сценарии.
+
 **3 ноября — hybrid runtime:** `packaging/software/runtime_upstream.py` получает
 закреплённый официальный asset до транзакции; `upstream_media.py` заменяет бинарник
 на descriptor при сборке. `packaging/emulators/upstream-arm64.json` хранит pin,

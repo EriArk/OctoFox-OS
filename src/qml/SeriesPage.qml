@@ -137,6 +137,13 @@ Item {
         x: 30; y: divider.y + 6; text: "Platforms"; color: Theme.ink
         font.family: Theme.displayFamily; font.pixelSize: 17
     }
+    CapButton {
+        objectName: "games-import-rom"
+        anchors.right: parent.right; anchors.rightMargin: 30; y: divider.y + 2
+        width: 166; height: 25; textSize: 15; label: "+ Import ROM"; tint: Theme.green
+        enabled: root.takesFocus
+        onActivated: shell.importRom()
+    }
     GridView {
         id: platforms
         objectName: "games-platforms"
@@ -202,7 +209,7 @@ Item {
     ScrollArrow { view: platforms; zone: "platforms" }
     Text {
         anchors.centerIn: platforms; visible: platforms.count === 0
-        text: "Your consoles will appear here\nAdd games in Start \u2192 Library"
+        text: "Your consoles will appear here\nUse Import ROM to choose a game file"
         color: Theme.muted; font.pixelSize: 16; horizontalAlignment: Text.AlignHCenter
     }
 }

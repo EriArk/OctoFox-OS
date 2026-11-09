@@ -320,7 +320,7 @@ Window {
                 FilesPane { id: filesPane; anchors.fill: parent; flow: shell.files; applicationStatus: shell.apps.status; visible: !shell.serviceOpen && shell.primaryId === "apps" && shell.appsFace === "files"; takesFocus: visible && !shell.notice.length && !shell.drawerOpen && !shell.quickAppsOpen && !shell.keyboard.open && !shell.menuOpen && !shell.homeMenuOpen && !shell.files.view.menuOpen && !Object.keys(shell.files.dialog).length }
                 CratesPage {
                     anchors.fill: parent
-                    visible: (!shell.serviceOpen || shell.service === "settings" || shell.service === "account-profile") && shell.primaryId === "online" && shell.onlineFace === "crates"
+                    visible: (!shell.serviceOpen || shell.service === "settings" || shell.service === "account-profile") && shell.primaryId === "apps" && shell.appsFace === "crates"
                     flow: shell.crates
                     active: visible && !shell.serviceOpen && !shell.drawerOpen && !shell.quickAppsOpen && !shell.menuOpen && !shell.homeMenuOpen && !shell.keyboard.open && !shell.notice.length
                 }
@@ -515,7 +515,7 @@ Window {
                 if (shell.gamePerformance.open) return [h("A","Adjust"),h("B","Close")]
                 if (shell.pcGames.open) return [h("A","Choose"),h("B",shell.pcGames.picker.open ? "Back" : shell.pcGames.busy ? "Hide" : "Close")]
                 if(shell.collectionManager.open) return [h("A","Choose"),h("B","Back")]
-                if (shell.page === 1 && shell.collectionsRoot) return shell.gamesRootZone === "collections" ? [h("A","Open"),h("Select","Collection actions"),h("B","Home")] : [h("A","Open platform"),h("B","Home")]
+                if (shell.page === 1 && shell.collectionsRoot) return shell.gamesRootZone === "collections" ? [h("A","Open"),h("R3","Import ROM"),h("Select","Collection actions"),h("B","Home")] : [h("A","Open platform"),h("R3","Import ROM"),h("B","Home")]
                 if (shell.page === 1) {
                     if(shell.multiverseFace && shell.multiverse.systemId === "pc" && (shell.pcAddFocused || !shell.multiverse.games.length)) return [h("A","Add game"),h("B","Games")]
                     const list = shell.multiverseFace ? shell.multiverse.route === "games" : shell.worlds.route === "adventures"
@@ -530,12 +530,12 @@ Window {
                 if (shell.page === 0) return [h("A",shell.homeGame.id ? (shell.liveGame.id === shell.homeGame.id ? "Return" : shell.home.actionHint) : "Collections"),h("Select","Game actions"),h("B","Back")]
                 if (shell.primaryId === "apps" && shell.appsFace === "files") return shell.files.view.menuOpen || Object.keys(shell.files.dialog).length ? [h("A","Select"),h("B","Close")] : [h("A","Open"),h("Hold A","Actions"),h("Select","Controls"),h("R3","View"),h("B","Back")]
                 if (shell.primaryId === "apps" && shell.appsFace === "browser") return browserPane.popup ? [h("A","Select"),h("B","Close")] : [h("A","Select"),h("Hold A","Actions"),h("Select","Controls"),h("B","Back")]
-                if (shell.primaryId === "online" && shell.onlineFace === "crates") {
+                if (shell.primaryId === "apps" && shell.appsFace === "crates") {
                     if (shell.crates.detailOpen) {
                         if (shell.crates.actionsOpen) return [h("A","Choose"),h("B","Back")]
                         return (shell.crates.primaryEnabled ? [h("A",shell.crates.primaryLabel)] : []).concat([h("B","Close")],shell.crates.canRemove ? [h("Select","Remove")] : [])
                     }
-                    return shell.crates.opened ? (shell.crates.projectCount ? [h("A","Details"),h("B","Crates")] : [h("B","Crates")]) : [h("A",shell.crates.opening ? "Skip" : "Open"),h("B","Home")]
+                    return shell.crates.opened ? (shell.crates.projectCount ? [h("A","Details"),h("B","Crates")] : [h("B","Crates")]) : [h("A",shell.crates.opening ? "Skip" : "Open"),h("B","Apps")]
                 }
                 if (shell.primaryId === "apps") return shell.apps.menu.length ? [h("↑↓","Choose"),h("A","Select"),h("B","Back")] : [h("A","Open"),h("Select","Options"),h("X","Quick Apps"),h("Y","Recent games"),h("B","Home")]
                 if (shell.primaryId === "gamehub") return gameHubPage.hints(h)
@@ -593,7 +593,7 @@ Window {
         Loader { anchors.fill: screen; active: shell.service === "device"; visible: active; sourceComponent: DevicePanel { shell: shellController } }
         Loader { anchors.fill: screen; active: shell.service === "diagnostics"; visible: active; sourceComponent: DiagnosticsPanel { shell: shellController } }
         Loader { anchors.fill: screen; active: shell.service === "game-preparation"; visible: active; sourceComponent: GamePreparationPanel { shell: shellController } }
-        Loader { anchors.fill: screen; z: 2.8; active: shell.primaryId === "online" && shell.onlineFace === "crates" && shell.crates.detailOpen && !shell.serviceOpen && !shell.quickAppsOpen && !shell.drawerOpen; visible: active; sourceComponent: CratesProjectPopup { flow: shell.crates } }
+        Loader { anchors.fill: screen; z: 2.8; active: shell.primaryId === "apps" && shell.appsFace === "crates" && shell.crates.detailOpen && !shell.serviceOpen && !shell.quickAppsOpen && !shell.drawerOpen; visible: active; sourceComponent: CratesProjectPopup { flow: shell.crates } }
         Loader { anchors.fill: screen; z: shell.menuOpen ? 4.2 : 3.1; active: shell.scraper.open && !shell.keyboard.open; visible: active; sourceComponent: ScrapePanel { shell: shellController } }
         Loader { anchors.fill: screen; z: shell.menuOpen ? 4.2 : 3.2; active: shell.downloads.open; visible: active; sourceComponent: DownloadsPanel { flow: shell.downloads } }
         MyLobbiesPopup { anchors.fill: screen; social: shell.social; z: 3.5 }

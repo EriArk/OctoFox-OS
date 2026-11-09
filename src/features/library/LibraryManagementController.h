@@ -5,6 +5,7 @@
 namespace trainer {
 class LibraryManagementController final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(bool importing READ importing NOTIFY changed)
     Q_PROPERTY(QString route READ route NOTIFY changed)
     Q_PROPERTY(QString zone READ zone NOTIFY changed)
     Q_PROPERTY(int focusIndex READ focusIndex NOTIFY changed)
@@ -20,6 +21,8 @@ public:
     LibraryManagementController(LibraryRepository&, FileCatalog*, QObject* parent = nullptr);
     void begin(const QString& worldId = {});
     void beginEdit(const QString& adventureId);
+    void beginImport(const QString& platformId = {});
+    bool importing() const { return importing_; }
     std::function<void(AdventureRegistration&)> prepareInstallation;
     void close();
     void refresh();
@@ -46,6 +49,7 @@ signals:
     void textRequested(const QString& title, const QString& initial, int limit);
     void messageRequested(const QString& message);
     void saved();
+    void imported(const QString& platformId);
 private:
     void edit(const QString& id = {});
     void save();
@@ -59,6 +63,6 @@ private:
     QString route_ = "list", zone_ = "actions";
     QStringList extraDraft_;
     int focus_ = 0, textField_ = -1;
-    bool open_ = false, saving_ = false, direct_ = false;
+    bool open_ = false, saving_ = false, direct_ = false, importing_ = false;
 };
 }

@@ -252,6 +252,8 @@ public:
     QString appsFace() const { return appsFace_; }
     QString onlineFace() const { return onlineFace_; }
     bool chatNavigationFocused() const { return chatNavigationFocused_; }
+    Q_INVOKABLE void importRom();
+    Q_INVOKABLE void openAppsFace(const QString& face);
     Q_INVOKABLE void openOnlineFace(const QString& face);
     Q_INVOKABLE void selectChatFace(const QString& face);
     QString socialSurface() const { return onlineFace_=="lobby"?QString("lobby"):socialFace_; }

@@ -5,6 +5,8 @@ Item {
     required property var shell
     readonly property var manager: shell.libraryManager
     readonly property var files: manager.files
+    readonly property bool compactImport: manager.importing && height < 320
+    readonly property var fieldIds: manager.importing ? [0, 3, 4, 5] : [0, 1, 2, 3, 4, 5]
     readonly property bool takesFocus: visible && !shell.menuOpen && !shell.keyboard.open && shell.notice.length === 0
     // The main chassis owns the recessed surface for pages and services alike.
     Item {
@@ -13,7 +15,7 @@ Item {
         PageHeader {
             id: libraryHeader; compact: true; subtitleElide: Text.ElideMiddle
             title: root.manager.route === "files" ? "Choose an Adventure file" : root.manager.title
-            subtitle: root.manager.route === "files" ? root.files.path : root.manager.saving ? "Saving… You can leave; the submitted save will finish." : "Link your own file. Supported play setups are applied automatically."
+            subtitle: root.manager.route === "files" ? root.files.path : root.manager.saving ? "Saving… You can leave; the submitted save will finish." : root.manager.importing ? "Choose a file, check its platform, then import. The file stays in its current location." : "Link your own file. Supported play setups are applied automatically."
         }
         MountedPanel { x: 0; y: libraryHeader.height; width: parent.width; height: parent.height - y; color: Theme.surfaceColor("#d4e2d6") }
         Item {
@@ -27,7 +29,7 @@ Item {
             Text { x: 30; y: 128; visible: root.manager.rows.length === 0; text: "A new library, ready for your Adventures."; font.pixelSize: 24; color: Theme.ink }
             MountedPanel {
                 anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                height: 72; color: Theme.surfaceColor("#bfd6c8")
+                height: root.compactImport ? 48 : 72; color: Theme.surfaceColor("#bfd6c8")
                 Row {
                     x: 30; y: 16; spacing: 18
                     Repeater {
@@ -46,30 +48,31 @@ Item {
         Item {
             anchors.fill: parent; visible: root.manager.route === "edit"
             Grid {
-                x: 30; y: libraryHeader.height + 17; columns: 2; columnSpacing: 18; rowSpacing: 13
+                x: 30; y: libraryHeader.height + (root.compactImport ? 2 : 17); width: parent.width - 60; columns: 2; columnSpacing: 18; rowSpacing: root.compactImport ? 6 : 13
                 Repeater {
-                    model: root.manager.fields
+                    model: root.fieldIds
                     delegate: CapButton {
-                        required property int index; required property var modelData
-                        objectName: "adventure-field-" + index
-                        width: 415; height: 52; label: modelData.title; detail: modelData.value
+                        required property int index; required property int modelData
+                        readonly property var field: root.manager.fields[modelData]
+                        objectName: "adventure-field-" + modelData
+                        width: (parent.width - parent.columnSpacing) / 2; height: root.compactImport ? 38 : 52; textSize: root.compactImport ? 15 : 17; label: field.title; detail: field.value
                         tint: Theme.tabColors[index % Theme.tabColors.length]
-                        selected: root.takesFocus && root.manager.route === "edit" && root.manager.focusIndex === index
-                        onActivated: root.shell.activate(index)
+                        selected: root.takesFocus && root.manager.route === "edit" && root.manager.focusIndex === modelData
+                        onActivated: root.shell.activate(modelData)
                     }
                 }
             }
             MountedPanel {
                 anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                height: 72; color: Theme.surfaceColor("#bfd6c8")
+                height: root.compactImport ? 48 : 72; color: Theme.surfaceColor("#bfd6c8")
                 CapButton {
-                    objectName: "adventure-save"; x: 30; y: 16; width: 415; height: 43
-                    label: root.manager.saving ? "Saving…" : "Save Adventure"
+                    objectName: "adventure-save"; x: 30; y: root.compactImport ? 4 : 16; width: (parent.width - 78) / 2; height: root.compactImport ? 36 : 43
+                    label: root.manager.saving ? "Saving…" : root.manager.importing ? "Import ROM" : "Save Adventure"
                     selected: root.takesFocus && root.manager.route === "edit" && root.manager.focusIndex === 6
                     onActivated: root.shell.activate(6)
                 }
                 CapButton {
-                    objectName: "adventure-cancel"; x: 463; y: 16; width: 415; height: 43; tint: Theme.pink
+                    objectName: "adventure-cancel"; x: parent.width / 2 + 9; y: root.compactImport ? 4 : 16; width: (parent.width - 78) / 2; height: root.compactImport ? 36 : 43; tint: Theme.pink
                     label: root.manager.saving ? "Back to library" : "Cancel changes"
                     selected: root.takesFocus && root.manager.route === "edit" && root.manager.focusIndex === 7
                     onActivated: root.shell.activate(7)
@@ -77,7 +80,7 @@ Item {
             }
         }
         ControllerList {
-            x: 24; y: libraryHeader.height + 11; width: parent.width - 48; height: 216
+            x: 24; y: libraryHeader.height + 11; width: parent.width - 48; height: Math.max(0, parent.height - y - 12)
             visible: root.manager.route === "world" || root.manager.route === "extras" || root.manager.route === "edition"
             model: root.manager.choices.map(function(choice) { return {id: choice.id, title: (choice.selected ? "●  " : "") + choice.title, subtitle: choice.selected ? "Selected" : ""} })
             currentIndex: root.manager.focusIndex; namePrefix: "manage-choice-"; tint: Theme.blue
@@ -85,7 +88,7 @@ Item {
             onActivated: function(row) { root.shell.activate(row) }
         }
         Text {
-            x: 30; y: 311; width: parent.width - 60; elide: Text.ElideRight; color: Theme.textColor("#853b24"); font.pixelSize: 14
+            objectName: "adventure-error"; x: 30; y: parent.height - (root.compactImport ? 68 : 94); width: parent.width - 60; elide: Text.ElideRight; color: Theme.textColor("#853b24"); font.pixelSize: 14
             visible: root.manager.route !== "files"; text: root.manager.error; textFormat: Text.PlainText
         }
     }

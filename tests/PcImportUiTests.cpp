@@ -17,6 +17,7 @@
 #include "adapters/pokemon/pokedex/SpriteImages.h"
 #include "core/repository/OfflinePokedex.h"
 #include "core/navigation/ShellController.h"
+#include "core/storage/LocalStateStore.h"
 #include "integrations/adventure/mock/MockAdventureAdapter.h"
 using namespace trainer;
 class UiLibrary : public LibraryRepository {
@@ -32,6 +33,49 @@ public:
 class PcImportUiTests : public QObject {
     Q_OBJECT
 private slots:
+    void romImportTouchAndCompactLayout() {
+        QTemporaryDir temp;QDir source(QString(TRAINER_SOURCE_DIR)+"/src/qml");
+        const auto ui=temp.filePath("ui");QVERIFY(QDir().mkpath(ui));
+        for(const auto& name:source.entryList({"*.qml","*.js"},QDir::Files))QVERIFY(QFile::copy(source.filePath(name),ui+'/'+name));
+        QFile module(ui+"/qmldir");QVERIFY(module.open(QIODevice::WriteOnly));module.write("singleton Theme 1.0 Theme.qml\n");module.close();
+        QFile scene(ui+"/Probe.qml");QVERIFY(scene.open(QIODevice::WriteOnly));
+        scene.write("import QtQuick\nItem { width:912;height:354;property bool dark:false;onDarkChanged:Theme.themeId=dark?'dark':'light';Rectangle{anchors.fill:parent;color:Theme.paper} SeriesPage{anchors.fill:parent;shell:probeShell;visible:!probeShell.serviceOpen} LibraryPanel{anchors.fill:parent;shell:probeShell;visible:probeShell.service==='library'} }");scene.close();
+        const auto rom=temp.filePath("Picker fixture.gba");{QFile f(rom);QVERIFY(f.open(QIODevice::WriteOnly));f.write("Synthetic import UI fixture");}
+        LocalStateStore library(temp.filePath("profile"));library.open();QTRY_VERIFY(library.ready());
+        MockTrainerRepository profiles;MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        LocalFileCatalog files;shell.libraryManager()->files()->setCatalog(&files);shell.libraryManager()->setInitialFolder(temp.path());shell.goToSection("games");
+        QQuickView view;QStringList warnings;
+        connect(view.engine(),&QQmlEngine::warnings,this,[&](const QList<QQmlError>& errors){for(const auto& e:errors)
+            if(!e.description().contains("Cannot open:")&&!e.description().contains("Cannot open file:")&&!e.description().contains("Cannot read:"))warnings<<e.toString();});
+        view.rootContext()->setContextProperty("probeShell",&shell);view.setResizeMode(QQuickView::SizeRootObjectToView);
+        view.setSource(QUrl::fromLocalFile(scene.fileName()));QVERIFY2(view.status()==QQuickView::Ready,qPrintable(warnings.join('\n')));view.show();QTest::qWait(150);
+        std::function<QQuickItem*(QQuickItem*,QString)> find=[&](QQuickItem* item,QString name)->QQuickItem*{
+            if(!item->isVisible())return nullptr;if(item->objectName()==name)return item;
+            for(auto* child:item->childItems())if(auto* found=find(child,name))return found;return nullptr;
+        };
+        auto click=[&](const QString& name){auto* item=find(view.rootObject(),name);QVERIFY2(item,qPrintable(name));QTest::mouseClick(&view,Qt::LeftButton,Qt::NoModifier,item->mapToScene({item->width()/2,item->height()/2}).toPoint());};
+        QDir().mkpath("screenshots/rom-import");QVERIFY(view.grabWindow().save("screenshots/rom-import/platforms.png"));
+        click("games-import-rom");QVERIFY(shell.libraryManager()->files()->isOpen());
+        auto* picker=shell.libraryManager()->files();QTRY_VERIFY(!picker->busy());QTest::qWait(100);
+        QVERIFY(view.grabWindow().save("screenshots/rom-import/picker.png"));
+        int row=-1;for(int i=0;i<picker->rows().size();++i)if(picker->rows()[i].toMap()["id"].toString()==rom)row=i;
+        QVERIFY(row>=0);picker->select(row);picker->choose();QCOMPARE(shell.libraryManager()->route(),"edition");
+        int gba=-1;const auto choices=shell.libraryManager()->choices();for(int i=0;i<choices.size();++i)if(choices[i].toMap()["id"]=="gba")gba=i;
+        QVERIFY(gba>=0);shell.activate(gba);
+        for(bool dark:{false,true})for(auto size:{QSize(912,354),QSize(752,280)}){
+            view.resize(size);view.rootObject()->setProperty("dark",dark);QTest::qWait(100);
+            auto* save=find(view.rootObject(),"adventure-save");auto* cancel=find(view.rootObject(),"adventure-cancel");QVERIFY(save&&cancel);
+            const auto a=save->mapRectToScene(save->boundingRect()),b=cancel->mapRectToScene(cancel->boundingRect());
+            QVERIFY(a.right()<b.left());QVERIFY(a.bottom()<=view.height());QVERIFY(b.right()<=view.width());
+            for(int id:{0,3,4,5}){auto* field=find(view.rootObject(),"adventure-field-"+QString::number(id));QVERIFY(field);const auto bounds=field->mapRectToScene(field->boundingRect());QVERIFY(bounds.right()<=view.width());QVERIFY(bounds.bottom()<a.top());}
+            QVERIFY(view.grabWindow().save(QString("screenshots/rom-import/confirm-%1-%2.png").arg(dark?"dark":"light").arg(size.width())));
+        }
+        click("adventure-save");QTRY_COMPARE(library.registrations().size(),1);QTRY_VERIFY(!shell.serviceOpen());
+        QCOMPARE(library.registrations().first().contentPath,rom);QVERIFY(QFileInfo::exists(rom));QVERIFY(!shell.menuOpen());
+        QVERIFY2(warnings.isEmpty(),qPrintable(warnings.join('\n')));
+    }
     void homeAdapterHasSeparateContentAndActions() {
         QTemporaryDir temp;const QString module=temp.filePath("TrainerOS");QVERIFY(QDir().mkpath(module));
         QStringList files;

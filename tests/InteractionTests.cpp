@@ -608,7 +608,7 @@ private slots:
         shell.dispatch(Action::NextPage);shell.dispatch(Action::PreviousPage);QCOMPARE(shell.adapterScreen(),"boxes");QCOMPARE(pokemonModule(shell).party()->box(),1);
         const auto state=shell.navigationState();shell.goToPage(0);shell.restoreNavigation(state);QCOMPARE(shell.adapterScreen(),"boxes");QCOMPARE(pokemonModule(shell).party()->box(),1);
         shell.selectAdapterScreen("party");QCOMPARE(pokemonModule(shell).party()->focusIndex(),1);
-        shell.openOnlineFace("lobby");for(int i=0;i<8;++i){QCOMPARE(shell.faceIndex(),i%4);shell.dispatch(Action::NextFace);}
+        shell.openOnlineFace("lobby");for(int i=0;i<6;++i){QCOMPARE(shell.faceIndex(),i%3);shell.dispatch(Action::NextFace);}
         shell.openGameHubFace("adapter");shell.selectAdapterScreen("dex");
         pokemonModule(shell).pokedex()->dispatch(Action::Down);const auto zone=pokemonModule(shell).pokedex()->zone();shell.dispatch(Action::Back);QCOMPARE(pokemonModule(shell).pokedex()->zone(),zone);
         QVERIFY(shell.adapterMenuOpen());
@@ -671,7 +671,7 @@ private slots:
         shell.dispatch(Action::Back);shell.goToTrainerFace("hall");shell.dispatch(Action::Confirm);
         const auto history=shell.hall()->navigationState();QCOMPARE(shell.hall()->route(),"archive-detail");
         shell.goToSection("social");QCOMPARE(shell.primaryId(),"online");QCOMPARE(shell.onlineFace(),"chats");
-        QCOMPARE(shell.faceNames(),QStringList({"Lobby","Bazaar","Crates","Chats"}));
+        QCOMPARE(shell.faceNames(),QStringList({"Lobby","Bazaar","Chats"}));
         shell.selectChatFace("communities");QCOMPARE(shell.socialFace(),"communities");
         shell.selectChatFace("friends");const auto discover=shell.navigationState();
         shell.keyboard()->begin("Message","",100);shell.selectChatFace("chats");shell.selectFace(0);
@@ -685,9 +685,39 @@ private slots:
         const auto checkpoint=shell.navigationState();
         shell.openProfile();shell.activate(3,"profile");QCOMPARE(shell.profileRoute(),"ra");
         for(int back=0;back<6 && shell.service()=="profile";++back)shell.dispatch(Action::Back);QCOMPARE(shell.navigationState(),checkpoint);QCOMPARE(shell.hall()->navigationState(),history);
-        shell.goToSection("crates");QCOMPARE(shell.onlineFace(),"crates");QCOMPARE(shell.primaryId(),"online");
-        shell.goToPage(4);shell.selectFace(2);QCOMPARE(shell.appsFace(),"files");QCOMPARE(shell.faceNames(),QStringList({"Apps","Browser","Files"}));
+        shell.goToSection("crates");QCOMPARE(shell.appsFace(),"crates");QCOMPARE(shell.primaryId(),"apps");
+        shell.goToPage(4);shell.selectFace(3);QCOMPARE(shell.appsFace(),"files");QCOMPARE(shell.faceNames(),QStringList({"Apps","Crates","Browser","Files"}));
         shell.restoreNavigation({{"version",99},{"page",4}});QCOMPARE(shell.primaryId(),"home");QCOMPARE(shell.hubFace(),"spaces");
+    }
+    void cratesBelongsToAppsAndPreservesExistingRoutes() {
+        MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;
+        DevelopmentPlatformService platform;MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        shell.openOnlineFace("chats");shell.selectChatFace("communities");
+        shell.openAppsFace("apps");shell.dispatch(Action::NextFace);
+        QCOMPARE(shell.primaryId(),"apps");QCOMPARE(shell.appsFace(),"crates");QCOMPARE(shell.faceIndex(),1);
+        QVERIFY(!shell.socialActive());
+        shell.dispatch(Action::NextFace);QCOMPARE(shell.appsFace(),"browser");
+        shell.dispatch(Action::NextFace);QCOMPARE(shell.appsFace(),"files");
+        shell.dispatch(Action::PreviousFace);QCOMPARE(shell.appsFace(),"browser");
+        shell.dispatch(Action::PreviousFace);QCOMPARE(shell.appsFace(),"crates");
+        shell.dispatch(Action::Back);QCOMPARE(shell.appsFace(),"apps");
+        shell.openOnlineFace("crates");QCOMPARE(shell.primaryId(),"apps");QCOMPARE(shell.appsFace(),"crates");
+        shell.goToSection("online");QCOMPARE(shell.onlineFace(),"chats");QCOMPARE(shell.socialFace(),"communities");
+        shell.goToSection("apps");QCOMPARE(shell.appsFace(),"crates");
+        shell.keyboard()->begin("Message","",100);shell.openAppsFace("files");shell.selectFace(3);
+        QCOMPARE(shell.appsFace(),"crates");shell.keyboard()->cancel();
+        shell.restoreNavigation({{"version",4},{"page","online"},{"onlineFace","crates"},{"appsFace","browser"}});
+        QCOMPARE(shell.primaryId(),"apps");QCOMPARE(shell.appsFace(),"crates");QCOMPARE(shell.onlineFace(),"lobby");
+        const auto checkpoint=shell.navigationState();shell.goToSection("home");shell.restoreNavigation(checkpoint);
+        QCOMPARE(shell.primaryId(),"apps");QCOMPARE(shell.appsFace(),"crates");
+        shell.restoreNavigation({{"version",4},{"page","apps"},{"onlineFace","crates"},{"appsFace","browser"}});
+        QCOMPARE(shell.primaryId(),"apps");QCOMPARE(shell.appsFace(),"browser");QCOMPARE(shell.onlineFace(),"lobby");
+        shell.restoreNavigation({{"version",4},{"page","home"},{"onlineFace","crates"},{"appsFace","files"}});
+        QCOMPARE(shell.primaryId(),"home");shell.goToSection("apps");QCOMPARE(shell.appsFace(),"crates");
+        emit shell.settings()->softwareRequested("crates");QCOMPARE(shell.primaryId(),"apps");QCOMPARE(shell.appsFace(),"crates");
+        shell.openAppsFace("apps");emit shell.settings()->updates()->cratesRequested();
+        QCOMPARE(shell.primaryId(),"apps");QCOMPARE(shell.appsFace(),"crates");
     }
     void oldShellRoutesMigrateToOnlineAndProfile() {
         MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;
@@ -698,7 +728,7 @@ private slots:
             QCOMPARE(shell.primaryId(),"online");QCOMPARE(shell.onlineFace(),"chats");QCOMPARE(shell.socialFace(),"communities");
         }
         shell.restoreNavigation({{"version",3},{"page","apps"},{"appsFace","crates"}});
-        QCOMPARE(shell.primaryId(),"online");QCOMPARE(shell.onlineFace(),"crates");
+        QCOMPARE(shell.primaryId(),"apps");QCOMPARE(shell.appsFace(),"crates");
         shell.restoreNavigation({{"version",3},{"page","gamehub"},{"hubFace","lobby"}});
         QCOMPARE(shell.primaryId(),"online");QCOMPARE(shell.onlineFace(),"lobby");
         shell.restoreNavigation({{"version",3},{"page","gamehub"},{"hubFace","overview"},{"overviewFace","timeline"}});

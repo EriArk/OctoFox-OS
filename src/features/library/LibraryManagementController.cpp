@@ -1,5 +1,6 @@
 #include "LibraryManagementController.h"
 #include "core/repository/CollectionRepository.h"
+#include "core/repository/RomPlatforms.h"
 #include <QFileInfo>
 #include <QUuid>
 #include <algorithm>
@@ -13,11 +14,19 @@ LibraryManagementController::LibraryManagementController(LibraryRepository& repo
         draft_.contentPath = path; initialFolder_ = QFileInfo(path).absolutePath();
         if (prepareInstallation) prepareInstallation(draft_);
         if (draft_.adventure.title.isEmpty()) draft_.adventure.title = QFileInfo(path).completeBaseName().left(64);
-        error_.clear(); emit changed();
+        error_.clear();
+        if(importing_) {
+            focus_=6;
+            if(draft_.adventure.platformId.isEmpty()){route_="edition";focus_=0;}
+        }
+        emit changed();
+    });
+    connect(&files_,&FilePickerController::cancelled,this,[this]{
+        if(open_ && importing_ && draft_.contentPath.isEmpty() && !saving_){close();emit closeRequested();}
     });
 }
 void LibraryManagementController::begin(const QString& worldId) {
-    open_ = true; direct_ = false; preferredWorld_ = worldId; route_ = "list"; error_.clear();
+    open_ = true; direct_ = importing_ = false; preferredWorld_ = worldId; route_ = "list"; error_.clear();
     refresh(); zone_ = records_.isEmpty() ? "actions" : "list"; focus_ = 0; emit changed();
 }
 void LibraryManagementController::beginEdit(const QString& id) {
@@ -25,9 +34,18 @@ void LibraryManagementController::beginEdit(const QString& id) {
     if (route_ == "edit") focus_ = 4;
     emit changed();
 }
+void LibraryManagementController::beginImport(const QString& platformId) {
+    if(saving_)return;
+    if(!repository_.editable()){emit messageRequested("Import is unavailable in the sample library.");return;}
+    begin();direct_=importing_=true;draft_={};
+    draft_.adventure.id=QUuid::createUuid().toString(QUuid::WithoutBraces);
+    draft_.adventure.domain="multiverse";draft_.adventure.adapterId="unconfigured";
+    for(const auto& platform:romPlatforms())if(platform.id==platformId && !platform.extensions.isEmpty())draft_.adventure.platformId=platformId;
+    route_="edit";focus_=4;files_.begin(initialFolder_);emit changed();
+}
 void LibraryManagementController::close() {
     if (!open_) return;
-    open_ = false; files_.cancel(); textField_ = -1; route_ = "list";
+    open_ = false; importing_ = false; files_.cancel(); textField_ = -1; route_ = "list";
     if (!saving_) draft_ = {};
     error_.clear(); emit changed();
 }
@@ -57,22 +75,27 @@ QVariantList LibraryManagementController::fields() const {
     QStringList extra;
     for (const auto& id : draft_.adventure.additionalWorldIds) extra.append(worldName(id));
     return {QVariantMap{{"title", "Title"}, {"value", draft_.adventure.title.isEmpty() ? "Name your Adventure" : draft_.adventure.title}},
-        QVariantMap{{"title", draft_.adventure.domain=="multiverse"?"Library":"Primary World"}, {"value", draft_.adventure.domain=="multiverse"?"Multiverse":worldName(draft_.adventure.worldId)}},
+        QVariantMap{{"title", draft_.adventure.domain=="multiverse"?"Library":"Primary World"}, {"value", draft_.adventure.domain=="multiverse"?"Games":worldName(draft_.adventure.worldId)}},
         QVariantMap{{"title", draft_.adventure.domain=="multiverse"?"System":"Also in Worlds"}, {"value", draft_.adventure.domain=="multiverse"?platformLabel(draft_.adventure.platformId).name:extra.isEmpty() ? "None" : extra.join(" · ")}},
-        QVariantMap{{"title", "Edition / platform"}, {"value", QStringList{"Original", "Remake", "ROM hack"}.value(int(draft_.adventure.kind), "Original") + " · " + platformLabel(draft_.adventure.platformId).name}},
+        QVariantMap{{"title", importing_ ? "Platform" : "Edition / platform"}, {"value", importing_ ? (draft_.adventure.platformId.isEmpty()?QString("Choose a platform"):platformLabel(draft_.adventure.platformId).name) : QStringList{"Original", "Remake", "ROM hack"}.value(int(draft_.adventure.kind), "Original") + " · " + platformLabel(draft_.adventure.platformId).name}},
         QVariantMap{{"title", "Local file"}, {"value", draft_.contentPath.isEmpty() ? "Choose a file" : QFileInfo(draft_.contentPath).fileName()}},
         QVariantMap{{"title", "Notes"}, {"value", draft_.adventure.description.isEmpty() ? "Optional description" : draft_.adventure.description}}};
 }
 QString LibraryManagementController::title() const {
     if (route_ == "world") return "Choose a primary World";
     if (route_ == "extras") return "Additional Worlds";
-    if (route_ == "edition") return "Edition and platform";
+    if (route_ == "edition") return importing_ ? "Choose a platform" : "Edition and platform";
+    if (importing_) return "Import ROM";
     if (route_ == "edit") return draft_.revision == 0 ? "Add Adventure" : "Edit Adventure";
     return "Manage Adventures";
 }
 QVariantList LibraryManagementController::choices() const {
     QVariantList result;
     if (route_ == "edition") {
+        if(importing_) {
+            for(const auto& p:romPlatforms())if(!p.extensions.isEmpty())result.append(QVariantMap{{"id",p.id},{"title",p.name},{"selected",p.id==draft_.adventure.platformId}});
+            result.append(QVariantMap{{"id","cancel"},{"title","Back"},{"selected",false}});return result;
+        }
         result.append(QVariantMap{{"id", "kind"}, {"title", "Edition: " + QStringList{"Original", "Remake", "ROM hack"}.value(int(draft_.adventure.kind))}, {"selected", false}});
         for (const auto& p : draft_.adventure.domain=="multiverse"?multiversePlatforms():collectionPlatforms())
             result.append(QVariantMap{{"id", p.id}, {"title", p.name}, {"selected", p.id == draft_.adventure.platformId}});
@@ -112,14 +135,28 @@ void LibraryManagementController::save() {
     if (saving_) return;
     if (draft_.adventure.title.trimmed().isEmpty()) { error_ = "Give your Adventure a title."; focus_ = 0; return; }
     if (draft_.contentPath.isEmpty()) { error_ = "Choose the Adventure's local file."; focus_ = 4; return; }
+    if(importing_) {
+        const auto file=QFileInfo(draft_.contentPath);
+        bool supported=false;
+        for(const auto& p:romPlatforms())if(p.id==draft_.adventure.platformId)supported=p.extensions.contains(file.suffix().toLower());
+        if(!supported){error_="Choose the platform matching this file type.";focus_=3;return;}
+        for(const auto& record:repository_.registrations())if(!record.removed && !file.canonicalFilePath().isEmpty()
+            && QFileInfo(record.contentPath).canonicalFilePath()==file.canonicalFilePath()) {
+            error_="This file is already in your library.";focus_=4;return;
+        }
+        if(prepareInstallation)prepareInstallation(draft_);
+    }
     saving_ = true; error_.clear();
+    const bool wasImport=importing_;
+    const auto platform=draft_.adventure.platformId;
     const auto id = draft_.adventure.id;
-    repository_.saveAdventureAsync(draft_, this, [this, id](const LibraryWriteResult& result) {
+    repository_.saveAdventureAsync(draft_, this, [this, id, wasImport, platform](const LibraryWriteResult& result) {
         saving_ = false;
         if (result.success) {
             selectedId_ = id; draft_ = {}; route_ = "list"; zone_ = "list";
             refresh(); emit saved();
-            if (direct_) { close(); emit closeRequested(); }
+            if(wasImport)emit imported(platform);
+            if (direct_ && open_) { close(); emit closeRequested(); }
         } else {
             error_ = result.error;
             if (!open_ || route_ != "edit") emit messageRequested(error_);
@@ -201,6 +238,14 @@ void LibraryManagementController::dispatch(Action action) {
             if ((action == Action::Up || action == Action::Down) && !records_.isEmpty()) zone_ = "list";
         }
     } else {
+        if(importing_ && route_=="edit") {
+            const QList<int> fields{0,3,4,5,6,7};int i=qMax(0,int(fields.indexOf(focus_)));
+            if(action==Action::Left && i%2)--i;
+            if(action==Action::Right && !(i%2))++i;
+            if(action==Action::Up && i>=2)i-=2;
+            if(action==Action::Down && i+2<fields.size())i+=2;
+            focus_=fields[i];emit changed();return;
+        }
         const int columns = route_ == "edit" ? 2 : 1;
         const int count = route_ == "edit" ? 8 : choices().size();
         if (action == Action::Left && focus_ % columns > 0) --focus_;

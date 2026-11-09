@@ -226,6 +226,38 @@ private slots:
         bool failed = false; collection.saveAdventureAsync(wrong, this, [&](auto r) { failed = !r.success; }); QVERIFY(failed);
         QFile external(path + ".moved"); QVERIFY(external.open(QIODevice::ReadOnly)); QCOMPARE(external.readAll(), QByteArray("Original non-game fixture"));
     }
+    void romPickerRegistersReferenceAndKeepsSource() {
+        QTemporaryDir dir;const auto source=dir.filePath("Selected game.gba");
+        const QByteArray bytes("Synthetic import fixture, not a playable ROM");
+        {QFile file(source);QVERIFY(file.open(QIODevice::WriteOnly));QCOMPARE(file.write(bytes),bytes.size());}
+        {
+        LocalStateStore store(dir.filePath("profile"));store.open();QTRY_VERIFY(store.ready());
+        LocalFileCatalog files;LibraryManagementController manager(store,&files);manager.setInitialFolder(dir.path());
+        int prepared=0;manager.prepareInstallation=[&](AdventureRegistration& record){++prepared;record.adventure.adapterId="fixture";};
+        QSignalSpy imported(&manager,&LibraryManagementController::imported),closed(&manager,&LibraryManagementController::closeRequested);
+        const auto pick=[&] {
+            QTRY_VERIFY(!manager.files()->busy());
+            const auto rows=manager.files()->rows();int index=-1;
+            for(int i=0;i<rows.size();++i)if(rows[i].toMap()["id"].toString()==source)index=i;
+            QVERIFY(index>=0);manager.files()->select(index);manager.files()->choose();
+        };
+        manager.beginImport("gba");pick();QCOMPARE(manager.route(),"edit");QCOMPARE(manager.focusIndex(),6);
+        QCOMPARE(manager.fields()[0].toMap()["value"].toString(),"Selected game");
+        manager.activate(6);QTRY_COMPARE(imported.size(),1);QCOMPARE(closed.size(),1);QVERIFY(prepared>0);
+        QCOMPARE(store.registrations().size(),1);const auto saved=store.registrations().first();
+        QCOMPARE(saved.contentPath,source);QCOMPARE(saved.adventure.domain,"multiverse");QCOMPARE(saved.adventure.platformId,"gba");
+        QVERIFY(saved.adventure.worldId.isEmpty());QCOMPARE(saved.adventure.adapterId,"fixture");
+        QFile original(source);QVERIFY(original.open(QIODevice::ReadOnly));QCOMPARE(original.readAll(),bytes);original.close();
+        manager.beginImport("gba");pick();manager.activate(6);QVERIFY(manager.error().contains("already"));
+        QCOMPARE(store.registrations().size(),1);manager.dispatch(Action::Back);
+        manager.beginImport("nes");pick();manager.activate(6);QVERIFY(manager.error().contains("file type"));
+        QCOMPARE(store.registrations().size(),1);manager.dispatch(Action::Back);
+        manager.beginImport();QTRY_VERIFY(!manager.files()->busy());manager.files()->cancel();
+        QVERIFY(!manager.importing());QCOMPARE(store.registrations().size(),1);
+        } // Release the profile lock before reopening persisted state.
+        LocalStateStore reopened(dir.filePath("profile"));reopened.open();QTRY_VERIFY(reopened.ready());
+        QCOMPARE(reopened.registrations().size(),1);QCOMPARE(reopened.registrations().first().contentPath,source);
+    }
     void newReferenceWorldsAndControllerCancel() {
         QTemporaryDir dir; const auto path = dir.filePath("fixture.nds"); { QFile f(path); QVERIFY(f.open(QIODevice::WriteOnly)); f.write("fixture"); }
         LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready()); CollectionRepository collection(store);
