@@ -2,6 +2,7 @@
 #include "platform/emulation/GamePreparation.h"
 #include "features/library/FilePickerController.h"
 #include <QFuture>
+#include "platform/process/ProcessService.h"
 #include <QTimer>
 
 namespace trainer {
@@ -20,6 +21,8 @@ class GamePreparationController final : public QObject {
     Q_PROPERTY(QString group READ group NOTIFY changed)
     Q_PROPERTY(QStringList groups READ groups NOTIFY changed)
     Q_PROPERTY(bool busy READ busy NOTIFY changed)
+    Q_PROPERTY(bool setupAvailable READ setupAvailable NOTIFY changed)
+    Q_PROPERTY(bool setupRunning READ setupRunning NOTIFY changed)
     Q_PROPERTY(int focusIndex READ focusIndex NOTIFY changed)
     Q_PROPERTY(trainer::FilePickerController* picker READ picker CONSTANT)
 public:
@@ -27,7 +30,11 @@ public:
     ~GamePreparationController() override;
     void configure(QString stateDirectory,QHash<QString,QJsonObject> profiles);
     std::function<bool()> canImport;
+    std::function<QString()> setupGuard;
     bool busy() const{return busy_;}
+    bool setupAvailable() const;
+    bool setupRunning() const{return setup_.active();}
+    Q_INVOKABLE void openSetup();
     QVariantList rows() const;
     QVariantList platforms() const;
     QVariantList fileRows() const;
@@ -43,7 +50,7 @@ public:
     QStringList groups() const;
     int focusIndex() const{return focus_;}
     FilePickerController* picker(){return &picker_;}
-    void begin();
+    void begin(const QString& platform = {}, const QString& adapter = {});
     void dispatch(Action);
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void choose();
@@ -60,6 +67,9 @@ signals:
     void changed();
     void tasksChanged();
     void installed();
+    void setupStarted(qint64 pid,QString title);
+    void setupFinished();
+    void resumeSetup();
     void closeRequested();
     void onlineSettingsRequested();
     void scrollRequested(int direction);
@@ -68,8 +78,11 @@ signals:
 private:
     void importSelected(const QString&);
     void importPack(const QString&);
+    QJsonObject setupProfile() const;
+    ProcessService setup_;
     FilePickerController picker_{nullptr};
     QHash<QString,QJsonObject> profiles_;
+    QString setupAdapter_;
     QString directory_,status_,group_,selected_,picking_,taskName_,taskState_,taskDetail_,packReport_;
     QVariantList rows_;
     QList<gamePreparation::File> files_;

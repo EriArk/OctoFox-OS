@@ -112,9 +112,9 @@ QString RetroArchAdapter::setupIssue(const AdventureRegistration& record) const 
     const auto core = romCore(record.adventure.platformId);
     if (core.isEmpty()) return {};
     if (installation_.program.isEmpty())
-        return "The emulator configuration is missing or unreadable. Restore it in Desktop Mode.";
+        return "The emulator configuration is missing or unreadable. Open Software setup to install or repair the runtime.";
     if (!installation_.cores.contains(core))
-        return "The emulator for this platform is missing. Restore it in Desktop Mode.";
+        return "The emulator for this platform is missing. Open Software setup to install or repair the runtime.";
     if (!contentRoute(record.adventure.platformId, core, QFileInfo(record.contentPath).suffix().toLower()))
         return "This file format cannot be opened by this platform's emulator.";
     if (retroarch::discPlatform(record.adventure.platformId) && !installation_.readyDiscPlatforms.contains(record.adventure.platformId))
@@ -126,9 +126,9 @@ QString RetroArchAdapter::verifyInstallation(const AdventureRegistration& record
     if(core.isEmpty() || core!=romCore(record.adventure.platformId) || !installation_.cores.contains(core))return setupIssue(record);
     const QFileInfo program(installation_.program),config(installation_.configFile),coreFile(installation_.cores.value(core));
     if(!program.isFile() || !program.isExecutable() || !config.isFile() || !config.isReadable() || !coreFile.isFile() || !coreFile.isReadable())
-        return "Emulator files are missing or unreadable. Restore play setup in Desktop Mode, then check again.";
+        return "Emulator files are missing or unreadable. Open Software setup to repair the runtime, then check again.";
     if(!installation_.runtimeFile.isEmpty() && (!QFileInfo(installation_.runtimeFile).isFile() || !QFileInfo(installation_.runtimeFile).isExecutable()))
-        return "The selected emulator is unavailable. Restore it in Desktop Mode, then check again.";
+        return "The selected emulator is unavailable. Open Software setup to repair it, then check again.";
     if(retroarch::discPlatform(record.adventure.platformId)) {
         const std::atomic_bool cancel{false};
         if(!retroarch::verifiedDiscFirmware(installation_,record.adventure.platformId,cancel))

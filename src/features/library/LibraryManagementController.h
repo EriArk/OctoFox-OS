@@ -5,6 +5,8 @@
 namespace trainer {
 class LibraryManagementController final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QVariantMap result READ result NOTIFY changed)
+    Q_PROPERTY(QString resultGame READ resultGame NOTIFY changed)
     Q_PROPERTY(bool importing READ importing NOTIFY changed)
     Q_PROPERTY(QString route READ route NOTIFY changed)
     Q_PROPERTY(QString zone READ zone NOTIFY changed)
@@ -22,6 +24,11 @@ public:
     void begin(const QString& worldId = {});
     void beginEdit(const QString& adventureId);
     void beginImport(const QString& platformId = {});
+    QVariantMap result() const { return result_; }
+    QString resultGame() const { return selectedId_; }
+    void showResult(const QString& id, QVariantMap result);
+    void acceptCheck(const QString& id, QVariantMap result);
+    void checkResult();
     bool importing() const { return importing_; }
     std::function<void(AdventureRegistration&)> prepareInstallation;
     void close();
@@ -50,6 +57,10 @@ signals:
     void messageRequested(const QString& message);
     void saved();
     void imported(const QString& platformId);
+    void scrollRequested(int direction);
+    void checkRequested(QString id);
+    void playRequested(QString id);
+    void repairRequested(QString id, QString repair);
 private:
     void edit(const QString& id = {});
     void save();
@@ -59,6 +70,7 @@ private:
     FilePickerController files_;
     QList<Adventure> records_;
     AdventureRegistration draft_;
+    QVariantMap result_;
     QString selectedId_, preferredWorld_, initialFolder_, error_;
     QString route_ = "list", zone_ = "actions";
     QStringList extraDraft_;

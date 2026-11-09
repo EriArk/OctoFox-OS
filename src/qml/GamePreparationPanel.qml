@@ -33,9 +33,10 @@ Item {
         Row {
             id: tools; x: 10; y: header.height+2; width: parent.width-20; spacing: 12
             CapButton { objectName: "game-preparation-pack"; width: 190; height: 38; label: "Import BIOS pack"; textSize: 14; tint: Theme.blue; selected: root.takesFocus && flow.focusIndex===0; onActivated: flow.choosePack() }
-            Text { width: parent.width-370; height: 42; text: "Put all your BIOS files in one archive.\nTrainerOS will sort them into the right places."; wrapMode: Text.Wrap; font.pixelSize: 12; color: Theme.muted; verticalAlignment: Text.AlignVCenter }
+            Text { width: Math.max(0,parent.width-550); visible: width > 100; height: 42; text: "Put all your BIOS files in one archive.\nTrainerOS will sort them into the right places."; wrapMode: Text.Wrap; font.pixelSize: 12; color: Theme.muted; verticalAlignment: Text.AlignVCenter }
             CapButton { width: 76; height: 38; label: flow.busy?"Cancel":"Recheck"; textSize: 12; selected: root.takesFocus && flow.focusIndex===1; onActivated: flow.activate(1) }
             CapButton { width: 62; height: 38; label: "Back"; textSize: 12; tint: Theme.pink; selected: root.takesFocus && flow.focusIndex===2; onActivated: flow.close() }
+            CapButton { objectName: "game-preparation-emulator"; width: 164; height: 38; label: flow.setupRunning ? "Return to emulator" : "Emulator setup"; textSize: 13; enabled: flow.setupRunning || (!flow.busy && flow.setupAvailable); selected: root.takesFocus && flow.focusIndex===3; onActivated: flow.openSetup() }
         }
         Rectangle {
             id: platformsPane; x: 8; y: tools.y+54; width: parent.width*0.31; height: parent.height-y-31

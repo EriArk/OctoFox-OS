@@ -30,7 +30,8 @@ void LibraryManagementController::begin(const QString& worldId) {
     refresh(); zone_ = records_.isEmpty() ? "actions" : "list"; focus_ = 0; emit changed();
 }
 void LibraryManagementController::beginEdit(const QString& id) {
-    begin(); direct_ = true; edit(id);
+    const bool fromResult=open_ && route_=="result";
+    begin(); direct_ = true; edit(id);importing_=fromResult;
     if (route_ == "edit") focus_ = 4;
     emit changed();
 }
@@ -85,6 +86,7 @@ QString LibraryManagementController::title() const {
     if (route_ == "world") return "Choose a primary World";
     if (route_ == "extras") return "Additional Worlds";
     if (route_ == "edition") return importing_ ? "Choose a platform" : "Edition and platform";
+    if (route_ == "result") return "Game setup";
     if (importing_) return "Import ROM";
     if (route_ == "edit") return draft_.revision == 0 ? "Add Adventure" : "Edit Adventure";
     return "Manage Adventures";
@@ -137,10 +139,16 @@ void LibraryManagementController::save() {
     if (draft_.contentPath.isEmpty()) { error_ = "Choose the Adventure's local file."; focus_ = 4; return; }
     if(importing_) {
         const auto file=QFileInfo(draft_.contentPath);
-        bool supported=false;
-        for(const auto& p:romPlatforms())if(p.id==draft_.adventure.platformId)supported=p.extensions.contains(file.suffix().toLower());
-        if(!supported){error_="Choose the platform matching this file type.";focus_=3;return;}
-        for(const auto& record:repository_.registrations())if(!record.removed && !file.canonicalFilePath().isEmpty()
+        bool supported=false;QStringList extensions;
+        for(const auto& p:romPlatforms())if(p.id==draft_.adventure.platformId){extensions=p.extensions;supported=extensions.contains(file.suffix().toLower());}
+        if(!supported){
+            error_="Choose the platform matching this file type.";focus_=3;
+            QString help=error_+" Supported files: "+extensions.join(", ")+".";
+            if(draft_.adventure.platformId=="ps3")help+=" Install packages in RPCS3 first, then select the supported executable. This picker does not install PKG or disc images.";
+            if(draft_.adventure.platformId=="psvita")help+=" Install the game in Vita3K first. Import currently requires a .psvita title-ID link; automatic package import and link creation are not implemented.";
+            emit messageRequested(help);return;
+        }
+        for(const auto& record:repository_.registrations())if(!record.removed && record.adventure.id!=draft_.adventure.id && !file.canonicalFilePath().isEmpty()
             && QFileInfo(record.contentPath).canonicalFilePath()==file.canonicalFilePath()) {
             error_="This file is already in your library.";focus_=4;return;
         }
@@ -155,7 +163,11 @@ void LibraryManagementController::save() {
         if (result.success) {
             selectedId_ = id; draft_ = {}; route_ = "list"; zone_ = "list";
             refresh(); emit saved();
-            if(wasImport)emit imported(platform);
+            if(wasImport) {
+                emit imported(platform);
+                if(open_){route_="result";focus_=2;result_={{"state","checking"},{"detail","Checking the game and its play setup…"}};emit changed();emit checkRequested(id);}
+                return;
+            }
             if (direct_ && open_) { close(); emit closeRequested(); }
         } else {
             error_ = result.error;
@@ -163,6 +175,18 @@ void LibraryManagementController::save() {
         }
         emit changed();
     });
+}
+void LibraryManagementController::showResult(const QString& id, QVariantMap result) {
+    begin();direct_=true;importing_=true;selectedId_=id;route_="result";result_=std::move(result);
+    focus_=result_["canPlay"].toBool()?0:1;emit changed();
+}
+void LibraryManagementController::acceptCheck(const QString& id, QVariantMap result) {
+    if(!open_ || route_!="result" || selectedId_!=id)return;
+    result_=std::move(result);focus_=result_["canPlay"].toBool()?0:1;emit changed();
+}
+void LibraryManagementController::checkResult() {
+    if(!open_ || route_!="result" || result_["state"]=="checking")return;
+    result_={{"state","checking"},{"detail","Checking the game and its play setup…"}};emit changed();emit checkRequested(selectedId_);
 }
 void LibraryManagementController::applyText(const QString& text) {
     if (!open_ || saving_ || textField_ < 0) return;
@@ -187,6 +211,15 @@ void LibraryManagementController::back() {
 void LibraryManagementController::activate(int index, const QString& area) {
     if (!open_) return;
     if (files_.isOpen()) { files_.activate(index, area); return; }
+    if(route_=="result") {
+        if(index==3){close();emit closeRequested();return;}
+        if(result_["state"]=="checking")return;
+        focus_=index;
+        if(index==0 && result_["canPlay"].toBool())emit playRequested(selectedId_);
+        else if(index==1)emit repairRequested(selectedId_,result_.value("repair","prepare").toString());
+        else if(index==2)checkResult();
+        emit changed();return;
+    }
     if (route_ == "list") {
         const auto zone = area.isEmpty() ? zone_ : area;
         if (zone == "actions") { if (index == 0) edit(); else if (index == 1) back(); }
@@ -224,6 +257,8 @@ void LibraryManagementController::activate(int index, const QString& area) {
     emit changed();
 }
 void LibraryManagementController::dispatch(Action action) {
+    if(route_=="result" && (action==Action::ScrollUp || action==Action::ScrollDown)){emit scrollRequested(action==Action::ScrollDown?1:-1);return;}
+
     if (files_.isOpen()) { files_.dispatch(action); return; }
     if (action == Action::Back) { back(); return; }
     if (action == Action::Confirm) { activate(focusIndex()); return; }
@@ -238,6 +273,13 @@ void LibraryManagementController::dispatch(Action action) {
             if ((action == Action::Up || action == Action::Down) && !records_.isEmpty()) zone_ = "list";
         }
     } else {
+        if(route_=="result") {
+            if(action==Action::Left)focus_=std::max(0,focus_-1);
+            if(action==Action::Right)focus_=std::min(3,focus_+1);
+            if(action==Action::Up)emit scrollRequested(-1);
+            if(action==Action::Down)emit scrollRequested(1);
+            emit changed();return;
+        }
         if(importing_ && route_=="edit") {
             const QList<int> fields{0,3,4,5,6,7};int i=qMax(0,int(fields.indexOf(focus_)));
             if(action==Action::Left && i%2)--i;

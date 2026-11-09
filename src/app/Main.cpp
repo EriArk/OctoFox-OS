@@ -431,6 +431,7 @@ int main(int argc, char* argv[]) {
                               realAchievements ? static_cast<AchievementProvider&>(*realAchievements) : shellAchievements);
         shell.configureServices(&files, store.get());
         shell.gamePreparation()->configure(stateDirectory,discovered.profiles);
+        shell.launchPreparation().requirements=[profiles=discovered.profiles,stateDirectory](const AdventureRegistration& record){return gamePreparation::readiness(profiles,stateDirectory,record);};
         shell.settings()->configureNearby(pokemonModule(shell).party()->activities()->link());
         shell.social()->setLink(pokemonModule(shell).party()->activities()->link());
         if(personalLibrary && !smoke) {
@@ -1122,6 +1123,7 @@ int main(int argc, char* argv[]) {
                 }
                 const auto prepared = prepareEmulators(environment);
                 shell.gamePreparation()->configure(stateDirectory,prepared.profiles);
+                shell.launchPreparation().requirements=[profiles=prepared.profiles,stateDirectory](const AdventureRegistration& record){return gamePreparation::readiness(profiles,stateDirectory,record);};
                 for (const auto& notice : prepared.notices) qWarning().noquote() << "Emulator refresh:" << notice;
                 auto next = RetroArchInstallation::fromJson(prepared.profiles.value("retroarch"));
                 next.saves = retroarchInstallation.saves;
@@ -1337,14 +1339,18 @@ int main(int argc, char* argv[]) {
                 if(!shell.apps()->ready())return QString("Application window controls are unavailable in this session.");
                 return QString();
             };
+            shell.gamePreparation()->setupGuard=shell.pcGames()->installationGuard;
+            auto emulatorSetupWindow=std::make_shared<bool>(false);
+            bindings.connect(shell.gamePreparation(),&GamePreparationController::setupStarted,window,[emulatorSetupWindow]{*emulatorSetupWindow=true;});
             shell.pcGames()->settingsGuard=[&]{
                 return adventureLaunch.active()||session.blocked()||shell.runtimeChangeBlocked()?QString("Close the game and finish the current operation before saving launch settings."):QString();
             };
             bindings.connect(shell.apps(),&AppsController::foregroundRequested,window,[window]{window->hide();});
             shell.backendAccount()->loginGuard=shell.apps()->launchGuard;
-            bindings.connect(shell.apps(),&AppsController::shellRequested,window,[&,window,accountBrowser]{
+            bindings.connect(shell.apps(),&AppsController::shellRequested,window,[&,window,accountBrowser,emulatorSetupWindow]{
                 if(adventureLaunch.active())return;
-                if(!*accountBrowser)shell.goToSection("apps");*accountBrowser=false;
+                if(!*accountBrowser && !*emulatorSetupWindow)shell.goToSection("apps");
+                if(!shell.gamePreparation()->setupRunning())*emulatorSetupWindow=false;*accountBrowser=false;
                 if(parser.isSet("windowed"))window->show();else window->showFullScreen();window->requestActivate();
                   if(pendingSystemAction=="power"){pendingSystemAction.clear();shell.systemAction("power");}
             });

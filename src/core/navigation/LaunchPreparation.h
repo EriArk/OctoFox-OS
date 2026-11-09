@@ -17,18 +17,25 @@ public:
     QString adventureId() const { return adventureId_; }
     QString stage() const { return cancelling_ ? "Cancelling…" : stage_; }
     void launch(const QString& id);
+    void check(const QString& id);
+    // Snapshot copied on the GUI thread; invoked only for the selected game on the worker.
+    std::function<QVariantMap(const AdventureRegistration&)> requirements;
+
     void cancel();
 signals:
     void changed();
     void libraryChanged();
     void messageRequested(const QString& message);
+    void checked(QString id, QVariantMap result);
+    void preparationRequired(QString id, QVariantMap result);
 private:
-    void fail(const QString&);
+    void begin(const QString& id, bool play);
+    void fail(const QString&, const QString& repair = "software");
     LibraryRepository& library_;
     AdventureAdapter& adapter_;
     QThread* worker_=nullptr;
     bool busy_=false;
-    bool cancelling_=false;
+    bool cancelling_=false, playing_=true;
     QString adventureId_,stage_;
 };
 }

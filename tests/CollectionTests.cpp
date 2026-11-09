@@ -243,7 +243,7 @@ private slots:
         };
         manager.beginImport("gba");pick();QCOMPARE(manager.route(),"edit");QCOMPARE(manager.focusIndex(),6);
         QCOMPARE(manager.fields()[0].toMap()["value"].toString(),"Selected game");
-        manager.activate(6);QTRY_COMPARE(imported.size(),1);QCOMPARE(closed.size(),1);QVERIFY(prepared>0);
+        manager.activate(6);QTRY_COMPARE(imported.size(),1);QCOMPARE(manager.route(),"result");manager.activate(3);QCOMPARE(closed.size(),1);QVERIFY(prepared>0);
         QCOMPARE(store.registrations().size(),1);const auto saved=store.registrations().first();
         QCOMPARE(saved.contentPath,source);QCOMPARE(saved.adventure.domain,"multiverse");QCOMPARE(saved.adventure.platformId,"gba");
         QVERIFY(saved.adventure.worldId.isEmpty());QCOMPARE(saved.adventure.adapterId,"fixture");

@@ -1,41 +1,53 @@
-# ROM import and launch audit — 10 November 2026
+# ROM import and launch preparation — 10 November 2026
 
-Games → Import ROM / R3 uses the existing file picker and library registration.
-`LibraryManagementController::prepareInstallation` is wired to `AdapterRouter`
-in Main. Installed standalone routes precede RetroArch; an unavailable route can
-remain `unconfigured`. `LaunchPreparation` retries preparation when an unconfigured
-game is opened, verifies the readable source and runtime, persists the selected
-route, then uses the existing process/input/return lifecycle. Missing removable
-storage blocks launch; import does not copy its contents into private storage.
+Games → Import ROM / R3 opens the existing picker, registers a reference to the
+selected file and shows a **Game setup** result. The source is not copied or
+removed. The existing `LaunchPreparation` now supports checking without starting
+a game. It verifies the source, selected adapter/runtime and the described required
+files for that adapter/core. Optional BIOS files do not block ordinary play.
+Nintendo online credentials remain separate from ordinary launch readiness.
 
-Open boundaries:
+The result has Play (or Try game), Prepare game / Software setup / Choose game
+file, Check again and Done. Left/right selects actions; up/down or shoulder scroll
+reads long details. Touch scroll works too. Returning from preparation, Software
+setup or relinking the file repeats the check. A check alone never starts gameplay.
+Existing launch/save/input ownership remains authoritative; setup and live-game
+guards also apply to the Play action. Closing a result discards late UI updates.
 
-- The registry is broader than executable routes. PS2 `.elf`, `.ciso`, `.dump`,
-  `.irx` are admitted by registration but not by the current ARMSX2 standalone.
-  This audit does not enable those formats or silently choose another emulator.
-- PS3 uses SELF/ELF; Vita uses the existing `.psvita` descriptor. General game
-  archive/package installation is not provided by this single-file importer.
-- BIOS/firmware still belong to the user. Settings → Library → Game preparation
-  already imports individual files and BIOS packs. Its generic native-adapter
-  branch still reports firmware setup as not integrated (apart from PSP/GC and
-  separate Nintendo paths); this is not a universal native firmware installer.
-  Standalone launch preflight mostly checks executables/content, so an available
-  launch route is not comprehensive BIOS readiness. Some runtime failure messages
-  still point to Desktop Mode instead of a complete in-shell repair path.
-- Runtime/core presence and accepted suffixes do not establish game compatibility,
-  performance, controller mappings or successful save/exit on every platform.
-- The 9 November import build has not passed a fresh device Setup → Import → Play
-  → Home/Exit → relaunch acceptance. Prior individual platform runs remain historical
-  evidence, not proof of this new clean-install chain.
+Installed standalone routes precede RetroArch. An unconfigured record is retried
+through the existing router; only a verified binding is persisted. Explicit custom
+routes and personal metadata are preserved. Failed preflight opens the same repair
+result. Missing storage points to choosing the current file; required BIOS problems
+point to Game preparation. Missing runtimes point to Software setup.
 
-Verification: Linux x86_64 build plus `standalone`, `retroarch`,
-`emulator_refresh`, `game_preparation`, `social` and `interactions` pass (482
-checks, 5 explicit skips for absent native fixtures/avatar pack). New picker
-integration cases use the real library/router/LaunchPreparation for GBA, PSP,
-PS2 ISO and rejected PS2 CISO. They capture launch commands; they do not execute
-commercial games or prove hardware emulation.
+Game preparation can open **Emulator setup** for a discovered runtime, with the
+same private runtime environment and the existing Apps window/input controls.
+Custom integration commands are not guessed or rewritten. RetroArch receives its
+configured config file; managed controller wrappers are unwrapped for the setup
+GUI. The pinned Vita3K package uses its original AppRun GUI. Setup is a separately
+owned process, not a game/history entry. Close the emulator to return and recheck;
+Return to emulator restores its window. Available native firmware/package installers
+are those supplied by the selected emulator, not a new universal package installer.
 
-The existing delivery history follows.
+Boundaries retained:
+
+- Native firmware readiness is not comprehensively validated. Unknown requirements
+  produce **Setup needs review / Try game**, never a verified BIOS claim.
+- PS2 `.elf`, `.ciso`, `.dump`, `.irx` are now rejected by new imports to match the
+  delivered ARMSX2 route. Existing records/files are preserved.
+- PS3 imports SELF/ELF; Vita imports the existing `.psvita` title-ID descriptor.
+  The picker explains these limits when an unsupported package is chosen. Native
+  package installation and automatic creation of Vita title links are not supplied
+  by the ROM picker.
+- File/runtime readiness does not establish game compatibility, performance,
+  physical controller behavior or successful save/exit on every platform.
+- This source change is not a new installed build or fresh Setup acceptance on
+  Flip/Odin. Setup → import → preparation → play → Home/exit → relaunch still needs
+  the actual device run, including native setup windows.
+
+Verification for this change is recorded in PROJECT_STATUS. Content-free tests
+exercise real registration/router/check/process boundaries, without distributing
+ROMs, BIOS, console identities or keys. The existing delivery history follows.
 
 # Installed emulator preparation — 2026-09-28
 

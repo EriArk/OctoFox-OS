@@ -72,7 +72,16 @@ private slots:
         int platformIndex=-1;const auto choices=shell.libraryManager()->choices();
         for(int i=0;i<choices.size();++i){QVERIFY(choices[i].toMap()["id"]!="steam");if(choices[i].toMap()["id"]=="gba")platformIndex=i;}
         QVERIFY(platformIndex>=0);shell.activate(platformIndex);QCOMPARE(shell.libraryManager()->route(),"edit");
-        shell.activate(6);QTRY_COMPARE(library.registrations().size(),1);QTRY_VERIFY(!shell.serviceOpen());
+        shell.activate(6);QTRY_COMPARE(library.registrations().size(),1);QTRY_VERIFY(!shell.launchPreparation().busy());QCOMPARE(shell.libraryManager()->route(),"result");
+        const auto imported=library.registrations().first().adventure.id;
+        shell.libraryManager()->acceptCheck(imported,{{"state","needs-setup"},{"repair","prepare"},{"canPlay",false}});
+        shell.activate(1);QCOMPARE(shell.service(),"game-preparation");QTRY_VERIFY(!shell.gamePreparation()->busy());shell.gamePreparation()->close();
+        QCOMPARE(shell.service(),"library");QTRY_VERIFY(!shell.launchPreparation().busy());QCOMPARE(shell.libraryManager()->route(),"result");
+        shell.libraryManager()->acceptCheck(imported,{{"state","needs-setup"},{"repair","software"},{"canPlay",false}});
+        shell.activate(1);QCOMPARE(shell.service(),"settings");emit shell.settings()->closeRequested();QCOMPARE(shell.service(),"library");QTRY_VERIFY(!shell.launchPreparation().busy());
+        shell.libraryManager()->acceptCheck(imported,{{"state","needs-setup"},{"repair","file"},{"canPlay",false}});
+        shell.activate(1);QCOMPARE(shell.libraryManager()->route(),"edit");shell.activate(6);QTRY_VERIFY(!shell.libraryManager()->saving());QTRY_VERIFY(!shell.launchPreparation().busy());QCOMPARE(shell.libraryManager()->route(),"result");QCOMPARE(library.registrations().size(),1);
+        shell.activate(3);QTRY_VERIFY(!shell.serviceOpen());
         QCOMPARE(shell.primaryId(),"games");QVERIFY(shell.collectionsRoot());QCOMPARE(shell.gamesRootZone(),"platforms");
         QCOMPARE(shell.gamesPlatforms()[shell.gamesPlatformIndex()].toMap()["id"].toString(),"gba");
         QVERIFY(!shell.menuOpen());shell.dispatch(Action::ChangeView);QVERIFY(picker->isOpen());picker->cancel();

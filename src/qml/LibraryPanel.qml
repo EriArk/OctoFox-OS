@@ -15,7 +15,7 @@ Item {
         PageHeader {
             id: libraryHeader; compact: true; subtitleElide: Text.ElideMiddle
             title: root.manager.route === "files" ? "Choose an Adventure file" : root.manager.title
-            subtitle: root.manager.route === "files" ? root.files.path : root.manager.saving ? "Saving… You can leave; the submitted save will finish." : root.manager.importing ? "Choose a file, check its platform, then import. The file stays in its current location." : "Link your own file. Supported play setups are applied automatically."
+            subtitle: root.manager.route === "files" ? root.files.path : root.manager.route === "result" ? "Your game stays in its original location." : root.manager.saving ? "Saving… You can leave; the submitted save will finish." : root.manager.importing ? "Choose a file, check its platform, then import. The file stays in its current location." : "Link your own file. Supported play setups are applied automatically."
         }
         MountedPanel { x: 0; y: libraryHeader.height; width: parent.width; height: parent.height - y; color: Theme.surfaceColor("#d4e2d6") }
         Item {
@@ -79,6 +79,44 @@ Item {
                 }
             }
         }
+        Item {
+            anchors.fill: parent; visible: root.manager.route === "result"
+            Flickable {
+                id: resultText; x: 30; y: libraryHeader.height + 6; width: parent.width - 60
+                height: Math.max(0, parent.height - y - 56)
+                contentHeight: resultCopy.height; clip: true; boundsBehavior: Flickable.StopAtBounds
+                Column {
+                    id: resultCopy; width: parent.width; spacing: 5
+                    Text {
+                        objectName: "import-result-status"; width: parent.width
+                        text: root.manager.result.state === "checking" ? "Checking…" : root.manager.result.state === "ready" ? "Ready to launch" : root.manager.result.state === "review" ? "Setup needs review" : "Setup needed"
+                        color: Theme.ink; font.pixelSize: root.compactImport ? 18 : 21; font.bold: true
+                    }
+                    Text {
+                        objectName: "import-result-detail"; width: parent.width; text: root.manager.result.detail || ""
+                        textFormat: Text.PlainText; color: Theme.muted; font.pixelSize: 13; wrapMode: Text.Wrap
+                    }
+                }
+                Connections {
+                    target: root.manager
+                    function onScrollRequested(direction) { resultText.contentY = Math.max(0, Math.min(resultText.contentHeight-resultText.height, resultText.contentY+direction*48)) }
+                }
+            }
+            Grid {
+                x: 30; y: parent.height - 48; width: parent.width - 60; columns: 4; spacing: 10
+                Repeater {
+                    model: [root.manager.result.state === "review" ? "Try game" : "Play", root.manager.result.repair === "software" ? "Software setup" : root.manager.result.repair === "file" ? "Choose game file" : "Prepare game", "Check again", "Done"]
+                    delegate: CapButton {
+                        required property int index; required property string modelData
+                        objectName: "import-result-action-" + index
+                        width: (parent.width - parent.spacing*(parent.columns-1)) / parent.columns; height: 36; textSize: root.compactImport ? 12 : 15; label: modelData
+                        enabled: index === 3 || (root.manager.result.state !== "checking" && (index !== 0 || !!root.manager.result.canPlay))
+                        selected: root.takesFocus && parent.parent.visible && root.manager.focusIndex === index
+                        onActivated: root.shell.activate(index)
+                    }
+                }
+            }
+        }
         ControllerList {
             x: 24; y: libraryHeader.height + 11; width: parent.width - 48; height: Math.max(0, parent.height - y - 12)
             visible: root.manager.route === "world" || root.manager.route === "extras" || root.manager.route === "edition"
@@ -89,7 +127,7 @@ Item {
         }
         Text {
             objectName: "adventure-error"; x: 30; y: parent.height - (root.compactImport ? 68 : 94); width: parent.width - 60; elide: Text.ElideRight; color: Theme.textColor("#853b24"); font.pixelSize: 14
-            visible: root.manager.route !== "files"; text: root.manager.error; textFormat: Text.PlainText
+            visible: root.manager.route !== "files" && root.manager.route !== "result"; text: root.manager.error; textFormat: Text.PlainText
         }
     }
     ChatFilePicker { anchors.fill: parent; picker: root.files; title: "Choose a game file" }

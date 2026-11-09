@@ -483,6 +483,7 @@ private:
     bool powerMenu_ = false;
     bool libraryFromWorlds_ = false;
     QString notice_;
+    bool gameSetupReturn_=false;
     QString achievementToast_;
     quint64 achievementToastGeneration_ = 0;
     QString mode_;

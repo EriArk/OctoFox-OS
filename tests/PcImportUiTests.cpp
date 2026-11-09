@@ -72,7 +72,20 @@ private slots:
             for(int id:{0,3,4,5}){auto* field=find(view.rootObject(),"adventure-field-"+QString::number(id));QVERIFY(field);const auto bounds=field->mapRectToScene(field->boundingRect());QVERIFY(bounds.right()<=view.width());QVERIFY(bounds.bottom()<a.top());}
             QVERIFY(view.grabWindow().save(QString("screenshots/rom-import/confirm-%1-%2.png").arg(dark?"dark":"light").arg(size.width())));
         }
-        click("adventure-save");QTRY_COMPARE(library.registrations().size(),1);QTRY_VERIFY(!shell.serviceOpen());
+        click("adventure-save");QTRY_COMPARE(library.registrations().size(),1);QTRY_VERIFY(!shell.launchPreparation().busy());
+        QCOMPARE(shell.libraryManager()->route(),"result");QTest::qWait(100);
+        const auto importedId=library.registrations().first().adventure.id;
+        for(bool dark:{false,true})for(const auto& state:{QString("ready"),QString("review"),QString("needs-setup")}){
+            view.rootObject()->setProperty("dark",dark);
+            shell.libraryManager()->acceptCheck(importedId,{{"state",state},{"canPlay",state!="needs-setup"},{"repair","prepare"},{"detail",state=="ready"?QString("Game file, emulator and listed required files are available. Game compatibility is checked when you play."):QString("Required files need attention. Open preparation to import your own BIOS.\nThis intentionally long fixture checks that all required files remain readable on a compact screen.\nFirst requirement\nSecond requirement\nThird requirement\nFourth requirement")}});
+            QTest::qWait(80);qreal right=0;
+            for(int i=0;i<4;++i){auto* button=find(view.rootObject(),"import-result-action-"+QString::number(i));QVERIFY(button);const auto bounds=button->mapRectToScene(button->boundingRect());QVERIFY(bounds.left()>=right);QVERIFY(bounds.bottom()<=view.height());QVERIFY(bounds.right()<=view.width());right=bounds.right();}
+            auto* detail=find(view.rootObject(),"import-result-detail");QVERIFY(detail);auto* scroll=detail->parentItem()->parentItem()->parentItem();
+            if(state!="ready"){shell.dispatch(Action::Down);QVERIFY(scroll->property("contentY").toReal()>0);}
+            QVERIFY(view.grabWindow().save(QString("screenshots/rom-import/result-%1-%2.png").arg(dark?"dark":"light",state)));
+        }
+
+        click("import-result-action-3");QTRY_VERIFY(!shell.serviceOpen());
         QCOMPARE(library.registrations().first().contentPath,rom);QVERIFY(QFileInfo::exists(rom));QVERIFY(!shell.menuOpen());
         QVERIFY2(warnings.isEmpty(),qPrintable(warnings.join('\n')));
     }

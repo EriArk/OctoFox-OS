@@ -40,6 +40,27 @@ QJsonObject readProfile(const QString& path) {
     const auto document = QJsonDocument::fromJson(f.readAll());
     return document.isObject() ? document.object() : QJsonObject{};
 }
+// Use the same discovered runtime and private HOME as play, without a game argument.
+// Explicit user integration commands are never inferred or rewritten.
+void describeSetup(QJsonObject& profile, const QString& id) {
+    if(id=="odamex" || id=="supermodel")return; // These runtimes have no firmware GUI.
+    auto program=profile["program"].toString();auto args=profile["prefixArguments"].toArray();
+    if(!args.isEmpty() && args.first().toString().endsWith("/controller-bridge.py")) {
+        int end=-1;for(int n=0;n<args.size();++n)if(args[n]=="--"){end=n;break;}
+        if(end<0||end+1>=args.size())return;
+        program=args[end+1].toString();QJsonArray rest;for(int n=end+2;n<args.size();++n)rest.append(args[n]);args=rest;
+    }
+    if(id=="vita3k") {
+        const auto launcher=QFileInfo(program).canonicalFilePath();
+        const auto root=QFileInfo(launcher).dir().absoluteFilePath("..");
+        const auto manifest=readProfile(root+"/manifest.json");
+        if(manifest["source"]!="46602447c7f84d53790b44e1869ab5105178bf16")return;
+        program=QDir(root).absoluteFilePath("runtime/AppRun");args={};
+    }
+    if(id=="retroarch" && !profile["configFile"].toString().isEmpty()){args.append("--config");args.append(profile["configFile"]);}
+    if(!executable(program))return;
+    profile["setupProgram"]=program;profile["setupArguments"]=args;
+}
 // Fresh defaults only. Existing preferences, including malformed files and
 // symlinks, belong to their owner and are never overwritten by discovery.
 bool seed(const QString& path, const QByteArray& bytes) {
@@ -278,6 +299,7 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
                 && executable(currentRuntime)) profile["runtimeFile"] = currentRuntime;
             if (!supplied && QDir::isAbsolutePath(profile["initialConfigDirectory"].toString()))
                 controllerDefaults(route, profile["initialConfigDirectory"].toString(), env, result.notices);
+            if(!supplied)describeSetup(profile,route.id);
             result.profiles.insert(route.id, profile);
             continue;
         }
@@ -374,6 +396,7 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
         }
         // Persist the selected runtime family once. Installing a different
         // emulator later must not silently move existing games to different saves.
+        describeSetup(profile,route.id);
         if (!seed(discoveredPath,QJsonDocument(profile).toJson())) { result.notices << route.id + ": could not retain discovered route"; continue; }
         result.profiles.insert(route.id, profile);
     }

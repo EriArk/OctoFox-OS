@@ -2,6 +2,7 @@
 #include "GamePreparation.h"
 #include "integrations/adventure/retroarch/RetroArchConfiguration.h"
 #include "integrations/adventure/retroarch/RetroArchAdapter.h"
+#include "integrations/adventure/retroarch/RetroArchDisc.h"
 #include "integrations/adventure/standalone/NintendoOnline.h"
 #include "platform/files/ArchiveExtractor.h"
 #include "core/repository/RomPlatforms.h"
@@ -67,8 +68,9 @@ Inventory inventory(const QHash<QString,QJsonObject>& profiles,const QString& st
             if(core=="sameboy"||core=="DoubleCherryGB")platforms={"gb","gbc"};
             if(core=="gpsp"||core=="mgba_splitscreen")platforms={"gba"};
             if(platforms.isEmpty())platforms<<"core:"+(info["title"].toString().isEmpty()?core:info["title"].toString());
+            const auto coreNote=[&](QString group,QString title,QString detail,QString state){note(group,title,detail,state);auto n=out.notes.last().toMap();n["core"]=core;out.notes.last()=n;};
             for(const auto& group:platforms) {
-            if(info.isEmpty()){note(group,"Firmware requirements","Requirements for this emulator have not been described yet.","Not described");continue;}
+            if(info.isEmpty()){coreNote(group,"Firmware requirements","Requirements for this emulator have not been described yet.","Not described");continue;}
             const auto files=info["files"].toArray();
             bool listed=false;
             for(const auto& v:files){const auto f=v.toObject();const auto name=f["path"].toString();if(!safeRelativeName(name))continue;
@@ -88,8 +90,8 @@ Inventory inventory(const QHash<QString,QJsonObject>& profiles,const QString& st
                 listed=true;
                 out.files<<File{core+':'+group+':'+name,group,f["title"].toString(),root,name,f["md5"].toString(),
                     "Used by ordinary play and compatible RetroArch multiplayer. Optional files may be needed by particular games or regions.",-1,f["optional"].toBool(),f["directory"].toBool()};}
-            if(!listed)note(group,"BIOS / firmware","No external BIOS is required for this platform.","No files listed");
-            const auto runtime=ra["program"].toString();if(!QFileInfo(runtime).isFile())note(group,"Emulator","Install or repair the emulator.","Missing runtime");
+            if(!listed)coreNote(group,"BIOS / firmware","No external BIOS is required for this platform.","No files listed");
+            const auto runtime=ra["program"].toString();if(!QFileInfo(runtime).isFile())coreNote(group,"Emulator","Install or repair the emulator.","Missing runtime");
             }
         }
         if(!QDir::isAbsolutePath(root))note("RetroArch","BIOS folder","The selected emulator has no absolute system_directory. Configure the runtime before importing files.","Needs setup");
@@ -101,7 +103,7 @@ Inventory inventory(const QHash<QString,QJsonObject>& profiles,const QString& st
             const auto group=value.toString();if(group.isEmpty())continue;
             if(!QFileInfo(runtime).isFile())note(group,"Emulator","Install or repair the emulator.","Missing runtime");
             else if(group=="psp"||group=="gc")note(group,"BIOS / firmware","No external BIOS is required for ordinary play.","No files listed");
-            else if(group!="n3ds"&&group!="wii"&&group!="wiiu")note(group,"Firmware requirements","The native firmware installer has not been integrated yet.","Not described");
+            else if(group!="n3ds"&&group!="wii"&&group!="wiiu")note(group,"Firmware requirements","Firmware readiness is not automatically verified for this emulator. Open Emulator setup to install your own firmware, then try the game.","Not described");
         }
     }
     for(const auto& platform:{QString("wii"),QString("n3ds"),QString("wiiu")}) {
@@ -120,6 +122,40 @@ Inventory inventory(const QHash<QString,QJsonObject>& profiles,const QString& st
     }
     if(profiles.isEmpty())note("Games","Emulators","No configured emulators were found. Install a supported runtime; this screen will use its actual firmware locations.","Needs setup");
     return out;
+}
+QVariantMap readiness(const QHash<QString,QJsonObject>& profiles,const QString& directory,const AdventureRegistration& record) {
+    const auto platform=record.adventure.platformId,adapter=record.adventure.adapterId;
+    if((adapter=="retroarch" || adapter=="unconfigured") && retroarch::discPlatform(platform)) {
+        const auto runtime=RetroArchInstallation::fromJson(profiles.value("retroarch"));
+        if(!runtime.program.isEmpty() && runtime.cores.contains(romCore(platform))
+                && romContentSupported(platform,romCore(platform),QFileInfo(record.contentPath).suffix().toLower())
+                && !runtime.readyDiscPlatforms.contains(platform))
+            return {{"problem","This platform needs verified BIOS files. Open Game preparation, import your own BIOS files and check again."},{"repair","prepare"}};
+    }
+    if(adapter=="unconfigured")
+        return {{"problem","No installed emulator is configured for this game. Open Software setup, then check again."},{"repair","software"}};
+    if(!profiles.contains(adapter))return {{"warning","Additional requirements for this play setup are not described. Its own launch checks still apply."}};
+    if(adapter!="retroarch" && QStringList{"wii","n3ds","wiiu"}.contains(platform))
+        return {{"warning","Ordinary game firmware readiness is not automatically verified. Online console files are checked separately in Game preparation."}};
+    const auto own=inventory({{adapter,profiles.value(adapter)}},directory);
+    QStringList missing,warnings;bool described=false;const std::atomic_bool cancel{false};
+    const auto core=record.integrationConfig["core"].toString();
+    for(const auto& f:own.files) {
+        if(f.group!=platform || (adapter=="retroarch"&&!core.isEmpty()&&!f.id.startsWith(core+':')))continue;
+        described=true;if(f.optional)continue;
+        const auto checked=inspect(f,cancel);
+        if(!checked["checked"].toBool())missing<<f.name+": "+checked["problem"].toString();
+        else if(f.directory || (f.md5.isEmpty()&&f.size<0))warnings<<f.title+": files are present, but their contents are not verified.";
+    }
+    for(const auto& v:own.notes) {
+        const auto note=v.toMap();if(note["group"]!=platform || note["state"]=="Online setup" || (adapter=="retroarch"&&!core.isEmpty()&&note["core"]!=core))continue;
+        described=true;
+        if(note["state"]=="Missing runtime")return {{"problem",note["detail"]},{"repair","software"}};
+        if(note["state"]=="Not described" || note["state"]=="Needs setup")warnings<<note["detail"].toString();
+    }
+    if(!missing.isEmpty())return {{"problem","Required files need attention:\n"+missing.join('\n')},{"repair","prepare"}};
+    if(!described)warnings<<"Firmware readiness for this emulator has not been verified. Review game preparation before playing.";
+    warnings.removeDuplicates();return {{"warning",warnings.join('\n')}};
 }
 QVariantMap inspect(const File& f,const std::atomic_bool& cancel) {
     const bool safe=parentsSafe(f.root,f.name);

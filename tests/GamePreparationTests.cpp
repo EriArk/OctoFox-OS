@@ -19,6 +19,34 @@ class GamePreparationTests:public QObject {
     static File requirement(const QString& root,const QByteArray& data){return {"test","System","BIOS",root,"sub/bios.bin",QString::fromLatin1(QCryptographicHash::hash(data,QCryptographicHash::Md5).toHex()),{},data.size(),false};}
 private slots:
     void initTestCase(){QStandardPaths::setTestModeEnabled(true);}
+    void selectedGameReadinessChecksRequiredFilesOnly() {
+        QTemporaryDir d;put(d.path()+"/cores/mgba_libretro.so","fixture");put(d.path()+"/cores/genesis_plus_gx_libretro.so","fixture");put(d.path()+"/cores/yabasanshiro_libretro.so","fixture");
+        put(d.path()+"/ra.cfg",("system_directory = \""+d.path()+"/bios\"\n").toUtf8());
+        QHash<QString,QJsonObject> profiles{{"retroarch",{{"version",1},{"prefixArguments",QJsonArray{}},{"program",QCoreApplication::applicationFilePath()},{"coresDirectory",d.path()+"/cores"},{"configFile",d.path()+"/ra.cfg"}}}};
+        AdventureRegistration r;r.adventure.adapterId="retroarch";r.adventure.platformId="gba";r.integrationConfig={{"core","mgba"}};
+        auto result=readiness(profiles,d.path(),r);QVERIFY(result["problem"].toString().isEmpty());QVERIFY(result["warning"].toString().isEmpty()); // Optional GBA BIOS does not block play.
+        r.adventure.platformId="saturn";r.integrationConfig={{"core","yabasanshiro"}};
+        result=readiness(profiles,d.path(),r);QCOMPARE(result["repair"].toString(),"prepare");QVERIFY(result["problem"].toString().contains("saturn_bios.bin"));
+        put(d.path()+"/bios/saturn_bios.bin","incorrect bytes");result=readiness(profiles,d.path(),r);QVERIFY(result["problem"].toString().contains("checksum"));
+        r.adventure.adapterId="unconfigured";r.adventure.platformId="segacd";r.contentPath=d.path()+"/game.cue";
+        result=readiness(profiles,d.path(),r);QCOMPARE(result["repair"].toString(),"prepare");
+        r.adventure.adapterId="armsx2";r.adventure.platformId="ps2";profiles["armsx2"]={{"program",QCoreApplication::applicationFilePath()},{"validatedPlatforms",QJsonArray{"ps2"}}};
+        result=readiness(profiles,d.path(),r);QVERIFY(result["problem"].toString().isEmpty());QVERIFY(!result["warning"].toString().isEmpty());
+        r.adventure.adapterId="azahar";r.adventure.platformId="n3ds";profiles["azahar"]={{"validatedPlatforms",QJsonArray{"n3ds"}}};
+        result=readiness(profiles,d.path(),r);QVERIFY(result["problem"].toString().isEmpty());QVERIFY(result["warning"].toString().contains("Online")); // No online credentials required for solo play.
+        r.adventure.adapterId="unconfigured";QCOMPARE(readiness(profiles,d.path(),r)["repair"].toString(),"software");
+    }
+    void nativeSetupUsesOwnedProcessAndGuards() {
+        QTemporaryDir d;const auto probe=QCoreApplication::applicationDirPath()+"/trainer_process_probe";
+        const auto output=d.path()+"/setup-result";
+        QJsonObject profile{{"program",probe},{"validatedPlatforms",QJsonArray{"ps2"}},{"setupProgram",probe},{"setupArguments",QJsonArray{"echo",output,"literal ; $(unchanged)"}}};
+        GamePreparationController c;c.configure(d.path(),{{"armsx2",profile}});c.begin("ps2","armsx2");QTRY_VERIFY(!c.busy());QVERIFY(c.setupAvailable());
+        QSignalSpy started(&c,&GamePreparationController::setupStarted),finished(&c,&GamePreparationController::setupFinished);
+        c.canImport=[]{return false;};c.openSetup();QVERIFY(!c.busy());QVERIFY(!QFileInfo::exists(output));
+        c.canImport=[]{return true;};c.setupGuard=[]{return QString("Window controls unavailable");};c.openSetup();QCOMPARE(c.status(),"Window controls unavailable");QVERIFY(!QFileInfo::exists(output));
+        c.setupGuard=[]{return QString();};c.openSetup();QTRY_COMPARE(finished.size(),1);QTRY_VERIFY(!c.busy());QCOMPARE(started.size(),1);QCOMPARE(get(output),QByteArray("literal ; $(unchanged)"));
+        c.begin("ps2","custom-missing");QTRY_VERIFY(!c.busy());QVERIFY(!c.setupAvailable());
+    }
     void invalidNativeProfileDoesNotOfferDefaultImport(){QTemporaryDir d;const QJsonObject p{{"validatedPlatforms",QJsonArray{"n3ds"}}};put(d.path()+"/integrations/azahar.json",QJsonDocument(p).toJson());QVERIFY(inventory({{"azahar",p}},d.path()).files.isEmpty());}
     void platformStatusAndOnlineNavigationStaySeparate(){QTemporaryDir d;const auto runtime=d.path()+"/azahar.exe";put(runtime,"fixture");QFile(runtime).setPermissions(QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner);QDir().mkpath(d.path()+"/user");
         const QJsonObject profile{{"version",1},{"adapter","azahar"},{"program",QCoreApplication::applicationFilePath()},{"runtimeFile",runtime},{"validatedPlatforms",QJsonArray{"n3ds"}},{"prefixArguments",QJsonArray{}}};put(d.path()+"/integrations/azahar.json",QJsonDocument(profile).toJson());

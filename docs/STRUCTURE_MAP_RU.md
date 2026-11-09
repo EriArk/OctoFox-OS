@@ -1,5 +1,15 @@
 # Структура TrainerOS: владельцы, контракты и связи
 
+**10 ноября — результат готовности ROM.** LibraryManagementController держит
+результат и действия, LaunchPreparation выполняет выбранную проверку без запуска
+или прежний запуск. `gamePreparation::readiness` проверяет требования выбранного
+adapter/core; ShellController возвращает из исправления к повторной проверке.
+GamePreparationController открывает setup через ProcessService и существующий
+Apps window bridge; EmulatorDiscovery описывает команду только для обнаруженных
+runtime. Нового установщика пакетов или второго механизма запуска нет.
+[Границы и проверка](EMULATOR_DISCOVERY.md).
+
+
 **10 ноября — S04 / Communication.** SocialController определяет корень текущего
 раздела через `sectionRoot()`; ShellController переводит B/↑ на существующий
 `chatNavigationFocused`, OnlinePage рисует рамку. Вложенные маршруты, черновики,

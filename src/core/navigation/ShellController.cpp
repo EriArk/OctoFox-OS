@@ -103,6 +103,9 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&pcGames_,&PcGamesController::changed,this,&ShellController::changed);
     connect(&pcGames_,&PcGamesController::installerStarted,&apps_,&AppsController::watchInstaller);
     connect(&pcGames_,&PcGamesController::installerFinished,&apps_,&AppsController::finishInstaller);
+    connect(&gamePreparation_,&GamePreparationController::setupStarted,&apps_,&AppsController::watchInstaller);
+    connect(&gamePreparation_,&GamePreparationController::setupFinished,&apps_,&AppsController::finishInstaller);
+    connect(&gamePreparation_,&GamePreparationController::resumeSetup,&apps_,&AppsController::resumeInstaller);
     connect(&pcGames_,&PcGamesController::resumeInstaller,&apps_,&AppsController::resumeInstaller);
     connect(&pcGames_,&PcGamesController::changed,this,[this]{downloads_.publish("pc",pcGames_.tasks());downloads_.publish("pc-runtime",pcGames_.runtimeTasks());});
     connect(&downloads_,&DownloadsController::commandRequested,this,[this](QString provider,QString,QString command){
@@ -267,7 +270,25 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     });
     connect(&launchPreparation_, &LaunchPreparation::changed, this, &ShellController::changed);
     connect(&launchPreparation_, &LaunchPreparation::libraryChanged, this, &ShellController::refreshLibrary);
-    connect(&launchPreparation_, &LaunchPreparation::messageRequested, this, &ShellController::showNotice);
+    connect(&launchPreparation_, &LaunchPreparation::messageRequested, this, [this](const QString& message){if(service_!="library" || libraryManager_.route()!="result")showNotice(message);});
+    connect(&launchPreparation_, &LaunchPreparation::checked, &libraryManager_, &LibraryManagementController::acceptCheck);
+    connect(&launchPreparation_, &LaunchPreparation::preparationRequired,this,[this](QString id,QVariantMap result){
+        libraryFromWorlds_=true;service_="library";libraryManager_.showResult(id,result);emit changed();
+    });
+    connect(&libraryManager_,&LibraryManagementController::checkRequested,&launchPreparation_,&LaunchPreparation::check);
+    connect(&libraryManager_,&LibraryManagementController::playRequested,this,[this](QString id){
+        if(runtimeChangeBlocked() || !liveGame_.isEmpty()){showNotice("Finish the current game or setup before playing.");return;}
+        libraryManager_.close();service_.clear();libraryFromWorlds_=false;launchPreparation_.launch(id);emit changed();
+    });
+    connect(&libraryManager_,&LibraryManagementController::repairRequested,this,[this](QString id,QString repair){
+        if(navigationLocked() || !liveGame_.isEmpty())return;
+        const auto record=repository_.registration(id);if(!record)return;
+        if(repair=="file"){libraryManager_.beginEdit(id);return;}
+        gameSetupReturn_=true;
+        if(repair=="software"){service_="settings";settings_.openUpdates();}
+        else {service_="game-preparation";gamePreparation_.begin(record->adventure.platformId,record->adventure.adapterId=="unconfigured"?QString():record->adventure.adapterId);}
+        emit changed();
+    });
     const auto openGame=[this](const QString& id){
         if(!liveGame_.isEmpty()) {
             if(liveGame_.value("id")==id)returnToLiveGame();
@@ -389,7 +410,10 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     const auto preparation=[this]{service_="game-preparation";gamePreparation_.begin();emit changed();};
     connect(&settings_,&SettingsController::gamePreparationRequested,this,preparation);
     connect(&diagnostics_,&DiagnosticsController::preparationRequested,this,preparation);
-    connect(&gamePreparation_,&GamePreparationController::closeRequested,this,[this]{service_="settings";emit changed();});
+    connect(&gamePreparation_,&GamePreparationController::closeRequested,this,[this]{
+        if(gameSetupReturn_){gameSetupReturn_=false;service_="library";libraryManager_.checkResult();}
+        else service_="settings";emit changed();
+    });
     connect(&gamePreparation_,&GamePreparationController::onlineSettingsRequested,this,[this]{service_="settings";settings_.selectPage("online-services",true);emit changed();});
     connect(&gamePreparation_,&GamePreparationController::platformSelected,&settings_,&SettingsController::selectOnlinePlatform);
     connect(&gamePreparation_,&GamePreparationController::onlineActionRequested,&settings_,&SettingsController::onlineAction);
@@ -464,7 +488,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         if(value>=0)device_.setQuickLevel(index,value+delta);
     });
     connect(&controls_,&ControlsDashboard::closeRequested,this,&ShellController::closeControls);
-    connect(&settings_, &SettingsController::closeRequested, this, [this] { service_.clear(); menuOpen_ = false; if(optionsReturn_){optionsReturn_=false;homeMenuOpen_=true;}emit changed(); });
+    connect(&settings_, &SettingsController::closeRequested, this, [this] { if(gameSetupReturn_){gameSetupReturn_=false;service_="library";libraryManager_.checkResult();emit changed();return;}service_.clear(); menuOpen_ = false; if(optionsReturn_){optionsReturn_=false;homeMenuOpen_=true;}emit changed(); });
     connect(&hall_, &HallOfFameController::changed, this, &ShellController::changed);
     connect(&hall_, &HallOfFameController::messageRequested, this, [this](const QString& message) {
         notice_ = message; emit changed();
@@ -1405,7 +1429,7 @@ void ShellController::goToPage(int page) {
     { PerformanceTrace::Scope phase("navigation.account"); hall_.account()->close(); }
     { PerformanceTrace::Scope phase("navigation.trainer"); trainer_.cancel(); }
     { PerformanceTrace::Scope phase("navigation.setup"); trainerSetup_.close(); }
-    { PerformanceTrace::Scope phase("navigation.manager"); libraryManager_.close(); service_.clear(); }
+    { PerformanceTrace::Scope phase("navigation.manager"); gameSetupReturn_=false;libraryManager_.close(); service_.clear(); }
     page_ = std::clamp(page, 0, int(primaryNames().size())-1); // No wrapping until physical-device testing.
     quickAppsOpen_=false;
     if(page_==AppsPage){apps_.refresh();if(appsFace_=="files")files_.enter();else if(appsFace_=="browser")browser_.enter();else if(appsFace_=="crates" && !restoringNavigation_)crates_.enter();}

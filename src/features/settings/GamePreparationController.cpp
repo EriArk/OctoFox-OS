@@ -3,10 +3,17 @@
 #include <algorithm>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
 #include "core/repository/RomPlatforms.h"
 
 namespace trainer {
 GamePreparationController::GamePreparationController(QObject* parent):QObject(parent) {
+    connect(&setup_,&ProcessService::started,this,[this]{emit setupStarted(setup_.processId(),platformTitle()+" setup");emit changed();});
+    connect(&setup_,&ProcessService::finished,this,[this](int code,bool crashed,const QString& error){
+        busy_=false;emit setupFinished();
+        status_=!error.isEmpty()?error:crashed||code!=0?QString("Emulator setup ended without success. Open it again to review its state."):QString("Emulator setup closed. Checking its files again…");
+        taskDetail_=status_;emit changed();emit installed();refresh();
+    });
     connect(&picker_,&FilePickerController::changed,this,&GamePreparationController::changed);
     connect(&picker_,&FilePickerController::selected,this,&GamePreparationController::importSelected);
     connect(&picker_,&FilePickerController::cancelled,this,[this]{picking_.clear();});
@@ -51,7 +58,32 @@ QVariantList GamePreparationController::tasks() const {
         {"actions",taskState_=="running"?QVariantList{QVariantMap{{"id","cancel"},{"label","Cancel import"}}}:QVariantList{}}};
     if(!packJob_){row["received"]=received_.load();row["total"]=total_.load();}return {row};
 }
-void GamePreparationController::begin(){picker_.cancel();focus_=100;refresh();}
+QJsonObject GamePreparationController::setupProfile() const {
+    if(!setupAdapter_.isEmpty())return profiles_.value(setupAdapter_);
+    QStringList ids=profiles_.keys();ids.sort();
+    for(const auto& id:ids)if(id!="retroarch") {
+        const auto p=profiles_[id];if(p["validatedPlatforms"].toArray().contains(group_)&&!p["setupProgram"].toString().isEmpty())return p;
+    }
+    const auto core=romCore(group_);const auto ra=profiles_.value("retroarch");
+    if(core.isEmpty() || QDir(ra["coresDirectory"].toString()).entryList({core+"_libretro.*"},QDir::Files).isEmpty())return {};
+    return ra;
+}
+bool GamePreparationController::setupAvailable() const {
+    const auto p=setupProfile();return QFileInfo(p["setupProgram"].toString()).isAbsolute()&&QFileInfo(p["setupProgram"].toString()).isExecutable()&&p["setupArguments"].isArray();
+}
+void GamePreparationController::openSetup() {
+    if(setup_.active()){emit resumeSetup();return;}
+    if(busy_||!setupAvailable())return;
+    if(canImport&&!canImport()){status_="Finish the game or current operation before opening emulator setup.";emit changed();return;}
+    if(setupGuard){const auto error=setupGuard();if(!error.isEmpty()){status_=error;emit changed();return;}}
+    const auto p=setupProfile();ProcessCommand command;command.program=p["setupProgram"].toString();
+    const auto args=p["setupArguments"].toArray();if(args.size()>32)return;
+    for(const auto& v:args){if(!v.isString()||v.toString().contains(QChar::Null))return;command.arguments<<v.toString();}
+    command.emulatorRuntime=true;busy_=true;status_="Use the emulator's interface to install firmware or game packages, then close it and check again.";
+    if(!setup_.start(command)){busy_=false;status_="The emulator setup could not start. Check Software setup.";}
+    emit changed();
+}
+void GamePreparationController::begin(const QString& platform,const QString& adapter){setupAdapter_=adapter;picker_.cancel();if(!platform.isEmpty())group_=platform;focus_=100;refresh();}
 void GamePreparationController::refresh() {
     if(busy_)return;busy_=true;cancel_=false;status_="Checking configured emulators and their files…";emit changed();
     const auto profiles=profiles_;const auto directory=directory_;
@@ -105,16 +137,16 @@ void GamePreparationController::importPack(const QString& source) {
         QMetaObject::invokeMethod(this,[this,result]{busy_=false;progress_.stop();taskState_=result.problems.isEmpty()?"done":"error";taskDetail_=packReport_=result.summary();status_=QString("%1 installed · %2 already present").arg(result.installed).arg(result.present);selected_="@pack-report";focus_=100;emit changed();emit tasksChanged();if(result.installed)emit installed();refresh();},Qt::QueuedConnection);
     });
 }
-void GamePreparationController::cancel(){cancel_=true;}
-void GamePreparationController::close(){picker_.cancel();emit closeRequested();}
+void GamePreparationController::cancel(){cancel_=true;if(setup_.active())setup_.stop();}
+void GamePreparationController::close(){if(setup_.active()){status_="Close the emulator setup first, or use Return to emulator.";emit changed();return;}picker_.cancel();emit closeRequested();}
 void GamePreparationController::select(int index){const auto list=rows();if(index<0||index>=list.size())return;selected_=list[index].toMap()["id"].toString();const auto files=fileRows();for(int n=0;n<files.size();++n)if(files[n].toMap()["id"]==selected_)focus_=1000+n;emit changed();}
 void GamePreparationController::selectGroup(const QString& value){const auto list=platforms();for(int n=0;n<list.size();++n)if(list[n].toMap()["id"]==value){selectPlatform(n);return;}}
-void GamePreparationController::selectPlatform(int index){const auto list=platforms();if(index<0||index>=list.size())return;group_=list[index].toMap()["id"].toString();selected_=fileRows().value(0).toMap()["id"].toString();focus_=100+index;emit platformSelected(group_);emit changed();}
+void GamePreparationController::selectPlatform(int index){const auto list=platforms();if(index<0||index>=list.size())return;if(group_!=list[index].toMap()["id"].toString())setupAdapter_.clear();group_=list[index].toMap()["id"].toString();selected_=fileRows().value(0).toMap()["id"].toString();focus_=100+index;emit platformSelected(group_);emit changed();}
 void GamePreparationController::importRequirement(int index){const auto list=fileRows();if(index<0||index>=list.size())return;selected_=list[index].toMap()["id"].toString();focus_=1000+index;choose();emit changed();}
 void GamePreparationController::onlineAction(int index){if(!hasOnline()||index<0||index>3||busy_)return;focus_=2000+index;emit onlineActionRequested(index+1);emit changed();}
 void GamePreparationController::activate(int index) {
     if(index>=2000){onlineAction(index-2000);return;}if(index>=1000){importRequirement(index-1000);return;}if(index>=100){selectPlatform(index-100);return;}
-    focus_=index;if(index==0)choosePack();if(index==1){if(busy_)cancel();else refresh();}if(index==2)close();emit changed();
+    focus_=index;if(index==3){openSetup();return;}if(index==0)choosePack();if(index==1){if(busy_)cancel();else refresh();}if(index==2)close();emit changed();
 }
 void GamePreparationController::dispatch(Action a) {
     if(picker_.isOpen()){picker_.dispatch(a);return;}
@@ -122,7 +154,7 @@ void GamePreparationController::dispatch(Action a) {
     if(a==Action::ScrollUp||a==Action::ScrollDown){emit scrollRequested(a==Action::ScrollDown?1:-1);return;}
     const auto systems=platforms();int system=0;for(int n=0;n<systems.size();++n)if(systems[n].toMap()["id"]==group_)system=n;
     if(a==Action::PreviousFace||a==Action::NextFace){if(!systems.isEmpty())selectPlatform((system+systems.size()+(a==Action::PreviousFace?-1:1))%systems.size());return;}
-    if(focus_<100){if(a==Action::Left||a==Action::Right)focus_=std::clamp(focus_+(a==Action::Left?-1:1),0,2);if(a==Action::Down)selectPlatform(system);}
+    if(focus_<100){if(a==Action::Left||a==Action::Right)focus_=std::clamp(focus_+(a==Action::Left?-1:1),0,3);if(a==Action::Down)selectPlatform(system);}
     else if(focus_<1000){if(a==Action::Up){if(system==0)focus_=0;else selectPlatform(system-1);}if(a==Action::Down)selectPlatform(std::min(system+1,int(systems.size())-1));if(a==Action::Right||a==Action::Confirm){focus_=!fileRows().isEmpty()?1000:hasOnline()?2000:100+system;emit changed();return;}}
     else if(focus_<2000){const int index=focus_-1000;if(a==Action::Up)focus_=index?focus_-1:0;if(a==Action::Down){if(index+1<fileRows().size())++focus_;else if(hasOnline())focus_=2000;}if(a==Action::Left)focus_=100+system;}
     else {if(a==Action::Up)focus_=focus_>2000?focus_-1:fileRows().isEmpty()?0:1000+fileRows().size()-1;if(a==Action::Down)focus_=std::min(2003,focus_+1);if(a==Action::Left)focus_=100+system;}

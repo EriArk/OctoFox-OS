@@ -1,5 +1,6 @@
 #pragma once
 #include <QJsonObject>
+#include "core/model/Models.h"
 #include <QVariantList>
 #include <atomic>
 #include <functional>
@@ -14,6 +15,7 @@ struct File {
 };
 struct Inventory { QList<File> files; QVariantList notes; };
 Inventory inventory(const QHash<QString,QJsonObject>& profiles, const QString& stateDirectory);
+QVariantMap readiness(const QHash<QString,QJsonObject>& profiles, const QString& stateDirectory, const AdventureRegistration& record);
 QVariantMap inspect(const File&, const std::atomic_bool& cancel);
 QString importFile(const File&, const QString& source, const std::atomic_bool& cancel,
                    const std::function<void(qint64,qint64)>& progress = {});

@@ -99,7 +99,7 @@ QString StandaloneAdapter::setupIssue(const AdventureRegistration& record) const
     if (installation_.program.isEmpty() || !installation_.platforms.contains(platform)) {
         // An unconfigured title may have a prepared core route instead.
         if (record.adventure.adapterId != id_) return {};
-        return "The emulator for this platform is unavailable. Restore it in Desktop Mode.";
+        return "The emulator for this platform is unavailable. Open Software setup to install or repair the runtime.";
     }
     if (!extensions(platform).contains(QFileInfo(record.contentPath).suffix().toLower()))
         return "This file format cannot be opened by this emulator.";
@@ -108,7 +108,7 @@ QString StandaloneAdapter::setupIssue(const AdventureRegistration& record) const
 QString StandaloneAdapter::verifyInstallation(const AdventureRegistration& record) const {
     if(!supports(record.adventure.platformId,record.contentPath))return setupIssue(record);
     if(!executable(installation_.program) || !executable(installation_.runtimeFile))
-        return "The selected emulator is unavailable. Restore it in Desktop Mode, then check again.";
+        return "The selected emulator is unavailable. Open Software setup to repair it, then check again.";
     return {};
 }
 void StandaloneAdapter::prepareInstallation(AdventureRegistration& record) const {
@@ -149,8 +149,8 @@ std::optional<ProcessCommand> StandaloneAdapter::command(const Adventure& advent
         (ProcessCommand& out, const std::atomic_bool& cancel) -> QString {
         if (cancel) return "Opening cancelled.";
         const QFileInfo content(path);
-        if (!content.isFile() || !content.isReadable() || content.size() <= 0) return "The Adventure file is missing or unreadable. Link its current file in Worlds.";
-        if (!executable(program) || !executable(runtime)) return "This Adventure's play setup changed. Check it in Desktop Mode.";
+        if (!content.isFile() || !content.isReadable() || content.size() <= 0) return "The Adventure file is missing or unreadable. Choose its current file in Games.";
+        if (!executable(program) || !executable(runtime)) return "This Adventure's play setup changed. Open Software setup and check again.";
         if(azahar) {
             const auto error=trainer::azahar::prepareContent(out,record,cancel);if(!error.isEmpty())return error;
         }

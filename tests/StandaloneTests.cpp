@@ -1086,6 +1086,8 @@ private slots:
         const auto cores=dir.filePath("config/retroarch/cores");QVERIFY(QDir().mkpath(cores));
         write(cores+"/mgba_libretro.so","Non-executable core fixture");
         auto found=prepareEmulators(env);QVERIFY(found.profiles.contains("ppsspp"));QVERIFY(found.profiles.contains("retroarch"));
+        QCOMPARE(found.profiles["ppsspp"]["setupProgram"].toString(),probe());
+        QVERIFY(found.profiles["retroarch"]["setupArguments"].toArray().contains("--config"));
         auto ra=RetroArchInstallation::fromJson(found.profiles["retroarch"]);
         QVERIFY(ra.cores.contains("mgba"));QVERIFY(ra.saveBackups);QVERIFY(!ra.saves);
         QFile config(ra.configFile);QVERIFY(config.open(QIODevice::ReadOnly));const auto original=config.readAll();config.close();
@@ -1171,7 +1173,7 @@ private slots:
         QTest::newRow("GBA core")<<QString("gba")<<QString("gba")<<QString("retroarch");
         QTest::newRow("PSP standalone")<<QString("psp")<<QString("iso")<<QString("ppsspp");
         QTest::newRow("PS2 supported image")<<QString("ps2")<<QString("iso")<<QString("armsx2");
-        QTest::newRow("PS2 registered but unsupported format")<<QString("ps2")<<QString("ciso")<<QString("unconfigured");
+        QTest::newRow("PS2 unsupported format rejected")<<QString("ps2")<<QString("ciso")<<QString("unconfigured");
     }
     void romPickerUsesRealLaunchRoutes() {
         QFETCH(QString,platform);QFETCH(QString,extension);QFETCH(QString,adapterId);
@@ -1189,6 +1191,7 @@ private slots:
         int index=-1;const auto rows=importer.files()->rows();
         for(int n=0;n<rows.size();++n)if(rows[n].toMap()["id"].toString()==file)index=n;
         QVERIFY(index>=0);importer.files()->select(index);importer.files()->choose();importer.activate(6);
+        if(adapterId=="unconfigured"){QVERIFY(importer.error().contains("file type"));QVERIFY(store.registrations().isEmpty());return;}
         QTRY_COMPARE(store.registrations().size(),1);const auto record=store.registrations().first();
         QCOMPARE(record.adventure.adapterId,adapterId);QCOMPARE(record.contentPath,file);
         int starts=0;QStringList arguments;
@@ -1196,16 +1199,29 @@ private slots:
         ra.requestLaunch=start;psp.requestLaunch=start;ps2.requestLaunch=start;
         LaunchPreparation launch(store,router);QSignalSpy errors(&launch,&LaunchPreparation::messageRequested);
         launch.launch(record.adventure.id);QTRY_VERIFY(!launch.busy());
-        if(adapterId=="unconfigured") {
-            QCOMPARE(starts,0);QCOMPARE(errors.size(),1);QVERIFY(errors.first()[0].toString().contains("format"));
-            QVERIFY(QFileInfo::exists(file));return; // Registry admission does not promise a working emulator route.
-        }
         QCOMPARE(starts,1);QCOMPARE(errors.size(),0);
         QCOMPARE(arguments.last(),file);QVERIFY(arguments.contains("--fullscreen")||arguments.contains("-fullscreen"));
         if(platform=="gba"){QVERIFY(arguments.contains("--libretro"));QVERIFY(arguments.contains(core));}
         QVERIFY(QFile::rename(file,file+".disconnected"));launch.launch(record.adventure.id);QTRY_VERIFY(!launch.busy());
         QCOMPARE(starts,1);QCOMPARE(errors.size(),1);QVERIFY(errors.first()[0].toString().contains("Reconnect"));
         QFile original(file+".disconnected");QVERIFY(original.open(QIODevice::ReadOnly));QCOMPARE(original.readAll(),QByteArray("Content-free import fixture"));
+    }
+    void readinessCheckNeverLaunchesAndUsesRepairResult() {
+        QTemporaryDir dir;LocalStateStore store(dir.filePath("data"));store.open();QTRY_VERIFY(store.ready());
+        AdventureRegistration r;r.adventure.id="check-game";r.adventure.domain="multiverse";r.adventure.title="Check fixture";r.adventure.adapterId="unconfigured";r.adventure.platformId="psp";
+        r.contentPath=dir.filePath("game.iso");write(r.contentPath,"content-free fixture");bool saved=false;store.saveAdventureAsync(r,this,[&](auto result){QVERIFY(result.success);saved=true;});QTRY_VERIFY(saved);
+        StandaloneAdapter psp("ppsspp",store,{probe(),probe(),{},{"psp"}});AdapterRouter router({&psp});LaunchPreparation flow(store,router);int starts=0;
+        psp.requestLaunch=[&](const ProcessCommand&,const QString&){++starts;return AdventureResult{true,{},true};};
+        QSignalSpy checked(&flow,&LaunchPreparation::checked),repair(&flow,&LaunchPreparation::preparationRequired);
+        flow.check(r.adventure.id);QTRY_COMPARE(checked.size(),1);QCOMPARE(starts,0);QCOMPARE(checked.last()[1].toMap()["state"].toString(),"ready");
+        QCOMPARE(store.registration(r.adventure.id)->adventure.adapterId,"ppsspp");
+        flow.requirements=[](const auto&){return QVariantMap{{"problem","Required fixture BIOS missing"},{"repair","prepare"}};};
+        flow.check(r.adventure.id);QTRY_COMPARE(checked.size(),2);QVERIFY(!checked.last()[1].toMap()["canPlay"].toBool());QCOMPARE(starts,0);
+        flow.launch(r.adventure.id);QTRY_COMPARE(repair.size(),1);QCOMPARE(repair.last()[1].toMap()["repair"].toString(),"prepare");QCOMPARE(starts,0);
+        flow.requirements=[](const auto&){return QVariantMap{{"warning","Native firmware not verified"}};};flow.check(r.adventure.id);QTRY_COMPARE(checked.size(),3);QCOMPARE(checked.last()[1].toMap()["state"].toString(),"review");QCOMPARE(starts,0);
+        flow.check(r.adventure.id);flow.cancel();QTRY_COMPARE(checked.size(),4);QCOMPARE(checked.last()[1].toMap()["state"].toString(),"cancelled");QCOMPARE(starts,0);
+        flow.requirements={};flow.launch(r.adventure.id);QTRY_VERIFY(!flow.busy());QCOMPARE(starts,1);
+        QVERIFY(QFile::remove(r.contentPath));flow.check(r.adventure.id);QTRY_COMPARE(checked.size(),5);QCOMPARE(checked.last()[1].toMap()["repair"].toString(),"file");QCOMPARE(starts,1);
     }
     void oneLaunchRequestPreparesAndLaunchesWithoutAnotherConfirmation() {
         QTemporaryDir dir;
