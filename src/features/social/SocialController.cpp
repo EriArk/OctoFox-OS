@@ -706,6 +706,12 @@ QString SocialController::conversationName() const {
     for(const auto& c:snapshot_.value("chats").toList())if(c.toMap()["id"]==snapshot_["channel"])return c.toMap()["name"].toString();
     return "Conversation";
 }
+bool SocialController::sectionRoot() const {
+    if (!QStringList{"chats", "communities", "friends"}.contains(face_) || reading_ || partyFocus_
+        || !menu_.isEmpty() || stream_.active() || snapshot_["state"] == "authorizing") return false;
+    if (face_ == "friends") return discoverPreview_.isEmpty() && !discoverAll_;
+    return face_ == "communities" ? !communityOpen() : peopleFilter_.isEmpty();
+}
 QVariantList SocialController::hints() const {
     QVariantList result;
     auto h=[&](QString key,QString label){result.append(QVariantMap{{"button",key},{"label",label}});};
@@ -727,11 +733,11 @@ QVariantList SocialController::hints() const {
         if(!lobbyChatFocused_||!lobbySpectatorChat_)h("Select",lobbyDetailFocused_&&lobbyRows().value(lobbyFocus()).toMap()["kind"]=="own"?"Options":"Filters");
         if(lobbyChatVisible()) {h("R3",lobbyChatExpanded_?"Room":"Expand chat");if(lobbyChatFocused_)h("L3",lobbySpectatorChat_?"Players":"Spectators");}return result;
     }
-    if(snapshot_["state"]=="restoring")return result;
+    if(snapshot_["state"]=="restoring"){if(sectionRoot())h("B","Sections");return result;}
     if(snapshot_.value("state")=="authorizing"){h("B","Cancel sign-in");return result;}
-    if(snapshot_.value("state")=="signed-out"||snapshot_.isEmpty()){if(!owner_.isEmpty())h("A","Sign in");return result;}
+    if(snapshot_.value("state")=="signed-out"||snapshot_.isEmpty()){if(!owner_.isEmpty())h("A","Sign in");if(sectionRoot())h("B","Sections");return result;}
     if(face_=="friends") {
-        h("A",!discoverPreview_.isEmpty()?"Join":discoverArea_=="search"?"Search":"Open");h("B",discoverAll_?"Discover":"Back");
+        h("A",!discoverPreview_.isEmpty()?"Join":discoverArea_=="search"?"Search":"Open");h("B",sectionRoot()?"Sections":discoverAll_?"Discover":"Back");
         if(discoverArea_=="search")h("←→","People / Communities");
     } else {
         if(contacts_)h("A",rows().value(focus_).toMap()["type"].toInt()==3?"Accept request":"Conversation");
@@ -758,7 +764,8 @@ QVariantList SocialController::hints() const {
         if(conversation()){h("R3","Write");h("L3","Info");}
         if(reading_&&conversationControl_>=0&&conversationControl_<3&&snapshot_["historyMore"].toBool())h("↑","Earlier");
         if(reading_)h("B",face_=="communities"?"Channels":"People");
-        else if(contacts_||communityOpen())h("B","Back");
+        else if(sectionRoot())h("B","Sections");
+        else if(contacts_||communityOpen()||!peopleFilter_.isEmpty())h("B","Back");
     }
     h("Select","Options");return result;
 }

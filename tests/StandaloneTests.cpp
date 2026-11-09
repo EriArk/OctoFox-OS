@@ -19,6 +19,7 @@
 #include "core/storage/LocalStateStore.h"
 #include "core/navigation/AdventureLaunchController.h"
 #include "core/navigation/LaunchPreparation.h"
+#include "features/library/LibraryManagementController.h"
 #include "core/repository/BatoceraLibrary.h"
 #include "platform/emulation/EmulatorDiscovery.h"
 #include "core/model/GamePlayers.h"
@@ -1164,6 +1165,47 @@ private slots:
         QFile f(path);QVERIFY(f.open(QIODevice::ReadOnly));QCOMPARE(f.readAll(),bytes); // runtime fix is snapshot-only
         env.flatpaks.clear();found=prepareEmulators(env);QCOMPARE(found.profiles["ppsspp"],profile);
         QVERIFY(StandaloneInstallation::fromJson(found.profiles["ppsspp"],"ppsspp").program.isEmpty());
+    }
+    void romPickerUsesRealLaunchRoutes_data() {
+        QTest::addColumn<QString>("platform");QTest::addColumn<QString>("extension");QTest::addColumn<QString>("adapterId");
+        QTest::newRow("GBA core")<<QString("gba")<<QString("gba")<<QString("retroarch");
+        QTest::newRow("PSP standalone")<<QString("psp")<<QString("iso")<<QString("ppsspp");
+        QTest::newRow("PS2 supported image")<<QString("ps2")<<QString("iso")<<QString("armsx2");
+        QTest::newRow("PS2 registered but unsupported format")<<QString("ps2")<<QString("ciso")<<QString("unconfigured");
+    }
+    void romPickerUsesRealLaunchRoutes() {
+        QFETCH(QString,platform);QFETCH(QString,extension);QFETCH(QString,adapterId);
+        QTemporaryDir dir;const auto file=dir.filePath("Selected game ; literal."+extension);
+        write(file,"Content-free import fixture");
+        LocalStateStore store(dir.filePath("data"));store.open();QTRY_VERIFY(store.ready());
+        const auto config=dir.filePath("retroarch.cfg"),core=dir.filePath("mgba_libretro.so");
+        write(config,"config_save_on_exit = \"false\"\n");write(core,"Non-executable core fixture");
+        RetroArchAdapter ra(store,{probe(),{},config,{{"mgba",core}}});
+        StandaloneAdapter psp("ppsspp",store,{probe(),probe(),{},{"psp"}});
+        StandaloneAdapter ps2("armsx2",store,{probe(),probe(),{},{"ps2"}});AdapterRouter router({&psp,&ps2,&ra});
+        LocalFileCatalog catalog;LibraryManagementController importer(store,&catalog);importer.setInitialFolder(dir.path());
+        importer.prepareInstallation=[&](auto& record){router.prepareInstallation(record);};
+        importer.beginImport(platform);QTRY_VERIFY(!importer.files()->busy());
+        int index=-1;const auto rows=importer.files()->rows();
+        for(int n=0;n<rows.size();++n)if(rows[n].toMap()["id"].toString()==file)index=n;
+        QVERIFY(index>=0);importer.files()->select(index);importer.files()->choose();importer.activate(6);
+        QTRY_COMPARE(store.registrations().size(),1);const auto record=store.registrations().first();
+        QCOMPARE(record.adventure.adapterId,adapterId);QCOMPARE(record.contentPath,file);
+        int starts=0;QStringList arguments;
+        const auto start=[&](const ProcessCommand& command,const QString&){++starts;arguments=command.arguments;return AdventureResult{true,{},true};};
+        ra.requestLaunch=start;psp.requestLaunch=start;ps2.requestLaunch=start;
+        LaunchPreparation launch(store,router);QSignalSpy errors(&launch,&LaunchPreparation::messageRequested);
+        launch.launch(record.adventure.id);QTRY_VERIFY(!launch.busy());
+        if(adapterId=="unconfigured") {
+            QCOMPARE(starts,0);QCOMPARE(errors.size(),1);QVERIFY(errors.first()[0].toString().contains("format"));
+            QVERIFY(QFileInfo::exists(file));return; // Registry admission does not promise a working emulator route.
+        }
+        QCOMPARE(starts,1);QCOMPARE(errors.size(),0);
+        QCOMPARE(arguments.last(),file);QVERIFY(arguments.contains("--fullscreen")||arguments.contains("-fullscreen"));
+        if(platform=="gba"){QVERIFY(arguments.contains("--libretro"));QVERIFY(arguments.contains(core));}
+        QVERIFY(QFile::rename(file,file+".disconnected"));launch.launch(record.adventure.id);QTRY_VERIFY(!launch.busy());
+        QCOMPARE(starts,1);QCOMPARE(errors.size(),1);QVERIFY(errors.first()[0].toString().contains("Reconnect"));
+        QFile original(file+".disconnected");QVERIFY(original.open(QIODevice::ReadOnly));QCOMPARE(original.readAll(),QByteArray("Content-free import fixture"));
     }
     void oneLaunchRequestPreparesAndLaunchesWithoutAnotherConfirmation() {
         QTemporaryDir dir;

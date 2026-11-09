@@ -2415,9 +2415,10 @@ void ShellController::dispatch(Action action) {
                 } else if(action==Action::Down || action==Action::Confirm)chatNavigationFocused_=false;
                 else if(action==Action::Back)goToPage(HomePage);
                 emit changed();
-            } else if(onlineFace_=="chats" && action==Action::Up && !social_.reading()
-                      && (social_.focusIndex()<0 || social_.account()["state"]!="connected"
-                          || (socialFace_=="friends" && social_.discover()["area"]=="search" && social_.discoverPreview().isEmpty()))) {
+            } else if(onlineFace_=="chats" && social_.sectionRoot()
+                      && (action==Action::Back || (action==Action::Up
+                          && (social_.account()["state"]!="connected"
+                              || (socialFace_=="friends" ? social_.discover()["area"]=="search" : social_.focusIndex()<0))))) {
                 chatNavigationFocused_=true;emit changed();
             } else social_.dispatch(action);
             return;

@@ -1,3 +1,42 @@
+# ROM import and launch audit — 10 November 2026
+
+Games → Import ROM / R3 uses the existing file picker and library registration.
+`LibraryManagementController::prepareInstallation` is wired to `AdapterRouter`
+in Main. Installed standalone routes precede RetroArch; an unavailable route can
+remain `unconfigured`. `LaunchPreparation` retries preparation when an unconfigured
+game is opened, verifies the readable source and runtime, persists the selected
+route, then uses the existing process/input/return lifecycle. Missing removable
+storage blocks launch; import does not copy its contents into private storage.
+
+Open boundaries:
+
+- The registry is broader than executable routes. PS2 `.elf`, `.ciso`, `.dump`,
+  `.irx` are admitted by registration but not by the current ARMSX2 standalone.
+  This audit does not enable those formats or silently choose another emulator.
+- PS3 uses SELF/ELF; Vita uses the existing `.psvita` descriptor. General game
+  archive/package installation is not provided by this single-file importer.
+- BIOS/firmware still belong to the user. Settings → Library → Game preparation
+  already imports individual files and BIOS packs. Its generic native-adapter
+  branch still reports firmware setup as not integrated (apart from PSP/GC and
+  separate Nintendo paths); this is not a universal native firmware installer.
+  Standalone launch preflight mostly checks executables/content, so an available
+  launch route is not comprehensive BIOS readiness. Some runtime failure messages
+  still point to Desktop Mode instead of a complete in-shell repair path.
+- Runtime/core presence and accepted suffixes do not establish game compatibility,
+  performance, controller mappings or successful save/exit on every platform.
+- The 9 November import build has not passed a fresh device Setup → Import → Play
+  → Home/Exit → relaunch acceptance. Prior individual platform runs remain historical
+  evidence, not proof of this new clean-install chain.
+
+Verification: Linux x86_64 build plus `standalone`, `retroarch`,
+`emulator_refresh`, `game_preparation`, `social` and `interactions` pass (482
+checks, 5 explicit skips for absent native fixtures/avatar pack). New picker
+integration cases use the real library/router/LaunchPreparation for GBA, PSP,
+PS2 ISO and rejected PS2 CISO. They capture launch commands; they do not execute
+commercial games or prove hardware emulation.
+
+The existing delivery history follows.
+
 # Installed emulator preparation — 2026-09-28
 
 TrainerOS prepares the existing launch adapters at startup and refreshes their

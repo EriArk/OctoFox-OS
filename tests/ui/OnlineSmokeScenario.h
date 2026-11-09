@@ -37,7 +37,7 @@ inline void startOnlineSmoke(QQuickWindow* window,trainer::ShellController& shel
             capture("apps-crates-wide");shell.openOnlineFace("chats");break;
         case 4:
             check(shell.onlineFace()=="chats" && shell.socialActive(),"Chats entry");
-            capture("online-chats-wide");shell.dispatch(Action::Up);shell.dispatch(Action::Right);break;
+            capture("online-chats-wide");shell.dispatch(Action::Back);shell.dispatch(Action::Right);break;
         case 5:
             check(shell.socialFace()=="communities" && shell.chatNavigationFocused(),"Controller chat sections");
             capture("online-communities-wide");shell.dispatch(Action::Down);shell.openProfile();break;
@@ -46,6 +46,7 @@ inline void startOnlineSmoke(QQuickWindow* window,trainer::ShellController& shel
             shell.dispatch(Action::Back);window->resize(960,540);break;
         case 7:
             check(shell.onlineFace()=="chats" && shell.socialFace()=="communities" && !shell.serviceOpen(),"Profile returns to chats");
+            shell.dispatch(Action::Back);check(shell.chatNavigationFocused(),"Compact Back reaches sections");
             capture("online-chats-compact");shell.openAppsFace("crates");break;
         case 8:
             capture("apps-crates-compact");shell.openAppsFace("apps");break;
@@ -77,7 +78,8 @@ inline void startOnlineSmoke(QQuickWindow* window,trainer::ShellController& shel
         case 12:
             check(shell.socialFace()=="chats","Touch did not select Messages");
             check(shell.social()->account()["state"]=="connected","Connected fixture was replaced");
-            capture("online-connected-wide");window->resize(960,540);break;
+            capture("online-connected-wide");shell.dispatch(Action::Back);
+            check(shell.chatNavigationFocused(),"Connected Back reaches sections");window->resize(960,540);break;
         case 13:
             capture("online-connected-compact");shell.goToPage(0);break;
         case 14: {

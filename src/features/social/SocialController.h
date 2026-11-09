@@ -279,6 +279,7 @@ public:
     int focusIndex() const {return focus_;}
     int messageIndex() const {return messageFocus_;}
     bool reading() const {return reading_;}
+    bool sectionRoot() const;
     int conversationControl() const {return conversationControl_;}
     QStringList menu() const {return menu_;}
     int menuIndex() const {return menuFocus_;}

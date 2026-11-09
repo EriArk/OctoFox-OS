@@ -15,6 +15,11 @@ Item {
                 required property var modelData
                 objectName: "online-chat-" + modelData.id
                 width: label.implicitWidth + 12; height: 29
+                Rectangle {
+                    anchors.fill: parent; radius: 5; color: "transparent"
+                    border.width: 2; border.color: Theme.focusGlow
+                    visible: root.shell.chatNavigationFocused && root.shell.socialFace === modelData.id
+                }
                 Text {
                     id: label; anchors.centerIn: parent; text: modelData.name
                     font.pixelSize: 13; font.bold: root.shell.socialFace === modelData.id

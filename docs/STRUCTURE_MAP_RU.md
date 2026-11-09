@@ -1,5 +1,13 @@
 # Структура TrainerOS: владельцы, контракты и связи
 
+**10 ноября — S04 / Communication.** SocialController определяет корень текущего
+раздела через `sectionRoot()`; ShellController переводит B/↑ на существующий
+`chatNavigationFocused`, OnlinePage рисует рамку. Вложенные маршруты, черновики,
+голос и сохранение положения остаются у существующего SocialController.
+Импорт ROM использует общий AdapterRouter → LaunchPreparation;
+[аудит границ запуска](EMULATOR_DISCOVERY.md) не является новой поставкой runtime.
+
+
 **9 ноября — S04 → S12/S13: Crates возвращён в Apps.** Навигация и QML
 открывают тот же каталог через Apps / Crates / Browser / Files; Online содержит
 Lobby / Bazaar / Chats. Существующий формат навигации v4 переносит прежний активный адрес

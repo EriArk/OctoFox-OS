@@ -69,6 +69,35 @@ class SocialTests : public QObject {
         s.channel_=channel;s.channels_[channel]={{"id",channel},{"type",1}};
     }
 private slots:
+    void communicationSectionsUseBackWithoutStealingNestedControls() {
+        MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;
+        DevelopmentPlatformService platform;MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        auto& c=*shell.social();
+        QObject::disconnect(&c,nullptr,c.session_,nullptr);QObject::disconnect(c.session_,nullptr,&c,nullptr);
+        shell.openOnlineFace("chats");c.receive(0,{{"state","connected"},{"channel","dm"}});
+        c.focus_=4;c.reading_=true;c.conversationControl_=-1;c.drafts_["dm"]="Keep this draft";
+        shell.dispatch(Action::Back);QVERIFY(!c.reading());QVERIFY(!shell.chatNavigationFocused());
+        shell.dispatch(Action::Back);QVERIFY(shell.chatNavigationFocused());QCOMPARE(c.focusIndex(),4);
+        shell.dispatch(Action::Right);QCOMPARE(shell.socialFace(),"communities");QVERIFY(shell.chatNavigationFocused());
+        shell.dispatch(Action::Confirm);QVERIFY(!shell.chatNavigationFocused());
+        c.communityId_="group";shell.dispatch(Action::Back);QVERIFY(!c.communityOpen());QVERIFY(!shell.chatNavigationFocused());
+        shell.dispatch(Action::Back);QVERIFY(shell.chatNavigationFocused());
+        shell.dispatch(Action::Right);QCOMPARE(shell.socialFace(),"friends");shell.dispatch(Action::Down);
+        c.discoverArea_="results";c.discoverPreview_={{"id","preview"}};
+        shell.dispatch(Action::Back);QVERIFY(c.discoverPreview().isEmpty());QVERIFY(!shell.chatNavigationFocused());
+        shell.dispatch(Action::Back);QVERIFY(shell.chatNavigationFocused());QCOMPARE(c.discoverArea_,"results");
+        shell.dispatch(Action::Left);shell.dispatch(Action::Left);QCOMPARE(shell.socialFace(),"chats");
+        QCOMPARE(c.focusIndex(),4);QCOMPARE(c.drafts_["dm"],"Keep this draft");shell.dispatch(Action::Down);
+        c.menu_={"Close"};c.menuMode_="test";shell.dispatch(Action::Back);
+        QVERIFY(c.menu().isEmpty());QVERIFY(!shell.chatNavigationFocused());
+        shell.keyboard()->begin("Message","",100);shell.dispatch(Action::Back);QVERIFY(!shell.chatNavigationFocused());
+        shell.dispatch(Action::Secondary);QVERIFY(shell.quickAppsOpen());shell.dispatch(Action::Back);QVERIFY(!shell.chatNavigationFocused());
+        shell.dispatch(Action::Back);QVERIFY(shell.chatNavigationFocused());
+        shell.dispatch(Action::NextFace);QCOMPARE(shell.onlineFace(),"lobby");
+        shell.openOnlineFace("chats");c.receive(0,{{"state","signed-out"}});
+        shell.dispatch(Action::Back);QVERIFY(shell.chatNavigationFocused());
+    }
     void onlineTabReturnRestoresConversationFocusWithoutEndingVoiceOrDiscardingDraft() {
         SocialController c;
         QVariantMap snapshot{{"state","connected"},{"userId","self"},{"channel","dm"},
