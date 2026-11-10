@@ -391,7 +391,7 @@ else()
 endif()
 
 qt_add_executable(traineros src/app/Main.cpp)
-qt_add_resources(traineros series_art PREFIX "/series" BASE assets/series
+qt_add_resources(traineros series_art BIG_RESOURCES PREFIX "/series" BASE assets/series
     FILES assets/series/pokemon.png assets/series/mario.png assets/series/zelda.png assets/series/sonic.png assets/series/final-fantasy.png assets/series/metroid.png assets/series/castlevania.png assets/series/kirby.png assets/series/metal-slug.png assets/series/multiverse.png)
 qt_add_resources(traineros genre_art PREFIX "/genres" BASE assets/genres
     FILES assets/genres/fighting.png assets/genres/brawlers.png assets/genres/shooters.png assets/genres/racing.png assets/genres/sports.png assets/genres/rpg.png assets/genres/strategy.png assets/genres/platform.png assets/genres/puzzle.png assets/genres/party.png assets/genres/adventure.png assets/genres/music.png)
@@ -399,7 +399,7 @@ qt_add_resources(traineros home_backdrops PREFIX "/home-backdrops" BASE assets/h
     FILES assets/home-backdrops/turquoise.png assets/home-backdrops/red.png assets/home-backdrops/green.png assets/home-backdrops/blue.png assets/home-backdrops/orange.png)
 file(GLOB companion_assets CONFIGURE_DEPENDS assets/home-pet/ui/*.svg)
 qt_add_resources(traineros companion_assets PREFIX "/home-pet" BASE assets/home-pet FILES ${companion_assets})
-qt_add_resources(traineros cover_fallbacks PREFIX "/cover-fallbacks" BASE assets/cover-fallbacks
+qt_add_resources(traineros cover_fallbacks BIG_RESOURCES PREFIX "/cover-fallbacks" BASE assets/cover-fallbacks
     FILES assets/cover-fallbacks/fantasy-0.png assets/cover-fallbacks/fantasy-1.png assets/cover-fallbacks/fantasy-2.png assets/cover-fallbacks/fantasy-3.png assets/cover-fallbacks/fantasy-4.png assets/cover-fallbacks/fantasy-5.png assets/cover-fallbacks/racing-0.png assets/cover-fallbacks/racing-1.png assets/cover-fallbacks/sports-0.png assets/cover-fallbacks/sports-1.png assets/cover-fallbacks/scifi-0.png assets/cover-fallbacks/scifi-1.png assets/cover-fallbacks/puzzle-0.png assets/cover-fallbacks/puzzle-1.png assets/cover-fallbacks/action-0.png assets/cover-fallbacks/action-1.png assets/cover-fallbacks/neutral-0.png assets/cover-fallbacks/neutral-1.png)
 qt_add_resources(traineros crt_texture PREFIX "/textures" BASE assets/textures FILES assets/textures/crt.svg)
 qt_add_resources(traineros display_fonts PREFIX "/fonts" BASE assets/fonts
