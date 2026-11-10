@@ -95,11 +95,11 @@ void BazaarCatalogue::focusRoom(int index) {
 void BazaarCatalogue::activate(QString id) {
     if(!dialog_.isEmpty())return;
     focus(id);if(selection_!=id)return;
-    if(id=="official"){dialog_="realms";realmIndex_=0;emit changed();}
+    if(id=="official"){dialog_=account()["paymentsAvailable"].toBool()?"realms":"preview-official";realmIndex_=0;emit changed();}
     else if(id=="search")editSearch();
     else if(id=="filter")toggleFilter();
-    else if(id=="create"){beginForm(!own_.isEmpty());}
-    else if(id.startsWith("room:")){detailId_=id;dialog_="details";dialogIndex_=0;emit changed();}
+    else if(id=="create"){if(account()["paymentsAvailable"].toBool())beginForm(!own_.isEmpty());else {dialog_="preview-player";emit changed();}}
+    else if(id.startsWith("room:")){detailId_=id;dialog_=account()["paymentsAvailable"].toBool()?"details":"preview-player";dialogIndex_=0;emit changed();}
 }
 void BazaarCatalogue::editSearch() {
     if(!dialog_.isEmpty())return;
@@ -144,6 +144,7 @@ void BazaarCatalogue::chooseRealm(int index) {
 }
 bool BazaarCatalogue::dispatch(Action action) {
     if(!dialog_.isEmpty()) {
+        if(dialog_.startsWith("preview-")){if(action==Action::Back||action==Action::Confirm)closeDialog();return true;}
         if(dialog_!="realms") {
             if(action==Action::Back)closeDialog();
             else if(action==Action::Up||action==Action::Down){dialogIndex_=qBound(0,dialogIndex_+(action==Action::Down?1:-1),qMax(0,int(dialogRows().size())-1));emit changed();}

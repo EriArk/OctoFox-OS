@@ -6,6 +6,7 @@ An expired receipt remains history; occupancy is derived from the server clock.
 """
 from uuid import uuid4
 from datetime import timedelta
+from . import policy
 from ..accounts.provider import AuthError
 from ..events import EventSpec, publish
 
@@ -38,7 +39,7 @@ def places(service, access, bazaar_id, after=None):
         bazaar=visible(conn,actor,bazaar_id)
         blocked=bool(conn.execute('SELECT 1 FROM trainer_backend.bazaar_blocks WHERE bazaar_id=%s AND player_id=%s',
                                  (bazaar_id,actor.player_id)).fetchone())
-        allowed=bazaar['access']=='open' and not blocked and bazaar['owner_id']!=actor.player_id
+        allowed=policy.PAYMENTS_AVAILABLE and bazaar['access']=='open' and not blocked and bazaar['owner_id']!=actor.player_id
         rows=conn.execute('''SELECT p.*,r.tenant_id,r.expires_at FROM trainer_backend.bazaar_places p
             LEFT JOIN LATERAL (SELECT tenant_id,expires_at FROM trainer_backend.bazaar_rentals
                 WHERE place_id=p.id AND expires_at>clock_timestamp() ORDER BY expires_at DESC LIMIT 1) r ON true
@@ -89,6 +90,7 @@ def rent(service, access, operation, bazaar_id, place_id, revision, expected_pri
             if (prior['bazaar_id'],prior['place_id'],prior['offer_revision'],prior['price']) != (bazaar_id,place_id,revision,expected_price):
                 raise AuthError('rental_identity_conflict',409)
             return {'player_id':actor.player_id,'receipt':prior}
+        if not policy.PAYMENTS_AVAILABLE:raise AuthError('bazaar_under_development',409)
         bazaar=visible(conn,actor,bazaar_id)
         if bazaar['owner_id']==actor.player_id:raise AuthError('own_place',409)
         if bazaar['access']!='open' or conn.execute('SELECT 1 FROM trainer_backend.bazaar_blocks WHERE bazaar_id=%s AND player_id=%s',

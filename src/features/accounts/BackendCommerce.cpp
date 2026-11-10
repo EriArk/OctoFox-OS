@@ -145,6 +145,9 @@ void BackendAccount::activateShopItem() {
     },access_);
 }
 void BackendAccount::confirmPurchase() {
+    if(!services_.bazaarDevelopmentPayments&&QStringList{"bazaar.personal","bazaar.stall"}.contains(shopReview_.value("id").toString())) {
+        shopReview_={};shopStatus_="Bazaar is under development. Purchases are disabled.";emit changed();return;
+    }
     if(shopBusy_||shopReview_.isEmpty()||state_!="connected"||!shopPending_.isEmpty())return;
     shopPending_={{"player_id",player_},{"operation_id",QUuid::createUuid().toString(QUuid::WithoutBraces)},
         {"offer_id",shopReview_["id"]},{"offer_revision",shopReview_["revision"].toString().toInt()},{"expected_price",shopReview_["price"]}};
@@ -153,6 +156,7 @@ void BackendAccount::confirmPurchase() {
 }
 void BackendAccount::recoverPurchase(bool retry) {
     if(shopBusy_||state_!="connected"||shopPending_["player_id"]!=player_)return;
+    if(!services_.bazaarDevelopmentPayments&&(shopPending_.value("kind")=="bazaar.rent"||QStringList{"bazaar.personal","bazaar.stall"}.contains(shopPending_.value("offer_id").toString())))retry=false;
     shopBusy_=true;shopStatus_="Checking your purchase…";emit changed();
     if(shopPending_.value("kind")=="bazaar.rent") {
         const auto path=retry?"/v1/bazaars/"+shopPending_["bazaar_id"].toString()+"/places/"+shopPending_["place_id"].toString()+"/rent":
@@ -182,7 +186,7 @@ void BackendAccount::finishPurchase(int status,QJsonObject result) {
         if(!saveCommerce())shopPending_=pending;
         shopStatus_=receipt["offer_id"]=="bazaar.stall"?"Trading place purchased permanently. Set its weekly rent when ready.":receipt["offer_id"]=="bazaar.personal"?"Bazaar unlocked permanently. Create it whenever you are ready.":receipt["offer_id"].toString().startsWith("outfit.slot.")?"Slot unlocked permanently. Save your current look into it.":"Purchased permanently. Select Apply to use this appearance.";
         refreshProgression(false);
-    } else if((status==409&&QStringList{"offer_changed","offer_unavailable","already_owned","insufficient_sparks","level_required","bazaar_required"}.contains(result["code"].toString()))
+    } else if((status==409&&QStringList{"offer_changed","offer_unavailable","already_owned","insufficient_sparks","level_required","bazaar_required","bazaar_under_development"}.contains(result["code"].toString()))
         ||(status==422&&result["code"]=="invalid_bazaar"&&shopPending_["offer_id"]=="bazaar.personal"&&shopPending_.contains("bazaar"))) {
         const auto code=result["code"].toString();const auto pending=shopPending_;shopPending_={};
         if(!saveCommerce())shopPending_=pending;

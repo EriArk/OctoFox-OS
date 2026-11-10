@@ -1,0 +1,55 @@
+{
+  "origin": "https://traineros-api.abysstail.art",
+  "accounts_configured": true,
+  "checks": [
+    {
+      "path": "/health/live",
+      "status": 200
+    },
+    {
+      "path": "/health/ready",
+      "status": 404
+    },
+    {
+      "path": "/openapi.json",
+      "status": 404
+    },
+    {
+      "path": "/v1/capabilities",
+      "status": 200
+    },
+    {
+      "path": "/v1/me",
+      "status": 401
+    },
+    {
+      "path": "/v1/me/purchases",
+      "status": 405
+    },
+    {
+      "path": "/v1/bazaars",
+      "status": 401
+    },
+    {
+      "path": "/v1/bazaars/00000000-0000-0000-0000-000000000001/access",
+      "status": 401
+    },
+    {
+      "path": "/v1/me/bazaars/00000000-0000-0000-0000-000000000001/access",
+      "status": 401
+    },
+    {
+      "path": "/v1/bazaars/00000000-0000-0000-0000-000000000001/places",
+      "status": 401
+    },
+    {
+      "path": "/v1/me/bazaar-rentals/00000000-0000-0000-0000-000000000001",
+      "status": 401
+    },
+    {
+      "path": "/unpublished",
+      "status": 404
+    }
+  ],
+  "live_oauth_proven": false
+}

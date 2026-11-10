@@ -33,6 +33,7 @@ public:
         std::function<bool(QUrl)> openBrowser;
         std::function<QByteArray(QString)> readCommerce;
         std::function<bool(QString,QByteArray)> writeCommerce;
+        bool bazaarDevelopmentPayments=false; // Isolated fixtures only; never enabled by production.
     };
     explicit BackendAccount(QObject* parent=nullptr);
     ~BackendAccount() override;

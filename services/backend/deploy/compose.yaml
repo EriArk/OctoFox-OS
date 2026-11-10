@@ -1,6 +1,6 @@
 name: traineros-backend
 x-app: &app
-  image: traineros-backend:bazaar-stalls11
+  image: traineros-backend:bazaar-preview11
   build:
     context: ..
     target: runtime

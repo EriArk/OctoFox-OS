@@ -7,6 +7,7 @@ from ..events import EventSpec, publish
 from .policy import mastery
 from . import prizes
 from ..bazaar import service as bazaar
+from ..bazaar import policy as bazaar_policy
 
 
 def validate_purchase_event(value):
@@ -51,8 +52,9 @@ class Shop:
                         FROM trainer_backend.outfit_slots s JOIN trainer_backend.prize_grants p ON p.id=s.grant_id
                         WHERE s.player_id=%s ORDER BY p.level''', (actor.player_id,)).fetchall(),
                     'outfits': conn.execute('SELECT * FROM trainer_backend.outfits WHERE player_id=%s ORDER BY offer_id', (actor.player_id,)).fetchall(),
-                    'bazaar_offer': conn.execute("SELECT * FROM trainer_backend.shop_offers WHERE id='bazaar.personal' AND available").fetchone(),
-                    'bazaar_stall_offer': conn.execute("SELECT * FROM trainer_backend.shop_offers WHERE id='bazaar.stall' AND available").fetchone(),
+                    'bazaar_payments_available': bazaar_policy.PAYMENTS_AVAILABLE,
+                    'bazaar_offer': conn.execute("SELECT * FROM trainer_backend.shop_offers WHERE id='bazaar.personal' AND available").fetchone() if bazaar_policy.PAYMENTS_AVAILABLE else None,
+                    'bazaar_stall_offer': conn.execute("SELECT * FROM trainer_backend.shop_offers WHERE id='bazaar.stall' AND available").fetchone() if bazaar_policy.PAYMENTS_AVAILABLE else None,
                     'purchased_place': conn.execute('SELECT * FROM trainer_backend.bazaar_places WHERE purchase_id=%s', (receipt['id'],)).fetchone() if receipt and receipt['offer_id']=='bazaar.stall' else None,
                     'bazaar_license': bool(conn.execute("SELECT 1 FROM trainer_backend.owned_items WHERE player_id=%s AND offer_id='bazaar.personal'", (actor.player_id,)).fetchone()),
                     'bazaar': bazaar.owned(conn, actor.player_id),
@@ -68,6 +70,8 @@ class Shop:
                 if (prior['offer_id'], prior['offer_revision'], prior['price'], prior['details']) != (offer_id, revision, price, purchase_details):
                     raise AuthError('purchase_identity_conflict', 409)
             else:
+                if offer_id in ('bazaar.personal','bazaar.stall') and not bazaar_policy.PAYMENTS_AVAILABLE:
+                    raise AuthError('bazaar_under_development',409)
                 # Old receipts remain recoverable, but new purchases only unlock the right.
                 if purchase_details:
                     raise AuthError('invalid_bazaar', 422)

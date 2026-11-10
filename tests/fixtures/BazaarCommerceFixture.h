@@ -31,7 +31,7 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
     QJsonObject stallOffer() const {return {{"id","bazaar.stall"},{"purpose","bazaar_stall"},{"kind","permanent_license"},{"revision","1"},{"price",500},{"title","Trading place"}};}
     BackendAccount::Services services() {
         inventory["bazaar_stall_offer"]=stallOffer();
-        auto self=shared_from_this();BackendAccount::Services result;
+        auto self=shared_from_this();BackendAccount::Services result;result.bazaarDevelopmentPayments=true;
         result.read=[](QString,auto done){done(true,QJsonDocument(QJsonObject{{"refresh_token",QString(43,'r')}}).toJson());};
         result.write=[](QString,QByteArray,auto done){done(true);};
         result.openBrowser=[](QUrl){return true;};

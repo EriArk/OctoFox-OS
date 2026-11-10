@@ -45,7 +45,7 @@ private slots:
         page.focus("room:7");page.toggleFavorite("7");page.toggleFilter();
         QCOMPARE(page.rooms().size(),1);QCOMPARE(page.rooms()[0].toMap()["id"].toString(),"7");
         page.focus("room:7");page.applySearch("  REN  ");QVERIFY(page.rooms().isEmpty());
-        page.activate("official");QCOMPARE(page.dialog(),"realms");page.closeDialog();
+        page.activate("official");QCOMPARE(page.dialog(),"preview-official");page.closeDialog();
         page.applySearch("Mika");QCOMPARE(page.rooms().size(),1);
         page.focus("room:7");page.toggleFavorite("7");QVERIFY(page.rooms().isEmpty());QCOMPARE(page.selection(),"search");
         page.toggleFilter();QCOMPARE(page.rooms().size(),6);
@@ -66,15 +66,15 @@ private slots:
     void emptyDisconnectedAndUnavailableActions() {
         BazaarCatalogue page;QSignalSpy notice(&page,&BazaarCatalogue::notice);
         page.setConnectionState("signed-out");QVERIFY(page.status().contains("Sign in"));
-        page.activate("official");QCOMPARE(page.dialog(),"realms");QVERIFY(page.realms().isEmpty());
-        page.dispatch(Action::NextFace);QCOMPARE(page.dialog(),"realms");
-        page.dispatch(Action::Back);page.activate("create");QCOMPARE(page.dialog(),"purchase");
-        page.dispatch(Action::Confirm);QCOMPARE(page.dialog(),"purchase");page.closeDialog();QCOMPARE(notice.count(),0);
+        page.activate("official");QCOMPARE(page.dialog(),"preview-official");QVERIFY(page.realms().isEmpty());
+        page.dispatch(Action::NextFace);QCOMPARE(page.dialog(),"preview-official");
+        page.dispatch(Action::Back);page.activate("create");QCOMPARE(page.dialog(),"preview-player");
+        page.dispatch(Action::Confirm);QVERIFY(page.dialog().isEmpty());page.closeDialog();QCOMPARE(notice.count(),0);
         page.setPresentation(rooms(),{QVariantMap{{"name","Veyr"},{"visitors",32},{"capacity",32}},QVariantMap{{"name","Keth"},{"visitors",3},{"capacity",32}}},{});
         page.activate("official");page.chooseRealm(0);QCOMPARE(notice.count(),0);
-        page.chooseRealm(1);QCOMPARE(notice.count(),1);QVERIFY(notice[0][0].toString().contains("not available"));
-        page.closeDialog();page.activate("room:0");QCOMPARE(page.dialog(),"details");QCOMPARE(notice.count(),1); // zero visitors is still a place
-        page.closeDialog();page.activate("room:missing");QCOMPARE(notice.count(),1);
+        page.chooseRealm(1);QCOMPARE(notice.count(),0);
+        page.closeDialog();page.activate("room:0");QCOMPARE(page.dialog(),"preview-player");QCOMPARE(notice.count(),0); // zero visitors is still a place
+        page.closeDialog();page.activate("room:missing");QCOMPARE(notice.count(),0);
     }
 };
 }

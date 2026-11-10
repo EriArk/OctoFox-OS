@@ -41,7 +41,7 @@ Item {
                 }
                 CapButton {
                     id: create; objectName: "bazaar-create"; width: root.compact ? 97 : 110; height: 29
-                    label: root.catalogue.account.owned && root.catalogue.account.owned.id ? "My bazaar" : root.catalogue.account.licensed ? "+ Create" : "Buy bazaar"; textSize: 12; tint: Theme.yellow; claimsFocus: false; contentInset: 8
+                    label: !root.catalogue.account.paymentsAvailable ? "Preview" : root.catalogue.account.owned && root.catalogue.account.owned.id ? "My bazaar" : root.catalogue.account.licensed ? "+ Create" : "Buy bazaar"; textSize: 12; tint: Theme.yellow; claimsFocus: false; contentInset: 8
                     selected: root.takesFocus && root.catalogue.selection==="create"
                     onActivated: root.catalogue.activate("create")
                 }
@@ -82,11 +82,20 @@ Item {
                     function onRowsChanged() { Qt.callLater(root.restoreScroll) }
                 }
             }
-            Column {
+            Rectangle {
                 objectName: "bazaar-empty"; visible: root.catalogue.rooms.length===0
-                x: 18; y: grid.y+Math.max(25,(grid.height-height)/2); width: parent.width-36; spacing: 10
-                Text { width: parent.width; text: root.catalogue.search ? "No matching bazaars" : root.catalogue.favoritesOnly ? "No favorites yet" : "Player bazaars"; font.family: Theme.displayFamily; font.pixelSize: 21; color: Theme.ink; wrapMode: Text.WordWrap }
-                Text { objectName: "bazaar-status"; width: parent.width; text: root.catalogue.search ? "Try another name or clear your search." : root.catalogue.favoritesOnly ? "Save a bazaar with its star to find it here." : root.catalogue.status; font.pixelSize: 13; color: Theme.muted; wrapMode: Text.WordWrap }
+                x: 0; y: grid.y; width: parent.width-5; height: grid.height-7; radius: 12; color: "#153e40"; clip: true
+                Image { anchors.fill: parent; source: "qrc:/bazaar/grove.png"; fillMode: Image.PreserveAspectCrop; asynchronous: true }
+                Rectangle { anchors.fill: parent; radius: 12; gradient: Gradient { GradientStop {position:0;color:"#30102b38"} GradientStop {position:1;color:"#fa102b38"} } }
+                Column {
+                    anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 18; spacing: 8
+                    Text { text: "PLAYER BAZAARS"; color:"#ffffff"; font.pixelSize:root.compact?23:28; font.bold:true }
+                    Text { width:parent.width; text:"Your own place to gather, build and trade."; color:"#ebf5ed"; font.pixelSize:16; wrapMode:Text.WordWrap }
+                    Text { width:parent.width; text:"PLACEHOLDER · IN DEVELOPMENT"; color:"#ffda74"; font.pixelSize:root.compact?14:16; font.bold:true; wrapMode:Text.WordWrap }
+                    Text { objectName:"bazaar-status"; width:parent.width; text:root.catalogue.search?"No matching bazaars. See what's planned.":root.catalogue.favoritesOnly?"No favorites yet. See what's planned.":"Open the preview — no Sparks required."; color:"#ebf5ed";font.pixelSize:12;wrapMode:Text.WordWrap }
+                }
+                MouseArea { anchors.fill:parent;onClicked:root.catalogue.activate("create") }
+                Accessible.role:Accessible.Button;Accessible.name:"Player bazaars placeholder preview";Accessible.onPressAction:root.catalogue.activate("create")
             }
         }
     }

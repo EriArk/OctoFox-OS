@@ -43,7 +43,7 @@ bool BackendAccount::validBazaar(const QJsonObject& value) const {
 QVariantMap BackendAccount::bazaarAccount() const {
     const auto player=player_.isEmpty()?cachedIdentity_["player_id"].toString():player_;
     const bool same=!player.isEmpty()&&shopSnapshot_["player_id"]==player;
-    return {{"playerId",player},{"connected",state_=="connected"&&!player_.isEmpty()},
+    return {{"paymentsAvailable",services_.bazaarDevelopmentPayments},{"playerId",player},{"connected",state_=="connected"&&!player_.isEmpty()},
         {"licensed",same&&shopSnapshot_["bazaar_license"].toBool()},
         {"owned",same?shopSnapshot_["bazaar"].toObject().toVariantMap():QVariantMap{}},
         {"stallOffer",same?shopSnapshot_["bazaar_stall_offer"].toObject().toVariantMap():QVariantMap{}},
@@ -55,6 +55,7 @@ QVariantMap BackendAccount::bazaarAccount() const {
         {"review",shopReview_["id"]=="bazaar.personal"?shopReview_.toVariantMap():QVariantMap{}}};
 }
 void BackendAccount::reviewBazaarPurchase(bool stall) {
+    if(!services_.bazaarDevelopmentPayments){shopStatus_="Bazaar is under development. Purchases are disabled.";emit changed();return;}
     if(shopBusy_||state_!="connected"||shopStale_||!shopPending_.isEmpty())return;
     if(stall?shopSnapshot_["bazaar"].toObject().isEmpty():(shopSnapshot_["bazaar_license"].toBool()||!shopSnapshot_["bazaar"].toObject().isEmpty()))return;
     const auto offer=shopSnapshot_[stall?"bazaar_stall_offer":"bazaar_offer"].toObject();
@@ -116,6 +117,7 @@ void BackendAccount::bazaarRequest(const QString& action,QJsonObject args,Reply 
     done(422,{});
 }
 void BackendAccount::rentBazaarPlace(QJsonObject place,QString bazaar) {
+    if(!services_.bazaarDevelopmentPayments){shopStatus_="Bazaar is under development. Rentals are disabled.";emit changed();return;}
     if(shopBusy_||state_!="connected"||!shopPending_.isEmpty()||!id(bazaar)||!id(place["id"])
         ||!revision(place["revision"])||!integer(place["weekly_price"])||place["rentable"]!=true)return;
     shopPending_={{"kind","bazaar.rent"},{"player_id",player_},{"operation_id",QUuid::createUuid().toString(QUuid::WithoutBraces)},
@@ -132,7 +134,7 @@ void BackendAccount::finishRental(int status,QJsonObject result) {
         &&receipt["price"]==shopPending_["expected_price"]
         &&QString::number(receipt["offer_revision"].toInteger())==shopPending_["revision"].toString()
         &&started.isValid()&&expires.isValid()&&started.secsTo(expires)==604800;
-    const bool declined=(status==404&&QStringList{"bazaar_not_found","place_not_found"}.contains(result["code"].toString()))||(status==409&&QStringList{"place_changed","place_occupied","insufficient_sparks","own_place","bazaar_access_denied"}.contains(result["code"].toString()));
+    const bool declined=(status==404&&QStringList{"bazaar_not_found","place_not_found"}.contains(result["code"].toString()))||(status==409&&QStringList{"place_changed","place_occupied","insufficient_sparks","own_place","bazaar_access_denied","bazaar_under_development"}.contains(result["code"].toString()));
     if((status==200&&exact)||declined) {
         const auto pending=shopPending_;shopPending_={};if(!saveCommerce())shopPending_=pending;
         shopStatus_=status==200?"Place rented until "+expires.toLocalTime().toString("dd MMM yyyy HH:mm")+". Payment sent to its owner.":

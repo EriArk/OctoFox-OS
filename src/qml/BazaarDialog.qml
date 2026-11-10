@@ -6,7 +6,7 @@ Rectangle {
     required property var shell
     readonly property var catalogue: shell.bazaar
     readonly property string kind: catalogue.dialog
-    visible: kind.length>0 && kind!=="realms"
+    visible: kind.length>0 && kind!=="realms" && !kind.startsWith("preview-")
     color: "#880c2526"; z: 3
     enabled: !shell.menuOpen && !shell.serviceOpen && !shell.keyboard.open && !shell.notificationsOpen
     MouseArea { anchors.fill: parent }

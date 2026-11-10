@@ -10,7 +10,7 @@ from trainer_backend.accounts.provider import AuthError
 from trainer_backend.bazaar import rentals
 from trainer_backend.economy.maintenance import grant_test_sparks
 from test_accounts import account,login,CONFIG,Provider
-from test_bazaar import prepared,create,DETAILS
+from test_bazaar import development_payments,prepared,create,DETAILS
 
 
 def setup(account,postgres,price=100):

@@ -527,6 +527,7 @@ qt_add_qml_module(traineros
     src/qml/OnlinePage.qml
     src/qml/BazaarPage.qml
     src/qml/BazaarCard.qml
+    src/qml/BazaarPreview.qml
     src/qml/BazaarDialog.qml
         src/qml/AlbumPhoto.qml
         src/qml/ScreensAlbum.qml

@@ -365,7 +365,7 @@ Window {
             Behavior on y { NumberAnimation {duration:Theme.motion(180);easing.type:Easing.InOutCubic} }
         }
         MouseArea {
-            anchors.fill: parent; z: browserPane.expanded ? 1.95 : 1
+            anchors.fill: parent; z: bazaarPreview.active ? 2.8 : browserPane.expanded ? 1.95 : 1
             enabled: (shell.drawerOpen || shell.quickAppsOpen) && !shell.apps.menu.length && !shell.menuOpen && !shell.keyboard.open && !shell.homeMenuOpen && !shell.notice.length
             onClicked: shell.closeDrawers()
         }
@@ -374,7 +374,7 @@ Window {
             x: Theme.screenBounds.x
             anchors.bottom: footer.top
             shell: shellController; z: 3
-            visible: !shell.social.incomingCall.id && !shell.notificationsOpen && !shell.serviceOpen && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
+            visible: !shell.social.incomingCall.id && !shell.notificationsOpen && !shell.serviceOpen && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
             handlesRecessed: shell.quickAppsOpen || shell.drawerOpen || panelVisible || drawer.panelVisible
             otherPanelVisible: drawer.panelVisible
         }
@@ -383,8 +383,8 @@ Window {
             objectName: "continue-drawer"
             x: Theme.screenBounds.x + (expandedWidth-width)/(expandedWidth-closedWidth)*(closedWidth-Theme.drawerHandleOverlap)
             anchors.bottom: footer.top; shell: shellController
-            z: 2
-            visible: !shell.social.incomingCall.id && !shell.serviceOpen && (shell.chooseAdventureAvailable || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
+            z: bazaarPreview.active ? 3 : 2
+            visible: !shell.social.incomingCall.id && !shell.serviceOpen && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (shell.chooseAdventureAvailable || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
             handlesRecessed: shell.quickAppsOpen || shell.drawerOpen || panelVisible || quickDrawer.panelVisible
             otherPanelVisible: quickDrawer.panelVisible
         }
@@ -622,6 +622,13 @@ Window {
                 x: 12; y: 0; width: parent.width-24; height: parent.height
                 Loader { anchors.fill: parent; active: settingsOverlay.created; sourceComponent: SettingsPanel { shell: shellController } }
             }
+        }
+        Loader {
+            id: bazaarPreview
+            anchors.fill: parent; z: 2.4
+            active: shell.primaryId==="online" && shell.onlineFace==="bazaar" && shell.bazaar.dialog.startsWith("preview-")
+            visible: active
+            sourceComponent: BazaarPreview { shell: shellController }
         }
         AccountProfilePanel { width: parent.width; height: Theme.footerTop; shell: shellController; z: 2.5 }
         AppsMenu {

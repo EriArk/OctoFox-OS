@@ -138,6 +138,27 @@ private slots:
         fixture->inventory["bazaar_license"]=false;restored.refreshShop();
         QVERIFY(restored.bazaarAccount()["licensed"].toBool());fixture->inventory=current;
     }
+    void previewNeverSpendsEvenWithOldOffersAndRecoversOnlyByReading() {
+        auto fixture=std::make_shared<BazaarCommerceFixture>();
+        {
+            BackendAccount legacy;fixture->install(legacy);fixture->loseResponse=true;
+            legacy.reviewBazaarPurchase();legacy.confirmPurchase();QCOMPARE(fixture->charges,1);
+        }
+        fixture->loseResponse=false;
+        auto services=fixture->services();services.bazaarDevelopmentPayments=false;
+        auto transport=services.request;int posts=0;
+        services.request=[&](QByteArray method,QString path,QJsonObject body,QByteArray token,BackendAccount::Reply done){
+            if(method=="POST"&&(path=="/v1/me/purchases"||path.endsWith("/rent")))++posts;
+            transport(method,path,body,token,std::move(done));
+        };
+        BackendAccount account;account.setServices(services);account.configure("bazaar-forms-test");
+        QVERIFY(account.bazaarAccount()["licensed"].toBool());QVERIFY(!account.bazaarAccount()["pending"].toBool());
+        account.reviewBazaarPurchase();account.reviewBazaarPurchase(true);account.confirmPurchase();
+        account.rentBazaarPlace({{"id",fixture->stall},{"revision","1"},{"weekly_price",100},{"rentable",true}},fixture->place);
+        account.resolveBazaarPurchase();
+        QCOMPARE(posts,0);QCOMPARE(fixture->charges,1);QCOMPARE(fixture->stallCharges,0);QCOMPARE(fixture->rentCharges,0);
+        QVERIFY(account.bazaarAccount()["review"].toMap().isEmpty());QVERIFY(account.bazaarAccount()["stallReview"].toMap().isEmpty());
+    }
     void stallPurchaseRequiresSpaceAndRecoversAnExactPaidPlace() {
         auto fixture=std::make_shared<BazaarCommerceFixture>();
         const QJsonObject details{{"name","Nym"},{"description",""},{"listed",true},{"access","open"}};

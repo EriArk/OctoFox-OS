@@ -608,7 +608,7 @@ bool ShellController::canEditWorld() const {
         && !drawerOpen_ && !libraryTools_.isOpen() && !worlds_.region().value("id").toString().isEmpty();
 }
 bool ShellController::localModalOpen() {
-    if(controlsNetworkOpen_ || !bazaar_.dialog().isEmpty())return true;
+    if(controlsNetworkOpen_ || (!bazaar_.dialog().isEmpty()&&!bazaar_.dialog().startsWith("preview-")))return true;
     if(dashboard_.widgetPicking())return true;
     if(pcGames_.isOpen()||gamePerformance_.isOpen())return true;
     return files_.modal() || social_.files()->picker()->isOpen() || (social_.myLobbiesOpen() || social_.lobbyCreateOpen() || social_.lobbyPickerOpen() || social_.lobbyVoteOpen()) || collectionManager()->isOpen() || downloads_.isOpen() || scraper_.isOpen() || (socialActive() && !social_.menu().isEmpty()) || libraryTools_.isOpen() || trainer_.editing()
@@ -2185,7 +2185,8 @@ void ShellController::dispatch(Action action) {
     if(page_==OnlinePage && onlineFace_=="bazaar" && service_.isEmpty() && !keyboard_.isOpen() && !menuOpen_ && !homeMenuOpen_ && !drawerOpen_ && !quickAppsOpen_ && notice_.isEmpty()) {
         if(!bazaar_.dialog().isEmpty()) {
             if(action==Action::Home)bazaar_.closeDialog(true);
-            else if(action!=Action::SystemMenu && action!=Action::ToggleNotifications){bazaar_.dispatch(action);return;}
+            else if(action!=Action::SystemMenu && action!=Action::ToggleNotifications
+                && !(bazaar_.dialog().startsWith("preview-")&&(action==Action::Secondary||action==Action::ToggleContinue))){bazaar_.dispatch(action);return;}
         } else if(action==Action::ToggleFavorite || action==Action::ChangeView || action==Action::ScrollUp || action==Action::ScrollDown) {
             if(pairedNavigationAvailable() && !navigationLocked())bazaar_.dispatch(action);
             return;

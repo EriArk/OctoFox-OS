@@ -1,5 +1,22 @@
 # Personal bazaars — persistent foundation, 10 November 2026
 
+> **Current delivery — placeholders, no new Bazaar spending (10 November).**
+> The worlds do not exist. The prepared commerce below is disabled by default.
+> `bazaar.policy.PAYMENTS_AVAILABLE` is false, with no HTTP or environment switch.
+> A new `bazaar.personal` / `bazaar.stall` purchase or rental returns
+> `bazaar_under_development` (409) before any charge. Existing exact operation
+> replays and receipt reads still recover their original result; acquired rights,
+> places, balances and history are preserved. Inventory returns null Bazaar offers
+> and `bazaar_payments_available: false`; places never advertise `rentable: true`.
+> Other shop purchases remain available. Tests opt in only within isolated fixtures.
+>
+> The native client independently refuses new Bazaar spending, even with old cached
+> offers or an older server. Pending Bazaar payments use GET-only recovery, never
+> a retry POST while the worlds are unavailable. Free full-screen previews explain
+> official and personal worlds. Prepared owner settings and existing rights remain.
+> Do not roll back to an unguarded commerce build; the compatible preview rollback
+> retains the same closed payment policy. [Evidence](../../docs/evidence/2026-11-10-bazaar-preview/README.md).
+
 Owner-approved flow: **buy the permanent right for 5000 Sparks, create the one
 personal bazaar later whenever convenient, without another charge**. Purchase
 needs no name/settings and creates no catalogue row.

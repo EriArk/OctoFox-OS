@@ -11,6 +11,12 @@ from trainer_backend.economy.maintenance import grant_test_sparks
 from test_accounts import account, login, CONFIG, Provider
 from test_shop import funded
 
+@pytest.fixture(autouse=True)
+def development_payments(monkeypatch):
+    from trainer_backend.bazaar import policy
+    monkeypatch.setattr(policy,'PAYMENTS_AVAILABLE',True)
+
+
 DETAILS = {'name': 'Little square', 'description': 'Meet here', 'listed': True, 'access': 'open'}
 
 

@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Bazaar placeholders, 10 November (latest, supersedes spending enablement):**
+The worlds do not exist yet. Show colorful, full-screen explanatory placeholders
+for official and player bazaars with large unmistakable PLACEHOLDER / UNDER
+DEVELOPMENT labels and what will be built. Do not let users spend Sparks on
+unavailable Bazaar content: disable Bazaar licenses, stalls and new rentals in
+both native client and Backend. Preserve previously purchased rights, places and
+receipt recovery. Existing 5000/500 prices and commerce implementations below
+are prepared future work, not enabled purchases. Remain in the separate branch.
+
 **Owner Bazaar stalls, 10 November (latest):** ordinary trading places cost
 **500 Sparks once per place**. Prepare the purchase → owned place → weekly rent
 path in the same separate branch. Reuse Shop, durable purchase recovery and the
