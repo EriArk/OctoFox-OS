@@ -2,6 +2,8 @@
 #include <QtTest>
 #include <algorithm>
 #include <QSignalSpy>
+#include <QStandardPaths>
+#include "fixtures/BazaarCommerceFixture.h"
 
 namespace trainer {
 class BazaarCatalogueTests : public QObject {
@@ -12,6 +14,19 @@ class BazaarCatalogueTests : public QObject {
         return rows;
     }
 private slots:
+    void stallReviewIsCancelledByBackAndHome() {
+        QStandardPaths::setTestModeEnabled(true);
+        auto fixture=std::make_shared<BazaarCommerceFixture>();BackendAccount backend;fixture->install(backend);
+        backend.reviewBazaarPurchase();backend.confirmPurchase();
+        backend.bazaarRequest("create",{{"name","Nym"},{"description",""},{"listed",true},{"access","open"}},[](int,QJsonObject){});
+        BazaarCatalogue page;page.setBackend(&backend);
+        for(const bool all:{false,true}) {
+            page.activate("create");page.dialogAction("places");page.dialogAction("stall-review");
+            QCOMPARE(page.dialog(),"stall-review");QVERIFY(!backend.bazaarAccount()["stallReview"].toMap().isEmpty());
+            page.closeDialog(all);QVERIFY(backend.bazaarAccount()["stallReview"].toMap().isEmpty());QCOMPARE(fixture->stallCharges,0);
+            page.closeDialog(true);
+        }
+    }
     void fixedOfficialAndTwoColumns() {
         BazaarCatalogue page;page.setPresentation(rooms(),{},{});
         page.dispatch(Action::Right);QCOMPARE(page.selectedIndex(),0);

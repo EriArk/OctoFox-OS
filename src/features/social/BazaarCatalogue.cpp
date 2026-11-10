@@ -123,14 +123,15 @@ void BazaarCatalogue::toggleFavorite(QString id) {
 }
 void BazaarCatalogue::closeDialog(bool all) {
     ++accessGeneration_;moderating_=false;
+    if(!all&&dialog_=="stall-review"){if(backend_)backend_->cancelPurchaseReview();dialog_="places";dialogIndex_=0;message_.clear();emit changed();return;}
     if(!all&&(dialog_=="place"||dialog_=="rent-review")){dialog_="places";dialogIndex_=0;loadPlaces();return;}
     if(!all&&dialog_=="places"){dialog_=placesReturn_;dialogIndex_=0;message_.clear();emit changed();return;}
     if(!all&&(dialog_=="appearance"||dialog_=="access")){dialog_=formReturn_.isEmpty()?"manage":formReturn_;dialogIndex_=0;message_.clear();emit changed();return;}
     if(!all&&dialog_=="blocks"){dialog_="access";dialogIndex_=0;message_.clear();emit changed();return;}
     if(!all&&dialog_=="moderate"){dialog_="blocks";dialogIndex_=0;loadAccess();return;}
     if(dialog_.isEmpty())return;
-    if(dialog_=="review"&&!all) {if(backend_&&!account()["review"].toMap().isEmpty())backend_->cancelPurchaseReview();dialog_="purchase";dialogIndex_=0;}
-    else {dialog_.clear();textField_.clear();message_.clear();if(backend_&&!account()["review"].toMap().isEmpty())backend_->cancelPurchaseReview();}
+    if(dialog_=="review"&&!all) {if(backend_&&(!account()["review"].toMap().isEmpty()||!account()["stallReview"].toMap().isEmpty()))backend_->cancelPurchaseReview();dialog_="purchase";dialogIndex_=0;}
+    else {dialog_.clear();textField_.clear();message_.clear();if(backend_&&(!account()["review"].toMap().isEmpty()||!account()["stallReview"].toMap().isEmpty()))backend_->cancelPurchaseReview();}
     emit changed();
 }
 void BazaarCatalogue::chooseRealm(int index) {

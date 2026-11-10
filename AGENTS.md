@@ -1,13 +1,21 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Bazaar stalls, 10 November (latest):** ordinary trading places cost
+**500 Sparks once per place**. Prepare the purchase → owned place → weekly rent
+path in the same separate branch. Reuse Shop, durable purchase recovery and the
+existing ledger. A created personal bazaar is required; buying a place does not
+set its weekly rent or spawn a game world. No free stalls, duplicate charges or
+new arbitrary tariffs. Other stall types/functions and goods trading remain later.
+
 **Owner weekly Bazaar rentals, 10 November (latest):** keep rentals minimal.
 The place owner sets a price in Sparks for one week. Any player can occupy a
 free place by paying; the owner receives the Sparks. The place belongs to that
 tenant for seven days from payment, then becomes free; tenant goods are preserved.
 This settles duration/pricing direction in the earlier notes. Rental menus and
 transactional APIs are now prepared on the separate branch;
-see services/backend/bazaar.md. Stall purchases/provisioning and trade/custody
-remain future work: do not mint free places or claim goods-return behavior.
+see services/backend/bazaar.md. The later 500-Spark purchase increment provisions
+places from paid receipts only; trade/custody remains future work. Do not mint
+free places or claim goods-return behavior.
 Do not invent additional tariffs, commissions or complex rental flows.
 
 **Owner Bazaar cards/access, 10 November (latest):** prepare card cover/badge

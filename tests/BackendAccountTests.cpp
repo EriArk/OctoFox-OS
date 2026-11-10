@@ -119,7 +119,7 @@ private slots:
             account.reviewBazaarPurchase();QCOMPARE(fixture->charges,0);
             fixture->failStorage=true;account.confirmPurchase();QCOMPARE(fixture->charges,0);
             fixture->failStorage=false;fixture->loseResponse=true;account.confirmPurchase();QCOMPARE(fixture->charges,1);
-            QCOMPARE(fixture->purchaseBody["expected_price"].toInt(),5000);QVERIFY(!fixture->purchaseBody.contains("bazaar"));
+            QCOMPARE(fixture->purchaseBody["expected_price"].toInt(),5000);QVERIFY(!fixture->purchaseBody.contains("bazaar"));QVERIFY(!fixture->purchaseBody.contains("kind"));
             QVERIFY(account.bazaarAccount()["bazaarPending"].toBool());
         }
         fixture->loseResponse=false;BackendAccount restored;fixture->install(restored);
@@ -137,6 +137,40 @@ private slots:
         QCOMPARE(restored.bazaarAccount()["owned"].toMap()["id"].toString(),fixture->place);
         fixture->inventory["bazaar_license"]=false;restored.refreshShop();
         QVERIFY(restored.bazaarAccount()["licensed"].toBool());fixture->inventory=current;
+    }
+    void stallPurchaseRequiresSpaceAndRecoversAnExactPaidPlace() {
+        auto fixture=std::make_shared<BazaarCommerceFixture>();
+        const QJsonObject details{{"name","Nym"},{"description",""},{"listed",true},{"access","open"}};
+        {
+            BackendAccount account;fixture->install(account);
+            account.reviewBazaarPurchase(true);QVERIFY(account.bazaarAccount()["stallReview"].toMap().isEmpty());
+            account.reviewBazaarPurchase();account.confirmPurchase();
+            account.reviewBazaarPurchase(true);QVERIFY(account.bazaarAccount()["stallReview"].toMap().isEmpty());
+            account.bazaarRequest("create",details,[](int,QJsonObject){});
+            account.reviewBazaarPurchase(true);QCOMPARE(account.bazaarAccount()["stallReview"].toMap()["price"].toInt(),500);
+            fixture->failStorage=true;account.confirmPurchase();QCOMPARE(fixture->stallCharges,0);
+            fixture->failStorage=false;fixture->loseResponse=true;account.confirmPurchase();
+            QCOMPARE(fixture->stallCharges,1);QVERIFY(account.bazaarAccount()["stallPending"].toBool());
+        }
+        for(auto it=fixture->commerce.begin();it!=fixture->commerce.end();++it) {
+            auto saved=QJsonDocument::fromJson(it.value()).object();auto pending=saved["pending"].toObject();pending["kind"]=QJsonValue();saved["pending"]=pending;
+            it.value()=QJsonDocument(saved).toJson();
+        }
+        fixture->loseResponse=false;BackendAccount restored;auto services=fixture->services();auto transport=services.request;
+        bool lookupLost=true;
+        services.request=[&](QByteArray method,QString path,QJsonObject body,QByteArray token,BackendAccount::Reply done){
+            if(lookupLost&&path.startsWith("/v1/me/purchases/")){done(0,{});return;}transport(method,path,body,token,std::move(done));
+        };
+        restored.setServices(services);restored.configure("bazaar-forms-test");
+        QVERIFY(restored.bazaarAccount()["pending"].toBool());lookupLost=false;restored.resolveBazaarPurchase();
+        QVERIFY(!fixture->purchaseBody.contains("kind"));
+        QCOMPARE(fixture->stallCharges,1);QVERIFY(!restored.bazaarAccount()["pending"].toBool());
+        QCOMPARE(restored.progression()["balance"].toInt(),4500);
+        fixture->malformedPlace=true;restored.reviewBazaarPurchase(true);restored.confirmPurchase();
+        QCOMPARE(fixture->stallCharges,2);QVERIFY(restored.bazaarAccount()["pending"].toBool());
+        fixture->malformedPlace=false;restored.resolveBazaarPurchase();
+        QCOMPARE(fixture->stallCharges,2);QVERIFY(!restored.bazaarAccount()["pending"].toBool());
+        QCOMPARE(restored.progression()["balance"].toInt(),4000);
     }
     void rentalPaymentIsDurableRecoveredAndRejectsWrongReceipt() {
         auto fixture=std::make_shared<BazaarCommerceFixture>();fixture->loseResponse=true;

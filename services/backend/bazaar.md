@@ -111,8 +111,8 @@ No new social search/account system or technical-ID text entry is introduced.
 
 Migration `0018_bazaar_rentals.sql` stores provisioned `bazaar_places` and immutable
 `bazaar_rentals` receipts. No places are granted on migration or Bazaar creation.
-Stall purchases/prices are not decided yet; the future purchase path will provision
-these records. Runtime cannot insert/delete places or change their identity,
+Migration 0019 now provisions ordinary places from paid 500-Spark purchases,
+as described below. Runtime cannot directly insert/delete places or change their identity,
 bazaar, tenant or deadlines. Tests provision fixtures only in disposable databases.
 An unset weekly price means the place is not offered yet.
 
@@ -154,8 +154,56 @@ Home behavior are reused. Empty bazaars honestly show no trading places yet.
 before sending payment. Only an exact receipt or known definitive refusal clears
 it; lost replies/restarts retain the operation. Profile history displays rental
 debits and owner income. A previous client may not understand these new history
-sources; deploy the matching client before enabling future stall purchases.
+sources; use a matching client for stall purchases.
 
-Future additions remain separately purchased stalls/shops/functions, their concrete
-catalogue/prices, goods/trading and actual game-world integration. Permanent owner,
+Future additions remain other separately purchased stall/shop/function types,
+their concrete catalogue/prices, goods/trading and actual game-world integration. Permanent owner,
 temporary tenant and P2P host remain separate. Existing rights survive extensions.
+
+
+## Ordinary stall purchase — 500 Sparks once per place
+
+Migration `0019_bazaar_stalls.sql` adds the single `bazaar.stall` offer, purpose
+`bazaar_stall`, price **500**, revision 1. It is a permanent owned instance in the
+player's created personal bazaar; it does not create another Bazaar license or
+`owned_items` row for the repeatable SKU. Non-stall purchase uniqueness is retained
+by a partial unique index. All operation IDs keep the existing per-player unique
+constraint. Places gain an immutable unique `purchase_id` FK.
+
+The existing `Shop.purchase` authenticates, locks the same account/offer, validates
+reviewed price/revision/funds and requires the caller's created bazaar. Within
+one transaction it inserts the receipt, provisions one place, writes the existing
+`shop.purchase` debit, updates balance/revision and publishes audit/outbox. Any
+failure rolls back receipt, place and charge. Replaying an operation returns the
+same purchased place; a fresh reviewed purchase can add another. No extra cap,
+commission, free starter place or automatic rental price was invented.
+
+Runtime has no direct INSERT permission on places. The bounded SECURITY DEFINER
+`provision_bazaar_stall(receipt)` inserts only from an existing `bazaar.stall`
+purchase joined to that receipt owner's bazaar. It uses the receipt UUID as the
+place UUID, starts with `weekly_price: null`, and returns nothing for an unknown/
+unrelated/already provisioned receipt. Host or client-supplied destination IDs
+are never used to grant ownership.
+
+- `GET /v1/me/inventory` adds `bazaar_stall_offer` (or null if unavailable).
+- `POST /v1/me/purchases`: normal `operation_id`, `offer_id: "bazaar.stall"`,
+  `offer_revision`, `expected_price`; no new public purchase endpoint or owner/host
+  arguments. `bazaar_required` (409) rejects buying before creating the bazaar.
+- Purchase/recovery snapshots include `purchased_place` only for that caller's
+  requested stall receipt. Ordinary inventory snapshots do not enumerate all
+  places; the existing paged Bazaar places API owns that list.
+
+Native flow: My bazaar → Trading places → Buy trading place → confirm **500 Sparks**
+→ owned place → set weekly rent. The shared commerce file saves intent before POST;
+restart/lost replies recover the same receipt. The client additionally validates
+that the purchased place is bound to that receipt and its own bazaar before clearing
+pending state. A missing/mismatched place keeps recovery pending. This slice also
+uses non-mutating reads for the optional pending-operation kind, preventing a
+synthetic `kind: null` field from leaking into strict shop request bodies. Shop
+requests are built from explicit contract fields, so legacy recovery files with
+internal metadata can still retry safely. Back/Home cancels an unconfirmed review.
+
+A compatible rollback must reject new `bazaar.stall` purchases and still return
+`purchased_place` for existing receipts. The former generic shop cannot safely
+interpret this repeatable SKU by itself. Preserve the migrated database, receipts,
+places and rentals on rollback. World placement and goods/trading remain separate.

@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QUrlQuery>
 #include <QUrl>
+#include <QUuid>
 #include <memory>
 
 namespace trainer {
@@ -19,6 +20,7 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
     bool blocked=false;int blockWrites=0;
     QHash<QString,QByteArray> commerce;
     QJsonObject purchaseBody, inventory;
+    QHash<QString,QJsonObject> stallReceipts,stallPlaces;int stallCharges=0;bool malformedPlace=false;bool seedStall=true;
     int charges=0, edits=0;
     bool failStorage=false, loseResponse=false, conflict=false, badReceipt=false;
     BazaarCommerceFixture() {
@@ -26,7 +28,9 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
             {"bazaar_license",false},{"bazaar",QJsonValue()},{"bazaar_offer",QJsonObject{{"id","bazaar.personal"},{"purpose","bazaar_space"},{"kind","permanent_license"},
             {"revision","1"},{"price",5000},{"title","Personal Bazaar"}}}};
     }
+    QJsonObject stallOffer() const {return {{"id","bazaar.stall"},{"purpose","bazaar_stall"},{"kind","permanent_license"},{"revision","1"},{"price",500},{"title","Trading place"}};}
     BackendAccount::Services services() {
+        inventory["bazaar_stall_offer"]=stallOffer();
         auto self=shared_from_this();BackendAccount::Services result;
         result.read=[](QString,auto done){done(true,QJsonDocument(QJsonObject{{"refresh_token",QString(43,'r')}}).toJson());};
         result.write=[](QString,QByteArray,auto done){done(true);};
@@ -37,12 +41,31 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
             if(path=="/v1/auth/refresh") {done(200,{{"player_id",self->player},{"session_id","33333333-3333-4333-8333-333333333333"},
                 {"fluxer_subject","12345"},{"access_token",QString(43,'a')},{"refresh_token",QString(43,'r')},
                 {"expires_at",QDateTime::currentDateTimeUtc().addSecs(900).toString(Qt::ISODateWithMs)}});return;}
-            if(path=="/v1/me/progression") {done(200,{{"player_id",self->player},{"balance",10000-5000*self->charges-self->rentCharges*self->weeklyPrice},{"revision",QString::number(1+self->charges+self->rentCharges)},
+            if(path=="/v1/me/progression") {done(200,{{"player_id",self->player},{"balance",10000-5000*self->charges-500*self->stallCharges-self->rentCharges*self->weeklyPrice},{"revision",QString::number(1+self->charges+self->stallCharges+self->rentCharges)},
                 {"history",self->rentCharges?QJsonArray{QJsonObject{{"id",self->rentalReceipt.value("id")},{"source","bazaar.rent"},{"title","Weekly rent"},{"xp",0},{"sparks",-self->weeklyPrice}}}:QJsonArray{}},{"mastery",QJsonObject{{"xp",2000},{"level",5},{"level_xp",0},{"next_level_xp",700}}},
                 {"checked_at",QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs)}});return;}
-            if(path=="/v1/me/inventory"||path.startsWith("/v1/me/purchases/")){done(200,self->inventory);return;}
+            if(path=="/v1/me/inventory"||path.startsWith("/v1/me/purchases/")){
+                auto result=self->inventory;
+                const auto op=path.mid(QString("/v1/me/purchases/").size());
+                if(self->stallReceipts.contains(op)){result["receipt"]=self->stallReceipts.value(op);result["purchased_place"]=self->stallPlaces.value(op);}
+                done(200,result);return;
+            }
             if(path=="/v1/me/purchases"&&method=="POST") {
                 self->purchaseBody=body;
+                if(body.contains("kind")){done(422,{{"code","invalid_request"}});return;}
+                if(body["offer_id"]=="bazaar.stall") {
+                    const auto op=body["operation_id"].toString();
+                    if(!self->stallReceipts.contains(op)) {
+                        ++self->stallCharges;
+                        const auto id=self->stallCharges==1?self->stall:QUuid::createUuid().toString(QUuid::WithoutBraces);
+                        auto receipt=body;receipt["id"]=id;receipt["player_id"]=self->player;receipt["price"]=receipt.take("expected_price");receipt["details"]=QJsonObject{};
+                        self->stallReceipts[op]=receipt;
+                        self->stallPlaces[op]={{"id",id},{"purchase_id",id},{"bazaar_id",self->place},{"name","Trading place "+QString::number(self->stallCharges)},{"weekly_price",QJsonValue()},{"revision","1"}};
+                    }
+                    self->inventory["revision"]=QString::number(1+self->charges+self->stallCharges);
+                    auto result=self->inventory;result["receipt"]=self->stallReceipts.value(op);result["purchased_place"]=self->malformedPlace?QJsonObject{}:self->stallPlaces.value(op);
+                    done(self->loseResponse?0:200,result);return;
+                }
                 if(!self->inventory["bazaar_license"].toBool())++self->charges;
                 self->inventory["bazaar_license"]=true;self->inventory["revision"]="2";
                 auto receipt=body;receipt["id"]="44444444-4444-4444-8444-444444444444";receipt["player_id"]=self->player;
@@ -67,7 +90,9 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
                     {"weekly_price",self->weeklyPrice},{"tenant_id",self->rentalReceipt.value("tenant_id")},{"expires_at",self->rentalReceipt.value("expires_at")},
                     {"rentable",self->tenantView&&self->rentalReceipt.isEmpty()}};
                 if(self->rentalReceipt.isEmpty()){row["tenant_id"]=QJsonValue();row["expires_at"]=QJsonValue();}
-                done(200,{{"player_id",self->player},{"bazaar_id",self->place},{"owned",!self->tenantView},{"items",QJsonArray{row}},{"next",QJsonValue()}});return;
+                QJsonArray rows;
+                if(self->seedStall||self->stallCharges>0){if(!self->seedStall&&self->placeRevision==1){row["weekly_price"]=QJsonValue();row["rentable"]=false;}rows.append(row);}
+                done(200,{{"player_id",self->player},{"bazaar_id",self->place},{"owned",!self->tenantView},{"items",rows},{"next",QJsonValue()}});return;
             }
             if(path=="/v1/me/bazaars/"+self->place+"/places/"+self->stall) {
                 self->weeklyPrice=body["weekly_price"].toInt();++self->placeRevision;

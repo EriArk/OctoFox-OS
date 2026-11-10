@@ -70,7 +70,7 @@ public:
     QVariantMap bazaarAccount() const;
     void rentBazaarPlace(QJsonObject place,QString bazaar);
     void finishRental(int status,QJsonObject result);
-    void reviewBazaarPurchase();
+    void reviewBazaarPurchase(bool stall=false);
     void resolveBazaarPurchase();
     void bazaarRequest(const QString& action,QJsonObject args,Reply done);
     QString profileAppearance() const;

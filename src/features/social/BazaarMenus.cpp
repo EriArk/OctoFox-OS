@@ -97,6 +97,7 @@ void BazaarCatalogue::applyText(QString text) {
 }
 void BazaarCatalogue::openMenu() {if(!dialog_.isEmpty())return;detailId_=selection_;dialog_="menu";dialogIndex_=0;message_.clear();emit changed();}
 QString BazaarCatalogue::summary() const {
+    if(dialog_=="stall-review")return "Buy one trading place permanently for your bazaar. Set its weekly rental price separately.";
     if(dialog_=="places")return "Choose a trading place. Rent lasts seven days from payment; Sparks go to the owner.";
     if(dialog_=="place")return placesOwned_?"Set the weekly price. An existing tenant keeps their paid time.":"Pay once for seven days. The place becomes free when time runs out.";
     if(dialog_=="rent-review")return "Rent "+place_["name"].toString()+" for seven days? Payment goes to the bazaar owner.";
@@ -112,7 +113,7 @@ QString BazaarCatalogue::summary() const {
     return {};
 }
 QVariantList BazaarCatalogue::dialogRows() const {
-    if(dialog_=="places"||dialog_=="place"||dialog_=="rent-review")return rentalRows();
+    if(dialog_=="places"||dialog_=="place"||dialog_=="rent-review"||dialog_=="stall-review")return rentalRows();
     QVariantList rows;const auto state=account();
     const auto add=[&](QString id,QString label,QString value={},bool enabled=true){rows.append(QVariantMap{{"id",id},{"label",label},{"value",value},{"enabled",enabled}});};
     if(dialog_=="appearance") {
@@ -151,6 +152,7 @@ QVariantList BazaarCatalogue::dialogRows() const {
     } else if(dialog_=="menu") {
         if(detailId_.startsWith("room:")){add("details","Bazaar details");add("favorite","Save / remove favorite");}
         if(state["rentalPending"].toBool())add("resolve-rent","Resolve rental payment",{},!busy());
+        if(state["stallPending"].toBool())add("resolve-stall","Resolve stall purchase",{},!busy());
         add("mine",own_.isEmpty()?(state["licensed"].toBool()?"Create a bazaar":"Buy personal bazaar"):"My bazaar");add("refresh","Refresh catalogue",{},!busy());
         if(more())add("more","Load more bazaars",{},!busy());
     } else if(dialog_=="details") {add("places","Trading places",{},!busy());add("favorite","Save / remove favorite");if(detailId_=="room:"+own_["id"].toString())add("mine","Manage my bazaar");add("back","Back");}
@@ -245,7 +247,18 @@ QVariantList BazaarCatalogue::rentalRows() const {
     QVariantList rows;const auto state=account();
     const auto add=[&](QString id,QString label,QString value={},bool enabled=true){rows.append(QVariantMap{{"id",id},{"label",label},{"value",value},{"enabled",enabled}});};
     if(state["rentalPending"].toBool())add("resolve-rent","Resolve rental payment",{},!busy());
+        if(state["stallPending"].toBool())add("resolve-stall","Resolve stall purchase",{},!busy());
+    if(dialog_=="stall-review") {
+        const auto offer=state["stallReview"].toMap();
+        add("buy-stall","Buy trading place",QString::number(offer["price"].toInt())+" Sparks",connected_&&!busy()&&!offer.isEmpty()&&!state["pending"].toBool());
+        add("back","Back");return rows;
+    }
     if(dialog_=="places") {
+        if(placesOwned_&&own_["id"]==placesBazaar_) {
+            const auto offer=state["stallOffer"].toMap();
+            if(state["stale"].toBool())add("stall-account","Refresh account",{},connected_&&!busy());
+            add("stall-review","Buy trading place",offer.isEmpty()?"Unavailable":QString::number(offer["price"].toInt())+" Sparks",connected_&&!busy()&&!state["stale"].toBool()&&!state["pending"].toBool()&&!offer.isEmpty());
+        }
         for(const auto& value:places_) {const auto row=value.toMap();const bool occupied=!row["tenant_id"].toString().isEmpty();
             add("place:"+row["id"].toString(),row["name"].toString(),occupied?"Occupied":row["weekly_price"].isNull()?"Price not set":QString::number(row["weekly_price"].toInt())+" Sparks / week",!busy());}
         if(!placesNext_.isEmpty())add("places-more","Load more",{},!busy());
@@ -265,6 +278,14 @@ QVariantList BazaarCatalogue::rentalRows() const {
     add("back","Back");return rows;
 }
 bool BazaarCatalogue::rentalAction(const QString& action) {
+    if(action=="stall-account"){message_.clear();backend_->refreshShop();return true;}
+    if(action=="stall-review") {
+        backend_->reviewBazaarPurchase(true);
+        if(!account()["stallReview"].toMap().isEmpty()){dialog_="stall-review";dialogIndex_=0;message_.clear();emit changed();}return true;
+    }
+    if(action=="buy-stall") {
+        dialog_="places";dialogIndex_=0;message_.clear();rentalWaiting_=true;backend_->confirmPurchase();emit changed();return true;
+    }
     if(action=="places") {
         placesReturn_=dialog_;placesBazaar_=dialog_=="manage"?own_["id"].toString():detailId_.mid(5);
         places_.clear();place_={};dialog_="places";dialogIndex_=0;loadPlaces();return true;
@@ -280,7 +301,7 @@ bool BazaarCatalogue::rentalAction(const QString& action) {
         dialog_="places";dialogIndex_=0;message_.clear();places_.clear();
         rentalWaiting_=true;backend_->rentBazaarPlace(place_,placesBazaar_);emit changed();return true;
     }
-    if(action=="resolve-rent"){message_.clear();rentalWaiting_=true;backend_->resolveBazaarPurchase();emit changed();return true;}
+    if(action=="resolve-rent"||action=="resolve-stall"){message_.clear();rentalWaiting_=true;backend_->resolveBazaarPurchase();emit changed();return true;}
     if(action=="save-price") {
         const auto generation=++accessGeneration_;moderating_=true;message_="Saving weekly price…";emit changed();
         backend_->bazaarRequest("place-price",{{"id",placesBazaar_},{"place_id",place_["id"]},{"revision",place_["revision"]},{"weekly_price",priceDraft_.toInt()}},
@@ -317,7 +338,7 @@ void BazaarCatalogue::loadPlaces(bool append) {
         if(!append)places_.clear();QSet<QString> known;for(const auto& value:places_)known.insert(value.toMap()["id"].toString());
         for(const auto& value:valid)if(!known.contains(value.toMap()["id"].toString()))places_.append(value);
         placesNext_=places_.size()<1000?next:QString();placesOwned_=result["owned"].toBool();
-        message_=!outcome.isEmpty()?outcome:places_.isEmpty()?"No trading places yet. Stall purchases are being prepared.":"";emit changed();
+        message_=!outcome.isEmpty()?outcome:places_.isEmpty()?"No trading places yet.":"";emit changed();
     });
 }
 

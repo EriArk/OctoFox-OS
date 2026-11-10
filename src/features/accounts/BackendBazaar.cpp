@@ -25,9 +25,9 @@ bool BackendAccount::validBazaar(const QJsonObject& value) const {
         if(!shopSnapshot_["bazaar"].toObject().isEmpty()&&value["bazaar"].toObject().isEmpty())return false;
     }
     if(value.contains("bazaar_license")&&!value["bazaar_license"].isBool())return false;
-    if(value.contains("bazaar_offer")&&!value["bazaar_offer"].isNull()) {
-        const auto offer=value["bazaar_offer"].toObject();
-        if(offer["id"]!="bazaar.personal"||offer["purpose"]!="bazaar_space"||offer["kind"]!="permanent_license"
+    for(const auto key:{"bazaar_offer","bazaar_stall_offer"})if(value.contains(key)&&!value[key].isNull()) {
+        const auto offer=value[key].toObject();const bool stall=QString(key)=="bazaar_stall_offer";
+        if(offer["id"]!=(stall?"bazaar.stall":"bazaar.personal")||offer["purpose"]!=(stall?"bazaar_stall":"bazaar_space")||offer["kind"]!="permanent_license"
             ||!integer(offer["price"])||!revision(offer["revision"])||!text(offer["title"],128,true))return false;
     }
     if(value.contains("bazaar")&&!value["bazaar"].isNull()) {
@@ -46,18 +46,22 @@ QVariantMap BackendAccount::bazaarAccount() const {
     return {{"playerId",player},{"connected",state_=="connected"&&!player_.isEmpty()},
         {"licensed",same&&shopSnapshot_["bazaar_license"].toBool()},
         {"owned",same?shopSnapshot_["bazaar"].toObject().toVariantMap():QVariantMap{}},
+        {"stallOffer",same?shopSnapshot_["bazaar_stall_offer"].toObject().toVariantMap():QVariantMap{}},
+        {"stallPending",shopPending_["offer_id"]=="bazaar.stall"&&shopPending_["player_id"]==player_},
+        {"stallReview",shopReview_["id"]=="bazaar.stall"?shopReview_.toVariantMap():QVariantMap{}},
         {"offer",same?shopSnapshot_["bazaar_offer"].toObject().toVariantMap():QVariantMap{}},
         {"busy",shopBusy_},{"stale",shopStale_},{"status",shopStatus_},
         {"rentalPending",shopPending_["kind"]=="bazaar.rent"&&shopPending_["player_id"]==player_},{"pending",!shopPending_.isEmpty()},{"bazaarPending",shopPending_["offer_id"]=="bazaar.personal"&&shopPending_["player_id"]==player_},
         {"review",shopReview_["id"]=="bazaar.personal"?shopReview_.toVariantMap():QVariantMap{}}};
 }
-void BackendAccount::reviewBazaarPurchase() {
-    if(shopBusy_||state_!="connected"||shopStale_||!shopPending_.isEmpty()||shopSnapshot_["bazaar_license"].toBool()||!shopSnapshot_["bazaar"].toObject().isEmpty())return;
-    const auto offer=shopSnapshot_["bazaar_offer"].toObject();
+void BackendAccount::reviewBazaarPurchase(bool stall) {
+    if(shopBusy_||state_!="connected"||shopStale_||!shopPending_.isEmpty())return;
+    if(stall?shopSnapshot_["bazaar"].toObject().isEmpty():(shopSnapshot_["bazaar_license"].toBool()||!shopSnapshot_["bazaar"].toObject().isEmpty()))return;
+    const auto offer=shopSnapshot_[stall?"bazaar_stall_offer":"bazaar_offer"].toObject();
     if(offer.isEmpty())return;
     shopReview_=offer;emit changed();
 }
-void BackendAccount::resolveBazaarPurchase(){if(shopPending_["offer_id"]=="bazaar.personal"||shopPending_["kind"]=="bazaar.rent")recoverPurchase(true);}
+void BackendAccount::resolveBazaarPurchase(){if(shopPending_.value("offer_id")=="bazaar.personal"||shopPending_.value("offer_id")=="bazaar.stall"||shopPending_.value("kind")=="bazaar.rent")recoverPurchase(true);}
 void BackendAccount::bazaarRequest(const QString& action,QJsonObject args,Reply done) {
     if(state_!="connected"||player_.isEmpty()){done(401,{{"code","sign_in_required"}});return;}
     if(action=="directory") {

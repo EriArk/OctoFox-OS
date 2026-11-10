@@ -101,6 +101,7 @@ def grant_runtime(database_url, role):
         conn.execute(sql_builder.SQL('GRANT UPDATE(name,description,listed,access,cover,badge,revision,updated_at) ON trainer_backend.bazaars TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT EXECUTE ON FUNCTION trainer_backend.assert_principal(uuid,text) TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT EXECUTE ON FUNCTION trainer_backend.resolve_fluxer_player(text,text) TO {}').format(sql_builder.Identifier(role)))
+        conn.execute(sql_builder.SQL('GRANT EXECUTE ON FUNCTION trainer_backend.provision_bazaar_stall(uuid) TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT EXECUTE ON FUNCTION trainer_backend.lock_shop_offer(text) TO {}').format(sql_builder.Identifier(role)))
 
 

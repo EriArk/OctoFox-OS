@@ -1,0 +1,4 @@
+migrations 19
+candidate_ready True
+rollback_ready True
+isolated_bazaar_restore_and_migration_ok

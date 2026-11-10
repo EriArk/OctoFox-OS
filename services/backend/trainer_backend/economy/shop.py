@@ -52,6 +52,8 @@ class Shop:
                         WHERE s.player_id=%s ORDER BY p.level''', (actor.player_id,)).fetchall(),
                     'outfits': conn.execute('SELECT * FROM trainer_backend.outfits WHERE player_id=%s ORDER BY offer_id', (actor.player_id,)).fetchall(),
                     'bazaar_offer': conn.execute("SELECT * FROM trainer_backend.shop_offers WHERE id='bazaar.personal' AND available").fetchone(),
+                    'bazaar_stall_offer': conn.execute("SELECT * FROM trainer_backend.shop_offers WHERE id='bazaar.stall' AND available").fetchone(),
+                    'purchased_place': conn.execute('SELECT * FROM trainer_backend.bazaar_places WHERE purchase_id=%s', (receipt['id'],)).fetchone() if receipt and receipt['offer_id']=='bazaar.stall' else None,
                     'bazaar_license': bool(conn.execute("SELECT 1 FROM trainer_backend.owned_items WHERE player_id=%s AND offer_id='bazaar.personal'", (actor.player_id,)).fetchone()),
                     'bazaar': bazaar.owned(conn, actor.player_id),
                     'equipped': appearance['offer_id'] if appearance else None, 'receipt': receipt}
@@ -76,6 +78,8 @@ class Shop:
                     raise AuthError('offer_changed', 409)
                 if conn.execute('SELECT 1 FROM trainer_backend.owned_items WHERE player_id=%s AND offer_id=%s', (actor.player_id, offer_id)).fetchone():
                     raise AuthError('already_owned', 409)
+                if offer['purpose']=='bazaar_stall' and not bazaar.owned(conn,actor.player_id):
+                    raise AuthError('bazaar_required',409)
                 if mastery(account['xp'])['level'] < offer['minimum_level']:
                     raise AuthError('level_required', 409)
                 if account['balance'] < offer['price']:
@@ -83,7 +87,11 @@ class Shop:
                 purchase = uuid4()
                 conn.execute('''INSERT INTO trainer_backend.purchases(id,player_id,operation_id,offer_id,offer_revision,price,title,details)
                     VALUES(%s,%s,%s,%s,%s,%s,%s,%s)''', (purchase, actor.player_id, operation, offer_id, revision, offer['price'], offer['title'], Jsonb(purchase_details)))
-                conn.execute('INSERT INTO trainer_backend.owned_items(player_id,offer_id,purchase_id) VALUES(%s,%s,%s)', (actor.player_id, offer_id, purchase))
+                if offer['purpose']=='bazaar_stall':
+                    place=conn.execute('SELECT * FROM trainer_backend.provision_bazaar_stall(%s)',(purchase,)).fetchone()
+                    if not place:raise AuthError('service_unavailable',503)
+                else:
+                    conn.execute('INSERT INTO trainer_backend.owned_items(player_id,offer_id,purchase_id) VALUES(%s,%s,%s)', (actor.player_id, offer_id, purchase))
                 if offer['purpose'] == 'outfit_slot':
                     conn.execute('INSERT INTO trainer_backend.outfit_slots(player_id,slot_id,purchase_id) VALUES(%s,%s,%s)', (actor.player_id, offer_id, purchase))
                 conn.execute('''INSERT INTO trainer_backend.reward_ledger(id,player_id,source,event_id,title,xp,sparks,base_sparks,policy,earned_at,purchase_id)

@@ -17,7 +17,7 @@
 inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shell,trainer::ControllerInput& input,
     SDL_Joystick* joystick,const QString& directory,bool& completed,int& warnings,QStringList& diagnostics) {
     using trainer::Action;using trainer::ControllerInput;using trainer::BazaarFixture;
-    auto commerce=std::make_shared<trainer::BazaarCommerceFixture>();
+    auto commerce=std::make_shared<trainer::BazaarCommerceFixture>();commerce->seedStall=false;
     auto step=std::make_shared<int>(0);auto scroll=std::make_shared<qreal>(0);auto officialY=std::make_shared<qreal>(0);
     auto snapshot=std::make_shared<QJsonObject>();
     auto timer=new QTimer(window);timer->setInterval(650);
@@ -144,21 +144,26 @@ inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shel
         case 37:
             shell.openOnlineFace("bazaar");page->activate("create");page->dialogAction("places");break;
         case 38:
-            check(page->dialog()=="places","Owner opens trading places");capture("places-owner-light-800");page->dialogAction("place:"+commerce->stall);break;
+            check(commerce->stallCharges==0,"No free stall created");capture("stalls-empty-light-800");page->dialogAction("stall-review");break;
         case 39:
-            click("bazaar-action-weekly-price");break;
+            check(page->dialog()=="stall-review","Owner reviews 500 Spark purchase");capture("stall-review-light-800");press(ControllerInput::ConfirmButton);break;
         case 40:
-            check(shell.keyboard()->isOpen(),"Weekly price uses shared keyboard");shell.dispatch(Action::Back);page->applyText("175");page->dialogAction("save-price");break;
+            check(commerce->stallCharges==1,"Purchase provisions one trading place");
+            check(page->dialog()=="places","Owner opens trading places");capture("places-owner-light-800");page->dialogAction("place:"+commerce->stall);break;
         case 41:
+            click("bazaar-action-weekly-price");break;
+        case 42:
+            check(shell.keyboard()->isOpen(),"Weekly price uses shared keyboard");shell.dispatch(Action::Back);page->applyText("175");page->dialogAction("save-price");break;
+        case 43:
             check(commerce->weeklyPrice==175&&commerce->rentCharges==0,"Owner sets weekly price without payment");
             commerce->tenantView=true;page->dialogAction("places-refresh");page->dialogAction("place:"+commerce->stall);break;
-        case 42:
-            capture("place-tenant-light-800");page->dialogAction("rent-review");break;
-        case 43:
-            check(page->dialog()=="rent-review","Tenant can review weekly rent");capture("rent-review-light-800");check(commerce->rentCharges==0,"Rent review does not charge");press(ControllerInput::ConfirmButton);break;
         case 44:
-            check(commerce->rentCharges==1&&page->dialog()=="places","One rent payment returns to places");page->dialogAction("place:"+commerce->stall);break;
+            capture("place-tenant-light-800");page->dialogAction("rent-review");break;
         case 45:
+            check(page->dialog()=="rent-review","Tenant can review weekly rent");capture("rent-review-light-800");check(commerce->rentCharges==0,"Rent review does not charge");press(ControllerInput::ConfirmButton);break;
+        case 46:
+            check(commerce->rentCharges==1&&page->dialog()=="places","One rent payment returns to places");page->dialogAction("place:"+commerce->stall);break;
+        case 47:
             capture("place-rented-light-800");check(!page->account()["pending"].toBool(),"Rental receipt resolved");shell.dispatch(Action::Home);
             check(page->dialog().isEmpty()&&shell.primaryId()=="home","Home closes rental menus");break;
         default:
