@@ -1,5 +1,12 @@
 # TrainerOS — active agent / developer contract
 
+**Owner handheld resumption, 10 November (latest):** the owner explicitly resumed
+real-device verification and asked to update Armada on both Odin and Flip. This
+supersedes the preparation-only/no-handheld-install boundaries below for the
+authorized validation pass. Preserve profiles, games, saves and boot recovery;
+no suspend/lid tests or Bazaar merge. Record source/package/device acceptance
+separately in [device validation](docs/evidence/2026-11-10-device-validation/README.md).
+
 **Owner wizard correction, 10 November (latest):** remove the mandatory button
 exam; integrate name/emblem creation into the wizard. Keep Comfort to Light/Dark
 and Normal/Large only. Follow with optional TrainerOS/Fluxer, RetroAchievements
