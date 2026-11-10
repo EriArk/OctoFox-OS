@@ -12,13 +12,14 @@ void BazaarCatalogue::setBackend(BackendAccount* backend) {
     syncBackend();
 }
 QVariantMap BazaarCatalogue::account() const {return backend_?backend_->bazaarAccount():QVariantMap{};}
-bool BazaarCatalogue::busy() const {return loading_||saving_||account()["busy"].toBool();}
+bool BazaarCatalogue::busy() const {return loading_||saving_||moderating_||account()["busy"].toBool();}
 void BazaarCatalogue::syncBackend() {
     const auto state=account();const auto player=state["playerId"].toString();const bool connected=state["connected"].toBool();
     const bool identityChanged=player!=backendPlayer_, connectionChanged=connected!=connected_;
     if(identityChanged||connectionChanged) {
+        ++accessGeneration_;moderating_=false;blocks_.clear();accessTarget_={};accessNext_.clear();
         ++generation_;loading_=saving_=false;next_.clear();all_.clear();
-        if(identityChanged){draft_={};dialog_.clear();message_.clear();textField_.clear();own_={};
+        if(identityChanged){draft_={};dialog_.clear();message_.clear();textField_.clear();formReturn_.clear();own_={};
             if(!backendPlayer_.isEmpty()){favorites_.clear();search_.clear();selection_="official";setScroll(0);}}
         backendPlayer_=player;connected_=connected;rebuild();
     }
@@ -58,11 +59,13 @@ void BazaarCatalogue::refresh(bool append) {
             const auto row=value.toObject();const auto id=row["id"].toString();
             if(id.size()!=36||QUuid(id).isNull()||ids.contains(id)||row["name"].toString().isEmpty()||row["name"].toString().size()>48
                 ||row["description"].toString().size()>280||!row["listed"].isBool()||!row["owned"].isBool()
-                ||!QStringList{"open","closed"}.contains(row["access"].toString())||row["join_available"]!=false) {
+                ||!QStringList{"open","closed"}.contains(row["access"].toString())||row["join_available"]!=false
+                ||!QStringList{"market","grove","harbor"}.contains(row["cover"].toString("market"))
+                ||!QStringList{"shop","community","companion","trophy","guide"}.contains(row["badge"].toString("shop"))) {
                 status_="Could not read the bazaar catalogue. Retry later.";emit changed();return;
             }
             ids.insert(id);auto entry=row.toVariantMap();entry["title"]=row["name"].toString();entry["ownerName"]=row["owner_name"].toString();
-            entry["cover"]="qrc:/bazaar/official.png";entry["visitors"]=QVariant();rows.append(entry);
+            entry["cover"]=QString("qrc:/bazaar/%1.png").arg(row["cover"].toString("market")=="market"?"official":row["cover"].toString());entry["visitors"]=QVariant();rows.append(entry);
         }
         const auto next=result["next"].toString();if(!next.isEmpty()&&(next.size()!=36||QUuid(next).isNull())){status_="Invalid catalogue cursor.";emit changed();return;}
         if(!append)all_.clear();
@@ -72,7 +75,7 @@ void BazaarCatalogue::refresh(bool append) {
         rebuild();if(selection_.startsWith("room:")&&selectedIndex()<0)focus("official");
     });
 }
-QJsonObject BazaarCatalogue::formDetails() const {return {{"name",draft_["name"]},{"description",draft_["description"]},{"listed",draft_["listed"]},{"access",draft_["access"]}};}
+QJsonObject BazaarCatalogue::formDetails() const {return {{"name",draft_["name"]},{"description",draft_["description"]},{"listed",draft_["listed"]},{"access",draft_["access"]},{"cover",draft_["cover"].toString("market")},{"badge",draft_["badge"].toString("shop")}};}
 void BazaarCatalogue::beginForm(bool editing) {
     dialog_=editing?"manage":account()["licensed"].toBool()?"ready":"purchase";dialogIndex_=0;message_.clear();
     draft_=editing?own_:QJsonObject{{"name",""},{"description",""},{"listed",true},{"access","open"}};
@@ -90,6 +93,10 @@ QString BazaarCatalogue::summary() const {
     if(dialog_=="purchase"||dialog_=="review")return "Unlock one personal bazaar permanently. Create it later, whenever you are ready.";
     if(dialog_=="ready")return "Your right to a personal bazaar is already purchased. Creation costs no extra Sparks.";
     if(dialog_=="create")return "Already purchased. Choose your settings and create your bazaar for free.";
+    if(dialog_=="appearance")return "Preview your card. Changes are applied when you save the bazaar settings.";
+    if(dialog_=="access")return "Catalogue visibility and visitor access are separate. Save settings to apply changes.";
+    if(dialog_=="blocks")return "Blocked players cannot enter your bazaar when worlds open. Choose a player through their existing profile.";
+    if(dialog_=="moderate")return accessTarget_["name"].toString()+" — "+(accessTarget_["blocked"].toBool()?"blocked from your bazaar.":"not blocked from your bazaar.");
     if(dialog_=="manage")return "Change the name, description and visitor settings. Changes are free.";
     if(dialog_=="details")for(const auto& value:all_) {const auto row=value.toMap();if("room:"+row["id"].toString()==detailId_)return row["title"].toString()+" · "+row["ownerName"].toString()+". "+row["description"].toString()+" World entry is being prepared.";}
     return {};
@@ -97,14 +104,28 @@ QString BazaarCatalogue::summary() const {
 QVariantList BazaarCatalogue::dialogRows() const {
     QVariantList rows;const auto state=account();
     const auto add=[&](QString id,QString label,QString value={},bool enabled=true){rows.append(QVariantMap{{"id",id},{"label",label},{"value",value},{"enabled",enabled}});};
-    if(dialog_=="ready") {
+    if(dialog_=="appearance") {
+        add("cover","Cover",draft_["cover"].toString("market"));add("badge","Badge",draft_["badge"].toString("shop"));add("back","Back to settings");
+    } else if(dialog_=="access") {
+        add("listed","Catalogue",draft_["listed"].toBool()?"Listed":"Hidden");
+        add("access","Visitors",draft_["access"]=="open"?"Allowed when the world opens":"Closed");
+        if(!own_.isEmpty())add("blocks","Blocked players",{},!busy());
+        add("back","Back to settings");
+    } else if(dialog_=="blocks") {
+        for(const auto& value:blocks_){const auto row=value.toMap();add("player:"+row["player_id"].toString(),row["name"].toString(),"Blocked",!busy());}
+        if(!accessNext_.isEmpty())add("blocks-more","Load more",{},!busy());
+        add("blocks-refresh","Refresh list",{},!busy());add("back","Back");
+    } else if(dialog_=="moderate") {
+        if(accessTarget_["blocked"].isBool()&&!accessTarget_["name"].toString().isEmpty())add("block",accessTarget_["blocked"].toBool()?"Allow access again":"Block from my bazaar",{},!busy()&&connected_);
+        add("target-refresh","Refresh",{},!busy());add("back","Back");
+    } else if(dialog_=="ready") {
         add("setup","Create bazaar", "Already purchased",state["connected"].toBool()&&!busy());add("back","Later");
     } else if(dialog_=="purchase"||dialog_=="create"||dialog_=="manage") {
         if(dialog_!="purchase") {
         add("name","Name",draft_["name"].toString().isEmpty()?"Choose a name":draft_["name"].toString());
         add("description","Description",draft_["description"].toString().isEmpty()?"Add a short description":draft_["description"].toString());
-        add("listed","Catalogue",draft_["listed"].toBool()?"Listed":"Hidden");
-        add("access","Visitors",draft_["access"]=="open"?"Allowed when the world opens":"Closed");
+        add("appearance","Card appearance","Preview & edit");
+        add("access-settings","Access & players",draft_["access"]=="open"?"Visitors allowed":"Closed");
         }
         if(!state["connected"].toBool())add("sign-in","Sign in to TrainerOS");
         else if(state["pending"].toBool())add("resolve",state["bazaarPending"].toBool()?"Resolve pending purchase":"Resolve the purchase in your profile",{},state["bazaarPending"].toBool()&&!busy());
@@ -125,6 +146,24 @@ QVariantList BazaarCatalogue::dialogRows() const {
 void BazaarCatalogue::dialogAction(QString action) {
     bool permitted=false;for(const auto& row:dialogRows())if(row.toMap()["id"]==action&&row.toMap()["enabled"].toBool())permitted=true;
     if(!permitted||saving_)return;
+    if(action=="appearance"||action=="access-settings"){formReturn_=dialog_;dialog_=action=="appearance"?"appearance":"access";dialogIndex_=0;message_.clear();emit changed();return;}
+    if(action=="cover"||action=="badge") {
+        const QStringList choices=action=="cover"?QStringList{"market","grove","harbor"}:QStringList{"shop","community","companion","trophy","guide"};
+        const auto current=draft_[action].toString(choices.first());draft_[action]=choices[(choices.indexOf(current)+1)%choices.size()];emit changed();return;
+    }
+    if(action=="blocks"||action=="blocks-refresh"||action=="blocks-more"){dialog_="blocks";dialogIndex_=0;loadAccess({},action=="blocks-more");return;}
+    if(action.startsWith("player:")){managePlayer(action.mid(7));return;}
+    if(action=="target-refresh"){loadAccess(accessTarget_["player_id"].toString());return;}
+    if(action=="block") {
+        const auto target=accessTarget_["player_id"].toString(),revision=own_["revision"].toString();const auto generation=++accessGeneration_;
+        moderating_=true;message_="Saving access rule…";emit changed();
+        backend_->bazaarRequest("block",{{"id",own_["id"]},{"target",target},{"revision",revision},{"blocked",!accessTarget_["blocked"].toBool()}},[this,generation,revision,target](int status,QJsonObject result){
+            if(generation!=accessGeneration_)return;
+            moderating_=false;
+            if(status==200){if(draft_["revision"].toString()==revision)draft_["revision"]=result["bazaar"].toObject()["revision"];message_="Access rule saved.";loadAccess(target);}
+            else {message_=status==409?"Access changed. Refresh before trying again.":"Could not save access. Refresh and try again.";emit changed();}
+        });return;
+    }
     if(action=="setup"){dialog_="create";dialogIndex_=0;message_.clear();emit changed();return;}
     if(action=="back"){closeDialog();return;}
     if(action=="name"||action=="description"){textField_=action;emit textRequested(draft_[action].toString());return;}
@@ -152,4 +191,40 @@ void BazaarCatalogue::dialogAction(QString action) {
     }
     emit changed();
 }
+QVariantMap BazaarCatalogue::cardPreview() const {
+    const auto cover=draft_["cover"].toString("market");
+    return {{"title",draft_["name"].toString().isEmpty()?"Your bazaar":draft_["name"].toString()},
+        {"ownerName","You"},{"description",draft_["description"].toString()},{"access",draft_["access"].toString()},
+        {"cover",QString("qrc:/bazaar/%1.png").arg(cover=="market"?"official":cover)},
+        {"badge",draft_["badge"].toString("shop")},{"visitors",QVariant()}};
+}
+void BazaarCatalogue::managePlayer(QString player) {
+    if(own_.isEmpty()||QUuid(player).isNull()||player==backendPlayer_||busy())return;
+    if(dialog_!="blocks"&&dialog_!="access"){draft_=own_;formReturn_="manage";}
+    dialog_="moderate";dialogIndex_=0;accessTarget_={{"player_id",player}};loadAccess(player);
+}
+void BazaarCatalogue::loadAccess(QString target,bool append) {
+    if(!backend_||own_.isEmpty()||moderating_)return;
+    const auto generation=++accessGeneration_;moderating_=true;message_="Loading access rules…";emit changed();
+    QJsonObject args{{"id",own_["id"]}};if(!target.isEmpty())args["target"]=target;if(append&&!accessNext_.isEmpty())args["after"]=accessNext_;
+    backend_->bazaarRequest("access",args,[this,generation,append,target](int status,QJsonObject result){
+        if(generation!=accessGeneration_)return;
+            moderating_=false;
+        const auto rows=result["blocks"].toArray();
+        if(status!=200||!result["blocks"].isArray()||rows.size()>100){message_="Could not load access rules. Refresh to retry.";emit changed();return;}
+        QVariantList valid;
+        for(const auto value:rows){auto row=value.toObject();if(QUuid(row["player_id"].toString()).isNull()||!row["name"].isString()||row["name"].toString().size()>64){message_="Invalid access list.";emit changed();return;}valid.append(row.toVariantMap());}
+        const auto next=result["next"].toString();if(!next.isEmpty()&&QUuid(next).isNull()){message_="Invalid access cursor.";emit changed();return;}
+        if(!target.isEmpty()) {
+            const auto selected=result["target"].toObject();
+            if(selected["player_id"]!=target||!selected["blocked"].isBool()||!selected["name"].isString()){message_="Player access unavailable.";emit changed();return;}
+            accessTarget_=selected;
+        }
+        if(!append)blocks_.clear();
+        QSet<QString> known;for(const auto& value:blocks_)known.insert(value.toMap()["player_id"].toString());
+        for(const auto& value:valid)if(!known.contains(value.toMap()["player_id"].toString()))blocks_.append(value);
+        accessNext_=next;message_=target.isEmpty()&&blocks_.isEmpty()?"No blocked players. Manage access from a player's profile.":"";emit changed();
+    });
+}
+
 }

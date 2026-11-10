@@ -18,6 +18,7 @@ int BazaarCatalogue::selectedIndex() const {
 }
 void BazaarCatalogue::setOwner(QString owner) {
     if(owner_==owner)return;
+    ++accessGeneration_;moderating_=false;blocks_.clear();accessTarget_={};accessNext_.clear();formReturn_.clear();
     ++generation_;loading_=saving_=fixture_=false;draft_={};own_={};next_.clear();message_.clear();textField_.clear();
     owner_=owner;all_.clear();realms_.clear();favorites_.clear();search_.clear();lastRoom_.clear();
     selection_="official";favoritesOnly_=false;setScroll(0);dialog_.clear();realmIndex_=0;
@@ -120,6 +121,10 @@ void BazaarCatalogue::toggleFavorite(QString id) {
     if(selection_.startsWith("room:")&&selectedIndex()<0)focusRoom(index);
 }
 void BazaarCatalogue::closeDialog(bool all) {
+    ++accessGeneration_;moderating_=false;
+    if(!all&&(dialog_=="appearance"||dialog_=="access")){dialog_=formReturn_.isEmpty()?"manage":formReturn_;dialogIndex_=0;message_.clear();emit changed();return;}
+    if(!all&&dialog_=="blocks"){dialog_="access";dialogIndex_=0;message_.clear();emit changed();return;}
+    if(!all&&dialog_=="moderate"){dialog_="blocks";dialogIndex_=0;loadAccess();return;}
     if(dialog_.isEmpty())return;
     if(dialog_=="review"&&!all) {if(backend_&&!account()["review"].toMap().isEmpty())backend_->cancelPurchaseReview();dialog_="purchase";dialogIndex_=0;}
     else {dialog_.clear();textField_.clear();message_.clear();if(backend_&&!account()["review"].toMap().isEmpty())backend_->cancelPurchaseReview();}

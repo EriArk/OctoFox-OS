@@ -15,7 +15,7 @@ Rectangle {
         radius: 12; color: Theme.paper; border.color: Theme.divider
         Text {
             x: 16; y: 12; width: parent.width-62; font.family: Theme.displayFamily; font.pixelSize: 21; color: Theme.ink
-            text: root.kind==="create"?"Create a bazaar":root.kind==="manage"?"My bazaar":root.kind==="review"?"Review purchase":root.kind==="purchase"?"Buy personal bazaar":root.kind==="ready"?"Bazaar purchased":root.kind==="details"?"Bazaar details":"Bazaar menu"
+            text: root.kind==="create"?"Create a bazaar":root.kind==="manage"?"My bazaar":root.kind==="review"?"Review purchase":root.kind==="purchase"?"Buy personal bazaar":root.kind==="ready"?"Bazaar purchased":root.kind==="details"?"Bazaar details":root.kind==="appearance"?"Card appearance":root.kind==="access"?"Access & players":root.kind==="blocks"?"Blocked players":root.kind==="moderate"?"Player access":"Bazaar menu"
             elide: Text.ElideRight
         }
         CapButton { objectName: "bazaar-menu-close"; anchors.right: parent.right; anchors.rightMargin: 8; y: 8; width: 36; height: 30; label: "×"; textSize: 22; centered: true; flat: true; claimsFocus: false; contentInset: 0; onActivated: root.catalogue.closeDialog() }
@@ -24,9 +24,14 @@ Rectangle {
             text: root.catalogue.summary; textFormat: Text.PlainText; color: Theme.muted; font.pixelSize: 11
             wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight
         }
+        BazaarCard {
+            id: preview; objectName: "bazaar-card-preview"; visible: root.kind==="appearance"; enabled: false
+            x: 14; y: summary.y+summary.height+5; width: Math.min(210,parent.width*.42)
+            height: Math.min(192,parent.height-y-51); compact: true; entry: root.catalogue.cardPreview
+        }
         ListView {
             id: actions; objectName: "bazaar-menu-actions"
-            x: 14; y: summary.y+summary.height+5; width: parent.width-28; height: parent.height-y-51
+            x: preview.visible?preview.x+preview.width+10:14; y: summary.y+summary.height+5; width: parent.width-x-14; height: parent.height-y-51
             clip: true; boundsBehavior: Flickable.StopAtBounds
             model: root.catalogue.dialogRows; currentIndex: root.catalogue.dialogIndex
             onCurrentIndexChanged: positionViewAtIndex(currentIndex,ListView.Contain)

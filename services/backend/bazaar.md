@@ -76,6 +76,37 @@ Late responses are fenced on account changes; cached ownership is not permission
 to spend or edit offline. Catalogue requests stop when hidden; returning reuses
 loaded cards/scroll, and explicit refresh fetches current records.
 
+## Card appearance and owner access — next increment
+
+Migration 0017 adds `cover` (`market`, `grove`, `harbor`) and `badge` (`shop`,
+`community`, `companion`, `trophy`, `guide`) to the persistent space. They are
+optional in create/edit requests; old clients editing four fields preserve the
+saved artwork. Unknown IDs/URLs/paths are rejected. Catalogue and owner inventory
+return the saved IDs. The native appearance editor previews the same card widget
+used in the catalogue; choices remain draft until Save. No extra Sparks are charged.
+
+`bazaar_blocks` stores only `(bazaar_id, player_id)` with creation timestamp.
+Only the persistent owner can list/block/unblock. No host authority field is
+accepted, and the owner cannot block themselves. Mutations serialize on the
+bazaar row, check its expected revision, increment it, and commit audit/outbox
+with the change. Identical retries are harmless; delayed opposite mutations
+cannot override a newer decision. There is no automatic expiry or fee.
+
+- `GET /v1/me/bazaars/{id}/access?after=UUID&target=UUID`: owner-only blocked
+  players, at most 100 per page, UUID cursor, optional selected player status.
+- `PUT /v1/me/bazaars/{id}/blocks/{player}`: `blocked` boolean and decimal-string
+  `revision`. Returns the updated bazaar and selected player's state.
+- `GET /v1/bazaars/{id}/access`: authenticated caller's current `policy_allows`
+  and reason (`owner`, `open`, `closed`, `blocked`), plus revision. Hidden spaces
+  are not disclosed to non-owners by this route. `join_available` stays false.
+
+A policy read is **not** admission, a reservation, or a host lease. `live_moderation`
+is false. SDK/Lobby admission and live removal must enforce/recheck these records
+when realtime worlds exist; no successful kick or fabricated roster is exposed.
+The owner reaches a specific player from the existing public profile's
+“My bazaar access” action, and can restore access from the paged blocked list.
+No new social search/account system or technical-ID text entry is introduced.
+
 ## Future additions accepted by the owner
 
 Stalls, shops, decoration and functional upgrades will be separate purchases
@@ -89,4 +120,4 @@ Server-side permission/expiry and atomic payment will be required when rentals
 are implemented. Existing ownership must survive adding these extensions.
 
 [Product contract](../../docs/BAZAAR.md),
-[build, deployment and remaining acceptance](../../docs/evidence/2026-11-10-bazaar-later/README.md).
+[build, deployment and remaining acceptance](../../docs/evidence/2026-11-10-bazaar-cards-access/README.md).

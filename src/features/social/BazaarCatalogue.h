@@ -24,6 +24,7 @@ class BazaarCatalogue final : public QObject {
     Q_PROPERTY(int realmIndex READ realmIndex NOTIFY changed)
     Q_PROPERTY(QVariantList dialogRows READ dialogRows NOTIFY changed)
     Q_PROPERTY(int dialogIndex READ dialogIndex NOTIFY changed)
+    Q_PROPERTY(QVariantMap cardPreview READ cardPreview NOTIFY changed)
     Q_PROPERTY(QVariantMap account READ account NOTIFY changed)
     Q_PROPERTY(QString summary READ summary NOTIFY changed)
     Q_PROPERTY(QString message READ message NOTIFY changed)
@@ -51,6 +52,8 @@ public:
     bool busy() const;
     bool more() const { return !next_.isEmpty(); }
     QString summary() const;
+    QVariantMap cardPreview() const;
+    void managePlayer(QString player);
     QString message() const { return message_; }
     QVariantMap account() const;
     QVariantList dialogRows() const;
@@ -83,6 +86,7 @@ private:
     friend class BazaarCatalogueTests;
     friend class BazaarFixture;
     void syncBackend();
+    void loadAccess(QString target={},bool append=false);
     void beginForm(bool editing);
     QJsonObject formDetails() const;
     void rebuild();
@@ -91,7 +95,11 @@ private:
     // raw game-lobby rows or user-controlled launch commands enter this model.
     void setPresentation(QVariantList rooms,QVariantList realms,QString status);
     QPointer<BackendAccount> backend_;
-    QJsonObject draft_, own_;
+    QJsonObject draft_, own_, accessTarget_;
+    QVariantList blocks_;
+    QString accessNext_, formReturn_;
+    bool moderating_=false;
+    quint64 accessGeneration_=0;
     QString backendPlayer_, next_, message_, textField_, detailId_;
     bool active_=false, loading_=false, saving_=false, connected_=false, fixture_=false, reloadDraft_=false;
     quint64 generation_=0;

@@ -1901,7 +1901,11 @@ void ShellController::activateProfile(int index) {
     }
     if(profileRoute_=="visitor") {
         profileFocus_=index;const auto subject=visitorProfile_.subject();
-        if(index==3)visitorProfile_.refresh();
+        if(index==6&&!visitorProfile_.preview()&&!bazaar_.busy()&&!bazaar_.account()["owned"].toMap().isEmpty()) {
+            const auto player=visitorProfile_.data()["player_id"].toString();
+            if(!QUuid(player).isNull()&&player!=bazaar_.account()["playerId"].toString()){closeProfile();openOnlineFace("bazaar");bazaar_.managePlayer(player);}
+        }
+        else if(index==3)visitorProfile_.refresh();
         else if(index==4)visitorProfile_.refresh(true);
         else if(index==5&&backendAccount_.snapshot()["state"]!="signed_in")backendAccount_.activate();
         else if(!visitorProfile_.preview()&&!subject.isEmpty()) {
@@ -1984,6 +1988,8 @@ void ShellController::dispatchProfile(Action action) {
         }else if(action==Action::Confirm)activateProfile(profileFocus_);
         else if(action==Action::Up||action==Action::Down||action==Action::Left||action==Action::Right) {
             QList<int> order=profileRoute_=="privacy"?QList<int>{0,1,2,3,7,6,4}:visitorProfile_.preview()?QList<int>{3}:QList<int>{0,1,2,3};
+            if(profileRoute_=="visitor"&&!visitorProfile_.preview()&&!bazaar_.account()["owned"].toMap().isEmpty()
+                &&!visitorProfile_.data()["player_id"].toString().isEmpty()&&visitorProfile_.data()["player_id"].toString()!=bazaar_.account()["playerId"].toString())order.append(6);
             if(profileRoute_=="visitor"&&!visitorProfile_.data()["next"].toString().isEmpty())order.append(4);
             if(backendAccount_.snapshot()["state"]!="signed_in")order.append(5);
             if(profileRoute_=="visitor")for(int i=0;i<visitorProfile_.data()["history"].toList().size();++i)order.append(100+i);

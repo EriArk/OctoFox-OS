@@ -115,16 +115,32 @@ inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shel
             check(!shell.keyboard()->isOpen(),"Name edit accepted");page->dialogAction("create");break;
         case 26:
             check(commerce->charges==1&&page->dialog()=="manage","Creation reaches My bazaar without second payment");capture("manage-dark-960");
-            page->dialogAction("listed");page->dialogAction("access");page->dialogAction("save");break;
+            page->dialogAction("appearance");page->dialogAction("cover");page->dialogAction("badge");break;
         case 27:
-            check(commerce->edits==1&&commerce->charges==1,"Owner settings save without a second charge");
-            check(!page->account()["owned"].toMap()["listed"].toBool(),"Hidden setting persisted");
-            window->resize(800,450);shell.settings()->cycleTheme();break;
+            check(page->dialog()=="appearance"&&page->cardPreview()["badge"]=="community","Card preview changes before saving");capture("card-preview-dark-960");
+            page->closeDialog();page->dialogAction("access-settings");page->dialogAction("listed");page->dialogAction("access");page->closeDialog();page->dialogAction("save");break;
         case 28:
-            capture("manage-light-800");commerce->conflict=true;page->dialogAction("listed");page->dialogAction("save");break;
+            check(commerce->edits==1&&commerce->charges==1,"Card/access settings save for free");
+            check(page->account()["owned"].toMap()["cover"]=="grove","Cover is persisted");
+            check(!page->account()["owned"].toMap()["listed"].toBool(),"Hidden setting persisted");
+            window->resize(800,450);shell.settings()->cycleTheme();page->dialogAction("appearance");break;
         case 29:
-            check(page->message().contains("another device"),"Edit conflict keeps draft");capture("manage-conflict-light-800");
-            shell.dispatch(Action::Home);check(page->dialog().isEmpty()&&shell.primaryId()=="home","Home dismisses owner form");break;
+            capture("card-preview-light-800");page->closeDialog();page->dialogAction("access-settings");break;
+        case 30:
+            capture("access-light-800");page->dialogAction("blocks");break;
+        case 31:
+            capture("blocked-empty-light-800");page->closeDialog(true);shell.openVisitorProfile(commerce->visitor);break;
+        case 32:
+            check(shell.profileRoute()=="visitor","Existing player profile opened");capture("player-profile-light-800");click("profile-bazaar-access");break;
+        case 33:
+            check(page->dialog()=="moderate","Profile opens this player's Bazaar access");capture("player-access-light-800");page->dialogAction("block");break;
+        case 34:
+            check(commerce->blocked&&commerce->blockWrites==1,"Owner blocks player without charging");capture("player-blocked-light-800");page->closeDialog();break;
+        case 35:
+            check(page->dialog()=="blocks","Back opens blocked players");capture("blocked-list-light-800");page->dialogAction("player:"+commerce->visitor);page->dialogAction("block");break;
+        case 36:
+            check(!commerce->blocked&&commerce->blockWrites==2&&commerce->charges==1,"Owner restores access for free");
+            shell.dispatch(Action::Home);check(page->dialog().isEmpty()&&shell.primaryId()=="home","Home dismisses access form");break;
         default:
             check(warnings==0,"No QML warnings");timer->stop();completed=true;
             QFile file(directory+"/bazaar-report.json");if(file.open(QIODevice::WriteOnly))file.write(QJsonDocument(QJsonObject{{"success",diagnostics.isEmpty()},{"warnings",warnings},{"diagnostics",QJsonArray::fromStringList(diagnostics)}}).toJson());

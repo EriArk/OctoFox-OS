@@ -44,7 +44,8 @@ private slots:
         page.focus("room:4");page.toggleFavorite("4");page.setScroll(185);
         auto state=page.navigation();page.activate("official");QVERIFY(!page.dialog().isEmpty());
         page.restore(state);QCOMPARE(page.selection(),"room:4");QCOMPARE(page.scroll_,185.0);QVERIFY(page.dialog().isEmpty());
-        page.setOwner("two");QCOMPARE(page.selection(),"official");QVERIFY(page.rooms().isEmpty());
+        page.blocks_={QVariantMap{{"name","Private block"}}};page.accessTarget_={{"name","Private target"}};page.moderating_=true;
+        page.setOwner("two");QVERIFY(page.blocks_.isEmpty());QVERIFY(page.accessTarget_.isEmpty());QVERIFY(!page.moderating_);QCOMPARE(page.selection(),"official");QVERIFY(page.rooms().isEmpty());
         QVERIFY(page.favorites_.isEmpty());QCOMPARE(page.scroll_,0.0);QVERIFY(page.dialog().isEmpty());
     }
     void emptyDisconnectedAndUnavailableActions() {

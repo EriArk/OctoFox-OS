@@ -11,7 +11,10 @@ bool revision(const QJsonValue& v){bool ok=false;const auto n=v.toString().toULo
 bool text(const QJsonValue& v,int max,bool required=false){if(!v.isString()||v.toString().size()>max||(required&&v.toString().trimmed().isEmpty()))return false;for(auto c:v.toString())if(c.unicode()<32||c.unicode()==127)return false;return true;}
 }
 bool BackendAccount::validBazaarDetails(const QJsonObject& row) const {
-    return row.size()==4&&text(row["name"],48,true)&&text(row["description"],280)&&row["listed"].isBool()
+    return row.size()==4+row.contains("cover")+row.contains("badge")
+        &&(!row.contains("cover")||QStringList{"market","grove","harbor"}.contains(row["cover"].toString()))
+        &&(!row.contains("badge")||QStringList{"shop","community","companion","trophy","guide"}.contains(row["badge"].toString()))
+        &&text(row["name"],48,true)&&text(row["description"],280)&&row["listed"].isBool()
         &&QStringList{"open","closed"}.contains(row["access"].toString());
 }
 bool BackendAccount::validBazaar(const QJsonObject& value) const {
@@ -32,7 +35,7 @@ bool BackendAccount::validBazaar(const QJsonObject& value) const {
         if(!current.isEmpty()&&current["id"]==row["id"]&&current["owner_id"]==row["owner_id"]
             &&row["revision"].toString().toULongLong()<current["revision"].toString().toULongLong())return false;
         if(!id(row["id"])||row["owner_id"]!=value["player_id"]||row["offer_id"]!="bazaar.personal"||!revision(row["revision"])
-            ||!validBazaarDetails({{"name",row["name"]},{"description",row["description"]},{"listed",row["listed"]},{"access",row["access"]}}))return false;
+            ||!validBazaarDetails({{"name",row["name"]},{"description",row["description"]},{"listed",row["listed"]},{"access",row["access"]},{"cover",row["cover"].toString("market")},{"badge",row["badge"].toString("shop")}}))return false;
     }
     return true;
 }
@@ -65,11 +68,25 @@ void BackendAccount::bazaarRequest(const QString& action,QJsonObject args,Reply 
         }
         request("GET","/v1/bazaars?"+query.toString(QUrl::FullyEncoded),{},std::move(done),access_);return;
     }
-    if(action=="update"||action=="create") {
+    if(action=="update"||action=="create"||action=="access"||action=="block") {
         const auto bazaar=args.take("id").toString();const auto version=args.take("revision");
-        if(!validBazaarDetails(args)||(action=="update"&&(!id(bazaar)||!revision(version)))){done(422,{});return;}
-        if(action=="update")args["revision"]=version;
-        request(action=="create"?"POST":"PUT",action=="create"?"/v1/me/bazaars":"/v1/me/bazaars/"+bazaar,args,[this,done=std::move(done)](int status,QJsonObject value){
+        QByteArray method="PUT";QString path="/v1/me/bazaars/"+bazaar;
+        if(action=="access") {
+            if(!id(bazaar)){done(422,{});return;}
+            QUrlQuery query;
+            for(const auto key:{"target","after"})if(args.contains(key)){if(!id(args[key])){done(422,{});return;}query.addQueryItem(key,args[key].toString());}
+            if(args.size()>2){done(422,{});return;}
+            path+="/access?"+query.toString(QUrl::FullyEncoded);method="GET";args={};
+        } else if(action=="block") {
+            const auto target=args.take("target");
+            if(!id(bazaar)||!id(target)||!revision(version)||args.size()!=1||!args["blocked"].isBool()){done(422,{});return;}
+            path+="/blocks/"+target.toString();args["revision"]=version;
+        } else {
+            if(!validBazaarDetails(args)||(action=="update"&&(!id(bazaar)||!revision(version)))){done(422,{});return;}
+            if(action=="update")args["revision"]=version;
+            else {method="POST";path="/v1/me/bazaars";}
+        }
+        request(method,path,args,[this,done=std::move(done)](int status,QJsonObject value){
             if(status==200)value["bazaar_license"]=true;
             if(status==200&&value["player_id"]==player_&&validBazaar(value)&&!value["bazaar"].toObject().isEmpty()) {
                 shopSnapshot_["bazaar"]=value["bazaar"];shopSnapshot_["bazaar_license"]=true;saveCommerce();emit changed();

@@ -3,6 +3,8 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QDateTime>
+#include <QUrlQuery>
+#include <QUrl>
 #include <memory>
 
 namespace trainer {
@@ -10,6 +12,8 @@ namespace trainer {
 struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixture> {
     const QString player="11111111-1111-4111-8111-111111111111";
     const QString place="55555555-5555-4555-8555-555555555555";
+    const QString visitor="22222222-2222-4222-8222-222222222222";
+    bool blocked=false;int blockWrites=0;
     QHash<QString,QByteArray> commerce;
     QJsonObject purchaseBody, inventory;
     int charges=0, edits=0;
@@ -42,6 +46,18 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
                 receipt["price"]=receipt.take("expected_price");receipt["details"]=QJsonObject{};
                 if(self->badReceipt)receipt["details"]=QJsonObject{{"name","Wrong payload"}};
                 self->inventory["receipt"]=receipt;done(self->loseResponse?0:200,self->loseResponse?QJsonObject{}:self->inventory);return;
+            }
+            if(path=="/v1/profiles/"+self->visitor){done(200,{{"player_id",self->visitor},{"display_name","Visiting Player"},{"subject","22222"},{"avatar",QJsonValue()},{"visibility",QJsonObject{}}});return;}
+            if(path.startsWith("/v1/me/bazaars/"+self->place+"/access?")) {
+                QJsonArray rows;if(self->blocked)rows.append(QJsonObject{{"player_id",self->visitor},{"name","Visiting Player"}});
+                const auto target=QUrlQuery(QUrl(path)).queryItemValue("target");
+                done(200,{{"player_id",self->player},{"bazaar_license",true},{"bazaar",self->inventory["bazaar"]},{"blocks",rows},{"next",QJsonValue()},
+                    {"target",target.isEmpty()?QJsonValue():QJsonValue(QJsonObject{{"player_id",self->visitor},{"name","Visiting Player"},{"blocked",self->blocked}})},{"live_moderation",false}});return;
+            }
+            if(path=="/v1/me/bazaars/"+self->place+"/blocks/"+self->visitor) {
+                auto row=self->inventory["bazaar"].toObject();if(body["revision"]!=row["revision"]){done(409,{{"code","bazaar_changed"}});return;}
+                self->blocked=body["blocked"].toBool();++self->blockWrites;row["revision"]=QString::number(row["revision"].toString().toInt()+1);self->inventory["bazaar"]=row;
+                done(200,{{"player_id",self->player},{"bazaar_license",true},{"bazaar",row},{"target",QJsonObject{{"player_id",self->visitor},{"blocked",self->blocked}}},{"live_moderation",false}});return;
             }
             if(path=="/v1/me/bazaars"&&method=="POST") {
                 if(!self->inventory["bazaar_license"].toBool()){done(409,{{"code","bazaar_license_required"}});return;}

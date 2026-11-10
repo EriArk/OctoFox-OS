@@ -28,6 +28,11 @@ Rectangle {
             visible: cover.status!==Image.Ready
         }
         Rectangle {
+            visible: !root.official; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 8
+            width: 30; height: 30; radius: 8; color: Theme.paper
+            MenuGlyph { anchors.centerIn: parent; width: 22; height: 22; glyph: root.entry.badge || "shop"; ink: Theme.ink }
+        }
+        Rectangle {
             visible: root.official; x: 9; y: 9; width: 67; height: 21; radius: 6; color: Theme.yellow
             Text { anchors.centerIn: parent; text: "OFFICIAL"; font.pixelSize: 10; font.bold: true; color: Theme.ink }
         }

@@ -53,7 +53,7 @@ def inventory(request: Request):
 
 @router.post('/v1/me/purchases')
 def purchase(body: Purchase, request: Request):
-    return wire(service(request).purchase(bearer(request), UUID(body.operation_id), body.offer_id, body.offer_revision, body.expected_price, body.bazaar.model_dump() if body.bazaar else None))
+    return wire(service(request).purchase(bearer(request), UUID(body.operation_id), body.offer_id, body.offer_revision, body.expected_price, body.bazaar.model_dump(exclude_none=True) if body.bazaar else None))
 
 
 @router.get('/v1/me/purchases/{operation_id}')

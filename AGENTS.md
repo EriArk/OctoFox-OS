@@ -1,5 +1,12 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Bazaar cards/access, 10 November (latest):** prepare card cover/badge
+preview and owner access controls next, in the same separate branch. Preserve
+buy-now/create-later. Reuse native profile identity for selecting a player; owner
+moderation is separate from temporary hosting. No fabricated live visitors/kicks
+or successful admission before the world runtime exists. Rental rules are the
+next discussion, not authorization to invent rental prices or expiry behavior.
+
 **Owner Bazaar purchase correction, 10 November (latest):** buy the permanent
 right for 5000 Sparks first, then create the single personal bazaar whenever
 convenient, without another charge. Buying must not create a catalogue record or

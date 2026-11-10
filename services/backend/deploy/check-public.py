@@ -18,7 +18,9 @@ checks = []
 for path, expected in (
     ('/health/live', 200), ('/health/ready', 404), ('/openapi.json', 404),
     ('/v1/capabilities', 200), ('/v1/me', 401 if args.accounts else 503),
-    ('/v1/me/purchases', 405), ('/v1/bazaars', 401 if args.accounts else 503), ('/unpublished', 404),
+    ('/v1/me/purchases', 405), ('/v1/bazaars', 401 if args.accounts else 503),
+    ('/v1/bazaars/00000000-0000-0000-0000-000000000001/access', 401 if args.accounts else 503),
+    ('/v1/me/bazaars/00000000-0000-0000-0000-000000000001/access', 401 if args.accounts else 503), ('/unpublished', 404),
 ):
     request = Request(args.origin + path, headers={
         'User-Agent': 'TrainerOS-Backend/0.0.1', 'Accept': 'application/json'})
