@@ -593,6 +593,8 @@ qt_add_qml_module(traineros
         src/qml/GameInputPane.qml
         src/qml/RadialInputWindow.qml
         src/qml/UpdatesPane.qml
+        src/qml/SystemSettingsPane.qml
+        src/qml/SettingsScrollBar.qml
         src/qml/CommunicationPane.qml
         src/qml/ClockPane.qml
         src/qml/DevicePanel.qml

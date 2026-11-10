@@ -5,10 +5,10 @@ Item {
     property bool flat: false
     required property var flow
     property bool takesFocus: false
-    Text { id: heading; x: 5; y: 12; text: "ScreenScraper"; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 25 }
+    Text { id: heading; x: 5; y: 12; text: "ScreenScraper"; color: Theme.ink; font.family: root.flat ? Qt.application.font.family : Theme.displayFamily; font.pixelSize: 24 }
     Text { id: subtitle; x: 5; y: 45; width: parent.width-10; text: root.flow.accountVerified ? "Download covers and game information." : "Sign in to download covers and game information."; color: Theme.muted; font.pixelSize: 14; wrapMode: Text.WordWrap }
     ListView {
-        id: list; x: 0; y: 73; width: parent.width; height: parent.height-y-61; clip: true; spacing: 7
+        id: list; x: 0; y: subtitle.y+subtitle.height+12; width: parent.width; height: parent.height-y-61; clip: true; spacing: root.flat?0:7
         model: root.flow.settingsRows; currentIndex: root.flow.settingsFocus; keyNavigationEnabled: false
         function reveal() { if(count)positionViewAtIndex(currentIndex,ListView.Contain) }
         onCurrentIndexChanged: Qt.callLater(reveal)
@@ -19,7 +19,7 @@ Item {
         }
         delegate: SettingControl { flat: root.flat;
             required property int index; required property var modelData
-            objectName: "scraper-setting-"+index; width: list.width; height: 56
+            objectName: "scraper-setting-"+index; width: list.width; height: root.flat ? implicitHeight : 56
             title: modelData.label; detail: modelData.detail; kind: modelData.enabled ? "action" : "unavailable"
             selected: root.takesFocus && list.currentIndex===index
             onActivated: root.flow.activateSetting(index)

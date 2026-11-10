@@ -16,7 +16,7 @@ Item {
     signal activated()
     signal levelRequested(int value)
     signal adjustmentRequested(int direction)
-    implicitHeight: compact ? 43 : 78
+    implicitHeight: flat ? flatRow.implicitHeight : compact ? 43 : 78
     Accessible.role: slider ? Accessible.Slider : Accessible.Button
     Accessible.name: title + ", " + (slider ? level < 0 ? "Unavailable" : level + "%" : detail)
     // A settings update can rebuild the row model and change scene density.
@@ -25,7 +25,7 @@ Item {
     onSelectedChanged: Qt.callLater(claimFocus)
     onVisibleChanged: Qt.callLater(claimFocus)
     Component.onCompleted: Qt.callLater(claimFocus)
-    SettingsRow { anchors.fill: parent; visible: root.flat; compact: root.compact || root.height<48; title: root.title; detail: root.detail; kind: root.kind; selected: root.selected; checked: root.checked; level: root.level; muted: root.muted; textInset: root.textInset
+    SettingsRow { id: flatRow; anchors.fill: parent; visible: root.flat; compact: root.compact; title: root.title; detail: root.detail; kind: root.kind; selected: root.selected; checked: root.checked; level: root.level; muted: root.muted; textInset: root.textInset
         onActivated: root.activated(); onAdjustmentRequested: direction => root.adjustmentRequested(direction); onLevelRequested: value => root.levelRequested(value)
     }
     Item { anchors.fill: parent; visible: !root.flat

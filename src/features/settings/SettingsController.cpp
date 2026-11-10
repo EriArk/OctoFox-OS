@@ -34,6 +34,7 @@ QVariantList SettingsController::pages() const {
     return result;
 }
 void SettingsController::selectSection(int index) {
+    if(updates_.confirming() || updates_.transitionPending())return;
     index=std::clamp(index,0,int(sectionPages.size())-1);
     if(index==4) {if(storage_.busy()||clock_.busy())return;clock_.leave();communication_.leave();storage_.close();updatesOpen_=false;updates_.closeNotes();category_=15;row_=0;pane_=false;emit changed();}
     else selectCategory(sectionPages[index][0],false);
@@ -134,7 +135,7 @@ QVariantList SettingsController::controls() const {
     case 2: return {row("Video previews","toggle",videoPreviews()?"On · local files only":"Off"),row("Preview sound","action",previewSound()?"On":"Muted"),row("Preview delay","action",QString::number(previewDelay()/1000.0,'f',1)+" seconds"),row("Adventure pictures","status","Clean exit pictures on Home and in Choose Adventure"),row("Field Guide illustrations","status","Illustrations and animated companions")};
     case 3: return {row("Charger vibration","unavailable","Patterns have not been verified on this handheld"),row("Device lighting","unavailable","Lighting support has not been verified")};
     case 4: return {row("Local profile","action","Offline name and emblem"),row("RetroAchievements","action","Manage your account"), trainersAvailable_ ? row("Trainers","action","Choose a player or create a Trainer") : row("Separate Trainers & PIN","unavailable","Not available yet"),row("Trainer PIN",trainersAvailable_?"action":"unavailable","Set, change or remove your PIN"),row("Family code",trainersAvailable_?"action":"unavailable","A parent can reset forgotten PINs"),row(backendAction_,"action",backendDetail_)};
-    case 5: return {row("Refresh status","action",""),row("Restart","action",""),row("Power off","action",""),row("System health & game setup","action","Runtime, BIOS and a private support report"),row("Updates","action","TrainerOS, operating system and Crates")};
+    case 5: return {row("Refresh status","action",""),row("Restart","action",""),row("Power off","action",""),row("System health & game setup","action","Runtime, BIOS and a private support report"),row("Updates","action","TrainerOS Software")};
     case 7: {
         const auto p=input_?input_->profile():ControllerProfile{}.json();
         const char* kind=input_&&input_->connected()?"stepper":"unavailable";
@@ -196,12 +197,12 @@ void SettingsController::onlineAction(int index) {
     if(index==1||index==3||index==4)emit onlineServicesChanged();emit changed();
 }
 void SettingsController::selectCategory(int index, bool enter) {
-    if(storage_.busy() || clock_.busy())return;
+    if(storage_.busy() || clock_.busy() || updates_.confirming() || updates_.transitionPending())return;
     updatesOpen_=false;updates_.closeNotes();
     clock_.leave();
     if(index!=13)communication_.leave();
     storage_.close();
-    category_ = std::clamp(index,0,int(pageIds.size())-1); row_=0; pane_=enter;
+    category_ = std::clamp(index,0,int(pageIds.size())-1); row_=category_==5?4:0; pane_=enter;
     if(category_==16 && !gameInput_.editing())gameInput_.begin();
     if(category_==11)clock_.begin();
     if(category_==13)communication_.begin();
@@ -286,8 +287,13 @@ void SettingsController::dispatch(Action action) {
         return;
     }
     if(category_==6) {if(action==Action::Confirm){pane_=false;emit changed();}return;}
-    if(action==Action::Up) row_=std::max(0,row_-1);
-    if(action==Action::Down) row_=std::min(int(controls().size())-1,row_+1);
+    if(category_==5 && (action==Action::Up || action==Action::Down)) {
+        const QList<int> order{4,0,3,1,2};
+        row_=order[std::clamp(order.indexOf(row_)+(action==Action::Up?-1:1),qsizetype(0),order.size()-1)];
+    } else {
+        if(action==Action::Up) row_=std::max(0,row_-1);
+        if(action==Action::Down) row_=std::min(int(controls().size())-1,row_+1);
+    }
     if(action==Action::Confirm) {activateRow(row_);return;}
     if(action==Action::Left || action==Action::Right) {
         if(category_==7) {adjustDisplay(row_,action==Action::Left?-1:1);return;}

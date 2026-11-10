@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 Item {
     id: root
     property bool flat: false
@@ -16,6 +17,7 @@ Item {
                 required property int index; required property string modelData
                 width: (root.width-140)/2; height: 43; label: modelData; textSize: 18
                 tint: root.network.bluetooth===(index===1) ? Theme.yellow : Theme.blue
+                Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 2; color: Theme.accent; visible: root.flat && root.network.bluetooth===(index===1) }
                 onActivated: { root.enter();root.network.selectFace(index===1) }
             }
         }
@@ -30,8 +32,9 @@ Item {
     }
     // Shared Wi-Fi flow in Settings, Start and first run; Bluetooth keeps its pairing prompt.
     ListView {
+        ScrollBar.vertical: SettingsScrollBar {}
         id: list; objectName: "connection-list"
-        x: 0; y: root.quick?52:68; width: parent.width; height: parent.height-y-(root.network.status.length || root.shell.device.error.length ? 88 : 48)
+        x: 0; y: root.quick?52:68; width: parent.width; height: parent.height-y-(root.network.status.length || root.shell.device.error.length ? 100 : 60)
         clip: true; spacing: 7; model: root.visible && visible ? root.network.rows : []
         visible: !root.network.prompt.length && !root.network.detailsOpen
         currentIndex: root.network.focusIndex
@@ -43,7 +46,7 @@ Item {
             objectName: "connection-"+index
             width: list.width-5; height: root.quick?48:57
             enabled: !root.network.busy
-            ActivityRow { width: parent.width-(root.network.bluetooth?0:36); height: parent.height; visible: true
+            ActivityRow { flat: root.flat; width: parent.width-(root.network.bluetooth?0:36); height: parent.height; visible: true
                 label: entry.modelData.title; detail: entry.modelData.detail; glyph: root.network.bluetooth ? "bluetooth" : "wifi"
                 accent: entry.modelData.connected?Theme.green:entry.modelData.saved?Theme.blue:Theme.paper
                 selected: root.focused && root.network.focusIndex===entry.index
@@ -76,11 +79,13 @@ Item {
             color: root.network.failed ? Theme.ink : Theme.muted; font.pixelSize: 13; wrapMode: Text.WordWrap
         }
         ListView {
+            ScrollBar.vertical: SettingsScrollBar {}
             id: detailList; objectName: "wifi-detail-actions"
             x: 0; y: 56+connectionError.height; width: parent.width; height: parent.height-y; clip: true; spacing: 2
             model: root.visible && details.visible ? root.network.detailActions : []; currentIndex: root.network.detailFocus
             onCurrentIndexChanged: if(currentIndex>=0)positionViewAtIndex(currentIndex,ListView.Contain)
             delegate: ActivityRow {
+                flat: root.flat;
                 required property var modelData; required property int index
                 width: detailList.width-4; height: 46; label: modelData.title; detail: modelData.detail
                 glyph: modelData.id==="autojoin"?"wifi":modelData.id==="password"?"key":modelData.id==="forget"?"close":"chevron"
@@ -113,25 +118,25 @@ Item {
         }
     }
     Text {
-        x: 4; anchors.bottom: parent.bottom; anchors.bottomMargin: 42
+        x: 4; anchors.bottom: parent.bottom; anchors.bottomMargin: root.flat ? 56 : 42
         width: parent.width-8; height: 40; wrapMode: Text.WordWrap; elide: Text.ElideRight
         text: root.network.detailsOpen ? "" : root.network.status || root.shell.device.error; textFormat: Text.PlainText
         color: root.network.failed ? Theme.ink : Theme.muted; font.pixelSize: 13
     }
     CapButton { flat: root.flat; visible: !root.network.prompt.length && !root.network.detailsOpen; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.bottomMargin: 12
         objectName: "connection-search"
-        width: 100; height: 30; textSize: 13; label: root.network.busy ? "Cancel" : "Search"; centered: true; tint: Theme.paper
+        width: 100; height: root.flat ? 44 : 30; textSize: 13; label: root.network.busy ? "Cancel" : "Search"; centered: true; tint: Theme.paper
         enabled: !root.network.prompt.length
         onActivated: root.network.busy ? root.network.back() : root.network.search()
     }
     CapButton { flat: true; visible: !root.network.bluetooth && !root.network.prompt.length && !root.network.detailsOpen
         objectName: "connection-hidden"; anchors.left: parent.left; anchors.bottom: parent.bottom; anchors.bottomMargin: 12
-        width: 205; height: 30; textSize: 13; label: "Other network · "+Theme.buttonLabel("L3"); tint: Theme.paper; enabled: !root.network.busy
+        width: 205; height: root.flat ? 44 : 30; textSize: 13; label: "Other network · "+Theme.buttonLabel("L3"); tint: Theme.paper; enabled: !root.network.busy
         onActivated: {root.enter();root.network.otherNetwork()}
     }
     CapButton { flat: root.flat; visible: root.quick && root.network.bluetooth && root.network.canForget && !root.network.prompt.length
         objectName: "connection-forget"; anchors.left: parent.left; anchors.bottom: parent.bottom; anchors.bottomMargin: 12
-        width: 160; height: 30; textSize: 13; label: root.network.bluetooth ? "Forget device" : "Forget network"; tint: Theme.paper
+        width: 160; height: root.flat ? 44 : 30; textSize: 13; label: root.network.bluetooth ? "Forget device" : "Forget network"; tint: Theme.paper
         enabled: !root.network.busy
         onActivated: root.network.forget()
     }

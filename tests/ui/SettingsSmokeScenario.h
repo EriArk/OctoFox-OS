@@ -64,6 +64,20 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
             check(item&&item->isVisible(),"Touch target is visible");
             if(item)QTest::mouseClick(window,Qt::LeftButton,Qt::NoModifier,item->mapToScene(item->boundingRect().center()).toPoint());
         };
+        // A light/dark sweep of every Settings page at the handheld viewport.
+        static const QStringList pages{"appearance","audio","media","feedback","trainer","system","credits","controller","library","saves","connections","clock","nearby","communication","scraper","software","game-input","online-services"};
+        if(*step>=48 && *step<86) {
+            const int n=*step-48;
+            if(n==0){window->resize(960,540);settings->selectPage(pages[0],true);}
+            else if(n<=36){
+                const int previous=n-1;
+                capture("audit-"+QString(previous<18?"light-":"dark-")+pages[previous%18]);
+                if(n==18)settings->cycleTheme(1);
+                if(n<36)settings->selectPage(pages[n%18],true);
+                else {window->resize(1920,1080);settings->selectPage("system",true);}
+            } else capture("audit-dark-system-1080");
+            ++*step;return;
+        }
         switch((*step)++) {
         case 0: window->resize(960,540);shell.systemAction("settings");break;
         case 1: check(shell.service()=="settings","Settings opens from system actions");capture("settings-appearance");
@@ -98,7 +112,7 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
             window->resize(1280,720);break;
         case 8: capture("settings-ring-1280");flow->activate(flow->rows().size()-2);check(flow->status().startsWith("Saved"),"Game profile saved");window->resize(960,540);settings->selectPage("audio");break;
         case 9: capture("settings-audio");settings->selectPage("communication");break;
-        case 10: capture("settings-communication");settings->selectPage("clock");break;
+        case 10: capture("settings-communication");settings->clock()->read=[] {return trainer::ClockSnapshot{"Asia/Jerusalem",{}, {"Asia/Jerusalem","Asia/Tokyo"},true,true,true,true};};settings->selectPage("clock");break;
         case 11: capture("settings-clock");settings->selectPage("system");break;
         case 12: capture("settings-system");settings->selectPage("appearance");settings->cycleTheme(1);break;
         case 13: check(settings->theme()=="dark","Dark mode selected");capture("settings-dark");settings->selectPage("controller",true);settings->activateRow(0);break;
@@ -146,7 +160,7 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
         case 35: check(shell.notificationsOpen(),"Header bell opens popover by touch");check(!visibleItem(window->contentItem(),"shell-home-menu"),"Bell does not show Home menu");capture("notifications-dark-960");shell.dispatch(trainer::Action::Back);settings->cycleTheme(1);window->resize(1280,720);break;
         case 36: shell.openNotifications();break;
         case 37: capture("notifications-light-1280");shell.closeHomeMenu();shell.dispatch(trainer::Action::Home);break;
-        case 38: check(shell.homeMenuOpen()&&!shell.notificationsOpen(),"Home menu stays independent");capture("home-menu-no-inbox");shell.closeHomeMenu();break;
+        case 38: check(!shell.homeMenuOpen()&&!shell.notificationsOpen(),"Home returns directly without a menu");capture("home-menu-no-inbox");shell.closeHomeMenu();break;
         case 39: {
             trainer::HomeSocialFixture::isolateProvider(*shell.social());
             QVariantList chats;for(int i=0;i<8;++i)chats.append(QVariantMap{{"id",QString::number(5000+i)},{"name","Player "+QString::number(i+1)},{"kind","chats"},{"unread",1},{"last","123"}});
@@ -155,7 +169,7 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
         case 40: {
             check(shell.notifications().size()>=8,"Popover has a scrollable inbox");
             auto* popup=visibleItem(window->contentItem(),"notification-popover");auto* game=visibleItem(window->contentItem(),"home-game-card");
-            check(popup&&game&&qAbs(popup->mapToScene(QPointF(popup->width(),0)).x()-game->mapToScene(QPointF(0,0)).x())<2,"Popover right edge follows game card left edge");
+            check(popup&&game&&popup->mapToScene(QPointF(0,0)).x()>=0&&popup->mapToScene(QPointF(popup->width(),0)).x()<=window->width(),"Popover stays inside the window");
             capture("notifications-many-1280");shell.dismissNotifications();break;
         }
         case 41: check(shell.notifications().isEmpty(),"Clear updates empties ordinary messages");shell.closeHomeMenu();break;

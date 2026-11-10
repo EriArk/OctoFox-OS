@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 
 Item {
     id: root
@@ -26,6 +27,7 @@ Item {
         }
     }
     Flickable {
+        ScrollBar.vertical: SettingsScrollBar {}
         id: content; x: 10; y: root.flow.editing?77:60; width: parent.width-20; height: parent.height-y-38; clip: true
         visible: root.flow.copying || !root.flow.editing || root.flow.choosing || root.flow.page===0
         contentHeight: grid.height; boundsBehavior: Flickable.StopAtBounds
@@ -33,9 +35,10 @@ Item {
         Connections { target: root.flow; function onChanged(){Qt.callLater(content.follow)} }
         Grid { id: grid; objectName: "settings-input-grid"; width: parent.width; columns: !root.flow.editing||root.flow.copying?1:root.flow.choosing?(root.flow.targetGroup===2?7:4):2; rowSpacing: 4; columnSpacing: 12
             Repeater { id: choices; model: root.flow.editing&&!root.flow.choosing&&!root.flow.copying&&root.flow.page===0 ? root.flow.visibleRows.filter(r=>r.index<6) : root.flow.visibleRows
-                Item { required property var modelData; required property int index; width: (grid.width-(grid.columns-1)*12)/grid.columns; height: root.flow.choosing?36:54
+                Item { required property var modelData; required property int index; width: (grid.width-(grid.columns-1)*12)/grid.columns; height: root.flow.choosing?44:58
                     readonly property bool selected: root.takesFocus && root.flow.focusIndex===modelData.index
                     onSelectedChanged: if(selected)forceActiveFocus()
+                    Rectangle { anchors.fill: parent; radius: 4; color: parent.selected ? Theme.selection : "transparent" }
                     Rectangle { x: 0; y: 8; width: 2; height: parent.height-16; color: Theme.accent; visible: parent.selected }
                     Text { x: 10; y: 10; width: parent.width-20; text: modelData.title; font.pixelSize: 13; font.weight: parent.selected?Font.DemiBold:Font.Normal; color: Theme.textColor("#355341"); elide: Text.ElideRight }
                     Text { objectName: "settings-input-detail-"+modelData.index; x: 10; y: 32; width: parent.width-20; text: modelData.detail || ""; color: Theme.textColor("#6d7e74"); font.pixelSize: 11; elide: Text.ElideRight }
@@ -81,11 +84,16 @@ Item {
     Rectangle {
         anchors.fill: parent; visible: root.flow.toolsOpen || root.flow.preview>=0 || !!Theme.controller?.captureMode.length; color: Theme.surface
         MouseArea { anchors.fill: parent }
-        Column { x: 20; y: 12; width: parent.width-40; visible: root.flow.toolsOpen; spacing: 0
+        Flickable { ScrollBar.vertical: SettingsScrollBar {}
+        id: toolsList; x: 20; y: 12; width: parent.width-40; height: parent.height-24; visible: root.flow.toolsOpen; clip: true; contentHeight: toolsColumn.height; boundsBehavior: Flickable.StopAtBounds
+        function follow(){const item=toolRows.itemAt(root.flow.toolFocus);if(item)contentY=Math.max(0,Math.min(Math.max(0,contentHeight-height),item.y<contentY?item.y:item.y+item.height>contentY+height?item.y+item.height-height:contentY))}
+        Connections { target: root.flow; function onChanged(){Qt.callLater(toolsList.follow)} }
+        Column { id: toolsColumn; width: parent.width; spacing: 0; onPositioningComplete: Qt.callLater(toolsList.follow)
             Text { height: 34; text: "Layout tools"; font.pixelSize: 18; color: Theme.ink }
-            Repeater { model: root.flow.tools
-                SettingsRow { required property int index; required property string modelData; height: 30; width: parent.width; compact: true; title: modelData; selected: root.flow.toolFocus===index; onActivated: root.flow.activateTool(index) }
+            Repeater { id: toolRows; model: root.flow.tools
+                SettingsRow { required property int index; required property string modelData; height: implicitHeight; width: parent.width; compact: true; title: modelData; selected: root.flow.toolFocus===index; onActivated: root.flow.activateTool(index) }
             }
+        }
         }
         RingDiagram { anchors.fill: parent; anchors.margins: 32; visible: root.flow.preview>=0; slots: root.flow.draft.rings?.[root.flow.preview] || []; presentation: root.flow.draft.ringPresentation?.[root.flow.preview] || ({}); selected: root.flow.previewSelection; caption: "Preview\n"+(root.flow.draft.rings?.[root.flow.preview]?.[root.flow.previewSelection] || ""); onPicked: slot => root.flow.selectPreview(slot) }
         Text { x: 14; y: 12; visible: root.flow.preview>=0; text: "Back"; color: Theme.accent; TapHandler { onTapped: root.flow.back() } }

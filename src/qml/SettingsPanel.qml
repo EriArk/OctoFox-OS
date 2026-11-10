@@ -1,7 +1,13 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Window
 Item {
     id: root
+    // Keep page changes opaque on the software renderer, including Shape damage.
+    layer.enabled: visible && GraphicsInfo.api === GraphicsInfo.Software
+    layer.textureSize: Qt.size(Math.ceil(width*Theme.uiScale),Math.ceil(height*Theme.uiScale))
+    layer.smooth: true
+    Rectangle { anchors.fill: parent; color: Theme.surface; z: -1 }
     required property var shell
     readonly property var settings: shell.settings
     readonly property bool takesFocus: visible && !shell.menuOpen && !shell.notice.length && !shell.keyboard.open && !shell.libraryTools.open && !shell.scraper.open && !shell.downloads.open
@@ -16,7 +22,6 @@ Item {
         PageHeader { id: heading; compact: true; title: "Settings"; height: 40 }
         Rectangle {
             y: heading.height; width: parent.width; height: parent.height-y; color: Theme.surface; radius: 8
-            CrtTexture { anchors.fill: parent; anchors.margins: 8 }
             Rectangle { x: 181; y: 20; width: 1; height: parent.height-40; color: Theme.divider }
             Flickable {
                 id: categoriesViewport; x: 10; y: 10; width: 168; height: parent.height-20; clip: true
@@ -34,13 +39,13 @@ Item {
                         objectName: "settings-section-"+modelData.id
                         width: 160; height: 45; radius: 9
                         readonly property bool selected: root.takesFocus && !root.settings.controlsFocused && root.settings.sectionIndex===index
-                        color: "transparent"
+                        color: selected ? Theme.selection : "transparent"
                         Rectangle { x: 1; y: 13; width: 3; height: 22; radius: 1; color: Theme.accent; visible: root.settings.sectionIndex===index }
                         onSelectedChanged: if(selected && visible) forceActiveFocus(Qt.OtherFocusReason)
                         onVisibleChanged: if(selected && visible) forceActiveFocus(Qt.OtherFocusReason)
                         Component.onCompleted: if(selected && visible) forceActiveFocus(Qt.OtherFocusReason)
-                        Text { x: 14; anchors.verticalCenter: parent.verticalCenter; text: modelData.title; width: parent.width-28; wrapMode: Text.WordWrap; color: root.settings.sectionIndex===index ? Theme.textColor("#315b50") : Theme.textColor("#7d8b82"); font.pixelSize: 15; font.bold: root.settings.sectionIndex===index }
-                        TapHandler { enabled: !root.shell.trainer.editing && !root.shell.hall.account.open && !root.settings.storage.busy; onTapped: root.settings.selectSection(index) }
+                        Text { x: 14; anchors.verticalCenter: parent.verticalCenter; text: modelData.title; width: parent.width-28; wrapMode: Text.WordWrap; color: root.settings.sectionIndex===index ? Theme.ink : Theme.muted; font.pixelSize: 15; font.bold: root.settings.sectionIndex===index }
+                        TapHandler { enabled: !root.shell.trainer.editing && !root.shell.hall.account.open && !root.settings.storage.busy && !root.settings.updates.confirming && !root.settings.updates.transitionPending; onTapped: root.settings.selectSection(index) }
                     }
                 }
             }
@@ -48,13 +53,14 @@ Item {
             Item { x: 195; y: 43; width: parent.width-x-16; height: parent.height-y-8
                 Row { y: -39; spacing: 6
                     Repeater { model: root.settings.pages
-                        Item { required property var modelData; width: Math.max(64,(root.width-243)/Math.max(1,root.settings.pages.length)-6); height: 30
-                            Text { anchors.centerIn: parent; text: modelData.title; font.pixelSize: 12; color: root.settings.categoryId===modelData.id ? Theme.textColor("#315b50") : Theme.textColor("#8b958d"); font.weight: root.settings.categoryId===modelData.id ? Font.DemiBold : Font.Normal }
+                        Item { required property var modelData; width: Math.max(64,(root.width-243)/Math.max(1,root.settings.pages.length)-6); height: 36
+                            Text { anchors.centerIn: parent; text: modelData.title; font.pixelSize: 13; color: root.settings.categoryId===modelData.id ? Theme.ink : Theme.muted; font.weight: root.settings.categoryId===modelData.id ? Font.DemiBold : Font.Normal }
                             Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 2; color: Theme.accent; visible: root.settings.categoryId===modelData.id }
-                            TapHandler { enabled: !root.shell.trainer.editing && !root.shell.hall.account.open && !root.settings.storage.busy; onTapped: root.settings.selectPage(modelData.id) }
+                            TapHandler { enabled: !root.shell.trainer.editing && !root.shell.hall.account.open && !root.settings.storage.busy && !root.settings.updates.confirming && !root.settings.updates.transitionPending; onTapped: root.settings.selectPage(modelData.id) }
                         }
                     }
                 }
+                SystemSettingsPane { anchors.fill: parent; shell: root.shell; visible: root.settings.category===5 && !root.settings.updatesOpen; takesFocus: root.takesFocus && root.settings.controlsFocused }
                 UpdatesPane { anchors.fill: parent; flow: root.settings.updates; visible: root.settings.updatesOpen; takesFocus: root.takesFocus && root.settings.controlsFocused }
                 GameInputPane { anchors.fill: parent; flow: root.settings.gameInput; takesFocus: visible && root.takesFocus && root.settings.controlsFocused; visible: root.settings.categoryId==="game-input" }
                 ControllerSettingsPane { anchors.fill: parent; settings: root.settings; takesFocus: visible && root.takesFocus && root.settings.controlsFocused; visible: root.settings.categoryId==="controller" }
@@ -66,12 +72,13 @@ Item {
                     anchors.fill: parent; visible: root.settings.storage.open
                     Text { x: 5; y: 13; text: "Game storage"; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 25 }
                     Text { x: 5; y: 48; width: parent.width-10; text: "Choose where to look for games. Existing files stay in place."; color: Theme.muted; font.pixelSize: 13; wrapMode: Text.WordWrap }
-                    StorageChoices { x: 0; y: 75; width: parent.width; height: parent.height-y-43; compact: true; flow: root.settings.storage; takesFocus: root.takesFocus && root.settings.controlsFocused }
+                    StorageChoices { x: 0; y: 75; width: parent.width; height: parent.height-y-43; compact: true; flat: true; flow: root.settings.storage; takesFocus: root.takesFocus && root.settings.controlsFocused }
                     Text { x: 5; y: parent.height-37; width: parent.width-10; height: 33; text: root.settings.storage.busy ? "Preparing your library…" : root.settings.storage.error || root.settings.storage.rows[root.settings.storage.focusIndex]?.path || ""; textFormat: Text.PlainText; color: root.settings.storage.error.length ? Theme.textColor("#853b24") : Theme.muted; font.pixelSize: 12; wrapMode: Text.WrapAnywhere; maximumLineCount: 2; elide: Text.ElideMiddle }
                 }
                 Flickable {
-                    id: controlsViewport; visible: !root.settings.updatesOpen && root.settings.categoryId!=="controller" && root.settings.categoryId!=="game-input" && root.settings.category!==6 && root.settings.category!==10 && root.settings.category!==11 && root.settings.category!==13 && root.settings.category!==14 && !root.settings.storage.open; x: 0; y: root.settings.category===5 ? 158 : 13
-                    width: parent.width; height: Math.max(0,parent.height-y-(root.statusText.length?48:10)); clip: true
+                    ScrollBar.vertical: SettingsScrollBar {}
+                    id: controlsViewport; visible: !root.settings.updatesOpen && root.settings.category!==5 && root.settings.categoryId!=="controller" && root.settings.categoryId!=="game-input" && root.settings.category!==6 && root.settings.category!==10 && root.settings.category!==11 && root.settings.category!==13 && root.settings.category!==14 && !root.settings.storage.open; x: 0; y: 10
+                    width: parent.width; height: Math.max(0,parent.height-y-(root.statusText.length?64:10)); clip: true
                     contentHeight: controlsColumn.height+8; boundsBehavior: Flickable.StopAtBounds
                     function followFocus() {
                         if (!root.settings.controlsFocused) return
@@ -92,7 +99,7 @@ Item {
                         onItemAdded: Qt.callLater(controlsViewport.followFocus)
                         SettingsRow {
                             required property int index; required property var modelData
-                            objectName: (root.shell.hall.account.open ? "achievement-account-" : "settings-control-")+index; width: parent.width; height: root.shell.hall.account.open ? 56 : root.shell.trainer.editing ? 44 : root.settings.category===5 ? 32 : root.settings.category===4 ? 44 : root.settings.category===8 || root.settings.category===7 || root.settings.category===16 ? 50 : 44
+                            objectName: (root.shell.hall.account.open ? "achievement-account-" : "settings-control-")+index; width: parent.width; height: implicitHeight
                             title: root.settings.category===4 && !root.shell.trainer.editing && !root.shell.hall.account.open && index===0 ? (root.shell.trainer.exists ? "Edit Trainer" : "Create Trainer") : root.settings.category===4 && !root.shell.trainer.editing && !root.shell.hall.account.open && index===2 && root.shell.sampleLibrary ? "Preview registration & PIN" : modelData.title
                             detail: root.settings.category===0 && index===4 ? modelData.detail + (root.shell.settings.displayDensity(Screen.width,Screen.height,100000,100000,root.settings.displayProfile,root.settings.interfaceScale) > Theme.uiScale+.001 ? " · Limited by window" : "") : root.settings.category===4 && !root.shell.trainer.editing && !root.shell.hall.account.open && index===0 ? (root.shell.trainer.profile.name || "Give your journey a name") : root.settings.category===4 && !root.shell.trainer.editing && !root.shell.hall.account.open && index===2 && root.shell.sampleLibrary ? "Development preview only" : modelData.detail || ""
                             kind: root.settings.category===4 && !root.shell.trainer.editing && !root.shell.hall.account.open && index===2 && root.shell.sampleLibrary ? "action" : modelData.kind
@@ -107,31 +114,21 @@ Item {
                     }
                 }
                 }
-                Column { x: 0; y: 10; width: parent.width; spacing: 4; visible: root.settings.category===5 && !root.settings.updatesOpen
-                    Repeater { model: root.shell.device.status
-                        Rectangle {
-                            required property var modelData
-                            width: parent.width; height: 44; color: "transparent"
-                            Rectangle { x: 13; y: parent.height-1; width: parent.width-13; height: 1; color: Theme.divider }
-                            Text { x: 13; y: 4; text: modelData.title; color: Theme.ink; font.pixelSize: 14 }
-                            Text { x: 13; y: 24; width: parent.width-26; text: modelData.value || "Unavailable"; textFormat: Text.PlainText; elide: Text.ElideRight; color: Theme.muted; font.pixelSize: 12 }
-                        }
-                    }
-                }
                 Item { anchors.fill: parent; visible: root.settings.category===6
-                Column {
-                    x: 22; y: 16; spacing: 12; width: parent.width - 44
-                    Text { text: "Original creature and achievement art"; color: Theme.ink; font.pixelSize: 18; font.bold: true }
+                Flickable { x: 12; y: 12; width: parent.width-24; height: parent.height-76; contentHeight: creditsText.height; clip: true; boundsBehavior: Flickable.StopAtBounds
+                Column { id: creditsText; spacing: 12; width: parent.width
+                    Text { width: parent.width; wrapMode: Text.WordWrap; text: "Original creature and achievement art"; color: Theme.ink; font.pixelSize: 18; font.bold: true }
                     Text { text: "TrainerOS contributors"; color: Theme.ink; font.pixelSize: 18 }
                     Text { text: "GNU General Public License 3.0 or later"; color: Theme.muted; font.pixelSize: 14 }
                     Text { width: parent.width; text: "Cuboid creatures, animations and abstract league medallions are drawn from original geometry. Game names and progress identities remain separate from their artwork."; color: Theme.muted; font.pixelSize: 14; wrapMode: Text.WordWrap; lineHeight: 1.2 }
                 }
+                }
 
-                    CapButton { flat: true; objectName: "credits-back"; x: 22; anchors.bottom: parent.bottom; anchors.bottomMargin: 48; width: 240; height: 38; label: "Categories"; selected: root.takesFocus && root.settings.controlsFocused && root.settings.category===6; onActivated: root.settings.selectCategory(6,false) }
+                    CapButton { flat: true; objectName: "credits-back"; x: 22; anchors.bottom: parent.bottom; anchors.bottomMargin: 8; width: 240; height: 44; label: "Categories"; selected: root.takesFocus && root.settings.controlsFocused && root.settings.category===6; onActivated: root.settings.selectCategory(6,false) }
                 }
                 Text {
                     objectName: "settings-status"
-                    visible: !root.settings.updatesOpen && root.settings.categoryId!=="controller" && root.settings.categoryId!=="game-input" && root.settings.category!==10 && root.settings.category!==11 && root.settings.category!==13 && root.settings.category!==14 && !root.settings.storage.open
+                    visible: !root.settings.updatesOpen && root.settings.category!==5 && root.settings.categoryId!=="controller" && root.settings.categoryId!=="game-input" && root.settings.category!==10 && root.settings.category!==11 && root.settings.category!==13 && root.settings.category!==14 && !root.settings.storage.open
                     x: 5; y: parent.height-58; width: parent.width-10; height: 52
                     text: root.statusText; textFormat: Text.PlainText
                     font.pixelSize: 14; color: root.localError.length ? Theme.textColor("#853b24") : Theme.muted

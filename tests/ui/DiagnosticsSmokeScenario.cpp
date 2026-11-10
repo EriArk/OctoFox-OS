@@ -323,8 +323,8 @@ void startDiagnosticsSmoke(QQuickWindow* window, ShellController& shell, Session
             check(!shell.trainer()->editing() && focus("settings-control-0"), "Cancel restores profile row");
             shell.settings()->selectPage("system"); break;
         case 70:
-            check(shell.settings()->category()==5 && focus("settings-control-0"), "Inline System category");
-            capture("settings-system"); press(down); press(down); press(a); break;
+            check(shell.settings()->category()==5 && focus("settings-control-4"), "Inline System category");
+            capture("settings-system"); for(int i=0;i<4;++i)press(down); press(a); break;
         case 71:
             check(!shell.modeConfirmation() && shell.notice().contains("ArmadaOS"), "Isolated preview cannot perform real power actions"); press(b); break;
         case 72:

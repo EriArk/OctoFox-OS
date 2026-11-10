@@ -157,6 +157,25 @@ private slots:
         flow.cancelRestart();flow.activate(11);QTRY_VERIFY(!flow.busy());QCOMPARE(flow.status(),"audit-ready");
         flow.activate(12);QTRY_VERIFY(!flow.busy());QCOMPARE(flow.status(),"cache-cleared");QVERIFY(flow.tasks().isEmpty());
     }
+    void presentationNavigationAndModalIsolation(){
+        QTemporaryDir root;auto source=softwareUpdateFixture(root.path(),UPDATE_PYTHON);
+        source.manager=source.helper;source.installationRoot=root.path();source.rollbackAvailable=true;
+        SoftwareUpdateController flow;flow.configure(source);
+        QVERIFY(!flow.recoveryOpen());
+        for(const auto& item:flow.pageActions())QVERIFY((!QStringList{"rollback","repair","audit","clean-cache","crates"}.contains(item.toMap()["id"].toString())));
+        flow.activate(14);QVERIFY(flow.recoveryOpen());
+        QCOMPARE(flow.pageActions().first().toMap()["id"].toString(),"rollback");
+        flow.activate(9);QVERIFY(flow.confirming());QCOMPARE(flow.focusIndex(),13);
+        flow.activate(0);QCOMPARE(flow.channel(),"alpha");QVERIFY(flow.confirming());
+        flow.activate(11);QVERIFY(!flow.busy());QVERIFY(flow.confirming());
+        flow.dispatch(Action::Right);QCOMPARE(flow.focusIndex(),9);
+        flow.dispatch(Action::Left);QCOMPARE(flow.focusIndex(),13);
+        flow.dispatch(Action::Confirm);QVERIFY(!flow.confirming());QVERIFY(flow.recoveryOpen());
+        flow.dispatch(Action::Back);QVERIFY(!flow.recoveryOpen());QCOMPARE(flow.focusIndex(),14);
+        flow.check();QTRY_VERIFY(!flow.busy());
+        QCOMPARE(flow.pageActions().first().toMap()["id"].toString(),"download");
+        flow.dispatch(Action::Up);QVERIFY(flow.focusIndex()!=9);
+    }
     void noSpaceHasActionableMessage(){
         QTemporaryDir root;SoftwareUpdateController flow;flow.configure(softwareUpdateFixture(root.path(),UPDATE_PYTHON));flow.check();QTRY_VERIFY(!flow.busy());
         softwareUpdateMode(root.path(),"space");flow.activate(3);QTRY_VERIFY(!flow.busy());QCOMPARE(flow.status(),"error");QVERIFY(flow.message().contains("Free some space"));

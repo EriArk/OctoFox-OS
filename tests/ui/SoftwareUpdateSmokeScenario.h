@@ -17,6 +17,11 @@ inline void startSoftwareUpdateSmoke(QQuickWindow* window,trainer::ShellControll
         auto* flow=shell.settings()->updates();
         const auto check=[&](bool ok,const QString& text){if(!ok){*failed=true;diagnostics<<text;}};
         const auto press=[&](SDL_GameControllerButton button){SDL_JoystickSetVirtualButton(joystick,button,1);input.poll();SDL_JoystickSetVirtualButton(joystick,button,0);input.poll();};
+        const auto focus=[&](int wanted){
+            for(int i=0;i<20;++i)press(SDL_CONTROLLER_BUTTON_DPAD_UP);
+            for(int i=0;i<20 && flow->focusIndex()!=wanted;++i)press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+            check(flow->focusIndex()==wanted,"Cannot focus update action "+QString::number(wanted));
+        };
         const auto capture=[&](const QString& name){const auto frame=window->grabWindow();check(!frame.isNull(),"Empty updates frame");if(!directory.isEmpty())check(frame.save(directory+"/"+name+".png"),"Failed update capture");};
         const std::function<QQuickItem*(QQuickItem*,const QString&)> find=[&](QQuickItem* item,const QString& name)->QQuickItem* {
             if(item->isVisible() && item->objectName()==name)return item;
@@ -36,7 +41,7 @@ inline void startSoftwareUpdateSmoke(QQuickWindow* window,trainer::ShellControll
         case 0: window->resize(960,540);press(SDL_CONTROLLER_BUTTON_START);shell.activate(0);shell.settings()->selectCategory(5);++*step;break;
         case 1:
             capture("system-960");
-            for(int i=0;i<4;++i)press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+
             if(shell.settings()->rowFocus()!=4){check(false,"Updates row was not focused");*step=99;break;}
             press(trainer::ControllerInput::ConfirmButton);++*step;break;
         case 2:
@@ -47,18 +52,18 @@ inline void startSoftwareUpdateSmoke(QQuickWindow* window,trainer::ShellControll
                 source.rollbackAvailable=true;flow->maintenanceGuard=[] {return QString();};flow->configure(source);
             }
             ++*step;break;
-        case 3: press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);++*step;break;
+        case 3: focus(2);++*step;break;
         case 4: tap("updates-check");++*step;break;
         case 5:
             if(flow->busy())break;
             check(flow->status()=="available" && shell.downloads()->tasks().isEmpty(),"Check downloaded payload or lost available result");
-            capture("available-960");for(int i=0;i<2;++i)press(SDL_CONTROLLER_BUTTON_DPAD_UP);*step=50;break;
+            capture("available-960");focus(3);*step=50;break;
         case 50:
-            capture("overview-960");for(int i=0;i<5;++i)press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);*step=6;break;
+            capture("overview-960");focus(5);*step=6;break;
         case 6: tap("updates-notes");++*step;break;
         case 7:
             check(flow->notesOpen(),"Release notes did not open");press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);capture("notes-960");tap("updates-notes-back");++*step;break;
-        case 8: press(SDL_CONTROLLER_BUTTON_DPAD_UP);press(SDL_CONTROLLER_BUTTON_DPAD_UP);++*step;break;
+        case 8: focus(3);++*step;break;
         case 9: tap("updates-download");++*step;break;
         case 10:
             if(flow->progress()<=0)break;
@@ -71,7 +76,7 @@ inline void startSoftwareUpdateSmoke(QQuickWindow* window,trainer::ShellControll
             press(trainer::ControllerInput::ConfirmButton);++*step;break;
         case 12:
             check(flow->status()=="paused","Reopening Settings discarded paused update");
-            for(int i=0;i<3;++i)press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);++*step;break;
+            focus(6);++*step;break;
         case 13: tap("updates-downloads");++*step;break;
         case 14:
             check(shell.downloads()->isOpen(),"Downloads link failed");capture("downloads-960");
@@ -81,21 +86,27 @@ inline void startSoftwareUpdateSmoke(QQuickWindow* window,trainer::ShellControll
             check(flow->status()=="prepared" && flow->installedVersion()=="fixture-6","Prepared update changed installed version");
             shell.downloads()->close();window->resize(1920,1080);++*step;break;
         case 16:
-            for(int i=0;i<6;++i)press(SDL_CONTROLLER_BUTTON_DPAD_UP);++*step;break;
+            focus(8);++*step;break;
         case 17:
             capture("prepared-1080");window->resize(960,540);
-            for(int i=0;i<8;++i)press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);*step=170;break;
+            focus(8);*step=170;break;
         case 170: tap("updates-apply");*step=171;break;
         case 171:
             check(!flow->busy() && flow->status()=="prepared" && flow->message().contains("Confirm"),"Apply skipped confirmation");
+            check(flow->focusIndex()==13,"Restart confirmation must default to Cancel");
+            flow->activate(0);check(flow->channel()=="alpha" && flow->confirming(),"Confirmation allowed an unrelated action");
+            shell.settings()->selectCategory(0);check(shell.settings()->updatesOpen() && shell.settings()->category()==5,"Page switch bypassed confirmation");
             capture("apply-confirm-960");press(trainer::ControllerInput::BackButton);
             check(!flow->message().contains("Confirm") && flow->status()=="prepared","Back did not cancel apply confirmation");
             window->resize(1920,1080);flow->activate(0);softwareUpdateMode(fixture,"error");flow->check();*step=18;break;
         case 18:
             if(flow->busy())break;
             check(flow->status()=="error","Offline error was reported as success");capture("error-1080");
-            for(int i=flow->focusIndex();i<flow->actions().size()-1;++i)press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);++*step;break;
-        case 19: tap("updates-back");check(!shell.settings()->updatesOpen(),"Touch Back failed");++*step;break;
+            focus(13);++*step;break;
+        case 19: tap("updates-back");check(!shell.settings()->updatesOpen(),"Touch Back failed");shell.settings()->cycleTheme(1);shell.settings()->openUpdates();focus(14);++*step;break;
+        case 20: tap("updates-recovery");++*step;break;
+        case 21: check(flow->recoveryOpen(),"Recovery did not open");capture("recovery-dark-1080");press(trainer::ControllerInput::BackButton);focus(2);window->resize(960,540);++*step;break;
+        case 22: check(!flow->recoveryOpen(),"Back did not leave Recovery");capture("updates-dark-960");++*step;break;
         default:
             check(warnings==0,"QML warnings in Software Updates");timer->stop();completed=true;
             if(!directory.isEmpty()){QFile report(directory+"/verification.txt");if(report.open(QIODevice::WriteOnly))report.write(((*failed?QString("FAILED\n"):QString("PASSED\n"))+diagnostics.join('\n')).toUtf8());}

@@ -16,6 +16,8 @@ QString command(const QStringList& arguments, QString& output) {
     output = QString::fromUtf8(process.readAllStandardOutput());
     if (process.exitStatus() != QProcess::NormalExit || process.exitCode()) {
         const auto detail = QString::fromUtf8(process.readAllStandardError()).trimmed();
+        if (detail.contains("System has not been booted") || detail.contains("Failed to connect to bus"))
+            return "Date and time settings are unavailable on this system.";
         return detail.isEmpty() ? QString("Couldn't change date and time.") : detail.left(350);
     }
     return {};

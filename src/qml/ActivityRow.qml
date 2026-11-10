@@ -2,6 +2,7 @@ import QtQuick
 
 Item {
     id: root
+    property bool flat: false
     property string label
     property string detail
     property string glyph: "chevron"
@@ -16,8 +17,8 @@ Item {
     signal activated()
     height: detail.length ? 59 : 44
     opacity: enabled ? 1 : .45
-    Rectangle { anchors.fill: parent; anchors.margins: 1; radius: 10; color: root.selected ? Theme.surfaceColor("#18edbd50") : "transparent"; border.width: root.selected ? 2 : 0; border.color: Theme.focusGlow }
-    Rectangle { x: 7; anchors.verticalCenter: parent.verticalCenter; width: 30; height: 30; radius: 15; visible: !root.person && !root.artwork
+    Rectangle { anchors.fill: parent; anchors.margins: 1; radius: 10; color: root.selected ? (root.flat ? Theme.selection : Theme.surfaceColor("#18edbd50")) : "transparent"; border.width: root.selected ? 2 : 0; border.color: root.flat ? Theme.accent : Theme.focusGlow }
+    Rectangle { x: 7; anchors.verticalCenter: parent.verticalCenter; width: 30; height: 30; radius: 15; visible: !root.flat && !root.person && !root.artwork
         gradient: Gradient { GradientStop { position: 0; color: Qt.lighter(root.accent,1.18) } GradientStop { position: 1; color: Qt.darker(root.accent,1.08) } }
         border.color: Theme.surfaceColor("#90fff7dc")
     }
@@ -25,7 +26,7 @@ Item {
     AccountAvatar { x: 3; anchors.verticalCenter: parent.verticalCenter; width: 37; height: 37; source: root.avatar; name: root.label; visible: root.person }
     Image { x: 0; anchors.verticalCenter: parent.verticalCenter; width: 39; height: 39; source: root.artwork; visible: !!root.artwork; sourceSize: Qt.size(96,96); fillMode: Image.PreserveAspectFit; asynchronous: true }
     Column { x: 47; anchors.verticalCenter: parent.verticalCenter; width: parent.width-x-(root.removable?37:23); spacing: 4
-        Text { width: parent.width; text: root.label; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 18; elide: Text.ElideRight; textFormat: Text.PlainText }
+        Text { width: parent.width; text: root.label; color: Theme.ink; font.family: root.flat ? Qt.application.font.family : Theme.displayFamily; font.pixelSize: root.flat ? 15 : 18; elide: Text.ElideRight; textFormat: Text.PlainText }
         Text { width: parent.width; visible: text.length; text: root.detail; color: Theme.muted; font.pixelSize: 12; elide: Text.ElideRight; textFormat: Text.PlainText }
     }
     Text { anchors.right: parent.right; anchors.rightMargin: 7; anchors.verticalCenter: parent.verticalCenter; visible: root.drillDown && !root.removable; text: "›"; color: Theme.muted; font.pixelSize: 22 }

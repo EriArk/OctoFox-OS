@@ -115,7 +115,25 @@ QVariantList SoftwareUpdateController::actions() const {
         row("repair",confirmation_=="repair"?"Confirm repair and restart":"Repair TrainerOS",!busy_ && !source_.manager.isEmpty()),
         row("audit","Check installed files",!busy_ && !source_.manager.isEmpty()),
         row("clean-cache","Clear download cache",!busy_ && !source_.manager.isEmpty()),
-        row("back",confirmation_.isEmpty()?"Back to System":"Cancel",!transitionPending())};
+        row("back",confirmation_.isEmpty()?(recoveryOpen_?"Back to Updates":"Back to System"):"Cancel",!transitionPending()),
+        row("recovery","Recovery & maintenance",!busy_ && !source_.manager.isEmpty())};
+}
+QVariantList SoftwareUpdateController::pageActions() const {
+    const auto all=actions();
+    QList<int> order;
+    if(confirming()) order={13,confirmation_=="apply"?8:confirmation_=="rollback"?9:10};
+    else if(recoveryOpen_) order={9,10,11,12,13};
+    else {
+        const int primary=status_=="prepared"?8:(all[3].toMap()["enabled"].toBool() || (busy_ && preparing_))?3:2;
+        order={primary};
+        if(all[4].toMap()["enabled"].toBool())order<<4;
+        order<<0<<1;
+        if(!notes().isEmpty())order<<5;
+        order<<6<<14<<13;
+    }
+    QVariantList rows;
+    for(int index:order){auto row=all[index].toMap();row["index"]=index;rows<<row;}
+    return rows;
 }
 QVariantList SoftwareUpdateController::tasks() const {
     if(!hasTask_)return {};
@@ -131,7 +149,12 @@ QVariantList SoftwareUpdateController::tasks() const {
     if(progress()>=0)row["progress"]=progress();
     return {row};
 }
-void SoftwareUpdateController::publish(){focus_=std::clamp(focus_,0,int(actions().size())-1);if(configured_)persistTimer_.start();emit changed();}
+void SoftwareUpdateController::publish(){
+    const auto rows=pageActions();bool found=false;
+    for(const auto& row:rows)if(row.toMap()["index"].toInt()==focus_)found=true;
+    if(!found && !rows.isEmpty())focus_=rows.first().toMap()["index"].toInt();
+    if(configured_)persistTimer_.start();emit changed();
+}
 QVariantMap SoftwareUpdateController::notification() const {
     if(notificationVersion_.isEmpty())return {};
     return {{"id","traineros-software-update"},{"provider","traineros-software"},{"name","TrainerOS update available"},
@@ -256,14 +279,16 @@ void SoftwareUpdateController::command(const QString& command) {
 void SoftwareUpdateController::activate(int index) {
     if(transitionPending())return;
     const auto rows=actions();if(index<0 || index>=rows.size())return;
+    const auto requested=rows[index].toMap()["id"].toString();
+    if(confirming() && requested!="back" && requested!=confirmation_)return;
     focus_=index;const auto row=rows[index].toMap();if(!row["enabled"].toBool()){publish();return;}
     const auto id=row["id"].toString();
     if(id=="apply" || id=="rollback" || id=="repair") {
-        if(confirmation_!=id){confirmation_=id;publish();return;}
+        if(confirmation_!=id){confirmation_=id;focus_=13;publish();return;}
         confirmation_.clear();maintenance(id);return;
     }
     if(id=="audit" || id=="clean-cache"){confirmation_.clear();maintenance(id);return;}
-    if(id=="back" && !confirmation_.isEmpty()){confirmation_.clear();publish();return;}
+    if(id=="back" && !confirmation_.isEmpty()){focus_=confirmation_=="apply"?8:confirmation_=="rollback"?9:10;confirmation_.clear();publish();return;}
     confirmation_.clear();
     if(id=="channel") {channel_=channel_=="alpha"?"beta":channel_=="beta"?"stable":"alpha";candidate_={};result_={};hasTask_=false;notesOpen_=false;error_.clear();lastChecked_.clear();notificationVersion_.clear();status_=configured_?"idle":"unconfigured";QSettings().setValue("softwareUpdates/channel",channel_);}
     else if(id=="background"){backgroundChecks_=!backgroundChecks_;QSettings().setValue("softwareUpdates/backgroundChecks",backgroundChecks_);if(backgroundChecks_)check(true);else initialCheck_.stop();}
@@ -273,14 +298,22 @@ void SoftwareUpdateController::activate(int index) {
     else if(id=="notes")notesOpen_=true;
     else if(id=="downloads")emit downloadsRequested();
     else if(id=="crates")emit cratesRequested();
-    else if(id=="back")emit backRequested();
+    else if(id=="recovery"){recoveryOpen_=true;focus_=9;}
+    else if(id=="back"){if(recoveryOpen_){recoveryOpen_=false;focus_=14;}else emit backRequested();}
     publish();
 }
 void SoftwareUpdateController::closeNotes(){notesOpen_=false;publish();}
 void SoftwareUpdateController::dispatch(Action action) {
     if(notesOpen_){if(action==Action::Back || action==Action::Confirm)closeNotes();else if(action==Action::Up || action==Action::Down)emit notesScrollRequested(action==Action::Up?-1:1);return;}
-    if(action==Action::Back){if(transitionPending())return;if(!confirmation_.isEmpty()){confirmation_.clear();publish();}else emit backRequested();return;}
-    if(action==Action::Up || action==Action::Down)focus_=std::clamp(focus_+(action==Action::Up?-1:1),0,int(actions().size())-1);
+    if(action==Action::Back){activate(13);return;}
+    if(action==Action::Up || action==Action::Down || (confirming() && (action==Action::Left || action==Action::Right))) {
+        const auto rows=pageActions();int current=0;
+        for(int i=0;i<rows.size();++i)if(rows[i].toMap()["index"].toInt()==focus_)current=i;
+        const int direction=(action==Action::Up || action==Action::Left)?-1:1;
+        int next=current+direction;
+        while(next>=0 && next<rows.size() && !rows[next].toMap()["enabled"].toBool())next+=direction;
+        if(next>=0 && next<rows.size())focus_=rows[next].toMap()["index"].toInt();
+    }
     if(action==Action::Confirm){activate(focus_);return;}
     publish();
 }

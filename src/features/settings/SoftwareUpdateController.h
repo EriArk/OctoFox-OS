@@ -39,6 +39,9 @@ class SoftwareUpdateController final : public QObject {
     Q_PROPERTY(QVariantList actions READ actions NOTIFY changed)
     Q_PROPERTY(bool transitionPending READ transitionPending NOTIFY changed)
     Q_PROPERTY(bool confirming READ confirming NOTIFY changed)
+    Q_PROPERTY(QVariantList pageActions READ pageActions NOTIFY changed)
+    Q_PROPERTY(bool recoveryOpen READ recoveryOpen NOTIFY changed)
+    Q_PROPERTY(bool backgroundChecks READ backgroundChecks NOTIFY changed)
 public:
     explicit SoftwareUpdateController(QObject* parent = nullptr);
     ~SoftwareUpdateController() override;
@@ -62,6 +65,9 @@ public:
     bool notesOpen() const { return notesOpen_; }
     int focusIndex() const { return focus_; }
     QVariantList actions() const;
+    QVariantList pageActions() const;
+    bool recoveryOpen() const { return recoveryOpen_; }
+    bool backgroundChecks() const { return backgroundChecks_; }
     QVariantList tasks() const;
     QVariantMap notification() const;
     void dismissNotification();
@@ -98,8 +104,9 @@ private:
     QString channel_, status_ = "unconfigured", phase_, error_, lastChecked_, stopReason_, notifiedVersion_, notificationVersion_;
     QString operation_, confirmation_, expectedData_, expectedExecutable_, persistenceError_;
     qint64 done_ = 0, total_ = 0;
-    int focus_ = 0;
+    int focus_ = 2;
     bool configured_ = false, busy_ = false, preparing_ = false, background_ = false;
+    bool recoveryOpen_ = false;
     bool backgroundChecks_ = true, notesOpen_ = false, hasTask_ = false, protocolError_ = false;
 };
 }
