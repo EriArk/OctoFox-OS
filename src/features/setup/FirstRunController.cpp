@@ -140,7 +140,7 @@ QVariantList FirstRunController::rows() const {
     } else if(stage()=="accounts") {
         add("TrainerOS · Fluxer", "Online profile, friends, chats and invitations");
         add("RetroAchievements", "Earn achievements in supported games");
-        add("ScreenScraper", "Download game covers and information");
+        add("ScreenScraper", "Covers and game info · recommended for multiplayer");
         add("Continue", "You can sign in later");
     } else if (stage() == "ready") { add("Let's go", "Open Home"); add("Trainer PIN", "Optional · protect this local profile"); }
     return result;

@@ -16,7 +16,7 @@ Item {
     readonly property string explanation: social
         ? "Fluxer connects friends, chats and invitations. Sign in to TrainerOS with the same Fluxer account for your online profile, level and Sparks. Both can wait until later."
         : achievements ? "Sign in to earn and sync achievements in supported games. Without an account, you can still play your local games."
-        : "Sign in to download covers and game information. Without an account, imported games and any artwork you already have stay available."
+        : "Sign in for covers, game info and player counts. Recommended for multiplayer; optional for local play."
     Rectangle { anchors.fill: parent; radius: 12; color: Theme.paper }
     Item {
         anchors.fill: parent; anchors.margins: 20; visible: !root.flow.registration
