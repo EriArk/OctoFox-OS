@@ -4,7 +4,10 @@ import TrainerOS 1.0
 FocusScope {
     id: root
     required property var shell
-    readonly property int faceIndex: ["chats","communities","friends","lobby","recent"].indexOf(shell.socialSurface)
+    readonly property int faceIndex: ["chats","communities","friends","lobby","recent","groups","contacts"].indexOf(shell.socialSurface)
+    readonly property bool groups: shell.socialSurface === "groups"
+    readonly property bool friends: shell.socialSurface === "contacts"
+    readonly property bool listSurface: faceIndex < 2 || groups || friends
     readonly property var social: shell.social
     readonly property var account: social.account
     readonly property bool connected: account.state === "connected" || account.state === "connecting"
@@ -49,9 +52,9 @@ FocusScope {
     Component.onCompleted: if (takesFocus) forceActiveFocus()
     PageHeader {
         id: heading
-        visible: root.faceIndex !== 3 && (!root.connected || root.faceIndex >= 4)
+        visible: root.faceIndex !== 3 && (!root.connected || root.faceIndex === 4)
         height: visible ? implicitHeight : 0
-        title: [root.social.contacts ? "Friends" : "Messages", "Communities", "Discover", "Lobby", "Recently together"][root.faceIndex]
+        title: ["Messages", "Communities", "Search", "Lobby", "Recently together", "Groups", "Friends"][root.faceIndex]
         subtitle: root.connected ? (root.account.name || "") + " · " + (root.faceIndex === 1 && root.account.communityStatus ? root.account.communityStatus : root.account.status || "") : "A little closer, wherever you are."
         Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering;
             anchors { right: parent.right; rightMargin: Theme.pageMargin; bottom: parent.bottom }
@@ -101,7 +104,7 @@ FocusScope {
     }
     Item {
         id: conversationPage
-        visible: root.connected && root.faceIndex < 2
+        visible: root.connected && root.listSurface
         anchors { top: heading.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
         Rectangle { anchors.fill: parent; color: Theme.paper }
         Rectangle { x: people.x + people.width + 12; y: 12; width: 1; height: parent.height-28; color: Theme.chassis; opacity: .18 }
@@ -111,25 +114,25 @@ FocusScope {
             icon: "arrow-left"; label: "Back to communities"; onClicked: root.social.communityBack()
         }
         Text { x: root.faceIndex===1 && root.social.communityOpen ? 49 : 20; y: 12; width: people.width-x-42
-            text: root.faceIndex===1 ? root.social.communityTitle : "Conversations"
+            text: root.faceIndex===1 ? root.social.communityTitle : root.groups ? "Groups" : root.friends ? "Friends" : "Messages"
             font.family: Theme.displayFamily; font.pixelSize: 18; color: Theme.ink; elide: Text.ElideRight
             MouseArea { anchors.fill: parent; enabled: root.social.communityOpen; onClicked: {root.anchorMenu(parent);root.social.communityInfo()} }
         }
         SocialIconButton {
             x: people.x+people.width-30; y: 6; tint: Theme.blue
             highlighted: root.social.focusIndex<0 && !root.social.reading && !root.social.communityOpen
-            objectName: "conversation-list-actions"; icon: root.social.communityOpen && root.faceIndex===1 ? "info" : "plus"
-            label: root.faceIndex===0 ? "New conversation" : root.social.communityOpen ? "Community info" : "Create community"
+            objectName: "conversation-list-actions"; icon: root.friends ? "magnifying-glass" : root.social.communityOpen && root.faceIndex===1 ? "info" : "plus"
+            label: root.friends ? "Find a friend" : root.groups ? "New group" : root.faceIndex===0 ? "New conversation" : root.social.communityOpen ? "Community info" : "Create community"
             onClicked: {root.anchorMenu(this);if(root.faceIndex===1 && root.social.communityOpen)root.social.communityInfo();else root.social.collectionOptions()}
         }
         Item { id: filterChip; x: 20; y: 42; width: people.width-16; height: visible?29:0
-            visible: root.faceIndex===0 && !!root.social.peopleFilter
+            visible: root.faceIndex!==1 && !!root.social.peopleFilter
             Text { width: parent.width-30; anchors.verticalCenter: parent.verticalCenter; text: "Filter: "+root.social.peopleFilter; color: Theme.muted; font.pixelSize: 12; elide: Text.ElideRight; textFormat: Text.PlainText }
             SocialIconButton { anchors.right: parent.right; width: 28; height: 28; icon: "x"; label: "Show all conversations"; onClicked: root.social.clearPeopleFilter() }
         }
         ListView {
             id: people; objectName: "social-people"
-            x: 12; y: filterChip.visible ? 77 : 51; width: Math.max(230,Math.min(340,parent.width*.31)); height: parent.height-y-29
+            x: 12; y: filterChip.visible ? 77 : 51; width: Math.max(200,Math.min(310,parent.width*.32)); height: parent.height-y-29
             clip: true; spacing: 2; model: root.social.rows; currentIndex: root.social.focusIndex
             onCurrentIndexChanged: positionViewAtIndex(currentIndex,ListView.Contain)
             section.property: "section"
@@ -153,7 +156,7 @@ FocusScope {
                 }
                 Column { x: 57; y: 11; width: parent.width-x-29; spacing: 4
                     Text { width: parent.width; text: (modelData.pinned ? "· " : "")+modelData.name; color: Theme.ink; font.pixelSize: 15; font.bold: !!modelData.unread; elide: Text.ElideRight; textFormat: Text.PlainText }
-                    Text { width: parent.width; text: (modelData.kind==="groups" ? "Group · " : "")+(modelData.detail || (modelData.kind==="person" ? "Personal conversation" : modelData.kind==="groups" ? "Conversation" : "")); color: Theme.muted; font.pixelSize: 11; elide: Text.ElideRight; textFormat: Text.PlainText }
+                    Text { width: parent.width; text: root.friends ? (modelData.marker || modelData.presence || "Friend") : (modelData.detail || (modelData.kind==="person" ? "Personal conversation" : modelData.kind==="groups" ? "Group conversation" : "")); color: Theme.muted; font.pixelSize: 11; elide: Text.ElideRight; textFormat: Text.PlainText }
                 }
                 SocialIconButton { anchors { right: parent.right; verticalCenter: parent.verticalCenter } width: 28; icon: "dots-three"; label: "Options for "+modelData.name
                     onClicked: {root.anchorMenu(this);root.social.contextRow(index)} }
@@ -161,18 +164,18 @@ FocusScope {
         }
         Text { anchors.right: parent.right; anchors.rightMargin: 20; y: parent.height-12; text: "Powered by Fluxer"; font.pixelSize: 9; color: Theme.muted; opacity: .65 }
         Text { x: people.x+8; y: people.y+48; width: people.width-16; visible: !people.count
-            text: root.faceIndex===1 ? root.social.communityOpen ? "No text channels available." : "Your communities will appear here." : root.social.peopleFilter ? "No matching conversations" : "No conversations yet. Use + to choose a friend or create a group."
+            text: root.faceIndex===1 ? root.social.communityOpen ? "No text channels available." : "Your communities will appear here." : root.social.peopleFilter ? "No matches" : root.friends ? "Friends and requests will appear here. Find people in Search." : root.groups ? "No groups yet. Use + to bring friends together." : "No conversations yet. Use + to choose a friend."
             wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter; color: Theme.muted; font.pixelSize: 14 }
         ConversationPane {
             anchors { left: people.right; leftMargin: 29; right: parent.right; rightMargin: 20; top: parent.top; topMargin: 6; bottom: parent.bottom; bottomMargin: 4 }
             id: selectedConversation; objectName: "chats-conversation"
-            visible: root.social.conversation && (root.faceIndex===0 ? !root.social.conversationInfo.guild : root.social.communityOpen && !!root.social.conversationInfo.guild)
-            social: root.social; active: root.takesFocus && root.connected && root.faceIndex < 2; showConnectionStatus: false
+            visible: !root.friends && root.social.conversation && (root.faceIndex===1 ? root.social.communityOpen && !!root.social.conversationInfo.guild : !root.social.conversationInfo.guild && (root.social.conversationInfo.kind==="groups")===root.groups)
+            social: root.social; active: root.takesFocus && root.connected && root.listSurface; showConnectionStatus: false
             onMenuAnchored: item => root.anchorMenu(item)
         }
         Column { visible: !selectedConversation.visible; x: people.width + 50; width: parent.width - x - 30; anchors.verticalCenter: parent.verticalCenter; spacing: 12
-            Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; text: root.faceIndex === 1 ? "Communities and channels" : "Your conversations"; font.family: Theme.displayFamily; font.pixelSize: 25; color: Theme.ink; horizontalAlignment: Text.AlignHCenter }
-            Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; text: root.account.status && root.account.status!=="Connected" ? root.account.status : root.faceIndex===1 ? "Choose a community, then a channel." : "Choose a conversation on the left, or use + to start one."; font.pixelSize: 15; color: Theme.muted; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap }
+            Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; text: root.friends ? "Friends and requests" : root.faceIndex === 1 ? "Communities and channels" : root.groups ? "Your groups" : "Your conversations"; font.family: Theme.displayFamily; font.pixelSize: 25; color: Theme.ink; horizontalAlignment: Text.AlignHCenter }
+            Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; text: root.account.status && root.account.status!=="Connected" ? root.account.status : root.friends ? "Choose a person to message, view their profile or manage a friend request." : root.faceIndex===1 ? "Choose a community, then a channel." : "Choose a conversation on the left, or use + to start one."; font.pixelSize: 15; color: Theme.muted; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap }
         }
     }
     DiscoverPane {

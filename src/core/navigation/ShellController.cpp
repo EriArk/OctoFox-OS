@@ -690,7 +690,7 @@ void ShellController::openOnlineFace(const QString& face) {
 }
 void ShellController::selectChatFace(const QString& face) {
     if(page_!=OnlinePage || onlineFace_!="chats" || !pairedNavigationAvailable() || navigationLocked()
-       || !QStringList{"chats","communities","friends"}.contains(face))return;
+       || localModalOpen() || keyboard_.isOpen() || !QStringList{"chats","groups","communities","friends","contacts"}.contains(face))return;
     socialFace_=face;social_.setFace(face);chatNavigationFocused_=false;emit changed();
 }
 void ShellController::selectFace(int index) {
@@ -1120,7 +1120,7 @@ void ShellController::restoreNavigation(const QJsonObject& state) {
     if(target=="worlds" || target=="collections" || target=="multiverse")target="games";
     if(oldFirst || oldSecond){target="gamehub";hubFace_="adapter";}
     socialFace_=state["socialFace"].toString("chats");
-    if(!QStringList{"chats","messages","groups","communities","friends","discover","lobby","recent"}.contains(socialFace_))socialFace_="chats";
+    if(!QStringList{"chats","messages","groups","communities","friends","contacts","discover","lobby","recent"}.contains(socialFace_))socialFace_="chats";
     if(socialFace_=="messages")socialFace_="chats";
     if(socialFace_=="discover")socialFace_="friends";
     if(socialFace_=="lobby"){if(target=="online")onlineFace_="lobby";socialFace_="chats";}
@@ -1128,10 +1128,6 @@ void ShellController::restoreNavigation(const QJsonObject& state) {
     bool legacyProfile=target=="gamehub" && (hubFace_=="overview" || hubFace_=="ra");
     QString legacyProfileFace=hubFace_;
     if(legacyProfile)target="home";
-    const bool legacyGroups=socialFace_=="groups";
-    // Provider still owns conversation IDs/drafts. Group presentation migration
-    // does not create a second message store or discard its selected channel.
-    if(legacyGroups)socialFace_="chats";
     goToPage(qMax(0,int(roots.indexOf(target))));
     homeAdventureId_=state["homeAdventure"].toString();homeResumeId_=state["homeResume"].toString();
     homeResumeSource_=ResumeSource::fromJson(state["homeResumeSource"].toObject());
@@ -2446,17 +2442,15 @@ void ShellController::dispatch(Action action) {
         if (page_ == OnlinePage) {
             if(onlineFace_=="bazaar"){if(action==Action::Back)goToPage(HomePage);}
             else if(onlineFace_=="chats" && chatNavigationFocused_) {
-                if(action==Action::Left || action==Action::Right) {
-                    const QStringList faces{"chats","communities","friends"};
-                    selectChatFace(faces[(qMax(0,faces.indexOf(socialFace_))+(action==Action::Right?1:2))%3]);
+                if(action==Action::Up || action==Action::Down) {
+                    const QStringList faces{"friends","chats","groups","communities","contacts"};
+                    selectChatFace(faces[qBound(0,faces.indexOf(socialFace_)+(action==Action::Down?1:-1),int(faces.size())-1)]);
                     chatNavigationFocused_=true;
-                } else if(action==Action::Down || action==Action::Confirm)chatNavigationFocused_=false;
+                } else if(action==Action::Right || action==Action::Confirm)chatNavigationFocused_=false;
                 else if(action==Action::Back)goToPage(HomePage);
                 emit changed();
             } else if(onlineFace_=="chats" && social_.sectionRoot()
-                      && (action==Action::Back || (action==Action::Up
-                          && (social_.account()["state"]!="connected"
-                              || (socialFace_=="friends" ? social_.discover()["area"]=="search" : social_.focusIndex()<0))))) {
+                      && (action==Action::Back || (action==Action::Left && socialFace_!="friends"))) {
                 chatNavigationFocused_=true;emit changed();
             } else social_.dispatch(action);
             return;

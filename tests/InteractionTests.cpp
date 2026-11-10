@@ -678,9 +678,9 @@ private slots:
         QCOMPARE(shell.socialFace(),"friends");QCOMPARE(shell.onlineFace(),"chats");shell.keyboard()->cancel();
         shell.openOnlineFace("bazaar");QVERIFY(!shell.socialActive());
         shell.restoreNavigation(discover);QCOMPARE(shell.socialFace(),"friends");QCOMPARE(shell.onlineFace(),"chats");
-        shell.dispatch(Action::Up);QVERIFY(shell.chatNavigationFocused());
-        shell.dispatch(Action::Right);QCOMPARE(shell.socialFace(),"chats");
-        shell.dispatch(Action::Down);QVERIFY(!shell.chatNavigationFocused());
+        shell.dispatch(Action::Back);QVERIFY(shell.chatNavigationFocused());
+        shell.dispatch(Action::Down);QCOMPARE(shell.socialFace(),"chats");
+        shell.dispatch(Action::Right);QVERIFY(!shell.chatNavigationFocused());
         shell.dispatch(Action::ToggleContinue);QVERIFY(shell.drawerOpen());shell.dispatch(Action::Back);
         const auto checkpoint=shell.navigationState();
         shell.openProfile();shell.activate(3,"profile");QCOMPARE(shell.profileRoute(),"ra");

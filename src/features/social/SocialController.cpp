@@ -204,13 +204,12 @@ void SocialController::setOwner(QString owner) {
     syncingLocalLobby_=false;emit ownerRequested(owner_,generation_);emit changed();
 }
 void SocialController::setFace(QString face) {
-    if(face=="groups")face="chats";
     if(face_==face)return;
     faceRoutes_[face_]={{"channel",snapshot_["channel"]},{"focus",focus_},{"community",communityId_},
-        {"reading",reading_},{"message",messages().value(messageFocus_).toMap()["id"]},{"control",conversationControl_}};
+        {"reading",reading_},{"message",messages().value(messageFocus_).toMap()["id"]},{"control",conversationControl_},{"filter",peopleFilter_}};
     saveSocialPreferences();closeMenu();selection_.stop();
     partyFocus_=false;partyIndex_=0;face_=std::move(face);reading_=false;contacts_=false;conversationControl_=-1;enterConversationPerson_.clear();enterConversationChannel_.clear();
-    const auto route=faceRoutes_.value(face_);focus_=route.value("focus",0).toInt();
+    const auto route=faceRoutes_.value(face_);focus_=route.value("focus",0).toInt();peopleFilter_=route["filter"].toString();
     pendingFaceRoute_=route;
     if(route["channel"]==snapshot_["channel"]) {
         reading_=route.value("reading",false).toBool();
@@ -309,11 +308,12 @@ QString SocialController::notificationFace() const {
     if(!lobby_.invitation().isEmpty()&&toastChannel_=="lobby:"+lobby_.invitation()["lobby"].toString())return "lobby";
     for(const auto& value:notifications()) {
         const auto row=value.toMap();
-        if((row["activity"].toBool()&&row["channel"]==toastChannel_)||(row["request"].toBool()&&"request:"+row["id"].toString()==toastChannel_))return "chats";
+        if(row["activity"].toBool()&&row["channel"]==toastChannel_)return "chats";
+        if(row["request"].toBool()&&"request:"+row["id"].toString()==toastChannel_)return "contacts";
     }
     for(const auto& value:snapshot_["chats"].toList()) {
         const auto row=value.toMap();if(row["id"]==toastChannel_ && (row["unread"].toInt()>0||row["ringing"].toBool()))
-            return !row["guild"].toString().isEmpty()?QString("communities"):QString("chats");
+            return !row["guild"].toString().isEmpty()?QString("communities"):row["kind"]=="groups"?QString("groups"):QString("chats");
     }
     return {};
 }
@@ -465,7 +465,7 @@ QString SocialController::notificationFaceAt(int index) const {
     const auto list=notifications();if(index<0||index>=list.size())return {};
     const auto row=list[index].toMap();
     if(row["lobby"].toBool()||row["lobbyReminder"].toBool())return "lobby";
-    return row["request"].toBool()||row["activity"].toBool()?QString("chats"):!row["guild"].toString().isEmpty()?QString("communities"):QString("chats");
+    return row["request"].toBool()?QString("contacts"):row["activity"].toBool()?QString("chats"):!row["guild"].toString().isEmpty()?QString("communities"):row["kind"]=="groups"?QString("groups"):QString("chats");
 }
 void SocialController::openNotificationAt(int index) {
     const auto list=notifications();const auto face=notificationFaceAt(index);if(face.isEmpty())return;
@@ -493,7 +493,7 @@ void SocialController::openNotificationAt(int index) {
     setFace(face);selection_.stop();reading_=false;contacts_=false;
     if(row["request"].toBool()) {
         dismissedNotifications_[row["id"].toString()]=notificationStamp(row);saveNotifications();
-        profile(row["id"].toString());
+        profile(row["id"].toString(),true);
         const auto people=rows();for(int i=0;i<people.size();++i)if(people[i].toMap()["id"]==row["id"]){focus_=i;break;}
     } else {
         communityId_=row["guild"].toString();
@@ -691,21 +691,26 @@ QVariantList SocialController::quickPeople() const {
 bool SocialController::openQuickConversation(const QString& id) {
     for(const auto& value:snapshot_.value("chats").toList()) {
         const auto row=value.toMap();if(row["id"]!=id)continue;
-        setFace(!row["guild"].toString().isEmpty()?"communities":"chats");
+        setFace(!row["guild"].toString().isEmpty()?"communities":row["kind"]=="groups"?"groups":"chats");
         if(!row["guild"].toString().isEmpty())communityId_=row["guild"].toString();
         contacts_=reading_=false;selection_.stop();
         emit commandRequested("conversation",{{"id",id}});emit changed();return true;
     }return false;
 }
 QVariantList SocialController::rows() const {
-    if(face_!="chats"&&face_!="communities")return {};
+    if(face_!="chats"&&face_!="groups"&&face_!="contacts"&&face_!="communities")return {};
     // Presentation focus and message/voice updates do not rebuild the contact list.
     const QVariantMap inputs{{"face",face_},{"owner",owner_},{"user",snapshot_.value("userId")},
         {"friends",snapshot_.value("friends")},{"chats",snapshot_.value("chats")},
         {"communities",snapshot_.value("communities")},{"community",communityId_},{"filter",peopleFilter_}};
     if(inputs!=rowInputs_ || rowPeoplePins_!=pinnedPeople_ || rowGroupPins_!=pinnedGroups_ || rowCommunityPins_!=pinnedCommunities_){
         rowInputs_=inputs;rowPeoplePins_=pinnedPeople_;rowGroupPins_=pinnedGroups_;rowCommunityPins_=pinnedCommunities_;
-        rowCache_=face_=="chats"?inboxRows():communityRows();
+        if(face_=="communities")rowCache_=communityRows();
+        else if(face_=="contacts"){
+            rowCache_.clear();const auto people=peopleRows();
+            for(int type:{3,4,1})for(const auto& value:people){auto row=value.toMap();if(row["type"].toInt()!=type)continue;
+                row["section"]=type==3?"Requests":type==4?"Pending":"Friends";rowCache_.append(row);}
+        }else{rowCache_=inboxRows();rowCache_.removeIf([this](const QVariant& v){return (v.toMap()["kind"]=="groups")!=(face_=="groups");});}
     }
     return rowCache_;
 }
@@ -714,7 +719,7 @@ QString SocialController::conversationName() const {
     return "Conversation";
 }
 bool SocialController::sectionRoot() const {
-    if (!QStringList{"chats", "communities", "friends"}.contains(face_) || reading_ || partyFocus_
+    if (!QStringList{"chats", "groups", "communities", "friends", "contacts"}.contains(face_) || reading_ || partyFocus_
         || !menu_.isEmpty() || stream_.active() || snapshot_["state"] == "authorizing") return false;
     if (face_ == "friends") return discoverPreview_.isEmpty() && !discoverAll_;
     return face_ == "communities" ? !communityOpen() : peopleFilter_.isEmpty();
@@ -747,9 +752,9 @@ QVariantList SocialController::hints() const {
         h("A",!discoverPreview_.isEmpty()?"Join":discoverArea_=="search"?"Search":"Open");h("B",sectionRoot()?"Sections":discoverAll_?"Discover":"Back");
         if(discoverArea_=="search")h("←→","People / Communities");
     } else {
-        if(contacts_)h("A",rows().value(focus_).toMap()["type"].toInt()==3?"Accept request":"Conversation");
+        if(face_=="contacts"&&focus_>=0)h("A","Actions");
         else {
-            QString action = focus_<0?(communityOpen()?"Back":face_=="communities"?"Create":"New conversation"):"Open";
+            QString action = focus_<0?(communityOpen()?"Back":face_=="communities"?"Create":face_=="groups"?"New group":face_=="contacts"?"Find friend":"New conversation"):"Open";
             if(reading_) {
                 switch(conversationControl_) {
                 case 0: action="Info"; break;
@@ -782,6 +787,7 @@ void SocialController::activate(int index) {
     if(index<0){if(communityOpen())communityBack();else collectionOptions();return;}
     const auto list=rows();if(index>=list.size())return;
     focus_=index;reading_=false;selection_.stop();const auto row=list[index].toMap();
+    if(face_=="contacts"){profile(row["id"].toString(),true);return;}
     if(row["kind"]=="community") {
         communityId_=row["id"].toString();focus_=0;saveSocialPreferences();
         emit commandRequested("guild",{{"id",communityId_}});
@@ -1144,9 +1150,12 @@ void SocialController::contextRow(int index) {
     emit changed();
 }
 void SocialController::collectionOptions() {
-    selection_.stop();menuMode_="collection";menuTitle_=face_=="chats"?"Conversations":"Communities";menuDetail_.clear();menuFocus_=0;
+    if(face_=="contacts"){filterPeople();return;}
+    selection_.stop();menuMode_="collection";menuTitle_=face_=="chats"?"Messages":face_=="groups"?"Groups":"Communities";menuDetail_.clear();menuFocus_=0;
     if(face_=="chats"){
-        menu_={"New conversation","New group","Find conversation"};menuCommands_={"new-message","create-group","filter-conversations"};
+        menu_={"New conversation","Find conversation"};menuCommands_={"new-message","filter-conversations"};
+    }else if(face_=="groups"){
+        menu_={"New group","Find group"};menuCommands_={"create-group","filter-conversations"};
     }else{menu_={"New community"};menuCommands_={"create-community"};}
     emit changed();
 }
@@ -1593,7 +1602,7 @@ void SocialController::dispatch(Action action) {
         auto& focus=reading_?messageFocus_:focus_;const int count=reading_?messages().size():rows().size();
         focus=qBound(reading_?0:-1,focus+(action==Action::Up?-1:1),qMax(0,count-1));
 
-    } else if(action==Action::Right&&conversation()){
+    } else if(action==Action::Right&&(conversation()||face_=="contacts")){
         if(focus_>=0&&focus_<rows().size())activate(focus_);
         else {reading_=true;conversationControl_=messages().isEmpty()?11:-1;}
     }
@@ -1604,7 +1613,7 @@ void SocialController::dispatch(Action action) {
             if(m["attachments"].toList().size()==1)selectMenu(0);
         }
     }else if(conversation()&&(rows().value(focus_).toMap()["id"]==snapshot_["channel"]||rows().value(focus_).toMap()["channel"]==snapshot_["channel"])){reading_=true;conversationControl_=messages().isEmpty()?11:-1;}else activate(focus_);}
-    else if(action==Action::Back){if(reading_)reading_=false;else if(face_=="chats"&&!peopleFilter_.isEmpty())clearPeopleFilter();else communityBack();}
+    else if(action==Action::Back){if(reading_)reading_=false;else if((face_=="chats"||face_=="groups"||face_=="contacts")&&!peopleFilter_.isEmpty())clearPeopleFilter();else communityBack();}
     else if(action==Action::Secondary){if(face_=="groups"&&!conversation())openPeople("create-group");
         else if(face_=="communities"&&!conversation()){textPurpose_="create-community";emit textRequested("Community name",QString(),100);}else compose();}
     else if(action==Action::ChangeView)compose();

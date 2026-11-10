@@ -15,6 +15,22 @@ void sortRows(QVariantList& rows) {
     });
 }
 }
+QVariantMap SocialController::sectionCounts() const {
+    QVariantMap counts{{"chats",0},{"groups",0},{"communities",0},{"contacts",0}};
+    if(snapshot_["state"]!="connected"&&snapshot_["state"]!="connecting")return counts;
+    QSet<QString> blocked;
+    for(const auto& v:snapshot_["friends"].toList()){
+        const auto p=v.toMap();if(p["type"].toInt()==2)blocked.insert(p["id"].toString());
+        if(p["type"].toInt()==3&&!p["service"].toBool())counts["contacts"]=counts["contacts"].toInt()+1;
+    }
+    for(const auto& v:snapshot_["chats"].toList()){
+        const auto row=v.toMap();if(row["socialHidden"].toBool()||row["service"].toBool()||row["muted"].toBool())continue;
+        const auto members=row["members"].toList();if(row["kind"]=="chats"&&members.size()==1&&blocked.contains(members.first().toMap()["id"].toString()))continue;
+        const auto key=!row["guild"].toString().isEmpty()?QString("communities"):row["kind"]=="groups"?QString("groups"):QString("chats");
+        counts[key]=counts[key].toInt()+qMax(0,row["unread"].toInt());
+    }
+    return counts;
+}
 QVariantList SocialController::peopleRows() const {
     QMap<QString,QVariantMap> people;QSet<QString> blocked;
     const auto self=snapshot_["userId"].toString();
@@ -77,7 +93,7 @@ QString SocialController::communityTitle() const {
     for(const auto& v:snapshot_["communities"].toList())if(v.toMap()["id"]==communityId_)return v.toMap()["name"].toString();
     return "Communities";
 }
-void SocialController::filterPeople(){textPurpose_="people-filter";emit textRequested("Find a conversation",peopleFilter_,100);}
+void SocialController::filterPeople(){textPurpose_="people-filter";emit textRequested(face_=="contacts"?"Find a friend":face_=="groups"?"Find a group":"Find a conversation",peopleFilter_,100);}
 void SocialController::clearPeopleFilter(){peopleFilter_.clear();focus_=0;emit changed();}
 void SocialController::communityBack(){
     if(communityId_.isEmpty())return;
@@ -120,7 +136,7 @@ void SocialController::communityInfo(){
     menu_<<(owner?"Delete community":"Leave community");menuCommands_<<(owner?"ask-delete-community":"ask-leave-community");emit changed();
 }
 bool SocialController::dispatchConversationControls(Action action) {
-    if(face_!="chats"&&face_!="communities")return false;
+    if(face_!="chats"&&face_!="groups"&&face_!="communities")return false;
     if(action==Action::Back||action==Action::Left) {enterConversationPerson_.clear();enterConversationChannel_.clear();}
     if(!reading_||!conversation())return false;
     const bool hasCall=!snapshot_["voice"].toMap()["channel"].toString().isEmpty();

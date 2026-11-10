@@ -1213,7 +1213,7 @@ void FluxerSession::command(QString operation, QVariantMap args) {
     }
     if(operation=="conversation") {
         const auto id=args["id"].toString();if(!channels_.contains(id))return;
-        face_=channelKind(channels_[id])=="groups"?"chats":channelKind(channels_[id]);guild_=channels_[id]["guild_id"].toString();
+        face_=channelKind(channels_[id]);guild_=channels_[id]["guild_id"].toString();
         if(!guild_.isEmpty())remember("guild",guild_);
         openConversation(id);publish();return;
     }
@@ -1279,12 +1279,11 @@ void FluxerSession::command(QString operation, QVariantMap args) {
     }
     if(operation=="face") {
         retainHistory();requestedDm_.clear();face_=args["face"].toString();
-        if(face_=="groups"){face_="chats";if(preferred_["messages"].isEmpty())preferred_["messages"]=preferred_["groups"]; }
         if(face_=="communities")guild_=args["guild"].toString();
         const auto target=args["channel"].toString();
         if(channels_.contains(target)&&!hiddenSocialGroup(target)) {
             const auto c=channels_[target];const auto kind=channelKind(c);
-            if((face_=="chats"&&(kind=="chats"||kind=="groups"))||(face_=="communities"&&kind=="communities"&&!guild_.isEmpty()&&c["guild_id"]==guild_))openConversation(target);
+            if(((face_=="chats"&&kind=="chats")||(face_=="groups"&&kind=="groups"))||(face_=="communities"&&kind=="communities"&&!guild_.isEmpty()&&c["guild_id"]==guild_))openConversation(target);
         }
         if(face_=="communities"&&!guild_.isEmpty()&&guilds_.contains(guild_)){command("guild",{{"id",guild_}});return;}
         ensureConversation();checkCommunities();publish();return;
@@ -1518,7 +1517,7 @@ bool FluxerSession::mutate(const QString& operation,const QVariantMap& args) {
             ensureConversation();
         } else if(operation=="create-group"||operation=="rename-group") {
             const auto updated=r.body.object();const auto updatedId=updated["id"].toString();
-            if(idValid(updatedId)&&updated["type"].toInt()==3){channels_[updatedId]=updated;if(operation=="create-group")ordinaryGroups_.insert(updatedId);if(operation=="create-group"&&face_=="chats")openConversation(updatedId);}
+            if(idValid(updatedId)&&updated["type"].toInt()==3){channels_[updatedId]=updated;if(operation=="create-group")ordinaryGroups_.insert(updatedId);if(operation=="create-group"&&face_=="groups")openConversation(updatedId);}
         } else {
             const auto revision=channelRevision_;
             request("GET","/v1/channels/"+channel,{},[this,channel,revision](Reply reply){
@@ -1543,17 +1542,16 @@ void FluxerSession::openConversation(const QString& id) {
     if(!channels_.contains(id)||channel_==id)return;
     retainHistory();
     channel_=id;remember(channelKind(channels_[id]),id);
-    if(channelKind(channels_[id])=="chats"||channelKind(channels_[id])=="groups")remember("messages",id);
+    if(channelKind(channels_[id])=="chats")remember("messages",id);
     ++historyRequest_;historyBusy_=historyMore_=historyPast_=false;
     messages_.clear();messageOrder_.clear();restoreHistory(id);publish();loadMessages(id);
 }
 void FluxerSession::ensureConversation() {
     if(self_.isEmpty()||face_=="friends"||!channelsLoaded_||openingDm_)return;
-    if(face_=="groups"){face_="chats";if(preferred_["messages"].isEmpty())preferred_["messages"]=preferred_["groups"]; }
     auto matches=[&](const QJsonObject& c){
         if(hiddenSocialGroup(c["id"].toString()))return false;
         const auto kind=channelKind(c);
-        return face_=="chats"?(kind=="chats"||kind=="groups"):face_=="communities"?
+        return face_=="chats"?kind=="chats":face_=="groups"?kind=="groups":face_=="communities"?
             (!guild_.isEmpty()&&kind=="communities"&&c["guild_id"]==guild_):false;
     };
     if(channels_.contains(channel_)&&matches(channels_[channel_]))return;

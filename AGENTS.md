@@ -3,9 +3,12 @@
 **Owner Online / Chats, 10 November (latest):** repair Lobby and Chats in source,
 without handheld installs. Bazaar is being prepared in another branch: preserve its
 content and do not merge until the owner explicitly resumes that integration.
-The owner selected concept 1: unified personal/group conversation list beside
-the conversation, communities/channels separate, friends in New conversation. Preserve global
-X/Y/Home/Start and the existing outer L2/R2 navigation.
+**Latest correction:** replace the upper Chats tabs with a left icon rail:
+Search / divider / Messages / Groups / Communities / divider / Friends.
+Keep list and conversation beside each other. Messages now contains personal DMs;
+Groups contains ordinary group chats; Friends contains relationships and requests.
+Use large native icons, selected labels, unread/request badges and Up/Down on the
+rail, A/Right into content, B back. Preserve global X/Y/Home/Start and outer L2/R2.
 See [repairs and verification](docs/evidence/2026-11-10-online/README.md).
 
 **Owner Browser / Files repair, 10 November (latest):** optimize the existing

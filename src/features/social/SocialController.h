@@ -35,6 +35,7 @@ class SocialController final : public QObject {
     Q_PROPERTY(QVariantList searchResults READ searchResults NOTIFY changed)
     Q_PROPERTY(QVariantMap account READ account NOTIFY changed)
     Q_PROPERTY(QVariantList rows READ rows NOTIFY changed)
+    Q_PROPERTY(QVariantMap sectionCounts READ sectionCounts NOTIFY changed)
     Q_PROPERTY(bool lobbyBrowseVisible MEMBER lobbyBrowseVisible_)
     Q_PROPERTY(QVariantList messages READ messages NOTIFY changed)
     Q_PROPERTY(QVariantList notifications READ notifications NOTIFY changed)
@@ -274,9 +275,10 @@ public:
     bool openQuickConversation(const QString& id);
     QVariantList messages() const { return snapshot_.value("messages").toList(); }
     QVariantList hints() const;
+    QVariantMap sectionCounts() const;
     QString draft() const { return drafts_.value(snapshot_["channel"].toString()); }
     QString conversationName() const;
-    bool conversation() const { return !snapshot_.value("channel").toString().isEmpty() && ((face_!="chats"&&face_!="communities")||!currentChat().value("socialHidden").toBool()); }
+    bool conversation() const { return face_!="contacts" && !snapshot_.value("channel").toString().isEmpty() && ((face_!="chats"&&face_!="groups"&&face_!="communities")||!currentChat().value("socialHidden").toBool()); }
     int focusIndex() const {return focus_;}
     int messageIndex() const {return messageFocus_;}
     bool reading() const {return reading_;}
