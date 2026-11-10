@@ -1,5 +1,15 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Bazaar foundation, 10 November (latest):** continue Bazaar in its separate
+branch, without merging or installing handhelds. Personal creation costs **5000
+Sparks**, exactly **one bazaar per player**; reuse Backend account/purchase/ledger
+and existing Lobby/SDK boundaries. The owner authorized beginning the server
+foundation on the existing SSH server. Persistent owner and temporary peer host
+are different roles. Future stalls/functions are separate purchases; trading
+places may be rented to other players for Sparks. Rental terms/implementation
+remain later work; do not invent commissions or ownership transfer. See
+[the current contract](services/backend/bazaar.md).
+
 **Owner Online / Chats, 10 November (latest):** repair Lobby and Chats in source,
 without handheld installs. Bazaar is being prepared in another branch: preserve its
 content and do not merge until the owner explicitly resumes that integration.

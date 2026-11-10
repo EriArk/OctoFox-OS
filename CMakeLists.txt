@@ -24,7 +24,7 @@ endif()
 
 add_library(trainer_core STATIC
     src/integrations/adventure/CartridgeContent.cpp
-    src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp
+    src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp
     src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/features/trainer/OutfitController.cpp src/features/trainer/VisitorProfile.cpp
     src/platform/sdk/PlatformHost.cpp
     src/platform/sdk/SdkNetwork.cpp
@@ -55,6 +55,7 @@ add_library(trainer_core STATIC
     src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp
     src/features/social/SocialController.cpp
     src/features/social/BazaarCatalogue.cpp
+    src/features/social/BazaarMenus.cpp
     src/features/social/SocialNavigation.cpp
     src/features/social/SocialPlayers.cpp
     src/features/social/SocialStreams.cpp
@@ -526,6 +527,7 @@ qt_add_qml_module(traineros
     src/qml/OnlinePage.qml
     src/qml/BazaarPage.qml
     src/qml/BazaarCard.qml
+    src/qml/BazaarDialog.qml
         src/qml/AlbumPhoto.qml
         src/qml/ScreensAlbum.qml
         src/qml/GameHubOverview.qml
@@ -680,12 +682,12 @@ if(BUILD_TESTING)
     add_test(NAME software_update COMMAND trainer_software_update_tests -o -,txt)
     qt_add_executable(trainer_platform_tests tests/PlatformHostTests.cpp)
     qt_add_executable(trainer_account_tests tests/BackendAccountTests.cpp
-        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
+        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
     target_include_directories(trainer_account_tests PRIVATE src)
     target_link_libraries(trainer_account_tests PRIVATE Qt6::Test Qt6::Gui Qt6::Network Qt6Keychain::Qt6Keychain OpenSSL::Crypto)
     add_test(NAME backend_account COMMAND trainer_account_tests)
     qt_add_executable(trainer_backend_login_probe tools/BackendLoginProbe.cpp
-        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
+        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
     target_include_directories(trainer_backend_login_probe PRIVATE src)
     target_link_libraries(trainer_backend_login_probe PRIVATE Qt6::Core Qt6::Gui Qt6::Network Qt6Keychain::Qt6Keychain OpenSSL::Crypto)
     qt_add_executable(trainer_avatar_tests tests/AvatarTests.cpp)
@@ -967,9 +969,9 @@ if(BUILD_TESTING)
     qt_add_executable(trainer_core_tests tests/CoreTests.cpp)
     target_link_libraries(trainer_core_tests PRIVATE trainer_core Qt6::Test)
     add_test(NAME core COMMAND trainer_core_tests)
-    qt_add_executable(trainer_bazaar_tests tests/BazaarCatalogueTests.cpp src/features/social/BazaarCatalogue.cpp)
+    qt_add_executable(trainer_bazaar_tests tests/BazaarCatalogueTests.cpp)
     target_include_directories(trainer_bazaar_tests PRIVATE src)
-    target_link_libraries(trainer_bazaar_tests PRIVATE Qt6::Core Qt6::Test)
+    target_link_libraries(trainer_bazaar_tests PRIVATE trainer_core Qt6::Test)
     add_test(NAME bazaar COMMAND trainer_bazaar_tests)
     qt_add_executable(trainer_interaction_tests tests/InteractionTests.cpp)
     target_link_libraries(trainer_interaction_tests PRIVATE trainer_core Qt6::Test)

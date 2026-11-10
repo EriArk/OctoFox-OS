@@ -42,8 +42,9 @@ void BackendAccount::loadCommerce() {
     outfitWrites_=data["outfitWrites"].toObject();
     const auto pending=data["pending"].toObject();
     if(identity(pending["player_id"].toString())&&identity(pending["operation_id"].toString())
-        &&(pending["offer_id"].toString().startsWith("profile.")||pending["offer_id"].toString().startsWith("outfit.slot."))&&pending["offer_id"].toString().size()<=64
-        &&whole(pending["offer_revision"],1)&&whole(pending["expected_price"],1))shopPending_=pending;
+        &&(pending["offer_id"].toString().startsWith("profile.")||pending["offer_id"].toString().startsWith("outfit.slot.")||pending["offer_id"]=="bazaar.personal")&&pending["offer_id"].toString().size()<=64
+        &&whole(pending["offer_revision"],1)&&whole(pending["expected_price"],1)
+        &&(pending["offer_id"]!="bazaar.personal"||validBazaarDetails(pending["bazaar"].toObject())))shopPending_=pending;
 }
 bool BackendAccount::adoptShop(const QJsonObject& value,bool cached) {
     const auto player=value["player_id"].toString();bool revisionOk=false;const auto revision=value["revision"].toString().toULongLong(&revisionOk);
@@ -63,7 +64,7 @@ bool BackendAccount::adoptShop(const QJsonObject& value,bool cached) {
     }
     const auto equipped=value["equipped"].toString();bool owned=equipped.isEmpty();
     for(const auto row:value["items"].toArray())owned|=row.toObject()["id"]==equipped;
-    if(!owned||!validOutfits(value))return false;
+    if(!owned||!validOutfits(value)||!validBazaar(value))return false;
     shopSnapshot_=value;shopSnapshot_.remove("receipt");shopStale_=cached;
     shopIndex_=qBound(0,shopIndex_,qMax(0,int(shopItems().size())-1));return true;
 }
@@ -144,6 +145,7 @@ void BackendAccount::confirmPurchase() {
     if(shopBusy_||shopReview_.isEmpty()||state_!="connected"||!shopPending_.isEmpty())return;
     shopPending_={{"player_id",player_},{"operation_id",QUuid::createUuid().toString(QUuid::WithoutBraces)},
         {"offer_id",shopReview_["id"]},{"offer_revision",shopReview_["revision"].toString().toInt()},{"expected_price",shopReview_["price"]}};
+    if(shopReview_["id"]=="bazaar.personal")shopPending_["bazaar"]=shopReview_["bazaar"];
     if(!saveCommerce()){shopPending_={};shopStatus_="Could not save purchase recovery data. Nothing was sent or charged.";emit changed();return;}
     shopReview_={};recoverPurchase(true);
 }
@@ -158,11 +160,12 @@ void BackendAccount::finishPurchase(int status,QJsonObject result) {
     shopBusy_=false;
     const auto receipt=result["receipt"].toObject();
     const bool exact=receipt["player_id"]==player_&&receipt["operation_id"]==shopPending_["operation_id"]&&receipt["offer_id"]==shopPending_["offer_id"]
-        &&receipt["price"]==shopPending_["expected_price"]&&receipt["offer_revision"]==shopPending_["offer_revision"]&&identity(receipt["id"].toString());
+        &&receipt["price"]==shopPending_["expected_price"]&&receipt["offer_revision"]==shopPending_["offer_revision"]&&identity(receipt["id"].toString())
+        &&(shopPending_["offer_id"]!="bazaar.personal"||receipt["details"]==shopPending_["bazaar"]);
     if(status==200&&exact&&adoptShop(result)) {
         const auto pending=shopPending_;shopPending_={};
         if(!saveCommerce())shopPending_=pending;
-        shopStatus_=receipt["offer_id"].toString().startsWith("outfit.slot.")?"Slot unlocked permanently. Save your current look into it.":"Purchased permanently. Select Apply to use this appearance.";
+        shopStatus_=receipt["offer_id"]=="bazaar.personal"?"Your personal bazaar is created. Ownership is permanent.":receipt["offer_id"].toString().startsWith("outfit.slot.")?"Slot unlocked permanently. Save your current look into it.":"Purchased permanently. Select Apply to use this appearance.";
         refreshProgression(false);
     } else if(status==409&&QStringList{"offer_changed","offer_unavailable","already_owned","insufficient_sparks","level_required"}.contains(result["code"].toString())) {
         const auto code=result["code"].toString();const auto pending=shopPending_;shopPending_={};

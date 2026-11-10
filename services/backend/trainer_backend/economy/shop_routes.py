@@ -5,6 +5,7 @@ from pydantic import Field
 from ..accounts.routes import StrictBody, bearer, wire
 from ..accounts.provider import AuthError
 from . import outfits
+from ..bazaar.routes import BazaarDetails
 
 router = APIRouter()
 
@@ -17,6 +18,7 @@ def service(request):
 
 
 class Purchase(StrictBody):
+    bazaar: BazaarDetails | None = None
     operation_id: str = Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
     offer_id: str = Field(pattern=r'^[a-z][a-z0-9_.-]{0,63}$')
     offer_revision: int = Field(ge=1, le=2147483647)
@@ -51,7 +53,7 @@ def inventory(request: Request):
 
 @router.post('/v1/me/purchases')
 def purchase(body: Purchase, request: Request):
-    return wire(service(request).purchase(bearer(request), UUID(body.operation_id), body.offer_id, body.offer_revision, body.expected_price))
+    return wire(service(request).purchase(bearer(request), UUID(body.operation_id), body.offer_id, body.offer_revision, body.expected_price, body.bazaar.model_dump() if body.bazaar else None))
 
 
 @router.get('/v1/me/purchases/{operation_id}')

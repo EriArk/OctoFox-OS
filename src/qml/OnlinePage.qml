@@ -8,6 +8,7 @@ Item {
     readonly property var account: shell.social.account
     readonly property string connectionStatus: root.chats && (account.state === "connecting" || account.state === "connected") && account.status !== "Connected" ? (account.status || (account.state === "connecting" ? "Reconnecting…" : "")) : ""
     Binding { target: root.shell.social; property: "lobbyBrowseVisible"; value: root.visible && !root.chats && root.shell.onlineFace === "lobby" && root.shell.social.surfaceAvailable }
+    Binding { delayed: true; target: root.shell.bazaar; property: "active"; value: root.visible && root.shell.onlineFace === "bazaar" }
     Item {
         id: sections; objectName: "chat-navigation-rail"
         visible: root.chats; x: 6; y: 5; width: 76

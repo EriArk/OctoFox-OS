@@ -6,6 +6,7 @@ namespace trainer {
 // are installed into the normal product catalogue.
 class BazaarFixture {
 public:
+    static void useProvider(BazaarCatalogue& page) { page.fixture_=false;page.all_.clear();page.rebuild();page.refresh(); }
     static void populate(BazaarCatalogue& page) {
         QVariantList rows;
         const QStringList names{"Mika","Ren","Kai","Nia","Sol","Ash","Lumi","Rin","Taro","Emi","Zed","Noa","Ivo","Mio"};

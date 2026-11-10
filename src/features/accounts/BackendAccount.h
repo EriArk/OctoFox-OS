@@ -67,6 +67,10 @@ public:
     void activateRewards();
     void copyRewardChallenge();
     QVariantMap shop() const;
+    QVariantMap bazaarAccount() const;
+    void reviewBazaarPurchase(QJsonObject details);
+    void resolveBazaarPurchase();
+    void bazaarRequest(const QString& action,QJsonObject args,Reply done);
     QString profileAppearance() const;
     Q_INVOKABLE void refreshShop();
     Q_INVOKABLE void selectShopItem(int index);
@@ -110,6 +114,8 @@ private:
     void restoreCachedProfile();
     QVariantList shopItems() const;
     bool adoptShop(const QJsonObject&,bool cached=false);
+    bool validBazaar(const QJsonObject&) const;
+    bool validBazaarDetails(const QJsonObject&) const;
     bool validOutfits(const QJsonObject&) const;
     bool adoptPrizes(const QJsonObject&,bool cached=false);
     void loadCommerce();

@@ -100,11 +100,11 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
       hall_(archive, achievements, this),
       libraryManager_(repo, nullptr, this), libraryTools_(repo,this), scraper_(repo,this), pcGames_(repo,*files_.service(),this), gamePerformance_(repo,this), settings_(this), device_(this), diagnostics_(this), dashboard_(repo,achievements,social_,this), story_(repo,achievements) {
 
+    bazaar_.setBackend(&backendAccount_);
     connect(&bazaar_,&BazaarCatalogue::changed,this,&ShellController::changed);
     connect(&bazaar_,&BazaarCatalogue::scrollChanged,this,&ShellController::changed);
     connect(&bazaar_,&BazaarCatalogue::notice,this,&ShellController::showNotice);
-    connect(&bazaar_,&BazaarCatalogue::textRequested,this,[this](QString initial){textTarget_=TextTarget::BazaarSearch;keyboard_.begin("Search player bazaars",initial,64,false,"Search");});
-    connect(&social_,&SocialController::changed,this,[this]{bazaar_.setConnectionState(social_.account().value("state").toString());});
+    connect(&bazaar_,&BazaarCatalogue::textRequested,this,[this](QString initial){textTarget_=TextTarget::BazaarSearch;keyboard_.begin(bazaar_.editorTitle(),initial,bazaar_.editorLimit(),false,"Done");});
     connect(&pcGames_,&PcGamesController::changed,this,&ShellController::changed);
     connect(&pcGames_,&PcGamesController::installerStarted,&apps_,&AppsController::watchInstaller);
     connect(&pcGames_,&PcGamesController::installerFinished,&apps_,&AppsController::finishInstaller);
@@ -539,7 +539,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&keyboard_, &TextEntryController::accepted, this, [this](const QString& text) {
         const auto target = textTarget_;
         textTarget_ = TextTarget::None;
-        if(target==TextTarget::BazaarSearch)bazaar_.applySearch(text);
+        if(target==TextTarget::BazaarSearch)bazaar_.applyText(text);
         else if(target==TextTarget::GameInput)settings_.gameInput()->applyText(text);
         else if (target == TextTarget::SetupName) trainerSetup_.applyName(text);
         else if (target == TextTarget::TrainerName) trainer_.setDraftName(text);
@@ -2178,7 +2178,7 @@ void ShellController::dispatch(Action action) {
     if((social_.myLobbiesOpen() || social_.lobbyCreateOpen() || social_.lobbyPicker()["open"].toBool() || social_.lobbyPicker()["voteOpen"].toBool())&&!keyboard_.isOpen()){social_.dispatch(action);return;}
     if(page_==OnlinePage && onlineFace_=="bazaar" && service_.isEmpty() && !keyboard_.isOpen() && !menuOpen_ && !homeMenuOpen_ && !drawerOpen_ && !quickAppsOpen_ && notice_.isEmpty()) {
         if(!bazaar_.dialog().isEmpty()) {
-            if(action==Action::Home)bazaar_.closeDialog();
+            if(action==Action::Home)bazaar_.closeDialog(true);
             else if(action!=Action::SystemMenu && action!=Action::ToggleNotifications){bazaar_.dispatch(action);return;}
         } else if(action==Action::ToggleFavorite || action==Action::ChangeView || action==Action::ScrollUp || action==Action::ScrollDown) {
             if(pairedNavigationAvailable() && !navigationLocked())bazaar_.dispatch(action);

@@ -41,7 +41,7 @@ Item {
                 }
                 CapButton {
                     id: create; objectName: "bazaar-create"; width: root.compact ? 97 : 110; height: 29
-                    label: "+ Create  ✦"; textSize: 12; tint: Theme.yellow; claimsFocus: false; contentInset: 8
+                    label: root.catalogue.account.owned && root.catalogue.account.owned.id ? "My bazaar" : "+ Create  ✦"; textSize: 12; tint: Theme.yellow; claimsFocus: false; contentInset: 8
                     selected: root.takesFocus && root.catalogue.selection==="create"
                     onActivated: root.catalogue.activate("create")
                 }
@@ -58,7 +58,7 @@ Item {
                     policy: grid.contentHeight>grid.height ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
                     onPressedChanged: { if(!pressed)root.catalogue.scroll=Math.max(0,grid.contentY) }
                 }
-                onMovementEnded: root.catalogue.scroll=Math.max(0,contentY)
+                onMovementEnded: { root.catalogue.scroll=Math.max(0,contentY); if(root.catalogue.more && contentY+height>=contentHeight-50)root.catalogue.refresh(true) }
                 delegate: Item {
                     required property var modelData
                     required property int index
@@ -91,7 +91,7 @@ Item {
         }
     }
     Rectangle {
-        objectName: "bazaar-dialog"; anchors.fill: parent; visible: root.catalogue.dialog.length>0
+        objectName: "bazaar-dialog"; anchors.fill: parent; visible: root.catalogue.dialog==="realms"
         color: "#880c2526"; z: 2
         enabled: !root.shell.menuOpen && !root.shell.serviceOpen && !root.shell.keyboard.open && !root.shell.notificationsOpen
         MouseArea { anchors.fill: parent }
@@ -129,4 +129,6 @@ Item {
             Text { x: 20; anchors.bottom: parent.bottom; anchors.bottomMargin: 12; text: "B  Back"; color: Theme.muted; font.pixelSize: 12 }
         }
     }
+    BazaarDialog { anchors.fill: parent; shell: root.shell }
+
 }

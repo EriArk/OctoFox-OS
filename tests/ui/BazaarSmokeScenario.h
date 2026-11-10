@@ -2,6 +2,7 @@
 #include "core/navigation/ShellController.h"
 #include "core/input/ControllerInput.h"
 #include "../fixtures/BazaarFixture.h"
+#include "../fixtures/BazaarCommerceFixture.h"
 #include <QQuickWindow>
 #include <QQuickItem>
 #include <QTimer>
@@ -16,6 +17,7 @@
 inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shell,trainer::ControllerInput& input,
     SDL_Joystick* joystick,const QString& directory,bool& completed,int& warnings,QStringList& diagnostics) {
     using trainer::Action;using trainer::ControllerInput;using trainer::BazaarFixture;
+    auto commerce=std::make_shared<trainer::BazaarCommerceFixture>();
     auto step=std::make_shared<int>(0);auto scroll=std::make_shared<qreal>(0);auto officialY=std::make_shared<qreal>(0);
     auto snapshot=std::make_shared<QJsonObject>();
     auto timer=new QTimer(window);timer->setInterval(650);
@@ -95,6 +97,28 @@ inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shel
             page->activate("official");shell.dispatch(Action::SystemMenu);check(shell.menuOpen(),"Start overlays realm picker");
             shell.dispatch(Action::Back);check(page->dialog()=="realms","System panel preserves realm picker");
             shell.dispatch(Action::Back);check(page->dialog().isEmpty(),"Back closes preserved realm picker");break;
+        case 19:
+            commerce->install(*shell.backendAccount());BazaarFixture::useProvider(*page);page->refresh();page->activate("create");break;
+        case 20:
+            check(page->dialog()=="create","Creation form opens");capture("create-form-dark-960");click("bazaar-action-name");break;
+        case 21:
+            check(shell.keyboard()->isOpen(),"Name uses shared keyboard");shell.keyboard()->insertText("Nym Market");shell.keyboard()->pressKey(Qt::Key_Return);
+            check(!shell.keyboard()->isOpen(),"Name edit accepted");page->dialogAction("review");break;
+        case 22:
+            check(page->dialog()=="review"&&commerce->charges==0,"5000 Sparks review is not a purchase");capture("create-review-dark-960");
+            press(ControllerInput::ConfirmButton);break;
+        case 23:
+            check(commerce->charges==1&&page->dialog()=="manage","Confirmed creation reaches My bazaar");capture("manage-dark-960");
+            page->dialogAction("listed");page->dialogAction("access");page->dialogAction("save");break;
+        case 24:
+            check(commerce->edits==1&&commerce->charges==1,"Owner settings save without a second charge");
+            check(!page->account()["owned"].toMap()["listed"].toBool(),"Hidden setting persisted");
+            window->resize(800,450);shell.settings()->cycleTheme();break;
+        case 25:
+            capture("manage-light-800");commerce->conflict=true;page->dialogAction("listed");page->dialogAction("save");break;
+        case 26:
+            check(page->message().contains("another device"),"Edit conflict keeps draft");capture("manage-conflict-light-800");
+            shell.dispatch(Action::Home);check(page->dialog().isEmpty()&&shell.primaryId()=="home","Home dismisses owner form");break;
         default:
             check(warnings==0,"No QML warnings");timer->stop();completed=true;
             QFile file(directory+"/bazaar-report.json");if(file.open(QIODevice::WriteOnly))file.write(QJsonDocument(QJsonObject{{"success",diagnostics.isEmpty()},{"warnings",warnings},{"diagnostics",QJsonArray::fromStringList(diagnostics)}}).toJson());

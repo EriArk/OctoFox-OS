@@ -1,4 +1,5 @@
 #include "BazaarCatalogue.h"
+#include "features/accounts/BackendAccount.h"
 #include <QJsonArray>
 #include <cmath>
 
@@ -17,6 +18,7 @@ int BazaarCatalogue::selectedIndex() const {
 }
 void BazaarCatalogue::setOwner(QString owner) {
     if(owner_==owner)return;
+    ++generation_;loading_=saving_=fixture_=false;draft_={};own_={};next_.clear();message_.clear();textField_.clear();
     owner_=owner;all_.clear();realms_.clear();favorites_.clear();search_.clear();lastRoom_.clear();
     selection_="official";favoritesOnly_=false;setScroll(0);dialog_.clear();realmIndex_=0;
     status_=connection_=="connected" ? "Player bazaars are not available yet." :
@@ -41,7 +43,7 @@ void BazaarCatalogue::restore(const QJsonObject& state) {
     search_=state["search"].toString().left(64);
     favoritesOnly_=state["favoritesOnly"].toBool();favorites_.clear();
     for(const auto& id:state["favorites"].toArray())
-        if(id.isString()&&!id.toString().isEmpty()&&id.toString().size()<=256&&favorites_.size()<500)favorites_.insert(id.toString());
+        if(id.isString()&&!id.toString().isEmpty()&&id.toString().size()<=256&&favorites_.size()<100)favorites_.insert(id.toString());
     lastRoom_=state["lastRoom"].toString();
     const auto selected=state["selection"].toString("official");
     selection_=QStringList{"official","search","filter","create"}.contains(selected)||selected.startsWith("room:")?selected:"official";
@@ -50,6 +52,7 @@ void BazaarCatalogue::restore(const QJsonObject& state) {
     rebuild();
 }
 void BazaarCatalogue::setPresentation(QVariantList rooms,QVariantList realms,QString status) {
+    fixture_=true;
     const auto previous=selection_;
     all_.clear();QSet<QString> ids;
     for(const auto& value:rooms) {
@@ -93,30 +96,35 @@ void BazaarCatalogue::activate(QString id) {
     if(id=="official"){dialog_="realms";realmIndex_=0;emit changed();}
     else if(id=="search")editSearch();
     else if(id=="filter")toggleFilter();
-    else if(id=="create"){dialog_="create";emit changed();}
-    else if(id.startsWith("room:"))emit notice("This bazaar is not available to enter yet.");
+    else if(id=="create"){beginForm(!own_.isEmpty());}
+    else if(id.startsWith("room:")){detailId_=id;dialog_="details";dialogIndex_=0;emit changed();}
 }
 void BazaarCatalogue::editSearch() {
     if(!dialog_.isEmpty())return;
-    focus("search");emit textRequested(search_);
+    textField_="search";focus("search");emit textRequested(search_);
 }
 void BazaarCatalogue::applySearch(QString text) {
-    search_=text.trimmed().left(64);setScroll(0);selection_="search";rebuild();
+    search_=text.trimmed().left(64);setScroll(0);selection_="search";rebuild();if(backend_&&!fixture_)refresh();
 }
 void BazaarCatalogue::toggleFilter() {
     if(!dialog_.isEmpty())return;
-    favoritesOnly_=!favoritesOnly_;setScroll(0);selection_="filter";rebuild();
+    favoritesOnly_=!favoritesOnly_;setScroll(0);selection_="filter";rebuild();if(backend_&&!fixture_)refresh();
 }
 void BazaarCatalogue::toggleFavorite(QString id) {
     if(!dialog_.isEmpty())return;
     bool found=false;for(const auto& v:visible_)if(v.toMap().value("id")==id)found=true;
     if(!found)return;
     const int index=selectedIndex();
-    if(favorites_.contains(id))favorites_.remove(id);else if(favorites_.size()<500)favorites_.insert(id);
+    if(favorites_.contains(id))favorites_.remove(id);else if(favorites_.size()<100)favorites_.insert(id);
     rebuild();
     if(selection_.startsWith("room:")&&selectedIndex()<0)focusRoom(index);
 }
-void BazaarCatalogue::closeDialog() {if(dialog_.isEmpty())return;dialog_.clear();emit changed();}
+void BazaarCatalogue::closeDialog(bool all) {
+    if(dialog_.isEmpty())return;
+    if(dialog_=="review"&&!all) {if(backend_&&!account()["review"].toMap().isEmpty())backend_->cancelPurchaseReview();dialog_="create";dialogIndex_=4;}
+    else {dialog_.clear();textField_.clear();message_.clear();if(backend_&&!account()["review"].toMap().isEmpty())backend_->cancelPurchaseReview();}
+    emit changed();
+}
 void BazaarCatalogue::chooseRealm(int index) {
     if(dialog_!="realms"||index<0||index>=realms_.size())return;
     realmIndex_=index;emit changed();
@@ -127,6 +135,12 @@ void BazaarCatalogue::chooseRealm(int index) {
 }
 bool BazaarCatalogue::dispatch(Action action) {
     if(!dialog_.isEmpty()) {
+        if(dialog_!="realms") {
+            if(action==Action::Back)closeDialog();
+            else if(action==Action::Up||action==Action::Down){dialogIndex_=qBound(0,dialogIndex_+(action==Action::Down?1:-1),qMax(0,int(dialogRows().size())-1));emit changed();}
+            else if(action==Action::Confirm)dialogAction(dialogRows().value(dialogIndex_).toMap()["id"].toString());
+            return true;
+        }
         if(action==Action::Back)closeDialog();
         else if(dialog_=="realms"&&(action==Action::Up||action==Action::Down)) {
             realmIndex_=qBound(0,realmIndex_+(action==Action::Down?1:-1),qMax(0,int(realms_.size())-1));emit changed();
@@ -137,14 +151,14 @@ bool BazaarCatalogue::dispatch(Action action) {
     if(action==Action::Confirm){activate(selection_);return true;}
     if(action==Action::ToggleFavorite){editSearch();return true;}
     if(action==Action::LocalAction||action==Action::ContextMenu) {
-        if(selectedIndex()>=0)toggleFavorite(visible_[selectedIndex()].toMap().value("id").toString());else focus("filter");
+        openMenu();
         return true;
     }
     const int index=selectedIndex();
     const bool up=action==Action::Up||action==Action::ScrollUp, down=action==Action::Down||action==Action::ScrollDown;
     if(index>=0) {
         if(up){if(index<2)focus("search");else focusRoom(index-2);}
-        else if(down && index+2<visible_.size())focusRoom(index+2);
+        else if(down){if(index+2<visible_.size())focusRoom(index+2);else if(more())refresh(true);}
         else if(action==Action::Left){if(index%2==0)focus("official");else focusRoom(index-1);}
         else if(action==Action::Right&&index%2==0&&index+1<visible_.size())focusRoom(index+1);
     } else if(selection_=="official") {

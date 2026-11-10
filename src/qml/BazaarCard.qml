@@ -52,7 +52,7 @@ Rectangle {
             }
             Text { visible: !root.official; width: Math.max(20,parent.width-105); text: root.entry.ownerName || "Player"; textFormat: Text.PlainText; font.pixelSize: 11; color: Theme.muted; elide: Text.ElideRight }
             Text {
-                text: root.official ? "Opening soon" : (root.entry.visitors===undefined ? "— visiting" : root.entry.visitors+" visiting")
+                text: root.official ? "Opening soon" : (root.entry.visitors===undefined || root.entry.visitors===null ? (root.entry.access==="closed"?"Closed":"Not open yet") : root.entry.visitors+" visiting")
                 font.pixelSize: root.official ? 12 : 11; color: Theme.muted
             }
         }
