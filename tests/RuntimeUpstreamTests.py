@@ -8,6 +8,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+import urllib.error
 from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'packaging/software'))
 import fullbundle
@@ -79,6 +80,38 @@ class RuntimeUpstreamTests(unittest.TestCase):
             self.assertEqual(record['files'][0]['sha256'],spec['sha256'])
         spec['replaces']['sha256']='f'*64
         with self.assertRaises(ValueError):upstream_media.build(original,self.plan,self.root/'bad-next.tar')
+
+    def test_explicit_replacement_of_removed_upstream_asset(self):
+        original = self.media(); hybrid = self.root/'hybrid.tar'
+        upstream_media.build(original, self.plan, hybrid)
+        spec = self.plan['components'][0]
+        spec['replaces'] = {'sha256': self.sha, 'bytes': len(self.body)}
+        spec['delivery'] = dict(self.delivery, assetId=12345)
+        spec['sha256'] = hashlib.sha256(b'reviewed stable release').hexdigest()
+        spec['bytes'] = len(b'reviewed stable release')
+        output = self.root/'replacement.tar'
+        upstream_media.build(hybrid, self.plan, output)
+        with tarfile.open(output) as tar:
+            record = json.load(tar.extractfile('runtimes/DuckStation/component.json'))
+            self.assertEqual(record['delivery']['assetId'], 12345)
+            self.assertEqual(record['files'][0]['sha256'], spec['sha256'])
+            self.assertNotIn('runtimes/DuckStation/component.tar.gz', tar.getnames())
+        spec['replaces']['sha256'] = 'f'*64
+        with self.assertRaises(ValueError):
+            upstream_media.build(hybrid, self.plan, self.root/'bad-replacement.tar')
+        del spec['replaces']
+        with self.assertRaises(ValueError):
+            upstream_media.build(hybrid, self.plan, self.root/'implicit-replacement.tar')
+
+    def test_removed_asset_names_failed_runtime_without_fallback(self):
+        calls = []
+        def missing(request, **kwargs):
+            calls.append(request.full_url)
+            raise urllib.error.HTTPError(request.full_url, 404, 'Not Found', {}, None)
+        with self.assertRaisesRegex(ValueError, r'pinned DuckStation runtime \(HTTP 404\)'):
+            runtime_upstream.prepare(self.stage, self.record, opener=missing)
+        self.assertEqual(len(calls), 1)
+        self.assertFalse((self.stage/'components').exists())
 
     def test_flathub_conversion_preserves_modified_ppsspp_bundle(self):
         inputs=self.root/'flatpak-inputs';inputs.mkdir();files=[];refs=[]

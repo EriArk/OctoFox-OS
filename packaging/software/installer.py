@@ -316,8 +316,9 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
         progress.update('Checking update channel')
         candidate = resolve_offline(root, offline, allow_current=bool(runtime_manifest)) if offline is not None else install.resolve(root, channel)
     if candidate['status'] != 'available': raise ValueError('No compatible release is available for this installation')
-    description = (f"Install TrainerOS {candidate['version']}?\nDownload: {candidate['downloadBytes'] / 1048576:.1f} MiB\n"
-                   f"OS: {report['system']}\nOS storage: {disk['location']} ({disk['disk']})\n"
+    description = (f"Install TrainerOS {candidate['version']}?\nSoftware download: {candidate['downloadBytes'] / 1048576:.1f} MiB\n"
+                   + ('The emulator set may require additional downloads from its original providers.\n' if runtime_manifest else '')
+                   + f"OS: {report['system']}\nOS storage: {disk['location']} ({disk['disk']})\n"
                    f"Free installation space: {report['freeBytes'] / 1073741824:.1f} GiB\n"
                    'Your OS, games, profiles and saves will be kept. TrainerOS becomes the boot default on first setup; Desktop and Steam remain available. Later updates keep your choice.')
     if dialog('--yesno', description).returncode: return 0
@@ -336,7 +337,7 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
                 runtimes.idle()
                 for utility in ('flatpak', 'ostree', 'unsquashfs'):
                     if not shutil.which(utility): raise ValueError('The Armada ' + utility + ' utility is required for the full emulator set')
-                progress.update('Verifying the complete offline emulator set')
+                progress.update('Verifying the emulator set and pinned downloads')
                 stage=runtimes.prepare(root,runtime_manifest,runtime_archive,progress.update)
                 try: job=runtime_manager.plan(root,stage,result['prepared'],progress=progress.update)
                 except ValueError as error:

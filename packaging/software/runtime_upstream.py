@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import shutil
 import urllib.request
+import urllib.error
 import releases as sw
 
 GITHUB_REPOSITORIES = {
@@ -72,9 +73,15 @@ def prepare(stage, record, progress=lambda *args: None, opener=None):
         return fetch(request, **kwargs)
 
     progress('Downloading verified runtime: ' + record['id'])
-    sw.download({'url': url, 'size': row['bytes'], 'sha256': row['sha256']}, part,
-                lambda phase, done, total: progress(
-                    'Downloading ' + record['id'] + ': ' + str(done * 100 // max(1, total)) + '%'), binary)
+    try:
+        sw.download({'url': url, 'size': row['bytes'], 'sha256': row['sha256']}, part,
+                    lambda phase, done, total: progress(
+                        'Downloading ' + record['id'] + ': ' + str(done * 100 // max(1, total)) + '%'), binary)
+    except urllib.error.HTTPError as error:
+        error.close()
+        raise ValueError('Cannot download the pinned ' + record['id'] + ' runtime (HTTP '
+                         + str(error.code) + '). Check for an updated TrainerOS Setup. '
+                         'No different emulator version was substituted.') from error
     # The existing component transaction checks the resulting file again and
     # projects it into the private runtime-home. No public repackaging occurs.
     return part

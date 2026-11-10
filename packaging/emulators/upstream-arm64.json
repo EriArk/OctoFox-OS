@@ -19,10 +19,17 @@
       "delivery": {
         "kind": "github-release-asset",
         "repository": "ARMSX2/ARMSX2",
-        "assetId": 669324126
+        "assetId": 728883468
       },
-      "bytes": 62880264,
-      "sha256": "1c40028a0464bcfab57826518500dcd11ceb472bea16d0900d7146abb11a4224"
+      "bytes": 63330824,
+      "sha256": "751672dc717e713a16b3e75cb380e1908472a740367b42ac8757570e31287e4e",
+      "replaces": {
+        "sha256": "1c40028a0464bcfab57826518500dcd11ceb472bea16d0900d7146abb11a4224",
+        "bytes": 62880264
+      },
+      "version": "2.9.3",
+      "releasePage": "https://github.com/ARMSX2/ARMSX2/releases/tag/2.9.3",
+      "scope": "Pinned stable 4K-page ARM64 release replaces removed upstream asset 669324126; gameplay acceptance pending."
     },
     {
       "id": "Azahar-Enhanced",

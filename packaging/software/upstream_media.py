@@ -49,9 +49,13 @@ def build(archive, plan, output):
             if record['id'] != identity or actual != old_expected:
                 raise ValueError('Upstream asset differs from selected runtime')
             if 'delivery' in record:
-                if previous or record['delivery'] != spec['delivery'] or payload in names:
-                    raise ValueError('Existing upstream descriptor differs')
                 runtime_upstream.validate(record)
+                if payload in names or (not previous and record['delivery'] != spec['delivery']):
+                    raise ValueError('Existing upstream descriptor differs')
+                if previous:
+                    record['delivery'] = spec['delivery']; record['files'] = expected
+                    runtime_upstream.validate(record)
+                    replacements[metadata] = (json.dumps(record, indent=2) + '\n').encode()
                 continue
             if payload not in names: raise ValueError('Offline upstream component is missing')
             payload_member = source.getmember(payload)
