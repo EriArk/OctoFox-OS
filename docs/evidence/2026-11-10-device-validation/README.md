@@ -292,3 +292,73 @@ Software 21/runtime 24 и их download cache сохранены. Это лок�
 OSTree descriptors, затем продолжилась загрузка RetroArch. IO PSI some avg10
 снизился до 0.03%, memory pressure — 0; это промежуточное наблюдение, не
 доказательство завершённой установки или окончательного исправления UFS.
+
+
+### Подписанный комплект без перепаковки
+
+Из `755cd0e830235f7b64da8c3403da5827fb491d41` подготовлен Software 27/28
+(`0.1.0-alpha.6`), runtime 27. Новый [комплект](package-optimized.json) содержит
+изменённый Setup, [прикладной ELF не пересобирался](source-optimized.json): его
+исходники и build inputs совпадают с проверенной сборкой 30049396. Все изменения
+CMake относятся к регистрации тестов. Подписи, bootstrap inventory и полный
+архив проверены; [закрытый HTTPS feed](https-optimized-check.json) предлагает 28
+при baseline 27. Это проверка metadata, не аппаратного OTA.
+
+Full archive: 1825720320 байт, SHA-256
+`55d8fced542d515d670786b18ae4e9bd212f01cfd1338822eff7d4631956304f`.
+После его полной проверки удалён промежуточный runtime tar (1219911680 байт).
+На Flip продолжается локально исправленный Setup 21/runtime 24: этот новый
+архив ему не подставлялся, подписи старых manifests не менялись. Публикация и
+cleanDeviceAcceptance нового комплекта остаются false.
+
+На самом Flip проверен настоящий FICLONE через production copy helper:
+операция успешна, inode различаются, изменение копии сохраняет исходные байты.
+Тестовые файлы автоматически удалены. Setup прошёл скачивание RetroArch и
+перешёл к установке файлов и Flatpak; обе версии KDE уже установлены напрямую.
+
+
+### Полный cache и запуск внутри Desktop
+
+Все 12 Flatpak refs прошли активацию, включая оба KDE, RetroArch и изменённый
+PPSSPP. Затем `pkexec` отказал: процесс был запущен SSH-harness, а графический
+Polkit agent относится к Desktop session. Журнал явно сообщает об отсутствии
+controlling terminal; сама Desktop-сессия и её Polkit agent работали. Setup
+оставил реальную ошибку на экране и сохранил outer transaction. Это ошибка
+метода удалённого запуска, не очередная блокировка UFS.
+
+Setup повторно открыт через KRunner внутри настоящей Desktop-сессии. При выборе
+оператор ошибочно нажал Restore вместо Continue. Штатный откат завершился:
+files/Flatpak receipts восстановлены, pending journal снят, cache сохранён.
+В этом запуске нормальный графический запрос Polkit появился и принял пароль.
+Это фактическая дополнительная проверка recovery, но она не была запланированной
+частью установки и не превращает весь проход в clean acceptance.
+
+Setup затем снова запущен из Desktop для установки из сохранённого cache.
+Неактивный и никуда не установленный полный Setup 25 и его промежуточный source
+capsule удалены на сервере после проверки заменяющего полного Setup 27; освобождено
+ещё 2179970448 байт. Комплекты действующего прохода Flip 21 и Odin 23 сохранены.
+
+
+### Установка завершена, переход выполнен автоматически
+
+Повторный запуск из Desktop завершился: обычные графические запросы Polkit
+приняли пароль, runtime/software receipts записаны, все пять pending markers
+отсутствуют. Setup сам закрыл Desktop и открыл TrainerOS; отдельной команды
+запуска оболочки оператор не выполнял. На экране — [начало нового визарда](flip-automatic-entry.png).
+[Состояние устройства](flip-optimized-install.json) подтверждает первый кадр,
+совпадение всех 12 закреплённых Flatpak commits и 10 OSTree artifacts. Hashes
+пяти изменённых runtime modules в bootstrap совпадают с исходниками 755cd0e8.
+В session journal с 23:35 нет найденных QML/load errors, failed system units нет.
+[Проверка reflink на Flip](flip-reflink-proof.json) также успешна.
+
+После завершения удалены девять старых перепакованных download bundles и их
+старые receipts, всего 895047368 байт. Убедились в отсутствии pending journals,
+в ссылках current/baseline на новые descriptors и в завершённой активации exact
+commits. OSTree cache для восстановления, bundled Dolphin/PPSSPP, личные данные
+и исходные boot recovery deployments сохранены.
+
+Это успешный восстановительный проход установки с локальной правкой Setup,
+а не clean download-to-install приёмка нового подписанного архива 27. Пройдено
+с временным `clkscale_enable=0`; постоянное исправление UFS, перенос Iris на
+актуальную Armada, новая проверка видеопотока, wizard/accounts/import/launch и
+аппаратный OTA остаются отдельными незавершёнными проверками.

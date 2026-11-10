@@ -1,0 +1,50 @@
+{
+  "kernel": "7.2.6",
+  "ufsClockScaling": "0",
+  "softwareReceipt": {
+    "active": "3ea3588ccf2e87a28616227b99f8fc3b79c37f2798fc3b194e71f11cd8d31e68",
+    "health": "first-frame-confirmed",
+    "previous": "",
+    "schema": 1
+  },
+  "runtimeReceipt": {
+    "active": "6a7a6860ff6baf1cebaf37d1ecd0ca1596025d5d3c45704348495313cc6a574e",
+    "layout": "private-home-v1",
+    "previous": "",
+    "software": "3ea3588ccf2e87a28616227b99f8fc3b79c37f2798fc3b194e71f11cd8d31e68"
+  },
+  "pending": {
+    "setup-pending.json": false,
+    "runtimes/transaction.json": false,
+    "runtimes/files/transaction.json": false,
+    "runtimes/flatpak/transaction.json": false,
+    "bootstrap-update.json": false
+  },
+  "trainerosPids": [
+    "27055"
+  ],
+  "desktopPids": [],
+  "flatpakExactCommits": {
+    "org.freedesktop.Platform.GL.default/aarch64/25.08": true,
+    "org.freedesktop.Platform.GL.default/aarch64/25.08-extra": true,
+    "org.freedesktop.Platform.codecs-extra/aarch64/25.08-extra": true,
+    "org.freedesktop.Platform/aarch64/25.08": true,
+    "org.kde.KStyle.Adwaita/aarch64/6.10": true,
+    "org.kde.KStyle.Adwaita/aarch64/6.11": true,
+    "org.kde.Platform/aarch64/6.10": true,
+    "org.kde.Platform/aarch64/6.11": true,
+    "org.DolphinEmu.dolphin-emu/aarch64/stable": true,
+    "org.flycast.Flycast/aarch64/stable": true,
+    "org.libretro.RetroArch/aarch64/stable": true,
+    "org.ppsspp.PPSSPP/aarch64/traineros-relay": true
+  },
+  "directRepositoryArtifacts": 10,
+  "ioPressure": "some avg10=3.82 avg60=3.43 avg300=6.89 total=82168333",
+  "bootstrapCode": {
+    "runtime_flatpak.py": "d8a4830f562727d4004120624a23266ca5f5636406c8977b85b2dea2050bec93",
+    "runtime_set.py": "b749f165e9426960fa737f6d595337d49cf07e741c77d8832844b9131da7f8bf",
+    "runtime_transaction.py": "3705e191a84406c9e2e7cf7af055dc51d86940bbb1440cb6a24b0011932a527f",
+    "runtime_manager.py": "f46998b260d7b512c15f35d2a804b8af2e0931e290fb865f248dc1c907a74e5f",
+    "runtime_flathub.py": "81cf681884be502f8ddd447f2f14c7f49e67c0c1a2d290a781dc81f758605cca"
+  }
+}

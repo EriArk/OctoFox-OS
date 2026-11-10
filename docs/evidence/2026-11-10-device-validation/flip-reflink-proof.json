@@ -1,0 +1,10 @@
+{
+  "calls": [
+    {
+      "operation": "FICLONE",
+      "success": true
+    }
+  ],
+  "independentInodes": true,
+  "sourcePreservedAfterTargetWrite": true
+}
