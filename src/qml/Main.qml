@@ -541,7 +541,7 @@ Window {
                 }
                 if (shell.primaryId === "apps") return shell.apps.menu.length ? [h("↑↓","Choose"),h("A","Select"),h("B","Back")] : [h("A","Open"),h("Select","Options"),h("X","Quick Apps"),h("Y","Recent games"),h("B","Home")]
                 if (shell.primaryId === "gamehub") return gameHubPage.hints(h)
-                if (shell.primaryId === "online") return shell.onlineFace === "bazaar" ? [h("B","Home")] : shell.chatNavigationFocused ? [h("\u2191\u2193","Sections"),h("A","Open"),h("B","Home")] : shell.social.hints
+                if (shell.primaryId === "online") return shell.onlineFace === "bazaar" ? (shell.bazaar.dialog.length ? [h("A","Select"),h("B","Back")] : [h("A","Enter"),h("B","Back"),h("R3","Search"),h("Select",shell.bazaar.selectedIndex>=0?"Favorite":"Filter")]) : shell.chatNavigationFocused ? [h("\u2191\u2193","Sections"),h("A","Open"),h("B","Home")] : shell.social.hints
                 return [h("A",shell.trainer.editing ? "Select" : "Edit Trainer"),h("B",shell.trainer.editing ? "Cancel" : "Back")]
             }
             readonly property var actions: {

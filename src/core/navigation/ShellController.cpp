@@ -36,7 +36,7 @@ void ShellController::prepareShutdown() {
             &trainer_, &trainerSetup_, &worlds_, &multiverse_, &hall_,
             &libraryManager_, &libraryTools_, &scraper_, &apps_, &crates_, &files_,
             &pcGames_, &gamePerformance_, &browser_, &powerControl_, &downloads_,
-            &settings_, &controls_, &device_, &network_, &diagnostics_, &gamePreparation_, &social_,
+            &settings_, &controls_, &device_, &network_, &diagnostics_, &gamePreparation_, &social_, &bazaar_,
             &backendAccount_, &outfits_, &visitorProfile_, &dashboard_, &album_};
     for(auto* source:sources)detach(source);
     for(auto& module:modules_)detach(module.get());
@@ -100,6 +100,11 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
       hall_(archive, achievements, this),
       libraryManager_(repo, nullptr, this), libraryTools_(repo,this), scraper_(repo,this), pcGames_(repo,*files_.service(),this), gamePerformance_(repo,this), settings_(this), device_(this), diagnostics_(this), dashboard_(repo,achievements,social_,this), story_(repo,achievements) {
 
+    connect(&bazaar_,&BazaarCatalogue::changed,this,&ShellController::changed);
+    connect(&bazaar_,&BazaarCatalogue::scrollChanged,this,&ShellController::changed);
+    connect(&bazaar_,&BazaarCatalogue::notice,this,&ShellController::showNotice);
+    connect(&bazaar_,&BazaarCatalogue::textRequested,this,[this](QString initial){textTarget_=TextTarget::BazaarSearch;keyboard_.begin("Search player bazaars",initial,64,false,"Search");});
+    connect(&social_,&SocialController::changed,this,[this]{bazaar_.setConnectionState(social_.account().value("state").toString());});
     connect(&pcGames_,&PcGamesController::changed,this,&ShellController::changed);
     connect(&pcGames_,&PcGamesController::installerStarted,&apps_,&AppsController::watchInstaller);
     connect(&pcGames_,&PcGamesController::installerFinished,&apps_,&AppsController::finishInstaller);
@@ -534,7 +539,8 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&keyboard_, &TextEntryController::accepted, this, [this](const QString& text) {
         const auto target = textTarget_;
         textTarget_ = TextTarget::None;
-        if(target==TextTarget::GameInput)settings_.gameInput()->applyText(text);
+        if(target==TextTarget::BazaarSearch)bazaar_.applySearch(text);
+        else if(target==TextTarget::GameInput)settings_.gameInput()->applyText(text);
         else if (target == TextTarget::SetupName) trainerSetup_.applyName(text);
         else if (target == TextTarget::TrainerName) trainer_.setDraftName(text);
         else if (target == TextTarget::OutfitName) outfits_.acceptName(text);
@@ -602,7 +608,7 @@ bool ShellController::canEditWorld() const {
         && !drawerOpen_ && !libraryTools_.isOpen() && !worlds_.region().value("id").toString().isEmpty();
 }
 bool ShellController::localModalOpen() {
-    if(controlsNetworkOpen_)return true;
+    if(controlsNetworkOpen_ || !bazaar_.dialog().isEmpty())return true;
     if(dashboard_.widgetPicking())return true;
     if(pcGames_.isOpen()||gamePerformance_.isOpen())return true;
     return files_.modal() || social_.files()->picker()->isOpen() || (social_.myLobbiesOpen() || social_.lobbyCreateOpen() || social_.lobbyPickerOpen() || social_.lobbyVoteOpen()) || collectionManager()->isOpen() || downloads_.isOpen() || scraper_.isOpen() || (socialActive() && !social_.menu().isEmpty()) || libraryTools_.isOpen() || trainer_.editing()
@@ -885,6 +891,7 @@ void ShellController::syncExperience() {
     const bool profileOwnerChanged=experience_.owner()!=owner;
     if(profileOwnerChanged){++postGamePrizesGeneration_;prizeWardrobeReturn_=false;overviewFocus_=0;overviewSessionId_.clear();overviewFace_="summary";profileSnapshot_.clear();profileReturnNavigation_={};profileRoute_="summary";achievementPhotoReturn_=false;}
     if(!experience_.owner().isEmpty() && experience_.owner()!=owner){dashboard_.reset();achievementNotifications_.clear();achievementToast_.clear();++achievementToastGeneration_;}
+    bazaar_.setOwner(owner);
     album_.setOwner(owner);
     dashboard_.setOwner(owner);
     album_.setMedia(storyMedia());
@@ -1066,7 +1073,7 @@ QJsonObject ShellController::navigationState() const {
     if(activeModule_)experience.rememberNavigation({{"module",activeModule_->navigation()},{"hall",hall_.navigationState()}});
     QJsonObject state{{"version", ShellNavigationVersion}, {"experienceVersion",2}, {"experienceNavigation",experience.state()}, {"page", pages[page_]},
             {"hubFace",hubFace_},{"adapterMenuOpen",adapterMenuOpen_},
-            {"overviewFace",overviewFace_},{"appsFace",appsFace_},{"socialFace",socialFace_},{"onlineFace",onlineFace_},
+            {"overviewFace",overviewFace_},{"appsFace",appsFace_},{"socialFace",socialFace_},{"onlineFace",onlineFace_},{"bazaar",bazaar_.navigation()},
             {"homeAdventure", homeAdventureId_}, {"homeResume", homeResumeId_},
             {"homeResumeSource", homeResumeSource_.toJson()},
             {"multiverse",multiverse_.navigationState()},{"homeDomain",multiverseHome_?"multiverse":"pokemon"},
@@ -1086,6 +1093,8 @@ void ShellController::restoreNavigation(const QJsonObject& state) {
     if(navigationLocked())return;
     QScopedValueRollback<bool> restoring(restoringNavigation_,true);
     homeMenuOpen_=quickAppsOpen_=drawerOpen_=false;
+    bazaar_.setOwner(trainer_.profile()["id"].toString());
+    bazaar_.restore(state["bazaar"].toObject());
     const int version=state["version"].toInt();
     if(version<1 || version>ShellNavigationVersion) {
         drawerFavorites_=favoriteSelectionLost_=false;drawerFocus_=favoriteFocus_=0;
@@ -1542,6 +1551,7 @@ void ShellController::openContext(const QString& type,const QString& target) {
     // This is the same dispatcher used by Select, with their existing guards.
     if(page_==AppsPage && appsFace_=="apps")apps_.dispatch(Action::LocalAction);
     else if(page_==AppsPage && appsFace_=="crates")crates_.dispatch(Action::ContextMenu);
+    else if(page_==OnlinePage && onlineFace_=="bazaar")bazaar_.dispatch(Action::LocalAction);
     else if(socialActive() && !chatNavigationFocused_)social_.dispatch(Action::LocalAction);
     else if(page_==GameHubPage)dispatchGameHub(Action::LocalAction);
 }
@@ -2166,6 +2176,15 @@ void ShellController::dispatch(Action action) {
        && action!=Action::Home && action!=Action::SystemMenu){gamePerformance_.dispatch(action);return;}
     if(pcGames_.isOpen() && !keyboard_.isOpen() && !downloads_.isOpen() && !serviceOpen() && !menuOpen_ && !homeMenuOpen_ && notice_.isEmpty()) {pcGames_.dispatch(action);return;}
     if((social_.myLobbiesOpen() || social_.lobbyCreateOpen() || social_.lobbyPicker()["open"].toBool() || social_.lobbyPicker()["voteOpen"].toBool())&&!keyboard_.isOpen()){social_.dispatch(action);return;}
+    if(page_==OnlinePage && onlineFace_=="bazaar" && service_.isEmpty() && !keyboard_.isOpen() && !menuOpen_ && !homeMenuOpen_ && !drawerOpen_ && !quickAppsOpen_ && notice_.isEmpty()) {
+        if(!bazaar_.dialog().isEmpty()) {
+            if(action==Action::Home)bazaar_.closeDialog();
+            else if(action!=Action::SystemMenu && action!=Action::ToggleNotifications){bazaar_.dispatch(action);return;}
+        } else if(action==Action::ToggleFavorite || action==Action::ChangeView || action==Action::ScrollUp || action==Action::ScrollDown) {
+            if(pairedNavigationAvailable() && !navigationLocked())bazaar_.dispatch(action);
+            return;
+        }
+    }
     if(page_==OnlinePage && onlineFace_=="lobby" && (action==Action::ToggleFavorite || action==Action::ChangeView)) {
         if(pairedNavigationAvailable() && !navigationLocked() && !localModalOpen())social_.dispatch(action);
         return;
@@ -2440,7 +2459,7 @@ void ShellController::dispatch(Action action) {
             return;
         }
         if (page_ == OnlinePage) {
-            if(onlineFace_=="bazaar"){if(action==Action::Back)goToPage(HomePage);}
+            if(onlineFace_=="bazaar"){if(!bazaar_.dispatch(action) && action==Action::Back)goToPage(HomePage);}
             else if(onlineFace_=="chats" && chatNavigationFocused_) {
                 if(action==Action::Up || action==Action::Down) {
                     const QStringList faces{"friends","chats","groups","communities","contacts"};

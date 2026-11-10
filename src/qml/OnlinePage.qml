@@ -58,14 +58,9 @@ Item {
         shell: root.shell
         visible: root.shell.onlineFace === "lobby" || root.chats
     }
-    Item {
-        anchors.fill: parent; visible: root.shell.onlineFace === "bazaar"
-        Column {
-            anchors.centerIn: parent; width: Math.min(parent.width - 64, 530); spacing: 18
-            Text { width: parent.width; text: "Bazaar"; font.family: Theme.displayFamily; font.pixelSize: 32; color: Theme.ink }
-            Rectangle { width: 52; height: 3; radius: 1; color: Theme.yellow }
-            Text { width: parent.width; text: "A place to meet, explore and trade."; font.pixelSize: 18; color: Theme.ink; wrapMode: Text.WordWrap }
-            Text { width: parent.width; text: "Worlds and player rooms are not available in this build yet."; font.pixelSize: 14; color: Theme.muted; wrapMode: Text.WordWrap }
-        }
+    BazaarPage {
+        anchors.fill: parent
+        shell: root.shell
+        visible: root.shell.onlineFace === "bazaar"
     }
 }
