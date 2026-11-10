@@ -1,5 +1,12 @@
 # TrainerOS — active agent / developer contract
 
+**Owner popup polish, 10 November (latest):** compact New Collection by its short
+choice list; use flat, quiet Power and Apps context menus. Start subpanels replace
+its visible dashboard and return to its preserved state. **Keep the existing
+beautiful game Home composition, preview and styling**; the owner explicitly
+rejected turning it into a compact list. No handheld installs or Bazaar merge.
+See [evidence](docs/evidence/2026-11-10-popup-polish/README.md).
+
 **Owner Online / Chats, 10 November (latest):** repair Lobby and Chats in source,
 without handheld installs. Bazaar is being prepared in another branch: preserve its
 content and do not merge until the owner explicitly resumes that integration.

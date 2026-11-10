@@ -5,18 +5,21 @@ Item {
     required property var shell
     readonly property var model: shell.collectionManager
     readonly property bool takesFocus: visible && !shell.keyboard.open && !shell.menuOpen && !shell.notice.length
+    readonly property bool choosingType: model.route === "new"
     readonly property bool picker: model.route === "membership" || model.route === "membership-new"
     Rectangle { anchors.fill: parent; color: Theme.surfaceColor("#660d2525") }
     TapHandler { onTapped: {} }
     Rectangle {
         visible: !root.picker
-        anchors.centerIn: parent; width: Math.min(root.model.smart ? 900 : 620,parent.width-32); height: Math.min(460,parent.height-24)
+        anchors.centerIn: parent; objectName: "collection-dialog"
+        width: Math.min(root.choosingType ? 440 : root.model.smart ? 900 : 620,parent.width-32)
+        height: Math.min(root.choosingType ? 110+root.model.rows.length*48+(root.model.error.length?28:0) : 460,parent.height-24)
         radius: 16; color: Theme.paper; border.color: Theme.divider
         Text { x: 22; y: 17; width: parent.width-80; text: root.model.title; textFormat: Text.PlainText; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 24; elide: Text.ElideRight }
         SocialIconButton { anchors.right: parent.right; anchors.rightMargin: 14; y: 12; icon: "x"; label: "Back"; onClicked: root.shell.pressButton("B") }
         Text { x: 22; y: 50; width: parent.width-44; text: root.model.detail; color: Theme.muted; font.pixelSize: 13; wrapMode: Text.Wrap; maximumLineCount: 2; elide: Text.ElideRight }
         ListView {
-            id: list; x: 18; y: 91; width: root.model.smart ? (parent.width-56)*0.52 : parent.width-36; height: parent.height-y-44; clip: true
+            id: list; x: 18; y: 91; width: root.model.smart ? (parent.width-56)*0.52 : parent.width-36; height: parent.height-y-(root.choosingType&&!root.model.error.length?18:44); clip: true
             model: root.model.rows; currentIndex: root.model.focusIndex; keyNavigationEnabled: false
             function reveal() { if(root.takesFocus && !root.picker && currentItem) { positionViewAtIndex(currentIndex,ListView.Contain);currentItem.forceActiveFocus(Qt.OtherFocusReason) } }
             onCurrentIndexChanged: Qt.callLater(reveal)
@@ -40,7 +43,7 @@ Item {
             }
             Text { anchors.centerIn: parent; width: parent.width-10; visible: !preview.count; text: "No games match yet.\nChange a condition or open Preview & exceptions."; wrapMode: Text.Wrap; horizontalAlignment: Text.AlignHCenter; color: Theme.muted; font.pixelSize: 14 }
         }
-        Text { x: 22; anchors.bottom: parent.bottom; anchors.bottomMargin: 10; width: parent.width-44; text: root.model.error || "Changes are saved only with Save collection."; color: root.model.error.length ? Theme.pink : Theme.muted; font.pixelSize: 12; elide: Text.ElideRight; textFormat: Text.PlainText }
+        Text { visible: !root.choosingType || root.model.error.length>0; x: 22; anchors.bottom: parent.bottom; anchors.bottomMargin: 10; width: parent.width-44; text: root.model.error || "Changes are saved only with Save collection."; color: root.model.error.length ? Theme.pink : Theme.muted; font.pixelSize: 12; elide: Text.ElideRight; textFormat: Text.PlainText }
     }
     Loader {
         anchors.fill: parent

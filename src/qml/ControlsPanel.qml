@@ -5,6 +5,7 @@ Rectangle {
     objectName: "start-dashboard"
     required property var shell
     readonly property var board: shell.controls
+    readonly property bool subpage: board.picking || board.switching || shell.device.audioOpen || shell.controlsNetworkOpen || shell.downloads.open || shell.scraper.open
     readonly property int selectedRadio: ["wifi","bluetooth","airplane"].indexOf(board.selected)
     readonly property var selectedRadioData: selectedRadio<0 ? ({}) : (shell.device.radios[selectedRadio] || {})
     readonly property string selectedDescription: board.selectedTitle + (selectedRadio<0 ? "" : " · "+(selectedRadioData.level===1?"On":selectedRadioData.level===0?"Off":"Unavailable"))
@@ -12,9 +13,8 @@ Rectangle {
     implicitWidth: 760
     implicitHeight: (board.editing ? 178 : 148) + displayRows*52
     radius: 18
-    color: Theme.paper
-    border.color: Theme.divider
-    CrtTexture { anchors.fill: parent; anchors.margins: 2 }
+    color: subpage ? "transparent" : Theme.paper
+    border.color: subpage ? "transparent" : Theme.divider
 
     component ActionButton: Rectangle {
         property string label
@@ -35,6 +35,9 @@ Rectangle {
         Accessible.name: label
         Accessible.onPressAction: activated()
     }
+    Item {
+        objectName: "start-overview"
+        anchors.fill: parent; visible: !root.subpage
     Text { x: 24; y: 21; text: "Start"; font.family: Theme.displayFamily; font.pixelSize: 25; color: Theme.ink }
     ActionButton { objectName: "start-edit"; x: 112; y: 18; label: root.board.editing ? "Done" : "Edit widgets"; width: 96; selected: root.board.selected==="edit"; onActivated: root.board.edit() }
     Row { anchors.right: closeButton.left; anchors.rightMargin: 14; y: 17; spacing: 8; visible: !root.board.editing
@@ -88,7 +91,8 @@ Rectangle {
         Text { width: 43; y: 12; text: (root.board.page+1)+" / "+root.board.pages; horizontalAlignment: Text.AlignHCenter; color: Theme.muted; font.pixelSize: 12 }
         ActionButton { objectName: "start-next-page"; width: 46; label: Theme.buttonLabel("R1")+" ›"; enabled: root.board.page+1<root.board.pages || root.board.moving&&root.board.page<7; onActivated: root.board.changePage(1) }
     }
-    Rectangle { anchors.fill: parent; z: 10; radius: root.radius; color: Qt.alpha("black",.55); visible: root.board.picking
+    }
+    Rectangle { anchors.fill: parent; z: 10; radius: root.radius; color: "transparent"; visible: root.board.picking
         MouseArea { anchors.fill: parent; onClicked: root.board.back() }
         Rectangle { anchors.centerIn: parent; width: Math.min(420,root.width-40); height: Math.min(root.height-24,100+Math.max(1,root.board.available.length)*44); radius: 14; color: Theme.paper; border.color: Theme.divider
             MouseArea { anchors.fill: parent }
@@ -103,18 +107,18 @@ Rectangle {
             }
         }
     }
-    Rectangle { anchors.fill: parent; z: 10; radius: root.radius; color: Qt.alpha("black",.55); visible: root.board.switching
+    Rectangle { anchors.fill: parent; z: 10; radius: root.radius; color: "transparent"; visible: root.board.switching
         MouseArea { anchors.fill: parent; onClicked: root.board.back() }
         Rectangle { anchors.centerIn: parent; width: Math.min(390,root.width-32); height: 220; radius: 14; color: Theme.paper; border.color: Theme.divider
             MouseArea { anchors.fill: parent }
             Text { x: 25; y: 23; text: "Switch environment"; font.family: Theme.displayFamily; font.pixelSize: 24; color: Theme.ink }
             SocialIconButton { anchors.right: parent.right; anchors.rightMargin: 17; y: 17; icon: "x"; label: "Cancel"; onClicked: root.board.back() }
-            ActivityRow { x: 24; y: 76; width: parent.width-48; label: "Desktop"; detail: "Maintenance and desktop apps"; glyph: "desktop"; selected: root.board.switchIndex===0; onActivated: root.board.activate("desktop") }
-            ActivityRow { x: 24; y: 140; width: parent.width-48; label: "Steam Gaming Mode"; glyph: "game-controller"; selected: root.board.switchIndex===1; onActivated: root.board.activate("steam") }
+            ActivityRow { flat:true; x: 24; y: 76; width: parent.width-48; label: "Desktop"; detail: "Maintenance and desktop apps"; glyph: "desktop"; selected: root.board.switchIndex===0; onActivated: root.board.activate("desktop") }
+            ActivityRow { flat:true; x: 24; y: 140; width: parent.width-48; label: "Steam Gaming Mode"; glyph: "game-controller"; selected: root.board.switchIndex===1; onActivated: root.board.activate("steam") }
         }
     }
 
-    Rectangle { anchors.fill: parent; z: 20; radius: root.radius; color: Qt.alpha("black",.55); visible: root.shell.device.audioOpen
+    Rectangle { anchors.fill: parent; z: 20; radius: root.radius; color: "transparent"; visible: root.shell.device.audioOpen
         MouseArea { anchors.fill: parent; onClicked: root.shell.device.closeAudio() }
         Rectangle { objectName: "start-audio-popup"; anchors.centerIn: parent; width: Math.min(560,root.width-32); height: Math.min(410,root.parent.height-24); radius: 18; color: Theme.paper; border.color: Theme.divider
             MouseArea { anchors.fill: parent }
@@ -145,7 +149,7 @@ Rectangle {
                 onCurrentIndexChanged: positionViewAtIndex(currentIndex,ListView.Contain)
                 onCountChanged: positionViewAtIndex(currentIndex,ListView.Contain)
                 delegate: ActivityRow { required property var modelData; required property int index
-                    objectName: "audio-output-"+index; width: outputs.width; height: 54; glyph: "speaker"
+                    flat:true; objectName: "audio-output-"+index; width: outputs.width; height: 54; glyph: "speaker"
                     label: modelData.title; detail: !modelData.available ? "Not connected" : modelData.id===root.shell.device.audioOutput ? "Current output" : ""
                     selected: index===root.shell.device.audioFocus; accent: modelData.id===root.shell.device.audioOutput ? Theme.green : Theme.paper
                     enabled: modelData.available && !root.shell.device.busy
@@ -160,7 +164,8 @@ Rectangle {
     }
 
     ConnectionsPopup {
-        anchors.fill: parent; z: 20; shell: root.shell; visible: root.shell.controlsNetworkOpen
+        anchors.fill: parent; z: 20; shell: root.shell; visible: root.shell.controlsNetworkOpen && !root.shell.keyboard.open
+        dimBackground: false
         preferredHeight: Math.max(380,root.height-16)
         maximumHeight: root.parent.height-24
     }

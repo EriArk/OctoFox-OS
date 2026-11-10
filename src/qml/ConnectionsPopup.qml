@@ -7,8 +7,9 @@ Item {
     property real preferredHeight: 380
     property real maximumHeight: height-24
     readonly property bool anchored: origin.y >= 0
+    property bool dimBackground: true
     property string popupName: "start-network-popup"
-    Rectangle { anchors.fill: parent; color: Theme.surfaceColor("#68182b29") }
+    Rectangle { visible:root.dimBackground; anchors.fill: parent; color: Theme.surfaceColor("#68182b29") }
     MouseArea { anchors.fill: parent; onClicked: root.shell.closeControlsNetwork(); onWheel: wheel => wheel.accepted=true }
     Rectangle {
         id: panel; objectName: root.popupName

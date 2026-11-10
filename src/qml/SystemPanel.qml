@@ -9,54 +9,36 @@ Item {
         anchors.topMargin: -Theme.screenBounds.y
         anchors.leftMargin: -Theme.screenBounds.x
         color: Theme.surfaceColor("#70102927")
+        visible: !root.shell.downloads.open && !root.shell.scraper.open
     }
     ControlsPanel { anchors.centerIn: parent; width: Math.min(implicitWidth,parent.width-32); height: Math.min(implicitHeight,parent.height-24); shell: root.shell; visible: root.shell.menuOpen && !root.shell.powerMenu && !root.shell.notice.length }
     Rectangle {
-        id: powerPopup
+        id: powerPopup; objectName: "power-popup"
         visible: root.shell.powerMenu && !root.shell.notice.length
         anchors.centerIn: parent
-        width: Math.min(400,parent.width-32)
-        height: Math.min(parent.height-12, powerContent.height+30)
-        radius: 24; color: Theme.chassis; border.color: Qt.darker(Theme.chassis,1.35)
-        Rectangle {anchors.fill:parent;anchors.margins:3;radius:22;color:Theme.paper;border.color:Qt.alpha("white",.5)}
-        Flickable {
-            anchors.fill:parent;anchors.margins:15;contentHeight:powerContent.height;clip:true
-            Column {
-                id: powerContent; width:parent.width;spacing:10
-                Row {
-                    width:parent.width;spacing:12
-                    Text {width:parent.width-46;text:"Power";font.family:Theme.displayFamily;font.pixelSize:27;color:Theme.ink}
-                    Text {text:"×";font.pixelSize:27;color:Theme.muted
-                        MouseArea {anchors.fill:parent;anchors.margins:-6;onClicked:root.shell.activate(4)}
-                    }
-                }
-                Text {width:parent.width;text:root.shell.powerControl.busy?"Preparing sleep…":"Rest now, pick up where you left off.";wrapMode:Text.WordWrap;color:Theme.muted;font.pixelSize:13}
-                Repeater {
-                    model:root.shell.menuItems
-                    CapButton {
-                        required property int index
-                        required property string modelData
-                        objectName:"menu-"+index
-                        width:powerContent.width;height:index===1?54:39
-                        label:index===1?"Keep awake":modelData
-                        detail:index===1?"Keep downloads running with the lid closed":""
-                        contentInset:index===1?46:14
-                        textSize:16
-                        tint:index===0?Theme.blue:index===1?Theme.green:index===3?Theme.pink:Theme.yellow
-                        selected:root.shell.focusIndex===index
-                        enabled: index>1 || (root.shell.powerControl.available&&!root.shell.powerControl.busy)
-                        onActivated:root.shell.activate(index)
-                        Rectangle {
-                            visible:index===1;x:13;y:17;width:22;height:22;radius:6
-                            color:root.shell.powerControl.keepAwake?Theme.chassis:Theme.paper
-                            border.color:Qt.alpha(Theme.ink,.35)
-                            Text {anchors.centerIn:parent;text:root.shell.powerControl.keepAwake?"✓":"";color:Theme.accentInk;font.pixelSize:17}
-                        }
-                    }
-                }
-                Text {width:parent.width;visible:text.length>0;text:root.shell.powerControl.error;wrapMode:Text.WordWrap;font.pixelSize:13;color:Theme.ink}
+        width: Math.min(420,parent.width-32)
+        height: Math.min(parent.height-24,100+root.shell.menuItems.length*52+(powerError.visible?40:0))
+        radius: 18; color: Theme.paper; border.color: Theme.divider
+        Text { x:24; y:20; text:"Power"; font.family:Theme.displayFamily; font.pixelSize:26; color:Theme.ink }
+        SocialIconButton { anchors.right:parent.right; anchors.rightMargin:18; y:18; glyph:"close"; label:"Back"; onClicked:root.shell.activate(4) }
+        Text { x:24; y:56; width:parent.width-48; text:root.shell.powerControl.busy?"Preparing sleep…":"Sleep, restart or shut down"; color:Theme.muted; font.pixelSize:12 }
+        ListView {
+            id: powerActions; x:20; y:82; width:parent.width-40; height:parent.height-y-(powerError.visible?50:18)
+            model:root.shell.menuItems; currentIndex:root.shell.focusIndex; clip:true; keyNavigationEnabled:false
+            onCurrentIndexChanged: if(currentIndex>=0)positionViewAtIndex(currentIndex,ListView.Contain)
+            delegate: ActivityRow {
+                required property int index; required property string modelData
+                objectName:"menu-"+index; width:powerActions.width; height:52
+                flat:true; drillDown:false
+                label:index===1?"Keep awake · "+(root.shell.powerControl.keepAwake?"On":"Off"):modelData
+                detail:index===1?"Keep downloads running with the lid closed":""
+                glyph:["power","sun","power","power","back","close"][index]||"power"
+                selected:root.shell.focusIndex===index
+                enabled:index>1 || (root.shell.powerControl.available&&!root.shell.powerControl.busy)
+                onActivated:root.shell.activate(index)
             }
         }
+        Text { id:powerError; x:24; anchors.bottom:parent.bottom; anchors.bottomMargin:14; width:parent.width-48; height:32; visible:text.length>0; text:root.shell.powerControl.error; wrapMode:Text.WordWrap; maximumLineCount:2; elide:Text.ElideRight; font.pixelSize:12; color:Theme.ink }
     }
     // Existing guarded confirmations keep their own surface.
     Rectangle {
