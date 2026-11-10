@@ -294,8 +294,11 @@ class Service:
             if pid <= 1 or proc.stat().st_uid != os.getuid():
                 raise ValueError('Installer process is unavailable.')
             command = (proc/'cmdline').read_bytes().split(b'\0')
-            if b'/var/opt/traineros/pc/launch.py' not in command:
-                raise ValueError('This is not a managed PC installer.')
+            # Emulator setup is a direct QProcess child of this helper's shell.
+            # Do not adopt unrelated native windows merely because the UID matches.
+            parent = int((proc/'stat').read_text().rsplit(')', 1)[1].split()[1])
+            if b'/var/opt/traineros/pc/launch.py' not in command and parent != os.getppid():
+                raise ValueError('This is not a managed game installer or emulator setup.')
             app_id = 'traineros-pc-installer'
             row = dict(id=app_id, name=message.get('title', 'Game installer')[:96],
                        description='Game installation', icon='package-x-generic', startupClass='')

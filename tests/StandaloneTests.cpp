@@ -1067,8 +1067,7 @@ private slots:
         write(appRun,"#!/bin/sh\n"
             "[ -n \"$APPIMAGE\" ] || exit 0\n"
             "[ \"$APPIMAGE\" = \"$0\" ] && [ \"$APPDIR/AppRun\" = \"$0\" ] || exit 94\n"
-            "[ \"$#\" = 2 ] && [ \"$1\" = --frontend ] && [ \"$2\" = sdl ] || exit 95\n"
-            "[ \"$SDL_VIDEODRIVER\" = x11 ] || exit 96\n"
+            "[ \"$#\" = 2 ] && [ \"$1\" = --frontend ] && [ \"$2\" = qt ] || exit 95\n"
             "printf 'frontend opened without title'\n");
         QVERIFY(QFile::setPermissions(launcher,QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner));
         QVERIFY(QFile::setPermissions(appRun,QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner));

@@ -15,7 +15,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from overlay_support import RawPad, X11, identity, supported_emulator_process
+from overlay_support import RawPad, X11, identity, supported_emulator_process, gamepad_sources
 from game_input import Mapper, HeldOutput, XTestSink, mapped_guard, validate
 from keyboard_input import HomeChord, KeyboardNavigation, KeyboardWriter
 
@@ -169,9 +169,7 @@ def run(args):
     device = Device(args.device)
     if str(device.get('Name')) not in ('Retroid Pocket Flip 2', 'AYN Odin 2') or device.mode() != 0:
         raise RuntimeError('Device already intercepted or unsupported')
-    sources = list(device.get('SourceDevicePaths'))
-    sources = [path for path in sources if (Path('/sys/class/input')/Path(str(path)).name/'device/name').read_text().strip()
-               in ('Retroid Pocket Gamepad', 'AYN Odin2 Gamepad')]
+    sources = gamepad_sources(device.get('SourceDevicePaths'))
     if len(sources) != 1: raise RuntimeError('Unverified composite sources')
     args.source = str(sources[0])
     pad, x11 = RawPad(args.source), X11()

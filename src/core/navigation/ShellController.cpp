@@ -286,7 +286,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         if(repair=="file"){libraryManager_.beginEdit(id);return;}
         gameSetupReturn_=true;
         if(repair=="software"){service_="settings";settings_.openUpdates();}
-        else {service_="game-preparation";gamePreparation_.begin(record->adventure.platformId,record->adventure.adapterId=="unconfigured"?QString():record->adventure.adapterId);}
+        else {service_="game-preparation";if(!apps_.ready())apps_.refresh();gamePreparation_.begin(record->adventure.platformId,record->adventure.adapterId=="unconfigured"?QString():record->adventure.adapterId);}
         emit changed();
     });
     const auto openGame=[this](const QString& id){
@@ -407,7 +407,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&gamePreparation_,&GamePreparationController::changed,this,&ShellController::changed);
     connect(&gamePreparation_,&GamePreparationController::tasksChanged,this,[this]{downloads_.publish("game-preparation",gamePreparation_.tasks());});
     connect(&downloads_,&DownloadsController::commandRequested,this,[this](QString provider,QString,QString action){if(provider=="game-preparation"&&(action=="cancel"||action=="cancel-all"))gamePreparation_.cancel();});
-    const auto preparation=[this]{gamePreparationFromGames_=false;service_="game-preparation";gamePreparation_.begin();emit changed();};
+    const auto preparation=[this]{gamePreparationFromGames_=false;service_="game-preparation";if(!apps_.ready())apps_.refresh();gamePreparation_.begin();emit changed();};
     connect(&settings_,&SettingsController::gamePreparationRequested,this,preparation);
     connect(&diagnostics_,&DiagnosticsController::preparationRequested,this,preparation);
     connect(&gamePreparation_,&GamePreparationController::closeRequested,this,[this]{
@@ -671,6 +671,7 @@ void ShellController::importRom() {
 void ShellController::openEmulators() {
     if(page_!=GamesPage || !collectionsRoot_ || !pairedNavigationAvailable() || runtimeChangeBlocked() || !liveGame_.isEmpty())return;
     gamePreparationFromGames_=true;gameSetupReturn_=false;service_="game-preparation";
+    if(!apps_.ready())apps_.refresh();
     gamePreparation_.begin(gamesRootZone_=="platforms"?gamesPlatforms().value(gamesPlatformIndex()).toMap()["id"].toString():QString());
     emit changed();
 }

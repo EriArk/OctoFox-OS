@@ -9,6 +9,22 @@ import json
 import math
 
 
+def gamepad_sources(paths):
+    """Select physical evdev pads, ignoring non-input composite members."""
+    result = []
+    for source in paths:
+        path = Path(str(source))
+        if path.parent != Path('/dev/input') or not path.name.startswith('event') or not path.name[5:].isdigit():
+            continue
+        try:
+            name = (Path('/sys/class/input') / path.name / 'device/name').read_text().strip()
+        except OSError:
+            continue  # A disconnected source is not an eligible controller.
+        if name in ('Retroid Pocket Gamepad', 'AYN Odin2 Gamepad'):
+            result.append(str(path))
+    return result
+
+
 class RawPad:
     def __init__(self, path):
         self.fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC)

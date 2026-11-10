@@ -13,7 +13,7 @@ import socket
 import subprocess
 import sys
 import time
-from overlay_support import RawPad, X11, identity
+from overlay_support import RawPad, X11, identity, gamepad_sources
 from game_input import Mapper, HeldOutput, XTestSink, mapped_guard
 from keyboard_input import HomeChord, KeyboardNavigation
 
@@ -50,9 +50,7 @@ class Lease:
         path = '/org/shadowblip/InputPlumber/CompositeDevice0'
         self.device = Device(path)
         if self.device.mode() != 0: raise RuntimeError('Another activity is using the controller.')
-        sources = [str(p) for p in self.device.get('SourceDevicePaths')
-                   if (Path('/sys/class/input')/Path(str(p)).name/'device/name').read_text().strip()
-                   in ('Retroid Pocket Gamepad', 'AYN Odin2 Gamepad')]
+        sources = gamepad_sources(self.device.get('SourceDevicePaths'))
         if len(sources) != 1: raise RuntimeError('Application Home controls are not configured for this controller.')
         self.pad = RawPad(sources[0])
         self.lock = os.open(Path(os.environ['XDG_RUNTIME_DIR'])/'traineros-input-lease.lock',

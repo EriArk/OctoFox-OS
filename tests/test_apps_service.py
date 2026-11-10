@@ -44,6 +44,36 @@ class Lifecycle(unittest.TestCase):
             if expected:
                 self.assertEqual(s.current,'browser');s.command({'command':'minimize'})
                 self.assertEqual(s.current,'');self.assertEqual(s.windows.mapped[-1],([11],False))
+    @patch.object(apps,'emit')
+    @patch.object(apps,'identity',return_value='root')
+    def test_setup_accepts_shell_child_but_rejects_unrelated_native_process(self,identity,emit):
+        for parent,accepted in [(123,True),(999,False)]:
+            s=self.service();s.apps={};s.sessions={};s.current=''
+            with patch.object(apps.os,'getppid',return_value=123), \
+                 patch.object(apps.Path,'stat',return_value=types.SimpleNamespace(st_uid=apps.os.getuid())), \
+                 patch.object(apps.Path,'read_bytes',return_value=b'/usr/bin/env\0APPDIR=/runtime\0'), \
+                 patch.object(apps.Path,'read_text',return_value=f'80 (setup ) title) S {parent} 0 0'):
+                if not accepted:
+                    with self.assertRaises(ValueError):s.command({'command':'watch-installer','pid':80})
+                    self.assertFalse(s.sessions)
+                else:
+                    s.command({'command':'watch-installer','pid':80,'title':'Vita setup'})
+                    self.assertEqual(s.sessions['traineros-pc-installer']['root'],(80,'root'))
+                    self.assertEqual(s.current,'traineros-pc-installer')
+                    s.command({'command':'finish-installer'})
+                    self.assertFalse(s.sessions);self.assertEqual(s.current,'')
+
+    def test_composite_sources_ignore_non_evdev_and_disconnected_members(self):
+        from overlay_support import gamepad_sources
+        def name(path):
+            names={'event3':'gpio-keys-paddles', 'event4':'AYN Odin2 Gamepad', 'event5':'Retroid Pocket Gamepad'}
+            if path.parts[-3] not in names:raise FileNotFoundError
+            return names[path.parts[-3]]
+        with patch.object(apps.Path,'read_text',name):
+            self.assertEqual(gamepad_sources(['/dev/fastrpc-adsp','/dev/input/event3','/dev/input/event4','/dev/input/event99']),['/dev/input/event4'])
+            self.assertEqual(gamepad_sources(['/dev/input/event4','/dev/input/event5']),['/dev/input/event4','/dev/input/event5'])
+            self.assertEqual(gamepad_sources(['/tmp/event4','/dev/input/mouse0']),[])
+
     def test_browser_identity_uses_desktop_class_or_flatpak_application_id(self):
         self.assertTrue(apps.browser_identity('org.mozilla.firefox.desktop',dict(pid=90,classes=['Navigator','Org.mozilla.firefox'])))
         with patch.object(apps.Path,'read_text',return_value='[Application]\nname=org.mozilla.firefox\n'):

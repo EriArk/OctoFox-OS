@@ -60,9 +60,10 @@ void describeSetup(QJsonObject& profile, const QString& id) {
         if(!executable(appRun))return;
         // This extracted AppImage's AppRun silently exits without APPIMAGE.
         // Pass literal argv through env, retaining the runtime HOME supplied by
-        // ProcessService, and open the same SDL frontend used for ordinary play.
+        // ProcessService. The full Qt frontend can install firmware and games;
+        // the SDL frontend requires a title and cannot open setup on its own.
         program=QStandardPaths::findExecutable("env");
-        args={"APPDIR="+appDir,"APPIMAGE="+appRun,"SDL_VIDEODRIVER=x11",appRun,"--frontend","sdl"};
+        args={"APPDIR="+appDir,"APPIMAGE="+appRun,appRun,"--frontend","qt"};
     }
     if(id=="retroarch" && !profile["configFile"].toString().isEmpty()){args.append("--config");args.append(profile["configFile"]);}
     if(!executable(program))return;
