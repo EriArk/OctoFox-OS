@@ -1,0 +1,112 @@
+Connected
+kernel 7.2.6
+boot a0585985-f5dc-4f01-9884-2a28a8f699d8
+io some avg10=96.01 avg60=95.87 avg300=74.71 total=438603641
+full avg10=86.96 avg60=87.18 avg300=67.97 total=398263058
+
+memory some avg10=0.00 avg60=0.00 avg300=0.00 total=228418
+full avg10=0.00 avg60=0.00 avg300=0.00 total=219100
+
+12509 kworker/0:2+events
+ [<0>] blk_execute_rq+0x11c/0x268
+[<0>] ufshcd_exec_dev_cmd+0x1ec/0x260
+[<0>] ufshcd_query_attr+0xb0/0x1d0
+[<0>] ufshcd_query_attr_retry+0x78/0x120
+[<0>] ufshcd_exception_event_handler+0x28c/0x338
+[<0>] process_one_work+0x168/0x4c0
+[<0>] worker_thread+0x18c/0x2f8
+[<0>] kthread+0x134/0x150
+[<0>] ret_from_fork+0x10/0x20
+
+14560 kworker/u32:2+devfreq_wq
+ [<0>] ufshcd_devfreq_scale+0x7c/0x238
+[<0>] ufshcd_devfreq_target+0x1d8/0x2e8
+[<0>] devfreq_set_target+0x94/0x2c0
+[<0>] devfreq_update_target+0xc8/0xe8
+[<0>] devfreq_monitor+0x3c/0x1a8
+[<0>] process_one_work+0x168/0x4c0
+[<0>] worker_thread+0x18c/0x2f8
+[<0>] kthread+0x134/0x150
+[<0>] ret_from_fork+0x10/0x20
+
+11239 kworker/u32:1+flush-btrfs-1
+ [<0>] blk_mq_get_tag+0x14c/0x428
+[<0>] __blk_mq_alloc_requests+0x2b8/0x490
+[<0>] blk_mq_submit_bio+0x6cc/0x840
+[<0>] __submit_bio+0x24/0x180
+[<0>] submit_bio_noacct_nocheck+0x2d0/0x398
+[<0>] submit_bio_noacct+0x1dc/0x4a0
+[<0>] submit_bio+0xa0/0x1e0
+[<0>] btrfs_submit_dev_bio+0x130/0x240 [btrfs]
+[<0>] btrfs_submit_bio+0xa4/0x208 [btrfs]
+[<0>] btrfs_submit_chunk+0x16c/0x5e0 [btrfs]
+[<0>] btrfs_submit_bbio+0x2c/0x48 [btrfs]
+[<0>] write_one_eb+0x250/0x450 [btrfs]
+[<0>] btree_writepages+0x128/0x3b0 [btrfs]
+[<0>] do_writepages+0xb0/0x190
+[<0>] __writeback_single_inode+0x4c/0x4c0
+[<0>] writeback_sb_inodes+0x228/0x4f8
+[<0>] __writeback_inodes_wb+0x64/0x118
+[<0>] wb_writeback+0x3f0/0x540
+[<0>] wb_workfn+0x550/0x610
+[<0>] process_one_work+0x168/0x4c0
+[<0>] worker_thread+0x18c/0x2f8
+[<0>] kthread+0x134/0x150
+[<0>] ret_from_fork+0x10/0x20
+
+16226 kworker/u32:10+btrfs-discard
+ [<0>] submit_bio_wait+0x64/0xa0
+[<0>] blkdev_issue_discard+0x110/0x170
+[<0>] btrfs_issue_discard+0x128/0x1e8 [btrfs]
+[<0>] btrfs_discard_extent+0x124/0x1e8 [btrfs]
+[<0>] do_trimming+0xdc/0x250 [btrfs]
+[<0>] trim_no_bitmap+0x280/0x480 [btrfs]
+[<0>] btrfs_trim_block_group_extents+0x7c/0xe0 [btrfs]
+[<0>] btrfs_discard_workfn+0x168/0x498 [btrfs]
+[<0>] process_one_work+0x168/0x4c0
+[<0>] worker_thread+0x18c/0x2f8
+[<0>] kthread+0x134/0x150
+[<0>] ret_from_fork+0x10/0x20
+
+14688 ostree
+ [<0>] handle_reserve_ticket+0x1c8/0x350 [btrfs]
+[<0>] reserve_bytes+0x220/0x550 [btrfs]
+[<0>] btrfs_reserve_metadata_bytes+0x24/0x1c0 [btrfs]
+[<0>] start_transaction+0x17c/0x8c8 [btrfs]
+[<0>] btrfs_start_transaction+0x24/0x38 [btrfs]
+[<0>] btrfs_tmpfile+0x128/0x1e0 [btrfs]
+[<0>] vfs_tmpfile+0x14c/0x2a0
+[<0>] path_openat+0x920/0x1198
+[<0>] do_file_open+0xb4/0x180
+[<0>] do_sys_openat2+0x88/0x108
+[<0>] __arm64_sys_openat+0x68/0xc0
+[<0>] invoke_syscall.constprop.0+0x48/0x120
+[<0>] el0_svc_common.constprop.0+0xc0/0xe8
+[<0>] do_el0_svc+0x24/0x38
+[<0>] el0_svc+0x38/0x1d0
+[<0>] el0t_64_sync_handler+0xa0/0xe8
+[<0>] el0t_64_sync+0x198/0x1a0
+
+6441 python3
+ [<0>] folio_wait_bit_common+0x158/0x368
+[<0>] folio_wait_bit+0x20/0x38
+[<0>] folio_wait_writeback+0x54/0x148
+[<0>] folio_wait_stable+0x40/0x58
+[<0>] __filemap_get_folio_mpol+0x134/0x548
+[<0>] prepare_one_folio.constprop.0+0x80/0x2a0 [btrfs]
+[<0>] btrfs_buffered_write+0x250/0x830 [btrfs]
+[<0>] btrfs_do_write_iter+0x19c/0x1f8 [btrfs]
+[<0>] btrfs_file_write_iter+0x1c/0x38 [btrfs]
+[<0>] vfs_write+0x1fc/0x3e0
+[<0>] ksys_write+0x6c/0x118
+[<0>] __arm64_sys_write+0x20/0x40
+[<0>] invoke_syscall.constprop.0+0x48/0x120
+[<0>] el0_svc_common.constprop.0+0xc0/0xe8
+[<0>] do_el0_svc+0x24/0x38
+[<0>] el0_svc+0x38/0x1d0
+[<0>] el0t_64_sync_handler+0xa0/0xe8
+[<0>] el0t_64_sync+0x198/0x1a0
+
+clkscale_enable 1
+
+
