@@ -1057,6 +1057,39 @@ private slots:
         QCOMPARE(command.program,probe());QCOMPARE(command.arguments,QStringList{"/roms/game.iso"});
         QVERIFY(!command.settled);
     }
+    void vitaSetupStartsExtractedAppImageWithoutTitle() {
+#ifdef Q_OS_UNIX
+        QTemporaryDir dir;
+        const auto root=dir.filePath("Vita runtime $(literal)");
+        QVERIFY(QDir().mkpath(root+"/bin"));QVERIFY(QDir().mkpath(root+"/runtime"));
+        const auto launcher=root+"/bin/vita3k",appRun=root+"/runtime/AppRun";
+        write(launcher,"#!/bin/sh\nexit 93\n");
+        write(appRun,"#!/bin/sh\n"
+            "[ -n \"$APPIMAGE\" ] || exit 0\n"
+            "[ \"$APPIMAGE\" = \"$0\" ] && [ \"$APPDIR/AppRun\" = \"$0\" ] || exit 94\n"
+            "[ \"$#\" = 2 ] && [ \"$1\" = --frontend ] && [ \"$2\" = sdl ] || exit 95\n"
+            "[ \"$SDL_VIDEODRIVER\" = x11 ] || exit 96\n"
+            "printf 'frontend opened without title'\n");
+        QVERIFY(QFile::setPermissions(launcher,QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner));
+        QVERIFY(QFile::setPermissions(appRun,QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner));
+        write(root+"/manifest.json",R"({"protocol":1,"source":"46602447c7f84d53790b44e1869ab5105178bf16","settings":"native-lan-two-owned-v1"})");
+        EmulatorEnvironment env;env.home=dir.path();env.configHome=dir.filePath("config");
+        env.stateDirectory=dir.filePath("state");env.libraryRoot=dir.filePath("roms");
+        env.executables={{"vita3k",launcher}};
+        // Repeat discovery to cover the persisted profile used on an upgrade.
+        for(int pass=0;pass<2;++pass) {
+            const auto found=prepareEmulators(env);QVERIFY(found.profiles.contains("vita3k"));
+            const auto profile=found.profiles["vita3k"];
+            QStringList args;for(const auto& value:profile["setupArguments"].toArray())args<<value.toString();
+            QProcess child;child.start(profile["setupProgram"].toString(),args);
+            QVERIFY(child.waitForFinished());QCOMPARE(child.exitStatus(),QProcess::NormalExit);QCOMPARE(child.exitCode(),0);
+            QCOMPARE(child.readAllStandardOutput(),QByteArray("frontend opened without title"));
+            QCOMPARE(profile["program"].toString(),launcher);
+        }
+#else
+        QSKIP("Extracted AppImage setup is a Unix runtime route");
+#endif
+    }
     void managedDiscoveryPreservesLegacyProfilesAndUsesPrivateConfig() {
         QTemporaryDir dir;
         EmulatorEnvironment env;env.managed=true;env.home=dir.filePath("runtime-home");

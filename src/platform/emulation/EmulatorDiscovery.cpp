@@ -55,7 +55,14 @@ void describeSetup(QJsonObject& profile, const QString& id) {
         const auto root=QFileInfo(launcher).dir().absoluteFilePath("..");
         const auto manifest=readProfile(root+"/manifest.json");
         if(manifest["source"]!="46602447c7f84d53790b44e1869ab5105178bf16")return;
-        program=QDir(root).absoluteFilePath("runtime/AppRun");args={};
+        const auto appDir=QDir(root).absoluteFilePath("runtime");
+        const auto appRun=appDir+"/AppRun";
+        if(!executable(appRun))return;
+        // This extracted AppImage's AppRun silently exits without APPIMAGE.
+        // Pass literal argv through env, retaining the runtime HOME supplied by
+        // ProcessService, and open the same SDL frontend used for ordinary play.
+        program=QStandardPaths::findExecutable("env");
+        args={"APPDIR="+appDir,"APPIMAGE="+appRun,"SDL_VIDEODRIVER=x11",appRun,"--frontend","sdl"};
     }
     if(id=="retroarch" && !profile["configFile"].toString().isEmpty()){args.append("--config");args.append(profile["configFile"]);}
     if(!executable(program))return;
