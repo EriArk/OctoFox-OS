@@ -1,11 +1,26 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Recoverable code-only file changes. Callers hold the installation/runtime locks."""
 import os
+import errno
 from pathlib import Path
 import shutil
 import tempfile
 import installation as install
 import releases as sw
+
+
+def copy_code(source, target):
+    """Clone storage extents when supported; never share a writable inode."""
+    if os.name == 'posix':
+        import fcntl
+        try:
+            fcntl.ioctl(target.fileno(), 0x40049409, source.fileno())  # Linux FICLONE
+            return
+        except OSError as error:
+            if error.errno not in (errno.EXDEV, errno.EOPNOTSUPP, errno.ENOTTY, errno.EINVAL, errno.ENOSYS):
+                raise
+            target.seek(0); target.truncate(0); source.seek(0)
+    shutil.copyfileobj(source, target)
 
 
 class Files:
@@ -36,7 +51,7 @@ class Files:
             fd, tmp = tempfile.mkstemp(dir=self.blobs)
             try:
                 with os.fdopen(fd, 'wb') as target, path.open('rb') as source:
-                    shutil.copyfileobj(source, target); target.flush(); os.fsync(target.fileno())
+                    copy_code(source, target); target.flush(); os.fsync(target.fileno())
                 if sw.sha256(tmp) != sha: raise ValueError('Runtime file changed while backing up')
                 os.replace(tmp, blob)
             finally:
@@ -53,11 +68,13 @@ class Files:
             fd, tmp = tempfile.mkstemp(dir=self.blobs)
             try:
                 with os.fdopen(fd, 'wb') as target, source.open('rb') as incoming:
-                    shutil.copyfileobj(incoming, target); target.flush(); os.fsync(target.fileno())
+                    copy_code(incoming, target); target.flush(); os.fsync(target.fileno())
                 if sw.sha256(tmp) != sha: raise ValueError('Staged runtime file changed')
                 os.replace(tmp, blob)
             finally:
                 if os.path.exists(tmp): os.unlink(tmp)
+        elif blob.is_symlink() or sw.sha256(blob) != sha:
+            raise ValueError('Runtime recovery copy is damaged')
         return {'kind': 'file', 'sha256': sha, 'mode': mode}
 
     def baseline(self): return install.read(self.root / 'baseline.json', {})
@@ -92,7 +109,7 @@ class Files:
                     blob = self.blobs / value['sha256']
                     if blob.is_symlink() or sw.sha256(blob) != value['sha256']: raise ValueError('Recovery blob is damaged')
                     with open(tmp, 'wb') as target, blob.open('rb') as source:
-                        shutil.copyfileobj(source, target); target.flush(); os.fsync(target.fileno())
+                        copy_code(source, target); target.flush(); os.fsync(target.fileno())
                     os.chmod(tmp, value['mode'])
                 else: raise ValueError('Invalid runtime file state')
                 os.replace(tmp, path)

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import copy
 import hashlib
+import json
 from pathlib import Path
 import sys
 import tempfile
@@ -38,7 +39,10 @@ class RuntimeFlathubTests(unittest.TestCase):
             self.assertTrue(Path(kwargs['env']['FLATPAK_USER_DIR']).is_relative_to(self.stage))
         add=next(args for args,_ in self.calls if 'add' in args)
         self.assertIn('--set=gpg-verify=true',add);self.assertIn('--set=gpg-verify-summary=true',add)
-        self.assertEqual(Path(result['preparedFile']).read_bytes(),b'exact pinned commit bundle')
+        descriptor=json.loads(Path(result['preparedFile']).read_text())
+        self.assertEqual(descriptor['commit'],self.row['commit'])
+        self.assertEqual(descriptor['format'],'ostree')
+        self.assertFalse(any('build-bundle' in args for args,_ in self.calls))
         self.assertEqual(upstream.prepare(self.stage,self.row,runner=lambda *a,**k:self.fail('unexpected command')),result)
 
     def test_wrong_commit_cannot_reach_export_or_activation(self):

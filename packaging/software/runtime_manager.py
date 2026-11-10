@@ -43,7 +43,7 @@ def engines(root, job, runner=subprocess.run):
 
 
 def plan(root, stage=None, prepared=None, *, remove=False, migrate=False, home=None, data=None,
-         make_environments=True, runner=subprocess.run, software_receipt=None, progress=lambda *args:None):
+         make_environments=True, runner=subprocess.run, software_receipt=None, progress=lambda *args:None, confirm_migration=None):
     root=Path(root)
     if pending(root): raise ValueError('Recover the interrupted full installation first')
     home,data=runtime_layout.paths(root)
@@ -84,7 +84,10 @@ def plan(root, stage=None, prepared=None, *, remove=False, migrate=False, home=N
         for row in system_rows:
             path=Path('/var/opt/traineros/integrations')/row['path']
             if path.exists() and (path.is_symlink() or not path.is_file() or sw.sha256(path)!=row['sha256']):
-                raise ValueError('Existing system helper needs migration with a recovery copy: '+str(path))
+                message = 'Existing system helper needs migration with a recovery copy: '+str(path)
+                if confirm_migration is None or not confirm_migration(message): raise ValueError(message)
+                migrate = True
+                break
     jobs=install.private(root/'runtimes/jobs')
     systemplan=jobs/(ident+'-system.json')
     sw.atomic(systemplan,{'schema':1,'operation':ident,'files':system_rows})

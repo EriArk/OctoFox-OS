@@ -138,6 +138,23 @@ class RuntimeInstallationTests(unittest.TestCase):
         (self.files.blobs/plan['operations'][0]['before']['sha256']).write_bytes(b'damaged')
         with self.assertRaisesRegex(ValueError,'damaged'):self.files.apply(reverse=True)
 
+    def test_import_does_not_trust_a_damaged_existing_blob(self):
+        state=self.files.import_file(self.src,0o755)
+        (self.files.blobs/state['sha256']).write_bytes(b'damaged')
+        with self.assertRaisesRegex(ValueError,'damaged'):self.files.import_file(self.src,0o755)
+
+    def test_code_copies_remain_independent_and_fallback_preserves_bytes(self):
+        import errno
+        from runtime_transaction import copy_code
+        target=self.base/'copy'
+        with patch('fcntl.ioctl',side_effect=OSError(errno.EOPNOTSUPP,'unsupported')):
+            with self.src.open('rb') as source,target.open('wb') as output:copy_code(source,output)
+        self.assertEqual(target.read_bytes(),self.src.read_bytes())
+        desired=self.desired();self.files.begin(self.files.plan(desired,'copy'));self.files.apply()
+        self.dst.write_bytes(b'user edit')
+        self.assertEqual(self.src.read_bytes(),b'new executable')
+        self.assertEqual((self.files.blobs/desired[str(self.dst)]['sha256']).read_bytes(),b'new executable')
+
     def flatplan(self):
         stage=self.base/'stage';folder=stage/'media/flatpak';folder.mkdir(parents=True,exist_ok=True)
         path=folder/'app.flatpak';path.write_bytes(b'bundle')
@@ -168,6 +185,29 @@ class RuntimeInstallationTests(unittest.TestCase):
         self.fp.begin(self.fp.restore_plan());self.fp.apply(finish=False)
         self.assertNotIn(ref,self.fake.refs);self.fp.apply(reverse=True)
         self.assertEqual(self.fake.refs[ref],'a'*64)
+
+    def test_system_helper_consent_does_not_repeat_preparation(self):
+        envelope={'signed':{'softwareSource':'a'*40,'sequence':1}}
+        identity=hashlib.sha256(sw.canonical(envelope['signed'])).hexdigest()
+        stage=self.root/'runtimes/versions'/identity
+        helpers=self.base/'system-helpers';helpers.mkdir();(helpers/'helper').write_bytes(b'old')
+        def mapped_path(value):
+            return helpers if str(value)=='/var/opt/traineros/integrations' else Path(value)
+        with patch.object(manager,'Path',side_effect=mapped_path), \
+             patch.object(manager.runtime,'signed',return_value=envelope), \
+             patch.object(manager.runtime,'verify_media'), \
+             patch.object(manager.install,'version',return_value={'source':'a'*40}), \
+             patch.object(manager.runtime,'flatpak_rows',return_value=[]), \
+             patch.object(manager.runtime,'deployment',return_value=(self.files,{},[{'path':'helper','sha256':'b'*64}],{})) as prepare:
+            decisions=[]
+            job=manager.plan(self.root,stage,runner=self.fake,
+                             confirm_migration=lambda message:decisions.append(message) or True)
+            self.assertTrue(job['migrate']);self.assertEqual(len(decisions),1)
+            prepare.assert_called_once()
+            with self.assertRaisesRegex(ValueError,'needs migration'):
+                manager.plan(self.root,stage,runner=self.fake,confirm_migration=lambda message:False)
+        self.assertFalse(manager.pending(self.root))
+        self.assertEqual((helpers/'helper').read_bytes(),b'old')
 
     def job(self):
         flat,ref=self.flatplan()

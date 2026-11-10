@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Prepare pinned, signed Flathub commits without touching an installed ref.
 
-The private staging repository is only a download cache. Activation and rollback
-still use the existing Flatpak bundle transaction. No latest-version resolution,
+The private staging repository retains verified commits for activation and
+rollback without recompressing them into bundles on the handheld. No latest-version resolution,
 user remotes, host installations or emulator configuration are used here.
 """
 import os
@@ -45,8 +45,8 @@ def prepare(stage, row, progress=lambda *args: None, runner=subprocess.run):
     if key.is_symlink() or sw.sha256(key) != row['delivery']['keySha256']:
         raise ValueError('Flathub signing key changed')
     cache = install.private(stage / 'downloads/flathub')
-    output = cache / (row['commit'] + '.flatpak')
-    receipt = cache / (row['commit'] + '.json')
+    output = cache / (row['commit'] + '.ostree.json')
+    receipt = cache / (row['commit'] + '.ready.json')
     if output.is_symlink() or receipt.is_symlink(): raise ValueError('Redirected Flathub cache')
     saved = install.read(receipt)
     if saved:
@@ -105,16 +105,12 @@ def prepare(stage, row, progress=lambda *args: None, runner=subprocess.run):
     if command([*ostree, 'rev-parse', 'flathub:' + ref], 30) != row['commit']:
         raise ValueError('Downloaded Flatpak version differs')
     command([*ostree, 'refs', '--force', '--create=' + ref, row['commit']], 30)
-    temporary = output.with_suffix('.partial')
-    if temporary.is_symlink(): raise ValueError('Redirected Flatpak export')
-    if temporary.exists(): temporary.unlink()
-    name, arch, branch = row['ref'].split('/')
-    phase = 'Preparing runtime: ' + row['ref']; progress(phase)
-    command(['flatpak', 'build-bundle', '--arch=' + arch,
-             *(['--runtime'] if row['kind'] == 'runtime' else []),
-             str(repo), str(temporary), name, branch])
-    sha = sw.sha256(temporary)
-    os.replace(temporary, output)
+    # A small, hashed descriptor replaces a second compressed copy of every
+    # runtime. pull-local verifies signatures and object hashes at activation.
+    sw.atomic(output, {'schema': 1, 'format': 'ostree', 'repo': str(repo),
+                       'key': str(key), 'keySha256': row['delivery']['keySha256'],
+                       'ref': row['ref'], 'kind': row['kind'], 'commit': row['commit']})
+    sha = sw.sha256(output)
     sw.atomic(receipt, {'ref': row['ref'], 'commit': row['commit'],
                        'keySha256': row['delivery']['keySha256'], 'sha256': sha})
     return dict(row, preparedFile=str(output), sha256=sha, bytes=output.stat().st_size)

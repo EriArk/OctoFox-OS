@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Offline Flatpak transactions; never remove application data or force dependencies."""
+"""Offline Flatpak bundle/OSTree transactions; never remove application data or force dependencies."""
 import os
 from pathlib import Path
 import subprocess
@@ -21,6 +21,51 @@ class Flatpaks:
         p = self.run(['flatpak', *args], env=self.env, capture_output=True, text=True, timeout=1800)
         if p.returncode: raise ValueError('Flatpak operation failed: ' + p.stderr[-2000:])
         return p.stdout.strip()
+
+    def install_artifact(self, path, expected, row, desired):
+        path = Path(path)
+        if path.is_symlink() or any(p.is_symlink() for p in path.parents) or sw.sha256(path) != expected:
+            raise ValueError('Flatpak recovery artifact changed')
+        if not path.name.endswith('.ostree.json'):
+            # Older journals and the modified PPSSPP runtime still use bundles.
+            self.command(['--user','install','--reinstall','--noninteractive','--no-deps','--no-related','--bundle',str(path)])
+            return
+        artifact = install.read(path)
+        if (set(artifact) != {'schema','format','repo','key','keySha256','ref','kind','commit'}
+                or artifact['schema'] != 1 or artifact['format'] != 'ostree'
+                or any(artifact[k] != row[k] for k in ('ref','kind'))
+                or artifact['commit'] != desired or not sw.HASH.fullmatch(desired)):
+            raise ValueError('Flatpak repository artifact identity changed')
+        source, key = Path(artifact['repo']), Path(artifact['key'])
+        if (source != path.parent / 'repo' or not source.is_dir()
+                or any(p.is_symlink() for p in (source,key,*source.parents,*key.parents))
+                or sw.sha256(key) != artifact['keySha256']):
+            raise ValueError('Flatpak repository or signing key changed')
+        import runtime_flathub
+        repository = install.private(self.data / 'flatpak/repo')
+        remote = 'traineros-flathub'
+        def ostree(args):
+            p = self.run(['ostree','--repo='+str(repository),*args], env=self.env,
+                         capture_output=True,text=True,timeout=1800)
+            if p.returncode: raise ValueError('Flatpak repository operation failed: '+p.stderr[-2000:])
+            return p.stdout.strip()
+        if not (repository / 'config').exists(): ostree(['init','--mode=bare-user-only'])
+        ostree(['remote','add','--if-not-exists','--gpg-import='+str(key),
+                '--set=gpg-verify=true','--set=gpg-verify-summary=true',
+                '--set=xa.noenumerate=true','--set=xa.nodeps=true',remote,runtime_flathub.URL])
+        if ostree(['remote','show-url',remote]) != runtime_flathub.URL:
+            raise ValueError('TrainerOS Flatpak remote changed')
+        for setting in ('gpg-verify','gpg-verify-summary'):
+            if ostree(['config','get','remote "'+remote+'".'+setting]) != 'true':
+                raise ValueError('Flatpak signature verification must remain enabled')
+        # Verify the exact signed commit and its objects, without network access
+        # or following the remote's newest ref. Existing deployments stay live
+        # until Flatpak performs its normal atomic deployment.
+        ostree(['pull-local','--untrusted','--remote='+remote,'--gpg-verify',str(source),desired])
+        ref = row['kind']+'/'+row['ref']
+        ostree(['refs','--force','--create='+remote+':'+ref,desired])
+        self.command(['--user','install','--no-pull','--reinstall','--noninteractive',
+                      '--no-deps','--no-related',remote,ref])
 
     def commit(self, ref):
         p = self.run(['flatpak', '--user', 'info', '--show-commit', ref], env=self.env, capture_output=True, text=True, timeout=30)
@@ -99,10 +144,8 @@ class Flatpaks:
                 if not desired:
                     self.command(['--user','uninstall','--noninteractive','--no-related',row['ref']])
                 else:
-                    path = Path(row['backup'] if reverse else row['file'])
-                    expected = row['backupSha256'] if reverse else row['sha256']
-                    if path.is_symlink() or sw.sha256(path) != expected: raise ValueError('Flatpak recovery artifact changed')
-                    self.command(['--user','install','--reinstall','--noninteractive','--no-deps','--no-related','--bundle',str(path)])
+                    self.install_artifact(row['backup'] if reverse else row['file'],
+                                          row['backupSha256'] if reverse else row['sha256'], row, desired)
             if self.commit(row['ref']) != desired: raise ValueError('Flatpak installation identity mismatch')
             if row['kind']=='app':
                 app,arch,branch=row['ref'].split('/')

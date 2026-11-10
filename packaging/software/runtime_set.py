@@ -17,7 +17,7 @@ import tempfile
 import installation as install
 import releases as sw
 import runtime_payload
-from runtime_transaction import Files
+from runtime_transaction import Files, copy_code
 
 NATIVE = {'azahar-netplay', 'dolphin-lan', 'dolphin-netplay', 'flycast-lan', 'flycast-netplay',
           'flycast-online', 'melonds-netplay', 'neocd-netplay', 'ngpc', 'odamex', 'pcsx-rearmed-cbin',
@@ -119,7 +119,8 @@ def prepare(root, manifest, archive, progress=lambda *args: None):
     try:
         progress('Preparing emulator packages')
         extract(archive, stage / 'media', envelope['signed']['files'])
-        verify_media(stage, envelope)
+        # extract already checked every signed size/hash while writing.
+        # The coordinator verifies staged media again before activation.
         sw.atomic(stage / 'prepared.json', {'schema': 1, 'identity': identity})
     except BaseException:
         sw.atomic(stage / 'incomplete.json', {'phase': 'media'}); raise
@@ -162,13 +163,16 @@ def component(stage, identity, progress=lambda *args: None):
             if upstream:
                 part = runtime_upstream.prepare(stage, record, progress)
                 row = record['files'][0]; output = Path(tmp) / row['path']
-                shutil.copyfile(part, output); output.chmod(row['mode'])
+                with part.open('rb') as incoming, output.open('xb') as target_file:
+                    copy_code(incoming, target_file)
+                output.chmod(row['mode'])
             else:
                 extract(archive, Path(tmp), [row for row in record['files'] if row not in external])
                 if external: runtime_vita_upstream.prepare(stage, record, Path(tmp), progress)
             verify_component(Path(tmp))
             os.replace(tmp, target)
-    verify_component(target)
+    else:
+        verify_component(target)
     return record, target
 
 
@@ -180,11 +184,13 @@ def environment(stage, name, python=sys.executable, *, recover_incomplete=False)
     if sorted(lines) != sorted(spec['requirements']) or any(not re.fullmatch(r'[A-Za-z0-9_.-]+==[A-Za-z0-9_.+!-]+', x) for x in lines):
         raise ValueError('Invalid pinned Python requirements')
     dest = stage / 'venvs' / name; ready = stage / 'venvs' / (name + '.json')
+    observed = None
     if ready.exists() and recover_incomplete:
         # Only the coordinator may authorize rebuilding an unactivated stage.
         # A power loss can preserve the receipt before all venv files reach disk.
         try:
-            intact = install.read(ready)['files'] == environment_files(dest)
+            observed = environment_files(dest)
+            intact = install.read(ready)['files'] == observed
         except (OSError, ValueError, KeyError, TypeError):
             intact = False
         if not intact:
@@ -200,10 +206,12 @@ def environment(stage, name, python=sys.executable, *, recover_incomplete=False)
                         '--no-deps', '--find-links', str(stage / 'media/python/wheels'), '-r', str(stage / 'media/python' / (name + '.lock'))],
                        env=env, check=True, timeout=600)
         subprocess.run([str(dest / 'bin/python'), '-m', 'pip', 'check'], check=True, timeout=60)
+        observed = environment_files(dest)
         sw.atomic(ready, {'requirements': lines, 'pythonSha256': spec['pythonSha256'],
-                         'files': environment_files(dest)})
+                         'files': observed})
     if sw.sha256(dest / 'bin/python') != spec['pythonSha256']: raise ValueError('Python runtime changed')
-    if install.read(ready)['files'] != environment_files(dest): raise ValueError('Prepared Python environment changed: ' + name)
+    if observed is None: observed = environment_files(dest)
+    if install.read(ready)['files'] != observed: raise ValueError('Prepared Python environment changed: ' + name)
     return dest
 
 
