@@ -121,7 +121,7 @@ void BazaarCatalogue::toggleFavorite(QString id) {
 }
 void BazaarCatalogue::closeDialog(bool all) {
     if(dialog_.isEmpty())return;
-    if(dialog_=="review"&&!all) {if(backend_&&!account()["review"].toMap().isEmpty())backend_->cancelPurchaseReview();dialog_="create";dialogIndex_=4;}
+    if(dialog_=="review"&&!all) {if(backend_&&!account()["review"].toMap().isEmpty())backend_->cancelPurchaseReview();dialog_="purchase";dialogIndex_=0;}
     else {dialog_.clear();textField_.clear();message_.clear();if(backend_&&!account()["review"].toMap().isEmpty())backend_->cancelPurchaseReview();}
     emit changed();
 }

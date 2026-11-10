@@ -1,5 +1,10 @@
 # Покупки за Искры и постоянные оформления
 
+**Bazaar correction, 10 November:** `bazaar.personal` buys the permanent right
+for 5000 Sparks, with no creation details. Free `POST /v1/me/bazaars` creates
+the one space later. See [current contract](bazaar.md); this supersedes the
+combined purchase/creation description below.
+
 ## Личный базар — 10 ноября
 
 `bazaar.personal`: один постоянный базар за 5000 Искр, один на аккаунт, без

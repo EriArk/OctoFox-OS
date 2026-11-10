@@ -42,6 +42,22 @@ class Bazaars:
     def __init__(self, progression):
         self.progression, self.db = progression, progression.db
 
+    def create(self, access, value):
+        value = details(value)
+        with self.db.transaction() as conn:
+            actor = self.progression.account(conn, access)
+            # Same account lock as purchases: one permanent right, one space.
+            conn.execute('SELECT revision FROM trainer_backend.progression_accounts WHERE player_id=%s FOR UPDATE', (actor.player_id,)).fetchone()
+            if not conn.execute("SELECT 1 FROM trainer_backend.owned_items WHERE player_id=%s AND offer_id='bazaar.personal'", (actor.player_id,)).fetchone():
+                raise AuthError('bazaar_license_required', 409)
+            row = owned(conn, actor.player_id)
+            if not row:
+                row = create_owned(conn, actor.player_id, value)
+                conn.execute('INSERT INTO trainer_backend.audit_events(id,actor_id,action,resource_id) VALUES(%s,%s,%s,%s)',
+                             (uuid4(), actor.player_id, 'inventory.bazaar_created', row['id']))
+            # Retrying a lost response returns the existing space, never edits it.
+            return {'player_id': actor.player_id, 'bazaar_license': True, 'bazaar': row}
+
     def directory(self, access, search='', after=None, favorites=None):
         with self.db.transaction() as conn:
             actor = self.progression.account(conn, access)

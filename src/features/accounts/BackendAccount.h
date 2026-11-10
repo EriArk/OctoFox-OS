@@ -68,7 +68,7 @@ public:
     void copyRewardChallenge();
     QVariantMap shop() const;
     QVariantMap bazaarAccount() const;
-    void reviewBazaarPurchase(QJsonObject details);
+    void reviewBazaarPurchase();
     void resolveBazaarPurchase();
     void bazaarRequest(const QString& action,QJsonObject args,Reply done);
     QString profileAppearance() const;

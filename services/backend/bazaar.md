@@ -1,6 +1,8 @@
 # Personal bazaars — persistent foundation, 10 November 2026
 
-Owner-approved first tariff: **5000 Sparks once, one personal bazaar per player**.
+Owner-approved flow: **buy the permanent right for 5000 Sparks, create the one
+personal bazaar later whenever convenient, without another charge**. Purchase
+needs no name/settings and creates no catalogue row.
 The verified TrainerOS account owns the place permanently. A realtime peer host is
 not its owner. This increment implements records and owner menus, not the Bazaar
 game, realtime admission, peer hosting, migration or official realm allocation.
@@ -17,15 +19,22 @@ purchased spaces. There is no ephemeral host column masquerading as ownership.
 
 `Shop.purchase` remains the transaction owner: authenticate, lock the existing
 progression account and offer, compare the reviewed price/revision, check funds
-and permanent ownership, then insert the receipt/owned item/bazaar, debit the
+and permanent ownership, then insert the receipt/owned item, debit the
 existing append-only reward ledger and publish audit/outbox events atomically.
 Any failure rolls back every effect. Concurrent scene/slot/bazaar purchases share
 that same account lock. A repeated operation returns its existing receipt;
-a different creation payload with the same operation ID conflicts.
+a different purchase identity with the same operation ID conflicts.
 
-The exact normalized creation fields are part of `purchases.details`. Legacy
-purchases retain `{}`. Bazaar details on unrelated offers or a Bazaar purchase
-without details are rejected. No new wallet, account or room coordinator exists.
+New license purchases store `{}` in `purchases.details`. Old combined receipts
+remain recoverable with their exact original details; new purchase requests with
+creation details are rejected before charging. Existing spaces/ownership survive.
+No new wallet, account or room coordinator exists.
+
+`Bazaars.create` separately authenticates, locks the same progression account,
+checks the purchased `bazaar.personal` item and inserts the space/audit/outbox
+atomically. It never writes the balance or purchase ledger. Repeats/concurrent
+requests return the existing space without overwriting its settings (first creation
+wins). Failure rolls back creation only; the paid right remains available.
 
 ## API and shell
 
@@ -33,12 +42,15 @@ All Bazaar data routes require an existing account session. No owner/host/balanc
 is accepted from a client. The auth middleware retains its body and rate limits.
 
 - `GET /v1/me/inventory` additionally returns `bazaar_offer` (or null) and the
-  caller's `bazaar` (or null). Retired offers do not erase ownership.
+  caller's `bazaar` (or null), plus `bazaar_license` (boolean). Retired offers do not erase ownership.
 - `POST /v1/me/purchases` keeps operation ID, offer ID/revision and expected price.
-  For `bazaar.personal`, `bazaar` contains `name` (1–48 chars), `description`
-  (0–280), `listed` (boolean), and `access` (`open` or `closed`). The shell stores
-  this exact intent through existing commerce recovery **before** sending it.
-- `GET /v1/me/purchases/{operation_id}` recovers the receipt and owned space.
+  Buy `bazaar.personal` without creation details. The shell stores this exact intent
+  through existing commerce recovery **before** sending it.
+- `POST /v1/me/bazaars` accepts `name` (1–48 chars), `description` (0–280),
+  `listed` (boolean), and `access` (`open` or `closed`). Requires the purchased
+  right (`bazaar_license_required`, 409 otherwise), costs nothing, and returns
+  the same space on retry. No operation ID is needed for this one-per-owner create.
+- `GET /v1/me/purchases/{operation_id}` recovers the receipt and purchased right, whether or not a space exists.
 - `GET /v1/bazaars?q=...&after=...&favorites=...` returns at most 24 cards and a
   stable UUID cursor. Query length is at most 64; favorites at most 100 UUIDs.
   Other players see listed places only; the owner also sees their hidden place.
@@ -53,8 +65,9 @@ or game-start success. `access` expresses the owner's future visitor policy;
 `listed` controls catalogue visibility now. Hiding/closing is reversible and never
 refunds/deletes the paid place. Official realms remain unavailable in this slice.
 
-Native menus: Create/My bazaar, name/description via the shared keyboard,
-listed/hidden and visitor settings, exact-price review and explicit Create,
+Native menus: Buy personal bazaar → price review → explicit purchase → Create
+bazaar or Later. Returning/restarting preserves the purchased right. Creation
+then asks for name/description via the shared keyboard, listing/visitor settings,
 pending-purchase recovery, Save/reload on edit conflict, card details/favorites,
 and catalogue refresh/load-more. Controller and pointer use the same actions.
 The existing BackendAccount keeps credentials and commerce recovery; BazaarCatalogue
@@ -76,4 +89,4 @@ Server-side permission/expiry and atomic payment will be required when rentals
 are implemented. Existing ownership must survive adding these extensions.
 
 [Product contract](../../docs/BAZAAR.md),
-[build, deployment and remaining acceptance](../../docs/evidence/2026-11-10-bazaar-foundation/README.md).
+[build, deployment and remaining acceptance](../../docs/evidence/2026-11-10-bazaar-later/README.md).

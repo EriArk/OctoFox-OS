@@ -116,25 +116,32 @@ private slots:
         {
             BackendAccount account;fixture->install(account);
             QVERIFY(account.bazaarAccount()["connected"].toBool());
-            account.reviewBazaarPurchase(details);QCOMPARE(fixture->charges,0);
+            account.reviewBazaarPurchase();QCOMPARE(fixture->charges,0);
             fixture->failStorage=true;account.confirmPurchase();QCOMPARE(fixture->charges,0);
             fixture->failStorage=false;fixture->loseResponse=true;account.confirmPurchase();QCOMPARE(fixture->charges,1);
-            QCOMPARE(fixture->purchaseBody["expected_price"].toInt(),5000);QCOMPARE(fixture->purchaseBody["bazaar"].toObject(),details);
+            QCOMPARE(fixture->purchaseBody["expected_price"].toInt(),5000);QVERIFY(!fixture->purchaseBody.contains("bazaar"));
             QVERIFY(account.bazaarAccount()["bazaarPending"].toBool());
         }
         fixture->loseResponse=false;BackendAccount restored;fixture->install(restored);
         QCOMPARE(fixture->charges,1);QVERIFY(!restored.bazaarAccount()["pending"].toBool());
+        QVERIFY(restored.bazaarAccount()["owned"].toMap().isEmpty());QVERIFY(restored.bazaarAccount()["licensed"].toBool());
+        int created=0;restored.bazaarRequest("create",details,[&](int status,QJsonObject){created=status;});QCOMPARE(created,200);
         QCOMPARE(restored.bazaarAccount()["owned"].toMap()["name"].toString(),"Nym market");
-        restored.reviewBazaarPurchase(details);restored.confirmPurchase();QCOMPARE(fixture->charges,1);
+        restored.reviewBazaarPurchase();restored.confirmPurchase();QCOMPARE(fixture->charges,1);
         QJsonObject edit=details;edit["id"]=fixture->place;edit["revision"]="1";edit["listed"]=false;
         int status=0;restored.bazaarRequest("update",edit,[&](int value,QJsonObject){status=value;});
         QCOMPARE(status,200);QCOMPARE(fixture->edits,1);QCOMPARE(fixture->charges,1);
         QVERIFY(!restored.bazaarAccount()["owned"].toMap()["listed"].toBool());
+        auto current=fixture->inventory;fixture->inventory["bazaar"]=QJsonValue();
+        restored.refreshShop(); // inventory request issued before creation could arrive late
+        QCOMPARE(restored.bazaarAccount()["owned"].toMap()["id"].toString(),fixture->place);
+        fixture->inventory["bazaar_license"]=false;restored.refreshShop();
+        QVERIFY(restored.bazaarAccount()["licensed"].toBool());fixture->inventory=current;
     }
     void bazaarRejectsMismatchedReceiptAndMalformedOwnedSettings() {
         auto fixture=std::make_shared<BazaarCommerceFixture>();fixture->badReceipt=true;
         BackendAccount account;fixture->install(account);
-        account.reviewBazaarPurchase({{"name","Nym"},{"description",""},{"listed",true},{"access","open"}});account.confirmPurchase();
+        account.reviewBazaarPurchase();account.confirmPurchase();
         QCOMPARE(fixture->charges,1);QVERIFY(account.bazaarAccount()["pending"].toBool());
         QVERIFY(account.bazaarAccount()["owned"].toMap().isEmpty());
         int status=0;account.bazaarRequest("update",{{"id",fixture->place},{"revision","1"},{"owner_id","forged"}},[&](int value,QJsonObject){status=value;});

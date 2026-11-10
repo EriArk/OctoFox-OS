@@ -15,6 +15,12 @@ bool BackendAccount::validBazaarDetails(const QJsonObject& row) const {
         &&QStringList{"open","closed"}.contains(row["access"].toString());
 }
 bool BackendAccount::validBazaar(const QJsonObject& value) const {
+    // Neither a permanent right nor a created space can disappear in a delayed inventory reply.
+    if(shopSnapshot_["player_id"]==value["player_id"]) {
+        if(shopSnapshot_["bazaar_license"].toBool()&&!value["bazaar_license"].toBool())return false;
+        if(!shopSnapshot_["bazaar"].toObject().isEmpty()&&value["bazaar"].toObject().isEmpty())return false;
+    }
+    if(value.contains("bazaar_license")&&!value["bazaar_license"].isBool())return false;
     if(value.contains("bazaar_offer")&&!value["bazaar_offer"].isNull()) {
         const auto offer=value["bazaar_offer"].toObject();
         if(offer["id"]!="bazaar.personal"||offer["purpose"]!="bazaar_space"||offer["kind"]!="permanent_license"
@@ -34,18 +40,18 @@ QVariantMap BackendAccount::bazaarAccount() const {
     const auto player=player_.isEmpty()?cachedIdentity_["player_id"].toString():player_;
     const bool same=!player.isEmpty()&&shopSnapshot_["player_id"]==player;
     return {{"playerId",player},{"connected",state_=="connected"&&!player_.isEmpty()},
+        {"licensed",same&&shopSnapshot_["bazaar_license"].toBool()},
         {"owned",same?shopSnapshot_["bazaar"].toObject().toVariantMap():QVariantMap{}},
         {"offer",same?shopSnapshot_["bazaar_offer"].toObject().toVariantMap():QVariantMap{}},
         {"busy",shopBusy_},{"stale",shopStale_},{"status",shopStatus_},
         {"pending",!shopPending_.isEmpty()},{"bazaarPending",shopPending_["offer_id"]=="bazaar.personal"&&shopPending_["player_id"]==player_},
         {"review",shopReview_["id"]=="bazaar.personal"?shopReview_.toVariantMap():QVariantMap{}}};
 }
-void BackendAccount::reviewBazaarPurchase(QJsonObject details) {
-    if(shopBusy_||state_!="connected"||shopStale_||!shopPending_.isEmpty()||!shopSnapshot_["bazaar"].toObject().isEmpty()||!validBazaarDetails(details))return;
-    details["name"]=details["name"].toString().trimmed();details["description"]=details["description"].toString().trimmed();
+void BackendAccount::reviewBazaarPurchase() {
+    if(shopBusy_||state_!="connected"||shopStale_||!shopPending_.isEmpty()||shopSnapshot_["bazaar_license"].toBool()||!shopSnapshot_["bazaar"].toObject().isEmpty())return;
     const auto offer=shopSnapshot_["bazaar_offer"].toObject();
     if(offer.isEmpty())return;
-    shopReview_=offer;shopReview_["bazaar"]=details;emit changed();
+    shopReview_=offer;emit changed();
 }
 void BackendAccount::resolveBazaarPurchase(){if(shopPending_["offer_id"]=="bazaar.personal")recoverPurchase(true);}
 void BackendAccount::bazaarRequest(const QString& action,QJsonObject args,Reply done) {
@@ -59,13 +65,14 @@ void BackendAccount::bazaarRequest(const QString& action,QJsonObject args,Reply 
         }
         request("GET","/v1/bazaars?"+query.toString(QUrl::FullyEncoded),{},std::move(done),access_);return;
     }
-    if(action=="update") {
+    if(action=="update"||action=="create") {
         const auto bazaar=args.take("id").toString();const auto version=args.take("revision");
-        if(!id(bazaar)||!revision(version)||!validBazaarDetails(args)){done(422,{});return;}
-        args["revision"]=version;
-        request("PUT","/v1/me/bazaars/"+bazaar,args,[this,done=std::move(done)](int status,QJsonObject value){
+        if(!validBazaarDetails(args)||(action=="update"&&(!id(bazaar)||!revision(version)))){done(422,{});return;}
+        if(action=="update")args["revision"]=version;
+        request(action=="create"?"POST":"PUT",action=="create"?"/v1/me/bazaars":"/v1/me/bazaars/"+bazaar,args,[this,done=std::move(done)](int status,QJsonObject value){
+            if(status==200)value["bazaar_license"]=true;
             if(status==200&&value["player_id"]==player_&&validBazaar(value)&&!value["bazaar"].toObject().isEmpty()) {
-                shopSnapshot_["bazaar"]=value["bazaar"];saveCommerce();emit changed();
+                shopSnapshot_["bazaar"]=value["bazaar"];shopSnapshot_["bazaar_license"]=true;saveCommerce();emit changed();
             } else if(status==200){status=502;value={};}
             done(status,std::move(value));
         },access_);return;

@@ -16,7 +16,7 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
     bool failStorage=false, loseResponse=false, conflict=false, badReceipt=false;
     BazaarCommerceFixture() {
         inventory={{"player_id",player},{"revision","1"},{"items",QJsonArray{}},{"catalogue",QJsonArray{}},{"equipped",QJsonValue()},
-            {"bazaar",QJsonValue()},{"bazaar_offer",QJsonObject{{"id","bazaar.personal"},{"purpose","bazaar_space"},{"kind","permanent_license"},
+            {"bazaar_license",false},{"bazaar",QJsonValue()},{"bazaar_offer",QJsonObject{{"id","bazaar.personal"},{"purpose","bazaar_space"},{"kind","permanent_license"},
             {"revision","1"},{"price",5000},{"title","Personal Bazaar"}}}};
     }
     BackendAccount::Services services() {
@@ -36,13 +36,20 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
             if(path=="/v1/me/inventory"||path.startsWith("/v1/me/purchases/")){done(200,self->inventory);return;}
             if(path=="/v1/me/purchases"&&method=="POST") {
                 self->purchaseBody=body;
-                if(self->inventory["bazaar"].isNull())++self->charges;
-                auto owned=body["bazaar"].toObject();owned["id"]=self->place;owned["owner_id"]=self->player;owned["offer_id"]="bazaar.personal";owned["revision"]="1";
-                self->inventory["bazaar"]=owned;self->inventory["revision"]="2";
+                if(!self->inventory["bazaar_license"].toBool())++self->charges;
+                self->inventory["bazaar_license"]=true;self->inventory["revision"]="2";
                 auto receipt=body;receipt["id"]="44444444-4444-4444-8444-444444444444";receipt["player_id"]=self->player;
-                receipt["price"]=receipt.take("expected_price");receipt["details"]=receipt.take("bazaar");
-                if(self->badReceipt)receipt["details"]=QJsonObject{};
+                receipt["price"]=receipt.take("expected_price");receipt["details"]=QJsonObject{};
+                if(self->badReceipt)receipt["details"]=QJsonObject{{"name","Wrong payload"}};
                 self->inventory["receipt"]=receipt;done(self->loseResponse?0:200,self->loseResponse?QJsonObject{}:self->inventory);return;
+            }
+            if(path=="/v1/me/bazaars"&&method=="POST") {
+                if(!self->inventory["bazaar_license"].toBool()){done(409,{{"code","bazaar_license_required"}});return;}
+                if(self->inventory["bazaar"].isNull()) {
+                    auto owned=body;owned["id"]=self->place;owned["owner_id"]=self->player;owned["offer_id"]="bazaar.personal";owned["revision"]="1";
+                    self->inventory["bazaar"]=owned;
+                }
+                done(200,{{"player_id",self->player},{"bazaar_license",true},{"bazaar",self->inventory["bazaar"]}});return;
             }
             if(path.startsWith("/v1/bazaars?")) {
                 QJsonArray rows;auto row=self->inventory["bazaar"].toObject();

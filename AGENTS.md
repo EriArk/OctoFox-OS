@@ -1,5 +1,11 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Bazaar purchase correction, 10 November (latest):** buy the permanent
+right for 5000 Sparks first, then create the single personal bazaar whenever
+convenient, without another charge. Buying must not create a catalogue record or
+require a name/settings. Preserve purchased rights across restarts and failed
+creation attempts. This supersedes the combined purchase-and-create journey.
+
 **Owner Bazaar foundation, 10 November (latest):** continue Bazaar in its separate
 branch, without merging or installing handhelds. Personal creation costs **5000
 Sparks**, exactly **one bazaar per player**; reuse Backend account/purchase/ledger

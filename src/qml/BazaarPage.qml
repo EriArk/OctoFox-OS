@@ -41,7 +41,7 @@ Item {
                 }
                 CapButton {
                     id: create; objectName: "bazaar-create"; width: root.compact ? 97 : 110; height: 29
-                    label: root.catalogue.account.owned && root.catalogue.account.owned.id ? "My bazaar" : "+ Create  ✦"; textSize: 12; tint: Theme.yellow; claimsFocus: false; contentInset: 8
+                    label: root.catalogue.account.owned && root.catalogue.account.owned.id ? "My bazaar" : root.catalogue.account.licensed ? "+ Create" : "Buy bazaar"; textSize: 12; tint: Theme.yellow; claimsFocus: false; contentInset: 8
                     selected: root.takesFocus && root.catalogue.selection==="create"
                     onActivated: root.catalogue.activate("create")
                 }

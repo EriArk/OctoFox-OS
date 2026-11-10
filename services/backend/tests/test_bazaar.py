@@ -21,27 +21,51 @@ def prepared(account, postgres):
     return shop, user, Bazaars(shop.progression)
 
 
-def buy(shop, access, operation=None, details=None):
-    return shop.purchase(access, operation or uuid4(), 'bazaar.personal', 1, 5000, details or DETAILS)
+def buy(shop, access, operation=None):
+    return shop.purchase(access, operation or uuid4(), 'bazaar.personal', 1, 5000)
 
 
-def test_creation_is_atomic_permanent_one_per_account_and_recoverable(account, postgres):
-    shop, user, service = prepared(account, postgres); token=user['access_token']; op=uuid4()
-    result=buy(shop,token,op); place=result['bazaar']
-    assert place['owner_id']==user['player_id'] and place['name']==DETAILS['name']
-    assert result['receipt']['details']==DETAILS and result['receipt']['price']==5000
-    assert shop.progression.snapshot(token)['balance']==5000
-    with ThreadPoolExecutor(2) as pool:
-        replay=list(pool.map(lambda _:buy(shop,token,op),range(2)))
-    assert all(r['bazaar']['id']==place['id'] for r in replay)
-    with pytest.raises(AuthError,match='already_owned'):buy(shop,token)
-    with pytest.raises(AuthError,match='identity_conflict'):buy(shop,token,op,{**DETAILS,'name':'Changed'})
+def create(shop, access, details=DETAILS):
+    buy(shop, access)
+    return Bazaars(shop.progression).create(access, details)
+
+
+def test_purchase_then_create_later_after_login_without_second_payment(account, postgres):
+    shop,user,service=prepared(account,postgres);token=user['access_token'];op=uuid4()
+    with pytest.raises(AuthError,match='license_required'):service.create(token,DETAILS)
+    result=buy(shop,token,op)
+    assert result['bazaar'] is None and result['bazaar_license']
+    assert result['receipt']['details']=={} and result['receipt']['price']==5000
+    assert not service.directory(token)['items']
     restored=shop.snapshot(login(account)['access_token'],op)
-    assert restored['bazaar']['id']==place['id'] and restored['receipt']['id']==result['receipt']['id']
+    assert restored['bazaar'] is None and restored['bazaar_license']
+    assert restored['receipt']['id']==result['receipt']['id']
+    assert buy(shop,token,op)['bazaar'] is None
+    with pytest.raises(AuthError,match='already_owned'):buy(shop,token)
+    with ThreadPoolExecutor(2) as pool:
+        results=list(pool.map(lambda n:service.create(token,{**DETAILS,'name':'Place '+str(n)}),range(2)))
+    place=results[0]['bazaar']
+    assert results[1]['bazaar']['id']==place['id'] and results[1]['bazaar']['name']==place['name']
+    assert service.create(token,DETAILS)['bazaar']['name']==place['name']
     assert shop.progression.snapshot(token)['balance']==5000
     assert sum(r['sparks'] for r in shop.progression.snapshot(token)['history'])==5000
     row=service.directory(token)['items'][0]
     assert row['owned'] and row['visitors'] is None and not row['join_available']
+
+
+def test_creation_failure_keeps_paid_right_for_retry(account, postgres, monkeypatch):
+    shop,user,service=prepared(account,postgres);token=user['access_token'];buy(shop,token)
+    import trainer_backend.bazaar.service as module
+    original=module.publish
+    def fail(*args):raise RuntimeError('outbox unavailable')
+    monkeypatch.setattr(module,'publish',fail)
+    with pytest.raises(RuntimeError):service.create(token,DETAILS)
+    snapshot=shop.snapshot(token)
+    assert snapshot['bazaar'] is None and snapshot['bazaar_license']
+    assert shop.progression.snapshot(token)['balance']==5000
+    monkeypatch.setattr(module,'publish',original)
+    assert service.create(token,DETAILS)['bazaar']['name']==DETAILS['name']
+    assert shop.progression.snapshot(token)['balance']==5000
 
 
 def test_two_creations_and_shop_spend_share_the_same_account_lock(account, postgres):
@@ -69,7 +93,7 @@ def test_create_rolls_back_with_ledger_receipt_ownership_and_outbox(account, pos
 
 
 def test_owner_edit_conflict_hidden_catalogue_and_revoked_credentials(account, postgres):
-    shop,user,service=prepared(account,postgres);token=user['access_token'];place=buy(shop,token)['bazaar']
+    shop,user,service=prepared(account,postgres);token=user['access_token'];place=create(shop,token)['bazaar']
     account.provider.subject='99999';other=login(account)['access_token']
     assert not service.directory(other)['items'][0]['owned']
     with pytest.raises(AuthError,match='not_found'):service.update(other,place['id'],1,DETAILS)
@@ -87,8 +111,8 @@ def test_owner_edit_conflict_hidden_catalogue_and_revoked_credentials(account, p
 def test_creation_revalidates_price_balance_and_rejects_unrelated_details(account, postgres):
     shop,user=funded(account);token=user['access_token']
     with pytest.raises(AuthError,match='insufficient'):buy(shop,token)
-    with pytest.raises(AuthError,match='offer_changed'):shop.purchase(token,uuid4(),'bazaar.personal',1,1,DETAILS)
-    with pytest.raises(AuthError,match='invalid_bazaar'):shop.purchase(token,uuid4(),'bazaar.personal',1,5000)
+    with pytest.raises(AuthError,match='offer_changed'):shop.purchase(token,uuid4(),'bazaar.personal',1,1)
+    with pytest.raises(AuthError,match='invalid_bazaar'):shop.purchase(token,uuid4(),'bazaar.personal',1,5000,DETAILS)
     with pytest.raises(AuthError,match='invalid_bazaar'):shop.purchase(token,uuid4(),'profile.dusk',1,250,DETAILS)
     assert shop.snapshot(token)['bazaar'] is None
 
@@ -97,10 +121,14 @@ def test_http_contract_rejects_forged_owner_host_and_invalid_edits(account, post
     shop,user,service=prepared(account,postgres);auth={'Authorization':'Bearer '+user['access_token']}
     with TestClient(create_app(Settings(postgres[1],'test',oauth=CONFIG),provider=Provider())) as client:
         assert client.get('/v1/bazaars').status_code==401
-        body={'operation_id':str(uuid4()),'offer_id':'bazaar.personal','offer_revision':1,'expected_price':5000,'bazaar':DETAILS}
+        body={'operation_id':str(uuid4()),'offer_id':'bazaar.personal','offer_revision':1,'expected_price':5000}
         for extra in [{'owner_id':str(user['player_id'])},{'host_id':'other'},{'listed':1},{'name':'  '}]:
-            assert client.post('/v1/me/purchases',headers=auth,json={**body,'bazaar':{**DETAILS,**extra}}).status_code==422
+            assert client.post('/v1/me/bazaars',headers=auth,json={**DETAILS,**extra}).status_code==422
         result=client.post('/v1/me/purchases',headers=auth,json=body)
+        assert result.status_code==200
+        assert result.json()['bazaar'] is None and result.json()['bazaar_license']
+        assert client.post('/v1/me/purchases',headers=auth,json={**body,'operation_id':str(uuid4()),'bazaar':DETAILS}).status_code==422
+        result=client.post('/v1/me/bazaars',headers=auth,json=DETAILS)
         assert result.status_code==200
         place=result.json()['bazaar'];assert place['revision']=='1'
         assert client.put('/v1/me/bazaars/'+place['id'],headers=auth,json={**DETAILS,'revision':'1','owner_id':'other'}).status_code==422
@@ -138,7 +166,7 @@ def test_directory_pages_favorites_and_owner_columns_are_bounded(account, postgr
         account.provider.subject=str(900000+number);user=login(account)
         first=first or user
         grant_test_sparks(postgres[0],user['player_id'],account.provider.subject,5000,'Isolated catalogue test',uuid4())
-        buy(shop,user['access_token'],details={**DETAILS,'name':'Square '+str(number)})
+        create(shop,user['access_token'],details={**DETAILS,'name':'Square '+str(number)})
     page=service.directory(first['access_token']);assert len(page['items'])==24 and page['next']
     tail=service.directory(first['access_token'],after=page['next']);assert len(tail['items'])==2 and tail['next'] is None
     assert len({str(row['id']) for row in page['items']+tail['items']})==26

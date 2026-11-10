@@ -52,8 +52,8 @@ private slots:
         page.setConnectionState("signed-out");QVERIFY(page.status().contains("Sign in"));
         page.activate("official");QCOMPARE(page.dialog(),"realms");QVERIFY(page.realms().isEmpty());
         page.dispatch(Action::NextFace);QCOMPARE(page.dialog(),"realms");
-        page.dispatch(Action::Back);page.activate("create");QCOMPARE(page.dialog(),"create");
-        page.dispatch(Action::Confirm);QCOMPARE(page.dialog(),"create");page.closeDialog();QCOMPARE(notice.count(),0);
+        page.dispatch(Action::Back);page.activate("create");QCOMPARE(page.dialog(),"purchase");
+        page.dispatch(Action::Confirm);QCOMPARE(page.dialog(),"purchase");page.closeDialog();QCOMPARE(notice.count(),0);
         page.setPresentation(rooms(),{QVariantMap{{"name","Veyr"},{"visitors",32},{"capacity",32}},QVariantMap{{"name","Keth"},{"visitors",3},{"capacity",32}}},{});
         page.activate("official");page.chooseRealm(0);QCOMPARE(notice.count(),0);
         page.chooseRealm(1);QCOMPARE(notice.count(),1);QVERIFY(notice[0][0].toString().contains("not available"));

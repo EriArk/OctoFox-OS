@@ -44,3 +44,8 @@ def directory(request: Request, q: str = Query(default='', max_length=64), after
 def update(bazaar_id: UUID, body: EditBazaar, request: Request):
     return wire(service(request).update(bearer(request), bazaar_id, int(body.revision),
                                        body.model_dump(exclude={'revision'})))
+
+
+@router.post('/v1/me/bazaars')
+def create(body: BazaarDetails, request: Request):
+    return wire(service(request).create(bearer(request), body.model_dump()))

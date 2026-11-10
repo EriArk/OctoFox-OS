@@ -52,13 +52,12 @@ class Shop:
                         WHERE s.player_id=%s ORDER BY p.level''', (actor.player_id,)).fetchall(),
                     'outfits': conn.execute('SELECT * FROM trainer_backend.outfits WHERE player_id=%s ORDER BY offer_id', (actor.player_id,)).fetchall(),
                     'bazaar_offer': conn.execute("SELECT * FROM trainer_backend.shop_offers WHERE id='bazaar.personal' AND available").fetchone(),
+                    'bazaar_license': bool(conn.execute("SELECT 1 FROM trainer_backend.owned_items WHERE player_id=%s AND offer_id='bazaar.personal'", (actor.player_id,)).fetchone()),
                     'bazaar': bazaar.owned(conn, actor.player_id),
                     'equipped': appearance['offer_id'] if appearance else None, 'receipt': receipt}
 
     def purchase(self, access, operation, offer_id, revision, price, bazaar_details=None):
         purchase_details = bazaar.details(bazaar_details) if bazaar_details is not None else {}
-        if (offer_id == 'bazaar.personal') != bool(purchase_details):
-            raise AuthError('invalid_bazaar', 422)
         with self.db.transaction() as conn:
             actor = self.progression.account(conn, access)
             account = conn.execute('SELECT * FROM trainer_backend.progression_accounts WHERE player_id=%s FOR UPDATE', (actor.player_id,)).fetchone()
@@ -67,6 +66,9 @@ class Shop:
                 if (prior['offer_id'], prior['offer_revision'], prior['price'], prior['details']) != (offer_id, revision, price, purchase_details):
                     raise AuthError('purchase_identity_conflict', 409)
             else:
+                # Old receipts remain recoverable, but new purchases only unlock the right.
+                if purchase_details:
+                    raise AuthError('invalid_bazaar', 422)
                 offer = conn.execute('SELECT * FROM trainer_backend.lock_shop_offer(%s)', (offer_id,)).fetchone()
                 if not offer or not offer['available']:
                     raise AuthError('offer_unavailable', 409)
@@ -82,8 +84,6 @@ class Shop:
                 conn.execute('''INSERT INTO trainer_backend.purchases(id,player_id,operation_id,offer_id,offer_revision,price,title,details)
                     VALUES(%s,%s,%s,%s,%s,%s,%s,%s)''', (purchase, actor.player_id, operation, offer_id, revision, offer['price'], offer['title'], Jsonb(purchase_details)))
                 conn.execute('INSERT INTO trainer_backend.owned_items(player_id,offer_id,purchase_id) VALUES(%s,%s,%s)', (actor.player_id, offer_id, purchase))
-                if offer['purpose'] == 'bazaar_space':
-                    bazaar.create_owned(conn, actor.player_id, purchase_details)
                 if offer['purpose'] == 'outfit_slot':
                     conn.execute('INSERT INTO trainer_backend.outfit_slots(player_id,slot_id,purchase_id) VALUES(%s,%s,%s)', (actor.player_id, offer_id, purchase))
                 conn.execute('''INSERT INTO trainer_backend.reward_ledger(id,player_id,source,event_id,title,xp,sparks,base_sparks,policy,earned_at,purchase_id)

@@ -24,7 +24,8 @@ void BazaarCatalogue::syncBackend() {
     }
     const bool newlyOwned=own_.isEmpty()&&!state["owned"].toMap().isEmpty();
     own_=QJsonObject::fromVariantMap(state["owned"].toMap());
-    if(newlyOwned&&(dialog_=="create"||dialog_=="review")) {dialog_="manage";draft_=own_;dialogIndex_=0;message_="Your bazaar is created. World entry is being prepared.";if(active_)refresh();}
+    if(newlyOwned&&(dialog_=="create"||dialog_=="review")) {dialog_="manage";draft_=own_;dialogIndex_=0;message_="Your bazaar is created. World entry is being prepared.";if(active_&&!saving_)refresh();}
+    if(state["licensed"].toBool()&&own_.isEmpty()&&(dialog_=="purchase"||dialog_=="review")) {dialog_="ready";dialogIndex_=0;message_="Purchased. Create your bazaar whenever you are ready.";}
     if(reloadDraft_&&!state["busy"].toBool()&&!state["stale"].toBool()) {
         reloadDraft_=false;if(dialog_=="manage")draft_=own_;message_="Saved settings reloaded.";
     }
@@ -73,7 +74,7 @@ void BazaarCatalogue::refresh(bool append) {
 }
 QJsonObject BazaarCatalogue::formDetails() const {return {{"name",draft_["name"]},{"description",draft_["description"]},{"listed",draft_["listed"]},{"access",draft_["access"]}};}
 void BazaarCatalogue::beginForm(bool editing) {
-    dialog_=editing?"manage":"create";dialogIndex_=0;message_.clear();
+    dialog_=editing?"manage":account()["licensed"].toBool()?"ready":"purchase";dialogIndex_=0;message_.clear();
     draft_=editing?own_:QJsonObject{{"name",""},{"description",""},{"listed",true},{"access","open"}};
     if(backend_&&connected_)backend_->refreshShop();
     emit changed();
@@ -86,31 +87,37 @@ void BazaarCatalogue::applyText(QString text) {
 }
 void BazaarCatalogue::openMenu() {if(!dialog_.isEmpty())return;detailId_=selection_;dialog_="menu";dialogIndex_=0;message_.clear();emit changed();}
 QString BazaarCatalogue::summary() const {
-    if(dialog_=="create")return "One permanent bazaar per player. World entry and stalls are being prepared.";
+    if(dialog_=="purchase"||dialog_=="review")return "Unlock one personal bazaar permanently. Create it later, whenever you are ready.";
+    if(dialog_=="ready")return "Your right to a personal bazaar is already purchased. Creation costs no extra Sparks.";
+    if(dialog_=="create")return "Already purchased. Choose your settings and create your bazaar for free.";
     if(dialog_=="manage")return "Change the name, description and visitor settings. Changes are free.";
-    if(dialog_=="review")return draft_["name"].toString()+" — one permanent bazaar. World entry is not available yet.";
     if(dialog_=="details")for(const auto& value:all_) {const auto row=value.toMap();if("room:"+row["id"].toString()==detailId_)return row["title"].toString()+" · "+row["ownerName"].toString()+". "+row["description"].toString()+" World entry is being prepared.";}
     return {};
 }
 QVariantList BazaarCatalogue::dialogRows() const {
     QVariantList rows;const auto state=account();
     const auto add=[&](QString id,QString label,QString value={},bool enabled=true){rows.append(QVariantMap{{"id",id},{"label",label},{"value",value},{"enabled",enabled}});};
-    if(dialog_=="create"||dialog_=="manage") {
+    if(dialog_=="ready") {
+        add("setup","Create bazaar", "Already purchased",state["connected"].toBool()&&!busy());add("back","Later");
+    } else if(dialog_=="purchase"||dialog_=="create"||dialog_=="manage") {
+        if(dialog_!="purchase") {
         add("name","Name",draft_["name"].toString().isEmpty()?"Choose a name":draft_["name"].toString());
         add("description","Description",draft_["description"].toString().isEmpty()?"Add a short description":draft_["description"].toString());
         add("listed","Catalogue",draft_["listed"].toBool()?"Listed":"Hidden");
         add("access","Visitors",draft_["access"]=="open"?"Allowed when the world opens":"Closed");
+        }
         if(!state["connected"].toBool())add("sign-in","Sign in to TrainerOS");
-        else if(state["pending"].toBool())add("resolve",state["bazaarPending"].toBool()?"Resolve pending creation":"Resolve the purchase in your profile",{},state["bazaarPending"].toBool()&&!busy());
+        else if(state["pending"].toBool())add("resolve",state["bazaarPending"].toBool()?"Resolve pending purchase":"Resolve the purchase in your profile",{},state["bazaarPending"].toBool()&&!busy());
         else if(state["stale"].toBool())add("reload","Refresh account",{},!busy());
         else if(dialog_=="manage")add("save","Save changes","Free",!busy()&&!draft_["name"].toString().isEmpty());
-        else {const auto offer=state["offer"].toMap();add("review","Review creation",offer.isEmpty()?"Unavailable":QString::number(offer["price"].toInt())+" Sparks",!busy()&&!offer.isEmpty()&&!draft_["name"].toString().isEmpty());}
+        else if(dialog_=="create")add("create","Create bazaar","Already purchased",!busy()&&state["licensed"].toBool()&&!draft_["name"].toString().isEmpty());
+        else {const auto offer=state["offer"].toMap();add("review","Buy personal bazaar",offer.isEmpty()?"Unavailable":QString::number(offer["price"].toInt())+" Sparks",!busy()&&!offer.isEmpty());}
         if(dialog_=="manage")add("reload","Reload saved settings",{},!busy());
     } else if(dialog_=="review") {
-        const auto review=state["review"].toMap();add("buy","Create bazaar",QString::number(review["price"].toInt())+" Sparks",!busy()&&!review.isEmpty());add("back","Back");
+        const auto review=state["review"].toMap();add("buy","Buy personal bazaar",QString::number(review["price"].toInt())+" Sparks",!busy()&&!review.isEmpty());add("back","Back");
     } else if(dialog_=="menu") {
         if(detailId_.startsWith("room:")){add("details","Bazaar details");add("favorite","Save / remove favorite");}
-        add("mine",own_.isEmpty()?"Create a bazaar":"My bazaar");add("refresh","Refresh catalogue",{},!busy());
+        add("mine",own_.isEmpty()?(state["licensed"].toBool()?"Create a bazaar":"Buy personal bazaar"):"My bazaar");add("refresh","Refresh catalogue",{},!busy());
         if(more())add("more","Load more bazaars",{},!busy());
     } else if(dialog_=="details") {add("favorite","Save / remove favorite");if(detailId_=="room:"+own_["id"].toString())add("mine","Manage my bazaar");add("back","Back");}
     return rows;
@@ -118,6 +125,7 @@ QVariantList BazaarCatalogue::dialogRows() const {
 void BazaarCatalogue::dialogAction(QString action) {
     bool permitted=false;for(const auto& row:dialogRows())if(row.toMap()["id"]==action&&row.toMap()["enabled"].toBool())permitted=true;
     if(!permitted||saving_)return;
+    if(action=="setup"){dialog_="create";dialogIndex_=0;message_.clear();emit changed();return;}
     if(action=="back"){closeDialog();return;}
     if(action=="name"||action=="description"){textField_=action;emit textRequested(draft_[action].toString());return;}
     if(action=="listed")draft_["listed"]=!draft_["listed"].toBool();
@@ -129,12 +137,12 @@ void BazaarCatalogue::dialogAction(QString action) {
     else if(action=="refresh"||action=="more"){dialog_.clear();refresh(action=="more");}
     else if(action=="reload"){if(backend_){reloadDraft_=true;backend_->refreshShop();}}
     else if(action=="resolve"){if(backend_)backend_->resolveBazaarPurchase();}
-    else if(action=="review") {backend_->reviewBazaarPurchase(formDetails());if(!account()["review"].toMap().isEmpty()){dialog_="review";dialogIndex_=0;message_="One permanent bazaar per player. World entry and stalls are being prepared.";}}
-    else if(action=="buy") {backend_->confirmPurchase();if(dialog_=="review"&&account()["review"].toMap().isEmpty()){dialog_="create";dialogIndex_=4;}}
-    else if(action=="save") {
-        auto args=formDetails();args["id"]=draft_["id"];args["revision"]=draft_["revision"];
+    else if(action=="review") {backend_->reviewBazaarPurchase();if(!account()["review"].toMap().isEmpty()){dialog_="review";dialogIndex_=0;message_="World entry is not available yet. Create later, with no second payment.";}}
+    else if(action=="buy") {backend_->confirmPurchase();if(dialog_=="review"&&account()["review"].toMap().isEmpty()){dialog_="purchase";dialogIndex_=0;}}
+    else if(action=="save"||action=="create") {
+        auto args=formDetails();if(action=="save"){args["id"]=draft_["id"];args["revision"]=draft_["revision"];}
         const auto generation=generation_;saving_=true;message_="Saving…";
-        backend_->bazaarRequest("update",args,[this,generation](int status,QJsonObject result){
+        backend_->bazaarRequest(action=="create"?"create":"update",args,[this,generation](int status,QJsonObject result){
             if(generation!=generation_)return;
             saving_=false;
             if(status==200){draft_=result["bazaar"].toObject();message_="Settings saved.";refresh();}

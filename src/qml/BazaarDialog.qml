@@ -15,7 +15,7 @@ Rectangle {
         radius: 12; color: Theme.paper; border.color: Theme.divider
         Text {
             x: 16; y: 12; width: parent.width-62; font.family: Theme.displayFamily; font.pixelSize: 21; color: Theme.ink
-            text: root.kind==="create"?"Create a bazaar":root.kind==="manage"?"My bazaar":root.kind==="review"?"Review creation":root.kind==="details"?"Bazaar details":"Bazaar menu"
+            text: root.kind==="create"?"Create a bazaar":root.kind==="manage"?"My bazaar":root.kind==="review"?"Review purchase":root.kind==="purchase"?"Buy personal bazaar":root.kind==="ready"?"Bazaar purchased":root.kind==="details"?"Bazaar details":"Bazaar menu"
             elide: Text.ElideRight
         }
         CapButton { objectName: "bazaar-menu-close"; anchors.right: parent.right; anchors.rightMargin: 8; y: 8; width: 36; height: 30; label: "×"; textSize: 22; centered: true; flat: true; claimsFocus: false; contentInset: 0; onActivated: root.catalogue.closeDialog() }
@@ -54,7 +54,7 @@ Rectangle {
         }
         Text {
             x: 17; anchors.bottom: parent.bottom; anchors.bottomMargin: 9; width: parent.width-34; height: 32
-            text: root.catalogue.message || ((root.kind==="create"||root.kind==="manage"||root.kind==="review") ? root.catalogue.account.status : "B  Back")
+            text: root.catalogue.message || ((root.kind==="create"||root.kind==="manage"||root.kind==="review"||root.kind==="purchase"||root.kind==="ready") ? root.catalogue.account.status : "B  Back")
             textFormat: Text.PlainText; wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight; font.pixelSize: 11; color: Theme.muted
         }
     }

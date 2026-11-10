@@ -44,7 +44,7 @@ inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shel
             check(page->dialog()=="realms"&&page->realms().isEmpty(),"Official Enter opens unavailable realm picker");capture("realms-empty");
             shell.dispatch(Action::NextFace);check(shell.onlineFace()=="bazaar","Realm dialog traps face switching");click("bazaar-dialog-close");click("bazaar-create");break;
         case 3:
-            check(page->dialog()=="create","Create is a bounded information dialog");capture("create-unavailable");press(ControllerInput::BackButton);BazaarFixture::populate(*page);page->focus("official");break;
+            check(page->dialog()=="purchase","Unpurchased bazaar offers purchase first");capture("create-unavailable");press(ControllerInput::BackButton);BazaarFixture::populate(*page);page->focus("official");break;
         case 4: {
             capture("catalogue-light");auto* card=find("bazaar-official");check(card,"Official card visible");if(card)*officialY=card->y();
             press(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);check(page->selectedIndex()==0,"SDL Right enters grid");
@@ -100,23 +100,29 @@ inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shel
         case 19:
             commerce->install(*shell.backendAccount());BazaarFixture::useProvider(*page);page->refresh();page->activate("create");break;
         case 20:
-            check(page->dialog()=="create","Creation form opens");capture("create-form-dark-960");click("bazaar-action-name");break;
+            check(page->dialog()=="purchase","Purchase precedes settings");capture("purchase-dark-960");page->dialogAction("review");break;
         case 21:
-            check(shell.keyboard()->isOpen(),"Name uses shared keyboard");shell.keyboard()->insertText("Nym Market");shell.keyboard()->pressKey(Qt::Key_Return);
-            check(!shell.keyboard()->isOpen(),"Name edit accepted");page->dialogAction("review");break;
+            check(page->dialog()=="review"&&commerce->charges==0,"Price review is not a purchase");capture("purchase-review-dark-960");press(ControllerInput::ConfirmButton);break;
         case 22:
-            check(page->dialog()=="review"&&commerce->charges==0,"5000 Sparks review is not a purchase");capture("create-review-dark-960");
-            press(ControllerInput::ConfirmButton);break;
+            check(commerce->charges==1&&page->dialog()=="ready"&&page->account()["owned"].toMap().isEmpty(),"Purchase unlocks right without creating space");
+            capture("purchased-later-dark-960");page->dialogAction("back");shell.dispatch(Action::Home);break;
         case 23:
-            check(commerce->charges==1&&page->dialog()=="manage","Confirmed creation reaches My bazaar");capture("manage-dark-960");
-            page->dialogAction("listed");page->dialogAction("access");page->dialogAction("save");break;
+            shell.openOnlineFace("bazaar");page->activate("create");check(page->dialog()=="ready","Returning retains purchased right");page->dialogAction("setup");break;
         case 24:
+            check(page->dialog()=="create","Create when ready opens settings");capture("create-free-dark-960");click("bazaar-action-name");break;
+        case 25:
+            check(shell.keyboard()->isOpen(),"Name uses shared keyboard");shell.keyboard()->insertText("Nym Market");shell.keyboard()->pressKey(Qt::Key_Return);
+            check(!shell.keyboard()->isOpen(),"Name edit accepted");page->dialogAction("create");break;
+        case 26:
+            check(commerce->charges==1&&page->dialog()=="manage","Creation reaches My bazaar without second payment");capture("manage-dark-960");
+            page->dialogAction("listed");page->dialogAction("access");page->dialogAction("save");break;
+        case 27:
             check(commerce->edits==1&&commerce->charges==1,"Owner settings save without a second charge");
             check(!page->account()["owned"].toMap()["listed"].toBool(),"Hidden setting persisted");
             window->resize(800,450);shell.settings()->cycleTheme();break;
-        case 25:
+        case 28:
             capture("manage-light-800");commerce->conflict=true;page->dialogAction("listed");page->dialogAction("save");break;
-        case 26:
+        case 29:
             check(page->message().contains("another device"),"Edit conflict keeps draft");capture("manage-conflict-light-800");
             shell.dispatch(Action::Home);check(page->dialog().isEmpty()&&shell.primaryId()=="home","Home dismisses owner form");break;
         default:
