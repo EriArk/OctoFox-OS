@@ -41,9 +41,13 @@ void BackendAccount::loadCommerce() {
     wardrobeState_=data["wardrobe"].toObject();
     outfitWrites_=data["outfitWrites"].toObject();
     const auto pending=data["pending"].toObject();
+    if(pending["kind"]=="bazaar.rent"&&identity(pending["player_id"].toString())&&identity(pending["operation_id"].toString())
+        &&identity(pending["bazaar_id"].toString())&&identity(pending["place_id"].toString())
+        &&pending["revision"].toString().toULongLong()>0&&whole(pending["expected_price"],1))shopPending_=pending;
     if(identity(pending["player_id"].toString())&&identity(pending["operation_id"].toString())
-        &&(pending["offer_id"].toString().startsWith("profile.")||pending["offer_id"].toString().startsWith("outfit.slot."))&&pending["offer_id"].toString().size()<=64
-        &&whole(pending["offer_revision"],1)&&whole(pending["expected_price"],1))shopPending_=pending;
+        &&(pending["offer_id"].toString().startsWith("profile.")||pending["offer_id"].toString().startsWith("outfit.slot.")||pending["offer_id"]=="bazaar.personal"||pending["offer_id"]=="bazaar.stall")&&pending["offer_id"].toString().size()<=64
+        &&whole(pending["offer_revision"],1)&&whole(pending["expected_price"],1)
+        &&(pending["offer_id"]!="bazaar.personal"||!pending.contains("bazaar")||validBazaarDetails(pending["bazaar"].toObject())))shopPending_=pending;
 }
 bool BackendAccount::adoptShop(const QJsonObject& value,bool cached) {
     const auto player=value["player_id"].toString();bool revisionOk=false;const auto revision=value["revision"].toString().toULongLong(&revisionOk);
@@ -63,8 +67,8 @@ bool BackendAccount::adoptShop(const QJsonObject& value,bool cached) {
     }
     const auto equipped=value["equipped"].toString();bool owned=equipped.isEmpty();
     for(const auto row:value["items"].toArray())owned|=row.toObject()["id"]==equipped;
-    if(!owned||!validOutfits(value))return false;
-    shopSnapshot_=value;shopSnapshot_.remove("receipt");shopStale_=cached;
+    if(!owned||!validOutfits(value)||!validBazaar(value))return false;
+    shopSnapshot_=value;shopSnapshot_.remove("receipt");shopSnapshot_.remove("purchased_place");shopStale_=cached;
     shopIndex_=qBound(0,shopIndex_,qMax(0,int(shopItems().size())-1));return true;
 }
 QVariantList BackendAccount::shopItems() const {
@@ -141,6 +145,9 @@ void BackendAccount::activateShopItem() {
     },access_);
 }
 void BackendAccount::confirmPurchase() {
+    if(!services_.bazaarDevelopmentPayments&&QStringList{"bazaar.personal","bazaar.stall"}.contains(shopReview_.value("id").toString())) {
+        shopReview_={};shopStatus_="Bazaar is under development. Purchases are disabled.";emit changed();return;
+    }
     if(shopBusy_||shopReview_.isEmpty()||state_!="connected"||!shopPending_.isEmpty())return;
     shopPending_={{"player_id",player_},{"operation_id",QUuid::createUuid().toString(QUuid::WithoutBraces)},
         {"offer_id",shopReview_["id"]},{"offer_revision",shopReview_["revision"].toString().toInt()},{"expected_price",shopReview_["price"]}};
@@ -149,8 +156,18 @@ void BackendAccount::confirmPurchase() {
 }
 void BackendAccount::recoverPurchase(bool retry) {
     if(shopBusy_||state_!="connected"||shopPending_["player_id"]!=player_)return;
+    if(!services_.bazaarDevelopmentPayments&&(shopPending_.value("kind")=="bazaar.rent"||QStringList{"bazaar.personal","bazaar.stall"}.contains(shopPending_.value("offer_id").toString())))retry=false;
     shopBusy_=true;shopStatus_="Checking your purchase…";emit changed();
-    auto body=shopPending_;body.remove("player_id");
+    if(shopPending_.value("kind")=="bazaar.rent") {
+        const auto path=retry?"/v1/bazaars/"+shopPending_["bazaar_id"].toString()+"/places/"+shopPending_["place_id"].toString()+"/rent":
+            "/v1/me/bazaar-rentals/"+shopPending_["operation_id"].toString();
+        QJsonObject body{{"operation_id",shopPending_["operation_id"]},{"revision",shopPending_["revision"]},{"expected_price",shopPending_["expected_price"]}};
+        request(retry?"POST":"GET",path,retry?body:QJsonObject{},[this](int status,QJsonObject result){finishRental(status,std::move(result));},access_);return;
+    }
+    // Pending storage can contain internal/legacy fields; send only the shop contract.
+    QJsonObject body{{"operation_id",shopPending_.value("operation_id")},{"offer_id",shopPending_.value("offer_id")},
+        {"offer_revision",shopPending_.value("offer_revision")},{"expected_price",shopPending_.value("expected_price")}};
+    if(shopPending_.contains("bazaar"))body["bazaar"]=shopPending_.value("bazaar");
     request(retry?"POST":"GET",retry?"/v1/me/purchases":"/v1/me/purchases/"+body["operation_id"].toString(),retry?body:QJsonObject{},
         [this](int status,QJsonObject result){finishPurchase(status,std::move(result));},access_);
 }
@@ -158,17 +175,23 @@ void BackendAccount::finishPurchase(int status,QJsonObject result) {
     shopBusy_=false;
     const auto receipt=result["receipt"].toObject();
     const bool exact=receipt["player_id"]==player_&&receipt["operation_id"]==shopPending_["operation_id"]&&receipt["offer_id"]==shopPending_["offer_id"]
-        &&receipt["price"]==shopPending_["expected_price"]&&receipt["offer_revision"]==shopPending_["offer_revision"]&&identity(receipt["id"].toString());
-    if(status==200&&exact&&adoptShop(result)) {
+        &&receipt["price"]==shopPending_["expected_price"]&&receipt["offer_revision"]==shopPending_["offer_revision"]&&identity(receipt["id"].toString())
+        &&(shopPending_["offer_id"]!="bazaar.personal"||receipt["details"]==QJsonValue(shopPending_["bazaar"].toObject()));
+    const auto place=result["purchased_place"].toObject();
+    const bool exactPlace=shopPending_["offer_id"]!="bazaar.stall"||(place["id"]==receipt["id"]&&place["purchase_id"]==receipt["id"]
+        &&identity(place["bazaar_id"].toString())&&place["bazaar_id"]==result["bazaar"].toObject()["id"]
+        &&place["revision"].toString().toULongLong()>0&&receipt["details"]==QJsonObject{});
+    if(status==200&&exact&&exactPlace&&adoptShop(result)) {
         const auto pending=shopPending_;shopPending_={};
         if(!saveCommerce())shopPending_=pending;
-        shopStatus_=receipt["offer_id"].toString().startsWith("outfit.slot.")?"Slot unlocked permanently. Save your current look into it.":"Purchased permanently. Select Apply to use this appearance.";
+        shopStatus_=receipt["offer_id"]=="bazaar.stall"?"Trading place purchased permanently. Set its weekly rent when ready.":receipt["offer_id"]=="bazaar.personal"?"Bazaar unlocked permanently. Create it whenever you are ready.":receipt["offer_id"].toString().startsWith("outfit.slot.")?"Slot unlocked permanently. Save your current look into it.":"Purchased permanently. Select Apply to use this appearance.";
         refreshProgression(false);
-    } else if(status==409&&QStringList{"offer_changed","offer_unavailable","already_owned","insufficient_sparks","level_required"}.contains(result["code"].toString())) {
+    } else if((status==409&&QStringList{"offer_changed","offer_unavailable","already_owned","insufficient_sparks","level_required","bazaar_required","bazaar_under_development"}.contains(result["code"].toString()))
+        ||(status==422&&result["code"]=="invalid_bazaar"&&shopPending_["offer_id"]=="bazaar.personal"&&shopPending_.contains("bazaar"))) {
         const auto code=result["code"].toString();const auto pending=shopPending_;shopPending_={};
         if(!saveCommerce())shopPending_=pending;
         shopStale_=true;
-        shopStatus_=code=="insufficient_sparks"?"Not enough Sparks. No charge was made.":code=="already_owned"?"Already owned. No second charge was made.":"The offer changed or is unavailable. No charge was made. Refresh and review it again.";
+        shopStatus_=code=="bazaar_required"?"Create your personal bazaar before buying a trading place. No charge was made.":code=="insufficient_sparks"?"Not enough Sparks. No charge was made.":code=="already_owned"?"Already owned. No second charge was made.":"The offer changed or is unavailable. No charge was made. Refresh and review it again.";
         refreshProgression(false);
     } else {shopStale_=true;shopStatus_="Purchase not yet confirmed. Resolve it to check or retry the same operation; no second purchase will be created.";}
     emit changed();

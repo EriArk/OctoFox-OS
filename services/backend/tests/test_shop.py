@@ -102,7 +102,7 @@ def test_competing_operations_cannot_double_buy_or_overspend(account, postgres):
         assert sum(row['sparks'] for row in result['history'])==150
         assert len(shop.snapshot(access)['items'])==2
     finally:
-        with psycopg.connect(postgres[0]) as c:c.execute('UPDATE trainer_backend.shop_offers SET price=250')
+        with psycopg.connect(postgres[0]) as c:c.execute("UPDATE trainer_backend.shop_offers SET price=250 WHERE purpose='profile_scene'")
 
 
 def test_purchase_http_rejects_forgery_and_immutable_receipts(account, postgres):

@@ -1,5 +1,7 @@
 # TrainerOS — active agent / developer contract
 
+**Owner combined Alpha release, 11 November (latest):** merge the prepared Bazaar branch, apply the combined build on Flip and Odin, validate the installer and walk the wizard on Flip. Capture the wizard on Flip and other screens, including Lobby/multiplayer, on Odin; store them beside the repository post drafts. Publish Alpha with a human-readable description and installation instructions after verification. This resumes device installation and supersedes the historical separate-branch/no-merge Bazaar boundary; paid Bazaar features remain disabled. Preserve personal data and recovery.
+
 **Owner handheld resumption, 10 November (latest):** the owner explicitly resumed
 real-device verification and asked to update Armada on both Odin and Flip. This
 supersedes the preparation-only/no-handheld-install boundaries below for the
@@ -29,6 +31,56 @@ its visible dashboard and return to its preserved state. **Keep the existing
 beautiful game Home composition, preview and styling**; the owner explicitly
 rejected turning it into a compact list. No handheld installs or Bazaar merge.
 See [evidence](docs/evidence/2026-11-10-popup-polish/README.md).
+**Owner Bazaar placeholders, 10 November (latest, supersedes spending enablement):**
+The worlds do not exist yet. Show colorful, full-screen explanatory placeholders
+for official and player bazaars with large unmistakable PLACEHOLDER / UNDER
+DEVELOPMENT labels and what will be built. Do not let users spend Sparks on
+unavailable Bazaar content: disable Bazaar licenses, stalls and new rentals in
+both native client and Backend. Preserve previously purchased rights, places and
+receipt recovery. Existing 5000/500 prices and commerce implementations below
+are prepared future work, not enabled purchases. Remain in the separate branch.
+
+**Owner Bazaar stalls, 10 November (latest):** ordinary trading places cost
+**500 Sparks once per place**. Prepare the purchase → owned place → weekly rent
+path in the same separate branch. Reuse Shop, durable purchase recovery and the
+existing ledger. A created personal bazaar is required; buying a place does not
+set its weekly rent or spawn a game world. No free stalls, duplicate charges or
+new arbitrary tariffs. Other stall types/functions and goods trading remain later.
+
+**Owner weekly Bazaar rentals, 10 November (latest):** keep rentals minimal.
+The place owner sets a price in Sparks for one week. Any player can occupy a
+free place by paying; the owner receives the Sparks. The place belongs to that
+tenant for seven days from payment, then becomes free; tenant goods are preserved.
+This settles duration/pricing direction in the earlier notes. Rental menus and
+transactional APIs are now prepared on the separate branch;
+see services/backend/bazaar.md. The later 500-Spark purchase increment provisions
+places from paid receipts only; trade/custody remains future work. Do not mint
+free places or claim goods-return behavior.
+Do not invent additional tariffs, commissions or complex rental flows.
+
+**Owner Bazaar cards/access, 10 November (latest):** prepare card cover/badge
+preview and owner access controls next, in the same separate branch. Preserve
+buy-now/create-later. Reuse native profile identity for selecting a player; owner
+moderation is separate from temporary hosting. No fabricated live visitors/kicks
+or successful admission before the world runtime exists. The later weekly-rental
+contract above supersedes the earlier rental discussion.
+
+**Owner Bazaar purchase correction, 10 November (latest):** buy the permanent
+right for 5000 Sparks first, then create the single personal bazaar whenever
+convenient, without another charge. Buying must not create a catalogue record or
+require a name/settings. Preserve purchased rights across restarts and failed
+creation attempts. This supersedes the combined purchase-and-create journey.
+
+**Owner Bazaar foundation, 10 November (latest):** continue Bazaar in its separate
+branch, without merging or installing handhelds. Personal creation costs **5000
+Sparks**, exactly **one bazaar per player**; reuse Backend account/purchase/ledger
+and existing Lobby/SDK boundaries. The owner authorized beginning the server
+foundation on the existing SSH server. Persistent owner and temporary peer host
+are different roles. Future stalls/functions are separate purchases; trading
+places may be rented to other players for Sparks. The weekly-rental contract above
+supersedes the earlier deferred rental scope;
+do not invent commissions or ownership transfer. See
+[the current contract](services/backend/bazaar.md).
 
 **Owner Online / Chats, 10 November (latest):** repair Lobby and Chats in source,
 without handheld installs. Bazaar is being prepared in another branch: preserve its

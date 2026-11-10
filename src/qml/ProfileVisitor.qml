@@ -11,6 +11,7 @@ Item {
     readonly property var history: card.history||[]
     readonly property bool hasProfile: !!card.player_id
     readonly property bool compact: height<440
+    readonly property bool canManageBazaar: !visitor.preview && hasProfile && !!shell.bazaar.account.owned.id && card.player_id!==shell.bazaar.account.playerId
     component Link: Item {
         required property int actionIndex
         required property string label
@@ -35,6 +36,7 @@ Item {
             id: facts; x: scene.width+22; width: parent.width-x; height: parent.height-44
             contentWidth: width; contentHeight: content.implicitHeight; clip: true; boundsBehavior: Flickable.StopAtBounds
             Connections { target: root.shell; function onChanged() {
+                if(root.shell.profileFocus===6){facts.contentY=0;return}
                 if(root.shell.profileFocus<100)return
                 const row=historyRows.itemAt(root.shell.profileFocus-100);if(!row)return
                 const y=row.mapToItem(content,0,0).y
@@ -45,6 +47,7 @@ Item {
                 id: content; width: facts.width; spacing: root.compact?10:16
                 Text { width: parent.width; text: root.card.display_name||"Player profile"; textFormat: Text.PlainText; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: root.compact?28:36; elide: Text.ElideRight }
                 Text { width: parent.width; text: root.hasProfile?(root.visibility.level?"Level "+root.card.level+" · Trainer Mastery":"Account level is private"):root.visitor.status; color: Theme.muted; font.pixelSize: 12; wrapMode: Text.Wrap }
+                Link { id: bazaarAccess; objectName: "profile-bazaar-access"; actionIndex: 6; label: "My bazaar access"; width: 150; visible: root.canManageBazaar; available: !root.shell.bazaar.busy }
                 Text { width: parent.width; visible: root.hasProfile&&!!root.visibility.activity&&!!text; text: root.shell.social.person.id===root.card.subject?(root.shell.social.person.status||""):""; color: Theme.muted; font.pixelSize: 11; textFormat: Text.PlainText; wrapMode: Text.Wrap }
                 Column { width: parent.width; spacing: 5; visible: !!root.visibility.favorites&&(root.card.favorites||[]).length>0
                     Text { text: "Favorite games"; color: Theme.ink; font.pixelSize: 16 }

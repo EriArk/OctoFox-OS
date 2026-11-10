@@ -24,7 +24,7 @@ endif()
 
 add_library(trainer_core STATIC
     src/integrations/adventure/CartridgeContent.cpp
-    src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp
+    src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp
     src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/features/trainer/OutfitController.cpp src/features/trainer/VisitorProfile.cpp
     src/platform/sdk/PlatformHost.cpp
     src/platform/sdk/SdkNetwork.cpp
@@ -54,6 +54,8 @@ add_library(trainer_core STATIC
     src/integrations/social/AltchaProof.cpp
     src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp
     src/features/social/SocialController.cpp
+    src/features/social/BazaarCatalogue.cpp
+    src/features/social/BazaarMenus.cpp
     src/features/social/SocialNavigation.cpp
     src/features/social/SocialPlayers.cpp
     src/features/social/SocialStreams.cpp
@@ -395,6 +397,7 @@ qt_add_resources(traineros series_art BIG_RESOURCES PREFIX "/series" BASE assets
     FILES assets/series/pokemon.png assets/series/mario.png assets/series/zelda.png assets/series/sonic.png assets/series/final-fantasy.png assets/series/metroid.png assets/series/castlevania.png assets/series/kirby.png assets/series/metal-slug.png assets/series/multiverse.png)
 qt_add_resources(traineros genre_art PREFIX "/genres" BASE assets/genres
     FILES assets/genres/fighting.png assets/genres/brawlers.png assets/genres/shooters.png assets/genres/racing.png assets/genres/sports.png assets/genres/rpg.png assets/genres/strategy.png assets/genres/platform.png assets/genres/puzzle.png assets/genres/party.png assets/genres/adventure.png assets/genres/music.png)
+qt_add_resources(traineros bazaar_art PREFIX "/bazaar" BASE assets/bazaar FILES assets/bazaar/official.png assets/bazaar/grove.png assets/bazaar/harbor.png)
 qt_add_resources(traineros home_backdrops PREFIX "/home-backdrops" BASE assets/home-backdrops
     FILES assets/home-backdrops/turquoise.png assets/home-backdrops/red.png assets/home-backdrops/green.png assets/home-backdrops/blue.png assets/home-backdrops/orange.png)
 file(GLOB companion_assets CONFIGURE_DEPENDS assets/home-pet/ui/*.svg)
@@ -522,6 +525,10 @@ qt_add_qml_module(traineros
         src/qml/HomeWidgetShutter.qml
     src/qml/GameHubPage.qml
     src/qml/OnlinePage.qml
+    src/qml/BazaarPage.qml
+    src/qml/BazaarCard.qml
+    src/qml/BazaarPreview.qml
+    src/qml/BazaarDialog.qml
         src/qml/AlbumPhoto.qml
         src/qml/ScreensAlbum.qml
         src/qml/GameHubOverview.qml
@@ -679,12 +686,12 @@ if(BUILD_TESTING)
     add_test(NAME software_update COMMAND trainer_software_update_tests -o -,txt)
     qt_add_executable(trainer_platform_tests tests/PlatformHostTests.cpp)
     qt_add_executable(trainer_account_tests tests/BackendAccountTests.cpp
-        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
+        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
     target_include_directories(trainer_account_tests PRIVATE src)
     target_link_libraries(trainer_account_tests PRIVATE Qt6::Test Qt6::Gui Qt6::Network Qt6Keychain::Qt6Keychain OpenSSL::Crypto)
     add_test(NAME backend_account COMMAND trainer_account_tests)
     qt_add_executable(trainer_backend_login_probe tools/BackendLoginProbe.cpp
-        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
+        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
     target_include_directories(trainer_backend_login_probe PRIVATE src)
     target_link_libraries(trainer_backend_login_probe PRIVATE Qt6::Core Qt6::Gui Qt6::Network Qt6Keychain::Qt6Keychain OpenSSL::Crypto)
     qt_add_executable(trainer_avatar_tests tests/AvatarTests.cpp)
@@ -901,6 +908,9 @@ if(BUILD_TESTING)
     target_sources(traineros PRIVATE tests/ui/CenterSmokeScenario.cpp tests/ui/CenterSmokeScenario.h)
     target_sources(traineros PRIVATE tests/ui/ExitSmokeScenario.cpp tests/ui/ExitSmokeScenario.h)
     target_sources(traineros PRIVATE tests/ui/AppsSmokeScenario.cpp tests/ui/AppsSmokeScenario.h)
+    target_sources(traineros PRIVATE tests/ui/BazaarSmokeScenario.h tests/fixtures/BazaarFixture.h)
+    add_test(NAME bazaar_qml_smoke COMMAND traineros --online-smoke-test --screenshot-dir "${CMAKE_CURRENT_BINARY_DIR}/screenshots/bazaar")
+    set_tests_properties(bazaar_qml_smoke PROPERTIES ENVIRONMENT "TRAINEROS_BAZAAR_SMOKE=1;QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1" TIMEOUT 45)
     target_sources(traineros PRIVATE tests/ui/PlatformSmokeScenario.h)
     target_sources(traineros PRIVATE tests/ui/SettingsSmokeScenario.h)
     add_test(NAME settings_qml_smoke COMMAND traineros --ephemeral --settings-smoke-test --screenshot-dir "${CMAKE_CURRENT_BINARY_DIR}/screenshots/settings")
@@ -963,6 +973,10 @@ if(BUILD_TESTING)
     qt_add_executable(trainer_core_tests tests/CoreTests.cpp)
     target_link_libraries(trainer_core_tests PRIVATE trainer_core Qt6::Test)
     add_test(NAME core COMMAND trainer_core_tests)
+    qt_add_executable(trainer_bazaar_tests tests/BazaarCatalogueTests.cpp)
+    target_include_directories(trainer_bazaar_tests PRIVATE src)
+    target_link_libraries(trainer_bazaar_tests PRIVATE trainer_core Qt6::Test)
+    add_test(NAME bazaar COMMAND trainer_bazaar_tests)
     qt_add_executable(trainer_interaction_tests tests/InteractionTests.cpp)
     target_link_libraries(trainer_interaction_tests PRIVATE trainer_core Qt6::Test)
     add_test(NAME interactions COMMAND trainer_interaction_tests)

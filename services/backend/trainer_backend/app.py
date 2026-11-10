@@ -24,6 +24,8 @@ from .economy.prize_routes import router as prize_router
 from .economy.support_routes import router as support_router
 from .economy.support_links import SupportLinks
 from .economy.patreon import PatreonProvider
+from .bazaar.service import Bazaars
+from .bazaar.routes import router as bazaar_router
 from .play.service import Play
 from .play.routes import router as play_router
 
@@ -37,6 +39,7 @@ def create_app(settings=None, *, provider=None, reward_provider=None, support_pr
         app.state.accounts = Accounts(app.state.database,settings.oauth,provider or FluxerProvider(settings.oauth)) if settings.oauth else None
         app.state.play = Play(app.state.database,app.state.accounts) if settings.oauth else None
         app.state.progression = Progression(app.state.database, app.state.accounts, reward_provider) if settings.oauth else None
+        app.state.bazaars = Bazaars(app.state.progression) if app.state.progression else None
         app.state.shop = Shop(app.state.progression) if app.state.progression else None
         app.state.support_links = SupportLinks(app.state.progression,
             support_provider or (PatreonProvider(settings.patreon) if settings.patreon else None)) if app.state.progression else None
@@ -53,6 +56,7 @@ def create_app(settings=None, *, provider=None, reward_provider=None, support_pr
     app.include_router(play_router)
     app.include_router(progression_router)
     app.include_router(shop_router)
+    app.include_router(bazaar_router)
     app.include_router(prize_router)
     app.include_router(support_router)
 
@@ -111,7 +115,7 @@ def create_app(settings=None, *, provider=None, reward_provider=None, support_pr
             if module['name'] == 'inventory' and settings.oauth: module['state']='permanent_profile_purchases'
             if module['name'] in ('rewards','wallet') and settings.oauth: module['state']='ra_earning_preview'
         return {'version': __version__, 'capabilities': {'accounts.fluxer_login':1,'accounts.sessions':1,'accounts.native_return':1,
-                'play.scorecards':1,'boards.peer_confirmed':1,'account.progression':1,'inventory.profile_purchases':1,
+                'play.scorecards':1,'boards.peer_confirmed':1,'account.progression':1,'inventory.profile_purchases':1,'bazaar.catalogue':1,'bazaar.management':1,'bazaar.rentals':0,'bazaar.stall_purchases':0,'bazaar.payments':0,'bazaar.previews':1,
                 'support.balance_preview':1,'profiles.showcase':1,'profiles.sharing':1} if settings.oauth else {},
                 'modules': modules}
 

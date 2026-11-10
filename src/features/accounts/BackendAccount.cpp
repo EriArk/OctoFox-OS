@@ -83,8 +83,10 @@ bool BackendAccount::adoptProgression(const QJsonObject& value,bool cached) {
     if(!revisionOk || (!progression_.isEmpty() && revision<progression_["revision"].toString().toULongLong()))return false;
     for(const auto item:value["history"].toArray()) {
         const auto row=item.toObject();
-        if(!uuid(row["id"].toString()) || !integer(row["xp"],0) || !integer(row["sparks"],row["source"]=="shop.purchase"?-2147483647:0)
-            || row["title"].toString().size()>256 || !QStringList{"ra.achievement","ra.completion","shop.purchase","support.topup","operator.test_grant"}.contains(row["source"].toString()))return false;
+        if(!uuid(row["id"].toString()) || !integer(row["xp"],0) || !integer(row["sparks"],(row["source"]=="shop.purchase"||row["source"]=="bazaar.rent")?-2147483647:0)
+            || row["title"].toString().size()>256 || !QStringList{"ra.achievement","ra.completion","shop.purchase","support.topup","operator.test_grant","bazaar.rent","bazaar.rent_income"}.contains(row["source"].toString()))return false;
+        if(row["source"]=="bazaar.rent"&&(row["xp"].toDouble()!=0||row["sparks"].toDouble()>=0))return false;
+        if(row["source"]=="bazaar.rent_income"&&(row["xp"].toDouble()!=0||row["sparks"].toDouble()<=0||row["sparks"].toDouble()>2147483647))return false;
         if(row["source"]=="operator.test_grant" && (row["xp"].toDouble()!=0 || row["sparks"].toDouble()<=0 || row["sparks"].toDouble()>1000000))return false;
         if(row["source"]=="support.topup" && (row["xp"].toDouble()!=0 || row["sparks"].toDouble()<=0
             || !integer(row["support_multiplier"],2) || row["support_multiplier"].toInt()>3))return false;

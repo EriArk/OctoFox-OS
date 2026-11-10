@@ -982,7 +982,13 @@ TrainerController остаётся владельцем локального и�
 Не выводить Mastery или баланс из RA points/локального времени. Полные RA,
 Timeline и Screens используют прежние контроллеры; перенос Online не завершён.
 
-**GameHub Bazaar, #264, TARGET:** S04 владеет поверхностью/выбором и возвратом;
+**Online Bazaar, #264:** каталог S04 подготовлен 10 ноября в отдельной ветке
+(`BazaarCatalogue`, `BazaarPage`, `BazaarCard`); он хранит только состояние UI
+в прежней навигации профиля. Постоянный directory и настройки владельца добавлены в существующий Backend;
+создание за 5000 Искр использует S11 Shop/ledger/ownership. Admission и запуска
+игры пока нет; сетевой хост не становится владельцем. [Контракт](../services/backend/bazaar.md).
+[Проверки и границы](evidence/2026-11-10-bazaar-catalogue/README.md).
+**Оставшийся TARGET:** S04 владеет поверхностью/выбором и возвратом;
 S06 — типом комнаты, каталогом/admission и membership; S12 — каталогом Crates,
 S13 — явной установкой/Downloads; S14 — bounded destination/return context;
 S03 — реальным процессом, S01 — identity. SDK назван S12 в issue, но в этой карте

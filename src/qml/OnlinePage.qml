@@ -8,6 +8,7 @@ Item {
     readonly property var account: shell.social.account
     readonly property string connectionStatus: root.chats && (account.state === "connecting" || account.state === "connected") && account.status !== "Connected" ? (account.status || (account.state === "connecting" ? "Reconnecting…" : "")) : ""
     Binding { target: root.shell.social; property: "lobbyBrowseVisible"; value: root.visible && !root.chats && root.shell.onlineFace === "lobby" && root.shell.social.surfaceAvailable }
+    Binding { delayed: true; target: root.shell.bazaar; property: "active"; value: root.visible && root.shell.onlineFace === "bazaar" }
     Item {
         id: sections; objectName: "chat-navigation-rail"
         visible: root.chats; x: 6; y: 5; width: 76
@@ -58,14 +59,9 @@ Item {
         shell: root.shell
         visible: root.shell.onlineFace === "lobby" || root.chats
     }
-    Item {
-        anchors.fill: parent; visible: root.shell.onlineFace === "bazaar"
-        Column {
-            anchors.centerIn: parent; width: Math.min(parent.width - 64, 530); spacing: 18
-            Text { width: parent.width; text: "Bazaar"; font.family: Theme.displayFamily; font.pixelSize: 32; color: Theme.ink }
-            Rectangle { width: 52; height: 3; radius: 1; color: Theme.yellow }
-            Text { width: parent.width; text: "A place to meet, explore and trade."; font.pixelSize: 18; color: Theme.ink; wrapMode: Text.WordWrap }
-            Text { width: parent.width; text: "Worlds and player rooms are not available in this build yet."; font.pixelSize: 14; color: Theme.muted; wrapMode: Text.WordWrap }
-        }
+    BazaarPage {
+        anchors.fill: parent
+        shell: root.shell
+        visible: root.shell.onlineFace === "bazaar"
     }
 }

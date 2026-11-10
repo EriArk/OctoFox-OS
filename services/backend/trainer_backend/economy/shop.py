@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from uuid import uuid4
+from psycopg.types.json import Jsonb
 from datetime import datetime, timezone
 from ..accounts.provider import AuthError
 from ..events import EventSpec, publish
 from .policy import mastery
 from . import prizes
+from ..bazaar import service as bazaar
+from ..bazaar import policy as bazaar_policy
 
 
 def validate_purchase_event(value):
@@ -49,17 +52,29 @@ class Shop:
                         FROM trainer_backend.outfit_slots s JOIN trainer_backend.prize_grants p ON p.id=s.grant_id
                         WHERE s.player_id=%s ORDER BY p.level''', (actor.player_id,)).fetchall(),
                     'outfits': conn.execute('SELECT * FROM trainer_backend.outfits WHERE player_id=%s ORDER BY offer_id', (actor.player_id,)).fetchall(),
+                    'bazaar_payments_available': bazaar_policy.PAYMENTS_AVAILABLE,
+                    'bazaar_offer': conn.execute("SELECT * FROM trainer_backend.shop_offers WHERE id='bazaar.personal' AND available").fetchone() if bazaar_policy.PAYMENTS_AVAILABLE else None,
+                    'bazaar_stall_offer': conn.execute("SELECT * FROM trainer_backend.shop_offers WHERE id='bazaar.stall' AND available").fetchone() if bazaar_policy.PAYMENTS_AVAILABLE else None,
+                    'purchased_place': conn.execute('SELECT * FROM trainer_backend.bazaar_places WHERE purchase_id=%s', (receipt['id'],)).fetchone() if receipt and receipt['offer_id']=='bazaar.stall' else None,
+                    'bazaar_license': bool(conn.execute("SELECT 1 FROM trainer_backend.owned_items WHERE player_id=%s AND offer_id='bazaar.personal'", (actor.player_id,)).fetchone()),
+                    'bazaar': bazaar.owned(conn, actor.player_id),
                     'equipped': appearance['offer_id'] if appearance else None, 'receipt': receipt}
 
-    def purchase(self, access, operation, offer_id, revision, price):
+    def purchase(self, access, operation, offer_id, revision, price, bazaar_details=None):
+        purchase_details = bazaar.details(bazaar_details) if bazaar_details is not None else {}
         with self.db.transaction() as conn:
             actor = self.progression.account(conn, access)
             account = conn.execute('SELECT * FROM trainer_backend.progression_accounts WHERE player_id=%s FOR UPDATE', (actor.player_id,)).fetchone()
             prior = conn.execute('SELECT * FROM trainer_backend.purchases WHERE player_id=%s AND operation_id=%s', (actor.player_id, operation)).fetchone()
             if prior:
-                if (prior['offer_id'], prior['offer_revision'], prior['price']) != (offer_id, revision, price):
+                if (prior['offer_id'], prior['offer_revision'], prior['price'], prior['details']) != (offer_id, revision, price, purchase_details):
                     raise AuthError('purchase_identity_conflict', 409)
             else:
+                if offer_id in ('bazaar.personal','bazaar.stall') and not bazaar_policy.PAYMENTS_AVAILABLE:
+                    raise AuthError('bazaar_under_development',409)
+                # Old receipts remain recoverable, but new purchases only unlock the right.
+                if purchase_details:
+                    raise AuthError('invalid_bazaar', 422)
                 offer = conn.execute('SELECT * FROM trainer_backend.lock_shop_offer(%s)', (offer_id,)).fetchone()
                 if not offer or not offer['available']:
                     raise AuthError('offer_unavailable', 409)
@@ -67,14 +82,20 @@ class Shop:
                     raise AuthError('offer_changed', 409)
                 if conn.execute('SELECT 1 FROM trainer_backend.owned_items WHERE player_id=%s AND offer_id=%s', (actor.player_id, offer_id)).fetchone():
                     raise AuthError('already_owned', 409)
+                if offer['purpose']=='bazaar_stall' and not bazaar.owned(conn,actor.player_id):
+                    raise AuthError('bazaar_required',409)
                 if mastery(account['xp'])['level'] < offer['minimum_level']:
                     raise AuthError('level_required', 409)
                 if account['balance'] < offer['price']:
                     raise AuthError('insufficient_sparks', 409)
                 purchase = uuid4()
-                conn.execute('''INSERT INTO trainer_backend.purchases(id,player_id,operation_id,offer_id,offer_revision,price,title)
-                    VALUES(%s,%s,%s,%s,%s,%s,%s)''', (purchase, actor.player_id, operation, offer_id, revision, offer['price'], offer['title']))
-                conn.execute('INSERT INTO trainer_backend.owned_items(player_id,offer_id,purchase_id) VALUES(%s,%s,%s)', (actor.player_id, offer_id, purchase))
+                conn.execute('''INSERT INTO trainer_backend.purchases(id,player_id,operation_id,offer_id,offer_revision,price,title,details)
+                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s)''', (purchase, actor.player_id, operation, offer_id, revision, offer['price'], offer['title'], Jsonb(purchase_details)))
+                if offer['purpose']=='bazaar_stall':
+                    place=conn.execute('SELECT * FROM trainer_backend.provision_bazaar_stall(%s)',(purchase,)).fetchone()
+                    if not place:raise AuthError('service_unavailable',503)
+                else:
+                    conn.execute('INSERT INTO trainer_backend.owned_items(player_id,offer_id,purchase_id) VALUES(%s,%s,%s)', (actor.player_id, offer_id, purchase))
                 if offer['purpose'] == 'outfit_slot':
                     conn.execute('INSERT INTO trainer_backend.outfit_slots(player_id,slot_id,purchase_id) VALUES(%s,%s,%s)', (actor.player_id, offer_id, purchase))
                 conn.execute('''INSERT INTO trainer_backend.reward_ledger(id,player_id,source,event_id,title,xp,sparks,base_sparks,policy,earned_at,purchase_id)

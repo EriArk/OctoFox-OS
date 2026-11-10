@@ -18,7 +18,11 @@ checks = []
 for path, expected in (
     ('/health/live', 200), ('/health/ready', 404), ('/openapi.json', 404),
     ('/v1/capabilities', 200), ('/v1/me', 401 if args.accounts else 503),
-    ('/v1/me/purchases', 405), ('/unpublished', 404),
+    ('/v1/me/purchases', 405), ('/v1/bazaars', 401 if args.accounts else 503),
+    ('/v1/bazaars/00000000-0000-0000-0000-000000000001/access', 401 if args.accounts else 503),
+    ('/v1/me/bazaars/00000000-0000-0000-0000-000000000001/access', 401 if args.accounts else 503),
+    ('/v1/bazaars/00000000-0000-0000-0000-000000000001/places', 401 if args.accounts else 503),
+    ('/v1/me/bazaar-rentals/00000000-0000-0000-0000-000000000001', 401 if args.accounts else 503), ('/unpublished', 404),
 ):
     request = Request(args.origin + path, headers={
         'User-Agent': 'TrainerOS-Backend/0.0.1', 'Accept': 'application/json'})
@@ -38,7 +42,8 @@ for path, expected in (
             assert capabilities == ({'accounts.fluxer_login': 1, 'accounts.sessions': 1, 'accounts.native_return': 1,
                                      'play.scorecards':1,'boards.peer_confirmed':1,
                                      'account.progression':1,'inventory.profile_purchases':1,
-                                     'support.balance_preview':1,'profiles.showcase':1,'profiles.sharing':1}
+                                     'support.balance_preview':1,'profiles.showcase':1,'profiles.sharing':1,
+                                     'bazaar.catalogue':1,'bazaar.management':1,'bazaar.rentals':0,'bazaar.stall_purchases':0,'bazaar.payments':0,'bazaar.previews':1}
                                     if args.accounts else {}), 'unexpected_capabilities'
         if path == '/v1/me':
             assert json.loads(body)['code'] == ('unauthenticated' if args.accounts
