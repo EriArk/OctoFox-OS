@@ -7,8 +7,18 @@
 #include <QTimer>
 #include <QFile>
 #include <QImage>
+#include <QQuickItem>
+#include <QtTest>
 #include <memory>
 using namespace trainer;
+namespace {
+QQuickItem* appsItem(QQuickItem* parent,const QString& name) {
+    if(!parent)return nullptr;
+    if(parent->objectName()==name)return parent;
+    for(auto* child:parent->childItems())if(auto* match=appsItem(child,name))return match;
+    return nullptr;
+}
+}
 void startAppsSmoke(QQuickWindow* window,ShellController& shell,ControllerInput& input,SDL_Joystick* joystick,
         const QString& directory,bool& completed,int& warnings,QStringList& diagnostics) {
     auto temporary=std::make_shared<QTemporaryDir>();auto step=std::make_shared<int>(0);auto failed=std::make_shared<bool>(false);
@@ -69,10 +79,48 @@ void startAppsSmoke(QQuickWindow* window,ShellController& shell,ControllerInput&
             capture("apps-800");shell.toggleQuickApps();flow->select(27);break;
         case 7:
             capture("apps-scrolled-800");check(flow->focusIndex()==27,"Pointer focus and scrolling");
-            flow->accept({{"event","foreground"},{"id","app-00.desktop"}});flow->accept({{"event","controls"}});break;
-        case 8:
-            // The overlay test provider never launches an actual application.
-            check(flow->controlsOpen(),"Application controls missing");flow->accept({{"event","shell"}});break;
+            shell.goToPage(ShellController::HomePage);flow->accept({{"event","foreground"},{"id","app-00.desktop"}});break;
+        case 8: {
+            // No corner control remains over an ordinary application's content.
+            auto* overlay=window->findChild<QQuickWindow*>("app-controls-window");
+            check(overlay&&!overlay->isVisible(),"App Home is visible before Home is pressed");
+            if(overlay)overlay->resize(960,540);
+            flow->accept({{"event","controls"}});break;
+        }
+        case 9: {
+            auto* overlay=window->findChild<QQuickWindow*>("app-controls-window");
+            check(flow->controlsOpen()&&overlay&&overlay->isVisible(),"Application Home missing");
+            if(overlay&&!directory.isEmpty())check(overlay->grabWindow().save(directory+"/app-home-light.png"),"App Home screenshot failed");
+            flow->accept({{"event","action"},{"action","down"}});check(flow->controlIndex()==1,"Home cannot select Minimize");
+            shell.settings()->cycleTheme(1);break;
+        }
+        case 10: {
+            auto* overlay=window->findChild<QQuickWindow*>("app-controls-window");
+            if(overlay&&!directory.isEmpty())check(overlay->grabWindow().save(directory+"/app-home-dark.png"),"Dark App Home screenshot failed");
+            flow->accept({{"event","action"},{"action","back"}});check(!flow->controlsOpen(),"Back did not return to app");
+            flow->accept({{"event","controls"}});break;
+        }
+        case 11: {
+            auto* overlay=window->findChild<QQuickWindow*>("app-controls-window");
+            auto* minimize=overlay?appsItem(overlay->contentItem(),"app-home-action-1"):nullptr;
+            check(minimize,"Minimize touch target missing");
+            if(minimize)QTest::mouseClick(overlay,Qt::LeftButton,Qt::NoModifier,minimize->mapToScene(QPointF(minimize->width()/2,minimize->height()/2)).toPoint());
+            check(!flow->controlsOpen(),"Touch did not minimize");
+            flow->accept({{"event","shell"}});check(shell.page()==ShellController::HomePage,"Minimize lost the launching Home page");
+            shell.settings()->cycleTheme(1);window->showNormal();window->resize(960,540);
+            QJsonArray running;for(int i=0;i<20;++i)running.append(QString("app-%1.desktop").arg(i,2,10,QChar('0')));
+            flow->accept({{"event","state"},{"running",running},{"current",""}});
+            shell.toggleQuickApps();flow->select(flow->rail().size()-1,true);break;
+        }
+        case 12: {
+            check(flow->rail().size()==20,"Quick Apps lost running apps or duplicated a favorite");
+            auto* slot=appsItem(window->contentItem(),"quick-app-slot-19");
+            check(slot,"Last running app has no Quick Apps icon");
+            if(slot){const auto position=slot->mapToScene(QPointF(slot->width()/2,slot->height()/2));check(position.x()>0&&position.x()<window->width(),"Focused running app scrolled outside the screen");}
+            capture("quick-apps-running");
+            shell.openAppsFace("crates");flow->accept({{"event","error"},{"message","Application could not open"}});
+            check(shell.notice()=="Application could not open","Crates launch error was hidden");break;
+        }
         default:
             check(warnings==0,"Apps QML warnings");completed=true;timer->stop();
             if(!directory.isEmpty()){QFile file(directory+"/apps-verification.txt");if(file.open(QIODevice::WriteOnly))file.write(((*failed?QString("FAILED\n"):QString("PASSED\n"))+diagnostics.join('\n')).toUtf8());}

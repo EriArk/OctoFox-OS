@@ -51,7 +51,7 @@ Item {
             onSelectedChanged: Qt.callLater(claimFocus)
             onVisibleChanged: Qt.callLater(claimFocus)
             Component.onCompleted: Qt.callLater(claimFocus)
-            Accessible.role: Accessible.Button; Accessible.name: modelData.name
+            Accessible.role: Accessible.Button; Accessible.name: modelData.name + (modelData.launching ? ", Opening" : modelData.minimized ? ", Minimized" : modelData.running ? ", Open" : "")
             Accessible.onPressAction: root.flow.open(railIndex, true)
             Image {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -69,7 +69,7 @@ Item {
             }
             Rectangle {
                 x: parent.width-10; y: 4; width: 4; height: 4; radius: 2
-                visible: modelData.running; color: Theme.surfaceColor("#b6ef9d")
+                visible: modelData.running || modelData.launching; color: modelData.launching ? Theme.yellow : Theme.surfaceColor("#b6ef9d")
             }
             MouseArea {
                 id: pointer; anchors.fill: parent
@@ -77,6 +77,12 @@ Item {
                 onPressAndHold: root.flow.options(railIndex, true)
             }
         }
+    Text {
+        y: 58; width: parent.width; height: 19; horizontalAlignment: Text.AlignHCenter
+        readonly property var app: root.flow.railFocused ? root.flow.rail[root.flow.focusIndex] : null
+        text: app ? app.name + (app.launching ? " · Opening…" : app.minimized ? " · Minimized" : app.running ? " · Open" : "") : ""
+        color: Theme.accentInk; font.pixelSize: 12; elide: Text.ElideRight; textFormat: Text.PlainText
+    }
     Column {
         anchors.centerIn: parent; spacing: 7; visible: !root.favorites.length && !root.running.length
         Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Quick Apps"; color: Theme.textColor("#fff4ce"); font.family: Theme.displayFamily; font.pixelSize: 20 }

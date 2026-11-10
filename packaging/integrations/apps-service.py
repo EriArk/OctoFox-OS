@@ -356,7 +356,9 @@ class Service:
                                            None, None, started, None)
             except Exception:
                 self.release(); raise
-            if op == 'open-url' and app_id in self.sessions and self.sessions[app_id]['windows']:
+            if op in ('open-url', 'open-file') and app_id in self.sessions and self.sessions[app_id]['windows']:
+                # The handler may reuse an already tracked window for another document.
+                # Restore that owned session instead of waiting for a new X11 window.
                 self.activate(app_id)
             else:
                 self.pending = (app_id, before, pids, time.monotonic() + 20, op == 'open-url')

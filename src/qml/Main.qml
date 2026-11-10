@@ -334,10 +334,11 @@ Window {
             id: browserPane
             flow: shell.browser
             active: !shell.serviceOpen && shell.primaryId === "apps" && shell.appsFace === "browser"
+            foreground: active && window.visible && window.active
             mediaAllowed: active && window.active && (!adventureLaunch.active || adventureLaunch.minimized)
             visible: active
-            takesFocus: active && !shell.notice.length && !shell.drawerOpen && !shell.quickAppsOpen && !shell.keyboard.open && !shell.menuOpen && !shell.homeMenuOpen && !shell.downloads.open && !sessionState.blocked && (!adventureLaunch.active || adventureLaunch.minimized)
-            typing: active && !shell.notice.length && !shell.drawerOpen && !shell.quickAppsOpen && shell.keyboard.live && !shell.menuOpen && !shell.homeMenuOpen && !shell.downloads.open && !sessionState.blocked && (!adventureLaunch.active || adventureLaunch.minimized)
+            takesFocus: foreground && !shell.notice.length && !shell.drawerOpen && !shell.quickAppsOpen && !shell.keyboard.open && !shell.menuOpen && !shell.homeMenuOpen && !shell.downloads.open && !sessionState.blocked && (!adventureLaunch.active || adventureLaunch.minimized)
+            typing: foreground && !shell.notice.length && !shell.drawerOpen && !shell.quickAppsOpen && shell.keyboard.live && !shell.menuOpen && !shell.homeMenuOpen && !shell.downloads.open && !sessionState.blocked && (!adventureLaunch.active || adventureLaunch.minimized)
             x: expanded ? 0 : Theme.screenBounds.x + Theme.panelInset
             y: expanded ? 0 : Theme.screenBounds.y + Theme.contentTopInset
             width: expanded ? parent.width : Theme.screenBounds.width - 2*Theme.panelInset

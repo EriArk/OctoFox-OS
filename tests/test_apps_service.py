@@ -85,6 +85,28 @@ class Lifecycle(unittest.TestCase):
         s=self.service()
         for uri in ['file:///tmp/app.desktop','http://example.com','https://user:secret@example.com','https:///missing']:
             with self.assertRaises(ValueError):s.command({'command':'open-url','url':uri})
+    @patch.object(apps,'emit')
+    def test_open_file_restores_owned_single_instance_window(self,emit):
+        for mapped in (False,True):
+            s=self.service();s.current='';s.windows.live={11:window(mapped=mapped)}
+            class Context:
+                def setenv(self,*args):pass
+                def unsetenv(self,*args):pass
+            class Handler:
+                uris=[]
+                def get_id(self):return 'a'
+                def launch_uris_as_manager(self,uris,*args):self.uris=uris
+            handler=Handler()
+            s.apps={'a':(handler,dict(id='a',name='Test',startupClass='test'))}
+            s.Gio=types.SimpleNamespace(content_type_guess=lambda *args:('text/plain',False),
+                AppInfo=types.SimpleNamespace(get_default_for_type=lambda *args:handler),AppLaunchContext=Context)
+            s.GLib=types.SimpleNamespace(SpawnFlags=types.SimpleNamespace(SEARCH_PATH=1))
+            s.command({'command':'open-file','url':'file:///tmp/example.txt'})
+            self.assertEqual(handler.uris,['file:///tmp/example.txt'])
+            self.assertIsNone(s.pending);self.assertEqual(s.current,'a')
+            self.assertEqual(s.windows.mapped[-1],([11],True))
+            self.assertEqual(set(s.sessions['a']['windows']),{11})
+
     def test_native_home_chord_opens_keyboard_without_controls_or_first_key(self):
         import apps_input
         from keyboard_input import HomeChord,KeyboardNavigation

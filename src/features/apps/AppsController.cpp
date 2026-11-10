@@ -31,10 +31,11 @@ AppsController::AppsController(QObject* parent):QObject(parent) {
         }
     });
     const auto lost=[this]{
-        const bool foreground=!current_.isEmpty();
+        const bool foreground=!current_.isEmpty(), launching=!launching_.isEmpty(), web=webPending_;
         heartbeat_.stop();ready_=false;controls_=false;current_.clear();processId_=0;launching_.clear();running_.clear();
         status_="Application connection stopped. Open Apps again to reconnect.";
         if(webPending_){webPending_=false;queuedWebUrl_=QUrl{};webStartTimeout_.stop();emit webOpenFailed(status_);}
+        if(launching&&!foreground&&!web)emit launchFailed(status_);
         if(foreground)emit shellRequested();
         emit changed();
     };
@@ -72,6 +73,9 @@ void AppsController::start(const QString& python,const QString& helper) {
     buffer_.clear();status_="Loading applications…";
     process_.start(python,{helper});emit changed();
 }
+void AppsController::failLaunch(const QString& message) {
+    status_=message;emit launchFailed(message);emit changed();
+}
 void AppsController::send(const QJsonObject& packet) {
     if(process_.state()!=QProcess::Running)return;
     if(process_.bytesToWrite()>65536){process_.kill();return;}
@@ -79,6 +83,7 @@ void AppsController::send(const QJsonObject& packet) {
 }
 void AppsController::accept(const QJsonObject& packet) {
     const auto previous=railFocused_?selected():QString{};
+    const auto previousGrid=railFocused_?QString{}:selected();
     const auto event=packet["event"].toString();
     if(event=="catalogue") {
         catalogue_.clear();QSet<QString> ids;
@@ -102,7 +107,7 @@ void AppsController::accept(const QJsonObject& packet) {
         running_.clear();for(const auto& value:packet["running"].toArray())running_.insert(value.toString());
         current_=packet["current"].toString();launching_=packet["launching"].toString();
         if(current_.isEmpty())controls_=false;
-    } else if(event=="foreground") {webPending_=false;current_=packet["id"].toString();processId_=packet["pid"].toVariant().toLongLong();controls_=false;emit foregroundRequested();}
+    } else if(event=="foreground") {webPending_=false;launching_.clear();status_.clear();current_=packet["id"].toString();processId_=packet["pid"].toVariant().toLongLong();controls_=false;emit foregroundRequested();}
     else if(event=="shell") {current_.clear();processId_=0;controls_=false;emit shellRequested();}
     else if(event=="controls") {controls_=true;controlFocus_=0;emit keyboardEvent({{"event","keyboard-closed"}});}
     else if(event=="action") {
@@ -111,12 +116,18 @@ void AppsController::accept(const QJsonObject& packet) {
         else if(name=="back"||name=="home")control(0);
         else if(name=="left"||name=="up")controlFocus_=std::max(0,controlFocus_-1);
         else if(name=="right"||name=="down")controlFocus_=std::min(2,controlFocus_+1);
-    } else if(event=="error"){status_=packet["message"].toString();if(webPending_){webPending_=false;queuedWebUrl_=QUrl{};webStartTimeout_.stop();emit webOpenFailed(status_);}}
-    normalize(previous);emit changed();
+    } else if(event=="error"){
+        launching_.clear();status_=packet["message"].toString();
+        if(webPending_){webPending_=false;queuedWebUrl_=QUrl{};webStartTimeout_.stop();emit webOpenFailed(status_);}
+        else if(!current_.isEmpty())emit commandRequested({{"command","controls"}});
+        else emit launchFailed(status_);
+    }
+    normalize(previous,previousGrid);emit changed();
 }
 QVariantMap AppsController::decorated(const QVariantMap& source) const {
     auto row=source;const auto id=row["id"].toString();row["favorite"]=favorites_.contains(id);
-    row["hidden"]=hiddenIds_.contains(id);row["running"]=running_.contains(id);row["launching"]=launching_==id;
+    row["hidden"]=hiddenIds_.contains(id);row["running"]=running_.contains(id)||current_==id;row["launching"]=launching_==id;
+    row["minimized"]=row["running"].toBool()&&current_!=id;
     return row;
 }
 QVariantList AppsController::rows() const {
@@ -132,7 +143,7 @@ QVariantList AppsController::rail() const {
     }
     for(const auto& value:catalogue_) {
         const auto id=value.toMap()["id"].toString();
-        if(running_.contains(id)&&!favorites_.contains(id)) {
+        if((running_.contains(id)||current_==id||launching_==id)&&!pinned.contains(id)) {
             auto row=decorated(value.toMap());row["railPinned"]=false;result.append(row);
         }
     }return result;
@@ -150,16 +161,19 @@ void AppsController::setFavoriteCapacity(int value) {
 }
 QString AppsController::currentName() const {for(const auto& v:catalogue_)if(v.toMap()["id"]==current_)return v.toMap()["name"].toString();return "Application";}
 QString AppsController::selected() const{return (railFocused_?rail():rows()).value(railFocused_?railFocus_:focus_).toMap()["id"].toString();}
-void AppsController::normalize(const QString& preferredRailId){
+void AppsController::normalize(const QString& preferredRailId,const QString& preferredGridId){
+    const auto grid=rows();
+    for(int i=0;!preferredGridId.isEmpty()&&i<grid.size();++i)if(grid[i].toMap()["id"]==preferredGridId){focus_=i;break;}
     focus_=std::clamp(focus_,0,std::max(0,int(rows().size())-1));
     const auto items=rail();
     for(int i=0;!preferredRailId.isEmpty()&&i<items.size();++i)if(items[i].toMap()["id"].toString()==preferredRailId){railFocus_=i;break;}
     railFocus_=std::clamp(railFocus_,0,std::max(0,int(items.size())-1));if(items.isEmpty())railFocused_=false;
 }
 void AppsController::openFile(const QString& url) {
-    if(!ready_ || !launching_.isEmpty())return;
-    if(launchGuard){const auto error=launchGuard();if(!error.isEmpty()){status_=error;emit changed();return;}}
-    status_.clear();emit commandRequested({{"command","open-file"},{"url",url}});emit changed();
+    if(!ready_){failLaunch("Application controls are unavailable. Open Apps to reconnect.");return;}
+    if(!launching_.isEmpty())return;
+    if(launchGuard){const auto error=launchGuard();if(!error.isEmpty()){failLaunch(error);return;}}
+    launching_="@file";status_.clear();emit changed();emit commandRequested({{"command","open-file"},{"url",url}});
 }
 bool AppsController::openWebUrl(const QUrl& url) {
     if(webPending_||!launching_.isEmpty()||!url.isValid()||url.scheme()!="https"||url.host().isEmpty()||!url.userInfo().isEmpty())return false;
@@ -181,16 +195,19 @@ void AppsController::refresh(){
 }
 void AppsController::select(int index,bool rail){const auto list=rail?this->rail():rows();if(index<0||index>=list.size())return;railFocused_=rail;(rail?railFocus_:focus_)=index;emit changed();}
 void AppsController::openDesktopId(const QString& id) {
-    if(id.isEmpty()||!ready_||!launching_.isEmpty())return;
-    if(launchGuard){const auto error=launchGuard();if(!error.isEmpty()){status_=error;emit changed();return;}}
+    if(id.isEmpty()||!launching_.isEmpty())return;
+    if(!ready_){failLaunch("Application controls are unavailable. Open Apps to reconnect.");return;}
+    if(launchGuard){const auto error=launchGuard();if(!error.isEmpty()){failLaunch(error);return;}}
+    launching_=id;status_.clear();emit changed();
     emit commandRequested({{"command","refresh"}});
     emit commandRequested({{"command","launch"},{"id",id}});
 }
 void AppsController::open(int index,bool rail) {
     if(index<0||index>=(rail?this->rail():rows()).size())return;
-    select(index,rail);const auto id=selected();if(id.isEmpty()||!ready_||!launching_.isEmpty())return;
-    if(launchGuard){const auto error=launchGuard();if(!error.isEmpty()){status_=error;emit changed();return;}}
-    status_.clear();emit commandRequested({{"command","launch"},{"id",id}});emit changed();
+    select(index,rail);const auto id=selected();if(id.isEmpty()||!launching_.isEmpty())return;
+    if(!ready_){failLaunch("Application controls are unavailable. Open Apps to reconnect.");return;}
+    if(launchGuard){const auto error=launchGuard();if(!error.isEmpty()){failLaunch(error);return;}}
+    launching_=id;status_.clear();emit changed();emit commandRequested({{"command","launch"},{"id",id}});
 }
 void AppsController::options(int index,bool rail){if(index<0||index>=(rail?this->rail():rows()).size())return;select(index,rail);menuId_=selected();menuFocus_=0;emit changed();}
 QVariantList AppsController::menu() const {
@@ -223,10 +240,10 @@ void AppsController::menuAction(int index) {
 }
 void AppsController::showHidden(){hidden_=!hidden_;focus_=0;railFocused_=false;menuId_.clear();emit changed();}
 void AppsController::leave(bool preserveLocation){menuId_.clear();if(!preserveLocation){hidden_=false;railFocused_=false;}normalize();emit changed();}
-void AppsController::showControls(){if(!current_.isEmpty())emit commandRequested({{"command","controls"}});}
+void AppsController::showControls(){if(!current_.isEmpty()){status_.clear();emit commandRequested({{"command","controls"}});}}
 void AppsController::control(int index) {
-    if(current_.isEmpty())return;
-    controls_=false;
+    if(current_.isEmpty()||index<0||index>2)return;
+    controls_=false;status_.clear();
     emit commandRequested({{"command",index==1?"minimize":index==2?"close":"resume"},{"id",current_}});emit changed();
 }
 void AppsController::dispatch(Action action,bool quick) {

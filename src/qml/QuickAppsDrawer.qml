@@ -5,7 +5,7 @@ ChassisDrawer {
     required property var shell
     objectName: "quick-apps-drawer"
     expanded: shell.quickAppsOpen
-    expandedHeight: 76
+    expandedHeight: 100
     contentTop: 12
     button: "X"; label: "Quick Apps"; toggleName: "quick-apps-handle"
     onToggled: shell.toggleQuickApps()
@@ -17,7 +17,7 @@ ChassisDrawer {
         parent: root.contentItem
         anchors.horizontalCenter: parent.horizontalCenter
         y: 0; width: parent.width-10
-        height: 54
+        height: 78
         flow: root.shell.apps
         enabled: root.expanded && !root.shell.apps.menu.length
     }

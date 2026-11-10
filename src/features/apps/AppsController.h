@@ -73,11 +73,13 @@ signals:
     void commandRequested(QJsonObject);
     void foregroundRequested();
     void webOpenFailed(QString message);
+    void launchFailed(QString message);
     void shellRequested();
     void homeRequested();
 private:
     void send(const QJsonObject&);
-    void normalize(const QString& preferredRailId={});
+    void failLaunch(const QString& message);
+    void normalize(const QString& preferredRailId={},const QString& preferredGridId={});
     int visibleFavoriteCount() const;
     bool persist(const QSet<QString>& favorites,const QSet<QString>& hidden);
     QVariantMap decorated(const QVariantMap&) const;

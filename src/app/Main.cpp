@@ -1341,17 +1341,16 @@ int main(int argc, char* argv[]) {
                 return QString();
             };
             shell.gamePreparation()->setupGuard=shell.pcGames()->installationGuard;
-            auto emulatorSetupWindow=std::make_shared<bool>(false);
-            bindings.connect(shell.gamePreparation(),&GamePreparationController::setupStarted,window,[emulatorSetupWindow]{*emulatorSetupWindow=true;});
             shell.pcGames()->settingsGuard=[&]{
                 return adventureLaunch.active()||session.blocked()||shell.runtimeChangeBlocked()?QString("Close the game and finish the current operation before saving launch settings."):QString();
             };
             bindings.connect(shell.apps(),&AppsController::foregroundRequested,window,[window]{window->hide();});
             shell.backendAccount()->loginGuard=shell.apps()->launchGuard;
-            bindings.connect(shell.apps(),&AppsController::shellRequested,window,[&,window,accountBrowser,emulatorSetupWindow]{
+            bindings.connect(shell.apps(),&AppsController::shellRequested,window,[&,window,accountBrowser]{
                 if(adventureLaunch.active())return;
-                if(!*accountBrowser && !*emulatorSetupWindow)shell.goToSection("apps");
-                if(!shell.gamePreparation()->setupRunning())*emulatorSetupWindow=false;*accountBrowser=false;
+                // The hidden shell retains the exact launching page, subpage and focus.
+                // Minimize/close must not redirect Quick Apps or Files back to Apps.
+                *accountBrowser=false;
                 if(parser.isSet("windowed"))window->show();else window->showFullScreen();window->requestActivate();
                   if(pendingSystemAction=="power"){pendingSystemAction.clear();shell.systemAction("power");}
             });

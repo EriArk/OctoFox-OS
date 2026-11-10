@@ -36,7 +36,7 @@ Item {
             function cancelSiteRequest() { if(siteRequestId)engine.flow.cancelDialog(siteRequestId) }
             function requestSiteDialog(request,kind,origin,message,initial,types) {
                 request.accepted=true
-                if(!selected||!engine.surface.active){request.dialogReject();return}
+                if(!foreground){request.dialogReject();return}
                 cancelSiteRequest()
                 siteRequest=request;siteRequestKind=kind
                 siteRequestId=engine.flow.requestDialog(tabId,kind,origin,message,initial||"",types||[])
@@ -66,7 +66,7 @@ Item {
             profile: engine.flow.profile
             backgroundColor: Theme.paper
             audioMuted: !engine.surface.mediaAllowed || !selected
-            readonly property bool foreground: selected && engine.surface.active
+            readonly property bool foreground: selected && engine.surface.foreground
             readonly property bool canFreeze: !foreground && recommendedState!==WebEngineView.LifecycleState.Active
                 && !engine.flow.downloads.some(job => job.state==="running" || job.state==="paused")
             onCanFreezeChanged: {
@@ -110,7 +110,7 @@ Item {
             }
             onFullScreenRequested: function(request) {request.accept();engine.surface.fullScreen=request.toggleOn;engine.surface.reveal()}
             onPermissionRequested: function(permission) {
-                if(!selected||!engine.surface.active){permission.deny();return}
+                if(!foreground){permission.deny();return}
                 // Qt 6.11 QWebEnginePermission::PermissionType, in enum order.
                 const names=["","the microphone","the camera","the camera and microphone","screen sharing","screen and audio sharing","pointer lock","notifications","your location","the clipboard","local fonts"]
                 const name=names[permission.permissionType]

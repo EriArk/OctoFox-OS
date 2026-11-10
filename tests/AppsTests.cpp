@@ -76,6 +76,49 @@ private slots:
         AppsController reopened;reopened.configure(dir.path(),"alice");seed(reopened);
         QCOMPARE(reopened.rail().size(),2);
     }
+    void runningFavoritesSurviveCapacityAndMinimizeWithoutDuplicates() {
+        QTemporaryDir dir;AppsController apps;apps.configure(dir.path(),"alice");seed(apps);
+        apps.options(0);apps.menuAction(0);apps.options(1);apps.menuAction(0);
+        apps.setFavoriteCapacity(0);
+        apps.accept({{"event","state"},{"running",QJsonArray{"a.desktop","z.desktop"}},{"current","a.desktop"}});
+        QCOMPARE(apps.rail().size(),2);
+        QVERIFY(!apps.rail()[0].toMap()["railPinned"].toBool());
+        QVERIFY(!apps.rail()[0].toMap()["minimized"].toBool());
+        QVERIFY(apps.rail()[1].toMap()["minimized"].toBool());
+        apps.accept({{"event","shell"}});
+        QVERIFY(apps.rail()[0].toMap()["minimized"].toBool());
+        apps.setFavoriteCapacity(2);QCOMPARE(apps.rail().size(),2);
+        QVERIFY(apps.rail()[0].toMap()["railPinned"].toBool());
+        apps.accept({{"event","state"},{"running",QJsonArray{}},{"current",""}});
+        QVERIFY(!apps.rail()[0].toMap()["running"].toBool());
+    }
+    void launchStateIsImmediateAndErrorsReachTheOrigin() {
+        AppsController apps;seed(apps);QSignalSpy commands(&apps,&AppsController::commandRequested),errors(&apps,&AppsController::launchFailed);
+        apps.open(0);apps.open(0);QCOMPARE(commands.size(),1);
+        QVERIFY(apps.rows()[0].toMap()["launching"].toBool());QCOMPARE(apps.rail().size(),1);
+        apps.accept({{"event","error"},{"message","Window unavailable"}});
+        QCOMPARE(errors.size(),1);QVERIFY(!apps.rows()[0].toMap()["launching"].toBool());QVERIFY(apps.rail().isEmpty());
+        apps.openDesktopId("a.desktop");QVERIFY(apps.rows()[0].toMap()["launching"].toBool());
+        apps.accept({{"event","foreground"},{"id","a.desktop"}});
+        QVERIFY(apps.rows()[0].toMap()["running"].toBool());QVERIFY(!apps.rows()[0].toMap()["launching"].toBool());
+        apps.accept({{"event","controls"}});
+        apps.accept({{"event","action"},{"action","home"}});
+        QCOMPARE(commands.last()[0].toJsonObject()["command"].toString(),"resume");
+        QVERIFY(!apps.controlsOpen());
+    }
+    void catalogueRefreshKeepsTheSelectedApplication() {
+        AppsController apps;seed(apps);apps.select(1);
+        apps.accept({{"event","catalogue"},{"rows",QJsonArray{
+            QJsonObject{{"id","new.desktop"},{"name","Browser"}},
+            QJsonObject{{"id","a.desktop"},{"name","Calculator"}},
+            QJsonObject{{"id","z.desktop"},{"name","Writer"}}}}});
+        QCOMPARE(apps.rows()[apps.focusIndex()].toMap()["id"].toString(),"z.desktop");
+    }
+    void unavailableFileAndCratesLaunchAreVisibleFailures() {
+        AppsController apps;QSignalSpy errors(&apps,&AppsController::launchFailed);
+        apps.openFile("file:///tmp/example.txt");apps.openDesktopId("example.desktop");
+        QCOMPARE(errors.size(),2);QVERIFY(!apps.hasRunningApps());
+    }
     void emptyQuickTrayNeverLaunchesTheUnderlyingGrid() {
         AppsController apps;seed(apps);QSignalSpy commands(&apps,&AppsController::commandRequested);
         apps.focusRail();apps.dispatch(Action::Confirm,true);apps.dispatch(Action::LocalAction,true);

@@ -14,7 +14,7 @@ Item {
     GridView {
         id: grid; objectName: "apps-grid"
         anchors { fill: parent; topMargin: notice.text ? 32 : 10; bottomMargin: 8 }
-        clip: true; cellWidth: width / 5; cellHeight: 116
+        clip: true; cellWidth: width / 5; cellHeight: 132
         model: root.flow.rows; currentIndex: root.flow.railFocused ? -1 : root.flow.focusIndex
         onCurrentIndexChanged: if (currentIndex >= 0) positionViewAtIndex(currentIndex, GridView.Contain)
         delegate: Item {
@@ -22,7 +22,7 @@ Item {
             required property int index
             width: grid.cellWidth; height: grid.cellHeight
             Accessible.role: Accessible.Button
-            Accessible.name: modelData.name
+            Accessible.name: modelData.name + (modelData.launching ? ", Opening" : modelData.minimized ? ", Minimized" : modelData.running ? ", Open" : "")
             Accessible.onPressAction: root.flow.open(index)
             Image {
                 anchors.horizontalCenter: parent.horizontalCenter; y: 7; width: 58; height: 58
@@ -38,6 +38,11 @@ Item {
             Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter; y: 70; width: 30; height: 3; radius: 1.5
                 color: Theme.focusGlow; visible: grid.currentIndex === index
+            }
+            Text {
+                x: 8; y: 113; width: parent.width-16
+                text: modelData.launching ? "Opening…" : modelData.minimized ? "Minimized" : modelData.running ? "Open" : ""
+                color: Theme.muted; font.pixelSize: 11; horizontalAlignment: Text.AlignHCenter
             }
             MouseArea {
                 anchors.fill: parent

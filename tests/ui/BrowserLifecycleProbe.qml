@@ -14,6 +14,7 @@ Window {
     Item {
         id: surface
         property bool active: true
+        property bool foreground: active
         property bool mediaAllowed: false
         property var page: null
         property string error: ""
@@ -46,10 +47,11 @@ Window {
                 browser.newTab(); stage=1
             } else if(stage===1) {
                 if(!window.check(Object.keys(engine.views).length===2,"visited tab did not load"))return
-                surface.active=false; interval=18000; stage=2
+                surface.foreground=false; interval=18000; stage=2
             } else if(stage===2) {
+                if(!window.check(engine.current.lifecycleState===WebEngineView.LifecycleState.Frozen,"selected browser tab behind an app was not frozen"))return
                 if(!window.check(engine.views[original].lifecycleState===WebEngineView.LifecycleState.Frozen,"hidden tab was not frozen"))return
-                surface.active=true; browser.select(original); interval=800; stage=3
+                surface.foreground=true; browser.select(original); interval=800; stage=3
             } else if(stage===3) {
                 if(!window.check(engine.current.lifecycleState===WebEngineView.LifecycleState.Active,"selected tab did not resume"))return
                 stop()

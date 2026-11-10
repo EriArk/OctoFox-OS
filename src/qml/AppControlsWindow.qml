@@ -6,51 +6,56 @@ Window {
     required property var flow
     required property var bridge
     objectName: "app-controls-window"
-    title: "TrainerOS — Application controls"
+    title: "TrainerOS — Home"
     color: "transparent"
     flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowDoesNotAcceptFocus
     transientParent: null
     x: Screen.virtualX; y: Screen.virtualY; width: Screen.width; height: Screen.height
-    visible: bridge.ready && flow.current.length > 0
-    readonly property real unit: Theme.uiScale
-    readonly property var hitRegions: flow.controlsOpen ? [0,1,2].map(i => ({id:"control-"+i,rect:Qt.rect(card.x+(12+i*106)*unit,card.y+45*unit,100*unit,48*unit)})) : [{id:"open",rect:Qt.rect(chip.x,chip.y,chip.width,chip.height)}]
+    visible: bridge.ready && flow.current.length > 0 && flow.controlsOpen
+    readonly property real unit: Math.min(Theme.uiScale, width/460, height/410)
+    readonly property var hitRegions: [0,1,2].map(i => ({id:"control-"+i,rect:Qt.rect(card.x+20*unit,card.y+(114+i*58)*unit,380*unit,52*unit)})).concat([
+        {id:"menu",rect:Qt.rect(card.x,card.y,card.width*unit,card.height*unit)}
+    ])
     onHitRegionsChanged: bridge.setRegions(hitRegions)
     Component.onCompleted: {bridge.attach(root);bridge.setRegions(hitRegions)}
-    onClosing: event => event.accepted=false
+    onClosing: event => {event.accepted=false;flow.control(0)}
     property string pressed: ""
+    onVisibleChanged: pressed=""
     Connections {
         target: root.bridge
         function onPointer(target,phase,position) {
             if(phase==="press")root.pressed=target
             if(phase==="release") {
                 const region=root.hitRegions.find(r=>r.id===target)
-                if(root.pressed===target && region && position.x>=region.rect.x && position.x<region.rect.x+region.rect.width && position.y>=region.rect.y && position.y<region.rect.y+region.rect.height) {
-                    if(target==="open")root.flow.showControls();else root.flow.control(Number(target.slice(8)))
-                }
+                if(root.pressed===target && target.indexOf("control-")===0 && region
+                    && position.x>=region.rect.x && position.x<region.rect.x+region.rect.width
+                    && position.y>=region.rect.y && position.y<region.rect.y+region.rect.height)
+                    root.flow.control(Number(target.slice(8)))
                 root.pressed=""
             }
         }
     }
     Rectangle {
-        id: chip; visible: !flow.controlsOpen; width: 52*unit; height: width; radius: width/2
-        x: root.width-width-14*unit; y: 14*unit; color: Theme.green; border.color: Theme.paper; border.width: 2*unit
-        Text {anchors.centerIn: parent;text:"HOME";font.family:Theme.brandFamily;font.pixelSize:10*unit;color:Theme.ink}
-        MouseArea { anchors.fill: parent; onClicked: flow.showControls() }
-    }
-    Rectangle {
-        id: card; visible: flow.controlsOpen; width: 342*unit; height: 105*unit; radius: 16*unit
-        x: root.width-width-16*unit; y: 16*unit; color: Theme.paper; border.color: Theme.ink; border.width: 2*unit
-        Text { x: 14*unit;y:12*unit;width:parent.width-28*unit;text:flow.currentName;elide:Text.ElideRight;color:Theme.ink;font.family:Theme.displayFamily;font.pixelSize:18*unit }
+        id: card; objectName: "app-home-menu"
+        width: 420; height: root.flow.status.length ? 382 : 330
+        x: (root.width-width*root.unit)/2; y: (root.height-height*root.unit)/2
+        scale: root.unit; transformOrigin: Item.TopLeft
+        radius: 18; color: Theme.paper; border.color: Theme.rim; border.width: 1
+        Text {x:24;y:20;text:"Home";font.family:Theme.displayFamily;font.pixelSize:26;color:Theme.ink}
+        Text {x:24;y:58;width:parent.width-48;text:root.flow.currentName;elide:Text.ElideRight;textFormat:Text.PlainText;font.pixelSize:20;color:Theme.ink}
+        Text {x:24;y:87;text:"Your application stays open.";font.pixelSize:12;color:Theme.muted}
         Repeater {
-            model: ["Return","Minimize","Close"]
-            Rectangle {
-                required property string modelData;required property int index
-                x:(12+index*106)*unit;y:45*unit;width:100*unit;height:48*unit;radius:10*unit
-                color:flow.controlIndex===index?Theme.yellow:(index===2?Theme.pink:Theme.blue)
-                border.color:flow.controlIndex===index?Theme.ink:"transparent";border.width:2*unit
-                Text {anchors.centerIn:parent;text:modelData;color:Theme.ink;font.pixelSize:14*unit}
-                MouseArea {anchors.fill:parent;onClicked:flow.control(index)}
+            model: [{label:"Return",glyph:"play"},{label:"Minimize",glyph:"desktop"},{label:"Close application",glyph:"close"}]
+            ActivityRow {
+                required property var modelData;required property int index
+                objectName: "app-home-action-"+index
+                x:20;y:114+index*58;width:380;height:52
+                flat:true;drillDown:false;label:modelData.label;glyph:modelData.glyph
+                selected:root.flow.controlIndex===index
+                onActivated:root.flow.control(index)
             }
         }
+        Text {x:24;y:294;width:parent.width-48;visible:root.flow.status.length>0;text:root.flow.status;wrapMode:Text.WordWrap;textFormat:Text.PlainText;font.pixelSize:12;color:Theme.ink;maximumLineCount:3;elide:Text.ElideRight}
+        Text {x:24;anchors.bottom:parent.bottom;anchors.bottomMargin:13;text:"A · Select     B / Home · Return";font.pixelSize:12;color:Theme.muted}
     }
 }

@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Apps Home correction, 10 November (latest):** native app Home opens
+Return / Minimize / Close application, without the permanent upper-corner control.
+Minimize returns to the launching shell page/subpage/focus and preserves the app.
+Quick Apps must show running/minimized apps, including hidden and overflow favorites,
+without duplicate icons; selecting one resumes it. Keep ordinary safe close and
+existing input/window ownership. This overrides the historical corner-control and
+always-return-to-Apps choices. Current work is preparation only: no handheld installs
+until the owner explicitly resumes them. See [implementation and evidence](docs/evidence/2026-11-10-apps-lifecycle/README.md).
+
 **Owner release channels, 10 November (latest):** reserve exactly `alpha`, `beta`,
 `stable`. Work on and publish Alpha only for now; Beta/Stable remain unavailable.
 Preview is retired from the new contract. Preserve signed identities and previous

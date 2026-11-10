@@ -7,6 +7,7 @@ Item {
     required property var flow
     property bool active: false
     property bool mediaAllowed: active
+    property bool foreground: active
     property bool takesFocus: false
     property bool typing: false
     property bool fullScreen: false
@@ -64,7 +65,7 @@ Item {
     Timer {id:fieldCheck;interval:140;onTriggered:if((root.takesFocus||root.typing)&&!root.popup&&!root.siteDialog)root.flow.editPageField(root.page)}
     // Chromium's editable focus can change after a tap (scripts/iframes), while
     // QQuickItem activeFocus remains on the same render widget.
-    Timer { interval: 120; repeat: true; running: root.active
+    Timer { interval: 120; repeat: true; running: root.foreground
         onTriggered: {
             if(root.page && !root.popup && !root.siteDialog && (root.takesFocus || root.typing))
                 root.flow.editPageField(root.page,false)

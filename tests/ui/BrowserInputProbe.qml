@@ -16,6 +16,7 @@ Window {
     Item {
         id: surface
         property bool active: true
+        property bool foreground: active
         property bool mediaAllowed: false
         property var page: null
         property string error: ""
