@@ -62,13 +62,14 @@ Item {
             width: engine.width*Theme.uiScale; height: engine.height*Theme.uiScale
             scale: 1/Theme.uiScale; transformOrigin: Item.TopLeft
             zoomFactor: Theme.uiScale
-            visible: selected
+            visible: selected && engine.surface.foreground
             profile: engine.flow.profile
             backgroundColor: Theme.paper
             audioMuted: !engine.surface.mediaAllowed || !selected
             readonly property bool foreground: selected && engine.surface.foreground
-            readonly property bool canFreeze: !foreground && recommendedState!==WebEngineView.LifecycleState.Active
-                && !engine.flow.downloads.some(job => job.state==="running" || job.state==="paused")
+            // Chromium owns download jobs through the profile, independently of views.
+            // Respect each page's own safety recommendation, not a global job list.
+            readonly property bool canFreeze: !visible && !foreground && recommendedState!==WebEngineView.LifecycleState.Active
             onCanFreezeChanged: {
                 if(canFreeze)freezeDelay.restart()
                 else {freezeDelay.stop();lifecycleState=WebEngineView.LifecycleState.Active}

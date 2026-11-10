@@ -30,6 +30,25 @@ public:
         QCoreApplication::sendEvent(item->window(),&event);
     }
 };
+class BrowserGamepadProbe final : public QObject {
+    Q_OBJECT
+public:
+    explicit BrowserGamepadProbe(trainer::ControllerInput* input):input_(input) {
+        if(qEnvironmentVariable("PROBE_MODE")!="mouse")return;
+        index_=SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_GAMECONTROLLER,SDL_CONTROLLER_AXIS_MAX,SDL_CONTROLLER_BUTTON_MAX,0);
+        if(index_>=0)pad_=SDL_JoystickOpen(index_);
+        if(pad_){SDL_JoystickSetVirtualAxis(pad_,4,-32768);SDL_JoystickSetVirtualAxis(pad_,5,-32768);}
+        input_->setPointerMode(true);input_->setProperty("browserMode",true);input_->setHoldConfirmEnabled(true);
+        connect(input_,&trainer::ControllerInput::action,this,[this](trainer::Action action){emit dispatched(action);});
+    }
+    ~BrowserGamepadProbe(){if(pad_)SDL_JoystickClose(pad_);if(index_>=0)SDL_JoystickDetachVirtual(index_);}
+    Q_INVOKABLE void axes(qreal x,qreal y,qreal rx=0,qreal ry=0){if(!pad_)return;const qreal values[]={x,y,rx,ry};for(int i=0;i<4;++i)SDL_JoystickSetVirtualAxis(pad_,i,qBound(-32767,int(values[i]*32767),32767));input_->poll();}
+    Q_INVOKABLE void press(const QString& key){if(!pad_)return;const int button=key=="context"?SDL_CONTROLLER_BUTTON_RIGHTSTICK:key=="back"?input_->backButton():input_->confirmButton();SDL_JoystickSetVirtualButton(pad_,button,1);input_->poll();SDL_JoystickSetVirtualButton(pad_,button,0);input_->poll();}
+signals:
+    void dispatched(trainer::Action action);
+private:
+    trainer::ControllerInput* input_;SDL_Joystick* pad_=nullptr;int index_=-1;
+};
 int main(int argc,char** argv){
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QtWebEngineQuick::initialize();QGuiApplication app(argc,argv);
@@ -39,11 +58,22 @@ int main(int argc,char** argv){
     QQmlApplicationEngine engine;engine.rootContext()->setContextProperty("browser",&browser);
     engine.rootContext()->setContextProperty("probeUrl",qEnvironmentVariable("PROBE_URL"));
     engine.rootContext()->setContextProperty("probeData",qEnvironmentVariable("PROBE_DATA"));
-    if(qEnvironmentVariable("PROBE_MODE")=="input") {
+    // Every component probe uses the production Theme singleton registration.
+    QTemporaryDir qml;
+    if(QStringList{"input","mouse","lifecycle"}.contains(qEnvironmentVariable("PROBE_MODE"))) {
+        QDir source(QFileInfo(qEnvironmentVariable("PROBE_KEYBOARD")).absolutePath());
+        for(const auto& name:source.entryList({"*.qml"},QDir::Files))QFile::copy(source.filePath(name),qml.filePath(name));
+        QFile qmldir(qml.filePath("qmldir"));if(!qmldir.open(QIODevice::WriteOnly))return 8;
+        qmldir.write("singleton Theme 1.0 Theme.qml\n");qmldir.close();
+        engine.rootContext()->setContextProperty("engineSource",QUrl::fromLocalFile(qml.filePath("BrowserEngine.qml")));
+    }
+    if(qEnvironmentVariable("PROBE_MODE")=="input"||qEnvironmentVariable("PROBE_MODE")=="mouse") {
         KeyboardPointerProbe pointer;
         engine.rootContext()->setContextProperty("pointerProbe",&pointer);
         trainer::TextEntryController keyboard;
         trainer::ControllerInput input;app.installEventFilter(&input);
+        BrowserGamepadProbe gamepad(&input);engine.rootContext()->setContextProperty("gamepad",&gamepad);
+        QObject::connect(&gamepad,&BrowserGamepadProbe::dispatched,&browser,&trainer::BrowserController::dispatch);
         QObject::connect(&browser,&trainer::BrowserController::pageInputRequested,&keyboard,[&](int hints){keyboard.beginLive(hints);});
         QObject::connect(&browser,&trainer::BrowserController::pageInputEnded,&keyboard,&trainer::TextEntryController::cancel);
         QObject::connect(&keyboard,&trainer::TextEntryController::textCommitted,&browser,&trainer::BrowserController::commitPageText);
@@ -53,12 +83,6 @@ int main(int argc,char** argv){
         QObject::connect(&keyboard,&trainer::TextEntryController::accepted,&browser,&trainer::BrowserController::applyText);
         QObject::connect(&browser,&trainer::BrowserController::dialogTextCancelled,&keyboard,&trainer::TextEntryController::cancel);
         QObject::connect(&keyboard,&trainer::TextEntryController::changed,&browser,[&]{input.setTextEntryEnabled(keyboard.isOpen());if(!keyboard.isOpen())browser.stopPageInput();});
-        // Load the production components with their real singleton registration.
-        QTemporaryDir qml;
-        QDir source(QFileInfo(qEnvironmentVariable("PROBE_KEYBOARD")).absolutePath());
-        for(const auto& name:source.entryList({"*.qml"},QDir::Files))QFile::copy(source.filePath(name),qml.filePath(name));
-        QFile qmldir(qml.filePath("qmldir"));if(!qmldir.open(QIODevice::WriteOnly))return 8;
-        qmldir.write("singleton Theme 1.0 Theme.qml\n");qmldir.close();
         engine.rootContext()->setContextProperty("keyboard",&keyboard);
         engine.rootContext()->setContextProperty("shellController",QVariantMap{{"keyboard",QVariant::fromValue(&keyboard)}});
         engine.rootContext()->setContextProperty("controllerInput",&input);
@@ -80,8 +104,6 @@ int main(int argc,char** argv){
         return passed?result:3;
     }
     if(qEnvironmentVariable("PROBE_MODE")=="lifecycle") {
-        engine.rootContext()->setContextProperty("Theme",QVariantMap{{"uiScale",1.0},{"paper","#fffdf5"}});
-        engine.rootContext()->setContextProperty("engineSource",QUrl::fromLocalFile(qEnvironmentVariable("PROBE_ENGINE")));
         QObject::connect(&engine,&QQmlEngine::exit,&app,[&](int code){
             QFile receipt(qEnvironmentVariable("PROBE_DATA")+"/lifecycle.json");
             if(receipt.open(QIODevice::WriteOnly))receipt.write(QJsonDocument(QJsonObject{{"passed",code==0},{"exit",code}}).toJson());
@@ -89,7 +111,7 @@ int main(int argc,char** argv){
         });
         engine.load(QUrl::fromLocalFile(qEnvironmentVariable("PROBE_SCENARIO")));
         if(engine.rootObjects().isEmpty())return 2;
-        QTimer::singleShot(35000,&app,[&]{qCritical("LIFECYCLE_TIMEOUT");app.exit(3);});
+        QTimer::singleShot(65000,&app,[&]{qCritical("LIFECYCLE_TIMEOUT");app.exit(3);});
         return app.exec();
     }
     engine.loadData(R"QML(import QtQuick

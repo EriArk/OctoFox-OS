@@ -52,6 +52,7 @@ private:
     void operation(QString op,QStringList sources,QString destination={});
     FilesService service_;
     QVariantList entries_,rows_,places_;
+    void publishRows();
     QString owner_,preferences_,url_,query_,error_,area_="files",textAction_,textBase_,menuUrl_;
     QStringList history_,clipboard_,pendingSources_;
     QSet<QString> selected_;

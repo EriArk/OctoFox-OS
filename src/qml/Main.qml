@@ -531,7 +531,7 @@ Window {
                 if (experienceHints) return experienceHints
                 if (shell.page === 0) return [h("A",shell.homeGame.id ? (shell.liveGame.id === shell.homeGame.id ? "Return" : shell.home.actionHint) : "Collections"),h("Select","Game actions"),h("B","Back")]
                 if (shell.primaryId === "apps" && shell.appsFace === "files") return shell.files.view.menuOpen || Object.keys(shell.files.dialog).length ? [h("A","Select"),h("B","Close")] : [h("A","Open"),h("Hold A","Actions"),h("Select","Controls"),h("R3","View"),h("B","Back")]
-                if (shell.primaryId === "apps" && shell.appsFace === "browser") return browserPane.popup ? [h("A","Select"),h("B","Close")] : [h("A","Select"),h("Hold A","Actions"),h("Select","Controls"),h("B","Back")]
+                if (shell.primaryId === "apps" && shell.appsFace === "browser") return browserPane.popup ? [h("A","Select"),h("B","Close")] : browserPane.toolsFocused ? [h("←→","Control"),h("A","Select"),h("B","Back")] : [h("LS","Cursor"),h("RS","Scroll"),h("A","Click"),h("R3","Menu"),h("Select","Controls"),h("B","Back")]
                 if (shell.primaryId === "apps" && shell.appsFace === "crates") {
                     if (shell.crates.detailOpen) {
                         if (shell.crates.actionsOpen) return [h("A","Choose"),h("B","Back")]

@@ -2161,8 +2161,8 @@ void ShellController::dispatch(Action action) {
     if(social_.dispatchIncomingCall(action))return;
     if(dashboard_.widgetPicking()){dashboard_.move(action);emit changed();return;}
     if(page_==AppsPage && appsFace_=="browser" && service_.isEmpty() && !keyboard_.isOpen() && !menuOpen_ && !homeMenuOpen_ && !drawerOpen_ && !quickAppsOpen_ && notice_.isEmpty() && !localModalOpen()) {
-        if(action==Action::Up||action==Action::Down||action==Action::Left||action==Action::Right||action==Action::Confirm||action==Action::ContextMenu||action==Action::Back||action==Action::LocalAction||action==Action::ScrollUp||action==Action::ScrollDown){browser_.dispatch(action);return;}
-        if(action==Action::ChangeView||action==Action::ToggleFavorite)return;
+        if(action==Action::Up||action==Action::Down||action==Action::Left||action==Action::Right||action==Action::Confirm||action==Action::ContextMenu||action==Action::ChangeView||action==Action::Back||action==Action::LocalAction||action==Action::ScrollUp||action==Action::ScrollDown){browser_.dispatch(action);return;}
+        if(action==Action::ToggleFavorite)return;
     }
     if(social_.files()->picker()->isOpen()){social_.files()->dispatch(action);return;}
     if(service_=="library" && libraryManager_.files()->isOpen() && !keyboard_.isOpen()){libraryManager_.dispatch(action);return;}

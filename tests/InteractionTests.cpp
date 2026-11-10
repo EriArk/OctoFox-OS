@@ -698,6 +698,9 @@ private slots:
         QCOMPARE(shell.primaryId(),"apps");QCOMPARE(shell.appsFace(),"crates");QCOMPARE(shell.faceIndex(),1);
         QVERIFY(!shell.socialActive());
         shell.dispatch(Action::NextFace);QCOMPARE(shell.appsFace(),"browser");
+        QSignalSpy browserCommands(shell.browser(), &BrowserController::commandRequested);
+        shell.dispatch(Action::ChangeView);
+        QCOMPARE(browserCommands.size(),1);QCOMPARE(browserCommands.takeFirst().first().toString(),"context");
         shell.dispatch(Action::NextFace);QCOMPARE(shell.appsFace(),"files");
         shell.dispatch(Action::PreviousFace);QCOMPARE(shell.appsFace(),"browser");
         shell.dispatch(Action::PreviousFace);QCOMPARE(shell.appsFace(),"crates");

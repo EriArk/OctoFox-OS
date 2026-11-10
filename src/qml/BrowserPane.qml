@@ -60,12 +60,14 @@ Item {
         },Qt.size(320,Math.max(1,Math.round(320*view.height/view.width))))
     }
     function forgetTab(id){delete thumbs[id];thumbs=Object.assign({},thumbs)}
-    function queueFieldCheck(){fieldCheck.restart()}
+    function queueFieldCheck(){fieldCheck.restart();recentInput.restart()}
     property var thumbs: ({})
     Timer {id:fieldCheck;interval:140;onTriggered:if((root.takesFocus||root.typing)&&!root.popup&&!root.siteDialog)root.flow.editPageField(root.page)}
     // Chromium's editable focus can change after a tap (scripts/iframes), while
     // QQuickItem activeFocus remains on the same render widget.
-    Timer { interval: 120; repeat: true; running: root.foreground
+    Timer {id:recentInput;interval:2000}
+    Timer { interval: root.typing || recentInput.running ? 120 : 750; repeat: true
+        running: root.foreground && !!root.page && !root.popup && !root.siteDialog && (root.takesFocus || root.typing)
         onTriggered: {
             if(root.page && !root.popup && !root.siteDialog && (root.takesFocus || root.typing))
                 root.flow.editPageField(root.page,false)
@@ -93,12 +95,11 @@ Item {
         else if(id==="history")openPopup("history")
         else if(id==="fullscreen"){fullScreen=!fullScreen;if(!fullScreen&&page&&page.isFullScreen)page.fullScreenCancelled();reveal()}
     }
-    function spatial(direction) {
-        if(!page)return
-        // Isolated application world: only inspect/focus ordinary DOM controls;
-        // never expose native objects or an execute bridge to website scripts.
-        const js="(()=>{const dir='"+direction+"';const all=[...document.querySelectorAll('a[href],button,input,textarea,select,[tabindex]')].filter(e=>{const r=e.getBoundingClientRect();return !e.disabled&&e.tabIndex>=0&&r.width>0&&r.height>0&&getComputedStyle(e).visibility!=='hidden'});const a=document.activeElement;const ar=a&&a!==document.body?a.getBoundingClientRect():{x:innerWidth/2,y:innerHeight/2,width:0,height:0};const x=ar.x+ar.width/2,y=ar.y+ar.height/2;let best=null,score=Infinity;for(const e of all){if(e===a)continue;const r=e.getBoundingClientRect(),dx=r.x+r.width/2-x,dy=r.y+r.height/2-y;const primary=dir==='right'?dx:dir==='left'?-dx:dir==='down'?dy:-dy;const secondary=(dir==='left'||dir==='right')?Math.abs(dy):Math.abs(dx);if(primary>1&&primary+secondary*3<score){best=e;score=primary+secondary*3}}if(!best)best=all[0];if(!best)return null;best.focus({preventScroll:true});best.scrollIntoView({block:'nearest',inline:'nearest'});const r=best.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()"
-        page.runJavaScript(js,1,function(p){if(p){root.pointerX=p.x+webLoader.x;root.pointerY=p.y+webLoader.y;root.pointerVisible=true}})
+    function movePointer(dx,dy) {
+        toolsFocused=false;pointerVisible=true
+        pointerX=Math.max(2,Math.min(width-4,pointerX+dx))
+        pointerY=Math.max(2,Math.min(height-4,pointerY+dy))
+        flow.pointerEvent(root,pointerX,pointerY,0)
     }
     function handle(action) {
         if(siteDialog) {
@@ -124,9 +125,16 @@ Item {
         if(toolsFocused) {
             if(action==="left")toolIndex=Math.max(-2,toolIndex-1)
             if(action==="right")toolIndex=Math.min(5,toolIndex+1)
-            if(action==="up"){if(toolIndex>=0)toolIndex=-2;else {toolsFocused=false;spatial("down")}}
-            if(action==="down"){if(toolIndex<0)toolIndex=0;else {toolsFocused=false;spatial("down")}}
+            if(action==="up"){if(toolIndex>=0)toolIndex=-2;else {toolsFocused=false;movePointer(0,0)}}
+            if(action==="down"){if(toolIndex<0)toolIndex=0;else {toolsFocused=false;movePointer(0,0)}}
             if(action==="click"){if(toolIndex===-2)flow.requestAddress(page?page.url.toString():"");else if(toolIndex===-1)openPopup("tabs");else command(toolFlow.controls[toolIndex].id)}
+            return
+        }
+        // Pointer clicks must hit the actual item under the cursor, including
+        // the local start page and address bar, rather than a stale focus tile.
+        if(pointerVisible && (action==="click"||action==="context")) {
+            flow.pointerEvent(root,pointerX,pointerY,action==="context"?2:1)
+            if(action==="click")queueFieldCheck()
             return
         }
         if(startPage) {
@@ -141,7 +149,7 @@ Item {
         if(action==="click"||action==="context") {
             flow.pointerEvent(root,pointerX,pointerY,action==="context"?2:1);if(action==="click")queueFieldCheck();return
         }
-        spatial(action)
+        movePointer(action==="left"?-12:action==="right"?12:0,action==="up"?-12:action==="down"?12:0)
     }
     QtObject {
         id: toolFlow
@@ -156,6 +164,8 @@ Item {
         function command(id){root.command(id)}
     }
     property alias toolFlow: toolFlow
+    onForegroundChanged: if(!foreground){flow.stopPageInput();pointerVisible=false}
+    onPopupChanged: if(popup)flow.stopPageInput()
     onActiveChanged: if(!active){flow.cancelDialog();flow.stopPageInput();dismiss();pointerVisible=false}
     onTakesFocusChanged: if(!takesFocus){pointerVisible=false;if(!shellController.keyboard.open&&popup!=="permission")dismiss()}
     Connections {target:flow
@@ -172,7 +182,7 @@ Item {
             if(root.popup){if(!popupScrollGate.running&&Math.abs(dy)>1){root.handle(dy<0?"down":"up");popupScrollGate.start()};return}
             if(root.page)root.flow.wheel(root,root.pointerX,root.pointerY,dx,dy)
         }
-        function onPointerMoved(dx,dy){if(!root.takesFocus||root.popup||root.siteDialog)return;root.toolsFocused=false;root.pointerVisible=true;root.pointerX=Math.max(2,Math.min(root.width-4,root.pointerX+dx));root.pointerY=Math.max(2,Math.min(root.height-4,root.pointerY+dy));flow.pointerEvent(root,root.pointerX,root.pointerY,0)}
+        function onPointerMoved(dx,dy){if(!root.takesFocus||root.popup||root.siteDialog)return;root.movePointer(dx,dy)}
     }
     Rectangle {anchors.fill:parent;color:Theme.paper}
     Item {

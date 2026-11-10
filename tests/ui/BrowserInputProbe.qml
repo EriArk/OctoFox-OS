@@ -69,6 +69,7 @@ Window {
         id: step; running: true; repeat: true; interval: 350
         onTriggered: {
             if(busy||!surface.page||surface.page.loading||!panel.item)return
+            if(stage===0&&!window.active){window.requestActivate();return}
             const web=surface.page
             if(keyboard.live)browser.editPageField(web,false)
             if(stage===0){web.forceActiveFocus();script("document.querySelector('#plain').focus();document.querySelector('#plain').setSelectionRange(1,3);true",true)}

@@ -20,6 +20,35 @@ private Q_SLOTS:
         FilesService service;QSignalSpy spy(&service,&FilesService::listed);service.list(uri(dir.path()));service.list(uri(dir.path()+"/empty"));
         QTRY_VERIFY(!spy.empty());QCOMPARE(spy.last()[0].toString(),uri(dir.path()+"/empty"));QVERIFY(spy.last()[1].toList().isEmpty());QCOMPARE(spy.size(),1);
     }
+    void cancelListingDoesNotCancelFileOperations(){
+        FilesService service;QTemporaryDir dir;QDir().mkdir(dir.path()+"/target");
+        QSignalSpy listed(&service,&FilesService::listed);
+        service.list(uri(dir.path()));service.cancelListing();
+        QTest::qWait(30);QVERIFY(listed.empty());
+        if(!service.available())return;
+        write(dir.path()+"/one.txt","new");write(dir.path()+"/target/one.txt","old");
+        service.start("copy",{uri(dir.path()+"/one.txt")},uri(dir.path()+"/target"));
+        QTRY_VERIFY(!last(service)["question"].toString().isEmpty());
+        service.list(uri(dir.path()));service.cancelListing();
+        QVERIFY(!last(service)["terminal"].toBool());
+        service.answer(last(service)["id"].toString(),"keep");
+        QTRY_VERIFY(last(service)["terminal"].toBool());
+        QCOMPARE(read(dir.path()+"/target/one.txt"),QByteArray("old"));
+        QCOMPARE(read(dir.path()+"/target/one (2).txt"),QByteArray("new"));
+    }
+    void preparedRowsKeepSortingSelectionAndFiltering(){
+        QTemporaryDir dir;QDir().mkdir(dir.path()+"/z-folder");
+        write(dir.path()+"/b.txt","abc");write(dir.path()+"/a.txt","def");write(dir.path()+"/.hidden","x");
+        FilesController flow;flow.navigate(uri(dir.path()));QTRY_COMPARE(flow.rows().size(),3);
+        QCOMPARE(flow.rows()[0].toMap()["name"].toString(),"z-folder");
+        QCOMPARE(flow.rows()[1].toMap()["name"].toString(),"a.txt");
+        QVERIFY(!flow.rows()[1].toMap()["sizeLabel"].toString().isEmpty());
+        flow.context(1);flow.command("select");QVERIFY(flow.rows()[1].toMap()["selected"].toBool());
+        flow.activate(2);QVERIFY(flow.rows()[2].toMap()["selected"].toBool());
+        flow.dispatch(Action::Back);QVERIFY(!flow.rows()[1].toMap()["selected"].toBool());
+        flow.command("search");flow.applyText("b.txt");QCOMPARE(flow.rows().size(),1);
+        QCOMPARE(flow.rows()[0].toMap()["name"].toString(),"b.txt");
+    }
     void copyAndMove(){
         FilesService service;if(!service.available())QSKIP("Linux libfm backend required");
         QTemporaryDir dir;QDir().mkdir(dir.path()+"/target");write(dir.path()+"/one.txt","contents");

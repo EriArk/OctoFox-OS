@@ -70,6 +70,14 @@ private slots:
         BrowserController b;b.configure(temp.path(),"test");QCOMPARE(b.downloads()[0].toMap()["destination"].toString(),temp.path()+"/target");
         QCOMPARE(b.downloads()[0].toMap()["state"].toString(),"error");QVERIFY(b.downloads()[0].toMap()["terminal"].toBool());
     }
+    void mouseButtonsKeepBackAndToolbarSeparate(){
+        BrowserController browser;QSignalSpy commands(&browser,&BrowserController::commandRequested);
+        browser.dispatch(Action::Confirm);browser.dispatch(Action::ChangeView);
+        browser.dispatch(Action::Back);browser.dispatch(Action::LocalAction);
+        QCOMPARE(commands.size(),4);
+        QCOMPARE(commands[0][0].toString(),"click");QCOMPARE(commands[1][0].toString(),"context");
+        QCOMPARE(commands[2][0].toString(),"back");QCOMPARE(commands[3][0].toString(),"chrome");
+    }
     void navigationBoundary(){
         QCOMPARE(BrowserController::navigationUrl("example.com"),QString("https://example.com"));
         QCOMPARE(BrowserController::navigationUrl("https://example.com/path?q=a"),QString("https://example.com/path?q=a"));

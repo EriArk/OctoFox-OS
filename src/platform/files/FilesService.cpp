@@ -11,6 +11,9 @@
 #include <QTimer>
 #include <QUuid>
 #include <QDateTime>
+#include <QLocale>
+#include <atomic>
+#include <algorithm>
 #include <mutex>
 #include <condition_variable>
 #ifdef TRAINER_WITH_LIBFM
@@ -23,6 +26,20 @@
 namespace trainer {
 namespace {
 QString local(const QString& value) { const QUrl url(value); return url.isLocalFile()?url.toLocalFile():value; }
+struct Listing {
+    std::atomic_bool cancelled{false};
+    std::mutex mutex;
+#ifdef TRAINER_WITH_LIBFM
+    Fm::Job* job=nullptr;
+#endif
+    void cancel() {
+        cancelled=true;
+        std::lock_guard lock(mutex);
+#ifdef TRAINER_WITH_LIBFM
+        if(job)job->cancel();
+#endif
+    }
+};
 struct Task {
     QString id=QUuid::createUuid().toString(QUuid::WithoutBraces), operation;
     QStringList sources;
@@ -92,6 +109,7 @@ void execute(const std::shared_ptr<Task>& task) {
 struct FilesService::Impl {
     QList<std::shared_ptr<Task>> jobs;
     QList<QFuture<QVariantMap>> lists;
+    std::shared_ptr<Listing> listing;
     quint64 generation=0;
     QTimer timer;
 };
@@ -106,7 +124,7 @@ FilesService::FilesService(QObject* parent):QObject(parent),impl_(std::make_uniq
         Q_EMIT changed();if(!active)impl_->timer.stop();
     });
 }
-FilesService::~FilesService(){disconnect(this,nullptr,nullptr,nullptr);cancel();for(auto& task:impl_->jobs)task->future.waitForFinished();for(auto& list:impl_->lists)list.waitForFinished();}
+FilesService::~FilesService(){disconnect(this,nullptr,nullptr,nullptr);cancelListing();cancel();for(auto& task:impl_->jobs)task->future.waitForFinished();for(auto& list:impl_->lists)list.waitForFinished();}
 bool FilesService::available() const {
 #ifdef TRAINER_WITH_LIBFM
     return true;
@@ -114,21 +132,40 @@ bool FilesService::available() const {
     return false;
 #endif
 }
-void FilesService::reset(){cancel();++impl_->generation;for(const auto& task:impl_->jobs){std::lock_guard lock(task->mutex);task->visible=false;}Q_EMIT changed();}
+void FilesService::reset(){cancel();cancelListing();for(const auto& task:impl_->jobs){std::lock_guard lock(task->mutex);task->visible=false;}Q_EMIT changed();}
+void FilesService::cancelListing() {
+    ++impl_->generation;
+    if(impl_->listing)impl_->listing->cancel();
+    impl_->listing.reset();
+}
 void FilesService::list(const QString& value) {
-    const auto generation=++impl_->generation;
+    cancelListing();
+    const auto generation=impl_->generation;
+    const auto listing=std::make_shared<Listing>();impl_->listing=listing;
+    // Coalesce navigation within one event turn before scheduling disk work.
+    QTimer::singleShot(0,this,[this,value,generation,listing]{
+    if(listing->cancelled)return;
     auto* watcher=new QFutureWatcher<QVariantMap>(this);
     connect(watcher,&QFutureWatcher<QVariantMap>::finished,this,[this,watcher,generation,value]{
         const auto result=watcher->result();watcher->deleteLater();
         if(generation==impl_->generation)Q_EMIT listed(value,result["entries"].toList(),result["error"].toString());
     });
-    auto future=QtConcurrent::run([value]{
+    auto future=QtConcurrent::run([value,listing]{
+        if(listing->cancelled)return QVariantMap{};
         QVariantList entries;QString error;QMimeDatabase mime;
 #ifdef TRAINER_WITH_LIBFM
         Fm::DirListJob job(fmPath(value), Fm::DirListJob::Flags(0));
         QObject::connect(&job,&Fm::Job::error,&job,[&](const Fm::GErrorPtr& err,Fm::Job::ErrorSeverity,Fm::Job::ErrorAction& response){error=QString::fromUtf8(err->message);response=Fm::Job::ErrorAction::ABORT;},Qt::DirectConnection);
+        {
+            std::lock_guard lock(listing->mutex);
+            if(listing->cancelled)return QVariantMap{};
+            listing->job=&job;
+        }
         job.run();
+        {std::lock_guard lock(listing->mutex);listing->job=nullptr;}
+        if(listing->cancelled)return QVariantMap{};
         for(const auto& file:job.files()) {
+            if(listing->cancelled)return QVariantMap{};
             const auto url=QString::fromUtf8(file->path().uri().get());
             const auto type=file->isDir()?mime.mimeTypeForName("inode/directory"):mime.mimeTypeForFile(file->displayName(),QMimeDatabase::MatchExtension);
             entries<<QVariantMap{{"url",url},{"name",file->displayName()},{"directory",file->isDir()},{"hidden",file->isHidden()},
@@ -138,15 +175,27 @@ void FilesService::list(const QString& value) {
 #else
         // Read-only desktop development preview. Linux writes always use libfm.
         QDir dir(local(value));if(!dir.exists())error="Folder is not available";
-        for(const auto& file:dir.entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden)) {
+        for(const auto& file:dir.entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden,QDir::NoSort)) {
+            if(listing->cancelled)return QVariantMap{};
             const auto type=mime.mimeTypeForFile(file,QMimeDatabase::MatchExtension);const auto url=QUrl::fromLocalFile(file.absoluteFilePath()).toString();
             entries<<QVariantMap{{"url",url},{"name",file.fileName()},{"directory",file.isDir()},{"hidden",file.isHidden()},
                 {"size",file.size()},{"modified",file.lastModified().toString("dd MMM yyyy")},{"icon",file.isDir()?"folder":type.iconName()},{"preview",type.name().startsWith("image/")?url:QString()}};
         }
 #endif
+        const QLocale locale;
+        for(auto& value:entries){
+            if(listing->cancelled)return QVariantMap{};
+            auto row=value.toMap();row["sizeLabel"]=row["directory"].toBool()?QString():locale.formattedDataSize(row["size"].toLongLong());row["selected"]=false;value=row;
+        }
+        std::stable_sort(entries.begin(),entries.end(),[](const auto& av,const auto& bv){
+            const auto a=av.toMap(),b=bv.toMap();
+            if(a["directory"]!=b["directory"])return a["directory"].toBool();
+            return QString::localeAwareCompare(a["name"].toString(),b["name"].toString())<0;
+        });
         return QVariantMap{{"entries",entries},{"error",error}};
     });
     impl_->lists.removeIf([](const auto& f){return f.isFinished();});impl_->lists<<future;watcher->setFuture(future);
+    });
 }
 QVariantList FilesService::places() const {
     QVariantList result;

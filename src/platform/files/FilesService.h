@@ -13,6 +13,7 @@ public:
     ~FilesService() override;
     void reset();
     void list(const QString& url);
+    void cancelListing();
     QVariantList places() const;
     QVariantList tasks() const;
     bool available() const;

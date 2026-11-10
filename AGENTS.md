@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Browser / Files repair, 10 November (latest):** optimize the existing
+browser and file manager without adding layers. Browser controller navigation uses
+a mouse cursor: left stick moves, right stick scrolls, Confirm clicks, R3 opens
+context actions, Back returns, Select opens controls. Keep parent navigation and
+shared keyboard. Preserve page state and downloads across hiding/freezing; honour
+Chromium lifecycle recommendations. Cancel obsolete file listings independently
+of copy/move jobs. Preparation only; no handheld installs or Setup replacement.
+See [implementation and evidence](docs/evidence/2026-11-10-browser-files/README.md).
+
 **Owner Apps Home correction, 10 November (latest):** native app Home opens
 Return / Minimize / Close application, without the permanent upper-corner control.
 Minimize returns to the launching shell page/subpage/focus and preserves the app.
