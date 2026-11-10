@@ -8,7 +8,7 @@
 
 namespace trainer {
 namespace {
-const QStringList stages{"welcome", "controls", "network", "clock", "storage", "trainer", "preferences", "ready", "complete"};
+const QStringList stages{"welcome","network","storage","trainer","preferences","accounts","ready","complete"};
 QString stateFile(const QString& directory) { return QDir(directory).filePath("first-run.json"); }
 }
 FirstRunController::FirstRunController(QObject* parent) : QObject(parent) {
@@ -33,7 +33,7 @@ void FirstRunController::configure(const QString& directory, const QString& root
     if (file.open(QIODevice::ReadOnly) && file.size() <= 32768) {
         const auto doc = QJsonDocument::fromJson(file.readAll());
         if (doc.isObject() && (doc.object()["version"].toInt() == 1 || doc.object()["version"].toInt() == 2)
-            && (stages.contains(doc.object()["stage"].toString()) || doc.object()["stage"].toString()=="accounts")) {
+            && (stages.contains(doc.object()["stage"].toString()) || QStringList{"controls","clock"}.contains(doc.object()["stage"].toString()))) {
             state_ = doc.object(); return;
         }
     }
@@ -68,7 +68,7 @@ void FirstRunController::begin(bool hasTrainers) {
     if (loadFailed_) { emit changed(); return; }
     // Profile creation may have committed just before the process stopped.
     // Resume at completion instead of creating a duplicate Trainer.
-    if (stage()=="accounts") move(hasTrainers?"preferences":"trainer");
+    if (stage()=="controls" || stage()=="clock") move("network");
     else if (hasTrainers && stage() == "trainer") move("preferences");
     else if (requiresTrainer() && !hasTrainers) move("trainer");
     else if (state_.isEmpty()) move("welcome");
@@ -85,6 +85,7 @@ void FirstRunController::trainerOpened() {
 }
 void FirstRunController::closeService() {
     if(service_.isEmpty())return;
+    registration_=false;
     const auto previous=std::exchange(service_,{});
     emit serviceClosed(previous);emit changed();
 }
@@ -106,7 +107,8 @@ QString FirstRunController::title() const {
     if (stage() == "network") return "Stay connected.";
     if (stage() == "clock") return "Your local time.";
     if (stage() == "storage") return "Room for adventure.";
-    if (stage() == "trainer") return "Meet your Trainer";
+    if (stage() == "trainer") return "Meet your Trainer.";
+    if (stage() == "accounts") return "Connect your accounts.";
     if (stage() == "preferences") return "Make yourself at home.";
     return "Make it your journey.";
 }
@@ -116,7 +118,9 @@ QString FirstRunController::description() const {
     if (stage() == "network") return "Connect now, or finish setup offline and connect later.";
     if (stage() == "clock") return "Keep this time, or make a quick adjustment.";
     if (stage() == "storage") return "Choose a home for your games.";
-    if (stage() == "preferences") return "A few personal touches. Keep the current settings or adjust them here.";
+    if (stage() == "trainer") return "Choose a local name and emblem. Your games and saves belong to this profile. Dress your character in Wardrobe later.";
+    if (stage() == "preferences") return "Choose your look and a comfortable reading size. You can change both later in Settings.";
+    if (stage() == "accounts") return "All optional. Local games, saves and apps work without these accounts. Sign in now or come back later.";
     if (stage() == "ready") return "Your Trainer and game storage are saved. Find your games in Games, or discover downloads in Apps > Crates.";
     return {};
 }
@@ -132,12 +136,12 @@ QVariantList FirstRunController::rows() const {
         for (const auto& entry : locations_)result.append(libraryLocationRow(entry,root_));
         add("Refresh", "Find connected storage");
     } else if(stage()=="preferences") {
-        add("Screen & appearance", "Brightness, size, theme and reduced motion");
-        add("Sound", "System volume and achievement sounds");
-        add("Media", "Silent video previews");
-        add("Communication", "Account, microphone, call audio and notifications");
-        add("Nearby visibility", "Choose whether nearby players can see you");
-        add("Continue", "Keep your current settings");
+        add("Theme"); add("Interface size"); add("Continue");
+    } else if(stage()=="accounts") {
+        add("TrainerOS · Fluxer", "Online profile, friends, chats and invitations");
+        add("RetroAchievements", "Earn achievements in supported games");
+        add("ScreenScraper", "Download game covers and information");
+        add("Continue", "You can sign in later");
     } else if (stage() == "ready") { add("Let's go", "Open Home"); add("Trainer PIN", "Optional · protect this local profile"); }
     return result;
 }
@@ -146,10 +150,10 @@ void FirstRunController::activate(int index) {
     if (!active_ || busy_ || connections_ || !service_.isEmpty() || index < 0 || index >= rows().size()) return;
     if (loadFailed_) { const bool hasTrainers=hasTrainers_; configure(directory_, root_); begin(hasTrainers); return; }
     focus_ = index;
-    if (stage() == "welcome") { checked_ = 0; move("controls"); }
+    if (stage() == "welcome") move("network");
     else if (stage() == "network") {
         if (index == 0) { connections_ = true; emit changed(); }
-        else move("clock");
+        else move("storage");
     } else if (stage() == "storage") {
         if (index == locations_.size()) { loadLocations(); emit changed(); return; }
         const auto location = locations_[index];
@@ -173,9 +177,12 @@ void FirstRunController::activate(int index) {
         });
         worker_->start();
     } else if(stage()=="preferences") {
-        if(index==rows().size()-1){move("ready");return;}
-        const QStringList preferences{"display","sound","media","communication","nearby"};
-        service_=preferences[index];
+        if(index==2){move("accounts");return;}
+        emit comfortRequested(index,0);emit changed();
+    } else if(stage()=="accounts") {
+        if(index==3){move("ready");return;}
+        const QStringList services{"social","achievements","scraper"};
+        service_=services[index];
         emit serviceRequested(service_);emit changed();
     } else if (stage() == "ready") {
         if(index==1) { emit protectTrainerRequested(); return; }
@@ -183,6 +190,10 @@ void FirstRunController::activate(int index) {
         if (!persist(next)) return;
         active_ = false; emit changed(); emit finished();
     }
+}
+void FirstRunController::adjustComfort(int index,int direction) {
+    if(!active_ || stage()!="preferences" || loadFailed_ || busy() || index<0 || index>1)return;
+    focus_=index;emit comfortRequested(index,direction);emit changed();
 }
 void FirstRunController::dispatch(Action action) {
     if(active_ && stage()=="clock"){clock_.dispatch(action);return;}
@@ -199,11 +210,13 @@ void FirstRunController::dispatch(Action action) {
         emit changed(); return;
     }
     if (action == Action::Back) {
-        if (stage() == "network") { checked_ = 0; move("controls"); }
-        else if (stage() == "storage") move("clock");
+        if (stage() == "network") move("welcome");
+        else if (stage() == "storage") move("network");
         else if (stage() == "preferences") move("storage");
-        else if (stage() == "ready") move("preferences");
-    } else if (action == Action::Confirm) activate(focus_);
+        else if (stage() == "accounts") move("preferences");
+        else if (stage() == "ready") move("accounts");
+    } else if (stage()=="preferences" && (action==Action::Left || action==Action::Right))adjustComfort(focus_,action==Action::Left?-1:1);
+    else if (action == Action::Confirm) activate(focus_);
     else if (action == Action::Up) { focus_ = std::max(0, focus_ - 1); emit changed(); }
     else if (action == Action::Down) { focus_ = std::min(std::max(0, int(rows().size()) - 1), focus_ + 1); emit changed(); }
 }

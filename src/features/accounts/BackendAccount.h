@@ -14,6 +14,7 @@ namespace trainer {
 // Owns backend credentials. QML and SDK receive presentation/identity only.
 class BackendAccount final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QString loginState READ loginState NOTIFY changed)
     Q_PROPERTY(QString actionLabel READ actionLabel NOTIFY changed)
     Q_PROPERTY(QString detail READ detail NOTIFY changed)
     Q_PROPERTY(QVariantMap progression READ progression NOTIFY changed)
@@ -45,6 +46,7 @@ public:
     void setSocialSubject(const QString& subject);
     QJsonObject snapshot() const;
     QVariantMap profileIdentity(const QVariantMap& social, const QString& localName) const;
+    QString loginState() const { return state_; }
     QString actionLabel() const;
     QString detail() const { return detail_; }
     Q_INVOKABLE void activate();

@@ -8,33 +8,40 @@ SessionState::SessionState(ShellController& shell, LocalStateStore* store, QObje
     if (!store_) return;
     connect(&firstRun_, &FirstRunController::changed, this, [this] {
         shell_.setOnboardingConnections(firstRun_.active() && firstRun_.connections());
+        shell_.setOnboardingSettings(firstRun_.active() && (firstRun_.stage()=="preferences" || !firstRun_.service().isEmpty()));
         emit changed();
     });
     connect(&firstRun_, &FirstRunController::trainerRequested, this, [this] {
         const auto draft=firstRun_.trainerDraft();
-        shell_.trainerSetup()->beginStartup();
-        shell_.trainerSetup()->restoreDraft(draft);
+        shell_.trainerSetup()->beginOnboarding(draft);
     });
     connect(shell_.trainerSetup(), &TrainerSetupPresentation::changed, this, [this] {
         if(shell_.trainerSetup()->stage()=="identity")firstRun_.saveTrainerDraft(shell_.trainerSetup()->draft());
     });
     connect(shell_.network(), &NetworkController::backRequested, &firstRun_, &FirstRunController::closeConnections);
     connect(&firstRun_, &FirstRunController::finished, this, [this] { shell_.goToPage(0); emit changed(); });
-    connect(&firstRun_, &FirstRunController::serviceRequested, this, [this](const QString& service) {
-        if(service=="achievements")shell_.hall()->account()->begin();
-        else if(service=="scraper"){shell_.scraper()->setSetupMode(true);shell_.settings()->selectCategory(14);}
-        else {
-            const int category=service=="display"?0:service=="sound"?1:service=="media"?2:service=="nearby"?12:13;
-            shell_.settings()->selectCategory(category);
-        }
-        shell_.setOnboardingSettings(true);
+    connect(&firstRun_, &FirstRunController::comfortRequested, this, [this](int index,int direction) {
+        auto* settings=shell_.settings();if(settings->saving())return;
+        if(index==0) {
+            const auto wanted=direction<0?"light":"dark";
+            if(!direction || settings->theme()!=wanted)settings->cycleTheme();
+        } else if(index==1)settings->setInterfaceScale(direction<0?100:direction>0?120:settings->interfaceScale()==100?120:100);
     });
+    connect(&firstRun_, &FirstRunController::serviceRequested, this, [this](const QString& service) {
+        setupAccountFocus_=0;registrationFocused_=false;
+        if(service=="achievements")shell_.hall()->account()->begin();
+        else if(service=="scraper")shell_.scraper()->setSetupMode(true);
+        shell_.setOnboardingSettings(true);emit changed();
+    });
+    connect(shell_.social(), &SocialController::changed, this, &SessionState::changed);
+    connect(shell_.backendAccount(), &BackendAccount::changed, this, &SessionState::changed);
     connect(&firstRun_, &FirstRunController::serviceClosed, this, [this](const QString& service) {
         if(service=="achievements")shell_.hall()->account()->close();
         if(service=="scraper")shell_.scraper()->setSetupMode(false);
-        if(service=="social" || service=="communication") {
-            shell_.settings()->communication()->leave();
+        if(service=="social") {
             if(shell_.social()->account()["state"]=="authorizing")emit shell_.social()->commandRequested("cancel-login",{});
+            const auto state=shell_.backendAccount()->loginState();
+            if(state=="opening" || state=="waiting")shell_.backendAccount()->cancel();
         }
         shell_.setOnboardingSettings(false);
     });
@@ -258,16 +265,31 @@ void SessionState::dispatch(Action action) {
             // Only the embedded service gets input; global shell routes stay gated.
             if(action!=Action::Up && action!=Action::Down && action!=Action::Left && action!=Action::Right
                 && action!=Action::Confirm && action!=Action::Back)return;
-            if(firstRun_.service()=="achievements") {
+            if(firstRun_.registration()) {
+                if(action==Action::Back || action==Action::Confirm){firstRun_.closeRegistration();registrationFocused_=true;emit changed();}
+                return;
+            }
+            const auto service=firstRun_.service();
+            const int focus=service=="social"?setupAccountFocus_:service=="achievements"?shell_.hall()->account()->focusIndex():shell_.scraper()->settingsFocus();
+            if(registrationFocused_) {
+                if(action==Action::Confirm)firstRun_.showRegistration();
+                else if(action==Action::Down){registrationFocused_=false;emit changed();}
+                else if(action==Action::Back)firstRun_.closeService();
+                return;
+            }
+            if(action==Action::Up && focus==0){registrationFocused_=true;emit changed();return;}
+            if(service=="social") {
+                if(action==Action::Back)firstRun_.closeService();
+                else if(action==Action::Confirm)activateSetupService(setupAccountFocus_);
+                else if(action==Action::Up)setupAccountFocus_=std::max(0,setupAccountFocus_-1);
+                else if(action==Action::Down)setupAccountFocus_=std::min(2,setupAccountFocus_+1);
+                emit changed();
+            } else if(service=="achievements") {
                 if(!shell_.hall()->account()->available() && action==Action::Back)firstRun_.closeService();
                 else shell_.hall()->account()->dispatch(action);
-            } else {
-                if(shell_.settings()->saving())return;
-                shell_.settings()->dispatch(action);
-                if(!shell_.settings()->controlsFocused())firstRun_.closeService();
-            }
+            } else if(service=="scraper")shell_.scraper()->dispatchSettings(action);
         }
-        else firstRun_.dispatch(action);
+        else if(!shell_.settings()->saving())firstRun_.dispatch(action);
         return;
     }
     if(entryGate_) {
@@ -299,8 +321,35 @@ void SessionState::backInSetup() {
     if(firstRunPage() && !access_.active())dispatch(Action::Back);
 }
 void SessionState::activateSetupService(int index) {
-    if(!firstRunPage() || access_.active() || shell_.keyboard()->isOpen())return;
-    if(firstRun_.service()=="achievements")shell_.hall()->account()->activate(index);
-    else if(!firstRun_.service().isEmpty())shell_.settings()->activateRow(index);
+    if(!firstRunPage() || access_.active() || shell_.keyboard()->isOpen() || firstRun_.registration())return;
+    registrationFocused_=false;
+    if(firstRun_.service()=="social") {
+        if(index<0 || index>=setupAccountRows().size())return;
+        setupAccountFocus_=index;
+        if(!setupAccountRows()[index].toMap()["enabled"].toBool())return;
+        if(index==0)emit shell_.social()->commandRequested(shell_.social()->account()["state"]=="authorizing"?"cancel-login":"login",{});
+        else if(index==1)shell_.backendAccount()->activate();
+        else firstRun_.closeService();
+    } else if(firstRun_.service()=="achievements")shell_.hall()->account()->activate(index);
+    else if(firstRun_.service()=="scraper")shell_.scraper()->activateSetting(index);
+    emit changed();
 }
+bool SessionState::setupLoginAllowed() const {
+    return firstRunPage() && firstRun_.service()=="social" && !firstRun_.registration() && !entryGate_
+        && !access_.active() && restored_ && !creating_ && !switching_ && !closing_ && error_.isEmpty() && store_ && store_->ready();
+}
+QVariantList SessionState::setupAccountRows() const {
+    const auto social=shell_.social()->account();
+    const bool connected=!social["userId"].toString().isEmpty();
+    const bool waiting=social["state"]=="authorizing";
+    auto* backend=shell_.backendAccount();const auto state=backend->loginState();
+    return {
+        QVariantMap{{"label",connected?(social["state"]=="connected"?"Fluxer connected":"Fluxer account saved"):waiting?"Cancel Fluxer sign-in":"Sign in to Fluxer"},
+            {"detail",social["code"].toString().isEmpty()?social["status"].toString():"On your phone: fluxer.app/handoff · "+social["code"].toString()}, {"enabled",!connected}},
+        QVariantMap{{"label",state=="connected"?"TrainerOS profile connected":state=="disabled"?QString("TrainerOS sign-in unavailable"):backend->actionLabel()},
+            {"detail",state=="disabled"?QString("Account access is unavailable in this session. You can continue offline."):backend->detail()},{"enabled",state=="signed_out" || state=="error" || state=="waiting" || state=="opening" || state=="reconnecting"}},
+        QVariantMap{{"label","Done"},{"detail","Return to accounts"},{"enabled",true}}
+    };
+}
+
 }

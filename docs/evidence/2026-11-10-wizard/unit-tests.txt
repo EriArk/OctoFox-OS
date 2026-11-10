@@ -1,0 +1,13 @@
+Test project /work/build
+    Start  22: screenscraper
+1/4 Test  #22: screenscraper ....................   Passed    7.71 sec
+    Start  90: apps
+2/4 Test  #90: apps .............................   Passed    0.26 sec
+    Start 102: first_run
+3/4 Test #102: first_run ........................   Passed    1.69 sec
+    Start 103: trainer_access
+4/4 Test #103: trainer_access ...................   Passed    7.33 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =  17.00 sec

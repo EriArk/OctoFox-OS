@@ -11,6 +11,7 @@
 namespace trainer {
 class FirstRunController final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(bool registration READ registration NOTIFY changed)
     Q_PROPERTY(bool active READ active NOTIFY changed)
     Q_PROPERTY(trainer::ClockController* clock READ clock CONSTANT)
     Q_PROPERTY(bool busy READ busy NOTIFY changed)
@@ -35,12 +36,16 @@ public:
     void trainerOpened();
     void saveTrainerDraft(const QJsonObject& draft);
     QJsonObject trainerDraft() const { return state_["trainerDraft"].toObject(); }
+    bool registration() const { return registration_; }
+    Q_INVOKABLE void showRegistration() { if(active_ && !service_.isEmpty()){registration_=true;emit changed();} }
+    void closeRegistration() { registration_=false;emit changed(); }
+    Q_INVOKABLE void adjustComfort(int index,int direction);
     bool active() const { return active_; }
     bool busy() const { return busy_ || clock_.busy(); }
     bool connections() const { return connections_; }
     QString service() const { return service_; }
     bool requiresTrainer() const { return stage()=="accounts" || stage()=="preferences" || stage()=="ready"; }
-    QStringList stepLabels() const { return {"Welcome", "Controls", "Connection", "Time", "Games", "Trainer", "Comfort", "Ready"}; }
+    QStringList stepLabels() const { return {"Welcome", "Connection", "Games", "Trainer", "Comfort", "Accounts", "Ready"}; }
     QString stage() const { return state_["stage"].toString("welcome"); }
     QString title() const;
     QString description() const;
@@ -60,6 +65,7 @@ public:
     std::function<QList<LibraryLocation>(const QString&)> locations = libraryLocations;
     std::function<QString(const LibraryLocation&)> prepare = prepareLibraryLocation;
 signals:
+    void comfortRequested(int index,int direction);
     void changed();
     void trainerRequested();
     void protectTrainerRequested();
@@ -73,6 +79,7 @@ private:
     void loadLocations();
     QString directory_, root_, error_;
     QString service_;
+    bool registration_=false;
     QJsonObject state_;
     QList<LibraryLocation> locations_;
     bool active_ = false, busy_ = false, connections_ = false, configured_ = false;

@@ -6,6 +6,7 @@
 namespace trainer {
 class AchievementAccountController final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(bool connected READ connected NOTIFY changed)
     Q_PROPERTY(bool open READ isOpen NOTIFY changed)
     Q_PROPERTY(bool available READ available CONSTANT)
     Q_PROPERTY(bool busy READ busy NOTIFY changed)
@@ -28,8 +29,9 @@ public:
 signals:
     void changed();
     void textRequested(const QString& title, const QString& initial, int limit, bool secret);
-private:
+public:
     bool connected() const { return !provider_.context().accountId.isEmpty(); }
+private:
     AchievementProvider& provider_;
     QString username_, password_;
     int focus_ = 0;

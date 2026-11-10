@@ -677,7 +677,7 @@ Window {
             ChassisTopRim { }
             Text { x: 12; y: 0; width: Theme.brandWidth-24; height: Theme.brandHeight; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; text: "TRAINER OS"; color: Theme.textColor("#edf5e9"); font.family: Theme.brandFamily; font.pixelSize: 25; font.bold: true }
             FirstRunPanel { anchors.fill: parent; shell: shellController; flow: sessionState.firstRun; session: sessionState; visible: sessionState.firstRunPage }
-            Loader { x: 0; y: 43; width: parent.width; height: parent.height-63; active: parent.visible && (!sessionState.firstRunPage || sessionState.firstRun.stage === "trainer"); visible: active; sourceComponent: TrainerSetupPanel { entry: true; shell: shellController } }
+            Loader { x: 0; y: 43; width: parent.width; height: parent.height-63; active: parent.visible && !sessionState.firstRunPage; visible: active; sourceComponent: TrainerSetupPanel { entry: true; shell: shellController } }
             Text {
                 x: 48; y: parent.height-62; width: parent.width-96; height: 24
                 visible: sessionState.firstRunPage && sessionState.firstRun.stage === "trainer"
@@ -691,9 +691,9 @@ Window {
                 Hint { visible: sessionState.firstRun.connections && !shell.keyboard.open; button: "X"; label: "Radio" }
                 Hint { visible: sessionState.firstRun.connections && !shell.keyboard.open; button: "Y"; label: "Search" }
                 Hint { visible: sessionState.firstRun.connections && !shell.keyboard.open; button: "←→"; label: "Connections" }
-                Hint { visible: sessionState.firstRun.stage==="clock" && !sessionState.firstRun.busy; button: "←→"; label: sessionState.firstRun.clock.mode==="zones" ? "Region" : "Adjust" }
-                Hint { visible: !sessionState.firstRun.busy; button: "A"; label: shell.keyboard.open ? "Type" : sessionState.firstRunPage && sessionState.firstRun.stage==="controls" ? "Check" : sessionState.firstRunPage && sessionState.firstRun.stage==="storage" ? "Use storage" : "Select" }
-                Hint { visible: !sessionState.firstRun.busy && (!sessionState.firstRunPage || shell.keyboard.open || sessionState.firstRun.connections || ["controls","network","clock","storage","trainer"].includes(sessionState.firstRun.stage)); button: "B"; label: sessionState.firstRunPage && sessionState.firstRun.stage==="controls" ? "Check" : "Back"; tint: Theme.pink }
+                Hint { visible: sessionState.firstRun.stage==="preferences" && !sessionState.firstRun.busy; button: "←→"; label: "Adjust" }
+                Hint { visible: !sessionState.firstRun.busy; button: "A"; label: shell.keyboard.open ? "Type" : sessionState.firstRunPage && sessionState.firstRun.stage==="storage" ? "Use storage" : "Select" }
+                Hint { visible: !sessionState.firstRun.busy && (!sessionState.firstRunPage || shell.keyboard.open || sessionState.firstRun.connections || sessionState.firstRun.stage!=="welcome"); button: "B"; label: "Back"; tint: Theme.pink }
             }
         }
         Text {

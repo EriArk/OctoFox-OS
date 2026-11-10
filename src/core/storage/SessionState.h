@@ -9,6 +9,9 @@ namespace trainer {
 // Application lifecycle coordinator. QML sees status/actions, never database paths.
 class SessionState final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(bool registrationFocused READ registrationFocused NOTIFY changed)
+    Q_PROPERTY(int setupAccountFocus READ setupAccountFocus NOTIFY changed)
+    Q_PROPERTY(QVariantList setupAccountRows READ setupAccountRows NOTIFY changed)
     Q_PROPERTY(bool entryGate READ entryGate NOTIFY changed)
     Q_PROPERTY(trainer::FirstRunController* firstRun READ firstRun CONSTANT)
     Q_PROPERTY(bool firstRunPage READ firstRunPage NOTIFY changed)
@@ -22,6 +25,10 @@ class SessionState final : public QObject {
 public:
     SessionState(ShellController&, LocalStateStore*, QObject* parent = nullptr);
     TrainerAccessController* access() {return &access_;}
+    bool registrationFocused() const {return registrationFocused_;}
+    int setupAccountFocus() const {return setupAccountFocus_;}
+    QVariantList setupAccountRows() const;
+    bool setupLoginAllowed() const;
     bool entryGate() const {return entryGate_;}
     FirstRunController* firstRun() { return &firstRun_; }
     bool firstRunPage() const { return firstRun_.active() && !(entryGate_ && store_ && !store_->trainers().isEmpty() && firstRun_.requiresTrainer()); }
@@ -75,7 +82,8 @@ private:
     bool canChangeTrainer() const;
     TrainerAccessController access_;
     FirstRunController firstRun_;
-    bool setupFamilyPin_ = false;
+    bool setupFamilyPin_ = false, registrationFocused_=false;
+    int setupAccountFocus_=0;
     bool entryGate_=false;
     QString verifiedTrainer_;
 };

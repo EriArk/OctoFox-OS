@@ -33,6 +33,7 @@ public:
     void accept(const QJsonObject&); // Platform events, also usable by isolated test providers.
     void dispatch(Action,bool quick=false);
     std::function<QString()> launchGuard;
+    std::function<QString()> webLaunchGuard;
     QVariantList rows() const;
     QVariantList rail() const;
     int favoriteCapacity() const { return favoriteCapacity_; }

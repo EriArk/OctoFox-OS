@@ -50,56 +50,68 @@ inline void startFirstRunSmoke(QQuickWindow* window, trainer::ShellController& s
             if(!session.firstRunPage())break;
             window->resize(960,540);++*step;break;
         case 1: capture("welcome-960");press(trainer::ControllerInput::ConfirmButton);++*step;break;
-        case 2: capture("controls-960");tap("setup-use-touch");++*step;break;
-        case 3:
-            check(flow->stage()=="network" && flow->checkedControls()==0,"Touch continuation pretended a physical check");
-            press(trainer::ControllerInput::BackButton);++*step;break;
+        case 2:
+            check(flow->stage()=="network","Welcome did not go straight to connection");
+            capture("connection-960");press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);press(trainer::ControllerInput::ConfirmButton);++*step;break;
+        case 3: capture("storage-960");flow->activate(0);++*step;break;
         case 4:
-            for(auto button:{SDL_CONTROLLER_BUTTON_DPAD_UP,SDL_CONTROLLER_BUTTON_DPAD_DOWN,SDL_CONTROLLER_BUTTON_DPAD_LEFT,SDL_CONTROLLER_BUTTON_DPAD_RIGHT,trainer::ControllerInput::ConfirmButton,trainer::ControllerInput::BackButton})press(button);
-            check(flow->stage()=="network","SDL controller check failed");flow->activate(1);++*step;break;
-        case 5:
-            if(flow->busy())break;capture("time-960");flow->activate(3);++*step;break;
-        case 6: capture("storage-960");flow->activate(0);++*step;break;
-        case 7:
             if(flow->stage()!="trainer")break;
-            shell.trainerSetup()->applyName("Setup Test");shell.trainerSetup()->activate(3);++*step;break;
-        case 8: capture("trainer-review-960");shell.trainerSetup()->activate(0);++*step;break;
-        case 9:
+            shell.trainerSetup()->activate(2);check(!shell.trainerSetup()->error().isEmpty(),"Missing name was accepted");
+            tap("setup-choice-0");check(shell.keyboard()->isOpen(),"Name did not open shared keyboard");
+            shell.keyboard()->insertText("Setup Test");shell.keyboard()->pressKey(Qt::Key_Return);++*step;break;
+        case 5:
+            check(!shell.keyboard()->isOpen() && shell.trainerSetup()->name()=="Setup Test","Name entry did not commit");
+            press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);press(trainer::ControllerInput::ConfirmButton);++*step;break;
+        case 6:
+            check(shell.trainerSetup()->emblem()=="leaf","Controller did not change emblem");capture("trainer-960");
+            press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);press(trainer::ControllerInput::ConfirmButton);++*step;break;
+        case 7:
             if(flow->stage()!="preferences" || store.pending())break;
             check(store.trainers().size()==1,"Setup did not create exactly one Trainer");
-            check(shell.social()->account()["userId"].toString().isEmpty() && !shell.scraper()->accountVerified(),"Offline setup signed into a provider");
             press(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);press(SDL_CONTROLLER_BUTTON_START);
-            check(shell.page()==0 && !shell.menuOpen(),"Setup allowed a global escape");
-            *step=16;break;
-        case 16:
-            capture("comfort-960");for(int i=0;i<5;++i)press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);*step=160;break;
-        case 160: {
-            auto* choice=find(window->contentItem(),"setup-choice-5");
-            check(flow->focusIndex()==5 && choice,"Controller did not reach Continue below the fold");
-            if(choice){const auto p=choice->mapToScene(QPointF(choice->width()/2,choice->height()/2));check(p.y()>0 && p.y()<window->height()-30,"Focused Continue is outside the viewport");}
-            capture("comfort-continue-960");
-            for(int i=0;i<5;++i)press(SDL_CONTROLLER_BUTTON_DPAD_UP);press(trainer::ControllerInput::ConfirmButton);*step=17;break;
-        }
-        case 17: capture("appearance-960");session.activateSetupService(1);++*step;break;
-        case 18:
+            check(shell.page()==0 && !shell.menuOpen(),"Setup allowed global navigation");capture("comfort-960");
+            press(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);++*step;break;
+        case 8:
             if(shell.settings()->saving())break;
-            check(shell.settings()->reducedMotion(),"Appearance did not persist through shared service");
-            window->resize(1920,1080);++*step;break;
-        case 19: capture("appearance-1080");session.backInSetup();flow->activate(1);++*step;break;
-        case 20: capture("sound-1080");session.backInSetup();flow->activate(4);*step=201;break;
-        case 201: {
-            auto* toggle=find(window->contentItem(),"setup-service-row-0");
-            check(toggle && toggle->property("checked").toBool()==shell.settings()->controls()[0].toMap()["checked"].toBool(),"Nearby toggle does not reflect its own service");
-            capture("nearby-1080");session.backInSetup();flow->activate(3);*step=21;break;
+            check(shell.settings()->theme()=="dark","Comfort theme was not saved");
+            press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);press(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);window->resize(800,480);++*step;break;
+        case 9:
+            check(shell.settings()->interfaceScale()==120 && flow->service().isEmpty(),"Comfort size opened settings or was not saved");
+            capture("comfort-dark-large-800");press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);++*step;break;
+        case 10: {
+            auto* item=find(window->contentItem(),"setup-choice-2");check(item,"Continue missing at large size");
+            if(item){const auto p=item->mapToScene(QPointF(item->width()/2,item->height()/2));check(p.y()>0 && p.y()<window->height()-30,"Continue is outside viewport");}
+            press(trainer::ControllerInput::ConfirmButton);++*step;break;
         }
-        case 21: capture("communication-1080");session.backInSetup();flow->activate(5);++*step;break;
-        case 22: capture("ready-1080");press(trainer::ControllerInput::BackButton);check(flow->stage()=="preferences","Back from summary lost setup");flow->activate(5);++*step;break;
-        case 23: flow->activate(0);check(!session.blocked() && shell.page()==0,"Setup did not reach Home");++*step;break;
+        case 11: capture("accounts-dark-large-800");press(trainer::ControllerInput::ConfirmButton);++*step;break;
+        case 12:
+            check(flow->service()=="social" && session.setupLoginAllowed(),"TrainerOS sign-in is blocked by setup");
+            capture("traineros-dark-large-800");press(SDL_CONTROLLER_BUTTON_DPAD_UP);press(trainer::ControllerInput::ConfirmButton);++*step;break;
+        case 13:
+            check(flow->registration(),"Controller did not open phone registration");capture("qr-fluxer-dark-large-800");
+            press(trainer::ControllerInput::BackButton);check(flow->service()=="social" && !flow->registration(),"QR Back closed sign-in");
+            press(trainer::ControllerInput::BackButton);press(trainer::ControllerInput::BackButton);++*step;break;
+        case 14:
+            check(flow->stage()=="preferences","Back from accounts lost Comfort");flow->adjustComfort(1,-1);flow->adjustComfort(0,-1);++*step;break;
+        case 15:
+            if(shell.settings()->saving())break;
+            window->resize(960,540);flow->activate(2);++*step;break;
+        case 16: capture("accounts-960");flow->activate(1);++*step;break;
+        case 17: capture("achievements-960");tap("setup-registration");++*step;break;
+        case 18:
+            check(flow->registration(),"Touch did not open registration");capture("qr-achievements-960");tap("setup-registration-done");
+            check(!flow->registration() && flow->service()=="achievements","Touch did not return to same service");session.backInSetup();flow->activate(2);++*step;break;
+        case 19: capture("scraper-960");tap("setup-registration");++*step;break;
+        case 20: capture("qr-scraper-960");session.backInSetup();session.backInSetup();flow->activate(3);++*step;break;
+        case 21:
+            capture("ready-960");press(trainer::ControllerInput::BackButton);check(flow->stage()=="accounts","Back from Ready lost accounts");
+            flow->activate(3);press(trainer::ControllerInput::ConfirmButton);++*step;break;
         default:
-            capture("home-1080");check(warnings==0,"QML warnings during first setup");
+            check(!session.blocked() && shell.page()==0,"Setup did not reach Home offline");
+            capture("home-960");check(warnings==0,"QML warnings during first setup");
             timer->stop();completed=true;
             if(!directory.isEmpty()){QFile report(directory+"/verification.txt");if(report.open(QIODevice::WriteOnly))report.write(((*failed?QString("FAILED\n"):QString("PASSED\n"))+diagnostics.join('\n')).toUtf8());}
-            qInfo() << (*failed?"First-run UI FAILED":"First-run UI passed: local profile, SDL, pointer, services and Home");
+            qInfo() << (*failed?"First-run UI FAILED":"First-run UI passed: profile, comfort, optional accounts, QR, SDL, pointer and Home");
             QCoreApplication::exit(*failed?1:0);
         }
     });

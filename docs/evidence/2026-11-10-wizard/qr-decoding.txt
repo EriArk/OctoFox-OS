@@ -1,0 +1,3 @@
+qr-achievements-960.png: PASS https://retroachievements.org/createaccount.php
+qr-fluxer-dark-large-800.png: PASS https://fluxer.com/login
+qr-scraper-960.png: PASS https://www.screenscraper.fr/membreinscription.php

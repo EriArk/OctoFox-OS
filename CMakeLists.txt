@@ -1144,3 +1144,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 qt_add_resources(traineros profile_scenes PREFIX "/profile-scenes" BASE assets/profile-scenes FILES assets/profile-scenes/aurora.png assets/profile-scenes/dusk.png assets/profile-scenes/orbit.png)
+
+# Public registration URLs only; QR images work without a network connection.
+qt_add_resources(traineros setup_qr PREFIX "/setup-qr" BASE assets/setup/registration FILES
+    assets/setup/registration/social.png
+    assets/setup/registration/achievements.png
+    assets/setup/registration/scraper.png)

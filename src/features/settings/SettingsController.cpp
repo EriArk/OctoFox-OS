@@ -86,8 +86,10 @@ void SettingsController::adjustDisplay(int row, int direction) {
     error_ = settings.status() == QSettings::NoError ? QString() : QStringLiteral("Could not save display settings");
     emit changed();
 }
-void SettingsController::resetDisplayScale() {
-    QSettings settings; settings.setValue("display/interfaceScale", 100); settings.sync();
+void SettingsController::resetDisplayScale() { setInterfaceScale(100); }
+void SettingsController::setInterfaceScale(int percent) {
+    if(saving_)return;
+    QSettings settings; settings.setValue("display/interfaceScale", std::clamp(percent,75,150)); settings.sync();
     error_ = settings.status() == QSettings::NoError ? QString() : QStringLiteral("Could not save display settings");
     emit changed();
 }

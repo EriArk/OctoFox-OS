@@ -99,6 +99,7 @@ public:
     int interfaceScale() const;
     Q_INVOKABLE void adjustDisplay(int row, int direction);
     Q_INVOKABLE void resetDisplayScale();
+    void setInterfaceScale(int percent);
     Q_INVOKABLE double displayDensity(double screenWidth, double screenHeight,
         double windowWidth, double windowHeight, const QString& profile, int percent) const;
     bool worldEditing() const { return value_.worldEditing; }

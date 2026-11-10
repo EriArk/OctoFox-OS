@@ -10,6 +10,7 @@ void TrainerSetupPresentation::moveTo(const QString& stage, int focus) {
 void TrainerSetupPresentation::configure(const QList<TrainerProfile>& profiles,const QString& active) {live_=true;profiles_=profiles;active_=active;emit changed();}
 void TrainerSetupPresentation::begin() { startup_=false;close(); moveTo(live_?"chooser":"menu"); }
 void TrainerSetupPresentation::beginStartup() {begin();startup_=true;moveTo(profiles_.isEmpty()?"welcome":"chooser");}
+void TrainerSetupPresentation::beginOnboarding(const QJsonObject& draft) { beginStartup();onboarding_=true;restoreDraft(draft); }
 QJsonObject TrainerSetupPresentation::draft() const {
     return {{"name",name_},{"emblem",emblem_},{"favorite",favorite_}};
 }
@@ -22,6 +23,7 @@ void TrainerSetupPresentation::restoreDraft(const QJsonObject& draft) {
     moveTo("identity");
 }
 void TrainerSetupPresentation::close() {
+    onboarding_=false;
     name_.clear(); pin_=emptyPin(); firstPin_=emptyPin(); pinChosen_ = false;
     emblem_ = "compass"; favorite_ = "Not chosen"; moveTo("menu");
 }
@@ -69,7 +71,7 @@ QVariantList TrainerSetupPresentation::rows() const {
     else if (stage_ == "welcome") { add("Let's begin"); add("Back"); }
     else if (stage_ == "identity") {
         add("Name", name_.isEmpty() ? "Enter your name" : name_);
-        add("Emblem", emblem_); add("Favorite", favorite_); add("Continue");
+        add("Emblem", emblem_); if(!onboarding_)add("Favorite", favorite_); add(onboarding_?"Create Trainer":"Continue");
     } else if (stage_ == "review") { add("Finish preview"); add("Edit card"); add("Change PIN choice"); }
     else if (stage_ == "done") add("Back to preview menu");
     return result;
@@ -142,10 +144,14 @@ void TrainerSetupPresentation::activate(int index) {
     else if (stage_ == "identity") {
         if (index == 0) emit nameRequested(name_);
         else if (index == 1) { const QStringList items{"compass", "leaf", "spark"}; emblem_ = items[(items.indexOf(emblem_) + 1) % items.size()]; }
-        else if (index == 2) { const QStringList items{"Not chosen", "Bulbasaur", "Charmander", "Squirtle"}; favorite_ = items[(items.indexOf(favorite_) + 1) % items.size()]; }
+        else if (index == 2 && !onboarding_) { const QStringList items{"Not chosen", "Bulbasaur", "Charmander", "Squirtle"}; favorite_ = items[(items.indexOf(favorite_) + 1) % items.size()]; }
         else if (name_.isEmpty() || TextEntryController::characterCount(name_) > 24
             || std::any_of(name_.begin(), name_.end(), [](QChar c) { return !c.isPrint(); })) {
             error_ = "Choose a name of 1–24 characters."; focus_ = 0;
+        } else if(onboarding_ && live_) {
+            pin_=emptyPin();firstPin_=emptyPin();
+            const auto favorite=favorite_=="Not chosen"?QString():favorite_.toLower();
+            emit createRequested({QUuid::createUuid().toString(QUuid::WithoutBraces),name_,emblem_,favorite,QDateTime::currentDateTimeUtc()});
         } else { pin_=emptyPin(); firstPin_=emptyPin(); moveTo(live_ && !familyReady_?"review":"pin"); }
         emit changed();
     } else if (stage_ == "review") {

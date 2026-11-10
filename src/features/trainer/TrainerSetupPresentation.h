@@ -53,6 +53,7 @@ public:
     QVariantList rows() const;
     void begin();
     void beginStartup();
+    void beginOnboarding(const QJsonObject& draft);
     QJsonObject draft() const;
     void restoreDraft(const QJsonObject&);
     void setFamilyReady(bool ready) { familyReady_=ready; }
@@ -77,7 +78,7 @@ private:
     QString stage_ = "menu", name_, emblem_ = "compass", favorite_ = "Not chosen";
     QString error_;
     SecretPin pin_=emptyPin(), firstPin_=emptyPin();
-    bool startup_=false;
+    bool startup_=false, onboarding_=false;
     bool familyReady_=false;
     bool pinChosen_ = false;
     int focus_ = 0;

@@ -1345,7 +1345,12 @@ int main(int argc, char* argv[]) {
                 return adventureLaunch.active()||session.blocked()||shell.runtimeChangeBlocked()?QString("Close the game and finish the current operation before saving launch settings."):QString();
             };
             bindings.connect(shell.apps(),&AppsController::foregroundRequested,window,[window]{window->hide();});
-            shell.backendAccount()->loginGuard=shell.apps()->launchGuard;
+            shell.apps()->webLaunchGuard=[&]{
+                if(adventureLaunch.active() || shell.runtimeChangeBlocked())return QString("Finish the current game or operation before signing in.");
+                if(session.blocked() && !session.setupLoginAllowed())return QString("Finish the current operation before signing in.");
+                return QString();
+            };
+            shell.backendAccount()->loginGuard=shell.apps()->webLaunchGuard;
             bindings.connect(shell.apps(),&AppsController::shellRequested,window,[&,window,accountBrowser]{
                 if(adventureLaunch.active())return;
                 // The hidden shell retains the exact launching page, subpage and focus.

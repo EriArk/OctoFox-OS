@@ -1,5 +1,12 @@
 # TrainerOS — active agent / developer contract
 
+**Owner wizard correction, 10 November (latest):** remove the mandatory button
+exam; integrate name/emblem creation into the wizard. Keep Comfort to Light/Dark
+and Normal/Large only. Follow with optional TrainerOS/Fluxer, RetroAchievements
+and ScreenScraper accounts, explaining each dependency and offline use. Provide
+phone-registration QR buttons with official URLs. Preserve shared providers,
+profile/PIN resume and the beautiful game Home. See [first run](docs/FIRST_RUN.md).
+
 **Owner popup polish, 10 November (latest):** compact New Collection by its short
 choice list; use flat, quiet Power and Apps context menus. Start subpanels replace
 its visible dashboard and return to its preserved state. **Keep the existing

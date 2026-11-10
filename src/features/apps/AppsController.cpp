@@ -98,7 +98,7 @@ void AppsController::accept(const QJsonObject& packet) {
         ready_=true;status_.clear();
         if(!queuedWebUrl_.isEmpty()){
             const auto url=queuedWebUrl_;queuedWebUrl_=QUrl{};webStartTimeout_.stop();
-            const auto error=launchGuard?launchGuard():QString{};
+            const auto error=webLaunchGuard?webLaunchGuard():launchGuard?launchGuard():QString{};
             if(!error.isEmpty()){webPending_=false;status_=error;emit webOpenFailed(error);}
             else emit commandRequested({{"command","open-url"},{"url",url.toString(QUrl::FullyEncoded)}});
         }
@@ -177,7 +177,7 @@ void AppsController::openFile(const QString& url) {
 }
 bool AppsController::openWebUrl(const QUrl& url) {
     if(webPending_||!launching_.isEmpty()||!url.isValid()||url.scheme()!="https"||url.host().isEmpty()||!url.userInfo().isEmpty())return false;
-    if(launchGuard){const auto error=launchGuard();if(!error.isEmpty()){status_=error;emit changed();return false;}}
+    if(webLaunchGuard || launchGuard){const auto error=webLaunchGuard?webLaunchGuard():launchGuard();if(!error.isEmpty()){status_=error;emit changed();return false;}}
     if(!ready_){
         if(python_.isEmpty()||helper_.isEmpty())return false;
         webPending_=true;queuedWebUrl_=url;webStartTimeout_.start();refresh();return true;

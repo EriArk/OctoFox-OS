@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 
 Item {
     id: root
@@ -6,46 +7,68 @@ Item {
     required property var flow
     required property var session
     readonly property bool achievements: flow.service === "achievements"
-    readonly property bool communication: ["social","communication"].includes(flow.service)
+    readonly property bool social: flow.service === "social"
     readonly property bool scraper: flow.service === "scraper"
     readonly property bool takesFocus: visible && !shell.keyboard.open
     readonly property var account: shell.hall.account
+    readonly property string serviceName: social ? "TrainerOS · Fluxer" : achievements ? "RetroAchievements" : "ScreenScraper"
+    readonly property string registrationUrl: social ? "https://fluxer.com/login" : achievements ? "https://retroachievements.org/createaccount.php" : "https://www.screenscraper.fr/membreinscription.php"
+    readonly property string explanation: social
+        ? "Fluxer connects friends, chats and invitations. Sign in to TrainerOS with the same Fluxer account for your online profile, level and Sparks. Both can wait until later."
+        : achievements ? "Sign in to earn and sync achievements in supported games. Without an account, you can still play your local games."
+        : "Sign in to download covers and game information. Without an account, imported games and any artwork you already have stay available."
     Rectangle { anchors.fill: parent; radius: 12; color: Theme.paper }
-    CommunicationPane { anchors.fill: parent; anchors.margins: 16; flow: root.shell.settings.communication; visible: root.communication; takesFocus: root.takesFocus && visible }
-    ScrapeSettingsPane { anchors.fill: parent; anchors.margins: 16; flow: root.shell.scraper; visible: root.scraper; takesFocus: root.takesFocus && visible }
     Item {
-        anchors.fill: parent; anchors.margins: 18; visible: !root.communication && !root.scraper
-        Text { id: title; text: root.achievements?"RetroAchievements":root.shell.settings.categories[root.shell.settings.category]; font.family: Theme.displayFamily; font.pixelSize: 26; color: Theme.ink }
+        anchors.fill: parent; anchors.margins: 20; visible: !root.flow.registration
+        Text { id: title; width: parent.width-registerButton.width-16; text: root.serviceName; wrapMode: Text.WordWrap; font.family: Theme.displayFamily; font.pixelSize: 26; color: Theme.ink }
+        SettingsRow {
+            id: registerButton; objectName: "setup-registration"; anchors.right: parent.right; width: Math.min(260,parent.width*0.40); height: 52
+            title: "Register on your phone"; detail: "Show QR code"; selected: root.takesFocus && root.session.registrationFocused
+            onActivated: root.flow.showRegistration()
+        }
+        Text { id: explanation; y: Math.max(title.height,registerButton.height)+10; width: parent.width; text: root.explanation; color: Theme.muted; font.pixelSize: 14; wrapMode: Text.WordWrap }
         ListView {
-            id: list; y: 43; width: parent.width; height: parent.height-y-55; clip: true; spacing: 8; keyNavigationEnabled: false
-            model: root.achievements ? (root.account.available ? root.account.rows.map(r => ({title:r.label,detail:r.detail,kind:r.enabled?"action":"unavailable"})) : []) : root.shell.settings.controls
-            currentIndex: root.achievements?root.account.focusIndex:root.shell.settings.rowFocus
+            id: list; y: explanation.y+explanation.height+12; width: parent.width; height: parent.height-y-42; clip: true; spacing: 2; keyNavigationEnabled: false
+            model: root.social ? root.session.setupAccountRows : root.scraper ? root.shell.scraper.settingsRows : root.achievements && root.account.available ? root.account.rows : []
+            currentIndex: root.social ? root.session.setupAccountFocus : root.scraper ? root.shell.scraper.settingsFocus : root.account.focusIndex
             function reveal() { if(count)positionViewAtIndex(currentIndex,ListView.Contain) }
             onCurrentIndexChanged: Qt.callLater(reveal)
             onCountChanged: Qt.callLater(reveal)
             onHeightChanged: Qt.callLater(reveal)
-            Rectangle {
-                anchors.right: parent.right; width: 3; height: parent.height; radius: 2; z: 2
-                visible: list.contentHeight>list.height; color: Theme.surfaceColor("#b5c7b8")
-                Rectangle { width: parent.width; height: Math.max(16,list.visibleArea.heightRatio*parent.height); y: list.visibleArea.yPosition*parent.height; radius: 2; color: Theme.muted }
-            }
-            delegate: SettingControl {
+            ScrollBar.vertical: SettingsScrollBar {}
+            delegate: SettingsRow {
                 required property int index
                 required property var modelData
                 objectName: "setup-service-row-"+index
-                width: list.width-5; height: 62; title: modelData.title; detail: modelData.detail; kind: modelData.kind
-                selected: root.takesFocus && index===list.currentIndex
-                checked: modelData.checked !== undefined ? modelData.checked : root.shell.settings.category===2?root.shell.settings.videoPreviews:root.shell.settings.reducedMotion
-                level: kind==="volume"?root.shell.device.rows[0].level:kind==="brightness"?root.shell.device.rows[1].level:-1
-                muted: kind==="volume" && root.shell.device.rows[0].muted
+                width: list.width-8; height: Math.max(54,implicitHeight); title: modelData.label; detail: modelData.detail
+                kind: modelData.enabled?"action":"status"
+                selected: root.takesFocus && !root.session.registrationFocused && index===list.currentIndex
                 onActivated: root.session.activateSetupService(index)
-                onAdjustmentRequested: direction => root.shell.settings.adjustDisplay(index,direction)
-                onLevelRequested: value => root.shell.device.setQuickLevel(kind==="volume"?0:1,value)
             }
         }
         Text {
-            anchors.bottom: parent.bottom; width: parent.width; height: 48; font.pixelSize: 13; color: Theme.muted; wrapMode: Text.WordWrap; textFormat: Text.PlainText
-            text: root.achievements ? (root.account.available?root.account.status:"Account access is unavailable in this build. You can continue setup offline.") : root.shell.settings.error || root.shell.device.error || "Changes are saved in Settings. Back returns to setup."
+            anchors.bottom: parent.bottom; width: parent.width; height: 32; font.pixelSize: 12; color: Theme.muted; wrapMode: Text.WordWrap; textFormat: Text.PlainText
+            text: root.social ? "Use ↑ above the first row for phone registration. Back returns to accounts."
+                : root.scraper ? root.shell.scraper.status || "Account settings can be changed later in Settings."
+                : root.account.available ? root.account.status : "Account access is unavailable in this build. You can continue setup offline."
+        }
+    }
+    Item {
+        anchors.fill: parent; anchors.margins: 22; visible: root.flow.registration
+        Text { id: qrTitle; width: parent.width; text: "Register on your phone"; font.family: Theme.displayFamily; font.pixelSize: 26; color: Theme.ink }
+        Image {
+            id: qr; objectName: "setup-registration-qr"; x: 0; y: qrTitle.height+18
+            width: Math.min(248,parent.width*0.40,parent.height-y); height: width
+            source: root.flow.registration ? "qrc:/setup-qr/"+root.flow.service+".png" : ""
+            fillMode: Image.PreserveAspectFit; smooth: false; mipmap: false
+            Accessible.name: "QR code for "+root.registrationUrl
+        }
+        Column {
+            x: qr.width+26; y: qr.y; width: parent.width-x; spacing: 16
+            Text { width: parent.width; text: root.serviceName; font.pixelSize: 22; color: Theme.ink; wrapMode: Text.WordWrap }
+            Text { width: parent.width; text: "Scan with your phone camera and create your account on the official website. Then return here and sign in."; font.pixelSize: 15; color: Theme.muted; wrapMode: Text.WordWrap }
+            Text { width: parent.width; text: root.registrationUrl; textFormat: Text.PlainText; font.pixelSize: 13; color: Theme.ink; wrapMode: Text.WrapAnywhere }
+            SettingsRow { objectName: "setup-registration-done"; width: parent.width; title: "Back to sign-in"; selected: root.takesFocus; onActivated: root.session.backInSetup() }
         }
     }
 }

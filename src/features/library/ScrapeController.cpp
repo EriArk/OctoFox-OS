@@ -86,6 +86,10 @@ void ScrapeController::configure(const QString& directory) {
 void ScrapeController::setTransport(Transport t,Delay d){if(!busy()){transport_=std::move(t);delay_=std::move(d);}}
 QVariantList ScrapeController::settingsRows() const {
     const bool enabled=!busy();
+    if(setupMode_)return {row("Login",credentials_.username.isEmpty()?"ScreenScraper account":credentials_.username,enabled),
+        row("Password",credentials_.password.isEmpty()?"Not set":"Saved privately on this device",enabled),
+        row(accountVerified()?"Check connection":"Sign in","Download covers and game information",enabled),
+        row("Done","Return to accounts",true)};
     return {row("Login",credentials_.username.isEmpty()?"ScreenScraper account":credentials_.username,enabled),
         row("Password",credentials_.password.isEmpty()?"Not set":"Saved privately on this device",enabled),
         row(accountVerified()?"Check connection":"Sign in","Download covers and game information",enabled),
@@ -107,7 +111,7 @@ QVariantList ScrapeController::settingsRows() const {
 }
 void ScrapeController::activateSetting(int index) {
     if(busy()||index<0||index>=settingsRows().size())return;
-    if(setupMode_ && index==12)return;
+    if(setupMode_ && index==3){emit settingsBackRequested();return;}
     settingsFocus_=index;
     const auto cycle=[](const QStringList& list,const QString& value){return list[(list.indexOf(value)+1)%list.size()];};
     if(index<2){textTarget_=index==0?"login":"password";emit textRequested(index==0?"ScreenScraper login":"ScreenScraper password",index==0?credentials_.username:QString(),index==1);return;}

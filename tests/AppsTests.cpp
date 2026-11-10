@@ -31,6 +31,16 @@ private slots:
         apps.accept({{"event","shell"}});QVERIFY(apps.current().isEmpty());
         apps.accept({{"event","error"},{"message","Unrelated error"}});QCOMPARE(errors.size(),1);
     }
+    void setupBrowserPermissionDoesNotUnlockOrdinaryApps() {
+        AppsController apps;seed(apps);QSignalSpy commands(&apps,&AppsController::commandRequested);
+        apps.launchGuard=[]{return QString("Setup is active");};
+        apps.webLaunchGuard=[]{return QString();};
+        apps.open(0);QVERIFY(commands.isEmpty());
+        QVERIFY(apps.openWebUrl(QUrl("https://example.com/login")));QCOMPARE(commands.size(),1);
+        apps.accept({{"event","error"},{"message","Test complete"}});
+        apps.webLaunchGuard=[]{return QString("Setup account page was closed");};
+        QVERIFY(!apps.openWebUrl(QUrl("https://example.com/login")));QCOMPARE(commands.size(),1);
+    }
     void browserRestartsStoppedHelperAndWaitsForReadiness() {
         AppsController apps;QSignalSpy commands(&apps,&AppsController::commandRequested),errors(&apps,&AppsController::webOpenFailed);
         apps.start("traineros-missing-test-executable","fixture");QTRY_VERIFY(apps.status().contains("stopped"));
