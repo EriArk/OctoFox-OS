@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'packaging/software
 import fullbundle
 import runtime_payload
 import runtime_python_media as media
+import upstream_media
 
 
 class RuntimePythonMediaTests(unittest.TestCase):
@@ -30,7 +31,13 @@ class RuntimePythonMediaTests(unittest.TestCase):
             (folder/'code').write_bytes(b'unchanged emulator and protocol'); (folder/'code').chmod(0o755)
             (folder/'manifest.json').write_text(json.dumps({'interpreterSha256': 'a'*64,
                   'protocol': 1, 'settings': 'same-settings', 'files': {'code': fullbundle.payload.digest(folder/'code')}}))
-            out = self.root/(name+'-payload'); runtime_payload.build(folder, ['code','manifest.json'], out, name)
+            includes = ['code', 'manifest.json']
+            if name == 'vita3k-netplay':
+                (folder/'runtime/usr/bin').mkdir(parents=True)
+                (folder/'runtime/usr/bin/Vita3K').write_bytes(b'original upstream Vita')
+                (folder/'runtime/AppRun.wrapped').write_bytes(b'owned wrapper')
+                includes.append('runtime')
+            out = self.root/(name+'-payload'); runtime_payload.build(folder, includes, out, name)
             for file in out.iterdir(): add('runtimes/'+name+'/'+file.name, file)
         wheel = self.root/'wheel'; wheel.write_bytes(b'exact unchanged offline wheel')
         add('python/wheels/fixture.whl', wheel)
@@ -72,6 +79,22 @@ class RuntimePythonMediaTests(unittest.TestCase):
         output = self.root/'changed.tar'
         with self.assertRaises(ValueError): media.replace(self.archive, self.expected, self.plan, output)
         self.assertFalse(output.exists())
+
+    def test_hybrid_vita_preserves_external_inventory_and_bundled_wrapper(self):
+        hybrid = self.root/'hybrid.tar'
+        upstream_media.build(self.archive, {'schema': 1, 'vita': media.runtime_vita_upstream.SPEC}, hybrid)
+        output = self.root/'rebound.tar'
+        media.replace(hybrid, {'bytes': hybrid.stat().st_size, 'sha256': fullbundle.payload.digest(hybrid)}, self.plan, output)
+        prefix = 'runtimes/vita3k-netplay/'
+        with tarfile.open(hybrid) as old, tarfile.open(output) as new:
+            before = json.load(old.extractfile(prefix+'component.json'))
+            after = json.load(new.extractfile(prefix+'component.json'))
+            self.assertEqual(before['upstreamRuntime'], after['upstreamRuntime'])
+            self.assertEqual(media.runtime_vita_upstream.rows(before), media.runtime_vita_upstream.rows(after))
+            with tarfile.open(fileobj=new.extractfile(prefix+'component.tar.gz')) as native:
+                self.assertNotIn('runtime/usr/bin/Vita3K', native.getnames())
+                self.assertEqual(native.extractfile('runtime/AppRun.wrapped').read(), b'owned wrapper')
+                self.assertEqual(json.load(native.extractfile('manifest.json'))['interpreterSha256'], 'b'*64)
 
 
 if __name__ == '__main__': unittest.main()

@@ -12,6 +12,7 @@ import re
 import tarfile
 import fullbundle
 import runtime_set
+import runtime_vita_upstream
 
 NATIVE = {'azahar-netplay', 'melonds-netplay', 'rmg-netplay', 'vita3k-netplay'}
 
@@ -54,6 +55,8 @@ def replace(archive, expected, plan, output):
             inventory = {r['path']: r for r in record['files']}
             if record['id'] != name or len(inventory) != len(record['files']):
                 raise ValueError('Invalid native runtime inventory')
+            external = ({r['path'] for r in runtime_vita_upstream.rows(record)}
+                        if 'upstreamRuntime' in record else set())
             original = source.extractfile(prefix + 'component.tar.gz').read()
             if identity(original) != record['archive']:
                 raise ValueError('Native runtime archive differs')
@@ -62,7 +65,8 @@ def replace(archive, expected, plan, output):
             with tarfile.open(fileobj=io.BytesIO(original)) as old:
                 with tarfile.open(fileobj=output_blob, mode='w:gz', compresslevel=3) as new:
                     for member in old:
-                        if not member.isfile() or member.name not in inventory or member.name in seen:
+                        if (not member.isfile() or member.name not in inventory
+                                or member.name in external or member.name in seen):
                             raise ValueError('Unexpected native runtime entry')
                         blob = old.extractfile(member).read(); row = inventory[member.name]
                         if identity(blob) != {k: row[k] for k in ('bytes', 'sha256')}:
@@ -76,7 +80,7 @@ def replace(archive, expected, plan, output):
                             blob = encoded(manifest); manifest_row.update(identity(blob))
                             member.size = len(blob)
                         new.addfile(member, io.BytesIO(blob))
-            if seen != set(inventory): raise ValueError('Incomplete native runtime')
+            if seen != set(inventory) - external: raise ValueError('Incomplete native runtime')
             blob = output_blob.getvalue(); record['archive'] = identity(blob)
             replacements[prefix + 'component.tar.gz'] = blob
             replacements[prefix + 'component.json'] = encoded(record)
