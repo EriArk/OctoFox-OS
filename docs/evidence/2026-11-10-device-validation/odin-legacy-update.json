@@ -1,0 +1,25 @@
+{
+  "source": "562a9034709fd04cae7e6c70b7a6579faf027d7b",
+  "sequence": 24,
+  "binarySha256": "30e1dd681c915c624dc274510c6af7be13cbb52b4499a3966f9df3cc8696e7fb",
+  "installedFiles": 89,
+  "preservedLegacyLibraries": [
+    {
+      "path": "lib/libfm-qt6.so.17",
+      "sha256": "a5b3154c0fef5b014d9b48169b9cd33509fb4109d080c497d971eb04878959a7"
+    },
+    {
+      "path": "lib/libmenu-cache.so.3",
+      "sha256": "e5fbb690e74a60dcc15fe86a1a8e92886c6b9ba84b903f4ef4efbc15b4d334e8"
+    }
+  ],
+  "lddResolved": true,
+  "profileBackupVerified": true,
+  "helpersPending": false,
+  "legacyUpdate": true,
+  "runningBinaryVerified": true,
+  "databaseQuickCheck": "ok",
+  "adventures": 542,
+  "changedTableCounts": [],
+  "managedOta": false
+}

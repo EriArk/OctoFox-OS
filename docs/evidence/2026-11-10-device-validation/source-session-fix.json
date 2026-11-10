@@ -1,0 +1,26 @@
+{
+  "source": "562a9034709fd04cae7e6c70b7a6579faf027d7b",
+  "sourceArchiveVerified": true,
+  "privateAvatarBuildInputsVerified": true,
+  "webEngineCompiled": true,
+  "buildType": "Release",
+  "binarySha256": "30e1dd681c915c624dc274510c6af7be13cbb52b4499a3966f9df3cc8696e7fb",
+  "buildBinarySha256": "630d89fa05f56a2d7207b42fa4c10a940f5ccfa21fc88e8976dd2e443ebafd6c",
+  "installChangesOnlyRpathPadding": true,
+  "applicationBuildSource": "300493967279d0dfe7e738a1162e0f78f0ed2092",
+  "reusedUnchangedApplicationBuild": true,
+  "changedSourceFiles": [
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "PROJECT_STATUS.md",
+    "docs/evidence/2026-11-10-device-validation/README.md",
+    "docs/evidence/2026-11-10-device-validation/avatar-pack-check.json",
+    "docs/evidence/2026-11-10-device-validation/https-metadata-check.json",
+    "docs/evidence/2026-11-10-device-validation/package.json",
+    "docs/evidence/2026-11-10-device-validation/setup-confirm.png",
+    "docs/evidence/2026-11-10-device-validation/setup-progress.png",
+    "docs/evidence/2026-11-10-device-validation/source-and-build.json",
+    "packaging/session/armada-session-default.conf"
+  ],
+  "sessionOrderingFix": true
+}

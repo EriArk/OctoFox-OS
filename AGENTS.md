@@ -7,6 +7,10 @@ authorized validation pass. Preserve profiles, games, saves and boot recovery;
 no suspend/lid tests or Bazaar merge. Record source/package/device acceptance
 separately in [device validation](docs/evidence/2026-11-10-device-validation/README.md).
 
+**Owner Odin update, 10 November (latest):** leave Flip's running Setup alone;
+update the existing Odin installation by the previous in-place method, retaining
+its profile, games and settings. This is not clean Setup or managed OTA acceptance.
+
 **Owner wizard correction, 10 November (latest):** remove the mandatory button
 exam; integrate name/emblem creation into the wizard. Keep Comfort to Light/Dark
 and Normal/Large only. Follow with optional TrainerOS/Fluxer, RetroAchievements
