@@ -1,5 +1,12 @@
 # TrainerOS — история изменений
 
+## 11 November — combined Alpha preparation
+
+Merged the prepared Bazaar catalogue and guarded previews. Added a narrowly scoped
+Flip2/Armada 7.2.6 storage workaround to Setup and managed boot integration.
+Final combined device installation and publication are pending; see
+[the delivery record](docs/evidence/2026-11-11-alpha-release/README.md).
+
 ## 10 ноября 2026 — подготовка установки без перепаковки KDE
 
 Flathub runtimes активируются из проверенного OSTree cache без создания второго

@@ -26,7 +26,7 @@ SESSION_FILES = ('armada-session-default.conf', 'client.py', 'compositor.sh', 'c
                  'desktop-entry.py', 'desktop-logout.py', 'install.py', 'ownership.py',
                  'org.traineros.Session.desktop', 'plasma-brightness.conf',
                  'plasma-brightness.py', 'start-session.sh', 'traineros-session.service',
-                 'traineros.desktop')
+                 'traineros.desktop', 'storage-guard.py')
 
 
 def atomic_file(path, data, mode):
@@ -238,6 +238,15 @@ class Progress:
             pass
 
 
+def protect_storage(source):
+    helper = Path(source) / 'session/storage-guard.py'
+    spec = importlib.util.spec_from_file_location('traineros_storage_guard', helper)
+    guard = importlib.util.module_from_spec(spec); spec.loader.exec_module(guard)
+    if guard.needed():
+        subprocess.run(['pkexec', '/usr/bin/python3', '-I', str(helper)], check=True, timeout=45)
+        if guard.needed(): raise RuntimeError('Storage safety check failed; installation has not started.')
+
+
 def prerequisites(source):
     for binary in ('/usr/bin/python3', '/usr/bin/pkexec', '/usr/sbin/visudo', '/usr/bin/ldd'):
         if not os.access(binary, os.X_OK): raise ValueError('Missing Armada installer dependency: ' + binary)
@@ -318,6 +327,7 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
     report = install.host.probe(root)
     if not report['supported']: raise ValueError('\n'.join(report['errors']))
     source = Path(__file__).resolve().parents[1]
+    protect_storage(source)
     if offline is None and (source.parent / 'offline').is_dir(): offline = source.parent / 'offline'
     if not (root / 'config.json').exists():
         # A manual installation must be migrated explicitly. Reject it before

@@ -179,8 +179,13 @@ def main():
         trial.write(policy); trial.flush()
         subprocess.run(["/usr/sbin/visudo", "-cf", trial.name], check=True, stdout=subprocess.DEVNULL)
     for name in ["client.py", "start-session.sh", "compositor.sh", "control.py", "desktop-entry.py",
-                 "desktop-logout.py", "plasma-brightness.py"]:
+                 "desktop-logout.py", "plasma-brightness.py", "storage-guard.py"]:
         install("/var/opt/traineros/session/" + name, (source / name).read_bytes().replace(b"\r\n", b"\n"), 0o755)
+    # Independent of the selected desktop: protect installation/OTA writes after
+    # reboot, without changing the owner's boot preference. Narrow helper is a
+    # no-op on other devices/kernels and is removed through the ownership ledger.
+    install("/etc/systemd/system/armada-session-default.service.d/traineros-storage.conf",
+            b"[Service]\nExecStartPre=/usr/bin/python3 -I /var/opt/traineros/session/storage-guard.py\n", 0o644)
     install(own + "/traineros.desktop", (source / "traineros.desktop").read_bytes(), 0o644)
     # /usr/local is also immutable on Armada. Keep the target with our helpers
     # and create the XDG application link without root privileges below.
