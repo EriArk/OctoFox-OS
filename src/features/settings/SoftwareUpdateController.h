@@ -92,7 +92,7 @@ private:
     void maintenance(const QString& command);
     SoftwareUpdateSource source_;
     QProcess worker_;
-    QTimer periodic_, killTimer_, deadline_, persistTimer_;
+    QTimer periodic_, initialCheck_, killTimer_, deadline_, persistTimer_;
     QByteArray output_;
     QJsonObject result_, candidate_;
     QString channel_, status_ = "unconfigured", phase_, error_, lastChecked_, stopReason_, notifiedVersion_, notificationVersion_;

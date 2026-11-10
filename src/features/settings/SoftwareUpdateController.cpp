@@ -27,6 +27,8 @@ SoftwareUpdateController::SoftwareUpdateController(QObject* parent):QObject(pare
     backgroundChecks_=settings.value("softwareUpdates/backgroundChecks",true).toBool();
     persistTimer_.setSingleShot(true);persistTimer_.setInterval(500);
     connect(&persistTimer_,&QTimer::timeout,this,&SoftwareUpdateController::saveState);
+    initialCheck_.setSingleShot(true);initialCheck_.setInterval(15000);
+    connect(&initialCheck_,&QTimer::timeout,this,[this]{check(true);});
     periodic_.setInterval(6*60*60*1000);
     connect(&periodic_,&QTimer::timeout,this,[this]{if(backgroundChecks_)check(true);});
     killTimer_.setSingleShot(true);killTimer_.setInterval(1500);
@@ -47,7 +49,7 @@ SoftwareUpdateController::~SoftwareUpdateController() {
 }
 void SoftwareUpdateController::configure(const SoftwareUpdateSource& source) {
     if(busy_)return;
-    periodic_.stop();source_=source;
+    periodic_.stop();initialCheck_.stop();source_=source;
     configured_=!source.python.isEmpty() && QFileInfo::exists(source.helper) && QFileInfo::exists(source.publicKey)
         && secureUrl(source.alphaUrl) && secureUrl(source.betaUrl) && secureUrl(source.stableUrl) && !source.state.isEmpty() && !source.cache.isEmpty()
         && QDir::cleanPath(source.state)!=QDir::cleanPath(source.cache) && !source.installedVersion.isEmpty()
@@ -56,7 +58,7 @@ void SoftwareUpdateController::configure(const SoftwareUpdateSource& source) {
     status_=configured_?"idle":"unconfigured";candidate_={};result_={};hasTask_=false;error_.clear();lastChecked_.clear();
     notificationVersion_.clear();notifiedVersion_.clear();phase_.clear();done_=total_=0;notesOpen_=false;
     restoreState();
-    if(configured_)periodic_.start();
+    if(configured_){periodic_.start();if(backgroundChecks_)initialCheck_.start();}
     publish();
 }
 QString SoftwareUpdateController::feedUrl() const {return channel_=="alpha"?source_.alphaUrl:channel_=="beta"?source_.betaUrl:source_.stableUrl;}
@@ -264,7 +266,7 @@ void SoftwareUpdateController::activate(int index) {
     if(id=="back" && !confirmation_.isEmpty()){confirmation_.clear();publish();return;}
     confirmation_.clear();
     if(id=="channel") {channel_=channel_=="alpha"?"beta":channel_=="beta"?"stable":"alpha";candidate_={};result_={};hasTask_=false;notesOpen_=false;error_.clear();lastChecked_.clear();notificationVersion_.clear();status_=configured_?"idle":"unconfigured";QSettings().setValue("softwareUpdates/channel",channel_);}
-    else if(id=="background"){backgroundChecks_=!backgroundChecks_;QSettings().setValue("softwareUpdates/backgroundChecks",backgroundChecks_);}
+    else if(id=="background"){backgroundChecks_=!backgroundChecks_;QSettings().setValue("softwareUpdates/backgroundChecks",backgroundChecks_);if(backgroundChecks_)check(true);else initialCheck_.stop();}
     else if(id=="check")check();
     else if(id=="download"){if(busy_)command("pause");else start(true);}
     else if(id=="cancel")command("cancel");

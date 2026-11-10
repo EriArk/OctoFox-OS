@@ -116,6 +116,17 @@ class InstallationTests(unittest.TestCase):
         with self.assertRaises(ValueError): install.select_channel(self.installation, 'unknown')
         self.assertEqual(install.selected_channel(self.installation), 'beta')
 
+    @unittest.skipIf(os.name == 'nt', 'POSIX umask')
+    def test_trusted_key_stays_private_with_group_writable_umask(self):
+        root = self.root / 'group-umask'
+        previous = os.umask(0o002)
+        try:
+            install.initialize(root, {name: self.feed_url for name in ch.CHANNELS}, self.public, self.personal)
+        finally: os.umask(previous)
+        self.assertEqual((root / 'trusted-key.pem').stat().st_mode & 0o777, 0o600)
+        self.assertEqual((root / 'trusted-key.pem').read_bytes(), self.public.read_bytes())
+        self.assertEqual(install.configuration(root)['feeds']['alpha'], self.feed_url)
+
     def test_legacy_feed_contract_is_rejected_before_bootstrap_replacement(self):
         config = install.configuration(self.installation)
         config['feeds'] = {'beta': self.feed_url, 'preview': self.feed_url}

@@ -84,7 +84,14 @@ def initialize(root, feeds, key, data):
             raise ValueError('Use an empty owned Software installation directory')
         if len(key_bytes) > 8192 or b'PRIVATE KEY' in key_bytes: raise ValueError('A public verification key is required')
         subprocess.run(['openssl', 'pkey', '-pubin', '-in', str(key), '-noout'], check=True, capture_output=True, timeout=10)
-        (root / 'trusted-key.pem').write_bytes(key_bytes)
+        # The trusted key must stay private from other writers even with umask 0002.
+        fd, temporary = tempfile.mkstemp(dir=root, prefix='.trusted-key-')
+        try:
+            with os.fdopen(fd, 'wb') as stream:
+                stream.write(key_bytes); stream.flush(); os.fsync(stream.fileno())
+            os.replace(temporary, root / 'trusted-key.pem')
+        finally:
+            if os.path.exists(temporary): os.unlink(temporary)
         sw.atomic(root / 'config.json', config)
     configuration(root)
     return root

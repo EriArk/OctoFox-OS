@@ -20,6 +20,19 @@ private slots:
         else qputenv("TRAINEROS_SOFTWARE_CHANNEL",previous);
         QCOMPARE(installed.channel(),"beta");QCOMPARE(chosen.channel(),"alpha");
     }
+    void startupChecksNotifyWithoutWaitingSixHours(){
+        QTemporaryDir root;SoftwareUpdateController enabled,disabled;
+        disabled.activate(1);
+        enabled.configure(softwareUpdateFixture(root.path()+"/enabled",UPDATE_PYTHON));
+        disabled.configure(softwareUpdateFixture(root.path()+"/disabled",UPDATE_PYTHON));
+        QSignalSpy notice(&enabled,&SoftwareUpdateController::updateAvailable);
+        QTRY_COMPARE_WITH_TIMEOUT(notice.size(),1,18000);
+        QVERIFY(!enabled.notification().isEmpty());QVERIFY(enabled.tasks().isEmpty());
+        QVERIFY(!QFile::exists(root.path()+"/disabled/requests"));
+        QVERIFY(disabled.notification().isEmpty());
+        disabled.activate(1);QTRY_VERIFY(!disabled.busy());
+        QVERIFY(!disabled.notification().isEmpty());QVERIFY(disabled.tasks().isEmpty());
+    }
     void legacyPreviewPreferenceFallsBackToAlpha(){
         QSettings().setValue("softwareUpdates/channel","preview");
         SoftwareUpdateController flow;QCOMPARE(flow.channel(),"alpha");
