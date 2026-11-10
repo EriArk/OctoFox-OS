@@ -2,6 +2,7 @@
 #include "features/accounts/BackendAccount.h"
 #include <QJsonArray>
 #include <QUuid>
+#include <QDateTime>
 
 namespace trainer {
 void BazaarCatalogue::setBackend(BackendAccount* backend) {
@@ -17,7 +18,7 @@ void BazaarCatalogue::syncBackend() {
     const auto state=account();const auto player=state["playerId"].toString();const bool connected=state["connected"].toBool();
     const bool identityChanged=player!=backendPlayer_, connectionChanged=connected!=connected_;
     if(identityChanged||connectionChanged) {
-        ++accessGeneration_;moderating_=false;blocks_.clear();accessTarget_={};accessNext_.clear();
+        ++accessGeneration_;moderating_=false;blocks_.clear();accessTarget_={};accessNext_.clear();places_.clear();place_={};placesNext_.clear();placesBazaar_.clear();priceDraft_.clear();
         ++generation_;loading_=saving_=false;next_.clear();all_.clear();
         if(identityChanged){draft_={};dialog_.clear();message_.clear();textField_.clear();formReturn_.clear();own_={};
             if(!backendPlayer_.isEmpty()){favorites_.clear();search_.clear();selection_="official";setScroll(0);}}
@@ -32,6 +33,7 @@ void BazaarCatalogue::syncBackend() {
     }
     if(!connected_)status_="Sign in to TrainerOS to browse player bazaars.";
     if(active_&&(identityChanged||connectionChanged)&&connected_&&!fixture_)refresh();
+    if(rentalWaiting_&&!state["busy"].toBool()){if(dialog_=="places")loadPlaces();rentalWaiting_=false;}
     emit changed();
 }
 void BazaarCatalogue::setActive(bool value) {
@@ -82,14 +84,22 @@ void BazaarCatalogue::beginForm(bool editing) {
     if(backend_&&connected_)backend_->refreshShop();
     emit changed();
 }
-QString BazaarCatalogue::editorTitle() const {return textField_=="name"?"Bazaar name":textField_=="description"?"Bazaar description":"Search player bazaars";}
-int BazaarCatalogue::editorLimit() const {return textField_=="name"?48:textField_=="description"?280:64;}
+QString BazaarCatalogue::editorTitle() const {return textField_=="weekly-price"?"Weekly price in Sparks":textField_=="name"?"Bazaar name":textField_=="description"?"Bazaar description":"Search player bazaars";}
+int BazaarCatalogue::editorLimit() const {return textField_=="weekly-price"?10:textField_=="name"?48:textField_=="description"?280:64;}
 void BazaarCatalogue::applyText(QString text) {
-    if(textField_=="name"||textField_=="description"){draft_[textField_]=text.trimmed().left(editorLimit());textField_.clear();emit changed();}
+    if(textField_=="weekly-price") {
+        bool ok=false;const auto price=text.toLongLong(&ok);
+        if(ok&&price>0&&price<=2147483647){priceDraft_=QString::number(price);message_.clear();}
+        else message_="Enter a whole number of Sparks from 1 to 2147483647.";
+        textField_.clear();emit changed();
+    } else if(textField_=="name"||textField_=="description"){draft_[textField_]=text.trimmed().left(editorLimit());textField_.clear();emit changed();}
     else {textField_.clear();applySearch(text);}
 }
 void BazaarCatalogue::openMenu() {if(!dialog_.isEmpty())return;detailId_=selection_;dialog_="menu";dialogIndex_=0;message_.clear();emit changed();}
 QString BazaarCatalogue::summary() const {
+    if(dialog_=="places")return "Choose a trading place. Rent lasts seven days from payment; Sparks go to the owner.";
+    if(dialog_=="place")return placesOwned_?"Set the weekly price. An existing tenant keeps their paid time.":"Pay once for seven days. The place becomes free when time runs out.";
+    if(dialog_=="rent-review")return "Rent "+place_["name"].toString()+" for seven days? Payment goes to the bazaar owner.";
     if(dialog_=="purchase"||dialog_=="review")return "Unlock one personal bazaar permanently. Create it later, whenever you are ready.";
     if(dialog_=="ready")return "Your right to a personal bazaar is already purchased. Creation costs no extra Sparks.";
     if(dialog_=="create")return "Already purchased. Choose your settings and create your bazaar for free.";
@@ -102,6 +112,7 @@ QString BazaarCatalogue::summary() const {
     return {};
 }
 QVariantList BazaarCatalogue::dialogRows() const {
+    if(dialog_=="places"||dialog_=="place"||dialog_=="rent-review")return rentalRows();
     QVariantList rows;const auto state=account();
     const auto add=[&](QString id,QString label,QString value={},bool enabled=true){rows.append(QVariantMap{{"id",id},{"label",label},{"value",value},{"enabled",enabled}});};
     if(dialog_=="appearance") {
@@ -133,19 +144,22 @@ QVariantList BazaarCatalogue::dialogRows() const {
         else if(dialog_=="manage")add("save","Save changes","Free",!busy()&&!draft_["name"].toString().isEmpty());
         else if(dialog_=="create")add("create","Create bazaar","Already purchased",!busy()&&state["licensed"].toBool()&&!draft_["name"].toString().isEmpty());
         else {const auto offer=state["offer"].toMap();add("review","Buy personal bazaar",offer.isEmpty()?"Unavailable":QString::number(offer["price"].toInt())+" Sparks",!busy()&&!offer.isEmpty());}
+        if(dialog_=="manage")add("places","Trading places",{},!busy());
         if(dialog_=="manage")add("reload","Reload saved settings",{},!busy());
     } else if(dialog_=="review") {
         const auto review=state["review"].toMap();add("buy","Buy personal bazaar",QString::number(review["price"].toInt())+" Sparks",!busy()&&!review.isEmpty());add("back","Back");
     } else if(dialog_=="menu") {
         if(detailId_.startsWith("room:")){add("details","Bazaar details");add("favorite","Save / remove favorite");}
+        if(state["rentalPending"].toBool())add("resolve-rent","Resolve rental payment",{},!busy());
         add("mine",own_.isEmpty()?(state["licensed"].toBool()?"Create a bazaar":"Buy personal bazaar"):"My bazaar");add("refresh","Refresh catalogue",{},!busy());
         if(more())add("more","Load more bazaars",{},!busy());
-    } else if(dialog_=="details") {add("favorite","Save / remove favorite");if(detailId_=="room:"+own_["id"].toString())add("mine","Manage my bazaar");add("back","Back");}
+    } else if(dialog_=="details") {add("places","Trading places",{},!busy());add("favorite","Save / remove favorite");if(detailId_=="room:"+own_["id"].toString())add("mine","Manage my bazaar");add("back","Back");}
     return rows;
 }
 void BazaarCatalogue::dialogAction(QString action) {
     bool permitted=false;for(const auto& row:dialogRows())if(row.toMap()["id"]==action&&row.toMap()["enabled"].toBool())permitted=true;
     if(!permitted||saving_)return;
+    if(rentalAction(action))return;
     if(action=="appearance"||action=="access-settings"){formReturn_=dialog_;dialog_=action=="appearance"?"appearance":"access";dialogIndex_=0;message_.clear();emit changed();return;}
     if(action=="cover"||action=="badge") {
         const QStringList choices=action=="cover"?QStringList{"market","grove","harbor"}:QStringList{"shop","community","companion","trophy","guide"};
@@ -224,6 +238,86 @@ void BazaarCatalogue::loadAccess(QString target,bool append) {
         QSet<QString> known;for(const auto& value:blocks_)known.insert(value.toMap()["player_id"].toString());
         for(const auto& value:valid)if(!known.contains(value.toMap()["player_id"].toString()))blocks_.append(value);
         accessNext_=next;message_=target.isEmpty()&&blocks_.isEmpty()?"No blocked players. Manage access from a player's profile.":"";emit changed();
+    });
+}
+
+QVariantList BazaarCatalogue::rentalRows() const {
+    QVariantList rows;const auto state=account();
+    const auto add=[&](QString id,QString label,QString value={},bool enabled=true){rows.append(QVariantMap{{"id",id},{"label",label},{"value",value},{"enabled",enabled}});};
+    if(state["rentalPending"].toBool())add("resolve-rent","Resolve rental payment",{},!busy());
+    if(dialog_=="places") {
+        for(const auto& value:places_) {const auto row=value.toMap();const bool occupied=!row["tenant_id"].toString().isEmpty();
+            add("place:"+row["id"].toString(),row["name"].toString(),occupied?"Occupied":row["weekly_price"].isNull()?"Price not set":QString::number(row["weekly_price"].toInt())+" Sparks / week",!busy());}
+        if(!placesNext_.isEmpty())add("places-more","Load more",{},!busy());
+        add("places-refresh","Refresh places",{},!busy());
+    } else {
+        if(!place_["tenant_id"].toString().isEmpty()) {
+            const auto time=QDateTime::fromString(place_["expires_at"].toString(),Qt::ISODateWithMs).toLocalTime();
+            add("occupied",place_["tenant_id"]==backendPlayer_?"Rented by you":"Occupied",time.toString("dd MMM yyyy HH:mm"),false);
+        }
+        if(dialog_=="rent-review")add("rent-pay","Pay for seven days",QString::number(place_["weekly_price"].toInt())+" Sparks",connected_&&!busy()&&!state["pending"].toBool());
+        else if(placesOwned_) {
+            add("weekly-price","Weekly price",priceDraft_.isEmpty()?"Set price":priceDraft_+" Sparks",!busy());
+            add("save-price","Save weekly price",{},connected_&&!busy()&&!priceDraft_.isEmpty());
+        } else add("rent-review","Rent for seven days",place_["weekly_price"].isDouble()?QString::number(place_["weekly_price"].toInt())+" Sparks":"Not offered",connected_&&!busy()&&place_["rentable"].toBool()&&!state["pending"].toBool());
+        add("places-refresh","Refresh places",{},!busy());
+    }
+    add("back","Back");return rows;
+}
+bool BazaarCatalogue::rentalAction(const QString& action) {
+    if(action=="places") {
+        placesReturn_=dialog_;placesBazaar_=dialog_=="manage"?own_["id"].toString():detailId_.mid(5);
+        places_.clear();place_={};dialog_="places";dialogIndex_=0;loadPlaces();return true;
+    }
+    if(action=="places-refresh"||action=="places-more") {dialog_="places";dialogIndex_=0;loadPlaces(action=="places-more");return true;}
+    if(action.startsWith("place:")) {
+        for(const auto& value:places_)if(value.toMap()["id"].toString()==action.mid(6))place_=QJsonObject::fromVariantMap(value.toMap());
+        priceDraft_=place_["weekly_price"].isDouble()?QString::number(place_["weekly_price"].toInt()):QString();dialog_="place";dialogIndex_=0;message_.clear();emit changed();return true;
+    }
+    if(action=="weekly-price"){textField_=action;emit textRequested(priceDraft_);return true;}
+    if(action=="rent-review"){dialog_="rent-review";dialogIndex_=0;message_.clear();emit changed();return true;}
+    if(action=="rent-pay") {
+        dialog_="places";dialogIndex_=0;message_.clear();places_.clear();
+        rentalWaiting_=true;backend_->rentBazaarPlace(place_,placesBazaar_);emit changed();return true;
+    }
+    if(action=="resolve-rent"){message_.clear();rentalWaiting_=true;backend_->resolveBazaarPurchase();emit changed();return true;}
+    if(action=="save-price") {
+        const auto generation=++accessGeneration_;moderating_=true;message_="Saving weekly price…";emit changed();
+        backend_->bazaarRequest("place-price",{{"id",placesBazaar_},{"place_id",place_["id"]},{"revision",place_["revision"]},{"weekly_price",priceDraft_.toInt()}},
+            [this,generation](int status,QJsonObject result){
+                if(generation!=accessGeneration_)return;moderating_=false;
+                if(status==200&&result["player_id"]==backendPlayer_&&result["place"].toObject()["id"]==place_["id"]) {
+                    dialog_="places";dialogIndex_=0;loadPlaces();
+                } else {message_=status==409?"Place changed. Refresh before setting its price again.":"Could not save price. Refresh to check it.";emit changed();}
+            });return true;
+    }
+    return false;
+}
+void BazaarCatalogue::loadPlaces(bool append) {
+    if(!backend_||moderating_||placesBazaar_.isEmpty())return;
+    const auto outcome=rentalWaiting_&&!account()["busy"].toBool()?account()["status"].toString():QString();
+    const auto generation=++accessGeneration_;moderating_=true;message_="Loading trading places…";emit changed();
+    QJsonObject args{{"id",placesBazaar_}};if(append&&!placesNext_.isEmpty())args["after"]=placesNext_;
+    backend_->bazaarRequest("places",args,[this,generation,append,outcome](int status,QJsonObject result){
+        if(generation!=accessGeneration_)return;moderating_=false;
+        const auto rows=result["items"].toArray();
+        if(status!=200||result["player_id"]!=backendPlayer_||result["bazaar_id"]!=placesBazaar_||!result["owned"].isBool()||!result["items"].isArray()||rows.size()>24) {message_="Could not load trading places. Refresh to retry.";emit changed();return;}
+        QVariantList valid;
+        for(const auto value:rows) {
+            const auto row=value.toObject();const auto price=row["weekly_price"];
+            if(QUuid(row["id"].toString()).isNull()||row["bazaar_id"]!=placesBazaar_||row["name"].toString().isEmpty()||row["name"].toString().size()>48
+                ||row["revision"].toString().toULongLong()==0||!row["rentable"].isBool()
+                ||(!price.isNull()&&(!price.isDouble()||price.toDouble()<1||price.toDouble()>2147483647||price.toDouble()!=price.toInt()))
+                ||(!row["tenant_id"].isNull()&&(QUuid(row["tenant_id"].toString()).isNull()||!QDateTime::fromString(row["expires_at"].toString(),Qt::ISODateWithMs).isValid()))) {
+                message_="Could not read trading places.";emit changed();return;
+            }
+            valid.append(row.toVariantMap());
+        }
+        const auto next=result["next"].toString();if(!next.isEmpty()&&QUuid(next).isNull()){message_="Invalid places cursor.";emit changed();return;}
+        if(!append)places_.clear();QSet<QString> known;for(const auto& value:places_)known.insert(value.toMap()["id"].toString());
+        for(const auto& value:valid)if(!known.contains(value.toMap()["id"].toString()))places_.append(value);
+        placesNext_=places_.size()<1000?next:QString();placesOwned_=result["owned"].toBool();
+        message_=!outcome.isEmpty()?outcome:places_.isEmpty()?"No trading places yet. Stall purchases are being prepared.":"";emit changed();
     });
 }
 

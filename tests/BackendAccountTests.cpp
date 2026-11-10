@@ -138,6 +138,27 @@ private slots:
         fixture->inventory["bazaar_license"]=false;restored.refreshShop();
         QVERIFY(restored.bazaarAccount()["licensed"].toBool());fixture->inventory=current;
     }
+    void rentalPaymentIsDurableRecoveredAndRejectsWrongReceipt() {
+        auto fixture=std::make_shared<BazaarCommerceFixture>();fixture->loseResponse=true;
+        QJsonObject place{{"id",fixture->stall},{"revision","1"},{"weekly_price",100},{"rentable",true}};
+        {
+            BackendAccount account;fixture->install(account);
+            account.rentBazaarPlace(place,fixture->place);
+            QCOMPARE(fixture->rentCharges,1);QVERIFY(account.bazaarAccount()["rentalPending"].toBool());
+            account.rentBazaarPlace(place,fixture->place);QCOMPARE(fixture->rentCharges,1);
+        }
+        fixture->loseResponse=false;
+        BackendAccount restored;fixture->install(restored);
+        QVERIFY(!restored.bazaarAccount()["pending"].toBool());QCOMPARE(fixture->rentCharges,1);
+        QCOMPARE(restored.progression()["balance"].toInt(),9900);QVERIFY(!restored.progression()["stale"].toBool());
+        auto other=std::make_shared<BazaarCommerceFixture>();other->failStorage=true;
+        BackendAccount blocked;other->install(blocked);blocked.configure("rental-no-storage");blocked.rentBazaarPlace(place,other->place);
+        QCOMPARE(other->rentCharges,0);
+        other->failStorage=false;other->badReceipt=true;blocked.rentBazaarPlace(place,other->place);
+        QCOMPARE(other->rentCharges,1);QVERIFY(blocked.bazaarAccount()["pending"].toBool());
+        other->badReceipt=false;blocked.resolveBazaarPurchase();
+        QCOMPARE(other->rentCharges,1);QVERIFY(!blocked.bazaarAccount()["pending"].toBool());
+    }
     void bazaarRejectsMismatchedReceiptAndMalformedOwnedSettings() {
         auto fixture=std::make_shared<BazaarCommerceFixture>();fixture->badReceipt=true;
         BackendAccount account;fixture->install(account);

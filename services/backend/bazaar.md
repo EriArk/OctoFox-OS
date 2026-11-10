@@ -107,27 +107,55 @@ The owner reaches a specific player from the existing public profile's
 “My bazaar access” action, and can restore access from the paged blocked list.
 No new social search/account system or technical-ID text entry is introduced.
 
-## Future additions accepted by the owner
+## Weekly trading-place rentals — 10 November
 
-Stalls, shops, decoration and functional upgrades will be separate purchases
-attached to the persistent bazaar UUID through the same economy. The owner also
-approved renting trading places to other players **for Sparks**. The space/stall
-owner and a temporary tenant's trading right must remain separate from each other
-and from the realtime host. These are targets, not implemented purchase/lease APIs.
-The owner subsequently accepted the minimal weekly rental flow:
+Migration `0018_bazaar_rentals.sql` stores provisioned `bazaar_places` and immutable
+`bazaar_rentals` receipts. No places are granted on migration or Bazaar creation.
+Stall purchases/prices are not decided yet; the future purchase path will provision
+these records. Runtime cannot insert/delete places or change their identity,
+bazaar, tenant or deadlines. Tests provision fixtures only in disposable databases.
+An unset weekly price means the place is not offered yet.
 
-- The place owner sets its price in Sparks **for one week**.
-- Any player can occupy an available place by paying; the owner receives the Sparks.
-- Occupancy lasts **seven days from payment**, not until a calendar-week boundary.
-- At expiry the place becomes available again; the tenant's goods are preserved.
+- `GET /v1/bazaars/{id}/places?after=UUID`: authenticated, same catalogue visibility,
+  at most 24 places plus cursor. Returns price, decimal-string revision, current
+  tenant/deadline (or null), owner flag and caller-specific `rentable`. Closed or
+  blocked access cannot rent. Owners cannot rent their own places.
+- `PUT /v1/me/bazaars/{id}/places/{place}`: owner sets `weekly_price` (positive whole
+  Sparks, bounded to 2147483647) with expected decimal-string `revision`. Identical
+  replay is harmless; changed stale settings return 409. Updating the next price
+  preserves a current tenant's paid time.
+- `POST /v1/bazaars/{id}/places/{place}/rent`: `operation_id` UUID string,
+  `revision` decimal string, `expected_price` positive whole Sparks. Duration,
+  owner, host, tenant and balance cannot be supplied by the client.
+- `GET /v1/me/bazaar-rentals/{operation_id}`: only the paying account can recover
+  its immutable receipt, including its exact original payment/deadline.
 
-These are agreed rules, not implemented rental endpoints, inventory custody or UI.
-Use the existing server clock/economy when implementing: payment and exclusive
-occupancy must succeed together, competing/repeated requests must not double-charge
-or rent the same place twice. A temporary peer host cannot change the lease or
-its deadline. The concrete purchasable stall catalogue and goods-handling model
-remain later work. Do not invent commissions or additional rental flows.
-Existing ownership must survive adding these extensions.
+Rent authenticates, locks both existing progression accounts in UUID order, then
+locks the bazaar policy and place. It validates price/revision, access, vacancy
+and balance, inserts a receipt for **seven days / 168 hours from server payment**,
+adds the debit and equal owner credit to the existing append-only reward ledger,
+updates both balances/revisions and publishes audit/outbox atomically. It uses
+`bazaar.rent` / `bazaar.rent_income` sources, no separate wallet. Failed writes roll
+back all effects; competing tenants and ordinary shop spending share the locks.
+Each new rental increments the place revision. Exact operation replays return
+that receipt even after expiry/price/access changes, never buy another week.
 
-[Product contract](../../docs/BAZAAR.md),
-[build, deployment and remaining acceptance](../../docs/evidence/2026-11-10-bazaar-cards-access/README.md).
+Occupancy is a read against the server deadline; no polling worker or destructive
+expiry task is required. Expired receipts remain history. No inventory or tenant
+goods are deleted/transferred on expiry. **Trade and goods custody are still future
+work**; preserving existing inventory is not an implemented goods-return system.
+No commission, automatic renewal, variable duration or complex refund flow is added.
+
+Native menus: My bazaar / Bazaar details → Trading places → place → weekly price
+(owner) or price review → Pay for seven days (visitor). Occupied places show the
+local-time deadline. Existing shared keyboard, controller actions and modal Back/
+Home behavior are reused. Empty bazaars honestly show no trading places yet.
+`BackendAccount` stores rental intent through the same durable commerce recovery
+before sending payment. Only an exact receipt or known definitive refusal clears
+it; lost replies/restarts retain the operation. Profile history displays rental
+debits and owner income. A previous client may not understand these new history
+sources; deploy the matching client before enabling future stall purchases.
+
+Future additions remain separately purchased stalls/shops/functions, their concrete
+catalogue/prices, goods/trading and actual game-world integration. Permanent owner,
+temporary tenant and P2P host remain separate. Existing rights survive extensions.

@@ -80,6 +80,7 @@ def grant_runtime(database_url, role):
         'shop_offers': 'SELECT', 'purchases': 'SELECT,INSERT', 'owned_items': 'SELECT,INSERT',
         'profile_appearances': 'SELECT,INSERT,UPDATE',
         'outfits': 'SELECT,INSERT,UPDATE',
+        'bazaar_places': 'SELECT', 'bazaar_rentals': 'SELECT,INSERT',
         'bazaars': 'SELECT,INSERT', 'bazaar_blocks': 'SELECT,INSERT,DELETE',
         'outfit_slots': 'SELECT,INSERT', 'prize_grants': 'SELECT,INSERT',
         'prize_catalogue': 'SELECT', 'prize_receipts': 'SELECT,INSERT',
@@ -96,6 +97,7 @@ def grant_runtime(database_url, role):
         for table, privileges in rights.items():
             conn.execute(sql_builder.SQL('GRANT {} ON TABLE trainer_backend.{} TO {}').format(
                 sql_builder.SQL(privileges), sql_builder.Identifier(table), sql_builder.Identifier(role)))
+        conn.execute(sql_builder.SQL('GRANT UPDATE(weekly_price,revision) ON trainer_backend.bazaar_places TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT UPDATE(name,description,listed,access,cover,badge,revision,updated_at) ON trainer_backend.bazaars TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT EXECUTE ON FUNCTION trainer_backend.assert_principal(uuid,text) TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT EXECUTE ON FUNCTION trainer_backend.resolve_fluxer_player(text,text) TO {}').format(sql_builder.Identifier(role)))

@@ -71,3 +71,38 @@ def block_player(bazaar_id: UUID, player_id: UUID, body: BlockPlayer, request: R
 @router.get('/v1/bazaars/{bazaar_id}/access')
 def access_policy(bazaar_id: UUID, request: Request):
     return wire(service(request).access_policy(bearer(request),bazaar_id))
+
+
+# Provisioned places only. No client or temporary host can create paid inventory.
+from . import rentals
+
+
+class PlacePrice(StrictBody):
+    revision: str = Field(pattern=r'^[1-9][0-9]{0,17}$')
+    weekly_price: int = Field(ge=1,le=2147483647)
+
+
+class RentPlace(StrictBody):
+    operation_id: str = Field(pattern=r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+    revision: str = Field(pattern=r'^[1-9][0-9]{0,17}$')
+    expected_price: int = Field(ge=1,le=2147483647)
+
+
+@router.get('/v1/bazaars/{bazaar_id}/places')
+def places(bazaar_id: UUID, request: Request, after: UUID | None = None):
+    return wire(rentals.places(service(request),bearer(request),bazaar_id,after))
+
+
+@router.put('/v1/me/bazaars/{bazaar_id}/places/{place_id}')
+def place_price(bazaar_id: UUID, place_id: UUID, body: PlacePrice, request: Request):
+    return wire(rentals.price(service(request),bearer(request),bazaar_id,place_id,int(body.revision),body.weekly_price))
+
+
+@router.post('/v1/bazaars/{bazaar_id}/places/{place_id}/rent')
+def rent_place(bazaar_id: UUID, place_id: UUID, body: RentPlace, request: Request):
+    return wire(rentals.rent(service(request),bearer(request),UUID(body.operation_id),bazaar_id,place_id,int(body.revision),body.expected_price))
+
+
+@router.get('/v1/me/bazaar-rentals/{operation_id}')
+def rental_receipt(operation_id: UUID, request: Request):
+    return wire(rentals.receipt(service(request),bearer(request),operation_id))

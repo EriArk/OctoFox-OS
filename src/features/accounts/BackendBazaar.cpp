@@ -1,6 +1,7 @@
 #include "BackendAccount.h"
 #include <QUrlQuery>
 #include <QUuid>
+#include <QDateTime>
 #include <cmath>
 
 namespace trainer {
@@ -47,7 +48,7 @@ QVariantMap BackendAccount::bazaarAccount() const {
         {"owned",same?shopSnapshot_["bazaar"].toObject().toVariantMap():QVariantMap{}},
         {"offer",same?shopSnapshot_["bazaar_offer"].toObject().toVariantMap():QVariantMap{}},
         {"busy",shopBusy_},{"stale",shopStale_},{"status",shopStatus_},
-        {"pending",!shopPending_.isEmpty()},{"bazaarPending",shopPending_["offer_id"]=="bazaar.personal"&&shopPending_["player_id"]==player_},
+        {"rentalPending",shopPending_["kind"]=="bazaar.rent"&&shopPending_["player_id"]==player_},{"pending",!shopPending_.isEmpty()},{"bazaarPending",shopPending_["offer_id"]=="bazaar.personal"&&shopPending_["player_id"]==player_},
         {"review",shopReview_["id"]=="bazaar.personal"?shopReview_.toVariantMap():QVariantMap{}}};
 }
 void BackendAccount::reviewBazaarPurchase() {
@@ -56,7 +57,7 @@ void BackendAccount::reviewBazaarPurchase() {
     if(offer.isEmpty())return;
     shopReview_=offer;emit changed();
 }
-void BackendAccount::resolveBazaarPurchase(){if(shopPending_["offer_id"]=="bazaar.personal")recoverPurchase(true);}
+void BackendAccount::resolveBazaarPurchase(){if(shopPending_["offer_id"]=="bazaar.personal"||shopPending_["kind"]=="bazaar.rent")recoverPurchase(true);}
 void BackendAccount::bazaarRequest(const QString& action,QJsonObject args,Reply done) {
     if(state_!="connected"||player_.isEmpty()){done(401,{{"code","sign_in_required"}});return;}
     if(action=="directory") {
@@ -67,6 +68,20 @@ void BackendAccount::bazaarRequest(const QString& action,QJsonObject args,Reply 
             query.addQueryItem("favorites",ids.join(','));
         }
         request("GET","/v1/bazaars?"+query.toString(QUrl::FullyEncoded),{},std::move(done),access_);return;
+    }
+    if(action=="places"||action=="place-price") {
+        const auto bazaar=args.take("id");if(!id(bazaar)){done(422,{});return;}
+        QString path="/v1/bazaars/"+bazaar.toString()+"/places";
+        if(action=="places") {
+            QUrlQuery query;if(args.contains("after")){if(!id(args["after"])){done(422,{});return;}query.addQueryItem("after",args["after"].toString());}
+            if(args.size()>1){done(422,{});return;}
+            request("GET",path+"?"+query.toString(QUrl::FullyEncoded),{},std::move(done),access_);
+        } else {
+            const auto place=args.take("place_id");
+            if(!id(place)||!revision(args["revision"])||!integer(args["weekly_price"])||args.size()!=2){done(422,{});return;}
+            request("PUT","/v1/me/bazaars/"+bazaar.toString()+"/places/"+place.toString(),args,std::move(done),access_);
+        }
+        return;
     }
     if(action=="update"||action=="create"||action=="access"||action=="block") {
         const auto bazaar=args.take("id").toString();const auto version=args.take("revision");
@@ -96,4 +111,31 @@ void BackendAccount::bazaarRequest(const QString& action,QJsonObject args,Reply 
     }
     done(422,{});
 }
+void BackendAccount::rentBazaarPlace(QJsonObject place,QString bazaar) {
+    if(shopBusy_||state_!="connected"||!shopPending_.isEmpty()||!id(bazaar)||!id(place["id"])
+        ||!revision(place["revision"])||!integer(place["weekly_price"])||place["rentable"]!=true)return;
+    shopPending_={{"kind","bazaar.rent"},{"player_id",player_},{"operation_id",QUuid::createUuid().toString(QUuid::WithoutBraces)},
+        {"bazaar_id",bazaar},{"place_id",place["id"]},{"revision",place["revision"]},{"expected_price",place["weekly_price"]}};
+    if(!saveCommerce()){shopPending_={};shopStatus_="Could not save payment recovery data. Nothing was sent or charged.";emit changed();return;}
+    recoverPurchase(true);
+}
+void BackendAccount::finishRental(int status,QJsonObject result) {
+    shopBusy_=false;const auto receipt=result["receipt"].toObject();
+    const auto started=QDateTime::fromString(receipt["started_at"].toString(),Qt::ISODateWithMs);
+    const auto expires=QDateTime::fromString(receipt["expires_at"].toString(),Qt::ISODateWithMs);
+    const bool exact=result["player_id"]==player_&&receipt["tenant_id"]==player_&&id(receipt["id"])&&id(receipt["owner_id"])
+        &&receipt["operation_id"]==shopPending_["operation_id"]&&receipt["place_id"]==shopPending_["place_id"]
+        &&receipt["price"]==shopPending_["expected_price"]
+        &&QString::number(receipt["offer_revision"].toInteger())==shopPending_["revision"].toString()
+        &&started.isValid()&&expires.isValid()&&started.secsTo(expires)==604800;
+    const bool declined=(status==404&&QStringList{"bazaar_not_found","place_not_found"}.contains(result["code"].toString()))||(status==409&&QStringList{"place_changed","place_occupied","insufficient_sparks","own_place","bazaar_access_denied"}.contains(result["code"].toString()));
+    if((status==200&&exact)||declined) {
+        const auto pending=shopPending_;shopPending_={};if(!saveCommerce())shopPending_=pending;
+        shopStatus_=status==200?"Place rented until "+expires.toLocalTime().toString("dd MMM yyyy HH:mm")+". Payment sent to its owner.":
+            result["code"]=="insufficient_sparks"?"Not enough Sparks. No charge was made.":"Place or access changed. No charge was made. Refresh and review again.";
+        refreshProgression(false);
+    } else shopStatus_="Rental payment not yet confirmed. Resolve it to check or retry the same payment.";
+    emit changed();
+}
+
 }

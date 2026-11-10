@@ -141,6 +141,26 @@ inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shel
         case 36:
             check(!commerce->blocked&&commerce->blockWrites==2&&commerce->charges==1,"Owner restores access for free");
             shell.dispatch(Action::Home);check(page->dialog().isEmpty()&&shell.primaryId()=="home","Home dismisses access form");break;
+        case 37:
+            shell.openOnlineFace("bazaar");page->activate("create");page->dialogAction("places");break;
+        case 38:
+            check(page->dialog()=="places","Owner opens trading places");capture("places-owner-light-800");page->dialogAction("place:"+commerce->stall);break;
+        case 39:
+            click("bazaar-action-weekly-price");break;
+        case 40:
+            check(shell.keyboard()->isOpen(),"Weekly price uses shared keyboard");shell.dispatch(Action::Back);page->applyText("175");page->dialogAction("save-price");break;
+        case 41:
+            check(commerce->weeklyPrice==175&&commerce->rentCharges==0,"Owner sets weekly price without payment");
+            commerce->tenantView=true;page->dialogAction("places-refresh");page->dialogAction("place:"+commerce->stall);break;
+        case 42:
+            capture("place-tenant-light-800");page->dialogAction("rent-review");break;
+        case 43:
+            check(page->dialog()=="rent-review","Tenant can review weekly rent");capture("rent-review-light-800");check(commerce->rentCharges==0,"Rent review does not charge");press(ControllerInput::ConfirmButton);break;
+        case 44:
+            check(commerce->rentCharges==1&&page->dialog()=="places","One rent payment returns to places");page->dialogAction("place:"+commerce->stall);break;
+        case 45:
+            capture("place-rented-light-800");check(!page->account()["pending"].toBool(),"Rental receipt resolved");shell.dispatch(Action::Home);
+            check(page->dialog().isEmpty()&&shell.primaryId()=="home","Home closes rental menus");break;
         default:
             check(warnings==0,"No QML warnings");timer->stop();completed=true;
             QFile file(directory+"/bazaar-report.json");if(file.open(QIODevice::WriteOnly))file.write(QJsonDocument(QJsonObject{{"success",diagnostics.isEmpty()},{"warnings",warnings},{"diagnostics",QJsonArray::fromStringList(diagnostics)}}).toJson());

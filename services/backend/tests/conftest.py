@@ -85,7 +85,7 @@ def db(postgres):
             trainer_backend.result_submissions,trainer_backend.result_decisions,trainer_backend.result_outcomes,trainer_backend.board_revisions,
             trainer_backend.reward_ledger,trainer_backend.operator_spark_grants,trainer_backend.support_memberships,trainer_backend.support_receipts,trainer_backend.reward_links,trainer_backend.reward_link_challenges,trainer_backend.outfits,trainer_backend.profile_appearances,trainer_backend.owned_items,trainer_backend.purchases,trainer_backend.progression_accounts,
             trainer_backend.prize_grants,trainer_backend.prize_receipts,trainer_backend.prize_shelf,trainer_backend.outfit_slots,trainer_backend.profile_sharing,
-            trainer_backend.support_links,trainer_backend.support_link_attempts,trainer_backend.bazaar_blocks,trainer_backend.bazaars,
+            trainer_backend.support_links,trainer_backend.support_link_attempts,trainer_backend.bazaar_blocks,trainer_backend.bazaar_rentals,trainer_backend.bazaar_places,trainer_backend.bazaars,
             public.fixture_effects''')
     database = Database(runtime_url, 8)
     yield database

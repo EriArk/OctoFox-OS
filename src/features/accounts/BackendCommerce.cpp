@@ -41,6 +41,9 @@ void BackendAccount::loadCommerce() {
     wardrobeState_=data["wardrobe"].toObject();
     outfitWrites_=data["outfitWrites"].toObject();
     const auto pending=data["pending"].toObject();
+    if(pending["kind"]=="bazaar.rent"&&identity(pending["player_id"].toString())&&identity(pending["operation_id"].toString())
+        &&identity(pending["bazaar_id"].toString())&&identity(pending["place_id"].toString())
+        &&pending["revision"].toString().toULongLong()>0&&whole(pending["expected_price"],1))shopPending_=pending;
     if(identity(pending["player_id"].toString())&&identity(pending["operation_id"].toString())
         &&(pending["offer_id"].toString().startsWith("profile.")||pending["offer_id"].toString().startsWith("outfit.slot.")||pending["offer_id"]=="bazaar.personal")&&pending["offer_id"].toString().size()<=64
         &&whole(pending["offer_revision"],1)&&whole(pending["expected_price"],1)
@@ -151,6 +154,12 @@ void BackendAccount::confirmPurchase() {
 void BackendAccount::recoverPurchase(bool retry) {
     if(shopBusy_||state_!="connected"||shopPending_["player_id"]!=player_)return;
     shopBusy_=true;shopStatus_="Checking your purchase…";emit changed();
+    if(shopPending_["kind"]=="bazaar.rent") {
+        const auto path=retry?"/v1/bazaars/"+shopPending_["bazaar_id"].toString()+"/places/"+shopPending_["place_id"].toString()+"/rent":
+            "/v1/me/bazaar-rentals/"+shopPending_["operation_id"].toString();
+        QJsonObject body{{"operation_id",shopPending_["operation_id"]},{"revision",shopPending_["revision"]},{"expected_price",shopPending_["expected_price"]}};
+        request(retry?"POST":"GET",path,retry?body:QJsonObject{},[this](int status,QJsonObject result){finishRental(status,std::move(result));},access_);return;
+    }
     auto body=shopPending_;body.remove("player_id");
     request(retry?"POST":"GET",retry?"/v1/me/purchases":"/v1/me/purchases/"+body["operation_id"].toString(),retry?body:QJsonObject{},
         [this](int status,QJsonObject result){finishPurchase(status,std::move(result));},access_);

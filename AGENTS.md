@@ -4,16 +4,18 @@
 The place owner sets a price in Sparks for one week. Any player can occupy a
 free place by paying; the owner receives the Sparks. The place belongs to that
 tenant for seven days from payment, then becomes free; tenant goods are preserved.
-This settles duration/pricing direction in the earlier notes. It is an accepted
-product contract, not a claim that rental APIs, inventory custody or UI exist.
+This settles duration/pricing direction in the earlier notes. Rental menus and
+transactional APIs are now prepared on the separate branch;
+see services/backend/bazaar.md. Stall purchases/provisioning and trade/custody
+remain future work: do not mint free places or claim goods-return behavior.
 Do not invent additional tariffs, commissions or complex rental flows.
 
 **Owner Bazaar cards/access, 10 November (latest):** prepare card cover/badge
 preview and owner access controls next, in the same separate branch. Preserve
 buy-now/create-later. Reuse native profile identity for selecting a player; owner
 moderation is separate from temporary hosting. No fabricated live visitors/kicks
-or successful admission before the world runtime exists. Rental rules are the
-next discussion, not authorization to invent rental prices or expiry behavior.
+or successful admission before the world runtime exists. The later weekly-rental
+contract above supersedes the earlier rental discussion.
 
 **Owner Bazaar purchase correction, 10 November (latest):** buy the permanent
 right for 5000 Sparks first, then create the single personal bazaar whenever
@@ -27,8 +29,9 @@ Sparks**, exactly **one bazaar per player**; reuse Backend account/purchase/ledg
 and existing Lobby/SDK boundaries. The owner authorized beginning the server
 foundation on the existing SSH server. Persistent owner and temporary peer host
 are different roles. Future stalls/functions are separate purchases; trading
-places may be rented to other players for Sparks. Rental terms/implementation
-remain later work; do not invent commissions or ownership transfer. See
+places may be rented to other players for Sparks. The weekly-rental contract above
+supersedes the earlier deferred rental scope;
+do not invent commissions or ownership transfer. See
 [the current contract](services/backend/bazaar.md).
 
 **Owner Online / Chats, 10 November (latest):** repair Lobby and Chats in source,

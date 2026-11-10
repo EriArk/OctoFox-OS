@@ -13,6 +13,9 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
     const QString player="11111111-1111-4111-8111-111111111111";
     const QString place="55555555-5555-4555-8555-555555555555";
     const QString visitor="22222222-2222-4222-8222-222222222222";
+    const QString stall="66666666-6666-4666-8666-666666666666";
+    QJsonObject rentalBody,rentalReceipt;
+    int rentCharges=0,weeklyPrice=100,placeRevision=1;bool tenantView=false;
     bool blocked=false;int blockWrites=0;
     QHash<QString,QByteArray> commerce;
     QJsonObject purchaseBody, inventory;
@@ -34,8 +37,8 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
             if(path=="/v1/auth/refresh") {done(200,{{"player_id",self->player},{"session_id","33333333-3333-4333-8333-333333333333"},
                 {"fluxer_subject","12345"},{"access_token",QString(43,'a')},{"refresh_token",QString(43,'r')},
                 {"expires_at",QDateTime::currentDateTimeUtc().addSecs(900).toString(Qt::ISODateWithMs)}});return;}
-            if(path=="/v1/me/progression") {done(200,{{"player_id",self->player},{"balance",10000-5000*self->charges},{"revision",QString::number(1+self->charges)},
-                {"history",QJsonArray{}},{"mastery",QJsonObject{{"xp",2000},{"level",5},{"level_xp",0},{"next_level_xp",700}}},
+            if(path=="/v1/me/progression") {done(200,{{"player_id",self->player},{"balance",10000-5000*self->charges-self->rentCharges*self->weeklyPrice},{"revision",QString::number(1+self->charges+self->rentCharges)},
+                {"history",self->rentCharges?QJsonArray{QJsonObject{{"id",self->rentalReceipt.value("id")},{"source","bazaar.rent"},{"title","Weekly rent"},{"xp",0},{"sparks",-self->weeklyPrice}}}:QJsonArray{}},{"mastery",QJsonObject{{"xp",2000},{"level",5},{"level_xp",0},{"next_level_xp",700}}},
                 {"checked_at",QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs)}});return;}
             if(path=="/v1/me/inventory"||path.startsWith("/v1/me/purchases/")){done(200,self->inventory);return;}
             if(path=="/v1/me/purchases"&&method=="POST") {
@@ -46,6 +49,29 @@ struct BazaarCommerceFixture : std::enable_shared_from_this<BazaarCommerceFixtur
                 receipt["price"]=receipt.take("expected_price");receipt["details"]=QJsonObject{};
                 if(self->badReceipt)receipt["details"]=QJsonObject{{"name","Wrong payload"}};
                 self->inventory["receipt"]=receipt;done(self->loseResponse?0:200,self->loseResponse?QJsonObject{}:self->inventory);return;
+            }
+            if(path.startsWith("/v1/me/bazaar-rentals/")){done(self->rentalReceipt.isEmpty()?404:200,{{"player_id",self->player},{"receipt",self->rentalReceipt}});return;}
+            if(path=="/v1/bazaars/"+self->place+"/places/"+self->stall+"/rent") {
+                if(self->rentalReceipt.isEmpty()) {
+                    ++self->rentCharges;self->rentalBody=body;
+                    const auto now=QDateTime::currentDateTimeUtc();
+                    self->rentalReceipt={{"id","77777777-7777-4777-8777-777777777777"},{"place_id",self->stall},{"tenant_id",self->player},{"owner_id",self->visitor},
+                        {"operation_id",body["operation_id"]},{"price",body["expected_price"]},{"offer_revision",body["revision"].toString().toInt()},
+                        {"started_at",now.toString(Qt::ISODateWithMs)},{"expires_at",now.addDays(7).toString(Qt::ISODateWithMs)}};
+                }
+                auto receipt=self->rentalReceipt;if(self->badReceipt)receipt["price"]=999;
+                done(self->loseResponse?0:200,{{"player_id",self->player},{"receipt",receipt}});return;
+            }
+            if(path.startsWith("/v1/bazaars/"+self->place+"/places?")) {
+                QJsonObject row{{"id",self->stall},{"bazaar_id",self->place},{"name","Lantern stall"},{"revision",QString::number(self->placeRevision)},
+                    {"weekly_price",self->weeklyPrice},{"tenant_id",self->rentalReceipt.value("tenant_id")},{"expires_at",self->rentalReceipt.value("expires_at")},
+                    {"rentable",self->tenantView&&self->rentalReceipt.isEmpty()}};
+                if(self->rentalReceipt.isEmpty()){row["tenant_id"]=QJsonValue();row["expires_at"]=QJsonValue();}
+                done(200,{{"player_id",self->player},{"bazaar_id",self->place},{"owned",!self->tenantView},{"items",QJsonArray{row}},{"next",QJsonValue()}});return;
+            }
+            if(path=="/v1/me/bazaars/"+self->place+"/places/"+self->stall) {
+                self->weeklyPrice=body["weekly_price"].toInt();++self->placeRevision;
+                done(200,{{"player_id",self->player},{"place",QJsonObject{{"id",self->stall}}}});return;
             }
             if(path=="/v1/profiles/"+self->visitor){done(200,{{"player_id",self->visitor},{"display_name","Visiting Player"},{"subject","22222"},{"avatar",QJsonValue()},{"visibility",QJsonObject{}}});return;}
             if(path.startsWith("/v1/me/bazaars/"+self->place+"/access?")) {

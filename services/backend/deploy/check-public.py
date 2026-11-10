@@ -20,7 +20,9 @@ for path, expected in (
     ('/v1/capabilities', 200), ('/v1/me', 401 if args.accounts else 503),
     ('/v1/me/purchases', 405), ('/v1/bazaars', 401 if args.accounts else 503),
     ('/v1/bazaars/00000000-0000-0000-0000-000000000001/access', 401 if args.accounts else 503),
-    ('/v1/me/bazaars/00000000-0000-0000-0000-000000000001/access', 401 if args.accounts else 503), ('/unpublished', 404),
+    ('/v1/me/bazaars/00000000-0000-0000-0000-000000000001/access', 401 if args.accounts else 503),
+    ('/v1/bazaars/00000000-0000-0000-0000-000000000001/places', 401 if args.accounts else 503),
+    ('/v1/me/bazaar-rentals/00000000-0000-0000-0000-000000000001', 401 if args.accounts else 503), ('/unpublished', 404),
 ):
     request = Request(args.origin + path, headers={
         'User-Agent': 'TrainerOS-Backend/0.0.1', 'Accept': 'application/json'})
@@ -41,7 +43,7 @@ for path, expected in (
                                      'play.scorecards':1,'boards.peer_confirmed':1,
                                      'account.progression':1,'inventory.profile_purchases':1,
                                      'support.balance_preview':1,'profiles.showcase':1,'profiles.sharing':1,
-                                     'bazaar.catalogue':1,'bazaar.management':1}
+                                     'bazaar.catalogue':1,'bazaar.management':1,'bazaar.rentals':1}
                                     if args.accounts else {}), 'unexpected_capabilities'
         if path == '/v1/me':
             assert json.loads(body)['code'] == ('unauthenticated' if args.accounts

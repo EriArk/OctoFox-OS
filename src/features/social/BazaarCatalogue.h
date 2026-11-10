@@ -86,6 +86,9 @@ private:
     friend class BazaarCatalogueTests;
     friend class BazaarFixture;
     void syncBackend();
+    void loadPlaces(bool append=false);
+    bool rentalAction(const QString& action);
+    QVariantList rentalRows() const;
     void loadAccess(QString target={},bool append=false);
     void beginForm(bool editing);
     QJsonObject formDetails() const;
@@ -96,7 +99,10 @@ private:
     void setPresentation(QVariantList rooms,QVariantList realms,QString status);
     QPointer<BackendAccount> backend_;
     QJsonObject draft_, own_, accessTarget_;
-    QVariantList blocks_;
+    QVariantList blocks_, places_;
+    QJsonObject place_;
+    QString placesBazaar_, placesNext_, placesReturn_, priceDraft_;
+    bool placesOwned_=false, rentalWaiting_=false;
     QString accessNext_, formReturn_;
     bool moderating_=false;
     quint64 accessGeneration_=0;

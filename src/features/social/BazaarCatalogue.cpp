@@ -18,6 +18,7 @@ int BazaarCatalogue::selectedIndex() const {
 }
 void BazaarCatalogue::setOwner(QString owner) {
     if(owner_==owner)return;
+    places_.clear();place_={};placesNext_.clear();placesBazaar_.clear();placesReturn_.clear();priceDraft_.clear();
     ++accessGeneration_;moderating_=false;blocks_.clear();accessTarget_={};accessNext_.clear();formReturn_.clear();
     ++generation_;loading_=saving_=fixture_=false;draft_={};own_={};next_.clear();message_.clear();textField_.clear();
     owner_=owner;all_.clear();realms_.clear();favorites_.clear();search_.clear();lastRoom_.clear();
@@ -122,6 +123,8 @@ void BazaarCatalogue::toggleFavorite(QString id) {
 }
 void BazaarCatalogue::closeDialog(bool all) {
     ++accessGeneration_;moderating_=false;
+    if(!all&&(dialog_=="place"||dialog_=="rent-review")){dialog_="places";dialogIndex_=0;loadPlaces();return;}
+    if(!all&&dialog_=="places"){dialog_=placesReturn_;dialogIndex_=0;message_.clear();emit changed();return;}
     if(!all&&(dialog_=="appearance"||dialog_=="access")){dialog_=formReturn_.isEmpty()?"manage":formReturn_;dialogIndex_=0;message_.clear();emit changed();return;}
     if(!all&&dialog_=="blocks"){dialog_="access";dialogIndex_=0;message_.clear();emit changed();return;}
     if(!all&&dialog_=="moderate"){dialog_="blocks";dialogIndex_=0;loadAccess();return;}
