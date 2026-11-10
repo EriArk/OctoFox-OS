@@ -52,7 +52,7 @@ Panel {
             id: showcase; y: 0; width: parent.width; height: parent.height; visible: root.browsing
             ProfileScene {
                 id:portrait;width:parent.width*.35;height:parent.height
-                profile:root.profile;appearance:root.shell.backendAccount.profileAppearance;showAvatar:root.browsing;footerInset:43
+                profile:root.profile;appearance:root.shell.backendAccount.profileAppearance;showAvatar:root.browsing
                 Rectangle { x:10;y:10;width:116;height:30;radius:15;color:"#c5122229" }
                 ProfileAction { x:16;y:10;width:108;actionIndex:9;label:"Change scenery  ›";textSize:11;ink:"#fff0cd" }
                 ProfileAction {
@@ -61,10 +61,6 @@ Panel {
                     width: 56; height: 56; actionIndex: 1; label: "Wardrobe"; glyph: "shirt"
                     ink: "#ffe2a1"; background: "#e6122229"
                     available: root.profile.exists && root.profile.avatarAvailable
-                }
-                Rectangle { x:10;anchors.bottom:parent.bottom;anchors.bottomMargin:10;width:parent.width-20;height:42;radius:9;color:"#d4122229"
-                    Text { x:12;y:7;text:"YOUR CHARACTER";font.family:Theme.brandFamily;font.pixelSize:9;font.letterSpacing:1.5;color:"#bdd5ce" }
-                    Text { x:12;y:23;text:"Make it yours";font.pixelSize:10;color:"#e3e9da" }
                 }
             }
             Item {
