@@ -85,7 +85,7 @@ struct AvatarScene::Data {
     struct Part {int node,skin;QVector<Vertex> base;QVector<float> joints,weights,lastMorph;bool uploaded=false;QVector<QVector<Delta>> morphs;QStringList names;QByteArray indices;QQuick3DGeometry* geometry=nullptr;};
     struct Track {int node,width;QString path,interpolation;QVector<float> times,values;};
     struct Clip {QVector<Track> tracks;float duration=0;};
-    QVector<Node> nodes,animated,transition;float transitionTime=0;
+    QVector<Node> nodes,animated,transition,presented;float transitionTime=0;
     QVector<Skin> skins;QVector<Part> parts;QMap<QString,Clip> clips;
     QJsonObject expressions;QSet<QString> controls;QMap<QString,float> face;
     QMap<QString,QVector3D> pose;int vertices=0;
@@ -127,7 +127,7 @@ void AvatarScene::setFace(const QVariantMap& value){
 }
 void AvatarScene::setSource(const QUrl& value){
     if(value==source_)return;if(cancelled_)cancelled_->store(true);cancelled_=std::make_shared<std::atomic_bool>(false);
-    source_=value;timer_.stop();parts_.clear();d_.reset();error_.clear();rightHand_={};sockets_.clear();nodePoses_.clear();geometryUploads_=0;
+    source_=value;timer_.stop();parts_.clear();d_.reset();error_.clear();rightHand_={};sockets_.clear();nodePoses_.clear();nodePoseUpdates_.clear();geometryUploads_=0;
     const auto generation=++loadGeneration_;
     emit frameChanged();emit modelChanged();emit changed();
     if(value.isEmpty())return;
@@ -261,9 +261,22 @@ void AvatarScene::frame(){
     QVector<QMatrix4x4> world(nodes.size());QVector<int> state(nodes.size(),0);
     std::function<void(int)> update=[&](int i){if(state[i]==2)return;require(state[i]!=1);state[i]=1;const auto& n=nodes[i];QMatrix4x4 local=n.matrix;if(!n.matrixSet){local.setToIdentity();local.translate(n.p);local.rotate(n.r);local.scale(n.s);}if(n.parent>=0){update(n.parent);world[i]=world[n.parent]*local;}else world[i]=local;state[i]=2;};
     for(int i=0;i<nodes.size();++i)update(i);
-    if(gpuSkinning_){nodePoses_.clear();for(const auto& node:nodes)nodePoses_.append(QVariantMap{
-        {"parent",node.parent},{"position",QVariant::fromValue(node.p)},
-        {"rotation",QVariant::fromValue(node.r)},{"scale",QVariant::fromValue(node.s)}});}
+    nodePoseUpdates_.clear();
+    if(gpuSkinning_){
+        const bool initial=d_->presented.size()!=nodes.size();
+        if(initial)nodePoses_.resize(nodes.size());
+        for(int i=0;i<nodes.size();++i){const auto& node=nodes[i];
+            if(!initial){const auto& previous=d_->presented[i];
+                if(node.p==previous.p && node.r==previous.r && node.s==previous.s)continue;
+            }
+            QVariantMap pose{{"parent",node.parent},{"position",QVariant::fromValue(node.p)},
+                {"rotation",QVariant::fromValue(node.r)},{"scale",QVariant::fromValue(node.s)}};
+            nodePoses_[i]=pose;pose["index"]=i;nodePoseUpdates_.append(pose);
+        }
+        // Keep the complete pose for new rigs and native consumers; QML only
+        // applies changed local transforms, including an explicit return to rest.
+        d_->presented=nodes;
+    }
     sockets_.clear();
     for(int i=0;i<nodes.size();++i)if(nodes[i].name=="hand.R"||nodes[i].name=="hand.L"||nodes[i].name=="head"){
         const auto position=world[i].map(QVector3D());

@@ -42,11 +42,13 @@ Node {
             {joints:rig.joints.map(function(i){return nodes[i]}),inverseBindPoses:rig.inverse})})
     }
     function applyPose() {
-        var poses=renderer.nodePoses
-        for(var i=0;i<jointNodes.length && i<poses.length;++i){
-            jointNodes[i].position=poses[i].position
-            jointNodes[i].rotation=poses[i].rotation
-            jointNodes[i].scale=poses[i].scale
+        var updates=renderer.nodePoseUpdates
+        for(var i=0;i<updates.length;++i){
+            var pose=updates[i], joint=jointNodes[pose.index]
+            if(!joint)continue
+            joint.position=pose.position
+            joint.rotation=pose.rotation
+            joint.scale=pose.scale
         }
     }
     function supportsExpression(name){return renderer.supportsExpression(name)}

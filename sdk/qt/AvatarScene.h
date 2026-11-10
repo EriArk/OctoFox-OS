@@ -31,6 +31,7 @@ class AvatarScene : public QObject {
     Q_PROPERTY(bool gpuSkinning READ gpuSkinning WRITE setGpuSkinning NOTIFY modelChanged)
     Q_PROPERTY(QVariantList rigs READ rigs NOTIFY modelChanged)
     Q_PROPERTY(QVariantList nodePoses READ nodePoses NOTIFY frameChanged)
+    Q_PROPERTY(QVariantList nodePoseUpdates READ nodePoseUpdates NOTIFY frameChanged)
     Q_PROPERTY(int geometryUploads READ geometryUploads NOTIFY frameChanged)
 public:
     explicit AvatarScene(QObject* parent=nullptr);
@@ -51,6 +52,7 @@ public:
     bool gpuSkinning() const{return gpuSkinning_;} void setGpuSkinning(bool);
     QVariantList rigs() const;
     QVariantList nodePoses() const{return nodePoses_;}
+    QVariantList nodePoseUpdates() const{return nodePoseUpdates_;}
     int geometryUploads() const{return geometryUploads_;}
     Q_INVOKABLE bool supportsExpression(const QString&) const;
     Q_INVOKABLE bool supportsClip(const QString&) const;
@@ -66,7 +68,7 @@ private:
     quint64 loadGeneration_=0;
     QUrl source_;
     QVariantList parts_;
-    QVariantList nodePoses_;
+    QVariantList nodePoses_,nodePoseUpdates_;
     bool gpuSkinning_=false; // CPU reference remains available to native consumers/tests.
     int geometryUploads_=0;
     QString expression_="neutral",clip_,error_;

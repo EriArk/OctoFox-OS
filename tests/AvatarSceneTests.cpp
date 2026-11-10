@@ -77,6 +77,15 @@ private slots:
         verify(cpu,true,0);verify(gpu,false,0);const int uploads=gpu.geometryUploads();
         cpu.setFace({{"blink",1.}});gpu.setFace({{"blink",1.}});verify(cpu,true,1);verify(gpu,false,1);
         QCOMPARE(gpu.geometryUploads(),uploads+1); // The other material has no affected vertex.
+        QVERIFY(gpu.nodePoseUpdates().isEmpty()); // A blink does not change any joint.
+        const auto rest=gpu.nodePoses();
+        gpu.setPose({{"head",QVariant::fromValue(QVector3D(0,20,0))}});
+        QCOMPARE(gpu.nodePoseUpdates().size(),1);
+        const auto changed=gpu.nodePoseUpdates()[0].toMap();QCOMPARE(changed["index"].toInt(),1);
+        QCOMPARE(changed["rotation"].value<QQuaternion>(),QQuaternion::fromEulerAngles(0,20,0));
+        QCOMPARE(gpu.nodePoses()[0],rest[0]);QVERIFY(gpu.nodePoses()[1]!=rest[1]);
+        gpu.setPose({});QCOMPARE(gpu.nodePoseUpdates().size(),1);QCOMPARE(gpu.nodePoses(),rest);
+        gpu.setSource({});QVERIFY(gpu.nodePoses().isEmpty());QVERIFY(gpu.nodePoseUpdates().isEmpty());
     }
     void idleDirectorVarietyEligibilityAndPause(){
         QQmlEngine engine;QQmlComponent component(&engine,QUrl::fromLocalFile(TRAINER_AVATAR_IDLE_QML));
