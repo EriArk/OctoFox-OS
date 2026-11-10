@@ -243,7 +243,7 @@ def protect_storage(source):
     spec = importlib.util.spec_from_file_location('traineros_storage_guard', helper)
     guard = importlib.util.module_from_spec(spec); spec.loader.exec_module(guard)
     if guard.needed():
-        subprocess.run(['pkexec', '/usr/bin/python3', '-I', str(helper)], check=True, timeout=45)
+        subprocess.run(['pkexec', '/usr/bin/python3', '-I', str(helper)], check=True)
         if guard.needed(): raise RuntimeError('Storage safety check failed; installation has not started.')
 
 

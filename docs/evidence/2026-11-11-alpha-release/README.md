@@ -27,3 +27,9 @@ patch is independent and remains inactive on the stock kernel.
 
 Local checks: StorageGuard 4, SoftwareSetupUi 7 and SoftwareInstallation 38 passed.
 Actual final archive installation, wizard, screenshots and public assets pending.
+
+The first device attempt reached the administrator dialog but an added 45-second
+timeout expired while inspecting screens. No payload was activated. The error stayed
+visible. Removed that timeout: user authorization follows the same cancellation
+behavior as the existing installer helpers. Added a regression for waiting and
+post-authorization validation. Final acceptance will use the rebuilt archive.

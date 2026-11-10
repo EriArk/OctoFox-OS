@@ -17,6 +17,17 @@ class SetupUiTests(unittest.TestCase):
     def tearDown(self):
         installer.Progress.failed = None
 
+    def test_storage_authorization_waits_for_user_and_checks_result(self):
+        from unittest.mock import MagicMock
+        guard = MagicMock(); guard.needed.side_effect = [True, False]
+        with patch.object(installer.importlib.util, 'module_from_spec', return_value=guard), \
+             patch.object(installer.importlib.util, 'spec_from_file_location') as spec, \
+             patch.object(installer.subprocess, 'run') as run:
+            installer.protect_storage(Path('/fixture'))
+            self.assertEqual(run.call_args.args[0][0], 'pkexec')
+            self.assertNotIn('timeout', run.call_args.kwargs)
+            self.assertEqual(guard.needed.call_count, 2)
+
     def test_success_switches_directly_and_handoff_failure_is_distinct(self):
         with patch.object(installer, 'dialog') as dialog, patch.object(installer.subprocess, 'run') as run:
             self.assertEqual(installer.complete_gui({'status': 'installed'}), 0)
