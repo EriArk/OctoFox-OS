@@ -25,7 +25,9 @@ PROTOCOL = 1
 MAX_CHANNEL = 64 * 1024
 MAX_LIFETIME = 31 * 24 * 3600
 MAX_SEQUENCE = 2**53 - 1
-CHANNELS = ('beta', 'preview')
+CHANNELS = ('alpha', 'beta', 'stable')
+# Only Alpha is being released; the other identities are reserved.
+ACTIVE_CHANNELS = ('alpha',)
 
 
 def fields(value, names):

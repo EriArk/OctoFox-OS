@@ -5,13 +5,15 @@
 #include <QTimer>
 #include <QVariantList>
 #include <QJsonObject>
+#include <QStringList>
 #include <functional>
 
 namespace trainer {
 // Supplied by trusted installation/bootstrap composition, never by a feed or QML.
 // Source/development builds intentionally have no release identity or trust key.
 struct SoftwareUpdateSource {
-    QString python, helper, publicKey, betaUrl, previewUrl, state, cache;
+    QString python, helper, publicKey, alphaUrl, betaUrl, stableUrl, state, cache;
+    QStringList availableChannels{QStringLiteral("alpha")};
     QString installedVersion, target;
     qint64 installedSequence = -1;
     int sqliteSchema = -1, firstRunSchema = -1;
@@ -77,6 +79,8 @@ signals:
     void updateAvailable(const QString& version);
     void restartRequested();
 private:
+    QString feedUrl() const;
+    bool channelAvailable() const;
     void start(bool prepare, bool background = false);
     void stop(const QString& reason);
     void readOutput();

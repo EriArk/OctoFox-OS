@@ -8,6 +8,7 @@ import shutil
 import tarfile
 import tempfile
 import fullbundle
+import channels
 import installer
 import releases as sw
 import runtime_set
@@ -50,8 +51,8 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         shutil.copyfile(holder/'bootstrap-files.json',tree/'setup-files.json')
         setup_inventory_sha=sw.sha256(tree/'setup-files.json')
         shutil.copyfile(public,tree/'trusted-key.pem')
-        sw.atomic(tree/'bootstrap.json',{'schema':1,'publicKey':'trusted-key.pem','defaultChannel':'preview',
-            'feeds':{name:'https://raw.githubusercontent.com/EriArk/TrainerOS/updates/'+name+'.json' for name in ('beta','preview')}})
+        sw.atomic(tree/'bootstrap.json',{'schema':1,'publicKey':'trusted-key.pem','defaultChannel':'alpha',
+            'feeds':{name:'https://raw.githubusercontent.com/EriArk/TrainerOS/updates/'+name+'.json' for name in channels.CHANNELS}})
         media_index=temp/'inventory.json';sw.atomic(media_index,index)
         if runtime_manifest is not None:
             shutil.copyfile(runtime_manifest,tree/'runtime-set.json')
@@ -62,7 +63,7 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         launch=tree/'Install TrainerOS.sh'
         launch.write_text('#!/bin/sh\nset -eu\nHERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\nexec /usr/bin/python3 "$HERE/packaging/software/installer.py" --gui\n')
         launch.chmod(0o755)
-        (tree/'README.txt').write_text(('TrainerOS pre-beta Setup\n' if release else
+        (tree/'README.txt').write_text(('TrainerOS Alpha Setup\n' if release else
             ('HYBRID' if upstream else 'OFFLINE') + ' SETUP CANDIDATE - NOT A PUBLIC RELEASE\n') +
             'Extract the entire archive onto storage with enough free space, then open Install TrainerOS.sh in Armada Desktop.\n'
             'Setup installs the signed Software, emulator set and pinned offline dependencies. Run as your desktop user.\n'

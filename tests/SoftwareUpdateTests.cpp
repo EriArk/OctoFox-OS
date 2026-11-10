@@ -12,13 +12,35 @@ private slots:
     void init(){QSettings().clear();}
     void installerChannelIsDefaultAndExplicitPreferenceWins(){
         const auto previous=qgetenv("TRAINEROS_SOFTWARE_CHANNEL");
-        qputenv("TRAINEROS_SOFTWARE_CHANNEL","preview");
+        qputenv("TRAINEROS_SOFTWARE_CHANNEL","beta");
         SoftwareUpdateController installed;
-        QSettings().setValue("softwareUpdates/channel","beta");
+        QSettings().setValue("softwareUpdates/channel","alpha");
         SoftwareUpdateController chosen;
         if(previous.isNull())qunsetenv("TRAINEROS_SOFTWARE_CHANNEL");
         else qputenv("TRAINEROS_SOFTWARE_CHANNEL",previous);
-        QCOMPARE(installed.channel(),"preview");QCOMPARE(chosen.channel(),"beta");
+        QCOMPARE(installed.channel(),"beta");QCOMPARE(chosen.channel(),"alpha");
+    }
+    void legacyPreviewPreferenceFallsBackToAlpha(){
+        QSettings().setValue("softwareUpdates/channel","preview");
+        SoftwareUpdateController flow;QCOMPARE(flow.channel(),"alpha");
+    }
+    void reservedChannelsCannotCheckDownloadOrNotify(){
+        QTemporaryDir root;auto source=softwareUpdateFixture(root.path(),UPDATE_PYTHON);
+        source.availableChannels={"alpha"};SoftwareUpdateController flow;flow.configure(source);
+        QSignalSpy notice(&flow,&SoftwareUpdateController::updateAvailable);
+        QCOMPARE(flow.channel(),"alpha");
+        for(const auto& channel:{QString("beta"),QString("stable")}) {
+            flow.activate(0);QCOMPARE(flow.channel(),channel);
+            QVERIFY(flow.message().contains("not available yet"));
+            QVERIFY(!flow.actions()[2].toMap()["enabled"].toBool());
+            QVERIFY(!flow.actions()[3].toMap()["enabled"].toBool());
+            flow.check();flow.check(true);flow.activate(3);
+            QVERIFY(!flow.busy());QVERIFY(flow.notification().isEmpty());
+        }
+        QCOMPARE(notice.size(),0);QVERIFY(!QFile::exists(root.path()+"/requests"));
+        flow.activate(0);QCOMPARE(flow.channel(),"alpha");flow.check(true);
+        QTRY_VERIFY(!flow.busy());QCOMPARE(notice.size(),1);
+        QCOMPARE(flow.status(),"available");
     }
     void unconfiguredDoesNotCheckOrPretendInstalled(){
         SoftwareUpdateController flow;QCOMPARE(flow.status(),"unconfigured");QCOMPARE(flow.installedVersion(),"Development build");
@@ -37,7 +59,7 @@ private slots:
     void pauseResumeCancelAndNoOverlap(){
         QTemporaryDir root;SoftwareUpdateController flow;flow.configure(softwareUpdateFixture(root.path(),UPDATE_PYTHON));
         flow.check();QTRY_VERIFY(!flow.busy());flow.activate(3);QTRY_VERIFY(flow.progress()>0);
-        flow.activate(0);QCOMPARE(flow.channel(),"beta");flow.command("pause");QTRY_VERIFY(!flow.busy());QCOMPARE(flow.status(),"paused");
+        flow.activate(0);QCOMPARE(flow.channel(),"alpha");flow.command("pause");QTRY_VERIFY(!flow.busy());QCOMPARE(flow.status(),"paused");
         flow.check(true);QVERIFY(!flow.busy());flow.command("resume");QTRY_VERIFY(flow.progress()>0);
         flow.command("cancel");QTRY_VERIFY(!flow.busy());QCOMPARE(flow.status(),"cancelled");
         QCOMPARE(flow.installedVersion(),"fixture-6");
@@ -68,8 +90,8 @@ private slots:
     }
     void channelSwitchInvalidatesCandidate(){
         QTemporaryDir root;SoftwareUpdateController flow;flow.configure(softwareUpdateFixture(root.path(),UPDATE_PYTHON));flow.check();QTRY_VERIFY(!flow.busy());
-        flow.activate(0);QCOMPARE(flow.channel(),"preview");QVERIFY(flow.version().isEmpty());QVERIFY(!flow.actions()[3].toMap()["enabled"].toBool());
-        SoftwareUpdateController reopened;QCOMPARE(reopened.channel(),"preview");
+        flow.activate(0);QCOMPARE(flow.channel(),"beta");QVERIFY(flow.version().isEmpty());QVERIFY(!flow.actions()[3].toMap()["enabled"].toBool());
+        SoftwareUpdateController reopened;QCOMPARE(reopened.channel(),"beta");
     }
     void downloadRouting(){
         QTemporaryDir root;SoftwareUpdateController controller;auto* flow=&controller;flow->configure(softwareUpdateFixture(root.path(),UPDATE_PYTHON));
@@ -108,7 +130,7 @@ private slots:
         flow.command("cancel-all");QVERIFY(flow.busy()); // Downloads cannot cancel a maintenance request.
         blocked="New save operation";QTRY_VERIFY(!flow.busy());QCOMPARE(restart.size(),0);QCOMPARE(flow.message(),blocked);
         blocked.clear();flow.activate(9);flow.activate(9);QTRY_VERIFY(!flow.busy());QCOMPARE(restart.size(),1);
-        QVERIFY(flow.transitionPending());flow.activate(0);QCOMPARE(flow.channel(),"beta");
+        QVERIFY(flow.transitionPending());flow.activate(0);QCOMPARE(flow.channel(),"alpha");
         flow.cancelRestart();QVERIFY(!flow.transitionPending());QVERIFY(flow.message().contains("cancelled"));
     }
     void managedApplyAuditAndCacheUseTheirOwnCommands(){

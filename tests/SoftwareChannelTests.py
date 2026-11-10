@@ -41,13 +41,13 @@ class SoftwareChannelTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name); payload = self.root / 'payload'; (payload / 'bin').mkdir(parents=True)
         (payload / 'bin/traineros').write_bytes(b'local fixture, not a distributable executable')
-        self.feed_url = 'https://github.com/fixture/TrainerOS/releases/download/ota-channels/beta.json'
+        self.feed_url = 'https://github.com/fixture/TrainerOS/releases/download/ota-channels/alpha.json'
         self.manifest_url = 'https://github.com/fixture/TrainerOS/releases/download/fixture-7/release.json'
         self.archive_url = 'https://github.com/fixture/TrainerOS/releases/download/fixture-7/traineros.tar.gz'
         self.manifest = sw.build(payload, self.root / 'release', self.key, 'fixture-7', 7, 'a' * 40,
             self.archive_url, {'sqlite': {'min': 0, 'max': 16}, 'firstRun': {'min': 0, 'max': 2}})
         self.archive = self.root / 'release/traineros.tar.gz'
-        self.channel = ch.build(self.manifest, self.public, self.key, self.root / 'beta.json', 'beta', 10,
+        self.channel = ch.build(self.manifest, self.public, self.key, self.root / 'alpha.json', 'alpha', 10,
             self.manifest_url, '2026-10-24T00:00:00Z', '2026-11-01T00:00:00Z', 'Fixture notes')
         self.feed = sw.decode(self.channel.read_bytes())['signed']
         self.state = self.root / 'state'; self.cache = self.root / 'cache'; self.requests = []
@@ -64,7 +64,7 @@ class SoftwareChannelTests(unittest.TestCase):
         return Response(path.read_bytes(), url=request.full_url)
 
     def resolve(self, **overrides):
-        args = dict(feed_url=self.feed_url, public_key=self.public, channel='beta', state=self.state,
+        args = dict(feed_url=self.feed_url, public_key=self.public, channel='alpha', state=self.state,
             installed_sequence=6, target='linux-aarch64', data={'sqlite': 16, 'firstRun': 2},
             now=self.now, opener=self.opener, progress=lambda *args: None)
         args.update(overrides)
@@ -105,7 +105,7 @@ class SoftwareChannelTests(unittest.TestCase):
         envelope = sw.decode(self.channel.read_bytes()); envelope['signed']['notes'] = 'tampered'
         sw.atomic(self.channel, envelope)
         with self.assertRaises(ValueError): self.resolve(cache=self.cache)
-        self.assertEqual(self.requests, [self.feed_url]); self.assertFalse((self.state / 'beta.json').exists())
+        self.assertEqual(self.requests, [self.feed_url]); self.assertFalse((self.state / 'alpha.json').exists())
 
     def test_wrong_trust_key_rejected(self):
         key = self.root / 'other.pem'; public = self.root / 'other.pub'
@@ -114,14 +114,14 @@ class SoftwareChannelTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.resolve(public_key=public)
 
     def test_channel_identity_is_bound_to_request(self):
-        with self.assertRaisesRegex(ValueError, 'identity'): self.resolve(channel='preview')
-        self.assertFalse((self.state / 'preview.json').exists())
+        with self.assertRaisesRegex(ValueError, 'identity'): self.resolve(channel='beta')
+        self.assertFalse((self.state / 'beta.json').exists())
 
     def test_expired_and_future_feeds_fail_closed(self):
         for now in (ch.timestamp(self.feed['issuedAt']) - 1, ch.timestamp(self.feed['expiresAt'])):
             with self.subTest(now=now), self.assertRaisesRegex(ValueError, 'expired'):
                 self.resolve(now=now)
-        self.assertFalse((self.state / 'beta.json').exists())
+        self.assertFalse((self.state / 'alpha.json').exists())
 
     def test_publisher_cannot_create_unbounded_freshness(self):
         self.feed['expiresAt'] = '2027-01-01T00:00:00Z'
@@ -133,7 +133,7 @@ class SoftwareChannelTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'replay'): self.resolve()
         self.feed['sequence'] = 10; self.feed['notes'] = 'changed'; self.resign()
         with self.assertRaisesRegex(ValueError, 'reused'): self.resolve()
-        self.assertEqual(sw.decode((self.state / 'beta.json').read_bytes())['signed']['notes'], 'Fixture notes')
+        self.assertEqual(sw.decode((self.state / 'alpha.json').read_bytes())['signed']['notes'], 'Fixture notes')
 
     def test_new_feed_cannot_downgrade_or_redefine_release_sequence(self):
         self.resolve(); self.feed['sequence'] += 1
@@ -156,19 +156,25 @@ class SoftwareChannelTests(unittest.TestCase):
         for kwargs in ({'minimum_feed': 11}, {'minimum_release': 8}):
             with self.subTest(kwargs=kwargs), self.assertRaisesRegex(ValueError, 'bootstrap'):
                 self.resolve(**kwargs)
-        self.assertFalse((self.state / 'beta.json').exists())
+        self.assertFalse((self.state / 'alpha.json').exists())
 
     def test_damaged_saved_state_is_not_silently_reset(self):
-        self.resolve(); (self.state / 'beta.json').write_bytes(b'{}')
+        self.resolve(); (self.state / 'alpha.json').write_bytes(b'{}')
         with self.assertRaises(ValueError): self.resolve()
 
-    def test_beta_and_preview_have_independent_high_water_marks(self):
-        self.resolve(); self.feed['channel'] = 'preview'; self.feed['sequence'] = 1; self.resign()
-        result = self.resolve(channel='preview')
-        self.assertEqual(result['status'], 'available')
-        self.assertTrue((self.state / 'beta.json').exists()); self.assertTrue((self.state / 'preview.json').exists())
+    def test_three_channels_have_independent_high_water_marks(self):
+        self.resolve()
+        for channel in ('beta', 'stable'):
+            self.feed['channel'] = channel; self.feed['sequence'] = 1; self.resign()
+            self.assertEqual(self.resolve(channel=channel)['status'], 'available')
+        self.assertEqual({p.name for p in self.state.glob('*.json')}, {'alpha.json', 'beta.json', 'stable.json'})
 
-    def test_newer_installed_preview_does_not_download_older_beta(self):
+    def test_preview_is_not_an_alias_for_signed_alpha(self):
+        with self.assertRaises(ValueError): self.resolve(channel='preview')
+        self.feed['channel'] = 'preview'; self.resign()
+        with self.assertRaises(ValueError): self.resolve()
+
+    def test_newer_installed_beta_does_not_download_older_alpha(self):
         for sequence in (7, 8):
             self.requests.clear(); result = self.resolve(installed_sequence=sequence, cache=self.cache)
             self.assertEqual(result['status'], 'up-to-date')
@@ -211,7 +217,7 @@ class SoftwareChannelTests(unittest.TestCase):
         for response in responses:
             with self.subTest(response=response), self.assertRaises(ValueError):
                 self.resolve(opener=lambda *a, **kw: response)
-        self.assertFalse((self.state / 'beta.json').exists())
+        self.assertFalse((self.state / 'alpha.json').exists())
 
     def test_duplicate_keys_and_invalid_contract_are_rejected(self):
         self.channel.write_bytes(b'{"signed":{},"signed":{},"signature":""}')
@@ -232,9 +238,9 @@ class SoftwareChannelTests(unittest.TestCase):
         self.assertEqual(self.resolve(cache=self.cache, opener=resume)['status'], 'prepared')
 
     def test_network_failure_does_not_return_cached_available_or_reset_pin(self):
-        self.resolve(); old = (self.state / 'beta.json').read_bytes()
+        self.resolve(); old = (self.state / 'alpha.json').read_bytes()
         with self.assertRaises(OSError): self.resolve(opener=lambda *a, **kw: (_ for _ in ()).throw(OSError('offline')))
-        self.assertEqual((self.state / 'beta.json').read_bytes(), old)
+        self.assertEqual((self.state / 'alpha.json').read_bytes(), old)
 
     def test_same_state_and_cache_rejected_without_network(self):
         with self.assertRaisesRegex(ValueError, 'separate'): self.resolve(cache=self.state)
@@ -250,7 +256,7 @@ class SoftwareChannelTests(unittest.TestCase):
         output = self.root / 'publisher.json'
         result = subprocess.run([sys.executable, str(SOURCE / 'packaging/software/channels.py'), 'build',
             '--manifest', str(self.manifest), '--public-key', str(self.public), '--signing-key', str(self.key),
-            '--output', str(output), '--manifest-url', self.manifest_url, '--channel', 'beta', '--sequence', '10',
+            '--output', str(output), '--manifest-url', self.manifest_url, '--channel', 'alpha', '--sequence', '10',
             '--issued-at', self.feed['issuedAt'], '--expires-at', self.feed['expiresAt']], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
         self.assertFalse(json.loads(result.stdout)['published'])
@@ -267,8 +273,8 @@ class SoftwareChannelTests(unittest.TestCase):
             def log_message(self, *args): pass
             def do_GET(self):
                 requests.append((self.path, self.headers.get('Authorization')))
-                if self.path == '/beta.json':
-                    self.send_response(302); self.send_header('Location', '/assets/beta.json'); self.end_headers(); return
+                if self.path == '/alpha.json':
+                    self.send_response(302); self.send_header('Location', '/assets/alpha.json'); self.end_headers(); return
                 raw = routes.get(self.path)
                 if raw is None:
                     self.send_error(404); return
@@ -286,9 +292,9 @@ class SoftwareChannelTests(unittest.TestCase):
             now = datetime.now(timezone.utc)
             self.feed['issuedAt'] = (now - timedelta(minutes=1)).strftime('%Y-%m-%dT%H:%M:%SZ')
             self.feed['expiresAt'] = (now + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%SZ'); self.resign()
-            routes.update({'/assets/beta.json': self.channel.read_bytes(), '/release.json': self.manifest.read_bytes(), '/traineros.tar.gz': self.archive.read_bytes()})
+            routes.update({'/assets/alpha.json': self.channel.read_bytes(), '/release.json': self.manifest.read_bytes(), '/traineros.tar.gz': self.archive.read_bytes()})
             env = dict(os.environ, SSL_CERT_FILE=str(cert), NO_PROXY='localhost,127.0.0.1')
-            args = ['--feed-url', base + '/beta.json', '--key', str(self.public), '--channel', 'beta',
+            args = ['--feed-url', base + '/alpha.json', '--key', str(self.public), '--channel', 'alpha',
                     '--state', str(self.state), '--installed-sequence', '6', '--target', 'linux-aarch64', '--sqlite', '16', '--first-run', '2']
             for command in ('check', 'prepare'):
                 extra = ['--cache', str(self.cache), '--expected-sequence', '7'] if command == 'prepare' else []
@@ -299,7 +305,7 @@ class SoftwareChannelTests(unittest.TestCase):
                 self.assertEqual(events[-1]['status'], 'available' if command == 'check' else 'prepared')
                 self.assertFalse(events[-1]['installed'])
                 if command == 'check': self.assertNotIn('/traineros.tar.gz', [r[0] for r in requests])
-            self.assertIn('/assets/beta.json', [r[0] for r in requests])
+            self.assertIn('/assets/alpha.json', [r[0] for r in requests])
             self.assertIn('/traineros.tar.gz', [r[0] for r in requests])
             self.assertTrue(all(auth is None for _, auth in requests))
         finally:

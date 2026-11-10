@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include <QSettings>
 #include <QSaveFile>
 #include <QFile>
@@ -20,9 +21,9 @@ QString bytes(qint64 n) { return n>=1024*1024 ? QString::number(double(n)/(1024*
 }
 SoftwareUpdateController::SoftwareUpdateController(QObject* parent):QObject(parent) {
     QSettings settings;
-    const auto installationChannel=qEnvironmentVariable("TRAINEROS_SOFTWARE_CHANNEL","beta");
+    const auto installationChannel=qEnvironmentVariable("TRAINEROS_SOFTWARE_CHANNEL","alpha");
     channel_=settings.value("softwareUpdates/channel",installationChannel).toString();
-    if(channel_!="beta" && channel_!="preview")channel_="beta";
+    if(channel_!="alpha" && channel_!="beta" && channel_!="stable")channel_="alpha";
     backgroundChecks_=settings.value("softwareUpdates/backgroundChecks",true).toBool();
     persistTimer_.setSingleShot(true);persistTimer_.setInterval(500);
     connect(&persistTimer_,&QTimer::timeout,this,&SoftwareUpdateController::saveState);
@@ -48,7 +49,7 @@ void SoftwareUpdateController::configure(const SoftwareUpdateSource& source) {
     if(busy_)return;
     periodic_.stop();source_=source;
     configured_=!source.python.isEmpty() && QFileInfo::exists(source.helper) && QFileInfo::exists(source.publicKey)
-        && secureUrl(source.betaUrl) && secureUrl(source.previewUrl) && !source.state.isEmpty() && !source.cache.isEmpty()
+        && secureUrl(source.alphaUrl) && secureUrl(source.betaUrl) && secureUrl(source.stableUrl) && !source.state.isEmpty() && !source.cache.isEmpty()
         && QDir::cleanPath(source.state)!=QDir::cleanPath(source.cache) && !source.installedVersion.isEmpty()
         && source.installedSequence>=0 && source.installedSequence<=9007199254740991LL
         && !source.target.isEmpty() && source.sqliteSchema>=0 && source.firstRunSchema>=0;
@@ -58,6 +59,8 @@ void SoftwareUpdateController::configure(const SoftwareUpdateSource& source) {
     if(configured_)periodic_.start();
     publish();
 }
+QString SoftwareUpdateController::feedUrl() const {return channel_=="alpha"?source_.alphaUrl:channel_=="beta"?source_.betaUrl:source_.stableUrl;}
+bool SoftwareUpdateController::channelAvailable() const {return source_.availableChannels.contains(channel_);}
 QString SoftwareUpdateController::installedVersion() const {return source_.installedVersion.isEmpty()?"Development build":source_.installedVersion;}
 QString SoftwareUpdateController::sizeText() const {return candidate_.contains("downloadBytes")?bytes(qint64(candidate_["downloadBytes"].toDouble())):QString();}
 double SoftwareUpdateController::progress() const {return total_>0?std::clamp(double(done_)/double(total_),0.0,1.0):-1.0;}
@@ -70,6 +73,7 @@ QString SoftwareUpdateController::message() const {
     if(status_=="audit-ready")return "Installed files verified. Personal files are unchanged.";
     if(status_=="repairable-drift")return "Some installed files need repair. Open Repair to restore them.";
     if(status_=="cache-cleared")return "Downloaded update files cleared. Installed versions and personal files are unchanged.";
+    if(!channelAvailable())return "This update channel is not available yet. Choose Alpha.";
     if(status_=="unconfigured")return "Updates are not available for this build yet.";
     if(status_=="checking")return "Checking for a TrainerOS update…";
     if(status_=="running") {
@@ -95,11 +99,11 @@ QString SoftwareUpdateController::message() const {
 }
 QVariantList SoftwareUpdateController::actions() const {
     const auto row=[](const QString& id,const QString& label,bool enabled){return QVariantMap{{"id",id},{"label",label},{"enabled",enabled}};};
-    const bool canDownload=configured_ && !busy_ && (status_=="available" || status_=="paused" || ((status_=="error" || status_=="cancelled") && !candidate_.isEmpty()));
+    const bool canDownload=configured_ && channelAvailable() && !busy_ && (status_=="available" || status_=="paused" || ((status_=="error" || status_=="cancelled") && !candidate_.isEmpty()));
     const bool canPause=busy_ && preparing_ && phase_=="download" && stopReason_.isEmpty();
-    return {row("channel",channel_=="beta"?"Channel: Beta":"Channel: Preview · experimental",!busy_),
+    return {row("channel",QString("Channel: ")+(channel_=="alpha"?"Alpha":channel_=="beta"?"Beta":"Stable")+(channelAvailable()?QString():QString(" · not available yet")),!busy_),
         row("background",backgroundChecks_?"Background checks: On":"Background checks: Off",!busy_),
-        row("check","Check for updates",configured_ && !busy_ && status_!="paused"),
+        row("check","Check for updates",configured_ && channelAvailable() && !busy_ && status_!="paused"),
         row("download",canPause?"Pause download":status_=="paused"?"Resume download":"Download update",canPause || canDownload),
         row("cancel","Cancel",operation_.isEmpty() && (busy_ || status_=="paused") && stopReason_.isEmpty()),
         row("notes","What's new",!notes().isEmpty()),row("downloads","Downloads",true),
@@ -133,12 +137,12 @@ QVariantMap SoftwareUpdateController::notification() const {
 }
 void SoftwareUpdateController::dismissNotification(){notificationVersion_.clear();emit changed();}
 void SoftwareUpdateController::check(bool background) {
-    if(!configured_ || busy_ || transitionPending() || status_=="paused" || (background && (!backgroundChecks_ || hasTask_)))return;
+    if(!configured_ || !channelAvailable() || busy_ || transitionPending() || status_=="paused" || (background && (!backgroundChecks_ || hasTask_)))return;
     start(false,background);
 }
 void SoftwareUpdateController::start(bool prepare,bool background) {
-    if(!configured_ || busy_)return;
-    QStringList args{source_.helper,prepare?"prepare":"check","--feed-url",channel_=="beta"?source_.betaUrl:source_.previewUrl,
+    if(!configured_ || !channelAvailable() || busy_)return;
+    QStringList args{source_.helper,prepare?"prepare":"check","--feed-url",feedUrl(),
         "--key",source_.publicKey,"--channel",channel_,"--state",source_.state,"--installed-sequence",QString::number(source_.installedSequence),
         "--target",source_.target,"--sqlite",QString::number(source_.sqliteSchema),"--first-run",QString::number(source_.firstRunSchema),
         "--minimum-feed-sequence",QString::number(source_.minimumFeedSequence),"--minimum-release-sequence",QString::number(source_.minimumReleaseSequence)};
@@ -194,7 +198,8 @@ void SoftwareUpdateController::finish(int code,QProcess::ExitStatus exitStatus) 
                 status_="unconfigured";error_="This running build is not a verified managed installation.";publish();return;
             }
             auto source=source_;source.helper=QFileInfo(source.manager).dir().filePath("channels.py");
-            source.publicKey=result_["publicKey"].toString();source.betaUrl=result_["betaUrl"].toString();source.previewUrl=result_["previewUrl"].toString();
+            source.publicKey=result_["publicKey"].toString();source.alphaUrl=result_["alphaUrl"].toString();source.betaUrl=result_["betaUrl"].toString();source.stableUrl=result_["stableUrl"].toString();
+            source.availableChannels.clear();for(const auto& channel:result_["availableChannels"].toArray())source.availableChannels.append(channel.toString());
             source.state=result_["state"].toString();source.cache=result_["cache"].toString();source.installedVersion=result_["installedVersion"].toString();
             source.installedSequence=qint64(result_["installedSequence"].toDouble(-1));source.target=result_["target"].toString();
             source.sqliteSchema=result_["sqliteSchema"].toInt(-1);source.firstRunSchema=result_["firstRunSchema"].toInt(-1);source.rollbackAvailable=result_["rollbackAvailable"].toBool();
@@ -258,7 +263,7 @@ void SoftwareUpdateController::activate(int index) {
     if(id=="audit" || id=="clean-cache"){confirmation_.clear();maintenance(id);return;}
     if(id=="back" && !confirmation_.isEmpty()){confirmation_.clear();publish();return;}
     confirmation_.clear();
-    if(id=="channel") {channel_=channel_=="beta"?"preview":"beta";candidate_={};result_={};hasTask_=false;notesOpen_=false;error_.clear();lastChecked_.clear();notificationVersion_.clear();status_=configured_?"idle":"unconfigured";QSettings().setValue("softwareUpdates/channel",channel_);}
+    if(id=="channel") {channel_=channel_=="alpha"?"beta":channel_=="beta"?"stable":"alpha";candidate_={};result_={};hasTask_=false;notesOpen_=false;error_.clear();lastChecked_.clear();notificationVersion_.clear();status_=configured_?"idle":"unconfigured";QSettings().setValue("softwareUpdates/channel",channel_);}
     else if(id=="background"){backgroundChecks_=!backgroundChecks_;QSettings().setValue("softwareUpdates/backgroundChecks",backgroundChecks_);}
     else if(id=="check")check();
     else if(id=="download"){if(busy_)command("pause");else start(true);}
@@ -306,7 +311,7 @@ void SoftwareUpdateController::maintenance(const QString& command) {
 void SoftwareUpdateController::saveState() {
     if(!configured_ || source_.state.isEmpty())return;
     QSaveFile file(QDir(source_.state).filePath("ui-job.json"));
-    const auto bytes=QJsonDocument(QJsonObject{{"schema",1},{"channel",channel_},{"feed",channel_=="beta"?source_.betaUrl:source_.previewUrl},
+    const auto bytes=QJsonDocument(QJsonObject{{"schema",1},{"channel",channel_},{"feed",feedUrl()},
         {"candidate",candidate_},{"lastChecked",lastChecked_},{"hasTask",hasTask_},{"status",status_}}).toJson(QJsonDocument::Compact);
     if(!QDir().mkpath(source_.state) || !file.open(QIODevice::WriteOnly) || file.write(bytes)!=bytes.size() || !file.commit())
         persistenceError_="Download state could not be saved. Free some space; a restart may require checking again.";
@@ -317,7 +322,7 @@ void SoftwareUpdateController::restoreState() {
     QFile file(QDir(source_.state).filePath("ui-job.json"));if(!file.exists())return;
     if(!file.open(QIODevice::ReadOnly) || file.size()>128*1024){persistenceError_="Previous download state could not be read. Check for updates again.";return;}
     const auto doc=QJsonDocument::fromJson(file.readAll());const auto saved=doc.object();
-    if(saved["schema"]!=1 || saved["channel"].toString()!=channel_ || saved["feed"].toString()!=(channel_=="beta"?source_.betaUrl:source_.previewUrl))return;
+    if(saved["schema"]!=1 || saved["channel"].toString()!=channel_ || saved["feed"].toString()!=(feedUrl()))return;
     lastChecked_=saved["lastChecked"].toString();
     const auto candidate=saved["candidate"].toObject();
     if(saved["hasTask"].toBool() && candidate["sequence"].toDouble()>source_.installedSequence && candidate["installed"]==false) {

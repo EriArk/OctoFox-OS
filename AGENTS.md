@@ -1,5 +1,12 @@
 # TrainerOS — active agent / developer contract
 
+**Owner release channels, 10 November (latest):** reserve exactly `alpha`, `beta`,
+`stable`. Work on and publish Alpha only for now; Beta/Stable remain unavailable.
+Preview is retired from the new contract. Preserve signed identities and previous
+recovery sets; do not relabel old signed metadata or equate a renamed source channel
+with a published working OTA. This supersedes older Beta/Preview and pre-beta
+channel choices below, without cancelling installer/recovery acceptance.
+
 **Owner final installer acceptance, 4 November (latest):** finish the public
 installer and release now. The ordinary journey is download -> one installer
 launch -> installed usable TrainerOS. A recovered operator run, multiple installer

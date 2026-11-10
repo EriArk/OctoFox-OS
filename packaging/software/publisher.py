@@ -23,6 +23,7 @@ SOURCE = Path(__file__).resolve().parents[2]
 
 def build(payload, output, private_key, public_key, version, sequence, source, repository, tag,
           channel, channel_sequence, issued, expires, data, notes, provenance):
+    if channel not in channels.ACTIVE_CHANNELS: raise ValueError('Only Alpha publication is enabled')
     payload, output = Path(payload), Path(output)
     if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repository): raise ValueError('Invalid GitHub repository')
     if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._+-]{0,100}', tag): raise ValueError('Invalid immutable release tag')
@@ -62,7 +63,7 @@ def build(payload, output, private_key, public_key, version, sequence, source, r
         installer.bootstrap(holder, SOURCE / 'packaging')
         shutil.copytree(holder / 'bootstrap/packaging', tree / 'packaging')
         shutil.copyfile(public_key, tree / 'trusted-key.pem')
-        feeds = {name: f'https://raw.githubusercontent.com/{repository}/updates/{name}.json' for name in ('beta', 'preview')}
+        feeds = {name: f'https://raw.githubusercontent.com/{repository}/updates/{name}.json' for name in channels.CHANNELS}
         sw.atomic(tree / 'bootstrap.json', {'schema': 1, 'feeds': feeds, 'publicKey': 'trusted-key.pem', 'defaultChannel': channel})
         launch = tree / 'Install TrainerOS.sh'
         launch.write_bytes(b'#!/bin/sh\nset -eu\nHERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\nexec /usr/bin/python3 "$HERE/packaging/software/installer.py" --gui\n')
@@ -70,7 +71,7 @@ def build(payload, output, private_key, public_key, version, sequence, source, r
         (tree / 'README.txt').write_text('Extract this archive in Armada Desktop and open Install TrainerOS.sh.\n'
             'Keep the folder together. Setup/Recovery preserves personal data.\n'
             'Do not run as root. The session step uses the normal system authorization dialog.\n'
-            'Hardware installation acceptance is required before advertising a supported public beta.\n')
+            'Hardware installation acceptance is required before advertising a supported public release.\n')
         shutil.copyfile(SOURCE / 'LICENSE', tree / 'LICENSE')
         def permissions(info):
             info.uid = info.gid = 0; info.uname = info.gname = ''
@@ -106,7 +107,7 @@ def main():
     for field in ('payload', 'output', 'private-key', 'public-key', 'version', 'source', 'repository', 'tag', 'issued', 'expires', 'provenance'):
         p.add_argument('--' + field, required=True)
     for field in ('sequence', 'channel-sequence', 'sqlite-min', 'sqlite-max', 'first-run-min', 'first-run-max'): p.add_argument('--' + field, type=int, required=True)
-    p.add_argument('--channel', choices=('beta', 'preview'), required=True); p.add_argument('--notes')
+    p.add_argument('--channel', choices=channels.ACTIVE_CHANNELS, required=True); p.add_argument('--notes')
     p = commands.add_parser('verify-remote'); p.add_argument('--directory', required=True)
     args = parser.parse_args()
     try:

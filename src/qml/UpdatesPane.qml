@@ -43,7 +43,7 @@ Item {
                     Text { width: parent.width; visible: root.flow.lastChecked.length>0; text: "Last checked: "+root.flow.lastChecked; color: Theme.muted; font.pixelSize: root.compact?10:12 }
                 }
             }
-            Text { width: parent.width; visible: !root.compact; text: root.flow.channel==="preview" ? "Preview includes experimental changes. Downloading an update does not close your game." : "Beta channel. Checking does not download or install updates."; wrapMode: Text.WordWrap; color: Theme.muted; font.pixelSize: 13 }
+            Text { width: parent.width; visible: !root.compact; text: "Alpha · early testing. Beta and Stable are not available yet. Checking does not download or install updates."; wrapMode: Text.WordWrap; color: Theme.muted; font.pixelSize: 13 }
             Grid {
                 width: parent.width; columns: width>=460 ? 2 : 1; spacing: 8
                 onPositioningComplete: Qt.callLater(page.followFocus)

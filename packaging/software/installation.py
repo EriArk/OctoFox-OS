@@ -57,7 +57,7 @@ def configuration(root):
     config = read(root / 'config.json')
     if not isinstance(config, dict) or set(config) != {'schema', 'feeds', 'dataDirectory'} or config['schema'] != 1:
         raise ValueError('Missing trusted installation configuration')
-    if set(config['feeds']) != {'beta', 'preview'}: raise ValueError('Both update channels are required')
+    if set(config['feeds']) != set(channels.CHANNELS): raise ValueError('Alpha, Beta and Stable update channels are required')
     for url in config['feeds'].values(): sw.https(url)
     data = Path(config['dataDirectory']).absolute()
     if root == data or root in data.parents or data in root.parents:
@@ -69,7 +69,7 @@ def configuration(root):
 def initialize(root, feeds, key, data):
     root = private(root)
     config = {'schema': 1, 'feeds': feeds, 'dataDirectory': str(Path(data).absolute())}
-    if set(feeds) != {'beta', 'preview'}: raise ValueError('Both update channels are required')
+    if set(feeds) != set(channels.CHANNELS): raise ValueError('Alpha, Beta and Stable update channels are required')
     personal = Path(config['dataDirectory'])
     if root == personal or root in personal.parents or personal in root.parents:
         raise ValueError('Personal data must be outside the Software installation')
@@ -98,7 +98,7 @@ def receipt(root):
 
 
 def selected_channel(root):
-    choice = read(Path(root) / 'channel.json', {'channel': 'beta'})
+    choice = read(Path(root) / 'channel.json', {'channel': 'alpha'})
     if not isinstance(choice, dict) or set(choice) != {'channel'} or choice['channel'] not in channels.CHANNELS:
         raise ValueError('Invalid installed update channel')
     return choice['channel']
@@ -208,13 +208,16 @@ def context(root, check_host=True):
             'installedVersion': installed['version'] if installed else '',
             'installedSequence': installed['sequence'] if installed else 0, 'target': report.get('target', ''),
             'sqliteSchema': data['sqlite'], 'firstRunSchema': data['firstRun'],
-            'publicKey': str(root / 'trusted-key.pem'), 'betaUrl': config['feeds']['beta'], 'previewUrl': config['feeds']['preview'],
+            'publicKey': str(root / 'trusted-key.pem'),
+            'alphaUrl': config['feeds']['alpha'], 'betaUrl': config['feeds']['beta'], 'stableUrl': config['feeds']['stable'],
+            'availableChannels': list(channels.ACTIVE_CHANNELS),
             'state': str(root / 'channels'), 'cache': str(root / 'cache'), 'health': current['health'],
             'rollbackAvailable': bool(current['previous']), 'dataDirectory': config['dataDirectory'],
             'executable': str(root / 'versions' / current['active'] / 'payload/bin/traineros') if installed else ''}
 
 
 def resolve(root, channel, prepare=False, expected=None, progress=sw.event):
+    if channel not in channels.ACTIVE_CHANNELS: raise ValueError('This update channel is not available yet')
     root = Path(root); config = configuration(root); current = receipt(root)
     installed = version(root, current['active'], verify=False) if current['active'] else {'sequence': 0}
     report = host.probe(root)
@@ -224,7 +227,7 @@ def resolve(root, channel, prepare=False, expected=None, progress=sw.event):
         cache=root / 'cache' if prepare else None, expected_sequence=expected, progress=progress)
 
 
-def request(root, operation, channel='beta', sequence=None):
+def request(root, operation, channel='alpha', sequence=None):
     if operation not in ('apply', 'rollback', 'repair'): raise ValueError('Unknown maintenance operation')
     root = private(root)
     if read(root/'runtimes/transaction.json') or read(root/'setup-pending.json'): raise ValueError('Recover the full installation in Setup first')
@@ -350,7 +353,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', default=str(DEFAULT_ROOT))
     parser.add_argument('command', choices=('context', 'audit', 'check', 'prepare', 'request', 'apply-pending', 'rollback', 'repair', 'clean-cache', 'uninstall'))
-    parser.add_argument('--channel', choices=('beta', 'preview'), default='beta')
+    parser.add_argument('--channel', choices=channels.CHANNELS, default='alpha')
     parser.add_argument('--sequence', type=int)
     parser.add_argument('--operation', choices=('apply', 'rollback', 'repair'))
     args = parser.parse_args()

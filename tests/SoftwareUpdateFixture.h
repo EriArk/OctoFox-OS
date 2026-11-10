@@ -14,7 +14,7 @@ root=Path(__file__).parent
 command=sys.argv[3] if sys.argv[1]=='--root' else sys.argv[1]
 with (root/'requests').open('a') as f: f.write(command+'\n')
 mode=(root/'mode').read_text() if (root/'mode').exists() else 'normal'
-channel=sys.argv[sys.argv.index('--channel')+1] if '--channel' in sys.argv else 'beta'
+channel=sys.argv[sys.argv.index('--channel')+1] if '--channel' in sys.argv else 'alpha'
 def emit(value): print(json.dumps(value),flush=True)
 result={'channel':channel,'version':'fixture-7','sequence':7,'notes':('Local UI fixture. No release is installed.\n'*40),'downloadBytes':30*1048576,'installed':False}
 if mode=='invalid': print('not json',flush=True);sys.exit(0)
@@ -39,7 +39,8 @@ emit(dict(result,status='prepared',prepared=str(root/'candidate')))
     QFile key(root+"/key.pem");if(!key.open(QIODevice::WriteOnly))qFatal("Cannot write update fixture key");key.write("not a production key");key.close();
     trainer::SoftwareUpdateSource source;
     source.python=python;source.helper=helper.fileName();source.publicKey=key.fileName();
-    source.betaUrl="https://fixture.invalid/beta.json";source.previewUrl="https://fixture.invalid/preview.json";
+    source.alphaUrl="https://fixture.invalid/alpha.json";source.betaUrl="https://fixture.invalid/beta.json";source.stableUrl="https://fixture.invalid/stable.json";
+    source.availableChannels={"alpha","beta","stable"};
     source.state=root+"/state";source.cache=root+"/cache";source.installedVersion="fixture-6";source.installedSequence=6;
     source.target="linux-aarch64";source.sqliteSchema=16;source.firstRunSchema=2;
     return source;

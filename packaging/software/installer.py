@@ -244,13 +244,15 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
     if not (root / 'config.json').exists():
         config = sw.decode(Path(config_path).read_bytes())
         if not {'schema', 'feeds', 'publicKey'} <= set(config) or set(config) - {'schema', 'feeds', 'publicKey', 'defaultChannel'} or config.get('schema') != 1: raise ValueError('Invalid publisher bootstrap')
-        channel = config.get('defaultChannel', 'beta')
-        if channel not in install.channels.CHANNELS: raise ValueError('Invalid publisher update channel')
+        channel = config.get('defaultChannel', 'alpha')
+        if channel not in install.channels.ACTIVE_CHANNELS: raise ValueError('Publisher update channel is not available yet')
         key = Path(config_path).parent / sw.relative(config['publicKey'])
         # The normal Qt application data path; never the Software versions root.
         data = Path(os.environ.get('XDG_DATA_HOME', str(Path.home() / '.local/share'))) / 'TrainerOS/TrainerOS'
         install.initialize(root, config['feeds'], key, data)
         install.select_channel(root, channel)
+    # Reject a legacy channel contract before replacing its working Recovery.
+    install.configuration(root)
     if not bootstrap(root, source, confirm_update=lambda: dialog('--yesno',
             'Update TrainerOS Setup and Recovery components?\nThe previous version will be retained for recovery. '
             'Close TrainerOS and games first. Personal data and the trusted signing key are kept.').returncode == 0): return 0
@@ -307,11 +309,11 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
         dialog('--msgbox', result['status']); return 0
     prerequisites(source)
     shortcuts(root, preflight=True)
-    default_channel = install.selected_channel(root)
-    choice = dialog('--radiolist', 'Choose an update channel', 'beta', 'Beta', 'on' if default_channel == 'beta' else 'off',
-                    'preview', 'Preview — experimental', 'on' if default_channel == 'preview' else 'off')
+    choice = dialog('--radiolist', 'Choose an update channel. Beta and Stable are not available yet.',
+                    'alpha', 'Alpha — early testing', 'on')
     if choice.returncode: return 0
     channel = choice.stdout.strip()
+    if channel not in install.channels.ACTIVE_CHANNELS: raise ValueError('Update channel is not available yet')
     with Progress() as progress:
         progress.update('Checking update channel')
         candidate = resolve_offline(root, offline, allow_current=bool(runtime_manifest)) if offline is not None else install.resolve(root, channel)

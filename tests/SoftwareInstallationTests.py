@@ -19,6 +19,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import SoftwareChannelTests as channel_tests
+from SoftwareChannelTests import ch
 from SoftwareChannelTests import Response, SOURCE
 import releases as sw
 import installation as install
@@ -43,7 +44,7 @@ class InstallationTests(unittest.TestCase):
             db.execute('PRAGMA user_version=16'); db.execute('CREATE TABLE saves(value TEXT)')
             db.execute("INSERT INTO saves VALUES ('private progress')")
         (self.personal / 'first-run.json').write_text('{"version":2,"stage":"accounts"}')
-        self.installation = install.initialize(self.root / 'owned', {'beta': self.feed_url, 'preview': self.feed_url}, self.public, self.personal)
+        self.installation = install.initialize(self.root / 'owned', {name: self.feed_url for name in ch.CHANNELS}, self.public, self.personal)
         self.prepared = sw.prepare(self.manifest, self.public, self.cache, progress=lambda *args: None,
                                   opener=lambda req, timeout: Response(self.archive.read_bytes(), url=req.full_url))
 
@@ -77,11 +78,11 @@ class InstallationTests(unittest.TestCase):
     def test_setup_recovers_interruption_before_software_receipt(self):
         release=sw.verified(self.prepared/'release.json',self.public)['signed']
         sw.atomic(self.installation/'setup-pending.json',{'action':'install','prepared':str(self.prepared),
-                  'expected':hashlib.sha256(sw.canonical(release)).hexdigest(),'channel':'preview'})
+                  'expected':hashlib.sha256(sw.canonical(release)).hexdigest(),'channel':'beta'})
         with patch.object(installer,'shortcuts'),patch.object(installer,'integrate'),patch.object(installer,'payload_dependencies'):
             installer.finish_setup(self.installation,'install')
         self.assertEqual(install.audit(self.installation)['status'],'ready')
-        self.assertEqual(install.selected_channel(self.installation),'preview')
+        self.assertEqual(install.selected_channel(self.installation),'beta')
         self.assertFalse((self.installation/'setup-pending.json').exists())
 
     def test_offline_candidate_prepares_and_refuses_implicit_downgrade(self):
@@ -109,11 +110,36 @@ class InstallationTests(unittest.TestCase):
         self.assertEqual(install.context(self.installation, False)['installedSequence'], 7)
 
     def test_installed_channel_is_validated_and_retained(self):
+        self.assertEqual(install.selected_channel(self.installation), 'alpha')
+        install.select_channel(self.installation, 'beta'); self.install()
         self.assertEqual(install.selected_channel(self.installation), 'beta')
-        install.select_channel(self.installation, 'preview'); self.install()
-        self.assertEqual(install.selected_channel(self.installation), 'preview')
         with self.assertRaises(ValueError): install.select_channel(self.installation, 'unknown')
-        self.assertEqual(install.selected_channel(self.installation), 'preview')
+        self.assertEqual(install.selected_channel(self.installation), 'beta')
+
+    def test_legacy_feed_contract_is_rejected_before_bootstrap_replacement(self):
+        config = install.configuration(self.installation)
+        config['feeds'] = {'beta': self.feed_url, 'preview': self.feed_url}
+        sw.atomic(self.installation / 'config.json', config)
+        before = (self.installation / 'config.json').read_bytes()
+        with patch.object(installer.shutil, 'which', return_value='fixture-kdialog'), \
+             patch.object(install.host, 'probe', return_value={'supported': True}), \
+             patch.object(installer, 'bootstrap') as replacement:
+            with self.assertRaisesRegex(ValueError, 'Alpha, Beta and Stable'):
+                installer.gui(self.installation, self.root / 'unused-bootstrap.json')
+            replacement.assert_not_called()
+        self.assertEqual((self.installation / 'config.json').read_bytes(), before)
+
+    def test_alpha_context_and_unreleased_channels_do_not_fetch(self):
+        self.install()
+        context = install.context(self.installation, False)
+        self.assertEqual(context['availableChannels'], ['alpha'])
+        for name in ch.CHANNELS:
+            self.assertEqual(context[name + 'Url'], self.feed_url)
+        with patch.object(ch, 'resolve') as fetch:
+            for channel in ('beta', 'stable', 'preview'):
+                with self.assertRaisesRegex(ValueError, 'not available'):
+                    install.resolve(self.installation, channel)
+            fetch.assert_not_called()
 
     def test_rollback_checks_current_schemas_and_never_reverts_data(self):
         self.install(); install.install_prepared(self.installation, self.new_version(maximum=17))
@@ -266,8 +292,8 @@ class InstallationTests(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform == 'linux', 'Requires real Linux launcher; no device is contacted')
     def test_launcher_applies_only_explicit_maintenance_exit(self):
-        install.select_channel(self.installation, 'preview')
-        ready = "import os\nassert os.environ['TRAINEROS_SOFTWARE_CHANNEL']=='preview'\nos.write(int(os.environ['TRAINEROS_READY_FD']),b'R')\n"
+        install.select_channel(self.installation, 'beta')
+        ready = "import os\nassert os.environ['TRAINEROS_SOFTWARE_CHANNEL']=='beta'\nos.write(int(os.environ['TRAINEROS_READY_FD']),b'R')\n"
         install.install_prepared(self.installation, self.executable_release(7, ready))
         install.install_prepared(self.installation, self.executable_release(8, ready + "raise SystemExit(75)\n"))
         install.request(self.installation, 'rollback')
@@ -283,10 +309,10 @@ class InstallationTests(unittest.TestCase):
     def test_initialization_validates_before_persisting_identity(self):
         root = self.root / 'invalid'
         with self.assertRaisesRegex(ValueError, 'outside'):
-            install.initialize(root, {'beta': self.feed_url, 'preview': self.feed_url}, self.public, root / 'personal')
+            install.initialize(root, {name: self.feed_url for name in ch.CHANNELS}, self.public, root / 'personal')
         self.assertFalse((root / 'config.json').exists()); self.assertFalse((root / 'trusted-key.pem').exists())
-        with self.assertRaisesRegex(ValueError, 'Both'):
-            install.initialize(root, {'beta': self.feed_url}, self.public, self.personal)
+        with self.assertRaisesRegex(ValueError, 'Alpha, Beta and Stable'):
+            install.initialize(root, {'alpha': self.feed_url}, self.public, self.personal)
         self.assertFalse((root / 'config.json').exists())
 
     def test_same_sequence_cannot_replace_different_signed_content(self):
@@ -325,7 +351,7 @@ class InstallationTests(unittest.TestCase):
                   'dependencies': {'fixture': '1'}, 'sourceArchive': str(source), 'notices': str(notices), 'redistributionReviewed': False}
         sw.atomic(provenance, record)
         output = self.root / 'publication'
-        def build(channel='beta'):
+        def build(channel='alpha'):
             return publisher.build(payload, output, self.key, self.public, 'fixture', 7, 'a' * 40, 'fixture/repo',
                 'fixture-7', channel, 7, '2026-10-24T00:00:00Z', '2026-10-31T00:00:00Z',
                 {'sqlite': {'min': 0, 'max': 16}, 'firstRun': {'min': 0, 'max': 2}}, None, provenance)
@@ -401,11 +427,13 @@ class InstallationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Incomplete Setup'):
             installer.bootstrap(target, packaging)
         self.assertEqual(sw.verified(output / 'release.json', self.public)['signed']['sequence'], 7)
-        output = self.root / 'preview-publication'
-        build('preview')
+        for future in ('beta', 'stable'):
+            with self.assertRaisesRegex(ValueError, 'Only Alpha'):
+                build(future)
         with tarfile.open(output / 'TrainerOS-Setup.tar.gz') as archive:
             config = sw.decode(archive.extractfile('TrainerOS-Setup/bootstrap.json').read())
-            self.assertEqual(config['defaultChannel'], 'preview')
+            self.assertEqual(config['defaultChannel'], 'alpha')
+            self.assertEqual(set(config['feeds']), set(ch.CHANNELS))
 
     def test_progress_closing_or_cancelling_aborts_download(self):
         with patch.object(installer.shutil, 'which', return_value='fixture-qdbus'), patch.object(installer, 'dialog', return_value=subprocess.CompletedProcess([], 0, 'service /path')):
