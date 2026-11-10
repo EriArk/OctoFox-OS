@@ -8,6 +8,8 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QImageReader>
+#include <QQmlEngine>
+#include <QQuickImageProvider>
 #include <QUrl>
 #include <memory>
 using namespace trainer;
@@ -50,7 +52,8 @@ void startArtworkSmoke(QQuickWindow* window, ShellController& shell, ControllerI
         const QList<QPair<QString,QString>> specimens{{"1","1"},{"37","10205"},{"321","321"},{"797","797"},
             {"201","201"},{"869","10498"},{"678","10539"},{"716","10132"},{"1008","10439"},{"1025","1025"}};
         if (state->stage == 0) {
-            window->resize(1920,1080); press(r1); press(r1);
+            window->resize(1920,1080);
+            shell.openGameHubFace("adapter"); shell.selectAdapterScreen("dex");
             check(dex->entries().size()==1025,"Complete offline reference not composed");
             state->stage++; return;
         }
@@ -89,8 +92,20 @@ void startArtworkSmoke(QQuickWindow* window, ShellController& shell, ControllerI
             if (art["available"].toBool()) check(item && item->property("ready").toBool(),"Derivative didn't render: "+target.second);
             capture("form-"+target.second);
             QElapsedTimer decode; decode.start();
-            QImageReader reader(QUrl(art["url"].toString()).toLocalFile());
-            const auto decoded = art["available"].toBool() ? reader.read() : QImage{};
+            const QUrl url(art["url"].toString());
+            QImage decoded;
+            if (art["available"].toBool()) {
+                if (url.scheme()=="image") {
+                    auto* engine=qmlEngine(window->contentItem());
+                    if (!engine) engine=qmlEngine(window);
+                    auto* provider=engine?dynamic_cast<QQuickImageProvider*>(engine->imageProvider(url.host())):nullptr;
+                    if (provider) decoded=provider->requestImage(url.path().mid(1),nullptr,QSize());
+                } else {
+                    QImageReader reader(url.scheme()=="qrc"?":"+url.path():url.toLocalFile());
+                    decoded=reader.read();
+                }
+                check(!decoded.isNull(),"Illustration provider failed to decode: "+target.second);
+            }
             state->examples.append(QJsonObject{{"speciesNumber",target.first},{"formId",target.second},{"available",art["available"].toBool()},
                 {"derivativeDecodeMs",decode.nsecsElapsed()/1000000.0},{"decodedBytes",double(decoded.sizeInBytes())}});
             state->specimen++; state->stage = 4; return;
@@ -161,7 +176,7 @@ void startArtworkSmoke(QQuickWindow* window, ShellController& shell, ControllerI
             if (state->imageWaits==8) capture("detail-sprite-walk-back");
             // grabWindow can stall the render animation clock on the real compositor.
             // Await the completed transition, with a wall-clock deadline rather than a tick count.
-            if (actor && actor->property("activity").toString()!="Idle" && state->motionClock.elapsed()<14000) return;
+            if (actor && actor->property("activity").toString()!="Idle" && state->motionClock.elapsed()<2*actor->property("walkDuration").toInt()+4000) return;
             check(actor && actor->property("activity").toString()=="Idle","Walk immediately returns and finishes at Idle");
             if (state->motionExercised) check(state->returnExercised && frame && qAbs(frame->x())<0.1,"Directional return reaches the original position");
             shell.settings()->selectCategory(0); shell.settings()->activateRow(1);
@@ -182,7 +197,8 @@ void startArtworkSmoke(QQuickWindow* window, ShellController& shell, ControllerI
             press(SDL_CONTROLLER_BUTTON_START); press(b);
             check(dex->zone()=="list","Start returns to the Pokemon detail");
             press(r1); press(l1); check(dex->zone()=="list","Page navigation preserves detail");
-            press(b); check(dex->zone()=="list","Back keeps the current face");
+            press(b); check(shell.adapterMenuOpen() && dex->zone()=="list","Back returns to adapter categories and preserves the entry");
+            press(down); check(!shell.adapterMenuOpen(),"Down re-enters the remembered Field Guide");
             press(SDL_CONTROLLER_BUTTON_BACK); check(dex->zone()=="rail","Select opens filters on the same screen");
             dex->applySearch("37"); dex->activateControl("list",0); dex->cycleForm();
             if (QGuiApplication::platformName()=="offscreen") window->resize(960,540);

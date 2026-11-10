@@ -16,7 +16,14 @@ import source_archive as software_sources
 import release_source_media
 
 
-def build(archive, software, key, public, output, sequence, source_archive, source_root=None, runtime_manifest=None, release=False):
+def build(archive, software, key, public, output, sequence, source_archive, source_root=None, runtime_manifest=None, release=False, feed_urls=None):
+    release_mode = release
+    if type(release_mode) is not bool: raise ValueError('Release mode must be explicit')
+    feeds = dict(feed_urls) if feed_urls is not None else {
+        name:'https://raw.githubusercontent.com/EriArk/TrainerOS/updates/'+name+'.json'
+        for name in channels.CHANNELS}
+    if set(feeds) != set(channels.CHANNELS): raise ValueError('Alpha, Beta and Stable feeds are required')
+    for url in feeds.values(): sw.https(url)
     archive,software,output=Path(archive),Path(software),Path(output)
     source_root=Path(source_root or Path(__file__).resolve().parents[2])
     if output.exists(): raise ValueError('Use a new candidate output directory')
@@ -52,7 +59,7 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         setup_inventory_sha=sw.sha256(tree/'setup-files.json')
         shutil.copyfile(public,tree/'trusted-key.pem')
         sw.atomic(tree/'bootstrap.json',{'schema':1,'publicKey':'trusted-key.pem','defaultChannel':'alpha',
-            'feeds':{name:'https://raw.githubusercontent.com/EriArk/TrainerOS/updates/'+name+'.json' for name in channels.CHANNELS}})
+            'feeds':feeds})
         media_index=temp/'inventory.json';sw.atomic(media_index,index)
         if runtime_manifest is not None:
             shutil.copyfile(runtime_manifest,tree/'runtime-set.json')
@@ -63,7 +70,7 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         launch=tree/'Install TrainerOS.sh'
         launch.write_text('#!/bin/sh\nset -eu\nHERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\nexec /usr/bin/python3 "$HERE/packaging/software/installer.py" --gui\n')
         launch.chmod(0o755)
-        (tree/'README.txt').write_text(('TrainerOS Alpha Setup\n' if release else
+        (tree/'README.txt').write_text(('TrainerOS Alpha Setup\n' if release_mode else
             ('HYBRID' if upstream else 'OFFLINE') + ' SETUP CANDIDATE - NOT A PUBLIC RELEASE\n') +
             'Extract the entire archive onto storage with enough free space, then open Install TrainerOS.sh in Armada Desktop.\n'
             'Setup installs the signed Software, emulator set and pinned offline dependencies. Run as your desktop user.\n'
@@ -75,12 +82,12 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
             + ('Internet is required to obtain these exact official upstream packages: ' + ', '.join(upstream)
                + '. Setup verifies their pinned bytes before activation; interrupted downloads can be resumed.\n' if upstream else '')
             + ('This is an early test release. See the GitHub release notes for supported hardware and known feature limitations.\n'
-               'Corresponding source, dependency notices and recovery instructions accompany the release.\n' if release else
+               'Corresponding source, dependency notices and recovery instructions accompany the release.\n' if release_mode else
                'Redistribution/source review and clean privileged device acceptance remain pending.\n'))
         def permissions(info):
             info.uid=info.gid=0;info.uname=info.gname='';info.mode=0o755 if info.isdir() or info.name.endswith('.sh') else 0o644
             return info
-        target=output/('TrainerOS-Full-Setup.tar' if release else 'TrainerOS-Full-Setup-CANDIDATE.tar')
+        target=output/('TrainerOS-Full-Setup.tar' if release_mode else 'TrainerOS-Full-Setup-CANDIDATE.tar')
         with tarfile.open(target,'x:') as tar:
             tar.add(tree,arcname=tree.name,filter=permissions)
             tar.add(archive,arcname=tree.name+'/runtimes.tar',filter=permissions)
@@ -106,4 +113,5 @@ if __name__=='__main__':
     signing.add_argument('--runtime-manifest',type=Path)
     p.add_argument('--sequence',type=int,required=True)
     p.add_argument('--release',action='store_true',help='Use distribution filenames/text; does not publish or set acceptance flags')
-    a=p.parse_args();print(json.dumps(build(a.archive,a.software,a.key,a.public,a.output,a.sequence,a.source_archive,runtime_manifest=a.runtime_manifest,release=a.release)))
+    p.add_argument('--feeds-file', type=Path, help='Publisher JSON mapping alpha/beta/stable to HTTPS feeds; never changes an installed trust identity')
+    a=p.parse_args();print(json.dumps(build(a.archive,a.software,a.key,a.public,a.output,a.sequence,a.source_archive,runtime_manifest=a.runtime_manifest,release=a.release,feed_urls=sw.decode(a.feeds_file.read_bytes()) if a.feeds_file else None)))

@@ -3,6 +3,7 @@ import io
 import json
 from pathlib import Path
 import sys
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -68,6 +69,40 @@ class ReleaseSourceMediaTests(unittest.TestCase):
                 for _ in range(count): tar.add(self.filtered, arcname=media.MEMBER)
             with self.assertRaisesRegex(ValueError, 'Missing or ambiguous'):
                 media.check(archive, self.revision)
+
+    def test_setup_keeps_candidate_label_and_explicit_feed_configuration(self):
+        self.replace()
+        key = self.root / 'private.pem'; public = self.root / 'public.pem'
+        subprocess.run(['openssl', 'genpkey', '-algorithm', 'ED25519', '-out', str(key)], check=True, capture_output=True)
+        subprocess.run(['openssl', 'pkey', '-in', str(key), '-pubout', '-out', str(public)], check=True, capture_output=True)
+        payload = self.root / 'payload'; (payload / 'bin').mkdir(parents=True)
+        (payload / 'bin/traineros').write_bytes(b'fixture application')
+        software = self.root / 'software'
+        offline_setup.sw.build(payload, software, key, 'fixture', 1, self.revision,
+            'https://example.org/traineros.tar.gz', {'sqlite': {'min': 0, 'max': 18}, 'firstRun': {'min': 0, 'max': 2}})
+        feeds = {name: 'https://example.org/private/' + name + '.json' for name in offline_setup.channels.CHANNELS}
+        for release_mode in (False, True):
+            destination = self.root / ('release' if release_mode else 'candidate')
+            result = offline_setup.build(self.output, software, key, public, destination, 1,
+                                         self.filtered, release=release_mode, feed_urls=feeds)
+            self.assertEqual(result['file'], 'TrainerOS-Full-Setup.tar' if release_mode else 'TrainerOS-Full-Setup-CANDIDATE.tar')
+            self.assertFalse(result['published']); self.assertFalse(result['cleanDeviceAcceptance'])
+            with tarfile.open(destination / result['file']) as tar:
+                config = json.load(tar.extractfile('TrainerOS-Setup/bootstrap.json'))
+                self.assertEqual(config['feeds'], feeds); self.assertEqual(config['defaultChannel'], 'alpha')
+                readme = tar.extractfile('TrainerOS-Setup/README.txt').read().decode()
+                self.assertEqual('NOT A PUBLIC RELEASE' in readme, not release_mode)
+                self.assertEqual(tar.extractfile('TrainerOS-Setup/offline/traineros.tar.gz').read(),
+                                 (software / 'traineros.tar.gz').read_bytes())
+
+    def test_bad_feed_contract_is_rejected_before_creating_setup(self):
+        valid = {name: 'https://example.org/' + name + '.json' for name in offline_setup.channels.CHANNELS}
+        for feeds in ({}, {**valid, 'preview': 'https://example.org/preview.json'},
+                      {**valid, 'alpha': 'http://example.org/alpha.json'}):
+            with self.subTest(feeds=feeds), self.assertRaises(ValueError):
+                offline_setup.build(self.archive, self.root / 'software', None, self.root / 'key',
+                                    self.output, 1, self.filtered, feed_urls=feeds)
+            self.assertFalse(self.output.exists())
 
     def test_setup_cannot_hide_old_nested_models_behind_filtered_outer_source(self):
         software = self.root / 'software'; software.mkdir()

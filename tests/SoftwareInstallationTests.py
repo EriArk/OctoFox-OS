@@ -256,6 +256,22 @@ class InstallationTests(unittest.TestCase):
         helper = self.installation / 'bootstrap/packaging/software/launcher.py'; helper.write_text('changed')
         with self.assertRaisesRegex(ValueError, 'modified'): installer.bootstrap(self.installation, SOURCE / 'packaging')
 
+    def test_manual_installation_is_rejected_before_trust_or_bootstrap_writes(self):
+        fresh = self.root / 'fresh'
+        launcher = self.home / '.local/bin/traineros'
+        launcher.parent.mkdir(parents=True); launcher.write_bytes(b'previous working application')
+        before = launcher.read_bytes()
+        with patch.object(installer.shutil, 'which', return_value='/usr/bin/kdialog'), \
+             patch.object(installer.install.host, 'probe', return_value={'supported': True}), \
+             patch.object(installer.Path, 'home', return_value=self.home), \
+             patch.object(installer.install, 'initialize') as initialize, \
+             patch.object(installer, 'bootstrap') as bootstrap:
+            with self.assertRaisesRegex(ValueError, 'unmanaged launcher'):
+                installer.gui(fresh, self.root / 'bootstrap.json')
+            initialize.assert_not_called(); bootstrap.assert_not_called()
+        self.assertFalse(fresh.exists())
+        self.assertEqual(launcher.read_bytes(), before)
+
     def test_incomplete_session_source_is_rejected_before_bootstrap_is_created(self):
         installer.bootstrap(self.installation, SOURCE / 'packaging')
         packaging = self.installation / 'bootstrap/packaging'

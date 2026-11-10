@@ -242,6 +242,9 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
     source = Path(__file__).resolve().parents[1]
     if offline is None and (source.parent / 'offline').is_dir(): offline = source.parent / 'offline'
     if not (root / 'config.json').exists():
+        # A manual installation must be migrated explicitly. Reject it before
+        # creating trust/bootstrap state or activating any new application.
+        shortcuts(root, preflight=True)
         config = sw.decode(Path(config_path).read_bytes())
         if not {'schema', 'feeds', 'publicKey'} <= set(config) or set(config) - {'schema', 'feeds', 'publicKey', 'defaultChannel'} or config.get('schema') != 1: raise ValueError('Invalid publisher bootstrap')
         channel = config.get('defaultChannel', 'alpha')
