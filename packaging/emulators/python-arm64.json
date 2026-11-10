@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "host": "Armada 20261109.3e75201 aarch64",
+  "previousSha256": "ef59e677fa67d883e7f6d2a5aabbb99f1a14dd77dad74ada90d613202843cb80",
+  "pythonSha256": "6d2cc74f22f5210b4016165e5433aa512e74a7c3d359594ebb5be4169e2f5e97",
+  "pythonVersion": "Python 3.14.10"
+}
