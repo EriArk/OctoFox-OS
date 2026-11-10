@@ -11,9 +11,11 @@
 #include <QUuid>
 #include "../fixtures/HomeSocialFixture.h"
 #include <memory>
+#include "ChatsSmokeScenario.h"
 
 inline void startOnlineSmoke(QQuickWindow* window,trainer::ShellController& shell,const QString& directory,
     bool& completed,int& warnings,QStringList& diagnostics) {
+    if(qEnvironmentVariableIsSet("TRAINEROS_CHATS_SMOKE")){startChatsSmoke(window,shell,directory,completed,warnings,diagnostics);return;}
     using trainer::Action;
     auto step=std::make_shared<int>(0);auto timer=new QTimer(window);timer->setInterval(700);
     auto grantSupport=std::make_shared<std::function<void()>>();

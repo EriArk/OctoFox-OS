@@ -1,5 +1,13 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Online / Chats, 10 November (latest):** repair Lobby and Chats in source,
+without handheld installs. Bazaar is being prepared in another branch: preserve its
+content and do not merge until the owner explicitly resumes that integration.
+The owner selected concept 1: unified personal/group conversation list beside
+the conversation, communities/channels separate, friends in New conversation. Preserve global
+X/Y/Home/Start and the existing outer L2/R2 navigation.
+See [repairs and verification](docs/evidence/2026-11-10-online/README.md).
+
 **Owner Browser / Files repair, 10 November (latest):** optimize the existing
 browser and file manager without adding layers. Browser controller navigation uses
 a mouse cursor: left stick moves, right stick scrolls, Confirm clicks, R3 opens

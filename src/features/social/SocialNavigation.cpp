@@ -26,7 +26,7 @@ QVariantList SocialController::peopleRows() const {
     }
     for(const auto& v:snapshot_["chats"].toList()){
         const auto chat=v.toMap();const auto members=chat["members"].toList();
-        if(chat["service"].toBool()||chat["kind"]!="chats"||!chat["guild"].toString().isEmpty()||members.size()!=1)continue;
+        if(chat["service"].toBool()||chat["socialHidden"].toBool()||chat["kind"]!="chats"||!chat["guild"].toString().isEmpty()||members.size()!=1)continue;
         const auto id=members.first().toMap()["id"].toString();
         if(id.isEmpty()||id==self||blocked.contains(id))continue;
         auto p=people.value(id);
@@ -46,8 +46,20 @@ QVariantList SocialController::peopleRows() const {
     }
     sortRows(result);return result;
 }
+QVariantList SocialController::inboxRows() const {
+    QVariantList result;
+    // Contacts without a conversation belong to the explicit new-message picker.
+    for(const auto& value:peopleRows())if(!value.toMap()["channel"].toString().isEmpty())result.append(value);
+    for(const auto& value:snapshot_["chats"].toList()){
+        auto row=value.toMap();
+        if(row["kind"]!="groups"||row["socialHidden"].toBool()||row["service"].toBool()||row["id"].toString().isEmpty())continue;
+        if(!peopleFilter_.isEmpty()&&!row["name"].toString().contains(peopleFilter_,Qt::CaseInsensitive))continue;
+        row["pinned"]=pinnedGroups_.contains(row["id"].toString());result.append(row);
+    }
+    sortRows(result);return result;
+}
 QVariantList SocialController::communityRows() const {
-    QVariantList groups,guilds,channels;
+    QVariantList guilds,channels;
     if(!communityId_.isEmpty()){
         for(const auto& v:snapshot_["chats"].toList()){
             auto row=v.toMap();if(row["guild"]!=communityId_)continue;
@@ -56,19 +68,16 @@ QVariantList SocialController::communityRows() const {
         std::stable_sort(channels.begin(),channels.end(),[](const QVariant& a,const QVariant& b){return a.toMap()["position"].toInt()<b.toMap()["position"].toInt();});
         return channels;
     }
-    for(const auto& v:snapshot_["chats"].toList())if(v.toMap()["kind"]=="groups"&&!v.toMap()["socialHidden"].toBool()){
-        auto row=v.toMap();row["pinned"]=pinnedGroups_.contains(row["id"].toString());row["section"]="Groups";groups.append(row);
-    }
     for(const auto& v:snapshot_["communities"].toList()){
         auto row=v.toMap();row["pinned"]=pinnedCommunities_.contains(row["id"].toString());row["section"]="Communities";guilds.append(row);
     }
-    sortRows(groups);sortRows(guilds);groups.append(guilds);return groups;
+    sortRows(guilds);return guilds;
 }
 QString SocialController::communityTitle() const {
     for(const auto& v:snapshot_["communities"].toList())if(v.toMap()["id"]==communityId_)return v.toMap()["name"].toString();
     return "Communities";
 }
-void SocialController::filterPeople(){textPurpose_="people-filter";emit textRequested("Find a person",peopleFilter_,100);}
+void SocialController::filterPeople(){textPurpose_="people-filter";emit textRequested("Find a conversation",peopleFilter_,100);}
 void SocialController::clearPeopleFilter(){peopleFilter_.clear();focus_=0;emit changed();}
 void SocialController::communityBack(){
     if(communityId_.isEmpty())return;

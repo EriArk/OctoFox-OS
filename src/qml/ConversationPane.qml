@@ -5,6 +5,7 @@ Item {
     required property var social
     readonly property var account: social.account
     property bool active: false
+    property bool showConnectionStatus: true
     property bool compact: false
     property bool embeddedRoom: false
     property bool readOnlyChat: false
@@ -53,7 +54,7 @@ Item {
         }
     }
     Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; id: connectionStatus; y: activityStrip.y + activityStrip.height; width: parent.width; height: visible ? 22 : 0
-        visible: !!root.account.status && root.account.status !== "Connected"
+        visible: root.showConnectionStatus && !!root.account.status && root.account.status !== "Connected"
         text: root.account.status || ""; color: Theme.textColor("#80542a"); font.pixelSize: 11; elide: Text.ElideRight; textFormat: Text.PlainText }
     ListView {
         id: log; objectName: "social-message-log"

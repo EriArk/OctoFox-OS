@@ -61,7 +61,7 @@ Item {
     Item {
         id: field; x: rail.x+rail.width+19; y: 8; width: parent.width-x-16; height: parent.height-12
         Text { x: 3; y: 3; text: root.social.lobbyScope==="local"?"Local lobbies":"Online lobbies"; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 22 }
-        Text { x: 4; y: 31; width: parent.width-225; text: root.social.lobbyPlatform || root.social.lobbyMode ? [root.social.lobbyPlatform,root.social.lobbyMode].filter(Boolean).join(" · ") : (root.social.lobbyScope==="local"?"Same Wi-Fi or Ethernet · no account":"A place to start something together")
+        Text { x: 4; y: 31; width: parent.width-225; objectName: "lobby-directory-status"; text: root.social.lobbyDirectory.status || (root.social.lobbyPlatform || root.social.lobbyMode ? [root.social.lobbyPlatform,root.social.lobbyMode].filter(Boolean).join(" · ") : (root.social.lobbyScope==="local"?"Same Wi-Fi or Ethernet · no account":"A place to start something together"))
             color: Theme.muted; font.pixelSize: 11; elide: Text.ElideRight }
         CapButton {
             anchors.right: parent.right; y: 3; width: Math.min(166,parent.width*.29); height: 34; claimsFocus: false; textSize: 13; tint: Theme.green
@@ -135,9 +135,9 @@ Item {
                         Text { anchors.centerIn: parent; text: ["+","♡","✦"][index]; font.pixelSize: 24; color: Theme.ink } }
                 }
             }
-            Text { width: parent.width; text: root.social.lobbyDirectory.busy ? "Looking for your next party…" : "Room for a new adventure"
+            Text { width: parent.width; text: root.social.lobbyDirectory.busy ? "Looking for your next party…" : root.social.lobbyDirectory.status ? (root.social.lobbyScope==="local"?"Local lobbies":"Online lobbies") : "Room for a new adventure"
                 font.family: Theme.displayFamily; font.pixelSize: 23; color: Theme.ink; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap }
-            Text { width: parent.width; text: root.social.lobbyScope==="local" ? (root.social.lobbyDirectory.status || "Create a local lobby, or ask your friend to open one on the same network.") : root.social.lobbyDirectory.needsJoin ? root.social.lobbyDirectory.status : root.social.lobbySearch || root.social.lobbyTopic || root.social.lobbyFreeOnly || root.social.lobbyPlatform || root.social.lobbyMode ? "Try another category or clear your filters." : "Create a lobby and invite your friends. You can choose a game together."
+            Text { width: parent.width; text: root.social.lobbyScope==="local" ? (root.social.lobbyDirectory.status || "Create a local lobby, or ask your friend to open one on the same network.") : root.social.lobbyDirectory.status ? root.social.lobbyDirectory.status : root.social.lobbySearch || root.social.lobbyTopic || root.social.lobbyFreeOnly || root.social.lobbyPlatform || root.social.lobbyMode ? "Try another category or clear your filters." : "Create a lobby and invite your friends. You can choose a game together."
                 font.pixelSize: 13; color: Theme.muted; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap }
         }
         Row {

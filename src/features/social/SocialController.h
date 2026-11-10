@@ -35,6 +35,7 @@ class SocialController final : public QObject {
     Q_PROPERTY(QVariantList searchResults READ searchResults NOTIFY changed)
     Q_PROPERTY(QVariantMap account READ account NOTIFY changed)
     Q_PROPERTY(QVariantList rows READ rows NOTIFY changed)
+    Q_PROPERTY(bool lobbyBrowseVisible MEMBER lobbyBrowseVisible_)
     Q_PROPERTY(QVariantList messages READ messages NOTIFY changed)
     Q_PROPERTY(QVariantList notifications READ notifications NOTIFY changed)
     Q_PROPERTY(QVariantMap incomingCall READ incomingCall NOTIFY changed)
@@ -121,7 +122,7 @@ class SocialController final : public QObject {
 public:
     QString peopleFilter() const {return peopleFilter_;}
     QString communityTitle() const;
-    bool communityOpen() const {return !communityId_.isEmpty();}
+    bool communityOpen() const {return face_=="communities"&&!communityId_.isEmpty();}
     Q_INVOKABLE void filterPeople();
     Q_INVOKABLE void clearPeopleFilter();
     Q_INVOKABLE void retryMessage(const QString& id);
@@ -290,7 +291,7 @@ public:
         for (const auto& choice : joinChoices_) if (choice["game"].toMap()["privateProgress"].toBool()||choice["game"].toMap()["temporaryProgress"].toBool()) return true;
         return false;
     }
-    bool canCreateGroup() const { return menuMode_=="create-group"&&!pickedPeople_.isEmpty()&&!snapshot_["mutationBusy"].toBool(); }
+    bool canCreateGroup() const { return !menu_.isEmpty()&&menuMode_=="create-group"&&!pickedPeople_.isEmpty()&&!snapshot_["mutationBusy"].toBool(); }
     Q_INVOKABLE void createSelectedGroup() { if(canCreateGroup())dispatch(Action::ToggleContinue); }
     SocialMedia* media(){return &media_;}
     bool mediaPreview() const{return menuMode_=="media-preview"||menuMode_=="media-view";}
@@ -421,6 +422,7 @@ private:
     void saveSocialPreferences();
     void restoreSocialPreferences();
     QVariantList peopleRows() const;
+    QVariantList inboxRows() const;
     QVariantList communityRows() const;
     QString previousGameChatChannel_,gamePreviewChannel_;
     ChatFiles files_{this};
@@ -567,6 +569,10 @@ private:
     QTimer draftSave_;
     QTimer toastTimer_;
     bool surfaceAvailable_ = false, conversationVisible_ = false;
+    bool lobbyBrowseVisible_ = false;
+    mutable QVariantMap rowInputs_;
+    mutable QVariantList rowCache_;
+    mutable QStringList rowPeoplePins_, rowGroupPins_, rowCommunityPins_;
     bool gameActive_=false;
     QString toastTitle_, toastText_, toastChannel_;
     QString draftFile_;

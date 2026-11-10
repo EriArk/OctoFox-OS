@@ -1131,7 +1131,7 @@ void ShellController::restoreNavigation(const QJsonObject& state) {
     const bool legacyGroups=socialFace_=="groups";
     // Provider still owns conversation IDs/drafts. Group presentation migration
     // does not create a second message store or discard its selected channel.
-    if(legacyGroups)socialFace_="communities";
+    if(legacyGroups)socialFace_="chats";
     goToPage(qMax(0,int(roots.indexOf(target))));
     homeAdventureId_=state["homeAdventure"].toString();homeResumeId_=state["homeResume"].toString();
     homeResumeSource_=ResumeSource::fromJson(state["homeResumeSource"].toObject());
