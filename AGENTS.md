@@ -1,5 +1,13 @@
 # TrainerOS — active agent / developer contract
 
+**Owner weekly Bazaar rentals, 10 November (latest):** keep rentals minimal.
+The place owner sets a price in Sparks for one week. Any player can occupy a
+free place by paying; the owner receives the Sparks. The place belongs to that
+tenant for seven days from payment, then becomes free; tenant goods are preserved.
+This settles duration/pricing direction in the earlier notes. It is an accepted
+product contract, not a claim that rental APIs, inventory custody or UI exist.
+Do not invent additional tariffs, commissions or complex rental flows.
+
 **Owner Bazaar cards/access, 10 November (latest):** prepare card cover/badge
 preview and owner access controls next, in the same separate branch. Preserve
 buy-now/create-later. Reuse native profile identity for selecting a player; owner

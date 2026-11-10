@@ -114,10 +114,20 @@ attached to the persistent bazaar UUID through the same economy. The owner also
 approved renting trading places to other players **for Sparks**. The space/stall
 owner and a temporary tenant's trading right must remain separate from each other
 and from the realtime host. These are targets, not implemented purchase/lease APIs.
-Rent duration, price, renewal, termination/refund rules and the concrete stall
-catalogue remain to be agreed; no commission or automatic forfeiture is invented.
-Server-side permission/expiry and atomic payment will be required when rentals
-are implemented. Existing ownership must survive adding these extensions.
+The owner subsequently accepted the minimal weekly rental flow:
+
+- The place owner sets its price in Sparks **for one week**.
+- Any player can occupy an available place by paying; the owner receives the Sparks.
+- Occupancy lasts **seven days from payment**, not until a calendar-week boundary.
+- At expiry the place becomes available again; the tenant's goods are preserved.
+
+These are agreed rules, not implemented rental endpoints, inventory custody or UI.
+Use the existing server clock/economy when implementing: payment and exclusive
+occupancy must succeed together, competing/repeated requests must not double-charge
+or rent the same place twice. A temporary peer host cannot change the lease or
+its deadline. The concrete purchasable stall catalogue and goods-handling model
+remain later work. Do not invent commissions or additional rental flows.
+Existing ownership must survive adding these extensions.
 
 [Product contract](../../docs/BAZAAR.md),
 [build, deployment and remaining acceptance](../../docs/evidence/2026-11-10-bazaar-cards-access/README.md).
