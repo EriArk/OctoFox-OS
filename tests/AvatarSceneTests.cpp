@@ -12,10 +12,72 @@
 #include <QPointer>
 #include <QQmlEngine>
 #include <QQmlComponent>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QtEndian>
 using namespace trainer;
 class AvatarSceneTests final:public QObject {
     Q_OBJECT
 private slots:
+    void sharedAccessorsKeepDrawnAttributesAndOnlyUploadAffectedMorphs(){
+        QTemporaryDir folder;QByteArray binary;QJsonArray views,accessors;
+        auto floats=[&](const QVector<float>& values,const QString& type,int width){
+            const int start=binary.size();
+            for(float value:values){quint32 bits;std::memcpy(&bits,&value,4);bits=qToLittleEndian(bits);binary.append(reinterpret_cast<const char*>(&bits),4);}
+            const int view=views.size();views.append(QJsonObject{{"buffer",0},{"byteOffset",start},{"byteLength",binary.size()-start}});
+            const int id=accessors.size();accessors.append(QJsonObject{{"bufferView",view},{"componentType",5126},{"count",values.size()/width},{"type",type}});return id;
+        };
+        auto indices=[&](QVector<quint32> values){
+            const int start=binary.size();for(auto value:values){value=qToLittleEndian(value);binary.append(reinterpret_cast<const char*>(&value),4);}
+            const int view=views.size();views.append(QJsonObject{{"buffer",0},{"byteOffset",start},{"byteLength",binary.size()-start}});
+            const int id=accessors.size();accessors.append(QJsonObject{{"bufferView",view},{"componentType",5125},{"count",values.size()},{"type","SCALAR"}});return id;
+        };
+        auto jointAccessor=[&]{
+            const int start=binary.size();binary.append(QByteArray(6*4*2,'\0'));
+            const int view=views.size();views.append(QJsonObject{{"buffer",0},{"byteOffset",start},{"byteLength",48}});
+            const int id=accessors.size();accessors.append(QJsonObject{{"bufferView",view},{"componentType",5123},{"count",6},{"type","VEC4"}});return id;
+        };
+        QVector<float> positions,normals,uv,colors,weights,morph;
+        for(int i=0;i<6;++i){positions<<float(i)<<float(i+1)<<float(i+2);normals<<0<<0<<1;uv<<float(i)/8<<float(i)/16;colors<<float(i)/8<<.5f<<.25f<<1;weights<<1<<0<<0<<0;morph<<(i==2?.25f:0.f)<<0<<0;}
+        const QJsonObject attributes{{"POSITION",floats(positions,"VEC3",3)},{"NORMAL",floats(normals,"VEC3",3)},
+            {"TEXCOORD_0",floats(uv,"VEC2",2)},{"COLOR_0",floats(colors,"VEC4",4)},
+            {"JOINTS_0",jointAccessor()},{"WEIGHTS_0",floats(weights,"VEC4",4)}};
+        const QJsonArray targets{QJsonObject{{"POSITION",floats(morph,"VEC3",3)}}};
+        const QJsonArray primitives{QJsonObject{{"attributes",attributes},{"indices",indices({4,0,2})},{"targets",targets}},
+            QJsonObject{{"attributes",attributes},{"indices",indices({5,1,3})},{"targets",targets}}};
+        const QJsonObject document{{"asset",QJsonObject{{"version","2.0"}}},{"scene",0},
+            {"scenes",QJsonArray{QJsonObject{{"nodes",QJsonArray{0,1}}}}},
+            {"nodes",QJsonArray{QJsonObject{{"mesh",0},{"skin",0}},QJsonObject{{"name","head"},{"translation",QJsonArray{2,3,4}}}}},
+            {"skins",QJsonArray{QJsonObject{{"joints",QJsonArray{1}}}}},
+            {"meshes",QJsonArray{QJsonObject{{"primitives",primitives},{"extras",QJsonObject{{"targetNames",QJsonArray{"blink"}}}}}}},
+            {"extras",QJsonObject{{"trainerFace",QJsonObject{{"controls",QJsonArray{"blink"}}}}}},
+            {"buffers",QJsonArray{QJsonObject{{"byteLength",binary.size()}}}},{"bufferViews",views},{"accessors",accessors}};
+        auto json=QJsonDocument(document).toJson(QJsonDocument::Compact);while(json.size()%4)json.append(' ');
+        QByteArray glb;auto word=[&](quint32 value){value=qToLittleEndian(value);glb.append(reinterpret_cast<const char*>(&value),4);};
+        word(0x46546c67);word(2);word(28+json.size()+binary.size());word(json.size());word(0x4e4f534a);glb+=json;word(binary.size());word(0x004e4942);glb+=binary;
+        QFile file(folder.filePath("shared.glb"));QVERIFY(file.open(QIODevice::WriteOnly));QCOMPARE(file.write(glb),glb.size());file.close();
+        AvatarScene cpu,gpu;gpu.setGpuSkinning(true);const auto source=QUrl::fromLocalFile(file.fileName());cpu.setSource(source);gpu.setSource(source);
+        QTRY_VERIFY_WITH_TIMEOUT(cpu.ready()&&gpu.ready(),10000);QCOMPARE(gpu.vertexCount(),6);QCOMPARE(cpu.vertexCount(),6);
+        auto verify=[&](AvatarScene& scene,bool skinned,float face){
+            QCOMPARE(scene.parts().size(),2);
+            for(int part=0;part<2;++part){auto* geometry=scene.parts()[part].toMap()["geometry"].value<QQuick3DGeometry*>();
+                const auto vertices=geometry->vertexData(),draw=geometry->indexData();QCOMPARE(vertices.size()/geometry->stride(),3);QCOMPARE(draw.size(),12);
+                quint32 actual[3];std::memcpy(actual,draw.constData(),12);QCOMPARE(actual[0],2u);QCOMPARE(actual[1],0u);QCOMPARE(actual[2],1u);
+                for(int i=0;i<3;++i){const int original=i*2+part;float attributes[12];std::memcpy(attributes,vertices.constData()+i*geometry->stride(),48);
+                    QCOMPARE(attributes[0],float(original)+(skinned?2:0)+(original==2?.25f*face:0));
+                    QCOMPARE(attributes[1],float(original+1)+(skinned?3:0));QCOMPARE(attributes[2],float(original+2)+(skinned?4:0));
+                    QCOMPARE(attributes[3],0.f);QCOMPARE(attributes[4],0.f);QCOMPARE(attributes[5],1.f);
+                    QCOMPARE(attributes[6],float(original)/8);QCOMPARE(attributes[7],float(original)/16);
+                    QCOMPARE(attributes[8],float(original)/8);QCOMPARE(attributes[9],.5f);QCOMPARE(attributes[10],.25f);QCOMPARE(attributes[11],1.f);
+                    qint32 bones[4];float skinWeights[4];std::memcpy(bones,vertices.constData()+i*geometry->stride()+48,16);std::memcpy(skinWeights,vertices.constData()+i*geometry->stride()+64,16);
+                    QCOMPARE(bones[0],0);QCOMPARE(skinWeights[0],1.f);
+                }
+            }
+        };
+        verify(cpu,true,0);verify(gpu,false,0);const int uploads=gpu.geometryUploads();
+        cpu.setFace({{"blink",1.}});gpu.setFace({{"blink",1.}});verify(cpu,true,1);verify(gpu,false,1);
+        QCOMPARE(gpu.geometryUploads(),uploads+1); // The other material has no affected vertex.
+    }
     void idleDirectorVarietyEligibilityAndPause(){
         QQmlEngine engine;QQmlComponent component(&engine,QUrl::fromLocalFile(TRAINER_AVATAR_IDLE_QML));
         QScopedPointer<QObject> idle(component.create());QVERIFY2(idle,qPrintable(component.errorString()));

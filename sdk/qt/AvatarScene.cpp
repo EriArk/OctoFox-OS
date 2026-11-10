@@ -193,6 +193,25 @@ void AvatarScene::setSource(const QUrl& value){
                 for(const auto& tv:primitive["targets"].toArray()){const auto target=tv.toObject();const auto dp=target.contains("POSITION")?g.accessor(target["POSITION"].toInt()):QVector<float>();const auto dn=target.contains("NORMAL")?g.accessor(target["NORMAL"].toInt()):QVector<float>();require((dp.isEmpty()||dp.size()==count*3)&&(dn.isEmpty()||dn.size()==count*3));QVector<Delta> deltas;
                     for(int i=0;i<count;++i){const auto a=dp.isEmpty()?QVector3D():vec(dp,i*3),b=dn.isEmpty()?QVector3D():vec(dn,i*3);if(!a.isNull()||!b.isNull())deltas.append({i,a,b});}p.morphs.append(std::move(deltas));}
                 QVector<quint32> indices;if(primitive.contains("indices")){for(float f:g.accessor(primitive["indices"].toInt())){require(f>=0&&f<count);indices.append(quint32(f));}}else for(int i=0;i<count;++i)indices.append(i);require(indices.size()%3==0);
+                // glTF primitives may share one large accessor but reference only a
+                // small subset. Keep every drawn vertex exactly, and remap its skin
+                // and sparse morph data together; source assets remain unchanged.
+                QVector<bool> used(count,false);for(auto index:indices)used[index]=true;
+                const int kept=std::count(used.begin(),used.end(),true);
+                if(kept<count){
+                    QVector<int> remap(count,-1);QVector<Vertex> compact;compact.reserve(kept);
+                    QVector<float> joints,weights;joints.reserve(kept*4);weights.reserve(kept*4);
+                    for(int i=0;i<count;++i)if(used[i]){
+                        remap[i]=compact.size();compact.append(p.base[i]);
+                        for(int j=0;j<4;++j){if(!p.joints.isEmpty())joints.append(p.joints[i*4+j]);if(!p.weights.isEmpty())weights.append(p.weights[i*4+j]);}
+                    }
+                    for(auto& target:p.morphs){QVector<Delta> compactDeltas;
+                        for(const auto& delta:std::as_const(target))if(remap[delta.vertex]>=0)compactDeltas.append({remap[delta.vertex],delta.p,delta.n});
+                        target=std::move(compactDeltas);
+                    }
+                    for(auto& index:indices)index=remap[index];
+                    p.base=std::move(compact);p.joints=std::move(joints);p.weights=std::move(weights);data->vertices-=count-kept;
+                }
                 p.indices=QByteArray(reinterpret_cast<const char*>(indices.constData()),indices.size()*sizeof(quint32));
                 const int materialId=primitive["material"].toInt(-1);const auto material=materialId>=0&&materialId<materials.size()?materials[materialId].toObject():QJsonObject();const auto pbr=material["pbrMetallicRoughness"].toObject();const auto col=pbr["baseColorFactor"].toArray();QColor color=Qt::white;if(col.size()==4)color=QColor::fromRgbF(srgb(col[0].toDouble()),srgb(col[1].toDouble()),srgb(col[2].toDouble()),col[3].toDouble());
                 QString texture;const int ti=pbr["baseColorTexture"].toObject()["index"].toInt(-1);const auto tx=g.json["textures"].toArray();if(ti>=0&&ti<tx.size())texture=textures.value(tx[ti].toObject()["source"].toInt(-1));
@@ -255,7 +274,7 @@ void AvatarScene::frame(){
     QVector<QVector<QMatrix4x4>> transforms;QVector<QVector<QMatrix3x3>> normals;
     if(!gpuSkinning_)for(const auto& skin:d_->skins){QVector<QMatrix4x4> ts;QVector<QMatrix3x3> ns;for(int i=0;i<skin.nodes.size();++i){ts.append(world[skin.nodes[i]]*skin.inverse[i]);ns.append(ts.last().normalMatrix());}transforms.append(ts);normals.append(ns);}
     for(auto& part:d_->parts){const auto& weights=nodes[part.node].weights;
-        QVector<float> morph;for(int m=0;m<part.morphs.size();++m)morph.append(d_->face.contains(part.names.value(m))?d_->face.value(part.names.value(m)):weights.value(m));
+        QVector<float> morph;for(int m=0;m<part.morphs.size();++m)morph.append(part.morphs[m].isEmpty()?0.f:d_->face.contains(part.names.value(m))?d_->face.value(part.names.value(m)):weights.value(m));
         if(gpuSkinning_&&part.skin>=0&&part.uploaded&&morph==part.lastMorph)continue;
         part.lastMorph=morph;auto vertices=part.base;
         for(int m=0;m<part.morphs.size();++m){const float weight=morph[m];if(std::abs(weight)<.00001)continue;for(const auto& delta:part.morphs[m]){auto& v=vertices[delta.vertex];for(int c=0;c<3;++c){v.p[c]+=delta.p[c]*weight;v.n[c]+=delta.n[c]*weight;}}}
