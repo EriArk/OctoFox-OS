@@ -7,6 +7,11 @@ authorized validation pass. Preserve profiles, games, saves and boot recovery;
 no suspend/lid tests or Bazaar merge. Record source/package/device acceptance
 separately in [device validation](docs/evidence/2026-11-10-device-validation/README.md).
 
+**Owner Setup completion, 10 November (latest):** successful installation must
+switch automatically into TrainerOS, including resumed finalization. Failure must
+remain visible with a useful explanation and a private log; never treat a vanished
+window as success. Preserve desktop logout refusal and normal recovery.
+
 **Owner Odin update, 10 November (latest):** leave Flip's running Setup alone;
 update the existing Odin installation by the previous in-place method, retaining
 its profile, games and settings. This is not clean Setup or managed OTA acceptance.

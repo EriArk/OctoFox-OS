@@ -3,6 +3,7 @@
 """Armada desktop installer/recovery entry; downloads from the pinned bootstrap."""
 import argparse
 import hashlib
+import html
 import importlib.util
 import time
 import json
@@ -14,6 +15,7 @@ import sys
 import tempfile
 import shlex
 import tarfile
+import traceback
 import installation as install
 import releases as sw
 import runtime_set as runtimes
@@ -127,11 +129,72 @@ def dialog(*args):
     return subprocess.run(['kdialog', '--title', 'TrainerOS Setup', *args], capture_output=True, text=True)
 
 
+def error_message(error, phase=''):
+    return ('TrainerOS Setup could not finish.\n' + (phase + '\n\n' if phase else '')
+            + str(error)[:2000] + '\n\nReopen Setup to retry or repair. Your games, profiles and saves are kept.')
+
+
+def show_error(error, log=None):
+    # Keep the existing progress window visible if a new dialog cannot open.
+    progress = Progress.failed
+    message = error_message(error, progress.phase if progress else '')
+    if log: message += '\n\nSetup log: ' + str(log)
+    print(message, file=sys.stderr, flush=True)
+    shown = bool(progress and progress.error_visible)
+    try:
+        result = dialog('--error', html.escape(message).replace('\n', '<br/>'))
+        if result.returncode == 0:
+            shown = True
+            if progress: progress.close()
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return shown
+
+
+def supervise(command):
+    # A separate parent can report an abruptly killed/crashed installer too.
+    # Every ordinary entry already invokes this file, including Recovery.
+    directory = install.private(Path(os.environ.get('XDG_STATE_HOME', str(Path.home()/'.local/state')))
+                                / 'traineros/setup')
+    reader, writer = os.pipe()
+    try:
+        with tempfile.NamedTemporaryFile(prefix='setup-'+time.strftime('%Y%m%d-%H%M%S-'), suffix='.log',
+                                         dir=directory, delete=False) as log:
+            env = dict(os.environ, TRAINEROS_SETUP_ERROR_FD=str(writer), TRAINEROS_SETUP_LOG=log.name)
+            process = subprocess.Popen(command, env=env, stdout=log, stderr=subprocess.STDOUT, pass_fds=(writer,))
+            os.close(writer); writer = None
+            code = process.wait()
+            reported = os.read(reader, 32) == b'shown'
+        if code and not reported:
+            show_error('The installer stopped unexpectedly (' + ('signal '+str(-code) if code < 0 else 'exit '+str(code)) + ').', log.name)
+        return code if code >= 0 else 1
+    finally:
+        os.close(reader)
+        if writer is not None: os.close(writer)
+
+
+def complete_gui(result):
+    if result['status'] != 'installed':
+        dialog('--msgbox', result['status'])
+        return 0
+    # Integration and journals must be complete and all transaction locks released.
+    # The existing session helper respects a desktop's refused logout.
+    try:
+        subprocess.run(['/usr/bin/sudo', '-n', '/var/opt/traineros/session/control.py', 'traineros'],
+                       check=True, timeout=20)
+    except (OSError, subprocess.SubprocessError) as error:
+        raise RuntimeError('TrainerOS is installed, but switching to it failed. '
+                           'Save any open desktop work, then use Return to TrainerOS.') from error
+    return 0
+
+
 class Cancelled(RuntimeError):
     pass
 
 
 class Progress:
+    failed = None
+
     def __enter__(self):
         self.dbus = shutil.which('qdbus6') or shutil.which('qdbus-qt6') or shutil.which('qdbus')
         if not self.dbus: raise ValueError('The Armada KDE qdbus utility is required for progress and cancellation')
@@ -155,9 +218,24 @@ class Progress:
                                  'verify-archive': 'Verifying download', 'prepared': 'Download verified'}.get(phase, phase))
         self.call('Set', '', 'maximum', '100' if total else '0')
         self.call('Set', '', 'value', str(int(done * 100 / total) if total else 0))
-    def __exit__(self, *unused):
+    def close(self):
         try: self.call('close')
         except (OSError, subprocess.SubprocessError): pass
+
+    def __exit__(self, kind, error, tb):
+        if error is None or isinstance(error, Cancelled):
+            self.close()
+            return
+        Progress.failed = self
+        self.error_visible = False
+        try:
+            self.call('showCancelButton', 'false')
+            result = self.call('setLabelText', html.escape(error_message(error, self.phase)).replace('\n', '<br/>'))
+            self.error_visible = result.returncode == 0
+            self.call('Set', '', 'maximum', '100')
+            self.call('Set', '', 'value', '0')
+        except (OSError, subprocess.SubprocessError):
+            pass
 
 
 def prerequisites(source):
@@ -209,7 +287,7 @@ def recover_full(root, source):
             elif result['status']=='runtimes-removed':
                 result=finish_setup(root,'uninstall')
             else:(root/'setup-pending.json').unlink(missing_ok=True)
-    dialog('--msgbox',result['status']); return 0
+    return complete_gui(result)
 
 
 def finish_setup(root, action):
@@ -266,7 +344,7 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
         with sw.cache_lock(root/'runtime'),sw.cache_lock(root/'transaction'):
             install.ensure_no_orphans(root);runtimes.idle()
             result=finish_setup(root,job['action'])
-        dialog('--msgbox',result['status']);return 0
+        return complete_gui(result)
     if runtime_manifest is None and (source.parent/'runtime-set.json').is_file():
         runtime_manifest=source.parent/'runtime-set.json'; runtime_archive=source.parent/'runtimes.tar'
     if bool(runtime_manifest)!=bool(runtime_archive): raise ValueError('Both the signed runtime manifest and its archive are required')
@@ -309,7 +387,7 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
                         result=install.install_prepared(root,candidate['prepared'],repair=True)
                     else: result=install.repair(root,progress=progress.update,before_install=lambda:progress.call('showCancelButton','false'))
                     result=finish_setup(root,'install')
-        dialog('--msgbox', result['status']); return 0
+        return complete_gui(result)
     prerequisites(source)
     shortcuts(root, preflight=True)
     choice = dialog('--radiolist', 'Choose an update channel. Beta and Stable are not available yet.',
@@ -325,7 +403,8 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
                    + ('The emulator set may require additional downloads from its original providers.\n' if runtime_manifest else '')
                    + f"OS: {report['system']}\nOS storage: {disk['location']} ({disk['disk']})\n"
                    f"Free installation space: {report['freeBytes'] / 1073741824:.1f} GiB\n"
-                   'Your OS, games, profiles and saves will be kept. TrainerOS becomes the boot default on first setup; Desktop and Steam remain available. Later updates keep your choice.')
+                   'Your OS, games, profiles and saves will be kept. TrainerOS becomes the boot default on first setup; Desktop and Steam remain available. Later updates keep your choice.\n'
+                   'Save any open desktop work now. After successful installation, Setup switches to TrainerOS automatically.')
     if dialog('--yesno', description).returncode: return 0
     with Progress() as progress:
         result = (resolve_offline(root, offline, prepare=True, progress=progress.update, allow_current=bool(runtime_manifest)) if offline is not None else
@@ -362,11 +441,7 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
                           'expected':hashlib.sha256(sw.canonical(release)).hexdigest()})
                 install.install_prepared(root,result['prepared'])
             finish_setup(root,'install')
-    if not dialog('--yesno', 'TrainerOS is installed. Start TrainerOS now?\nSave any open desktop work before switching.').returncode:
-        # Follow the installed Return to TrainerOS entry: the product runs in
-        # its own session, including first run, rather than inside Plasma.
-        subprocess.Popen(['/usr/bin/sudo', '-n', '/var/opt/traineros/session/control.py', 'traineros'], start_new_session=True)
-    return 0
+    return complete_gui({'status': 'installed'})
 
 
 def main():
@@ -374,6 +449,7 @@ def main():
     parser.add_argument('--root', type=Path, default=install.DEFAULT_ROOT)
     parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parents[2] / 'bootstrap.json')
     parser.add_argument('--gui', action='store_true')
+    parser.add_argument('--worker', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--offline', type=Path, help='Local signed Software media; no download fallback')
     parser.add_argument('--runtime-manifest',type=Path,help='Signed runtime set with optional pinned upstream downloads')
     parser.add_argument('--runtime-archive',type=Path)
@@ -382,12 +458,16 @@ def main():
         if sys.platform != 'linux': raise ValueError('The installer requires Armada Linux')
         if os.getuid() == 0: raise ValueError('Run Setup as your desktop user; only session integration requests system authorization')
         if not args.gui: parser.error('Use --gui from the installer launcher')
+        if not args.worker:
+            return supervise([sys.executable, str(Path(__file__).resolve()), *sys.argv[1:], '--worker'])
         return gui(args.root, args.config, args.offline, args.runtime_manifest, args.runtime_archive)
     except Cancelled as error:
         dialog('--msgbox', str(error)); return 0
-    except (OSError, ValueError, RuntimeError, KeyError, TypeError, ImportError, tarfile.TarError, subprocess.SubprocessError) as error:
-        if shutil.which('kdialog'): dialog('--error', str(error) + '\nYou can reopen Setup to retry or repair. Personal data is preserved.')
-        else: print(str(error), file=sys.stderr)
+    except Exception as error:
+        traceback.print_exc()
+        if show_error(error, os.environ.get('TRAINEROS_SETUP_LOG')):
+            try: os.write(int(os.environ['TRAINEROS_SETUP_ERROR_FD']), b'shown')
+            except (KeyError, ValueError, OSError): pass
         return 1
 
 

@@ -85,6 +85,41 @@ class InstallationTests(unittest.TestCase):
         self.assertEqual(install.selected_channel(self.installation),'beta')
         self.assertFalse((self.installation/'setup-pending.json').exists())
 
+    def test_gui_installs_then_switches_after_releasing_transaction_locks(self):
+        def switched(result):
+            self.assertEqual(result['status'], 'installed')
+            self.assertEqual(install.audit(self.installation)['status'], 'ready')
+            self.assertFalse((self.installation/'setup-pending.json').exists())
+            with sw.cache_lock(self.installation/'runtime'), sw.cache_lock(self.installation/'transaction'):
+                return 0
+        report = {'supported': True, 'system': 'fixture Armada', 'freeBytes': 10*1024**3,
+                  'osStorage': {'location': 'internal', 'disk': 'fixture'}}
+        with patch.object(installer.shutil, 'which', return_value='fixture'), \
+             patch.object(install.host, 'probe', return_value=report), \
+             patch.object(installer, 'bootstrap', return_value=True), \
+             patch.object(installer, 'prerequisites'), patch.object(installer, 'shortcuts'), \
+             patch.object(installer, 'integrate'), patch.object(installer, 'payload_dependencies'), \
+             patch.object(installer, 'Progress'), \
+             patch.object(installer, 'dialog', return_value=subprocess.CompletedProcess([], 0, 'alpha')) as dialog, \
+             patch.object(installer, 'complete_gui', side_effect=switched) as complete:
+            self.assertEqual(installer.gui(self.installation, self.root/'unused.json', offline=self.manifest.parent), 0)
+        complete.assert_called_once_with({'status': 'installed'})
+        self.assertFalse(any('Start TrainerOS now' in str(c) for c in dialog.call_args_list))
+
+    def test_gui_resumes_finalization_then_uses_the_same_completion(self):
+        self.install()
+        sw.atomic(self.installation/'setup-pending.json', {'action': 'install'})
+        with patch.object(installer.shutil, 'which', return_value='fixture'), \
+             patch.object(install.host, 'probe', return_value={'supported': True}), \
+             patch.object(installer, 'bootstrap', return_value=True), \
+             patch.object(installer, 'shortcuts'), patch.object(installer, 'integrate'), \
+             patch.object(installer.runtimes, 'idle'), \
+             patch.object(installer, 'dialog', return_value=subprocess.CompletedProcess([], 0, '')), \
+             patch.object(installer, 'complete_gui', return_value=0) as complete:
+            self.assertEqual(installer.gui(self.installation, self.root/'unused.json'), 0)
+        complete.assert_called_once_with({'status': 'installed'})
+        self.assertFalse((self.installation/'setup-pending.json').exists())
+
     def test_offline_candidate_prepares_and_refuses_implicit_downgrade(self):
         with patch.object(sw, 'download', side_effect=AssertionError('Offline installer cannot download')):
             candidate = installer.resolve_offline(self.installation, self.manifest.parent, prepare=True, progress=lambda *args: None)
