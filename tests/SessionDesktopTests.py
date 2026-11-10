@@ -91,6 +91,31 @@ class GracefulTransitionTests(unittest.TestCase):
 
 
 class ManagedBootTests(unittest.TestCase):
+    def test_literal_system_install_targets_can_be_owned_and_removed(self):
+        # Exercise the real installer destinations against the ownership policy.
+        # A missing allowlist entry previously rejected the entire clean install
+        # only after Software and runtimes had already been committed.
+        import ast
+        ownership = module('ownership')
+        tree = ast.parse((ROOT/'packaging/session/install.py').read_text())
+        names = {node.args[0].value for node in ast.walk(tree)
+                 if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                 and node.func.id == 'install' and node.args
+                 and isinstance(node.args[0], ast.Constant)
+                 and isinstance(node.args[0].value, str)
+                 and node.args[0].value.startswith('/etc/')}
+        self.assertIn('/etc/systemd/system/armada-session-default.service.d/traineros-storage.conf', names)
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            owner = ownership.Ownership(root/'journal.json', 'fixture', root)
+            for name in names:
+                path = owner.check(name); path.parent.mkdir(parents=True, exist_ok=True)
+                owner.preparing(name, b'owned'); path.write_bytes(b'owned')
+            with self.assertRaises(ValueError):
+                owner.check('/etc/systemd/system/armada-session-default.service.d/unrelated.conf')
+            owner.uninstall()
+            self.assertTrue(all(not owner.target(name).exists() for name in names))
+
     def test_removal_restores_desktop_only_for_our_active_session(self):
         helper = module('install'); ownership = module('ownership')
         for selected in ('traineros.desktop', 'plasma.desktop', 'gamescope-session.desktop'):
