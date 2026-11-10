@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 
 Panel {
     id: root
@@ -20,14 +21,20 @@ Panel {
         id: action
         required property int actionIndex
         required property string label
+        property string glyph: ""
+        property color background: "transparent"
         property bool available: true
         property int textSize: 12
         property color ink: root.accent
         readonly property bool focused: root.shell.profileContentActive && root.shell.profileFocus === actionIndex
         height: 30
         opacity: available ? 1 : .5
-        Rectangle { anchors.fill: parent; radius: 5; color: action.focused ? Theme.selection : pointer.containsMouse ? Theme.surface : "transparent"; border.width: action.focused ? 2 : 0; border.color: Theme.focus }
-        Text { anchors.fill: parent; anchors.margins: 5; text: action.label; textFormat: Text.PlainText; color: action.focused || pointer.containsMouse ? root.accent : action.ink; font.pixelSize: action.textSize; elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter }
+        Rectangle { anchors.fill: parent; radius: action.glyph ? width/2 : 5; color: action.focused ? Theme.selection : pointer.containsMouse ? Theme.surface : action.background; border.width: action.focused ? 2 : 0; border.color: Theme.focus }
+        Text { visible: !action.glyph; anchors.fill: parent; anchors.margins: 5; text: action.label; textFormat: Text.PlainText; color: action.focused || pointer.containsMouse ? root.accent : action.ink; font.pixelSize: action.textSize; elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter }
+        MenuGlyph { visible: !!action.glyph; anchors.centerIn: parent; width: 28; height: 28; glyph: action.glyph; ink: action.focused || pointer.containsMouse ? root.accent : action.ink }
+        ToolTip.visible: !!glyph && available && root.shell.profileContentActive && (focused || pointer.containsMouse)
+        ToolTip.text: label
+        ToolTip.delay: 650
         MouseArea { id: pointer; anchors.fill: parent; hoverEnabled: true; enabled: action.available && root.shell.profileContentActive; onClicked: root.shell.activate(action.actionIndex,"profile") }
         Accessible.role: Accessible.Button; Accessible.name: label; Accessible.onPressAction: if(available)root.shell.activate(actionIndex,"profile")
     }
@@ -48,10 +55,16 @@ Panel {
                 profile:root.profile;appearance:root.shell.backendAccount.profileAppearance;showAvatar:root.browsing;footerInset:43
                 Rectangle { x:10;y:10;width:116;height:30;radius:15;color:"#c5122229" }
                 ProfileAction { x:16;y:10;width:108;actionIndex:9;label:"Change scenery  ›";textSize:11;ink:"#fff0cd" }
+                ProfileAction {
+                    objectName: "profile-wardrobe"
+                    anchors.right: parent.right; anchors.rightMargin: 10; y: 10
+                    width: 56; height: 56; actionIndex: 1; label: "Wardrobe"; glyph: "shirt"
+                    ink: "#ffe2a1"; background: "#e6122229"
+                    available: root.profile.exists && root.profile.avatarAvailable
+                }
                 Rectangle { x:10;anchors.bottom:parent.bottom;anchors.bottomMargin:10;width:parent.width-20;height:42;radius:9;color:"#d4122229"
                     Text { x:12;y:7;text:"YOUR CHARACTER";font.family:Theme.brandFamily;font.pixelSize:9;font.letterSpacing:1.5;color:"#bdd5ce" }
                     Text { x:12;y:23;text:"Make it yours";font.pixelSize:10;color:"#e3e9da" }
-                    ProfileAction { anchors.right:parent.right;anchors.rightMargin:8;y:6;width:88;height:30;actionIndex:1;label:"Wardrobe  ›";ink:"#ffe2a1";available:root.profile.exists&&root.profile.avatarAvailable }
                 }
             }
             Item {
