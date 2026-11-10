@@ -138,11 +138,18 @@ Item {
         font.family: Theme.displayFamily; font.pixelSize: 17
     }
     CapButton {
-        objectName: "games-import-rom"
+        id: importButton; objectName: "games-import-rom"
         anchors.right: parent.right; anchors.rightMargin: 30; y: divider.y + 2
         width: 166; height: 25; textSize: 15; label: "+ Import ROM"; tint: Theme.green
         enabled: root.takesFocus
         onActivated: shell.importRom()
+    }
+    CapButton {
+        objectName: "games-emulators"
+        anchors.right: importButton.left; anchors.rightMargin: 12; y: importButton.y
+        width: 148; height: 25; textSize: 15; label: "Emulators"; tint: Theme.blue
+        enabled: root.takesFocus
+        onActivated: shell.openEmulators()
     }
     GridView {
         id: platforms

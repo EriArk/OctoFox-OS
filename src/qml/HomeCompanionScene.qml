@@ -5,6 +5,7 @@ import TrainerOS
 
 View3D {
     id: root
+    objectName: "home-companion-scene"
     property url modelSource
     property string assetBase: "qrc:/home-pet/"
     property var pet

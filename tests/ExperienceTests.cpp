@@ -139,7 +139,17 @@ private slots:
         QVERIFY(dashboard->selectPackageWidget("home-companion"));
         QCOMPARE(dashboard->widget()["id"].toString(),QString("crates:home-companion:pet"));
         QVERIFY(!dashboard->widgetPicking());
-        shell.goToPage(ShellController::HomePage);pet->setActive(true);
+        shell.goToPage(ShellController::HomePage);
+        QCoreApplication::sendPostedEvents(dashboard,QEvent::MetaCall);
+        {
+            QSignalSpy localChanges(pet,&HomeCompanion::changed);
+            QSignalSpy dashboardChanges(dashboard,&HomeDashboardController::changed);
+            pet->setActive(true);
+            pet->addGameplaySeconds(10);
+            QCoreApplication::sendPostedEvents(dashboard,QEvent::MetaCall);
+            QVERIFY(localChanges.size()>=2);
+            QCOMPARE(dashboardChanges.size(),0); // Care updates stay inside the widget.
+        }
         emit achievements.achievementAwardsEarned("fixture-set",{QVariantMap{{"id","fixture-award"},{"title","Provider award"},{"icon","https://media.retroachievements.org/Badge/00123.png"}}});
         QCOMPARE(pet->achievement()["id"].toString(),"fixture-award");
         achievements.setAccount("replacement-account");QVERIFY(pet->achievement().isEmpty());QCOMPARE(pet->activity(),QString("idle"));

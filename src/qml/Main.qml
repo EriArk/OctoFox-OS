@@ -511,11 +511,12 @@ Window {
                 if (shell.service === "settings" && shell.settings.categoryId==="game-input" && shell.settings.controlsFocused) return [h("↑↓","Choose"),h("L2/R2","Tabs"),h("A","Select"),h("B",shell.settings.gameInput.choosing?"Cancel":"Back")]
                 if (shell.service === "settings") return [h(shell.settings.controlsFocused?"←→":"↑↓",shell.settings.controlsFocused?"Adjust":"Section"),h("A",shell.settings.controlsFocused ? "Select" : "Open"),h("B",shell.settings.controlsFocused ? "Categories" : "Back")]
                 if (shell.service === "device") return [h("←→","Adjust"),h("Y","Refresh"),h("A","Select"),h("B","Back")]
+                if (shell.service === "game-preparation") return [h("A","Select"),h("L3",shell.gamePreparation.setupRunning?"Return to emulator":"Open emulator"),h("B","Back")]
                 if (shell.serviceOpen) return [h("A","Select"),h("B","Back")]
                 if (shell.gamePerformance.open) return [h("A","Adjust"),h("B","Close")]
                 if (shell.pcGames.open) return [h("A","Choose"),h("B",shell.pcGames.picker.open ? "Back" : shell.pcGames.busy ? "Hide" : "Close")]
                 if(shell.collectionManager.open) return [h("A","Choose"),h("B","Back")]
-                if (shell.page === 1 && shell.collectionsRoot) return shell.gamesRootZone === "collections" ? [h("A","Open"),h("R3","Import ROM"),h("Select","Collection actions"),h("B","Home")] : [h("A","Open platform"),h("R3","Import ROM"),h("B","Home")]
+                if (shell.page === 1 && shell.collectionsRoot) return shell.gamesRootZone === "collections" ? [h("A","Open"),h("R3","Import ROM"),h("L3","Emulators"),h("Select","Collection actions"),h("B","Home")] : [h("A","Open platform"),h("R3","Import ROM"),h("L3","Emulators"),h("B","Home")]
                 if (shell.page === 1) {
                     if(shell.multiverseFace && shell.multiverse.systemId === "pc" && (shell.pcAddFocused || !shell.multiverse.games.length)) return [h("A","Add game"),h("B","Games")]
                     const list = shell.multiverseFace ? shell.multiverse.route === "games" : shell.worlds.route === "adventures"

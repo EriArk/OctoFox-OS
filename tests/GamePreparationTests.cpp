@@ -44,7 +44,7 @@ private slots:
         QSignalSpy started(&c,&GamePreparationController::setupStarted),finished(&c,&GamePreparationController::setupFinished);
         c.canImport=[]{return false;};c.openSetup();QVERIFY(!c.busy());QVERIFY(!QFileInfo::exists(output));
         c.canImport=[]{return true;};c.setupGuard=[]{return QString("Window controls unavailable");};c.openSetup();QCOMPARE(c.status(),"Window controls unavailable");QVERIFY(!QFileInfo::exists(output));
-        c.setupGuard=[]{return QString();};c.openSetup();QTRY_COMPARE(finished.size(),1);QTRY_VERIFY(!c.busy());QCOMPARE(started.size(),1);QCOMPARE(get(output),QByteArray("literal ; $(unchanged)"));
+        c.setupGuard=[]{return QString();};c.dispatch(Action::ToggleFavorite);QTRY_COMPARE(finished.size(),1);QTRY_VERIFY(!c.busy());QCOMPARE(started.size(),1);QCOMPARE(get(output),QByteArray("literal ; $(unchanged)"));
         c.begin("ps2","custom-missing");QTRY_VERIFY(!c.busy());QVERIFY(!c.setupAvailable());
     }
     void invalidNativeProfileDoesNotOfferDefaultImport(){QTemporaryDir d;const QJsonObject p{{"validatedPlatforms",QJsonArray{"n3ds"}}};put(d.path()+"/integrations/azahar.json",QJsonDocument(p).toJson());QVERIFY(inventory({{"azahar",p}},d.path()).files.isEmpty());}

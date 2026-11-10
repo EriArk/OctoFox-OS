@@ -499,7 +499,7 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             shell.goToPage(4);break;
         case 53: {
             auto* previous=itemNamed("face-previous");auto* next=itemNamed("face-next");
-            auto* first=itemNamed("face-tab-0");auto* last=itemNamed("face-tab-2");
+            auto* first=itemNamed("face-tab-0");auto* last=itemNamed("face-tab-3");
             check(previous && next && first && last,"Apps has separate shoulder hints around its faces");
             if(previous && next && first && last) {
                 check(previous->mapRectToScene(previous->boundingRect()).right()<=first->mapRectToScene(first->boundingRect()).left() &&
@@ -509,14 +509,14 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             break;
         }
         case 54:
-            check(shell.appsFace()=="browser","Touch R2 advances the same Apps faces as the controller");
+            check(shell.appsFace()=="crates","Touch R2 advances Apps to Crates like the controller");
             if(auto* previous=itemNamed("face-previous"))QMetaObject::invokeMethod(previous,"activated");break;
         case 55:
             check(shell.appsFace()=="apps","Touch L2 returns to Apps");capture("navigation-apps-1080p");shell.goToPage(3);break;
         case 56:
             capture("navigation-social-1080p");shell.goToPage(2);break;
         case 57:
-            capture("navigation-gamehub-1080p");break;
+            check(shell.primaryId()=="home","A generic game has no empty adapter page");capture("navigation-no-adapter-home-1080p");break;
         case 58: {
             auto state=shell.social()->account();state["userId"]="profile-fixture";state["name"]="Mika";state["presence"]="idle";
             state["profile"]=QVariantMap{{"name","Mika"},{"tag","mika#1234"},{"bio","One more adventure."},{"avatar","qrc:/home-backdrops/green.png"}};
@@ -524,7 +524,7 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             shell.openAccountProfile();break;
         }
         case 59:
-            check(shell.service()=="account-profile" && shell.primaryId()=="gamehub","Account profile overlays the original route");
+            check(shell.service()=="account-profile" && shell.primaryId()=="home","Account profile overlays the original route");
             check(itemNamed("account-profile-card") && itemNamed("account-profile-card")->isVisible(),"Profile card is visible");
             capture("account-profile-1080p");shell.settings()->communication()->editProfile();break;
         case 60:
@@ -533,7 +533,7 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             check(shell.keyboard()->isOpen(),"Profile editor uses the shared keyboard");
             shell.dispatch(Action::Back);check(!shell.keyboard()->isOpen() && shell.settings()->communication()->profileEditing(),"Keyboard Back returns to profile editing");
             shell.dispatch(Action::Back);check(!shell.settings()->communication()->profileEditing() && shell.service()=="account-profile","Editor Back returns to profile");
-            shell.dispatch(Action::Back);check(shell.service().isEmpty() && shell.primaryId()=="gamehub","Profile Back restores the underlying route");break;
+            shell.dispatch(Action::Back);check(shell.service().isEmpty() && shell.primaryId()=="home","Profile Back restores the underlying route");break;
         case 62: {
             window->resize(960,540);shell.goToPage(0);
             shell.trainer()->beginEdit();shell.trainer()->setDraftName("Ren");shell.trainer()->activate(shell.trainer()->editRows().size()-2);break;

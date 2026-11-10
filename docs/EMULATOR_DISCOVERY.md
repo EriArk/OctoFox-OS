@@ -220,3 +220,13 @@ All deferred roadmap acceptance remains.
   raw joystick button/hat encoding, checked against the installed Flip bindings.
 - [PPSSPP SDL controller implementation](https://github.com/hrydgard/ppsspp/blob/master/SDL/SDLJoystick.cpp):
   upstream controller handling; existing controls are kept instead of overwritten.
+
+## Открытие самого эмулятора — 10 ноября 2026
+
+На странице платформ Games кнопка **Emulators** и **L3** открывают подготовку
+текущей платформы; наличие импортированной игры не требуется. Внутри **Open emulator**
+или L3 открывает обнаруженный штатный интерфейс. Vita3K и RPCS3 используют его
+собственную установку пакетов/игр. Это не создаёт фиктивный ROM или ярлык .psvita.
+Back возвращает в Games, существующий вход через Settings сохраняется.
+Работающий игровой процесс и текущая установка блокируют конфликтующий запуск.
+Аппаратная проверка этой новой точки входа пока выполняется.

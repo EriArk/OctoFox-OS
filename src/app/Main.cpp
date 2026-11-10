@@ -18,6 +18,7 @@
 #include "platform/emulation/EmulatorDiscovery.h"
 #include "platform/emulation/EmulatorRefresh.h"
 #include <atomic>
+#include <initializer_list>
 #include "core/repository/BatoceraLibrary.h"
 #include "platform/device/VolumeKeys.h"
 #include "platform/device/ShellGraphics.h"
@@ -1398,7 +1399,22 @@ int main(int argc, char* argv[]) {
                     frame->restart();
                 },Qt::DirectConnection);
                 auto* report=new QTimer(window);report->setInterval(1000);
-                bindings.connect(report,&QTimer::timeout,window,[&shell]{PerformanceTrace::flush(shell.page());});report->start();
+                bindings.connect(&shell,&ShellController::changed,window,[]{PerformanceTrace::sample("shell.changed",0);});
+                bindings.connect(report,&QTimer::timeout,window,[&shell,&app,window]{
+                    // Opt-in diagnostics contain only renderer state, never profile/content data.
+                    QJsonObject state{{"application",int(app.applicationState())}};
+                    const auto observe=[&](const char* name,std::initializer_list<const char*> properties){
+                        auto* object=window->findChild<QObject*>(QString::fromLatin1(name));
+                        QJsonObject values{{"present",object!=nullptr}};
+                        if(object)for(const auto* property:properties)
+                            values[QString::fromLatin1(property)]=QJsonValue::fromVariant(object->property(property));
+                        state[QString::fromLatin1(name)]=values;
+                    };
+                    observe("home-companion",{"live","presentationReady"});
+                    observe("home-widget-shutter",{"requested","retainContent","progress","contentReady"});
+                    observe("home-companion-scene",{"ready","animate","vertices"});
+                    PerformanceTrace::flush(shell.page(),state);
+                });report->start();
             }
             deviceReports.setWindow(window);
             bindings.connect(shell.powerControl(),&PowerControl::woke,window,[&,window]{

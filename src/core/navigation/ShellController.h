@@ -253,6 +253,7 @@ public:
     QString onlineFace() const { return onlineFace_; }
     bool chatNavigationFocused() const { return chatNavigationFocused_; }
     Q_INVOKABLE void importRom();
+    Q_INVOKABLE void openEmulators();
     Q_INVOKABLE void openAppsFace(const QString& face);
     Q_INVOKABLE void openOnlineFace(const QString& face);
     Q_INVOKABLE void selectChatFace(const QString& face);
@@ -484,6 +485,7 @@ private:
     bool libraryFromWorlds_ = false;
     QString notice_;
     bool gameSetupReturn_=false;
+    bool gamePreparationFromGames_=false;
     QString achievementToast_;
     quint64 achievementToastGeneration_ = 0;
     QString mode_;

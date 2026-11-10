@@ -151,6 +151,7 @@ void GamePreparationController::activate(int index) {
 void GamePreparationController::dispatch(Action a) {
     if(picker_.isOpen()){picker_.dispatch(a);return;}
     if(a==Action::Back){close();return;}
+    if(a==Action::ToggleFavorite){openSetup();return;}
     if(a==Action::ScrollUp||a==Action::ScrollDown){emit scrollRequested(a==Action::ScrollDown?1:-1);return;}
     const auto systems=platforms();int system=0;for(int n=0;n<systems.size();++n)if(systems[n].toMap()["id"]==group_)system=n;
     if(a==Action::PreviousFace||a==Action::NextFace){if(!systems.isEmpty())selectPlatform((system+systems.size()+(a==Action::PreviousFace?-1:1))%systems.size());return;}

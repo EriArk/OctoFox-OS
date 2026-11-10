@@ -20,9 +20,8 @@ HomeDashboardController::HomeDashboardController(LibraryRepository& library,Achi
         achievementsCached_=false;emit changed();
     });
     connect(&provider_,&AchievementProvider::achievementAwardsEarned,&companion_,&HomeCompanion::celebrateAwards);
-    // QML loader activation changes care state. Defer its presentation signal
-    // until the current widget/picker binding has finished evaluating.
-    connect(&companion_,&HomeCompanion::changed,this,&HomeDashboardController::changed,Qt::QueuedConnection);
+    // Companion bindings observe their own controller. Care ticks and animation
+    // state must not invalidate every dashboard and shell property.
     connect(&companion_,&HomeCompanion::widgetChangeRequested,this,&HomeDashboardController::editWidget);
 }
 void HomeDashboardController::setContext(QString adventure,bool generic) {

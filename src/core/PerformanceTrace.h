@@ -26,7 +26,7 @@ public:
         QMutexLocker guard(&mutex());auto& metric=metrics()[name];++metric.count;
         metric.total+=milliseconds;metric.maximum=qMax(metric.maximum,milliseconds);
     }
-    static void flush(int page) {
+    static void flush(int page, const QJsonObject& state = {}) {
         if(!enabled())return;
         QJsonObject data;
         { QMutexLocker guard(&mutex());for(auto it=metrics().begin();it!=metrics().end();++it)
@@ -34,7 +34,7 @@ public:
           metrics().clear(); }
         QFile file(QDir::homePath()+"/.local/state/traineros/performance.jsonl");
         if(file.size()>8*1024*1024 || !file.open(QIODevice::WriteOnly|QIODevice::Append))return;
-        file.write(QJsonDocument(QJsonObject{{"page",page},{"metrics",data}}).toJson(QJsonDocument::Compact)+'\n');
+        file.write(QJsonDocument(QJsonObject{{"page",page},{"metrics",data},{"state",state}}).toJson(QJsonDocument::Compact)+'\n');
     }
     class Scope {
         const char* name_;QElapsedTimer timer_;

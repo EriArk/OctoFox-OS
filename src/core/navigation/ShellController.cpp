@@ -407,11 +407,12 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&gamePreparation_,&GamePreparationController::changed,this,&ShellController::changed);
     connect(&gamePreparation_,&GamePreparationController::tasksChanged,this,[this]{downloads_.publish("game-preparation",gamePreparation_.tasks());});
     connect(&downloads_,&DownloadsController::commandRequested,this,[this](QString provider,QString,QString action){if(provider=="game-preparation"&&(action=="cancel"||action=="cancel-all"))gamePreparation_.cancel();});
-    const auto preparation=[this]{service_="game-preparation";gamePreparation_.begin();emit changed();};
+    const auto preparation=[this]{gamePreparationFromGames_=false;service_="game-preparation";gamePreparation_.begin();emit changed();};
     connect(&settings_,&SettingsController::gamePreparationRequested,this,preparation);
     connect(&diagnostics_,&DiagnosticsController::preparationRequested,this,preparation);
     connect(&gamePreparation_,&GamePreparationController::closeRequested,this,[this]{
         if(gameSetupReturn_){gameSetupReturn_=false;service_="library";libraryManager_.checkResult();}
+        else if(gamePreparationFromGames_){gamePreparationFromGames_=false;service_.clear();}
         else service_="settings";emit changed();
     });
     connect(&gamePreparation_,&GamePreparationController::onlineSettingsRequested,this,[this]{service_="settings";settings_.selectPage("online-services",true);emit changed();});
@@ -665,6 +666,12 @@ void ShellController::importRom() {
     if(!repository_.editable()){showNotice("Import is unavailable in the sample library.");return;}
     libraryFromWorlds_=true;service_="library";
     libraryManager_.beginImport(gamesRootZone_=="platforms"?gamesPlatforms().value(gamesPlatformIndex()).toMap()["id"].toString():QString());
+    emit changed();
+}
+void ShellController::openEmulators() {
+    if(page_!=GamesPage || !collectionsRoot_ || !pairedNavigationAvailable() || runtimeChangeBlocked() || !liveGame_.isEmpty())return;
+    gamePreparationFromGames_=true;gameSetupReturn_=false;service_="game-preparation";
+    gamePreparation_.begin(gamesRootZone_=="platforms"?gamesPlatforms().value(gamesPlatformIndex()).toMap()["id"].toString():QString());
     emit changed();
 }
 void ShellController::openAppsFace(const QString& face) {
@@ -1429,7 +1436,7 @@ void ShellController::goToPage(int page) {
     { PerformanceTrace::Scope phase("navigation.account"); hall_.account()->close(); }
     { PerformanceTrace::Scope phase("navigation.trainer"); trainer_.cancel(); }
     { PerformanceTrace::Scope phase("navigation.setup"); trainerSetup_.close(); }
-    { PerformanceTrace::Scope phase("navigation.manager"); gameSetupReturn_=false;libraryManager_.close(); service_.clear(); }
+    { PerformanceTrace::Scope phase("navigation.manager"); gameSetupReturn_=false;gamePreparationFromGames_=false;libraryManager_.close(); service_.clear(); }
     page_ = std::clamp(page, 0, int(primaryNames().size())-1); // No wrapping until physical-device testing.
     quickAppsOpen_=false;
     if(page_==AppsPage){apps_.refresh();if(appsFace_=="files")files_.enter();else if(appsFace_=="browser")browser_.enter();else if(appsFace_=="crates" && !restoringNavigation_)crates_.enter();}
@@ -2177,7 +2184,12 @@ void ShellController::dispatch(Action action) {
         }
         return;
     }
+    if(service_=="game-preparation" && action==Action::ToggleFavorite) {
+        if(!menuOpen_ && !homeMenuOpen_ && !drawerOpen_ && !quickAppsOpen_ && !keyboard_.isOpen() && notice_.isEmpty())gamePreparation_.openSetup();
+        return;
+    }
     if(action==Action::ToggleFavorite) {
+        if(page_==GamesPage && collectionsRoot_){openEmulators();return;}
         if(page_==GameHubPage && hubFace_=="overview" && overviewFace_=="screens") {
             if(pairedNavigationAvailable() && !navigationLocked() && !album_.filtering())album_.toggleFavorite();
         } else toggleLibraryFavorite(multiverse_.detail().value("id").toString());
