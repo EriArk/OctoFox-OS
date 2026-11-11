@@ -10,6 +10,15 @@
 
 The unqualified public entry pages are in English. Russian versions have an explicit language link and `_RU` suffix. The release page linked from the website also starts in English.
 
+## Social links and screenshots — owner decision, 11 November
+
+All social posts, including later Reddit posts, should lead readers to
+https://abysstail.art/en/projects/traineros rather than directly to GitHub.
+Use the screenshots prepared in `screenshots/alpha-7/`; older genuine captures
+may supplement them when needed, with their dates preserved. Include plenty of
+screenshots, without featuring mini-games. Publication drafts and per-destination
+receipts for this pass are in `2026-11-11/`; a draft is not a published post.
+
 ## Publication drafts
 
 [RELEASE_OVERVIEW_EN.md](RELEASE_OVERVIEW_EN.md) and [RELEASE_OVERVIEW_RU.md](RELEASE_OVERVIEW_RU.md) are the English and Russian social-post drafts saved on 4 November. They still contain release/support link placeholders and must be reviewed before posting. They are not the installation guide or proof that a post has been published.

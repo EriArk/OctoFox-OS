@@ -1,0 +1,61 @@
+Well, this project got a little out of hand. 😁
+
+
+
+
+The first public alpha of TrainerOS is finally here!
+
+
+
+
+I've been building a gaming environment that brings your games, multiplayer, friends and apps into one connected system. Something you can settle into, play in and hang out with friends in.
+
+
+
+
+Download, installation instructions and more screenshots: https://abysstail.art/en/projects/traineros
+
+
+
+
+The part I'm most excited about is Lobby. Different games connect in completely different ways, but the idea for players is simple: gather your friends, choose a game, get ready and press Start. You can suggest games and vote on what to play, while TrainerOS prepares the supported connection and emulator setup behind the scenes.
+
+
+
+
+Messages, communities and group voice calls are part of the same environment. Quick chat and voice controls can stay with you in-game, and you can keep talking when everyone wanders off to play something different.
+
+
+
+
+There's also your own customizable 3D character and wardrobe. Supported integrations can share that character, so your identity can follow you across games and activities. Crates brings in games, apps, widgets and extensions, and I'm developing the SDK so other people can connect their own projects to all of this too.
+
+
+
+
+And then there's the rest: the browser, files, Quick Apps, Home, achievements, gaming history, a first-run wizard... This is where the “got a little out of hand” part comes in. 😁
+
+
+
+
+The current release is Alpha 7 for Odin 2 and Flip 2 with ArmadaOS. Some things already work well, some are unfinished, and I'm sure you'll find bugs I haven't seen. Try the games and features you care about. Tell me what works, what breaks and what you'd like to see next. Even “I tried this and it worked!” is useful feedback.
+
+
+
+
+TrainerOS is free. If you'd like to help keep it moving, support here goes toward development time, hosting and hardware for testing. Sharing the project and sending feedback help enormously too. Thank you for being part of it. ❤️
+
+
+
+
+The screenshots below are the actual Alpha 7 screens I prepared on Odin 2 and Flip 2.
+
+
+
+
+Try it here: https://abysstail.art/en/projects/traineros
+
+
+
+
+​Download TrainerOS and read the installation guide​​​

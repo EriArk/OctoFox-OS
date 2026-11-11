@@ -1,0 +1,39 @@
+Well, this project got a little out of hand. 😁
+
+I've been building TrainerOS to bring games, multiplayer, friends, apps and everything around them into one connected gaming environment. And the first public alpha is finally here!
+
+Download, installation instructions and a much closer look:
+https://abysstail.art/en/projects/traineros
+
+One Lobby. A ridiculous number of different ways to play.
+
+Multiplayer is probably the most ambitious part of TrainerOS. Underneath, retro games use completely different ways of connecting. I wanted the part you actually interact with to feel like one system: create a Lobby, invite friends, choose a game, get ready and press Start. You can also suggest games and vote on what to play.
+
+For supported games, TrainerOS takes care of compatibility checks, emulator settings and coordinating the connection and launch. There is Remote Play too, where one person runs the game and another joins through video and remote controls. Some games have already been played on real devices; plenty more combinations still need people to try them.
+
+Keep talking while you play.
+
+Friends, communities, messages and group voice calls belong in the same place as your games. A compact in-game overlay keeps quick chat and voice controls close, and a call can carry on even when everyone is playing something different. I want playing and hanging out to feel like parts of the same experience.
+
+Your character comes with you.
+
+TrainerOS has a shared, customizable 3D character, with a profile and wardrobe. Supported integrations can use that same character and appearance. Your profile brings together gaming history, achievements and the experimental progression system. The idea is to have an identity that follows you around this little gaming world.
+
+Crates and the SDK.
+
+Crates is where games, apps, widgets and extensions can live inside TrainerOS. I'm also building the SDK so other developers can connect their projects to the surrounding environment: shared avatars, Lobby, multiplayer communication, results and widgets. The first integrations are here, and there's a lot I still want to do with them.
+
+Then there are the browser, files, Quick Apps, a customizable Home and all the little details that make it feel like somewhere you can actually stay, rather than just a menu you pass through to launch a game.
+
+This release is Alpha 7, currently for Odin 2 and Flip 2 with ArmadaOS. It also includes a short first-run wizard to get your library, character and appearance set up. It is very much an alpha: try your own games, experiment, and tell me what works and what breaks. Successful experiments are useful too!
+
+Thank you for helping me get it this far. ❤️
+
+TrainerOS is free, and support here helps pay for development time, hosting and real hardware for testing. If you've been following the project, sharing it, sending feedback or supporting the work: thank you. It makes a real difference to something this ambitious.
+
+The screenshots are from the actual Alpha 7 build on Odin 2 and Flip 2.
+
+Get the alpha and installation guide here:
+https://abysstail.art/en/projects/traineros
+
+Have fun breaking things. Just please tell me how you did it! 😁

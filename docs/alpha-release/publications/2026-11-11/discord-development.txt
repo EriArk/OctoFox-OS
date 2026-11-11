@@ -1,0 +1,18 @@
+## TrainerOS Alpha — it finally escaped the development folder 😁
+
+The first public alpha is out, and this feels like a good moment to show how much this project has grown.
+
+The thing tying it together is **one Lobby**: invite people, suggest games, vote, get ready and start. The connection underneath can be completely different from one game to another; I want gathering friends to feel familiar every time. Some combinations have real gameplay behind them, and lots more need people to try them.
+
+The social side stays with you too: friends, chats, group voice and a compact in-game overlay. Changing games doesn't have to mean leaving the people you're hanging out with.
+
+Then there's the shared **3D character**, profile and wardrobe, **Crates**, and the early **SDK**. I'm building the pieces that let games, apps and widgets use the same avatars, Lobby and surrounding environment. I'd love to see what other developers make with it.
+
+For this release, a lot of work also went into the less glamorous but very necessary part: the installer and first-run wizard. Alpha 7 now has a guided start for your library, character, appearance and optional accounts. The current installer is for Odin 2 and Flip 2 with ArmadaOS.
+
+I've attached screens from the actual build — Lobby, friends, profile, wardrobe, Crates, browser and setup. If you try it, tell me about the ordinary stuff as well as the weird experiments. “This game worked” is useful feedback too.
+
+**Try the alpha, see the project and get the installation guide:**
+https://abysstail.art/en/projects/traineros
+
+Still a lot to build. But it finally feels like something I can put in your hands. 😁

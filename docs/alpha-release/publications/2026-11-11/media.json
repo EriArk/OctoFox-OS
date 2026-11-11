@@ -1,0 +1,42 @@
+[
+  {
+    "path": "../screenshots/alpha-7/odin-alpha7-lobby-create.png",
+    "sha256": "f3435a4885a7b1c62bc9e63f2b85e428aafe4d2405ba697eb34021288e773a3f"
+  },
+  {
+    "path": "../screenshots/alpha-7/odin-alpha7-local-room.png",
+    "sha256": "bb483a77472369afe0c0f4f7ddbb9ab5cfcf7a3d995585bf581aeaf563ee89ad"
+  },
+  {
+    "path": "../screenshots/alpha-7/odin-alpha7-online.png",
+    "sha256": "79aaab9e79f07494745d9b7fa9dd53229bfb29ad3420af836b8f9c644ae0a348"
+  },
+  {
+    "path": "../screenshots/alpha-7/odin-alpha7-profile-ready.png",
+    "sha256": "704a9802bfb54efd79943a4df27729c36a4415cb05c45f3d771a9e289d3e131f"
+  },
+  {
+    "path": "../screenshots/alpha-7/odin-alpha7-wardrobe-final.png",
+    "sha256": "60c59a2b88b9fddfe0c1c359f6347e147627e9ad73a84a932286f0d3dd7bf683"
+  },
+  {
+    "path": "../screenshots/alpha-7/odin-alpha7-crates-ready.png",
+    "sha256": "6f0da8eb28e9d6ad253346443498127c9faa15ad10aba49e17d8b93d49624f81"
+  },
+  {
+    "path": "../screenshots/alpha-7/odin-alpha7-browser.png",
+    "sha256": "fbb381d38b46300364e35ef181ebd45ac3d6eaf5a4aaa7a576429d2189d019e0"
+  },
+  {
+    "path": "../screenshots/alpha-7/odin-alpha7-settings.png",
+    "sha256": "36a11434d1b484a4c1ca76758d96b8d1224229850b2b49c3312b6db0409b595c"
+  },
+  {
+    "path": "../screenshots/alpha-7/flip-alpha7-wizard-welcome.png",
+    "sha256": "7ab4ac5f22e8de0757327b7495b2656246f5e279e91ee7928ab4edc18962c748"
+  },
+  {
+    "path": "../screenshots/alpha-7/flip-alpha7-wizard-ready.png",
+    "sha256": "c637e9481292f5d576cab142f4204a7bcfc4ba7987931ceb0433bab0f06d0dee"
+  }
+]

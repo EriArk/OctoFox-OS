@@ -1,0 +1,22 @@
+{
+  "website": "https://abysstail.art/en/projects/traineros",
+  "discord-announcements": {
+    "status": "not_sent",
+    "reason": "Browser sign-in required"
+  },
+  "discord-development": {
+    "status": "not_sent",
+    "reason": "Browser sign-in required"
+  },
+  "patreon": {
+    "status": "draft",
+    "url": "https://www.patreon.com/AbyssTail/posts/175027151/edit",
+    "images_uploaded": 0
+  },
+  "kofi": {
+    "status": "draft",
+    "url": "https://ko-fi.com/blog/editor/TrainerOS-the-first-public-alpha-is-here-G1T52AGR5T?mode=edit",
+    "images_uploaded": 0
+  },
+  "upload_blocker": "Chrome extension requires Allow access to file URLs"
+}

@@ -1,0 +1,16 @@
+## TrainerOS — the first public alpha is here! 😁
+
+Well, this project got a little out of hand.
+
+Games, multiplayer, friends, apps and everything around them — I've been trying to bring it all into one connected gaming environment. And you can finally try it!
+
+Create a **Lobby**, invite friends, choose a game and get ready together. Keep talking through messages and voice while you play — even when everyone is playing something different.
+
+There's your own **3D character and wardrobe**, **Crates** for games, apps and widgets, and an early **SDK** for connecting more projects to the same world. Plus the browser, files, Quick Apps, achievements and a lot of other things that somehow found their way into this project. 😁
+
+This is **Alpha 7**, currently for Odin 2 and Flip 2 with ArmadaOS. It's an alpha, so try what interests you and tell me what works, what breaks and what you'd like to see next. Successful experiments are useful too!
+
+**Download, installation instructions and more:**
+https://abysstail.art/en/projects/traineros
+
+A bunch of actual Alpha 7 screenshots below. Have fun breaking things — just please tell me how you did it! ❤️
