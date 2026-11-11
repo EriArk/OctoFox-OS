@@ -1,6 +1,6 @@
 # r/foss — full project, open-source architecture opening
 
-> DRAFT, NOT POSTED. Use after the public alpha release is verified; replace [ALPHA_RELEASE_URL]. Adjust flair and follow the current community rules. Attach real handheld screenshots/video rather than promotional mockups. All main TrainerOS systems are intentionally included: different opening angles, not amputated features.
+> Draft for posting. Alpha 7 is public; check the current community rules/flair and use real device captures. Keep the whole TrainerOS story.
 
 > Original TrainerOS code is GPL-3.0-or-later; third-party components follow their own licenses. The existing source/notices review for distribution is recorded separately. Check current self-promotion rules at publication time.
 
@@ -20,7 +20,7 @@ It's built on Linux, and the original application code is **GPL-3.0-or-later** (
 
 TrainerOS is a **controller-first Linux gaming environment**. Games are organized by platforms and collections, and you can browse by wheel, list, cover shelves or screenshot grid. The Home screen follows the selected game, while quick drawers bring up recent/favorite games and running apps without forcing a trip through a desktop.
 
-Start is a customizable panel for widgets and device controls. There are also ordinary apps, a file manager, a browser, downloads, and Steam-library integration. Steam still owns its own installs, Proton and Steam Input; TrainerOS brings installed titles into the same game-focused experience. The idea is to pick up the handheld, choose something to play, and come back to your games, people and history when you're done.
+Start is a customizable panel for widgets and device controls. You can import ROMs in Games, check emulator/BIOS readiness, browse with a gamepad-controlled cursor, and run ordinary Linux apps. Apps can be minimized through Home and resumed via Quick Apps; Steam-library integration is included too. Steam still owns its own installs, Proton and Steam Input; TrainerOS brings installed titles into the same game-focused experience. The idea is to pick up the handheld, choose something to play, and come back to your games, people and history when you're done.
 
 ## The part that started it: games that extend beyond the game window
 
@@ -56,7 +56,7 @@ Your profile also gathers RetroAchievements, gaming history, screenshots, trophi
 
 ## Crates: games, apps, widgets — and the SDK underneath
 
-**Crates** is the installable project catalogue. A Crates game joins the ordinary Games library, an app joins Apps, and a compatible widget appears on system screens. It isn't another isolated launcher.
+**Crates**, now under Apps, is the installable project catalogue. A Crates game joins the ordinary Games library, an app joins Apps, and a compatible widget appears on system screens. It isn't another isolated launcher.
 
 The experimental catalogue already includes things like **Pocket Golf**, **Micro Rally**, Pocket Artillery, Pong, Snake Arena, Light Cycles, Brick Tanks and more.
 
@@ -66,19 +66,17 @@ The **TrainerOS SDK** lets other developers connect their own games or apps to t
 
 ## Where this could go
 
-I'm also designing **Bazaar**: shared spaces where players could meet, show off characters and items, take part in activities and jump into games together. That's a direction I'm building toward, **not a feature included in this alpha**.
-
-What keeps me interested is the combination: games, people, avatars, achievements and little activities all becoming part of one gaming environment instead of separate utilities.
+Alpha 7 already includes **Bazaar's illustrated catalogue and previews** of official and player worlds. The 3D spaces aren't playable yet and Bazaar purchases are disabled. I want to build toward personal markets, stalls and weekly Sparks rentals — another way for players to spend time together between games.
 
 ## The first public alpha
 
-**The first installer targets compatible handhelds running ArmadaOS.** It installs over that Linux environment; it is **not an Android APK**, a universal handheld firmware image, or a SteamOS/Bazzite installer. Broader Linux installers are planned separately.
+**Alpha 7 is publicly available** for compatible ArmadaOS handhelds, with checks on **Retroid Pocket Flip 2 and AYN Odin 2**. On Flip 2, a single-run install, first-run wizard with optional accounts and phone-registration QR codes, game launch/return and reboot back into TrainerOS were verified. It's **not an Android APK**, universal handheld firmware, or a SteamOS/Bazzite installer; broader Linux support is planned.
 
-This is an **experimental alpha**. Several real game/device scenarios have been tested, but others are early integrations. I'd love reports about specific handhelds, games, controls and networking setups — **successful launches are useful reports too**.
+This is an **experimental alpha**. The paired multiplayer examples above were tested on earlier builds; Alpha 7's acceptance checked local game launch/return, not a fresh paired match. I'd love reports about specific handhelds, games, controls and networking setups — **successful launches are useful reports too**.
 
 TrainerOS is free, and the source is available. If you enjoy this slightly ridiculous project, you can help by testing, reporting bugs, joining the community or sharing the project.
 
-**Alpha:** [ALPHA_RELEASE_URL]  
+**Alpha:** https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7  
 **Source:** https://github.com/EriArk/TrainerOS  
 **Discord:** https://discord.gg/xBN9DXt8Q  
 **Support:** https://www.patreon.com/AbyssTail/membership
