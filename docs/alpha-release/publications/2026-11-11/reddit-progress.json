@@ -1,0 +1,116 @@
+{
+  "date": "2026-11-11",
+  "status": "published_with_two_filtered_posts",
+  "approvedTextFile": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/2026-11-11/reddit-final-en.txt",
+  "currentPost": "https://www.reddit.com/r/AbyssTail/comments/1xtkpeq/traineros_the_first_public_alpha_is_here/",
+  "currentImages": [
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/flip-alpha7-games.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/flip-alpha7-gba.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-home.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-apps-current.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-crates-ready.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-lobby-create.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-online.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-profile-ready.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-wardrobe-final.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/studio-game-home-lobby.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-files-documents.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-browser-web-loaded.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-settings.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/flip-alpha7-wizard-accounts.png",
+    "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-bazaar.png"
+  ],
+  "deletedReplacedPosts": [
+    "https://www.reddit.com/r/AbyssTail/comments/1xtjq2k/",
+    "https://www.reddit.com/r/ArmadaOS/comments/1xtjry3/",
+    "https://www.reddit.com/r/AbyssTail/comments/1xtjwq6/",
+    "https://www.reddit.com/r/AbyssTail/comments/1xtjyxj/"
+  ],
+  "drafts": [],
+  "ownerCorrection": "Use latest repository screenshots; no repeated screens. Selection and final publication receipts recorded.",
+  "preservedPlatforms": [
+    "Discord announcements",
+    "Discord development",
+    "Patreon",
+    "Ko-fi"
+  ],
+  "newScreenshots": {
+    "commit": "abe614d7",
+    "guide": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/MAIN_SCREENS.md",
+    "files": [
+      "flip-alpha7-games.png",
+      "flip-alpha7-gba.png",
+      "odin-alpha7-apps-current.png"
+    ]
+  },
+  "media_manifest": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/2026-11-11/reddit-media-final.json",
+  "publishing_copy": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/2026-11-11/reddit-publishing-en.txt",
+  "new_posts_this_attempt": [
+    "https://www.reddit.com/r/AbyssTail/comments/1xtkpeq/traineros_the_first_public_alpha_is_here/",
+    "https://www.reddit.com/r/OdinHandheld/comments/1xtkqmw/traineros_the_first_public_alpha_is_here/",
+    "https://www.reddit.com/r/retroid/comments/1xtkqns/traineros_the_first_public_alpha_is_here/",
+    "https://www.reddit.com/r/ArmadaOS/comments/1xtkqzj/traineros_the_first_public_alpha_is_here/",
+    "https://www.reddit.com/r/RetroHandhelds/comments/1xtkszt/traineros_the_first_public_alpha_is_here/",
+    "https://www.reddit.com/r/SideProject/comments/1xtkszj/traineros_the_first_public_alpha_is_here/"
+  ],
+  "posts": [
+    {
+      "community": "AbyssTail",
+      "url": "https://www.reddit.com/r/AbyssTail/comments/1xtkpeq/traineros_the_first_public_alpha_is_here/",
+      "type": "original_gallery",
+      "images": 15,
+      "status": "published",
+      "notices": [],
+      "verified_on": "2026-11-11"
+    },
+    {
+      "community": "OdinHandheld",
+      "url": "https://www.reddit.com/r/OdinHandheld/comments/1xtkqmw/traineros_the_first_public_alpha_is_here/",
+      "type": "original_gallery",
+      "images": 15,
+      "status": "published",
+      "notices": [],
+      "verified_on": "2026-11-11"
+    },
+    {
+      "community": "retroid",
+      "url": "https://www.reddit.com/r/retroid/comments/1xtkqns/traineros_the_first_public_alpha_is_here/",
+      "type": "original_gallery",
+      "images": 15,
+      "status": "published",
+      "notices": [],
+      "verified_on": "2026-11-11"
+    },
+    {
+      "community": "ArmadaOS",
+      "url": "https://www.reddit.com/r/ArmadaOS/comments/1xtkqzj/traineros_the_first_public_alpha_is_here/",
+      "type": "crosspost",
+      "images": 15,
+      "status": "published",
+      "notices": [],
+      "verified_on": "2026-11-11"
+    },
+    {
+      "community": "RetroHandhelds",
+      "url": "https://www.reddit.com/r/RetroHandhelds/comments/1xtkszt/traineros_the_first_public_alpha_is_here/",
+      "type": "crosspost",
+      "images": 15,
+      "status": "filtered",
+      "notices": [
+        "  - generic: Sorry, this post was removed by Reddit’s filters."
+      ],
+      "verified_on": "2026-11-11"
+    },
+    {
+      "community": "SideProject",
+      "url": "https://www.reddit.com/r/SideProject/comments/1xtkszj/traineros_the_first_public_alpha_is_here/",
+      "type": "text",
+      "images": 0,
+      "status": "filtered",
+      "notices": [
+        "  - generic: Sorry, this post was removed by Reddit’s filters."
+      ],
+      "verified_on": "2026-11-11"
+    }
+  ]
+}

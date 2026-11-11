@@ -1,0 +1,114 @@
+# TrainerOS — The First Public Alpha Is Here! 😁
+
+Well, this project got a little out of hand.
+
+I've been building **TrainerOS**, a gaming environment designed to bring games, multiplayer, friends, apps, and everything around them into one connected system.
+
+And today, I'm finally releasing the **first public alpha!**
+
+### One Lobby. A ridiculous number of different systems.
+
+Multiplayer is probably the most ambitious part of TrainerOS.
+
+Retro multiplayer is a mess of completely different technologies: NetPlay, link cables, wireless connections, LAN adapters, arcade networks, original online services... Every platform does things differently.
+
+I wanted to make all of that feel like **one multiplayer system**.
+
+The idea is simple: create or join a Lobby, invite your friends, choose a game and its multiplayer mode, get ready, and press Start. You can even suggest several games and vote on what to play.
+
+**TrainerOS handles the technical side automatically.** It checks compatibility, prepares the appropriate emulators and settings, and coordinates the network connection and game launch.
+
+Under the hood, the mechanisms can be completely different. But for the players, the process stays the same.
+
+And the multiplayer layer already covers a pretty wide range of systems: classic RetroArch NetPlay, Game Boy and GBA links, PSP Ad Hoc, DS and 3DS wireless, N64, Dreamcast, GameCube/Wii, PS2 LAN, original Xbox System Link, arcade systems, and more.
+
+There's also Remote Play, where one person runs the game while another joins through video streaming and remote controls.
+
+Some games have already been played successfully on real devices. Many more integrations are implemented but still need broader testing. With this many games, platforms, and networking scenarios, I definitely can't test everything alone. 😁
+
+### Keep talking while you play
+
+TrainerOS integrates friends, communities, messaging, group voice calls, and game streams.
+
+And you don't have to leave your game to use them.
+
+A compact in-game overlay provides quick chat, player avatars, voice activity indicators, and microphone controls. You can exchange messages or talk to friends while continuing to play.
+
+Group calls can also continue when everyone is playing different games, and other people can watch supported game streams without needing the game themselves.
+
+I want playing and hanging out to feel like parts of the same experience.
+
+### Your character is more than a profile picture
+
+TrainerOS also has a shared, customizable 3D player character.
+
+Supported games can use that same character and appearance instead of making you create a new one every time.
+
+For example, **Pocket Golf** uses the players' customized 3D avatars, while other integrated mini-games can use their player portraits.
+
+Your profile also brings together gaming history, RetroAchievements, and an experimental progression system with levels and XP.
+
+The idea is to give players a recognizable identity that can follow them across different games and activities.
+
+That same character will also be your way into **Bazaar**, a future shared 3D space inside TrainerOS. I'm planning an official **Relay** with interconnected squares where you can walk around, meet other players and trade — all as the character you've already created, wearing your chosen outfit.
+
+Players will also be able to create their own smaller bazaars, invite visitors and set up trading stalls, with plans to rent trading spaces to other players. I want your character to have somewhere to meet people and spend time between games, too.
+
+Bazaar is still in development. The alpha currently includes previews of the idea; the playable spaces and trading are coming later.
+
+### Crates, mini-games, and the SDK
+
+**Crates** is a built-in collection of installable games, apps, widgets, and extensions.
+
+There are already projects to try, including **Pocket Golf** and **Micro Rally**, alongside other small games and utilities.
+
+But I want Crates to become more than just a download catalogue.
+
+That's why I'm also developing the **TrainerOS SDK**, allowing other developers to connect their own games and applications to the system.
+
+The early SDK already includes access to shared avatars, Lobby integration, multiplayer communication, match results, and widgets.
+
+So developers can create their own games, use TrainerOS characters, launch multiplayer sessions through the same Lobby, and integrate with the surrounding environment without building all that infrastructure themselves.
+
+The first working integrations are already here, and there's plenty more planned.
+
+### And there's more
+
+TrainerOS also includes a customizable dashboard, widgets, quick apps, game-specific hubs, screenshots, gaming history, Steam library integration, and more.
+
+There's even a separate **Nearby Link** system for supported save-based activities such as trading, gifting, and battling between devices.
+
+I'm trying to build something that feels like its own gaming environment, rather than another frontend with a bigger settings menu.
+
+### A few important things about this alpha
+
+**The first alpha installer currently supports ArmadaOS-compatible devices only.**
+
+I'm planning to release installers for **SteamOS, Bazzite, and other Linux systems in about two weeks**.
+
+Also, this is very much an alpha. Some features are already quite functional, others are unfinished, and plenty of bugs are waiting to be discovered.
+
+But there's already enough here that I'd rather let people explore the system than spend another eternity testing everything by myself.
+
+Try your favorite games, experiment with multiplayer, explore Crates, and tell me what works, what breaks, and what you'd like to see next.
+
+Even reports about games that work perfectly are useful!
+
+### Want to help the project grow? ❤️
+
+**TrainerOS is free**, but developing and maintaining a project of this scale takes a lot of time, work, and money.
+
+If you like what I'm building and want to help it grow, please consider supporting me on **Patreon**.
+
+The project genuinely needs financial support to keep moving forward, and even a small monthly contribution would make a real difference.
+
+And if you can't contribute financially, testing, reporting bugs, sharing the project, and spreading the word help enormously too.
+
+---
+
+**Download the alpha, read the installation guide, see more screenshots and find ways to support the project:**
+https://abysstail.art/en/projects/traineros
+
+Have fun breaking things. Just please tell me how you did it! 😁
+
+*Screenshot note: the in-game Home panel is the real native interface shown with demo player data; it is not a recording of a live multiplayer session.*

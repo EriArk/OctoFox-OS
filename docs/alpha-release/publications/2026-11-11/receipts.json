@@ -27,7 +27,75 @@
   },
   "verified_on": "2026-11-11",
   "reddit": {
-    "status": "not_requested_yet",
-    "cta": "https://abysstail.art/en/projects/traineros"
+    "status": "published_with_two_filtered_posts",
+    "verified_on": "2026-11-11",
+    "verification": "AbyssTail, OdinHandheld, retroid and ArmadaOS are visible without removal/filter notices; the three handheld community pages were refreshed for the final check. RetroHandhelds and SideProject show removal by Reddit filters; no retries submitted.",
+    "cta": "https://abysstail.art/en/projects/traineros",
+    "previous_deleted_posts": [
+      "https://www.reddit.com/r/AbyssTail/comments/1xtjq2k/",
+      "https://www.reddit.com/r/AbyssTail/comments/1xtjwq6/",
+      "https://www.reddit.com/r/AbyssTail/comments/1xtjyxj/",
+      "https://www.reddit.com/r/ArmadaOS/comments/1xtjry3/"
+    ],
+    "posts": [
+      {
+        "community": "AbyssTail",
+        "url": "https://www.reddit.com/r/AbyssTail/comments/1xtkpeq/traineros_the_first_public_alpha_is_here/",
+        "type": "original_gallery",
+        "images": 15,
+        "status": "published",
+        "notices": [],
+        "verified_on": "2026-11-11"
+      },
+      {
+        "community": "OdinHandheld",
+        "url": "https://www.reddit.com/r/OdinHandheld/comments/1xtkqmw/traineros_the_first_public_alpha_is_here/",
+        "type": "original_gallery",
+        "images": 15,
+        "status": "published",
+        "notices": [],
+        "verified_on": "2026-11-11"
+      },
+      {
+        "community": "retroid",
+        "url": "https://www.reddit.com/r/retroid/comments/1xtkqns/traineros_the_first_public_alpha_is_here/",
+        "type": "original_gallery",
+        "images": 15,
+        "status": "published",
+        "notices": [],
+        "verified_on": "2026-11-11"
+      },
+      {
+        "community": "ArmadaOS",
+        "url": "https://www.reddit.com/r/ArmadaOS/comments/1xtkqzj/traineros_the_first_public_alpha_is_here/",
+        "type": "crosspost",
+        "images": 15,
+        "status": "published",
+        "notices": [],
+        "verified_on": "2026-11-11"
+      },
+      {
+        "community": "RetroHandhelds",
+        "url": "https://www.reddit.com/r/RetroHandhelds/comments/1xtkszt/traineros_the_first_public_alpha_is_here/",
+        "type": "crosspost",
+        "images": 15,
+        "status": "filtered",
+        "notices": [
+          "  - generic: Sorry, this post was removed by Reddit’s filters."
+        ],
+        "verified_on": "2026-11-11"
+      },
+      {
+        "community": "SideProject",
+        "url": "https://www.reddit.com/r/SideProject/comments/1xtkszj/traineros_the_first_public_alpha_is_here/",
+        "type": "text",
+        "images": 0,
+        "status": "filtered",
+        "notices": [
+          "  - generic: Sorry, this post was removed by Reddit’s filters."
+        ],
+        "verified_on": "2026-11-11"
+      }
+    ]
   }
 }

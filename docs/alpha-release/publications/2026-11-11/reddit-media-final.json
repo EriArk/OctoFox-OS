@@ -1,0 +1,171 @@
+{
+  "source_commit": "abe614d7",
+  "selection": "15 distinct current interface views; no legacy library, no game footage, no repeated themes or menu variants",
+  "images": [
+    {
+      "order": 1,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/flip-alpha7-games.png",
+      "caption": "Game collections and platforms",
+      "sha256": "6679a5db359e84b8738ad8f9ff189c43e06a8b508f3a0a2a84579d72429f6584",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/01-flip-alpha7-games.png"
+    },
+    {
+      "order": 2,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/flip-alpha7-gba.png",
+      "caption": "Browsing a platform library",
+      "sha256": "13a562cf5868771423fae62a215c6aa628d04cc0bccc260e67335abc5644b848",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/02-flip-alpha7-gba.png"
+    },
+    {
+      "order": 3,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-home.png",
+      "caption": "Home and game hub",
+      "sha256": "b3b53a8b73ee92fdd256426b8823b745fce1eb1e126d291b4843b358e0426417",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/03-odin-alpha7-home.png"
+    },
+    {
+      "order": 4,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-apps-current.png",
+      "caption": "Apps",
+      "sha256": "f53e52d394d0d4a7c884fcecdc43a5eb0b6ebc98a00848886b46c208f97e62cf",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/04-odin-alpha7-apps-current.png"
+    },
+    {
+      "order": 5,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-crates-ready.png",
+      "caption": "Crates catalogue",
+      "sha256": "6f0da8eb28e9d6ad253346443498127c9faa15ad10aba49e17d8b93d49624f81",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/05-odin-alpha7-crates-ready.png"
+    },
+    {
+      "order": 6,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-lobby-create.png",
+      "caption": "Creating a multiplayer lobby",
+      "sha256": "f3435a4885a7b1c62bc9e63f2b85e428aafe4d2405ba697eb34021288e773a3f",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/06-odin-alpha7-lobby-create.png"
+    },
+    {
+      "order": 7,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-online.png",
+      "caption": "Friends and chats",
+      "sha256": "79aaab9e79f07494745d9b7fa9dd53229bfb29ad3420af836b8f9c644ae0a348",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/07-odin-alpha7-online.png"
+    },
+    {
+      "order": 8,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-profile-ready.png",
+      "caption": "Player profile",
+      "sha256": "704a9802bfb54efd79943a4df27729c36a4415cb05c45f3d771a9e289d3e131f",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/08-odin-alpha7-profile-ready.png"
+    },
+    {
+      "order": 9,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-wardrobe-final.png",
+      "caption": "Character wardrobe",
+      "sha256": "60c59a2b88b9fddfe0c1c359f6347e147627e9ad73a84a932286f0d3dd7bf683",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/09-odin-alpha7-wardrobe-final.png"
+    },
+    {
+      "order": 10,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/studio-game-home-lobby.png",
+      "caption": "In-game Home — native interface with demo player data; not a recorded live session",
+      "sha256": "78feddd4e8185097eff965b6113f1ace56ad63ac5978bacbd0b617937f296e3a",
+      "width": 1920,
+      "height": 1080,
+      "source": "native UI presentation fixture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/10-studio-game-home-lobby.png"
+    },
+    {
+      "order": 11,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-files-documents.png",
+      "caption": "File manager",
+      "sha256": "74fdb6e5a7da3a59cd4704044bd50e9e418ef7ae3a5dfb28cead14d69a2b05a7",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/11-odin-alpha7-files-documents.png"
+    },
+    {
+      "order": 12,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-browser-web-loaded.png",
+      "caption": "Built-in browser",
+      "sha256": "5222a7ad24b6ae77404865c43dbab23bc3593415a950b908b70d20e40351c9ed",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/12-odin-alpha7-browser-web-loaded.png"
+    },
+    {
+      "order": 13,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-settings.png",
+      "caption": "Appearance settings",
+      "sha256": "36a11434d1b484a4c1ca76758d96b8d1224229850b2b49c3312b6db0409b595c",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/13-odin-alpha7-settings.png"
+    },
+    {
+      "order": 14,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/flip-alpha7-wizard-accounts.png",
+      "caption": "First-run setup: optional accounts",
+      "sha256": "49dedaed7d3e0b17da2bfef7867d31e74210696d609737b598b745247dbd81f5",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/14-flip-alpha7-wizard-accounts.png"
+    },
+    {
+      "order": 15,
+      "file": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-bazaar.png",
+      "caption": "Bazaar catalogue — future spaces, not playable yet",
+      "sha256": "a654a3d76c239a887eea12935e275982af80ab6a910d592c77caa4388ecb7025",
+      "width": 1920,
+      "height": 1080,
+      "source": "handheld capture",
+      "capture_date": "2026-11-11",
+      "upload_file": "/tmp/traineros-reddit-final-20261111/15-odin-alpha7-bazaar.png"
+    }
+  ]
+}
