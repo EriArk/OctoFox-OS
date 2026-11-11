@@ -1,0 +1,221 @@
+{
+  "description": "Additional screenshot selection. Capture origins are deliberately separate from the original handheld-only manifest.",
+  "sourceCommitForNewQmlPreviews": "dddc7b0b71c24178da36aa44a6ef7d1a1747b58d",
+  "qmlSha256": {
+    "src/qml/GameOptions.qml": "0b78d3a5042e2493312bd0a3282da9c81d87cfd05f70be353437e5997e12bb0f",
+    "src/qml/QuickAppsDrawer.qml": "341b5d6f3fde387d69ad0c087c01c09eac35649ffef8097ce00ae072b57185de",
+    "src/qml/AppsDock.qml": "55289df359da13579077d452fd5fe71162948bc86479009ef40570b2ba0caae7"
+  },
+  "captures": [
+    {
+      "file": "studio-game-home-light.png",
+      "title": "In-game Home — light",
+      "titleRu": "Игровое Home — светлая тема",
+      "kind": "native-qml-preview",
+      "captured": "2026-11-11",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sha256": "b5beda06d835c92313686604c4a7c04eae7842c26a5e9a78ebd2a56fcbc453f9",
+      "source": "Native QML capture harness, Qt 6.11.2 / Xvfb / software OpenGL",
+      "note": "Unmodified GameOptions.qml rendered with presentation fixtures and a retained Advance Wars title-screen capture. Lobby members are fixtures; this is not a multiplayer test."
+    },
+    {
+      "file": "studio-game-home-dark.png",
+      "title": "In-game Home — dark",
+      "titleRu": "Игровое Home — тёмная тема",
+      "kind": "native-qml-preview",
+      "captured": "2026-11-11",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sha256": "af8b2384fbfbe6ca66c215e3ef051b4cd3104335b144651a00aaafd44b4faf0e",
+      "source": "Native QML capture harness, Qt 6.11.2 / Xvfb / software OpenGL",
+      "note": "Unmodified GameOptions.qml rendered with presentation fixtures and a retained Advance Wars title-screen capture. Lobby members are fixtures; this is not a multiplayer test."
+    },
+    {
+      "file": "studio-game-home-lobby.png",
+      "title": "In-game Home — lobby panel",
+      "titleRu": "Игровое Home — панель лобби",
+      "kind": "native-qml-preview",
+      "captured": "2026-11-11",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sha256": "78feddd4e8185097eff965b6113f1ace56ad63ac5978bacbd0b617937f296e3a",
+      "source": "Native QML capture harness, Qt 6.11.2 / Xvfb / software OpenGL",
+      "note": "Unmodified GameOptions.qml rendered with presentation fixtures and a retained Advance Wars title-screen capture. Lobby members are fixtures; this is not a multiplayer test."
+    },
+    {
+      "file": "studio-quick-apps.png",
+      "title": "Quick Apps — minimized application",
+      "titleRu": "Quick Apps — свёрнутое приложение",
+      "kind": "native-qml-composite-preview",
+      "captured": "2026-11-11",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sha256": "0329c3efb5431c6dfcc0da721d5a4c5fa66c805b1e572f68e941ba480e5a8e2d",
+      "source": "Native QML capture harness, Qt 6.11.2 / Xvfb / software OpenGL",
+      "note": "Production QuickAppsDrawer and AppsDock with fixture entries and illustrative repository icons over a retained Odin Home screenshot. This is a component preview, not a new handheld capture."
+    },
+    {
+      "file": "odin-alpha7-files-documents.png",
+      "title": "Files — empty Documents folder",
+      "titleRu": "Files — пустая папка Documents",
+      "kind": "handheld-capture",
+      "captured": "2026-11-11",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sha256": "74fdb6e5a7da3a59cd4704044bd50e9e418ef7ae3a5dfb28cead14d69a2b05a7",
+      "source": "build/handheld-validation-20261110/private/odin-alpha7-files-documents.png",
+      "note": "Retained Alpha 7 validation capture; no new handheld session was performed for this gallery."
+    },
+    {
+      "file": "odin-alpha7-browser-web-loaded.png",
+      "title": "Browser — loaded web page",
+      "titleRu": "Браузер — загруженная страница",
+      "kind": "handheld-capture",
+      "captured": "2026-11-11",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sha256": "5222a7ad24b6ae77404865c43dbab23bc3593415a950b908b70d20e40351c9ed",
+      "source": "build/handheld-validation-20261110/private/odin-alpha7-browser-web-loaded.png",
+      "note": "Retained Alpha 7 validation capture; no new handheld session was performed for this gallery."
+    },
+    {
+      "file": "flip-alpha7-power.png",
+      "title": "Power menu",
+      "titleRu": "Меню питания",
+      "kind": "handheld-capture",
+      "captured": "2026-11-11",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sha256": "8b816fc553090fc8817298ad1e4c3ee5a7172639f8043af4592a742ee2c19d9f",
+      "source": "build/handheld-validation-20261110/private/flip-alpha7-power.png",
+      "note": "Retained Alpha 7 validation capture; no new handheld session was performed for this gallery."
+    },
+    {
+      "file": "flip-alpha7-restart-confirm.png",
+      "title": "Restart confirmation",
+      "titleRu": "Подтверждение перезагрузки",
+      "kind": "handheld-capture",
+      "captured": "2026-11-11",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sha256": "0148784986b29a9779d2ca81da6d353a0ed02966d7a6a001528f3b5dd98bafca",
+      "source": "build/handheld-validation-20261110/private/flip-alpha7-restart-confirm.png",
+      "note": "Retained Alpha 7 validation capture; no new handheld session was performed for this gallery."
+    },
+    {
+      "file": "flip-alpha7-wizard-keyboard.png",
+      "title": "Wizard — on-screen keyboard",
+      "titleRu": "Визард — экранная клавиатура",
+      "kind": "handheld-capture",
+      "captured": "2026-11-11",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sha256": "f16597ec602aece61bb742b5fdf3d09bd5cad25f4707f9990b5c2ea4f2832dd7",
+      "source": "build/handheld-validation-20261110/private/flip-alpha7-wizard-keyboard.png",
+      "note": "Retained Alpha 7 validation capture; no new handheld session was performed for this gallery."
+    },
+    {
+      "file": "studio-start-light.png",
+      "title": "Start — light",
+      "titleRu": "Start — светлая тема",
+      "kind": "archived-native-qml-preview",
+      "captured": "2026-11-10",
+      "resolution": [
+        960,
+        540
+      ],
+      "sha256": "904e8b47ec650d5eefff124b396b9b2c3f8d51b1b6005979edb8184299a35ed1",
+      "source": "build/popup-polish-20261110/start/start-compact.png",
+      "note": "Archived popup-polish host capture with test data. Background navigation includes a development-only Pokemon tab; network, downloads and storage are fixtures, not current device state."
+    },
+    {
+      "file": "studio-start-dark.png",
+      "title": "Start — dark",
+      "titleRu": "Start — тёмная тема",
+      "kind": "archived-native-qml-preview",
+      "captured": "2026-11-10",
+      "resolution": [
+        960,
+        540
+      ],
+      "sha256": "bd7300b5a6ad95281df219b9326658809f7940c28415df966371a50bddac2421",
+      "source": "build/popup-polish-20261110/start/start-dark.png",
+      "note": "Archived popup-polish host capture with test data. Background navigation includes a development-only Pokemon tab; network, downloads and storage are fixtures, not current device state."
+    },
+    {
+      "file": "studio-start-wifi.png",
+      "title": "Start — Wi-Fi",
+      "titleRu": "Start — Wi-Fi",
+      "kind": "archived-native-qml-preview",
+      "captured": "2026-11-10",
+      "resolution": [
+        960,
+        540
+      ],
+      "sha256": "4ef758f015a683a31d49c7c6318f2a2a9618fb56e8cc913fc9f49a7e043d4a84",
+      "source": "build/popup-polish-20261110/start/start-wifi.png",
+      "note": "Archived popup-polish host capture with test data. Background navigation includes a development-only Pokemon tab; network, downloads and storage are fixtures, not current device state."
+    },
+    {
+      "file": "studio-start-bluetooth.png",
+      "title": "Start — Bluetooth",
+      "titleRu": "Start — Bluetooth",
+      "kind": "archived-native-qml-preview",
+      "captured": "2026-11-10",
+      "resolution": [
+        960,
+        540
+      ],
+      "sha256": "36089c994d826a2c01f0c471c32cfe9a251db49abb14d01246bd1413715e3006",
+      "source": "build/popup-polish-20261110/start/start-bluetooth.png",
+      "note": "Archived popup-polish host capture with test data. Background navigation includes a development-only Pokemon tab; network, downloads and storage are fixtures, not current device state."
+    },
+    {
+      "file": "studio-start-audio-output.png",
+      "title": "Start — sound output",
+      "titleRu": "Start — вывод звука",
+      "kind": "archived-native-qml-preview",
+      "captured": "2026-11-10",
+      "resolution": [
+        960,
+        540
+      ],
+      "sha256": "593c910b76538fe1b4a26b9de798ba171afbd8a61627b0684ec35a8d74d424b5",
+      "source": "build/popup-polish-20261110/start/start-audio-output.png",
+      "note": "Archived popup-polish host capture with test data. Background navigation includes a development-only Pokemon tab; network, downloads and storage are fixtures, not current device state."
+    },
+    {
+      "file": "studio-new-collection.png",
+      "title": "New collection",
+      "titleRu": "Новая коллекция",
+      "kind": "archived-native-qml-preview",
+      "captured": "2026-11-10",
+      "resolution": [
+        960,
+        540
+      ],
+      "sha256": "413360030ddeeeda9ff2b3c03dffdf81632b0357d718963ef00322b0b608502c",
+      "source": "build/popup-polish-20261110/new-collection.png",
+      "note": "Archived popup-polish host capture with test data. Background navigation includes a development-only Pokemon tab; network, downloads and storage are fixtures, not current device state."
+    }
+  ]
+}

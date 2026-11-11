@@ -2,7 +2,9 @@
 
 English · [Russian](README_RU.md)
 
-Actual handheld captures, 1920 × 1080, taken on 11 November 2026. These images are not mockups. Filenames identify the device: `odin-` is AYN Odin 2; `flip-` is Retroid Pocket Flip 2. Checksums and the running application identity are recorded in `capture-manifest.json`.
+**[More screens and menus](EXTRA_SCREENS.md)** — colorful in-game Home, Quick Apps, Files, Start, Power, browser and keyboard. Host previews are explicitly labeled in that gallery; they are not part of the handheld-only manifest below.
+
+The original selection below contains actual handheld captures, 1920 × 1080, taken on 11 November 2026. These images are not mockups. Filenames identify the device: `odin-` is AYN Odin 2; `flip-` is Retroid Pocket Flip 2. Checksums and the running application identity are recorded in `capture-manifest.json`.
 
 **[Main screens: visual gallery](MAIN_SCREENS.md)** — Home, Games, platform library, Online, Chats, Apps and profile.
 
