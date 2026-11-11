@@ -1,0 +1,20 @@
+{
+  "source": "7aa74f29cacdcd2716a4553fffaf376b790bc595",
+  "softwareSequence": 31,
+  "runtimeSequence": 30,
+  "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+  "runningBinaryVerified": true,
+  "softwareHealth": "first-frame-confirmed",
+  "noPendingTransaction": true,
+  "publicFeeds": true,
+  "storageGuardInstalled": true,
+  "ufsScalingEnabled": false,
+  "bootId": "3424aabf-476f-40bf-9bd7-2a1c51dde9f5",
+  "databaseQuickCheck": "ok",
+  "adventures": 356,
+  "profiles": 1,
+  "firstRun": {
+    "version": 2,
+    "stage": "complete"
+  }
+}

@@ -1,0 +1,176 @@
+[
+  {
+    "file": "odin-alpha7-home.png",
+    "device": "AYN Odin 2",
+    "sha256": "b3b53a8b73ee92fdd256426b8823b745fce1eb1e126d291b4843b358e0426417",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-online.png",
+    "device": "AYN Odin 2",
+    "sha256": "79aaab9e79f07494745d9b7fa9dd53229bfb29ad3420af836b8f9c644ae0a348",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-bazaar.png",
+    "device": "AYN Odin 2",
+    "sha256": "a654a3d76c239a887eea12935e275982af80ab6a910d592c77caa4388ecb7025",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-bazaar-preview.png",
+    "device": "AYN Odin 2",
+    "sha256": "556d3957ab8755bb1f41908b3fc34126780d2ffe6165c3ff2c19b625f231a176",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-lobby-ready.png",
+    "device": "AYN Odin 2",
+    "sha256": "a8de553902f85f3cb8cc3bdfb5acdebc7b78e820f540b57bd367139046f1061c",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-lobby-create.png",
+    "device": "AYN Odin 2",
+    "sha256": "f3435a4885a7b1c62bc9e63f2b85e428aafe4d2405ba697eb34021288e773a3f",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-lobby-connection.png",
+    "device": "AYN Odin 2",
+    "sha256": "16d7b1d32fe36033eb7c05ef4a44b4116df92d31851c3d7eabfbc56a9cc42e2f",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-local-room.png",
+    "device": "AYN Odin 2",
+    "sha256": "bb483a77472369afe0c0f4f7ddbb9ab5cfcf7a3d995585bf581aeaf563ee89ad",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-profile-ready.png",
+    "device": "AYN Odin 2",
+    "sha256": "704a9802bfb54efd79943a4df27729c36a4415cb05c45f3d771a9e289d3e131f",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-crates-ready.png",
+    "device": "AYN Odin 2",
+    "sha256": "6f0da8eb28e9d6ad253346443498127c9faa15ad10aba49e17d8b93d49624f81",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-browser.png",
+    "device": "AYN Odin 2",
+    "sha256": "fbb381d38b46300364e35ef181ebd45ac3d6eaf5a4aaa7a576429d2189d019e0",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-settings.png",
+    "device": "AYN Odin 2",
+    "sha256": "36a11434d1b484a4c1ca76758d96b8d1224229850b2b49c3312b6db0409b595c",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-system.png",
+    "device": "AYN Odin 2",
+    "sha256": "e446e0ce2dfcf1b8524eb5207f67b0bb67d344036b9332975c47dbe624a41b9d",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-date-time.png",
+    "device": "AYN Odin 2",
+    "sha256": "52d7f5ce3e326b2d80875466e3f29dcae81efe30604a630d239a0da9fb05e831",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "odin-alpha7-wardrobe-final.png",
+    "device": "AYN Odin 2",
+    "sha256": "60c59a2b88b9fddfe0c1c359f6347e147627e9ad73a84a932286f0d3dd7bf683",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
+  },
+  {
+    "file": "flip-alpha7-wizard-welcome.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "7ab4ac5f22e8de0757327b7495b2656246f5e279e91ee7928ab4edc18962c748",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-connection.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "0396b93d94bbef57e511705ad9871c0cc337546c5a3908e34bbb4abe7d0773bb",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-storage.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "5a526d0ea27ccfe819e209a719c0e9c02837205662392468f26df250fa4c97bf",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-trainer-named.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "b89e7d196710425f0c8bc3a6e819c5a01079db4a547db367088a044addb30094",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-comfort.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "e68c6b5871fff99c03c22bc943b7ed78a3639d1ba8f31fb60c010f194edfc5f4",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-accounts.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "49dedaed7d3e0b17da2bfef7867d31e74210696d609737b598b745247dbd81f5",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-social.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "8aca5313a4de50f6186ae7615eae42dd4245eb887aa89f606b41d9ba0abce7e5",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-social-qr.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "350812d6d6e20374764aab47f4daa43c37f88868569fd973b401d6eaa9770bce",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-achievements-qr.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "5c31a3c1d2dd47d7a4842217c634e5d5cb550674227caa23175855fd0f862460",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-screenscraper.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "b5a9d24a2a1624b34d6188c0e441660ad9d1fd3ff032f02e8da1977eefa55e26",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-screenscraper-qr.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "bea40c3e559df9cb19c29bd8061e2ec584ceefc19f944ef44ab73c259943a9c6",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-wizard-ready.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "c637e9481292f5d576cab142f4204a7bcfc4ba7987931ceb0433bab0f06d0dee",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  }
+]

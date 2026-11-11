@@ -2,7 +2,7 @@
 
 **A controller-first handheld system built around your games, your progress and the people you play with — not emulator menus.**
 
-<img src="screenshots/site-2026-10-04/01-home.png" alt="TrainerOS Home on AYN Odin 2">
+<img src="docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-home.png" alt="TrainerOS Alpha 7 Home on AYN Odin 2">
 
 TrainerOS is the interface you boot into, browse your library from, talk to friends in, launch games from and come back to when you are done.
 
@@ -14,7 +14,7 @@ The first supported Adventure connects a creature-collecting RPG to the OS beyon
 
 TrainerOS is still in active development, but the current build already runs as a dedicated handheld session on **Retroid Pocket Flip 2** and **AYN Odin 2**.
 
-[Full-resolution handheld screenshots — 4 October 2026](screenshots/site-2026-10-04/README.md)
+[Current handheld screenshots — 11 November 2026](docs/alpha-release/publications/screenshots/alpha-7/README.md)
 
 [Interactive website demo](web-demo/README.md) — a mouse-driven interface tour
 with original fictional content and optional animated examples. The static bundle
@@ -26,10 +26,18 @@ It describes accepted behaviour; [project status](PROJECT_STATUS.md) distinguish
 
 ## Development status and getting started
 
-This repository currently provides **source and development deployment tooling**,
-not a ready-to-flash public TrainerOS image. Prepared Flip 2 and Odin 2 installations
-have real device evidence; that does not establish a fresh-install experience on
-every handheld. Selected game artwork and names are blurred in the public screenshots; the surrounding interface is unchanged.
+**Alpha 7 is an installer over existing ArmadaOS for AYN Odin 2 and Retroid
+Pocket Flip 2.** Download `TrainerOS-Full-Setup.tar` from the
+[Alpha release](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7),
+extract the whole folder in Desktop, and run `Install TrainerOS.sh` as your normal
+user. The release includes step-by-step instructions and known limitations.
+Internet access and administrator authorization are needed for dependencies.
+Games, BIOS, console firmware and keys are not included.
+
+The one-launch install, first-run wizard and reboot were checked on Flip; Odin
+received an in-place application update with its existing profile preserved.
+This is an early Alpha, with limited multiplayer acceptance. Ready-to-flash images,
+Beta and Stable are not available.
 
 - [Build and run from source](docs/DEVELOPMENT.md)
 - [Project status (Russian)](PROJECT_STATUS.md) · [Changelog (Russian)](CHANGELOG.md) — current capabilities, evidence and dated changes for posts and the website.
@@ -42,7 +50,7 @@ every handheld. Selected game artwork and names are blurred in the public screen
 | Library, series and handheld shell | Installed device evidence; compatibility depends on available runtimes/content |
 | Semantic game integration | Exact supported game/build adapters, not all games on a platform |
 | Social and multiplayer | Implemented routes with bounded evidence; distinct-network, larger-group and human audio acceptance remain open |
-| Public distribution and updates | First beta: installer over existing Armada; clean installation, recovery and release verification remain open. Images and SteamOS/Bazzite come later |
+| Public distribution and updates | Alpha installer over Armada; clean Flip install/wizard/reboot verified. OTA apply/rollback acceptance remains open. Images and SteamOS/Bazzite come later |
 | Code license and public artwork | Original code: GPL-3.0-or-later; third-party terms remain separate and artwork review is ongoing |
 
 ## Pick a game and play
@@ -70,7 +78,7 @@ The general library can use Batocera-style folders and existing metadata, artwor
 
 **Social is built into TrainerOS.** It is not a link that throws you into another app.
 
-Messages lists people and opens their direct conversation on the right. Groups and communities share the Communities section; Discover handles people, invitations and Recently Together. Context menus retain basic membership actions, calls and supported messages through Fluxer, with touch and controller operation.
+Chats keeps the conversation list beside the selected conversation. A left icon rail separates Search, Messages, Groups, Communities and Friends. Messages contains direct conversations; contacts without a conversation stay in Friends. Calls and invitations use Fluxer, with touch and controller navigation.
 
 The screenshots below are dated evidence of an earlier layout; current flows are described in the product contract.
 
@@ -81,7 +89,7 @@ The screenshots below are dated evidence of an earlier layout; current flows are
 </tr>
 </table>
 
-GameHub has the dedicated Lobby catalogue. Home offers the same access to your rooms or Create Lobby. Rooms can choose a game together, collect votes and readiness, and prepare a supported runtime. Once everyone is ready, the organizer explicitly presses **Start**. A shared launch window shows preparation and cancellation.
+Online has the dedicated Lobby catalogue. Home offers the same access to your rooms or Create Lobby. Rooms can choose a game together, collect votes and readiness, and prepare a supported runtime. Once everyone is ready, the organizer explicitly presses **Start**. A shared launch window shows preparation and cancellation.
 
 Scheduled meetings can create a local reminder after acceptance. Invitations wait in notifications; service groups created by Lobby stay out of ordinary Social. Supported connections use the existing emulator mechanisms rather than player-entered IP addresses. Each route retains its own compatibility and remaining network checks.
 

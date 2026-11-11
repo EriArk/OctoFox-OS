@@ -1,0 +1,14 @@
+{
+  "azahar-netplay": [
+    "manifest.json"
+  ],
+  "melonds-netplay": [
+    "manifest.json"
+  ],
+  "rmg-netplay": [
+    "manifest.json"
+  ],
+  "vita3k-netplay": [
+    "manifest.json"
+  ]
+}

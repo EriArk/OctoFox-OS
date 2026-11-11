@@ -1,0 +1,19 @@
+{
+  "source": "94fca17cf0e5e69ece21a99882fa7b17e9d1440b",
+  "sequence": 29,
+  "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+  "installedFiles": 89,
+  "lddResolved": true,
+  "profileBackupVerified": true,
+  "helpersPending": false,
+  "legacyUpdate": true,
+  "runningBinaryVerified": true,
+  "databaseQuickCheck": "ok",
+  "adventures": 542,
+  "changedTableCounts": [],
+  "managedOta": false,
+  "finalReleaseSoftwareSequence": 31,
+  "finalReleaseSource": "7aa74f29cacdcd2716a4553fffaf376b790bc595",
+  "sameApplicationAsFinalRelease": true,
+  "difference": "Only Setup authorization waiting and bootstrap ownership policy changed after this legacy deployment; the application archive SHA-256 is identical and installed session helpers are unchanged."
+}

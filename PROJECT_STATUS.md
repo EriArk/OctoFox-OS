@@ -1,11 +1,16 @@
 # TrainerOS — состояние проекта
 
-## 11 November — combined Alpha preparation
+## 11 ноября 2026 — объединённая Alpha 7 на обеих портативках
 
-Merged the prepared Bazaar catalogue and guarded previews. Added a narrowly scoped
-Flip2/Armada 7.2.6 storage workaround to Setup and managed boot integration.
-Final combined device installation and publication are pending; see
-[the delivery record](docs/evidence/2026-11-11-alpha-release/README.md).
+Ветка Bazaar объединена; покупки и посещение будущих миров остаются отключены.
+На Odin установлена итоговая сборка с сохранением профиля. На Flip исправленный
+Setup 31 прошёл установку одним запуском, сам открыл TrainerOS; визард завершён,
+профиль подключён через Fluxer OAuth, существующая SD-библиотека обнаружена.
+Advance Wars запущена и штатно закрыта на обеих портативках. После обычной
+перезагрузки Flip вернулся в Home, профиль и узкий UFS workaround сохранились.
+Для постов подготовлены 27 снимков: 15 экранов Odin и 12 экранов визарда Flip.
+Сетевой геймплей, полный OTA apply/rollback и старый Iris-патч не засчитаны.
+[Проверка и оставшиеся ограничения](docs/evidence/2026-11-11-alpha-release/README.md).
 
 ## 10 ноября 2026 — убрана перепаковка runtime на портативке
 
