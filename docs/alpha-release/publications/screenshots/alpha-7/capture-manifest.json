@@ -172,5 +172,25 @@
     "sha256": "c637e9481292f5d576cab142f4204a7bcfc4ba7987931ceb0433bab0f06d0dee",
     "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
     "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-games.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "6679a5db359e84b8738ad8f9ff189c43e06a8b508f3a0a2a84579d72429f6584",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "flip-alpha7-gba.png",
+    "device": "Retroid Pocket Flip 2",
+    "sha256": "13a562cf5868771423fae62a215c6aa628d04cc0bccc260e67335abc5644b848",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d",
+    "softwareSequence": 31
+  },
+  {
+    "file": "odin-alpha7-apps-current.png",
+    "device": "AYN Odin 2",
+    "sha256": "f53e52d394d0d4a7c884fcecdc43a5eb0b6ebc98a00848886b46c208f97e62cf",
+    "binarySha256": "f490737da5ffa769919f25d0deab9062e3bc47d1cfdd98b6178d21ffd496f58d"
   }
 ]

@@ -4,8 +4,13 @@
 
 Реальные снимки с портативок, 1920 × 1080, 11 ноября 2026. Изображения не являются макетами. Имена начинаются с устройства: `odin-` — AYN Odin 2, `flip-` — Retroid Pocket Flip 2. Проверочные суммы и идентификатор запущенного приложения — в `capture-manifest.json`.
 
+**[Основные экраны — галерея](MAIN_SCREENS_RU.md)**: Home, Games, библиотека платформы, Online, Chats, Apps и профиль.
+
 | Файл | Что показано |
 | --- | --- |
+| `flip-alpha7-games.png` | Games: коллекции и платформы |
+| `flip-alpha7-gba.png` | Библиотека платформы и выбранная игра |
+| `odin-alpha7-apps-current.png` | Apps: сетка установленных приложений |
 | `odin-alpha7-home.png` | Существующий Home с выбранной игрой |
 | `odin-alpha7-profile-ready.png` | Профиль и персонаж; вход в Wardrobe на карточке персонажа |
 | `odin-alpha7-wardrobe-final.png` | Wardrobe с загруженным персонажем |

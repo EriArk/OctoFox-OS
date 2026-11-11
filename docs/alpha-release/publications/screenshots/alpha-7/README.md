@@ -4,8 +4,13 @@ English · [Russian](README_RU.md)
 
 Actual handheld captures, 1920 × 1080, taken on 11 November 2026. These images are not mockups. Filenames identify the device: `odin-` is AYN Odin 2; `flip-` is Retroid Pocket Flip 2. Checksums and the running application identity are recorded in `capture-manifest.json`.
 
+**[Main screens: visual gallery](MAIN_SCREENS.md)** — Home, Games, platform library, Online, Chats, Apps and profile.
+
 | File | What it shows |
 | --- | --- |
+| `flip-alpha7-games.png` | Games: collections and platforms |
+| `flip-alpha7-gba.png` | Platform library and selected game |
+| `odin-alpha7-apps-current.png` | Apps: installed applications grid |
 | `odin-alpha7-home.png` | The existing Home screen with a selected game |
 | `odin-alpha7-profile-ready.png` | Profile and character; Wardrobe entry on the character card |
 | `odin-alpha7-wardrobe-final.png` | Wardrobe with the character loaded |
