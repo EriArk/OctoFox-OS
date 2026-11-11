@@ -1,6 +1,6 @@
 # Extended Discord announcement (EN)
 
-> DRAFT, NOT POSTED. For your own server: four sequential messages in one channel or forum thread. Replace [ALPHA_RELEASE_URL] after verifying public release. Each message stays within the standard 2,000-character limit.
+> Draft for your own server: four sequential messages or one thread. Alpha 7 is public; each message fits the standard 2,000-character limit.
 
 ## Message 1/4 — from Pokémon to a whole environment
 
@@ -26,7 +26,7 @@ NetPlay, link cables, wireless, PSP Ad Hoc, LAN adapters, arcade protocols... ev
 
 I wanted the player to see **one Lobby** instead. Invite friends, choose games (or vote), prepare, get ready and have the organizer press Start. TrainerOS handles supported technical preparation and launch coordination.
 
-Real paired gameplay has been tested on Flip 2 and Odin 2 with Melee, Contra III, Streets of Rage 2, Mario Kart DS, and PSP titles such as Tekken 6 and Virtua Tennis. Compatibility remains game- and network-specific — exactly why this is an alpha.
+Earlier Flip 2 / Odin 2 builds ran paired tests with Melee, Contra III, Streets of Rage 2, Mario Kart DS, Tekken 6 and Virtua Tennis. Alpha 7 was checked for local game launch/return, not a fresh paired match. Compatibility remains game- and network-specific.
 
 And it isn't just matchmaking: Fluxer powers friends, chats, communities, invites and group voice calls. A call can stay alive even when everyone changes games. There's a compact in-game overlay with avatars, voice activity, microphone controls and quick chat. Some supported setups also allow spectators to watch a stream without installing the game.
 
@@ -40,7 +40,7 @@ The profile also collects gaming history, RetroAchievements, trophies, XP and ex
 
 And yes, you can put your avatar on Home as **Companion**, a little low-maintenance tamagotchi that looks around, rests, reacts to notifications and celebrates achievements by lifting the actual icon. 🤣
 
-**Crates** is a catalogue of installable games, apps and widgets. Games join the Games library, apps join Apps, widgets join system panels. There are already Pocket Golf, Micro Rally, Pocket Artillery, Pong, Snake Arena, Light Cycles, Brick Tanks and other projects.
+**Crates**, now under Apps, is a catalogue of installable games, apps and widgets. Games join the Games library, apps join Apps, widgets join system panels. There are already Pocket Golf, Micro Rally, Pocket Artillery, Pong, Snake Arena, Light Cycles, Brick Tanks and other projects.
 
 Pocket Golf has its own 3D courses, ball physics and shared players. Micro Rally somehow went from tiny races to cars with weapons, arena battles and Battle Royale. The name is still Micro. 😁
 
@@ -48,15 +48,15 @@ The early **TrainerOS SDK** lets other developers bring their own games into thi
 
 ## Message 4/4 — the alpha and future
 
-There's more planned, including **Bazaar**, a social game space for meeting people, showing off characters and joining activities. It's a future direction, not part of the current alpha.
+Alpha 7 already has **Bazaar's illustrated catalogue and previews** of future player and official worlds. Actual 3D spaces aren't playable and Sparks purchases are disabled. Personal markets, stalls and rentals are part of the longer-term plan.
 
-**The first alpha installer is for compatible ArmadaOS Linux handhelds.** Not an Android APK, and not yet a SteamOS/Bazzite installer.
+**Alpha 7 is public for compatible ArmadaOS handhelds**, not Android or SteamOS/Bazzite. On Flip 2, the one-run installer, first-run wizard with phone-registration QR codes, local game launch and reboot were tested; Odin 2 runs the updated shell.
 
 This is experimental, and real games and network setups will have surprises. I'd love feedback about what runs, what breaks, and what devices you try. **Successful game reports help too.**
 
 TrainerOS is free. If you'd like to help with development and infrastructure, Patreon support means a lot; testing, bug reports and sharing the project are also valuable.
 
-**Download:** [ALPHA_RELEASE_URL]  
+**Download:** https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7  
 **Source:** https://github.com/EriArk/TrainerOS  
 **Support:** https://www.patreon.com/AbyssTail/membership
 
