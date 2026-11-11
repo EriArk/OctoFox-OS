@@ -1,5 +1,5 @@
 {
-  "draft": true,
+  "draft": false,
   "tag": "v0.1.0-alpha.7",
   "target": "7aa74f29cacdcd2716a4553fffaf376b790bc595",
   "assets": [
@@ -83,5 +83,10 @@
       "size": 113,
       "digest": "sha256:fee8ffba9d0913d9e7924df02fbd0c7269daa2d482e8ab0aeffd4392834ccaf3"
     }
-  ]
+  ],
+  "publishedAt": "2026-11-11T00:30:37Z",
+  "url": "https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7",
+  "anonymousMetadataVerified": true,
+  "assetDigestsVerified": true,
+  "feedSha256": "c265ce09640d65ef065aa3d42510e88de88cd68edb9047571bd9f96d46b683d2"
 }

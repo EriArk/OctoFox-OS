@@ -1,7 +1,8 @@
 # Combined Alpha delivery — 11 November 2026
 
 Setup 31 passed the one-launch install, wizard and normal reboot on Flip.
-Odin runs the identical combined application. Publication verification follows below.
+Odin runs the identical combined application. Alpha 7 is published; public asset
+and feed verification is recorded below.
 
 Bazaar branch through `f4af1d8e` is merged at `9bfadd54`. Its production backend
 already runs the guarded preview build; new licenses, stalls and rentals remain
@@ -183,3 +184,27 @@ Remaining acceptance: multiplayer gameplay between devices, physical controller
 Home/minimize and audio, the inactive Iris encoder patch, authenticated
 RetroAchievements/ScreenScraper and separate Fluxer chat handoff. Public-feed
 checks do not prove a later OTA apply/rollback or an available-update notification.
+
+## Public release and channel
+
+[Alpha 7 prerelease](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7)
+is public with 16 assets and human-readable Russian installation instructions.
+Anonymous GitHub API access confirmed the release, all asset sizes and SHA-256
+digests. An anonymous installer HEAD request returned 200 and the expected
+1,864,847,360-byte archive. The public Alpha feed matches the prepared signed
+bytes; its signature, referenced manifest hash and manifest signature verified.
+See [public asset readback](release-assets.json). Only Alpha is published.
+
+After publication, Flip Settings → System → Software updates → Check for updates
+returned **0.1.0-alpha.7 — You have the latest available version for this channel**,
+with a new check time. [Actual device screenshot](flip-public-update-check.png).
+Background checks remain enabled. This verifies live channel discovery; it is
+not an OTA upgrade/rollback or available-update notification test.
+
+After acceptance, the completed archive and extracted Setup staging were removed
+from Flip's two owned Alpha 7 staging directories, after checking active receipts,
+no pending transactions and no live process references. SD free space rose from
+1.5 to 5.0 GiB. Installed bootstrap, runtimes, recovery caches and both personal
+backups remain. The server's two superseded Alpha 7 package directories were
+removed with their small manifests retained; final Setup 31 and corresponding
+sources remain. Odin was checked again and still runs the expected Alpha 7 ELF.

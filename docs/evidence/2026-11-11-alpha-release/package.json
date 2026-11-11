@@ -5,7 +5,7 @@
   "cleanDeviceAcceptance": true,
   "file": "TrainerOS-Full-Setup.tar",
   "publicKeySha256": "fee8ffba9d0913d9e7924df02fbd0c7269daa2d482e8ab0aeffd4392834ccaf3",
-  "published": false,
+  "published": true,
   "redistributionReviewed": true,
   "runtimeSequence": 30,
   "schema": 1,

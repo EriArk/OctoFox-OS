@@ -1,5 +1,7 @@
 # TrainerOS — досье альфа-релиза
 
+**11 ноября 2026: [Alpha 7 опубликована](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7).** [Установка](publications/GITHUB_RELEASE.md) · [Снимки обеих портативок](publications/screenshots/alpha-7/README.md) · [Проверка установленной сборки](../evidence/2026-11-11-alpha-release/README.md). Ниже сохранена датированная опись подготовки.
+
 **Рабочая папка подготовки выпуска. Не является объявлением о готовом публичном релизе.**
 
 Начато: 2026-11-03. Исходная точка ревизии: `main` @ `2a6c9c9b00b58e914525bd779c76896c8fcf5006`.
