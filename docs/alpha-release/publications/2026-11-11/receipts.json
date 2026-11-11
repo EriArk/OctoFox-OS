@@ -1,22 +1,33 @@
 {
   "website": "https://abysstail.art/en/projects/traineros",
   "discord-announcements": {
-    "status": "not_sent",
-    "reason": "Browser sign-in required"
+    "status": "published",
+    "url": "https://discord.com/channels/1479953345388089457/1479953346453573696/1570072815355301898",
+    "images_uploaded": 10,
+    "verification": "Native Discord: sent message, completed image gallery and website preview; message link copied from its context menu."
   },
   "discord-development": {
-    "status": "not_sent",
-    "reason": "Browser sign-in required"
+    "status": "published",
+    "url": "https://discord.com/channels/1479953345388089457/1557411826478751845/1570073346819756044",
+    "images_uploaded": 10,
+    "verification": "Native Discord: sent message in TrainerOS — overview & development, completed image gallery and website preview; message link copied from its context menu."
   },
   "patreon": {
-    "status": "draft",
-    "url": "https://www.patreon.com/AbyssTail/posts/175027151/edit",
-    "images_uploaded": 0
+    "status": "published",
+    "url": "https://www.patreon.com/AbyssTail/posts/traineros-first-175027151",
+    "images_uploaded": 10,
+    "verification": "Patreon confirmed the post is live; published gallery count 10, Free access selected, both CTA links point to the website."
   },
   "kofi": {
-    "status": "draft",
-    "url": "https://ko-fi.com/blog/editor/TrainerOS-the-first-public-alpha-is-here-G1T52AGR5T?mode=edit",
-    "images_uploaded": 0
+    "status": "published",
+    "url": "https://ko-fi.com/post/TrainerOS-the-first-public-alpha-is-here-G1T52AGR5T",
+    "images_uploaded": 10,
+    "featured_image": "odin-alpha7-lobby-create.png",
+    "verification": "Published badge; Everyone (Public); all 10 inline screenshots loaded in the rendered content shadow root; website CTA present."
   },
-  "upload_blocker": "Chrome extension requires Allow access to file URLs"
+  "verified_on": "2026-11-11",
+  "reddit": {
+    "status": "not_requested_yet",
+    "cta": "https://abysstail.art/en/projects/traineros"
+  }
 }
