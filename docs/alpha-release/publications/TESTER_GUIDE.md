@@ -2,7 +2,9 @@
 
 > **TrainerOS Alpha is experimental.** This release is for people to explore the system on real devices, try their own games and setups, and report what works or breaks. You don't need development skills or a long test checklist.
 
-**Download, supported devices, version and known issues:** use the official GitHub release or project website when the Alpha is published. Avoid third-party mirrors.
+English · [Russian](TESTER_GUIDE_RU.md)
+
+**Download Alpha 7, installation instructions and known limitations:** see the [official release](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7). This release supports Odin 2 and Flip 2 running ArmadaOS. The [installation guide](GITHUB_RELEASE.md#how-to-install) is available in English. Avoid third-party mirrors.
 
 ## Just try what you care about
 

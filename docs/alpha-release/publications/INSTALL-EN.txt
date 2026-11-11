@@ -1,0 +1,46 @@
+TrainerOS Alpha 7 — installation on ArmadaOS
+
+Supported devices: AYN Odin 2 and Retroid Pocket Flip 2 running ArmadaOS.
+This installer is not for Android, SteamOS, Bazzite or general-purpose Linux.
+
+Download:
+https://github.com/EriArk/TrainerOS/releases/download/v0.1.0-alpha.7/TrainerOS-Full-Setup.tar
+
+Before you start:
+- Have an internet connection and your system password available.
+- Allow about 4 GB for the archive and extraction, plus at least 20 GB free on
+  the system drive for the application, emulators, downloads and recovery.
+- Back up important personal saves before experimenting with an early Alpha.
+
+1. Download TrainerOS-Full-Setup.tar. Archives named Sources are for developers
+   and are not needed for installation.
+2. Switch to Desktop in Armada and extract the entire archive. Keep the
+   TrainerOS-Setup folder intact.
+3. Open Install TrainerOS.sh as your normal user. Choose Run if prompted.
+   Do not run the entire installer as root.
+4. Select Alpha, confirm installation and enter your system password in the
+   standard authorization dialogs. Setup downloads some emulators and
+   dependencies from official sources.
+5. Wait for completion. TrainerOS opens automatically. Complete the first-run
+   wizard: connection, library, character, appearance and optional accounts.
+   Account sign-in can be skipped for local games.
+
+Do not turn off the device or interrupt writes during installation.
+TrainerOS becomes the default session after the first installation. Desktop and
+Steam remain available. Existing EmuDeck data and settings are not replaced.
+Games, BIOS, console firmware and keys are not included; import your own files.
+
+Recovery and removal:
+If Setup fails, it displays an error and log path. Open TrainerOS Setup and
+Recovery to continue an interrupted installation, restore the previous version
+or remove TrainerOS normally. Personal games, profiles and saves are preserved.
+Do not manually delete working directories to attempt recovery.
+
+Release notes, accounts and known limitations:
+https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7
+
+English tester guide:
+https://github.com/EriArk/TrainerOS/blob/main/docs/alpha-release/publications/TESTER_GUIDE.md
+
+Russian installation instructions:
+https://github.com/EriArk/TrainerOS/blob/main/docs/alpha-release/publications/GITHUB_RELEASE_RU.md

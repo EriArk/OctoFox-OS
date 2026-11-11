@@ -1,34 +1,31 @@
-# Тексты для публикации TrainerOS Alpha
+# TrainerOS Alpha publication materials
 
-**Финальные анонсы** сверить с [матрицей](../inventory/FEATURES.md), [блоками](../blocks/INDEX.md) и [релизными проверками](../inventory/RELEASE_GATES.md). Гайды для тестеров уже можно готовить заранее; финальные номера сборок и ссылки на скачивание добавляются непосредственно при выпуске.
+## Install and try Alpha 7
 
-После аудита здесь будут самостоятельные `.md`-файлы:
+- [Official Alpha 7 release and download](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7).
+- [Installation, accounts, recovery and known limitations — English](GITHUB_RELEASE.md) · [Russian](GITHUB_RELEASE_RU.md).
+- [Plain-text installation guide — English](INSTALL-EN.txt).
+- [Tester guide — English](TESTER_GUIDE.md) · [Russian](TESTER_GUIDE_RU.md).
+- [Actual Alpha 7 screenshots and captions — English](screenshots/alpha-7/README.md) · [Russian](screenshots/alpha-7/README_RU.md).
 
-| Будущий файл | Назначение |
-| --- | --- |
-| [RELEASE_OVERVIEW_RU.md](RELEASE_OVERVIEW_RU.md) | **Черновик русского релизного поста**: функциональность, Alpha/ArmadaOS, поддержка Patreon; ссылки на релиз и Patreon пока заполнители |
-| [RELEASE_OVERVIEW_EN.md](RELEASE_OVERVIEW_EN.md) | **Черновик английского релизного поста**; те же разделы и ограничения |
-| [GITHUB_RELEASE.md](GITHUB_RELEASE.md) | Что входит в сборку, где скачать, минимальные требования, известные ограничения |
-| `REDDIT_POST.md` | Живой рассказ о проекте, а не пресс-релиз |
-| `DISCORD_ANNOUNCEMENT.md` | Короткий анонс и приглашение тестеров |
-| `WEBSITE_ALPHA.md` | Страница альфы: возможности, медиа, загрузка, FAQ |
-| `ALPHA_FAQ.md` | Установка, поддерживаемое железо, библиотеки, управление, помощь |
-| `KNOWN_LIMITATIONS.md` | Экспериментальные части и честные ограничения |
-| [TESTER_GUIDE.md](TESTER_GUIDE.md) | **Готовый черновик EN:** как играть, что присылать при сбое, как не раскрыть личные данные |
-| [TESTER_GUIDE_RU.md](TESTER_GUIDE_RU.md) | **Готовый черновик RU:** то же для русскоязычных тестеров |
+The unqualified public entry pages are in English. Russian versions have an explicit language link and `_RU` suffix. The release page linked from the website also starts in English.
 
-**Политика Alpha:** игроки — добровольные тестеры реальной совместимости. Не требовать от разработчика завершения огромной тестовой матрицы до публикации; главное — честные ограничения, минимальная безопасность и быстрый приём баг-репортов.
+## Publication drafts
 
-### Правила публичных обещаний
+[RELEASE_OVERVIEW_EN.md](RELEASE_OVERVIEW_EN.md) and [RELEASE_OVERVIEW_RU.md](RELEASE_OVERVIEW_RU.md) are the English and Russian social-post drafts saved on 4 November. They still contain release/support link placeholders and must be reviewed before posting. They are not the installation guide or proof that a post has been published.
 
-- «Работает» = тестировалось на названной конфигурации; «поддержка» = есть обоснованный диапазон совместимости.
-- Никаких «на всех устройствах», «любой мультиплеер», «любой эмулятор», если тестов на это нет.
-- Не смешивать планы Bazaar/Sparks/SDK с уже включённым в альфу функционалом.
-- Скриншоты, ссылки на загрузку, версия, лицензии и список тестовых устройств должны относиться к той же сборке, о которой написан пост.
-- В каждом тексте — одна ясная мысль, путь скачать/проверить и ссылка на актуальные ограничения.
+Preserve the owner's personal, enthusiastic voice. Use current Lobby, social, profile and app screenshots; do not feature mini-games. Match every claim and image to the actual release. Verify the final release and Patreon links before publication.
 
-**Статус основного поста:** текст EN/RU сохранён 2026-11-04 как черновик для публикации одновременно с первой Alpha. Перед публикацией заменить `[Release link]` и `[Patreon link]` (соответствующие русские заполнители), сверить точную доступность подписанного установщика и заявленные платформы. План иллюстраций: Lobby, внутриигровой mini-chat, Pocket Golf, Micro Rally; скриншоты отдельно и только из актуальной сборки.
+## Maintainer references
 
-Черновики и финальные тексты держать в той же папке, отмечая готовность и дату проверки.
+Before publishing new announcements, check the [feature inventory](../inventory/FEATURES.md), [feature blocks](../blocks/INDEX.md) and [release checks](../inventory/RELEASE_GATES.md). These internal working records are in Russian or mixed languages. The [Alpha 7 verification record](../../evidence/2026-11-11-alpha-release/README.md) records the installation and capture evidence in Russian.
 
-**Материалы Alpha 7, 11 ноября:** [реальные снимки с устройств и подписи](screenshots/alpha-7/README.md). Съёмка и проверка установщика описаны в [релизной записи](../../evidence/2026-11-11-alpha-release/README.md).
+Players are voluntary testers of real compatibility. They do not need to complete a large test matrix: clear limitations, save safety and useful bug reports are the priorities.
+
+- Say a scenario works only for a configuration that was actually tested; distinguish implemented support from acceptance evidence.
+- Do not promise every device, game, emulator or network.
+- Distinguish Bazaar, Sparks and SDK plans from features enabled in the release.
+- Keep the version, downloads, screenshots, licenses and device evidence consistent.
+- Give readers a clear way to download, try the release and find its current limitations.
+
+Additional Reddit, Discord, website, FAQ and limitations drafts can live here when prepared; an intended filename is not an existing or published document. Keep draft status and verification dates explicit.

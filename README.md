@@ -30,7 +30,8 @@ It describes accepted behaviour; [project status](PROJECT_STATUS.md) distinguish
 Pocket Flip 2.** Download `TrainerOS-Full-Setup.tar` from the
 [Alpha release](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7),
 extract the whole folder in Desktop, and run `Install TrainerOS.sh` as your normal
-user. The release includes step-by-step instructions and known limitations.
+user. Read the [English installation instructions and known limitations](docs/alpha-release/publications/GITHUB_RELEASE.md#how-to-install)
+or the [Russian version](docs/alpha-release/publications/GITHUB_RELEASE_RU.md).
 Internet access and administrator authorization are needed for dependencies.
 Games, BIOS, console firmware and keys are not included.
 

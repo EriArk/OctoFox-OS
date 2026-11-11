@@ -1,5 +1,20 @@
 # TrainerOS — состояние проекта
 
+## 11 November 2026 — English public documentation
+
+Public Alpha 7 documentation now defaults to English: release/installation notes,
+recovery, tester entry links, screenshot captions and documentation indexes.
+Russian release notes and captions remain available through explicit language
+links. The website's existing full-instructions URL remains the Alpha 7 release;
+its published body is updated separately from this source commit. `INSTALL-EN.txt`
+is a supplemental documentation asset, not a new installer build.
+
+Documentation and links were reviewed; release binaries, signatures, checksums,
+update manifests and device installations are outside this correction. Historical
+engineering records are still Russian or mixed-language and are labeled in the
+English index. This is not a translation of the entire engineering archive.
+
+
 ## 11 ноября 2026 — объединённая Alpha 7 на обеих портативках
 
 [Alpha 7 опубликована](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7). Публичный канал проверен кнопкой обновления на Flip; система распознала установленную последнюю версию.

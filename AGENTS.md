@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**Owner public documentation language, 11 November (latest):** public entry pages,
+release notes, installation/recovery instructions, tester guides and screenshot
+captions must default to English. Provide explicit links to separately named
+Russian versions. Check the language of destinations linked from the website,
+not just the translated link labels. Retain dated engineering evidence and
+clearly identify Russian/mixed-language technical records until translated.
+Documentation corrections do not authorize changing release binaries or device
+installations.
+
 **Owner combined Alpha release, 11 November (latest):** merge the prepared Bazaar branch, apply the combined build on Flip and Odin, validate the installer and walk the wizard on Flip. Capture the wizard on Flip and other screens, including Lobby/multiplayer, on Odin; store them beside the repository post drafts. Publish Alpha with a human-readable description and installation instructions after verification. This resumes device installation and supersedes the historical separate-branch/no-merge Bazaar boundary; paid Bazaar features remain disabled. Preserve personal data and recovery.
 
 **Owner handheld resumption, 10 November (latest):** the owner explicitly resumed

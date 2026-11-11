@@ -1,56 +1,54 @@
-# Документация TrainerOS
+# TrainerOS documentation
 
-[Начать внешнюю игру/программу/виджет](../sdk/README.md) — SDK v1 preview,
-[реализация и границы](PLATFORM_SDK.md).
+English · [Russian technical index](README_RU.md)
 
-[Полное покрытие требований](REQUIREMENTS_COVERAGE_RU.md): 256 issues (с дополнением #257–259 от 24.10) → устойчивые
-R-ID готовности → S-владельцы → F-сценарии. Старые решения и открытые условия
-сохранены отдельно от фактической реализации.
+## Install and use TrainerOS
 
-## Постоянные точки входа
+- [Alpha 7 download and release notes](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7).
+- [Installation, accounts, recovery and known limitations](alpha-release/publications/GITHUB_RELEASE.md) — English; [Russian version](alpha-release/publications/GITHUB_RELEASE_RU.md).
+- [Tester guide and bug reports](alpha-release/publications/TESTER_GUIDE.md) — English; [Russian version](alpha-release/publications/TESTER_GUIDE_RU.md).
+- [Current handheld screenshots](alpha-release/publications/screenshots/alpha-7/README.md) — English captions; [Russian captions](alpha-release/publications/screenshots/alpha-7/README_RU.md).
 
-| Нужно понять | Документ |
+## Build and extend TrainerOS
+
+[Build and run from source](DEVELOPMENT.md) · [Contributing](../CONTRIBUTING.md) · [Start an external game, app or widget](../sdk/README.md).
+
+The SDK is a v1 preview; see [implementation and remaining contracts](PLATFORM_SDK.md). Public installation and tester guides above are in English. Many engineering contracts and historical records below are still in Russian or mixed languages; they are not required to install the release.
+
+## Maintainer entry points
+
+| Question | Document |
 | --- | --- |
-| Правила работы | [AGENTS](../AGENTS.md), [workflow](DEVELOPMENT_WORKFLOW.md) |
-| Какой продукт делаем | [продукт и архитектура](PRODUCT_ARCHITECTURE_RU.md), [экранные решения](PRODUCT_SPEC.md), [визуальный язык](DESIGN_LANGUAGE.md) |
-| Владельцы функций и связи | [Карта структуры](STRUCTURE_MAP_RU.md): входы/выходы, зависимости, жизненные циклы и код |
-| Готовность функций и остаток | [Карта с галочками](FEATURE_READINESS.md), [условия проверки](CURRENT_TASKS.md) |
-| Какие игры проверены и где есть проблемы | [Таблица проверок мультиплеера](MULTIPLAYER_TESTED_GAMES.md) |
-| Что уже сделано | [PROJECT_STATUS](../PROJECT_STATUS.md) |
-| Как развивалось | [CHANGELOG](../CHANGELOG.md), [коммиты](https://github.com/EriArk/TrainerOS/commits/codex/apps-workspace/) |
-| Требования к функциям | [GitHub issues](https://github.com/EriArk/TrainerOS/issues) |
-| Как устроено/собрать | [ARCHITECTURE](ARCHITECTURE.md), [DEVELOPMENT](DEVELOPMENT.md) |
+| Working rules | [AGENTS](../AGENTS.md), [development workflow](DEVELOPMENT_WORKFLOW.md) |
+| Product direction | [Product architecture (Russian)](PRODUCT_ARCHITECTURE_RU.md), [screen decisions](PRODUCT_SPEC.md), [design language](DESIGN_LANGUAGE.md) |
+| Feature ownership and integration | [Structure map (Russian)](STRUCTURE_MAP_RU.md): entry/exit contracts, dependencies, lifecycles and code |
+| Readiness and outstanding acceptance | [Feature readiness](FEATURE_READINESS.md), [current tasks](CURRENT_TASKS.md) |
+| Tested games and known problems | [Multiplayer game verification](MULTIPLAYER_TESTED_GAMES.md) |
+| Delivered work | [Project status (Russian)](../PROJECT_STATUS.md) |
+| Change history | [Changelog (Russian)](../CHANGELOG.md), [main commits](https://github.com/EriArk/TrainerOS/commits/main/) |
+| Feature requirements | [GitHub issues](https://github.com/EriArk/TrainerOS/issues) |
+| Implementation and builds | [Architecture](ARCHITECTURE.md), [development setup](DEVELOPMENT.md) |
 
-Текущий договор важнее старого отчёта; последние явные решения владельца важнее
-противоречащего issue. PRODUCT_SPEC содержит короткую таблицу таких замен.
-Исходники, установленная сборка и фактическая приёмка — разные уровни доказательств.
+[Requirements coverage (Russian)](REQUIREMENTS_COVERAGE_RU.md) maps 256 issues, with the 24 October #257–259 addition, to stable readiness R-IDs, S-owners and F-flows. Superseded decisions and open acceptance conditions remain separate from actual implementation.
 
-## Технические справочники — читать по задаче
+A current contract takes precedence over an old report; the owner's latest explicit decisions take precedence over a conflicting issue. PRODUCT_SPEC contains a short supersession table. Source implementation, installed builds and actual acceptance are different levels of evidence.
 
-- Запуск: [весь каталог](LAUNCH80_PLATFORM_REGISTER.md), [лаунчеры](LAUNCH80_LAUNCHER_AUDIT.md),
-  [стандарт](EMULATOR_STANDARD.md), [мультиплеер](EMULATOR_MULTIPLAYER_MATRIX.md),
-  [обслуживание эмуляторов](emulators/README.md).
-- Данные: [модель](DATA_MODEL.md), [persistence](LOCAL_PERSISTENCE.md),
-  [save lineage](SAVE_LINEAGE.md), [backup](SAVE_BACKUPS.md), [выход](ADVENTURE_EXIT.md).
-- Адаптеры: [реестр знаний](adapters/README.md), [границы framework](UX_FRAMEWORK.md).
-- Общение: [Social](SOCIAL.md), [возможности Fluxer](FLUXER_CAPABILITIES_RU.md),
-  [Lobby](LOBBY.md), [Local без аккаунта](OFFLINE_LOBBY.md), [Remote Play](REMOTE_PLAY_TRANSPORT.md).
-- Apps: [Files](FILES68_IMPLEMENTATION.md), [Browser](BROWSER71_IMPLEMENTATION.md),
-  [Crates installer](CRATES76_INSTALLER.md), [каталог](CRATES77_CATALOGUE.md).
-- Устройство: [платформа](ARMADA_PLATFORM.md), [диагностика](DEVICE_DIAGNOSTICS.md),
-  [производительность](PERFORMANCE72.md), [масштаб](DISPLAY_SCALING.md),
-  [Settings и профили ввода](INPUT_PROFILES.md), [per-game Performance / runtime-кеш](GAME_PERFORMANCE.md).
-- Выпуск: [первая бета](EARLY_BETA_INSTALLER_RU.md), [открытые gates](PUBLIC_READINESS.md),
-  [лицензия](../LICENSING.md), [third-party notices](../THIRD_PARTY_NOTICES.md).
+## Technical references — read for the task at hand
 
-Датированные разделы технических записей сохраняют конкретные проверки, хеши,
-ограничения и восстановление. Их старые «следующие шаги» не являются очередью.
-Ссылки на `blob/<commit>/…` — неизменяемая историческая запись, не текущий контракт.
-Промежуточные планы экранов, копии issues и прежние очереди удалены из рабочей
-документации 18 октября; они доступны в Git. Архив старого AGENTS из main сохранён как историческая запись; удалённые промежуточные планы не возвращаются.
+These references retain Russian and mixed-language engineering text.
 
-## Согласованные будущие контракты
+- Launch: [platform register](LAUNCH80_PLATFORM_REGISTER.md), [launcher audit](LAUNCH80_LAUNCHER_AUDIT.md), [emulator standard](EMULATOR_STANDARD.md), [multiplayer matrix](EMULATOR_MULTIPLAYER_MATRIX.md), [emulator maintenance](emulators/README.md).
+- Data: [data model](DATA_MODEL.md), [persistence](LOCAL_PERSISTENCE.md), [save lineage](SAVE_LINEAGE.md), [backups](SAVE_BACKUPS.md), [exiting an adventure](ADVENTURE_EXIT.md).
+- Adapters: [knowledge registry](adapters/README.md), [framework boundaries](UX_FRAMEWORK.md).
+- Communication: [Social](SOCIAL.md), [Fluxer capabilities (Russian)](FLUXER_CAPABILITIES_RU.md), [Lobby](LOBBY.md), [account-free Local Lobby](OFFLINE_LOBBY.md), [Remote Play](REMOTE_PLAY_TRANSPORT.md).
+- Apps: [Files](FILES68_IMPLEMENTATION.md), [Browser](BROWSER71_IMPLEMENTATION.md), [Crates installer](CRATES76_INSTALLER.md), [catalogue](CRATES77_CATALOGUE.md).
+- Device: [Armada platform](ARMADA_PLATFORM.md), [diagnostics](DEVICE_DIAGNOSTICS.md), [performance](PERFORMANCE72.md), [display scaling](DISPLAY_SCALING.md), [input profiles](INPUT_PROFILES.md), [per-game performance and runtime cache](GAME_PERFORMANCE.md).
+- Release engineering: [earlier installer contract (Russian)](EARLY_BETA_INSTALLER_RU.md), [public readiness](PUBLIC_READINESS.md), [licensing](../LICENSING.md), [third-party notices](../THIRD_PARTY_NOTICES.md). Use the Alpha 7 guide above for installation.
 
-- [Аккаунт и экономика](TRAINEROS_ACCOUNT_ECONOMY_RU.md), [backend](TRAINEROS_BACKEND_PLAN_RU.md), [Crates storage](CRATES_SERVER_STORAGE_RU.md).
-- [Bazaar](BAZAAR.md) — #262–264: каталог и красочные заглушки будущих миров в отдельной ветке. Покупки и аренда отключены до появления миров; подготовленная экономика, права и настройки сохраняются. Игровой вход, хосты и торговля остаются незавершёнными.
-- SDK #235–244, PC #246–251 и Picker #252–254 — в актуальных issues. Цель не означает установленную функцию.
+Dated technical records preserve specific checks, hashes, limitations and recovery details. Their old next-step proposals are not the current work queue. Links to `blob/<commit>/…` are immutable historical evidence, not current contracts. Intermediate screen plans, issue copies and earlier queues were removed from active documentation on 18 October and remain in Git history. The historical AGENTS archive is retained; removed intermediate plans are not restored.
+
+## Agreed future contracts
+
+- [Account and economy (Russian)](TRAINEROS_ACCOUNT_ECONOMY_RU.md), [Backend (Russian)](TRAINEROS_BACKEND_PLAN_RU.md), [Crates storage (Russian)](CRATES_SERVER_STORAGE_RU.md).
+- [Bazaar](BAZAAR.md), #262–264: the catalogue and colorful future-world placeholders are included in Alpha 7. Purchases and rentals remain disabled until worlds exist; prepared economy, rights and settings are preserved. World admission, hosting and trading remain unfinished.
+- SDK #235–244, PC #246–251 and Picker #252–254 are tracked in their current issues. An agreed target does not imply an installed feature.

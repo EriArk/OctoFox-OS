@@ -1,50 +1,54 @@
-# TrainerOS Alpha — дом для ваших игр на портативке
+# TrainerOS Alpha — a home for your handheld games
 
-TrainerOS — игровая оболочка для портативок с ArmadaOS: библиотека игр, эмуляторы, профиль с персонажем, приложения и общение в одном интерфейсе с управлением с геймпада.
+English · [Russian version](https://github.com/EriArk/TrainerOS/blob/main/docs/alpha-release/publications/GITHUB_RELEASE_RU.md)
 
-Это ранняя Alpha для AYN Odin 2 и Retroid Pocket Flip 2 с ArmadaOS. Здесь уже можно пользоваться основными экранами, а совместимость игр и сетевых режимов ещё предстоит проверять вместе с вами. Установка поверх Android или обычного дистрибутива Linux этим архивом не поддерживается.
+TrainerOS is a gaming shell for ArmadaOS handhelds: your game library, emulators, character profile, apps and conversations in one controller-friendly interface.
 
-В этой сборке:
+This early Alpha is for **AYN Odin 2 and Retroid Pocket Flip 2 running ArmadaOS**. You can already explore the main screens; game and network compatibility still need testing together with the community. This installer does not support installation over Android or a general-purpose Linux distribution.
 
-- Обновлённые настройки, понятная страница System и канал обновлений Alpha.
-- Приложения можно сворачивать через Home и возвращать через Quick Apps. В браузере есть управление курсором с геймпада.
-- Chats со списком разговоров рядом с перепиской и отдельной боковой навигацией.
-- Короткий мастер первого запуска: подключение, библиотека, персонаж, оформление и необязательные аккаунты. Регистрацию можно открыть на телефоне по QR-коду.
-- Импорт игр и BIOS через интерфейс, запуск эмуляторов, Lobby и экспериментальные сетевые режимы.
-- Каталог Bazaar с иллюстрированными экранами будущих миров. **Сами миры ещё не доступны, покупки Bazaar отключены.**
+In this build:
 
-[Скриншоты с Odin 2 и Flip 2](https://github.com/EriArk/TrainerOS/tree/main/docs/alpha-release/publications/screenshots/alpha-7) — реальные экраны сборки с пояснениями.
+- Updated settings, a clearer System page and the Alpha update channel.
+- Minimize apps through Home and return to them through Quick Apps. The browser has controller-driven pointer navigation.
+- Chats keeps the conversation list beside the conversation, with a separate navigation rail.
+- A short first-run wizard covers connectivity, library, character, appearance and optional accounts. QR codes let you open registration on your phone.
+- Import games and BIOS through the interface, launch emulators, use Lobby and try experimental network modes.
+- Bazaar has illustrated previews of future worlds. **The worlds are not available yet, and Bazaar purchases are disabled.**
 
-На Flip 2 проверены установка одним запуском, автоматический вход, весь визард и обычная перезагрузка. На Odin 2 обновлено существующее приложение с сохранением профиля. Запуск и штатный выход из игры проверены на обоих устройствах; совместная игровая сессия в эту проверку не входила.
+[Odin 2 and Flip 2 screenshots](https://github.com/EriArk/TrainerOS/tree/main/docs/alpha-release/publications/screenshots/alpha-7) show the actual build, with captions.
 
-## Как установить
+On Flip 2, a single-launch installation, automatic sign-in to the system session, the complete wizard and an ordinary reboot were checked. Odin 2 received an in-place application update with its existing profile preserved. Game launch and normal exit were checked on both devices; this verification did not include a shared multiplayer game session.
 
-1. Загрузите **TrainerOS-Full-Setup.tar** из файлов этого релиза. Остальные большие архивы с `Sources` в названии — исходники для разработчиков; для установки они не нужны.
-2. В Armada перейдите в Desktop и полностью распакуйте архив. Оставьте папку `TrainerOS-Setup` целой.
-3. Откройте **Install TrainerOS.sh** обычным пользователем. Если система спрашивает, как открыть файл, выберите запуск. Не запускайте весь установщик от root.
-4. Выберите Alpha, подтвердите установку и введите системный пароль в стандартных окнах авторизации. Нужен интернет: часть эмуляторов и зависимостей скачивается из официальных источников.
-5. Дождитесь завершения. TrainerOS откроется автоматически, затем проведёт через мастер первого запуска. После первой установки он становится основной сессией; Desktop и Steam остаются доступны.
+## How to install
 
-Скачивание и распаковка требуют около 4 ГБ свободного места; дополнительно оставьте не менее 20 ГБ на системном накопителе для приложения, эмуляторов, загрузок и восстановления. Время установки зависит от сети и скорости накопителя. Не прерывайте запись и не выключайте питание во время установки.
+1. Download **[TrainerOS-Full-Setup.tar](https://github.com/EriArk/TrainerOS/releases/download/v0.1.0-alpha.7/TrainerOS-Full-Setup.tar)**. The other large archives with `Sources` in their names are source code for developers; you do not need them to install TrainerOS.
+2. In Armada, switch to **Desktop** and extract the entire archive. Keep the `TrainerOS-Setup` folder intact.
+3. Open **Install TrainerOS.sh** as your normal user. If prompted how to open the file, choose to run it. Do not run the entire installer as root.
+4. Select **Alpha**, confirm installation and enter your system password in the standard authorization dialogs. Internet access is required: some emulators and dependencies are downloaded from their official sources.
+5. Wait for installation to finish. TrainerOS opens automatically and takes you through its first-run wizard. After the first installation, it becomes the default session; Desktop and Steam remain available.
 
-**Игры, BIOS, прошивки консолей и ключи не входят в комплект.** Добавляйте свои файлы через импорт. Эмуляторы TrainerOS используют отдельные данные и настройки; установленный EmuDeck не заменяется.
+Allow about **4 GB** for downloading and extracting the archive, plus at least **20 GB of free space on the system drive** for the application, emulators, downloads and recovery. Installation time depends on your connection and storage. Do not interrupt writes or turn off the device during installation.
 
-## Аккаунты
+**Games, BIOS, console firmware and keys are not included.** Add your own files through Import. TrainerOS emulators use their own data and settings; an existing EmuDeck installation is not replaced.
 
-Для локальных игр можно пропустить вход. Fluxer нужен для онлайн-профиля, общения и приглашений; RetroAchievements — для достижений; ScreenScraper — для обложек и описаний, а также рекомендуемых метаданных для мультиплеера. Отсутствие ScreenScraper не запрещает вручную отметить игру как многопользовательскую и проверить её для Lobby.
+[Download the English installation guide as plain text](https://github.com/EriArk/TrainerOS/releases/download/v0.1.0-alpha.7/INSTALL-EN.txt).
 
-## Что пока экспериментально
+## Accounts
 
-- Наличие игры в библиотеке или комнаты в Lobby не означает, что любая игра поддерживает сетевой режим. Версии эмуляторов, содержимое игр и настройки участников должны быть совместимы. Полная совместимость всех платформ и сетей не заявляется.
-- Vita3K и RPCS3 открываются как эмуляторы; установка игр внутри них остаётся частью их собственного интерфейса.
-- Bazaar показывает планы будущих миров. Посещение миров, торговля и платные места ещё не включены.
-- Beta и Stable пока недоступны.
-- На stock Armada 20261110 с ядром 7.2.6 установщик применяет узкую защиту от наблюдавшегося зависания UFS на Flip 2. Это временный обход ошибки ядра, а не новый kernel build; влияние на энергопотребление отдельно не измерялось. Старый Iris-патч видеокодера в stock-ядро не входит.
+You can skip sign-in for local games. Fluxer provides the online profile, conversations and invitations; RetroAchievements provides achievements; ScreenScraper provides artwork and descriptions, as well as recommended multiplayer metadata. Without ScreenScraper, you can still manually mark a game as multiplayer and check it for Lobby.
 
-## Если что-то пошло не так
+## What is still experimental
 
-Установщик показывает ошибку и путь к журналу. После прерванной установки откройте **TrainerOS Setup and Recovery** и выберите продолжение либо возврат к предыдущей установке. Для штатного удаления используйте этот же экран: личные игры, профили и сохранения сохраняются. Не удаляйте рабочие каталоги вручную ради восстановления.
+- A game appearing in the library or a room appearing in Lobby does not mean every game supports network play. Emulator versions, game content and participant settings must be compatible. Compatibility with every platform and network is not claimed.
+- Vita3K and RPCS3 open as emulators; installing games inside them remains part of their own interfaces.
+- Bazaar previews planned worlds. Visiting worlds, trading and paid places are not enabled yet.
+- Beta and Stable are not available yet.
+- On stock Armada 20261110 with kernel 7.2.6, Setup applies a narrowly scoped workaround for an observed UFS freeze on Flip 2. This is a temporary kernel-issue workaround, not a new kernel build; its power-consumption impact has not been measured separately. The older Iris video-encoder patch is not included in the stock kernel.
 
-Сообщить о проблеме можно в [Issues](https://github.com/EriArk/TrainerOS/issues). Укажите устройство, версию Armada и TrainerOS, экран и несколько шагов до ошибки. Скриншот полезнее длинного пересказа; не прикладывайте пароли, токены, ROM, BIOS или личные переписки. [Подробный гайд для тестеров](https://github.com/EriArk/TrainerOS/blob/main/docs/alpha-release/publications/TESTER_GUIDE_RU.md).
+## If something goes wrong
 
-Исходники TrainerOS, изменения эмуляторов, исходники распространяемых зависимостей и лицензионные уведомления приложены к релизу. Проверочные суммы файлов находятся в `SHA256SUMS`.
+Setup shows an error and the log path. After an interrupted installation, open **TrainerOS Setup and Recovery** and choose to continue or return to the previous installation. Use the same screen for normal removal: personal games, profiles and saves are preserved. Do not manually delete working directories to attempt recovery.
+
+Report problems in [Issues](https://github.com/EriArk/TrainerOS/issues). Include your device, Armada and TrainerOS versions, the screen and a few steps leading to the error. A screenshot is more useful than a long retelling; do not attach passwords, tokens, ROMs, BIOS or private conversations. See the [tester guide](https://github.com/EriArk/TrainerOS/blob/main/docs/alpha-release/publications/TESTER_GUIDE.md).
+
+TrainerOS source code, emulator changes, source code for distributed dependencies and license notices are attached to the release. Checksums for the original release files are in `SHA256SUMS`; GitHub also provides a SHA-256 digest for each release asset.

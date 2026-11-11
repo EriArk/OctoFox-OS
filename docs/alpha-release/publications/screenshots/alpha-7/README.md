@@ -1,46 +1,48 @@
-# Снимки TrainerOS Alpha 7 для постов
+# TrainerOS Alpha 7 screenshots
 
-Реальные снимки с портативок, 1920 × 1080, 11 ноября 2026. Изображения не являются макетами. Имена начинаются с устройства: `odin-` — AYN Odin 2, `flip-` — Retroid Pocket Flip 2. Проверочные суммы и идентификатор запущенного приложения — в `capture-manifest.json`.
+English · [Russian](README_RU.md)
 
-| Файл | Что показано |
+Actual handheld captures, 1920 × 1080, taken on 11 November 2026. These images are not mockups. Filenames identify the device: `odin-` is AYN Odin 2; `flip-` is Retroid Pocket Flip 2. Checksums and the running application identity are recorded in `capture-manifest.json`.
+
+| File | What it shows |
 | --- | --- |
-| `odin-alpha7-home.png` | Существующий Home с выбранной игрой |
-| `odin-alpha7-profile-ready.png` | Профиль и персонаж; вход в Wardrobe на карточке персонажа |
-| `odin-alpha7-wardrobe-final.png` | Wardrobe с загруженным персонажем |
-| `odin-alpha7-online.png` | Боковая навигация Chats, список друзей |
-| `odin-alpha7-bazaar.png` | Каталог Bazaar |
-| `odin-alpha7-bazaar-preview.png` | Иллюстрированное описание будущего мира |
-| `odin-alpha7-lobby-ready.png` | Список онлайн-комнат после загрузки |
-| `odin-alpha7-lobby-create.png` | Создание комнаты |
-| `odin-alpha7-lobby-connection.png` | Выбор локального соединения |
-| `odin-alpha7-local-room.png` | Созданная локальная комната, подготовка к выбору игры |
-| `odin-alpha7-crates-ready.png` | Каталог Crates в Apps |
-| `odin-alpha7-browser.png` | Стартовая страница браузера и подсказки управления |
-| `odin-alpha7-settings.png` | Настройки оформления |
+| `odin-alpha7-home.png` | The existing Home screen with a selected game |
+| `odin-alpha7-profile-ready.png` | Profile and character; Wardrobe entry on the character card |
+| `odin-alpha7-wardrobe-final.png` | Wardrobe with the character loaded |
+| `odin-alpha7-online.png` | Chats navigation rail and friends list |
+| `odin-alpha7-bazaar.png` | Bazaar catalogue |
+| `odin-alpha7-bazaar-preview.png` | Illustrated explanation of a future world |
+| `odin-alpha7-lobby-ready.png` | Online room list after loading |
+| `odin-alpha7-lobby-create.png` | Creating a room |
+| `odin-alpha7-lobby-connection.png` | Choosing a local connection |
+| `odin-alpha7-local-room.png` | A created local room, ready to choose a game |
+| `odin-alpha7-crates-ready.png` | Crates catalogue in Apps |
+| `odin-alpha7-browser.png` | Browser start page and control hints |
+| `odin-alpha7-settings.png` | Appearance settings |
 | `odin-alpha7-system.png` | System |
-| `odin-alpha7-date-time.png` | Настройки времени |
+| `odin-alpha7-date-time.png` | Date and time settings |
 
-На снимках используется существующий тестовый аккаунт Ren. Его баланс Sparks — тестовый баланс, а не стартовый подарок каждому пользователю. Новые покупки Bazaar отключены. Иллюстрации Bazaar обозначены как PLACEHOLDER: посещаемых миров пока нет.
+These captures use the existing Ren test account. Its Sparks balance is a test balance, not a starting gift for every user. New Bazaar purchases are disabled. Bazaar illustrations are marked PLACEHOLDER: there are no visitable worlds yet.
 
-Снимки Lobby показывают действующий интерфейс создания комнаты и подготовки. Они не подтверждают совместную игровую сессию, совместимость всех эмуляторов или прохождение NAT. Локальная проверочная комната после съёмки закрыта.
+The Lobby captures show the actual room-creation and preparation interface. They do not prove a shared gameplay session, compatibility with every emulator or NAT traversal. The local test room was closed after capture.
 
-Odin обновлён поверх прежней установки; поэтому System на нём честно показывает Development build. Это не снимок managed OTA. Визард пройден на Flip после чистой установки Setup 31; ниже снимки именно этого прохода.
+Odin received an in-place update, so its System page correctly shows Development build. This is not a managed OTA capture. Flip completed the wizard after a clean Setup 31 installation; the images below come from that run.
 
-## Визард — Flip 2
+## First-run wizard — Flip 2
 
-| Файл | Что показано |
+| File | What it shows |
 | --- | --- |
 | `flip-alpha7-wizard-welcome.png` | Welcome |
-| `flip-alpha7-wizard-connection.png` | Подключение к сети |
-| `flip-alpha7-wizard-storage.png` | Выбор существующей библиотеки на SD |
-| `flip-alpha7-wizard-trainer-named.png` | Создание локального Trainer |
-| `flip-alpha7-wizard-comfort.png` | Тема и размер интерфейса |
-| `flip-alpha7-wizard-accounts.png` | Необязательные аккаунты и назначение каждого |
-| `flip-alpha7-wizard-social.png` | Вход в TrainerOS и Fluxer |
-| `flip-alpha7-wizard-social-qr.png` | Регистрация Fluxer с телефона |
-| `flip-alpha7-wizard-achievements-qr.png` | Регистрация RetroAchievements с телефона |
-| `flip-alpha7-wizard-screenscraper.png` | ScreenScraper и подсказка о мультиплеере |
-| `flip-alpha7-wizard-screenscraper-qr.png` | Регистрация ScreenScraper с телефона |
-| `flip-alpha7-wizard-ready.png` | Завершение настройки |
+| `flip-alpha7-wizard-connection.png` | Network connection |
+| `flip-alpha7-wizard-storage.png` | Selecting an existing library on SD |
+| `flip-alpha7-wizard-trainer-named.png` | Creating a local Trainer |
+| `flip-alpha7-wizard-comfort.png` | Theme and interface size |
+| `flip-alpha7-wizard-accounts.png` | Optional accounts and what each one provides |
+| `flip-alpha7-wizard-social.png` | TrainerOS and Fluxer sign-in |
+| `flip-alpha7-wizard-social-qr.png` | Fluxer registration on a phone |
+| `flip-alpha7-wizard-achievements-qr.png` | RetroAchievements registration on a phone |
+| `flip-alpha7-wizard-screenscraper.png` | ScreenScraper and the multiplayer explanation |
+| `flip-alpha7-wizard-screenscraper-qr.png` | ScreenScraper registration on a phone |
+| `flip-alpha7-wizard-ready.png` | Setup complete |
 
-Вход в профиль TrainerOS через браузер подтверждён. Отдельный вход Fluxer для чатов, входы RetroAchievements и ScreenScraper не подтверждены этим проходом. QR-коды ведут на регистрацию; они не выполняют автоматический вход на портативке. Временные коды авторизации и приватные страницы не включены.
+Browser sign-in to the TrainerOS profile was confirmed. Separate Fluxer chat sign-in, RetroAchievements sign-in and ScreenScraper sign-in were not confirmed in this run. The QR codes open registration; they do not automatically sign the handheld in. Temporary authorization codes and private pages are not included.
