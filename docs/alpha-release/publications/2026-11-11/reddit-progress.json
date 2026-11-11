@@ -1,6 +1,6 @@
 {
   "date": "2026-11-11",
-  "status": "published_with_two_filtered_posts",
+  "status": "four_published_six_filtered",
   "approvedTextFile": "/run/media/eriark/Data/Projects/TrainerOs-release-alpha/docs/alpha-release/publications/2026-11-11/reddit-final-en.txt",
   "currentPost": "https://www.reddit.com/r/AbyssTail/comments/1xtkpeq/traineros_the_first_public_alpha_is_here/",
   "currentImages": [
@@ -26,11 +26,16 @@
     "https://www.reddit.com/r/AbyssTail/comments/1xtjwq6/",
     "https://www.reddit.com/r/AbyssTail/comments/1xtjyxj/"
   ],
-  "drafts": [],
+  "drafts": [
+    {
+      "community": "mangmi",
+      "file": "reddit-mangmi-draft-en.txt",
+      "status": "not_submitted",
+      "reason": "Further posting stopped after four consecutive new crossposts were filtered."
+    }
+  ],
   "ownerCorrection": "Use latest repository screenshots; no repeated screens. Selection and final publication receipts recorded.",
   "preservedPlatforms": [
-    "Discord announcements",
-    "Discord development",
     "Patreon",
     "Ko-fi"
   ],
@@ -51,7 +56,11 @@
     "https://www.reddit.com/r/retroid/comments/1xtkqns/traineros_the_first_public_alpha_is_here/",
     "https://www.reddit.com/r/ArmadaOS/comments/1xtkqzj/traineros_the_first_public_alpha_is_here/",
     "https://www.reddit.com/r/RetroHandhelds/comments/1xtkszt/traineros_the_first_public_alpha_is_here/",
-    "https://www.reddit.com/r/SideProject/comments/1xtkszj/traineros_the_first_public_alpha_is_here/"
+    "https://www.reddit.com/r/SideProject/comments/1xtkszj/traineros_the_first_public_alpha_is_here/",
+    "https://www.reddit.com/r/retroidpocket5/comments/1xtlc1b/traineros_the_first_public_alpha_is_here/",
+    "https://www.reddit.com/r/AynThor/comments/1xtld7f/traineros_the_first_public_alpha_is_here/",
+    "https://www.reddit.com/r/ayaneo/comments/1xtlezt/traineros_the_first_public_alpha_is_here/",
+    "https://www.reddit.com/r/KonkrPocketFit/comments/1xtlfr6/traineros_the_first_public_alpha_is_here/"
   ],
   "posts": [
     {
@@ -111,6 +120,51 @@
         "  - generic: Sorry, this post was removed by Reddit’s filters."
       ],
       "verified_on": "2026-11-11"
+    },
+    {
+      "community": "retroidpocket5",
+      "url": "https://www.reddit.com/r/retroidpocket5/comments/1xtlc1b/traineros_the_first_public_alpha_is_here/",
+      "type": "crosspost",
+      "images": 15,
+      "status": "filtered",
+      "notices": [
+        "Sorry, this post was removed by Reddit’s filters."
+      ],
+      "verified_on": "2026-11-11"
+    },
+    {
+      "community": "AynThor",
+      "url": "https://www.reddit.com/r/AynThor/comments/1xtld7f/traineros_the_first_public_alpha_is_here/",
+      "type": "crosspost",
+      "images": 15,
+      "status": "filtered",
+      "notices": [
+        "Sorry, this post was removed by Reddit’s filters."
+      ],
+      "verified_on": "2026-11-11"
+    },
+    {
+      "community": "ayaneo",
+      "url": "https://www.reddit.com/r/ayaneo/comments/1xtlezt/traineros_the_first_public_alpha_is_here/",
+      "type": "crosspost",
+      "images": 15,
+      "status": "filtered",
+      "notices": [
+        "Sorry, this post was removed by Reddit’s filters."
+      ],
+      "verified_on": "2026-11-11"
+    },
+    {
+      "community": "KonkrPocketFit",
+      "url": "https://www.reddit.com/r/KonkrPocketFit/comments/1xtlfr6/traineros_the_first_public_alpha_is_here/",
+      "type": "crosspost",
+      "images": 15,
+      "status": "filtered",
+      "notices": [
+        "Sorry, this post was removed by Reddit’s filters."
+      ],
+      "verified_on": "2026-11-11"
     }
-  ]
+  ],
+  "discord_update": "Added eight current interface screenshots as replies to both existing messages; original announcements preserved."
 }

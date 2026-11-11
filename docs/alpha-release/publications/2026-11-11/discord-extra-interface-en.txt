@@ -1,0 +1,5 @@
+More screenshots from the current public alpha: Games and collections, the game library, Home, Apps, in-game Home, Files, the browser, and the future Bazaar.
+
+The in-game Home screenshot uses demo players to show the layout. Bazaar is a preview of planned content and is not playable yet.
+
+Download and installation guide: https://abysstail.art/en/projects/traineros

@@ -4,13 +4,49 @@
     "status": "published",
     "url": "https://discord.com/channels/1479953345388089457/1479953346453573696/1570072815355301898",
     "images_uploaded": 10,
-    "verification": "Native Discord: sent message, completed image gallery and website preview; message link copied from its context menu."
+    "verification": "Native Discord: sent message, completed image gallery and website preview; message link copied from its context menu.",
+    "supplemental_reply": {
+      "status": "published",
+      "url": "https://discord.com/channels/1479953345388089457/1479953346453573696/1570106013212872805",
+      "reply_to": "https://discord.com/channels/1479953345388089457/1479953346453573696/1570072815355301898",
+      "images_uploaded": 8,
+      "image_files": [
+        "flip-alpha7-games.png",
+        "flip-alpha7-gba.png",
+        "odin-alpha7-home.png",
+        "odin-alpha7-apps-current.png",
+        "studio-game-home-lobby.png",
+        "odin-alpha7-files-documents.png",
+        "odin-alpha7-browser-web-loaded.png",
+        "odin-alpha7-bazaar.png"
+      ],
+      "text_file": "discord-extra-interface-en.txt",
+      "verification": "Native Discord: reply to existing alpha announcement, eight selected current PNG files uploaded, completed gallery and website preview visible; permalink copied through message context menu."
+    }
   },
   "discord-development": {
     "status": "published",
     "url": "https://discord.com/channels/1479953345388089457/1557411826478751845/1570073346819756044",
     "images_uploaded": 10,
-    "verification": "Native Discord: sent message in TrainerOS — overview & development, completed image gallery and website preview; message link copied from its context menu."
+    "verification": "Native Discord: sent message in TrainerOS — overview & development, completed image gallery and website preview; message link copied from its context menu.",
+    "supplemental_reply": {
+      "status": "published",
+      "url": "https://discord.com/channels/1479953345388089457/1557411826478751845/1570105190269452298",
+      "reply_to": "https://discord.com/channels/1479953345388089457/1557411826478751845/1570073346819756044",
+      "images_uploaded": 8,
+      "image_files": [
+        "flip-alpha7-games.png",
+        "flip-alpha7-gba.png",
+        "odin-alpha7-home.png",
+        "odin-alpha7-apps-current.png",
+        "studio-game-home-lobby.png",
+        "odin-alpha7-files-documents.png",
+        "odin-alpha7-browser-web-loaded.png",
+        "odin-alpha7-bazaar.png"
+      ],
+      "text_file": "discord-extra-interface-en.txt",
+      "verification": "Native Discord: reply to existing alpha announcement, eight selected current PNG files uploaded, completed gallery and website preview visible; permalink copied through message context menu."
+    }
   },
   "patreon": {
     "status": "published",
@@ -27,9 +63,9 @@
   },
   "verified_on": "2026-11-11",
   "reddit": {
-    "status": "published_with_two_filtered_posts",
+    "status": "four_published_six_filtered",
     "verified_on": "2026-11-11",
-    "verification": "AbyssTail, OdinHandheld, retroid and ArmadaOS are visible without removal/filter notices; the three handheld community pages were refreshed for the final check. RetroHandhelds and SideProject show removal by Reddit filters; no retries submitted.",
+    "verification": "Refreshed exact original post URLs: AbyssTail, OdinHandheld, retroid and ArmadaOS remain visible without removal notices. All four additional device-community crossposts show \"Sorry, this post was removed by Reddit’s filters.\" after opening their permalinks; community feed appearance immediately after submission was insufficient. No filtered post was resubmitted. Further crossposts stopped after this result; MANGMI remains an unpublished draft.",
     "cta": "https://abysstail.art/en/projects/traineros",
     "previous_deleted_posts": [
       "https://www.reddit.com/r/AbyssTail/comments/1xtjq2k/",
@@ -95,6 +131,69 @@
           "  - generic: Sorry, this post was removed by Reddit’s filters."
         ],
         "verified_on": "2026-11-11"
+      },
+      {
+        "community": "retroidpocket5",
+        "url": "https://www.reddit.com/r/retroidpocket5/comments/1xtlc1b/traineros_the_first_public_alpha_is_here/",
+        "type": "crosspost",
+        "images": 15,
+        "status": "filtered",
+        "notices": [
+          "Sorry, this post was removed by Reddit’s filters."
+        ],
+        "verified_on": "2026-11-11"
+      },
+      {
+        "community": "AynThor",
+        "url": "https://www.reddit.com/r/AynThor/comments/1xtld7f/traineros_the_first_public_alpha_is_here/",
+        "type": "crosspost",
+        "images": 15,
+        "status": "filtered",
+        "notices": [
+          "Sorry, this post was removed by Reddit’s filters."
+        ],
+        "verified_on": "2026-11-11"
+      },
+      {
+        "community": "ayaneo",
+        "url": "https://www.reddit.com/r/ayaneo/comments/1xtlezt/traineros_the_first_public_alpha_is_here/",
+        "type": "crosspost",
+        "images": 15,
+        "status": "filtered",
+        "notices": [
+          "Sorry, this post was removed by Reddit’s filters."
+        ],
+        "verified_on": "2026-11-11"
+      },
+      {
+        "community": "KonkrPocketFit",
+        "url": "https://www.reddit.com/r/KonkrPocketFit/comments/1xtlfr6/traineros_the_first_public_alpha_is_here/",
+        "type": "crosspost",
+        "images": 15,
+        "status": "filtered",
+        "notices": [
+          "Sorry, this post was removed by Reddit’s filters."
+        ],
+        "verified_on": "2026-11-11"
+      }
+    ],
+    "compatibility_source": "https://armadaos.dev/devices/supported-devices/",
+    "unpublished_drafts": [
+      {
+        "community": "mangmi",
+        "file": "reddit-mangmi-draft-en.txt",
+        "status": "not_submitted",
+        "reason": "Further posting stopped after four consecutive new crossposts were filtered."
+      }
+    ],
+    "skipped_communities": [
+      {
+        "community": "Retroidpocketflip2",
+        "reason": "Rule 4 disallows advertising."
+      },
+      {
+        "community": "RetroidPocket6",
+        "reason": "Private community; no join request submitted."
       }
     ]
   }

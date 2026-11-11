@@ -1,0 +1,7 @@
+TrainerOS — The First Public Alpha Is Here! 😁
+
+For MANGMI Pocket Max and AIR Y Pro (8 GB) owners running ArmadaOS: the first public alpha of TrainerOS is out. It brings the game library, multiplayer Lobby, friends, chat and apps into one controller-friendly environment. This release installs on top of ArmadaOS.
+
+The original post has the full announcement and 15 different interface screenshots. Captures are from Odin 2 / Retroid Pocket Flip 2 plus one native UI demo; MANGMI-specific testing is not shown here.
+
+Download and installation guide: https://abysstail.art/en/projects/traineros
