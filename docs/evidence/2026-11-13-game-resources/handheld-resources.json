@@ -1,0 +1,250 @@
+{
+  "source": "52aec748ac2886af797d4bb6a21bc5bb1a32d720",
+  "sequence": 34,
+  "binarySha256": "a9b0d94d4b4898e18805a6022499e23b6a471724ab756544b91c47e31aafa630",
+  "note": "Same Advance Wars intro through real installed UI; remote Home intercept and X11 pointer, not physical buttons or FPS benchmark",
+  "baselineAlpha7": {
+    "odin": {
+      "at": 1794601278.7407715,
+      "processes": {
+        "traineros": {
+          "pid": 2879,
+          "RssKiB": 806952,
+          "PssKiB": 747569,
+          "Private_DirtyKiB": 586244
+        },
+        "retroarch": {
+          "pid": 220114,
+          "RssKiB": 239068,
+          "PssKiB": 237569,
+          "Private_DirtyKiB": 130172
+        }
+      },
+      "MemAvailableKiB": 3959424
+    },
+    "flip": {
+      "at": 1794601278.89408,
+      "processes": {
+        "traineros": {
+          "pid": 2962,
+          "RssKiB": 622760,
+          "PssKiB": 563593,
+          "Private_DirtyKiB": 410836
+        },
+        "retroarch": {
+          "pid": 198899,
+          "RssKiB": 182492,
+          "PssKiB": 180971,
+          "Private_DirtyKiB": 70264
+        }
+      },
+      "MemAvailableKiB": 4998192
+    }
+  },
+  "devices": {
+    "odin": {
+      "initialGame": {
+        "at": 1794602868.8372645,
+        "processes": {
+          "traineros": {
+            "pid": 261628,
+            "RssKiB": 592700,
+            "PssKiB": 538707,
+            "Private_DirtyKiB": 380680
+          },
+          "retroarch": {
+            "pid": 262000,
+            "RssKiB": 239088,
+            "PssKiB": 237573,
+            "Private_DirtyKiB": 130032
+          }
+        },
+        "MemAvailableKiB": 4267504
+      },
+      "homeMinimizeReturn": [
+        {
+          "at": 1794602884.9869866,
+          "processes": {
+            "traineros": {
+              "pid": 261628,
+              "RssKiB": 644352,
+              "PssKiB": 590169,
+              "Private_DirtyKiB": 431776
+            },
+            "retroarch": {
+              "pid": 262000,
+              "RssKiB": 239104,
+              "PssKiB": 237589,
+              "Private_DirtyKiB": 130048
+            }
+          },
+          "MemAvailableKiB": 4214084
+        },
+        {
+          "at": 1794602901.9551842,
+          "processes": {
+            "traineros": {
+              "pid": 261628,
+              "RssKiB": 614768,
+              "PssKiB": 560585,
+              "Private_DirtyKiB": 402192
+            },
+            "retroarch": {
+              "pid": 262000,
+              "RssKiB": 239128,
+              "PssKiB": 237613,
+              "Private_DirtyKiB": 130072
+            }
+          },
+          "MemAvailableKiB": 4257096
+        },
+        {
+          "at": 1794602918.5654237,
+          "processes": {
+            "traineros": {
+              "pid": 261628,
+              "RssKiB": 657460,
+              "PssKiB": 603277,
+              "Private_DirtyKiB": 440952
+            },
+            "retroarch": {
+              "pid": 262000,
+              "RssKiB": 239152,
+              "PssKiB": 237637,
+              "Private_DirtyKiB": 130096
+            }
+          },
+          "MemAvailableKiB": 4200844
+        }
+      ],
+      "sameEmulatorProcess": true,
+      "additionalHomeContinue": {
+        "at": 1794603000.202016,
+        "processes": {
+          "traineros": {
+            "pid": 261628,
+            "RssKiB": 689108,
+            "PssKiB": 635868,
+            "Private_DirtyKiB": 473524
+          },
+          "retroarch": {
+            "pid": 262000,
+            "RssKiB": 239360,
+            "PssKiB": 237845,
+            "Private_DirtyKiB": 130304
+          }
+        },
+        "MemAvailableKiB": 4190224
+      },
+      "finalCheck": {
+        "shellPid": 261628,
+        "binarySha256": "a9b0d94d4b4898e18805a6022499e23b6a471724ab756544b91c47e31aafa630",
+        "sqliteQuickCheck": "ok",
+        "gameExited": true,
+        "sessionService": "active"
+      }
+    },
+    "flip": {
+      "initialGame": {
+        "at": 1794602869.0463219,
+        "processes": {
+          "traineros": {
+            "pid": 235663,
+            "RssKiB": 502012,
+            "PssKiB": 445503,
+            "Private_DirtyKiB": 293256
+          },
+          "retroarch": {
+            "pid": 236058,
+            "RssKiB": 182920,
+            "PssKiB": 181399,
+            "Private_DirtyKiB": 70484
+          }
+        },
+        "MemAvailableKiB": 5140296
+      },
+      "homeMinimizeReturn": [
+        {
+          "at": 1794602887.3939173,
+          "processes": {
+            "traineros": {
+              "pid": 235663,
+              "RssKiB": 534556,
+              "PssKiB": 477668,
+              "Private_DirtyKiB": 325472
+            },
+            "retroarch": {
+              "pid": 236058,
+              "RssKiB": 182924,
+              "PssKiB": 181403,
+              "Private_DirtyKiB": 70488
+            }
+          },
+          "MemAvailableKiB": 5057656
+        },
+        {
+          "at": 1794602906.0541883,
+          "processes": {
+            "traineros": {
+              "pid": 235663,
+              "RssKiB": 548208,
+              "PssKiB": 491972,
+              "Private_DirtyKiB": 339844
+            },
+            "retroarch": {
+              "pid": 236058,
+              "RssKiB": 182932,
+              "PssKiB": 181411,
+              "Private_DirtyKiB": 70496
+            }
+          },
+          "MemAvailableKiB": 5079044
+        },
+        {
+          "at": 1794602924.3349664,
+          "processes": {
+            "traineros": {
+              "pid": 235663,
+              "RssKiB": 528916,
+              "PssKiB": 472690,
+              "Private_DirtyKiB": 320552
+            },
+            "retroarch": {
+              "pid": 236058,
+              "RssKiB": 182948,
+              "PssKiB": 181427,
+              "Private_DirtyKiB": 70512
+            }
+          },
+          "MemAvailableKiB": 5085300
+        }
+      ],
+      "sameEmulatorProcess": true,
+      "additionalHomeContinue": {
+        "at": 1794603000.3506405,
+        "processes": {
+          "traineros": {
+            "pid": 235663,
+            "RssKiB": 528224,
+            "PssKiB": 472389,
+            "Private_DirtyKiB": 320244
+          },
+          "retroarch": {
+            "pid": 236058,
+            "RssKiB": 183136,
+            "PssKiB": 181615,
+            "Private_DirtyKiB": 70700
+          }
+        },
+        "MemAvailableKiB": 5081732
+      },
+      "finalCheck": {
+        "shellPid": 235663,
+        "binarySha256": "a9b0d94d4b4898e18805a6022499e23b6a471724ab756544b91c47e31aafa630",
+        "sqliteQuickCheck": "ok",
+        "gameExited": true,
+        "sessionService": "active"
+      }
+    }
+  }
+}

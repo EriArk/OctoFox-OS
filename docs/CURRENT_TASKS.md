@@ -1,6 +1,11 @@
 # Задачи и условия готовности
 
-**13 November — handheld follow-up resumed:** the owner requested immediate
+**13 November — handheld follow-up delivered:** private sequence 34 (`52aec748`)
+is installed on both devices. Three game/Home/minimize/return cycles passed;
+Odin RSS after returns 600–642 MiB, Flip 516–535 MiB. Physical-button, long-play
+and FPS acceptance remain open. Public Alpha 7 is unchanged.
+
+Earlier follow-up context: the owner requested immediate
 installation and verification on both devices. Initial candidate launch was
 rejected by the persisted RetroArch v1 header comparison after branding. The
 compatibility fix keeps exact setting validation and existing files unchanged.
@@ -9,8 +14,8 @@ for current installed build, measurements and remaining acceptance.
 
 **13 November — game resource use:** hidden-window graphics/3D cleanup and safe
 browser lifecycle are implemented. Host measurements: median shell RSS
-724.6 → 450.2 MiB. Flip/Odin Vulkan/driver behavior, real-game memory/FPS and
-long-session acceptance remain open; this is not a new installed release.
+724.6 → 450.2 MiB. The later device follow-up above supplies bounded real-game memory and
+Home/return evidence. FPS and long-session acceptance remain open.
 The older broad UI navigation/persistence scenarios also require separate repair;
 recorded baseline failures are not presented as passing regressions.
 [Implementation and exact verification](evidence/2026-11-13-game-resources/README.md).
@@ -18,8 +23,8 @@ recorded baseline failures are not presented as passing regressions.
 
 **13 November — internal rename:** current source uses OctoFox OS in the shell,
 Setup and account screens. Existing data/package/protocol identities are retained;
-new archive names accept legacy Setup input. Published Alpha 7 and handheld
-installations are unchanged by this source work.
+new archive names accept legacy Setup input. Published Alpha 7 is unchanged;
+the later private handheld delivery is recorded above.
 [Compatibility](BRANDING.md) · [Verification](evidence/2026-11-13-octofox-internal/README.md).
 
 

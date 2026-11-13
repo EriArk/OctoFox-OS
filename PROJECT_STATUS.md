@@ -2,6 +2,10 @@
 
 ## 13 November 2026 — handheld validation and launch compatibility
 
+Both handhelds now run private Software sequence 34 (`52aec748`), with verified
+existing data and Alpha 7 recovery. Three real game/Home/minimize/return cycles
+passed on each: shell RSS after returns was 600–642 MiB on Odin and 516–535 MiB
+on Flip, versus the observed Alpha 7 game samples of 788 and 608 MiB.
 Device validation resumed on both handhelds. The first renamed candidate exposed
 an exact-config mismatch before game launch: the branding change altered a
 persisted RetroArch v1 comment. The correction retains the stable v1 identity and
@@ -21,8 +25,9 @@ keyboard input has an additional preservation guard. The colorful Home is unchan
 
 Native software-OpenGL measurements reduced median hidden-shell RSS from
 724.6 to 450.2 MiB (37.9%). Returning to the profile rebuilds graphics; first-frame
-latency was 223–285 ms on that host. Source and host verification only: no handheld
-installation, emulator FPS claim or replacement release.
+latency was 223–285 ms on that host. These initial measurements were source/host verification. The later handheld
+follow-up above supersedes the earlier no-install state; no emulator FPS claim
+or public replacement release is implied.
 [Measurements, checks and remaining limitations](docs/evidence/2026-11-13-game-resources/README.md).
 
 

@@ -5,7 +5,10 @@ verify the resource changes on reachable Flip and Odin now. Preserve personal
 state and one working rollback. Test real game launch, Home and return; host
 benchmarks alone do not complete this increment. The first device candidate
 exposed a rename regression in exact RetroArch v1 configuration headers; those
-persisted bytes are compatibility identities, not product copy.
+persisted bytes are compatibility identities, not product copy. Both now run
+private Software sequence 34 (`52aec748`); sequences 32–34 are consumed. Reserve
+35 or later for the next signed release. See the game-resource evidence for the
+actual measurements and limits; public Alpha 7 is unchanged.
 
 **Owner stability / resource use, 13 November 2026 (latest):** reduce shell
 resource use while games run, retaining working Home, saves, notifications and

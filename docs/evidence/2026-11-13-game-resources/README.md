@@ -7,7 +7,8 @@ has remained hidden for one second. A quick hide/show cancels that work. Showing
 it restores Qt's normal persistent caching. Live QML/controller objects, profile
 state, navigation, saves, game process ownership and networking remain alive.
 The QML engine collects unreachable objects and trims unused component cache.
-Separate game overlay windows remain independent and available. On glibc Linux,
+Separate game overlay windows remain independent and available. The handheld
+follow-up extends the same cleanup to each overlay after it becomes hidden. On glibc Linux,
 a deferred `malloc_trim(0)` after scene-graph invalidation returns unused allocator
 pages to the OS. It does not run while the main window is visible.
 
@@ -56,8 +57,8 @@ production `BrowserEngine.qml`, `tests/ui/BrowserLifecycleProbe.qml` and the
 loopback-only `tests/browser_fixture.py`. No external accounts or web pages.
 
 These are native host tests with content-free child processes, not emulator
-FPS, physical-controller, ARM64, Vulkan or Flip/Odin acceptance. No device
-installation or new signed release is part of this source verification.
+FPS, physical-controller, ARM64, Vulkan or Flip/Odin acceptance. That initial source verification did not install a device build. The later
+[handheld follow-up](#handheld-follow-up) records the authorized installation.
 
 ## OpenGL measurements
 
@@ -161,3 +162,74 @@ lower sample alone is not the acceptance result. The next correction applies
 the same delayed hidden-window cleanup to the existing independent overlay
 windows as well. Visible overlays remain untouched; each releases only after
 it has been hidden for one second. Controller/session objects are retained.
+
+### Corrected installed build
+
+Both handhelds now run private signed Software **sequence 34**, version
+`0.1.0-alpha.8-device.52aec748`, source `52aec748ac2886af797d4bb6a21bc5bb1a32d720`.
+ELF SHA-256: `a9b0d94d4b4898e18805a6022499e23b6a471724ab756544b91c47e31aafa630`.
+Manifest identity: `f4fd9eef5fcad5aeffdc05c3795efbb8c66462251eb22b3a8ce113890a8e9da9`.
+Sequences 32–34 are consumed private candidates; use **35 or later** for the next
+new signed release. They were not uploaded as GitHub releases or advertised in
+the public update feed.
+
+Flip used the existing trusted offline prepare/install transaction, with signed
+archive and tree verification and an atomic receipt. It confirmed the first frame
+and retains Alpha 7 as its previous version. Odin used its existing legacy in-place
+installation, verified resources first / executable last, retaining its adjusted
+library paths and a hard-linked Alpha 7 backup. Both have a private, integrity-checked
+SQLite/config backup. Existing data stayed outside the installed payload. Subsequent
+table-count changes are the expected play-session and exit-preview records produced
+by this test. Neither emulator packages nor KDE runtimes were repacked/reinstalled.
+Flip's UFS workaround remains enabled (`clkscale_enable=0`).
+
+### Real-device results
+
+The same Advance Wars intro was launched from Home on Alpha 7 and the candidate.
+Each device completed three Home → minimize → return cycles with the **same
+RetroArch PID** throughout. The menu, captured game preview and main shell rendered;
+Odin's 3D companion reappeared after each minimize. Snapshots and account-bearing
+screenshots remain private; numeric observations are in
+[handheld-resources.json](handheld-resources.json).
+
+| Shell RSS, MiB | Odin 2 | Flip 2 |
+| --- | ---: | ---: |
+| Alpha 7, game running | 788.0 | 608.2 |
+| Corrected build, initial game | 578.8 | 490.2 |
+| After Home/minimize/return 1 | 629.2 | 522.0 |
+| After Home/minimize/return 2 | 600.4 | 535.4 |
+| After Home/minimize/return 3 | 642.1 | 516.5 |
+| Additional Home → Continue (without minimize) | 673.0 | 515.8 |
+
+Flip no longer showed the earlier successive Home growth. Odin still showed
+cache variation and reached 673 MiB after the additional Home-only return;
+continued long-run monitoring is required. Both remained below the observed
+Alpha 7 game sample in this bounded run.
+Values fluctuate with rendering/capture caches; this is not a long-session leak
+proof or an FPS result. Shell-only RSS does not measure all emulator/browser child
+processes or GPU allocations. The alpha baseline had a longer-running shell, so
+these are observational comparisons, not a controlled isolated attribution of every
+saved byte to one patch.
+
+The old Odin LCD preset initially looked suspicious in intro-transition captures.
+Later title-screen frames rendered correctly with the same preset. No shader,
+bezel or emulator settings were changed; this is not a claimed shader repair.
+
+Input used real UI pointer events and the existing InputPlumber Home interception
+path over SSH, not a person pressing the physical controller. The game stayed in
+its intro/title screen; no progress was edited. Multiplayer, suspend/lid testing,
+long-play stability, frame pacing and broad cross-emulator acceptance remain open.
+This was an existing-installation update, not clean Setup or public OTA-feed/UI
+acceptance. Public Alpha 7 remains unchanged.
+
+The compatibility suite passed **80 tests** ([log](retroarch-compatibility.txt)).
+The additional native Vulkan/Lavapipe three-cycle resource scenario passed, including
+independent overlay rendering and return ([measurements](overlay-vulkan-resources.json)).
+
+Final cleanup removed this task's rejected versions and redundant extraction
+copies after checking active/previous identities. The signed current archive,
+working installation, Alpha 7 rollback and private data backup are retained.
+
+Both final builds then completed Home → Exit game → Leave. RetroArch exited,
+Home returned, the same updated shell processes remained alive, and SQLite
+`quick_check` returned `ok` on both. Devices were left on Home with no game running.
