@@ -4,8 +4,48 @@
 #include <QGuiApplication>
 #include <QQuickWindow>
 #include <QDebug>
+#include <QQmlEngine>
+#include <QTimer>
+#ifdef __GLIBC__
+#include <malloc.h>
+#endif
 
 namespace trainer {
+
+// Keep the shell/session alive for Home, saves and multiplayer. Release only
+// the hidden main window's render resources; game overlays own other windows.
+inline void releaseHiddenShellGraphics(QQuickWindow* window, QQmlEngine* engine)
+{
+#ifdef __GLIBC__
+    // Qt releases graphics on its render thread. Once that has completed, return
+    // freed allocator pages to Linux rather than retaining the old peak RSS.
+    QObject::connect(window, &QQuickWindow::sceneGraphInvalidated, window, [window] {
+        QTimer::singleShot(250, window, [window] {
+            if (!window->isVisible()) malloc_trim(0);
+        });
+    }, Qt::QueuedConnection);
+#endif
+    auto* release = new QTimer(window);
+    release->setSingleShot(true);
+    release->setInterval(1000); // Avoid rebuilding on a brief hide/show handoff.
+    QObject::connect(window, &QWindow::visibleChanged, release, [window, release](bool visible) {
+        if (visible) {
+            release->stop();
+            window->setPersistentGraphics(true);
+            window->setPersistentSceneGraph(true);
+        } else release->start();
+    });
+    QObject::connect(release, &QTimer::timeout, window, [window, engine] {
+        if (window->isVisible()) return;
+        window->setPersistentSceneGraph(false);
+        window->setPersistentGraphics(false);
+        window->releaseResources();
+        // Hidden preview Loaders have already released their instances. Keep
+        // all live QML objects, browser profiles and controller state intact.
+        engine->collectGarbage();
+        engine->trimComponentCache();
+    });
+}
 
 inline void configureShellGraphics()
 {

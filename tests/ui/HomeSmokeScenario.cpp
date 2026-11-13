@@ -48,7 +48,10 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
     auto* launch = new AdventureLaunchController(*process, window);
     auto* history = new PlayHistoryController(*launch, store, window);
     auto* progress = new HomeProgressFixture(window);
-    auto stage = std::make_shared<int>(0), starts = std::make_shared<int>(0), returns = std::make_shared<int>(0);
+    // The focused fixture supplies its own owner; the full tour selects one later.
+    const bool resourcesOnly=qEnvironmentVariableIsSet("TRAINEROS_HOME_RESOURCE_PROBE");
+    auto stage = std::make_shared<int>(0);
+    auto starts = std::make_shared<int>(0), returns = std::make_shared<int>(0);
     auto failed = std::make_shared<bool>(false);
     QObject::connect(window, &QQuickWindow::afterAnimating, window, [=, &diagnostics] {
         if (*stage < 41 || *stage > 51) return;
@@ -115,6 +118,14 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
         if (session.blocked() || launch->active() || store.pending()) return;
         switch ((*stage)++) {
         case 0:
+            if(resourcesOnly) {
+                store.saveAsync({"home-resource-probe","Resource Test","compass",{},QDateTime::currentDateTimeUtc()},window,
+                    [failed,&shell,&diagnostics](ProfileWriteResult result){
+                        *failed|=!result.success;
+                        if(result.success)shell.trainer()->reload();else diagnostics.append(result.error);
+                    });
+                *stage=91;break;
+            }
             capture("home-first-use");
             if (reopen) { *stage = 9; break; }
             store.saveAsync({"home-owner", "Fixture", "compass", {}, QDateTime::currentDateTimeUtc()}, window,
@@ -682,7 +693,8 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             QImage backdrop(8,8,QImage::Format_RGB32);backdrop.fill(QColor("#58786a"));
             for(const auto& name:{"cozy-room","sunny-garden","evening-nook"})backdrop.save(base+name+".png");
             shell.dashboard()->setInstalledWidgets(widgetPackage->path(),{receipt});
-            check(shell.dashboard()->selectPackageWidget("home-companion"),"Installed package selects its contribution");
+            check(shell.dashboard()->selectPackageWidget("home-companion"),QString("Installed package selects its contribution (owner=%1, choices=%2)")
+                .arg(shell.trainer()->profile()["id"].toString(),QString::fromUtf8(QJsonDocument(QJsonArray::fromVariantList(shell.dashboard()->widgetChoices())).toJson(QJsonDocument::Compact))));
             QQmlComponent component(qmlEngine(window));
             component.setData(R"QML(import QtQuick
 import TrainerOS
@@ -740,6 +752,12 @@ Item {
         case 96:
             check(shell.dashboard()->companion()->active()&&itemNamed("home-companion"),"Home return creates one selected companion");
             check(!shell.dashboard()->allowsStartWidgets("home-companion"),"Home contribution cannot be registered in Start");
+            window->hide();break;
+        case 97:
+            check(!shell.dashboard()->companion()->active(),"Hidden window stops companion even with a renderable fixture shutter");
+            window->show();window->requestActivate();break;
+        case 98:
+            check(shell.dashboard()->companion()->active(),"Showing window resumes the selected companion");
             if(auto* probe=itemNamed("companion-integration-probe"))probe->deleteLater();
             shell.dashboard()->setInstalledWidgets({},{});shell.goToPage(0);break;
         default:

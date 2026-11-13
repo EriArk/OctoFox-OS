@@ -30,6 +30,10 @@ Item {
             id: web
             required property string tabId
             property bool selected: false
+            // Chromium does not always classify IME edits in unowned fields as
+            // form interaction. Also protect fields used by our shared keyboard.
+            property bool inputTouched: false
+            property bool previousInputTouched: false
             property var siteRequest: null
             property int siteRequestId: 0
             property string siteRequestKind: ""
@@ -44,6 +48,7 @@ Item {
             }
             Connections {
                 target: engine.flow
+                function onPageInputRequested(hints) { if(web.foreground)web.inputTouched=true }
                 function onDialogFinished(id,accepted,values) {
                     if(id!==web.siteRequestId||!web.siteRequest)return
                     const request=web.siteRequest, kind=web.siteRequestKind
@@ -69,14 +74,26 @@ Item {
             readonly property bool foreground: selected && engine.surface.foreground
             // Chromium owns download jobs through the profile, independently of views.
             // Respect each page's own safety recommendation, not a global job list.
-            readonly property bool canFreeze: !visible && !foreground && recommendedState!==WebEngineView.LifecycleState.Active
-            onCanFreezeChanged: {
-                if(canFreeze)freezeDelay.restart()
-                else {freezeDelay.stop();lifecycleState=WebEngineView.LifecycleState.Active}
+            readonly property bool gameRunning: !!engine.surface && engine.surface.gameRunning === true
+            readonly property bool canFreeze: !visible && !foreground && lifecycleState===WebEngineView.LifecycleState.Active
+                && recommendedState!==WebEngineView.LifecycleState.Active
+            readonly property bool canDiscard: !visible && !foreground && gameRunning && !inputTouched
+                && lifecycleState===WebEngineView.LifecycleState.Frozen
+                && recommendedState===WebEngineView.LifecycleState.Discarded
+            // A discarded page stays asleep until visited. Do not reactivate it
+            // merely because the game ended or another tab changed state.
+            onForegroundChanged: if(foreground)lifecycleState=WebEngineView.LifecycleState.Active
+            onRecommendedStateChanged: if(recommendedState===WebEngineView.LifecycleState.Active
+                && lifecycleState!==WebEngineView.LifecycleState.Discarded)lifecycleState=WebEngineView.LifecycleState.Active
+            Timer {
+                interval: web.gameRunning ? 0 : 15000
+                running: web.canFreeze
+                onTriggered: if(web.canFreeze)web.lifecycleState=WebEngineView.LifecycleState.Frozen
             }
             Timer {
-                id: freezeDelay; interval: 15000
-                onTriggered: if(web.canFreeze)web.lifecycleState=WebEngineView.LifecycleState.Frozen
+                interval: 5000
+                running: web.canDiscard
+                onTriggered: if(web.canDiscard)web.lifecycleState=WebEngineView.LifecycleState.Discarded
             }
             settings.fullScreenSupportEnabled: true
             settings.touchIconsEnabled: true
@@ -86,14 +103,22 @@ Item {
             settings.localContentCanAccessRemoteUrls: false
             settings.localContentCanAccessFileUrls: false
             settings.javascriptCanAccessClipboard: false
-            // Keep live DOM/downloads across shell navigation. Chromium throttles
-            // invisible views; never discard them as a side effect of tab switching.
+            // Ordinary tab switching preserves DOM. During a game, only the
+            // pages Chromium recommends discarding may release their renderer.
             function publish(visited) { engine.flow.updateTab(tabId,url.toString(),title,icon.toString(),visited) }
             onUrlChanged: { cancelSiteRequest();if(selected)engine.flow.stopPageInput();publish(false);if(selected)engine.surface.reveal() }
             onTitleChanged: publish(false)
             onIconChanged: publish(false)
             onActiveFocusChanged: if(activeFocus&&selected)engine.surface.queueFieldCheck()
-            onLoadingChanged: function(info) { if(info.status===WebEngineView.LoadStartedStatus)cancelSiteRequest();if(info.status===WebEngineView.LoadSucceededStatus)publish(true);if(selected&&info.status===WebEngineView.LoadFailedStatus)engine.surface.error=info.errorString }
+            onLoadingChanged: function(info) {
+                if(info.status===WebEngineView.LoadStartedStatus) {
+                    cancelSiteRequest();previousInputTouched=inputTouched;inputTouched=false
+                }
+                if(info.status===WebEngineView.LoadSucceededStatus) { previousInputTouched=false;publish(true) }
+                if(info.status===WebEngineView.LoadFailedStatus || info.status===WebEngineView.LoadStoppedStatus)
+                    inputTouched=inputTouched || previousInputTouched
+                if(selected&&info.status===WebEngineView.LoadFailedStatus)engine.surface.error=info.errorString
+            }
             onScrollPositionChanged: {const dy=scrollPosition.y-lastScroll;lastScroll=scrollPosition.y;if(selected&&Math.abs(dy)>3)engine.surface.scrolled(dy)}
             onContextMenuRequested: function(request) {
                 request.accepted=true
@@ -102,7 +127,7 @@ Item {
                 if(request.linkUrl.toString()) {add("Open link in new tab",WebEngineView.OpenLinkInNewTab);add("Copy link",WebEngineView.CopyLinkToClipboard);add("Download link",WebEngineView.DownloadLinkToDisk)}
                 if(request.mediaType===ContextMenuRequest.MediaTypeImage) {add("Open image",WebEngineView.OpenImageInNewTab);add("Save image",WebEngineView.DownloadImageToDisk);add("Copy image",WebEngineView.CopyImageToClipboard)}
                 if(request.selectedText) {add("Copy",WebEngineView.Copy);rows.push({title:"Search selected text",search:request.selectedText})}
-                if(request.isContentEditable) {add("Paste",WebEngineView.Paste);add("Select all",WebEngineView.SelectAll);rows.push({title:"Keyboard",keyboard:true})}
+                if(request.isContentEditable) {inputTouched=true;add("Paste",WebEngineView.Paste);add("Select all",WebEngineView.SelectAll);rows.push({title:"Keyboard",keyboard:true})}
                 if(rows.length)engine.surface.openPopup("context",rows)
             }
             onNewWindowRequested: function(request) {

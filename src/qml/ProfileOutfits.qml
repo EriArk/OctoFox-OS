@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 
 Item {
     id: root
@@ -51,7 +52,7 @@ Item {
             Rectangle { width:parent.width*.68;height:24;radius:width/2;anchors.horizontalCenter:parent.horizontalCenter;anchors.bottom:parent.bottom;anchors.bottomMargin:14;color:Theme.dark?"#35493c":"#d2dcc5" }
             Loader {
                 id: portrait; anchors.fill: parent; anchors.topMargin: -10; anchors.bottomMargin: 10
-                active: root.visible && !!root.view.preview && root.shell.trainer.avatarRendererAvailable
+                active: root.visible && (!root.Window.window || root.Window.window.visible) && !!root.view.preview && root.shell.trainer.avatarRendererAvailable
                 source: active?"AvatarPreview3D.qml":""
                 onLoaded: {
                     item.modelSource=Qt.binding(function(){return root.view.preview})

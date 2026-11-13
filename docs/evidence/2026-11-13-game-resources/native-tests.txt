@@ -1,0 +1,31 @@
+Test project /work/build
+    Start  23: browser
+1/7 Test  #23: browser ..........................   Passed    0.76 sec
+    Start  99: home_companion
+2/7 Test  #99: home_companion ...................   Passed    9.23 sec
+    Start 100: avatar_scene
+3/7 Test #100: avatar_scene .....................Subprocess aborted***Exception:   0.18 sec
+qt.qpa.xcb: could not connect to display
+qt.qpa.plugin: From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin.
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: offscreen, minimal, wayland-brcm, wayland-egl, wayland, xcb, linuxfb, eglfs, minimalegl, vnc, vkkhrdisplay.
+
+
+    Start 113: process
+4/7 Test #113: process ..........................   Passed    4.46 sec
+    Start 114: adventure_exit
+5/7 Test #114: adventure_exit ...................   Passed    4.37 sec
+    Start 115: adventure_exit_presentation
+6/7 Test #115: adventure_exit_presentation ......   Passed    0.20 sec
+    Start 116: adventure_overlay_transport
+7/7 Test #116: adventure_overlay_transport ......   Passed    1.89 sec
+
+86% tests passed, 1 tests failed out of 7
+
+Total Test time (real) =  21.11 sec
+
+The following tests FAILED:
+	100 - avatar_scene (Subprocess aborted)
+Errors while running CTest

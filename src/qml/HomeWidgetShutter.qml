@@ -1,10 +1,11 @@
 import QtQuick
+import QtQuick.Window
 
 // Close before releasing the expensive presentation; reopen only when ready.
 Item {
     id:root
     property bool requested:false
-    property bool windowRenderable:Qt.application.state===Qt.ApplicationActive || Qt.application.state===Qt.ApplicationInactive
+    property bool windowRenderable:(!root.Window.window || root.Window.window.visible) && (Qt.application.state===Qt.ApplicationActive || Qt.application.state===Qt.ApplicationInactive)
     property bool contentReady:false
     property bool retainContent:false
     property real progress:1

@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import QtMultimedia
 
 Item {
@@ -81,7 +82,7 @@ Item {
         }
         Loader {
             x:8;y:12;width:parent.width*.29;height:parent.height-24
-            active:celebration.visible&&root.shell.trainer.avatarRendererAvailable&&!!root.shell.trainer.avatarPreview
+            active:root.visible&&(!root.Window.window||root.Window.window.visible)&&celebration.visible&&root.shell.trainer.avatarRendererAvailable&&!!root.shell.trainer.avatarPreview
             source:active?"AvatarPreview3D.qml":""
             onLoaded:{item.modelSource=Qt.binding(function(){return root.shell.trainer.avatarPreview});item.poseHost=root.shell.outfits;item.admire()}
         }

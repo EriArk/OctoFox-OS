@@ -10,7 +10,7 @@ Item {
     property string assetBase: "qrc:/home-pet/"
     readonly property var pet: shell.dashboard.companion
     property bool presentationActive:shell.unobstructed && !shell.quickAppsOpen && !shell.drawerOpen && !shell.keyboard.open
-    readonly property bool live:visible && presentationActive
+    readonly property bool live:visible && (!root.Window.window || root.Window.window.visible) && presentationActive
     readonly property bool presentationReady:!shell.trainer.avatarRendererAvailable ||
         (!!actor.item && (actor.item.ready || !!actor.item.error)) || (!shell.trainer.avatarBusy && !shell.trainer.avatarModel.toString())
     readonly property bool compact: height < 170

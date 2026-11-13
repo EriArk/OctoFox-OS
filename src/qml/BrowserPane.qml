@@ -8,6 +8,7 @@ Item {
     property bool active: false
     property bool mediaAllowed: active
     property bool foreground: active
+    property bool gameRunning: false
     property bool takesFocus: false
     property bool typing: false
     property bool fullScreen: false

@@ -1,5 +1,14 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner stability / resource use, 13 November 2026 (latest):** reduce shell
+resource use while games run, retaining working Home, saves, notifications and
+multiplayer. Release the hidden main window's graphics and hidden 3D previews;
+keep session/controller state alive. Browser pages may be discarded during games
+only when Chromium recommends it; protect edited forms and profile-owned
+downloads. Measure before/after, distinguish native host checks from handheld
+performance, and retain the existing colorful game Home.
+
+
 **Owner internal rename, 13 November 2026 (latest):** rename the application and
 Setup user-facing surfaces to **OctoFox OS**, including the wizard, accounts,
 menus, notifications, desktop entries and new installer filenames. Preserve

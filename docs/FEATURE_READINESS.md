@@ -1,5 +1,14 @@
 # Карта готовности функций TrainerOS
 
+**13 November — game resource use:** hidden-window graphics/3D cleanup and safe
+browser lifecycle are implemented. Host measurements: median shell RSS
+724.6 → 450.2 MiB. Flip/Odin Vulkan/driver behavior, real-game memory/FPS and
+long-session acceptance remain open; this is not a new installed release.
+The older broad UI navigation/persistence scenarios also require separate repair;
+recorded baseline failures are not presented as passing regressions.
+[Implementation and exact verification](evidence/2026-11-13-game-resources/README.md).
+
+
 **13 November — internal rename:** current source uses OctoFox OS in the shell,
 Setup and account screens. Existing data/package/protocol identities are retained;
 new archive names accept legacy Setup input. Published Alpha 7 and handheld

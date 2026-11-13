@@ -1,0 +1,7 @@
+Test project /work/build
+    Start 100: avatar_scene
+1/1 Test #100: avatar_scene .....................   Passed   15.44 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  15.45 sec

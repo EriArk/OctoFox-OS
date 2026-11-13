@@ -1,5 +1,10 @@
 # BROWSER-71 — встроенный браузер
 
+## 13 November 2026 — safe game-time discard
+
+During games, background pages can discard after Chromium permits it. Shared-keyboard inputs receive an additional document guard. Ordinary tab switching retains DOM; returning from a game does not reload an unvisited discarded tab. This supersedes the no-discard statement in the dated November 10 section below. See [implementation and verification](evidence/2026-11-13-game-resources/README.md).
+
+
 > Техническая запись и датированные доказательства. Текущий UX —
 > [PRODUCT_SPEC](PRODUCT_SPEC.md), очередь — [CURRENT_TASKS](CURRENT_TASKS.md).
 > Старые «далее/следующий шаг» ниже не назначают новую работу; непроверенные

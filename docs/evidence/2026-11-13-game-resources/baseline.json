@@ -1,0 +1,138 @@
+{
+    "note": "Native x86_64 shell, software graphics, controlled child; not handheld gameplay",
+    "passed": true,
+    "samples": [
+        {
+            "Private_DirtyKiB": 501436,
+            "PssKiB": 700559,
+            "RssKiB": 724004,
+            "cpuTicks": 2461,
+            "cycle": 0,
+            "elapsedMs": 6430,
+            "phase": "foreground",
+            "returnFrameMs": -1,
+            "windowVisible": true
+        },
+        {
+            "Private_DirtyKiB": 501436,
+            "PssKiB": 697322,
+            "RssKiB": 723316,
+            "cpuTicks": 2471,
+            "cycle": 0,
+            "elapsedMs": 12533,
+            "phase": "game",
+            "returnFrameMs": -1,
+            "windowVisible": false
+        },
+        {
+            "Private_DirtyKiB": 520316,
+            "PssKiB": 716202,
+            "RssKiB": 742196,
+            "cpuTicks": 2488,
+            "cycle": 0,
+            "elapsedMs": 18534,
+            "phase": "game-overlay",
+            "returnFrameMs": -1,
+            "windowVisible": false
+        },
+        {
+            "Private_DirtyKiB": 520232,
+            "PssKiB": 719439,
+            "RssKiB": 741884,
+            "cpuTicks": 2536,
+            "cycle": 0,
+            "elapsedMs": 24560,
+            "phase": "returned",
+            "returnFrameMs": 29,
+            "windowVisible": true
+        },
+        {
+            "Private_DirtyKiB": 520388,
+            "PssKiB": 719595,
+            "RssKiB": 742040,
+            "cpuTicks": 2561,
+            "cycle": 1,
+            "elapsedMs": 30534,
+            "phase": "foreground",
+            "returnFrameMs": 29,
+            "windowVisible": true
+        },
+        {
+            "Private_DirtyKiB": 520368,
+            "PssKiB": 716323,
+            "RssKiB": 742020,
+            "cpuTicks": 2574,
+            "cycle": 1,
+            "elapsedMs": 36533,
+            "phase": "game",
+            "returnFrameMs": 29,
+            "windowVisible": false
+        },
+        {
+            "Private_DirtyKiB": 520372,
+            "PssKiB": 716327,
+            "RssKiB": 742024,
+            "cpuTicks": 2584,
+            "cycle": 1,
+            "elapsedMs": 42533,
+            "phase": "game-overlay",
+            "returnFrameMs": 29,
+            "windowVisible": false
+        },
+        {
+            "Private_DirtyKiB": 520372,
+            "PssKiB": 719579,
+            "RssKiB": 742024,
+            "cpuTicks": 2622,
+            "cycle": 1,
+            "elapsedMs": 48565,
+            "phase": "returned",
+            "returnFrameMs": 28,
+            "windowVisible": true
+        },
+        {
+            "Private_DirtyKiB": 520372,
+            "PssKiB": 719579,
+            "RssKiB": 742024,
+            "cpuTicks": 2653,
+            "cycle": 2,
+            "elapsedMs": 54534,
+            "phase": "foreground",
+            "returnFrameMs": 28,
+            "windowVisible": true
+        },
+        {
+            "Private_DirtyKiB": 520372,
+            "PssKiB": 716327,
+            "RssKiB": 742024,
+            "cpuTicks": 2661,
+            "cycle": 2,
+            "elapsedMs": 60533,
+            "phase": "game",
+            "returnFrameMs": 28,
+            "windowVisible": false
+        },
+        {
+            "Private_DirtyKiB": 520372,
+            "PssKiB": 716327,
+            "RssKiB": 742024,
+            "cpuTicks": 2671,
+            "cycle": 2,
+            "elapsedMs": 66534,
+            "phase": "game-overlay",
+            "returnFrameMs": 28,
+            "windowVisible": false
+        },
+        {
+            "Private_DirtyKiB": 520372,
+            "PssKiB": 719579,
+            "RssKiB": 742024,
+            "cpuTicks": 2717,
+            "cycle": 2,
+            "elapsedMs": 72566,
+            "phase": "returned",
+            "returnFrameMs": 35,
+            "windowVisible": true
+        }
+    ]
+}

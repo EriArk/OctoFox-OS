@@ -1,5 +1,10 @@
 # PERF-72 — отзывчивость и память всей оболочки
 
+## 13 November 2026 — resources during games
+
+The hidden main window now releases graphics/3D resources while preserving session and overlay owners. Native host before/after measurements and the return-latency tradeoff are recorded in [game resource evidence](evidence/2026-11-13-game-resources/README.md). Device acceptance remains separate.
+
+
 ## 2 ноября 2026 — одноразовое сканирование и загрузка профиля
 
 Владелец уточнил: важна одноразовость обхода. Каталог обновляется один раз при

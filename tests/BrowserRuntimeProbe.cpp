@@ -104,14 +104,22 @@ int main(int argc,char** argv){
         return passed?result:3;
     }
     if(qEnvironmentVariable("PROBE_MODE")=="lifecycle") {
+        trainer::TextEntryController keyboard;
+        engine.rootContext()->setContextProperty("keyboard",&keyboard);
+        QObject::connect(&browser,&trainer::BrowserController::pageInputRequested,&keyboard,[&](int hints){keyboard.beginLive(hints);});
+        QObject::connect(&browser,&trainer::BrowserController::pageInputEnded,&keyboard,&trainer::TextEntryController::cancel);
+        QObject::connect(&keyboard,&trainer::TextEntryController::textCommitted,&browser,&trainer::BrowserController::commitPageText);
         QObject::connect(&engine,&QQmlEngine::exit,&app,[&](int code){
             QFile receipt(qEnvironmentVariable("PROBE_DATA")+"/lifecycle.json");
-            if(receipt.open(QIODevice::WriteOnly))receipt.write(QJsonDocument(QJsonObject{{"passed",code==0},{"exit",code}}).toJson());
+            if(receipt.open(QIODevice::WriteOnly))receipt.write(QJsonDocument(QJsonObject{
+                {"passed",code==0},{"exit",code},
+                {"stage",engine.rootObjects().first()->property("stage").toInt()},
+                {"failure",engine.rootObjects().first()->property("failure").toString()}}).toJson());
             app.exit(code);
         });
         engine.load(QUrl::fromLocalFile(qEnvironmentVariable("PROBE_SCENARIO")));
         if(engine.rootObjects().isEmpty())return 2;
-        QTimer::singleShot(65000,&app,[&]{qCritical("LIFECYCLE_TIMEOUT");app.exit(3);});
+        QTimer::singleShot(120000,&app,[&]{qCritical("LIFECYCLE_TIMEOUT");app.exit(3);});
         return app.exec();
     }
     engine.loadData(R"QML(import QtQuick

@@ -1,4 +1,5 @@
 #pragma once
+#include "ResourceSmokeScenario.h"
 #include "core/storage/SessionState.h"
 #include "core/input/ControllerInput.h"
 #include <QQuickWindow>
@@ -112,6 +113,9 @@ inline void startFirstRunSmoke(QQuickWindow* window, trainer::ShellController& s
             timer->stop();completed=true;
             if(!directory.isEmpty()){QFile report(directory+"/verification.txt");if(report.open(QIODevice::WriteOnly))report.write(((*failed?QString("FAILED\n"):QString("PASSED\n"))+diagnostics.join('\n')).toUtf8());}
             qInfo() << (*failed?"First-run UI FAILED":"First-run UI passed: profile, comfort, optional accounts, QR, SDL, pointer and Home");
+            if(!*failed && qEnvironmentVariableIsSet("TRAINEROS_RESOURCE_PROBE")) {
+                startResourceSmoke(window,shell,directory,warnings);return;
+            }
             QCoreApplication::exit(*failed?1:0);
         }
     });

@@ -110,7 +110,17 @@ inline void startAvatarSmoke(QQuickWindow* window,trainer::ShellController& shel
         case 13:
             if(trainer->saving()||trainer->avatarBusy()||wardrobe->view()["previewBusy"].toBool())break;
             check(trainer->appearance()["top"]=="everyday-tee"&&trainer->appearance()["bottom"]=="denim-breeches","Separate starter garments replace full outfit");capture("wardrobe-denim");
+            window->hide();++*stage;break;
+        case 14:
+            check(!window->findChild<QObject*>("avatar-preview"),"Hidden wardrobe releases its 3D preview");
+            window->show();window->requestActivate();++*stage;break;
+        case 15: {
+            auto* preview=window->findChild<QObject*>("avatar-preview");
+            if(!preview||!preview->property("ready").toBool())break;
+            check(trainer->appearance()["top"]=="everyday-tee"&&trainer->appearance()["bottom"]=="denim-breeches","Recreated preview retains equipped garments");
+            capture("wardrobe-window-return");
             shell.dispatch(trainer::Action::Back);shell.dispatch(trainer::Action::Back);check(!shell.serviceOpen(),"Profile dismissal returns to shell");++*stage;break;
+        }
         default:
             check(warnings==0,"QML warnings during wardrobe");
             if(!directory.isEmpty()){QFile report(directory+"/avatar-report.json");if(report.open(QIODevice::WriteOnly))report.write(QJsonDocument(QJsonObject{{"warnings",warnings},{"diagnostics",QJsonArray::fromStringList(diagnostics)},{"success",diagnostics.isEmpty()}}).toJson());}

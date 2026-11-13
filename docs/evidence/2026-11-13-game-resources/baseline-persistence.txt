@@ -1,0 +1,47 @@
+********* Start testing of PersistenceProcessTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : PersistenceProcessTests::initTestCase()
+FAIL!  : PersistenceProcessTests::controllerLibraryAndSettingsAcrossRestart() 'process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0' returned FALSE. (qt.multimedia.ffmpeg: Using Qt multimedia with FFmpeg version 8.1.3 GPL version 3 or later
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+library-seed / 1: Focused outline outside window [focus=, visible=1]
+library-seed / 3: No visible actual focus [focus=adventure-field-4, visible=0]
+library-seed / 4: Empty folder recovery [focus=, visible=1]
+library-seed / 6: File choice restores field [focus=, visible=1]
+library-seed / 7: Controller title and World relationships [focus=adventure-field-4, visible=1]
+library-seed / 8: Save completes after global page switch [focus=social-empty, visible=1]
+library-seed / 9: Unavailable launch reports its error without opening setup [focus=multiverse-empty, visible=1]
+library-seed / 10: Persisted red theme [focus=series-card-pokemon, visible=1]
+library-seed / 11: Green theme [focus=series-card-pokemon, visible=1]
+library-seed / 12: Blue theme [focus=series-card-pokemon, visible=1]
+library-seed / 13: Orange theme [focus=series-card-pokemon, visible=1]
+library-seed / 14: Reduced motion saved [focus=series-card-pokemon, visible=1]
+library-seed / 15: Handheld controls receive controller focus [focus=, visible=1]
+library-seed / 16: D-pad changes volume through the device service [focus=, visible=1]
+library-seed / 17: A toggles mute [focus=, visible=1]
+library-seed / 18: D-pad changes brightness [focus=multiverse-empty, visible=1]
+library-seed / 19: Last device action is visible and reachable [focus=, visible=1]
+library-seed / 20: B restores the Settings category [focus=games-platform-pc, visible=1]
+library-seed / 21: Credits reachable with controller [focus=, visible=1]
+library-seed / 22: Start and Back restore Credits [focus=, visible=1]
+library-seed / 23: Back returns to the Credits entry [focus=games-platform-pc, visible=1]
+library-seed / 23: Development exit requires a fresh confirmation from Power [focus=games-platform-pc, visible=0]
+QObject::disconnect: wildcard call disconnects from destroyed signal of trainer::ShellController::unnamed
+)
+   Loc: [/work/source/tests/PersistenceProcessTests.cpp(124)]
+FAIL!  : PersistenceProcessTests::controllerSaveRestartAndRecovery() 'process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0' returned FALSE. (qt.multimedia.ffmpeg: Using Qt multimedia with FFmpeg version 8.1.3 GPL version 3 or later
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+seed stage 1: Fresh startup
+seed stage 1: Controller text entry
+seed stage 1: Reference-backed favorite choices
+seed stage 4: Favorite list retains actual controller focus
+seed stage 4: Choice updates only the profile draft
+seed stage 2: Committed Trainer after leaving page
+seed stage 3: Committed local favorite
+seed stage 3: Applied search and restored focus
+seed stage 3: Power routes development exit through confirmation
+QObject::disconnect: wildcard call disconnects from destroyed signal of trainer::ShellController::unnamed
+)
+   Loc: [/work/source/tests/PersistenceProcessTests.cpp(149)]
+PASS   : PersistenceProcessTests::cleanupTestCase()
+Totals: 2 passed, 2 failed, 0 skipped, 0 blacklisted, 9095ms
+********* Finished testing of PersistenceProcessTests *********

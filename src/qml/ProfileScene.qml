@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import QtQuick.Shapes
 
 Rectangle {
@@ -43,7 +44,7 @@ Rectangle {
     Rectangle { visible:!root.appearance&&!root.thumbnail;anchors.horizontalCenter:parent.horizontalCenter;y:parent.height-root.footerInset-34;width:parent.width*.62;height:15;radius:width/2;color:Theme.dark?"#29413e":"#98b7a3";border.color:Theme.dark?"#8aa894":"#d8e3b9";border.width:1 }
     Loader {
         id:avatar;x:0;y:root.appearance?parent.height*.03:22;width:parent.width;height:(root.appearance?parent.height*.90:parent.height-37)-root.footerInset
-        active:root.showAvatar&&!root.thumbnail&&!!root.profile.avatarPreview&&root.profile.avatarRendererAvailable
+        active:root.visible&&(!root.Window.window||root.Window.window.visible)&&root.showAvatar&&!root.thumbnail&&!!root.profile.avatarPreview&&root.profile.avatarRendererAvailable
         source:active?"AvatarPreview3D.qml":""
         onLoaded:item.modelSource=Qt.binding(function(){return root.profile.avatarPreview})
     }

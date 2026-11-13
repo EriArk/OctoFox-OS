@@ -335,6 +335,7 @@ Window {
             flow: shell.browser
             active: !shell.serviceOpen && shell.primaryId === "apps" && shell.appsFace === "browser"
             foreground: active && window.visible && window.active
+            gameRunning: adventureLaunch.active && !adventureLaunch.minimized
             mediaAllowed: active && window.active && (!adventureLaunch.active || adventureLaunch.minimized)
             visible: active
             takesFocus: foreground && !shell.notice.length && !shell.drawerOpen && !shell.quickAppsOpen && !shell.keyboard.open && !shell.menuOpen && !shell.homeMenuOpen && !shell.downloads.open && !sessionState.blocked && (!adventureLaunch.active || adventureLaunch.minimized)

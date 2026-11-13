@@ -1,5 +1,19 @@
 # OctoFox OS — Changelog
 
+## 13 November 2026 — shell memory during games
+
+Hidden shell graphics and 3D previews now release their memory while session
+state, saves, networking and separate game overlays stay alive. Background browser
+pages can discard only during games and only when Chromium permits it; shared
+keyboard input has an additional preservation guard. The colorful Home is unchanged.
+
+Native software-OpenGL measurements reduced median hidden-shell RSS from
+724.6 to 450.2 MiB (37.9%). Returning to the profile rebuilds graphics; first-frame
+latency was 223–285 ms on that host. Source and host verification only: no handheld
+installation, emulator FPS claim or replacement release.
+[Measurements, checks and remaining limitations](docs/evidence/2026-11-13-game-resources/README.md).
+
+
 
 ## 13 November 2026 — application and Setup branding
 
