@@ -1,6 +1,6 @@
 # Native development
 
-TrainerOS is a C++20 / Qt Quick handheld shell on ArmadaOS. Development builds
+OctoFox OS is a C++20 / Qt Quick handheld shell on ArmadaOS. Development builds
 also run as an ordinary application; building the source does not install an
 Armada image, configure emulators or replace the desktop session.
 
@@ -53,8 +53,8 @@ remains #117; the old Ubuntu command did not cover Files/Browser and was removed
 ## Build and run on Linux
 
 ```sh
-git clone https://github.com/EriArk/TrainerOS.git
-cd TrainerOS
+git clone https://github.com/EriArk/OctoFox-OS.git
+cd OctoFox-OS
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
 cmake --build build/native --parallel 2
 ./build/native/traineros --windowed --data-dir "$PWD/build/dev-data"

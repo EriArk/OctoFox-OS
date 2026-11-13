@@ -1,18 +1,20 @@
-# TrainerOS
+# OctoFox OS
+
+Formerly TrainerOS. Renamed on 13 November 2026 because the previous name was already in use. This is the same project; Alpha 7 downloads and installed builds still use the old technical names.
 
 **A controller-first handheld system built around your games, your progress and the people you play with — not emulator menus.**
 
-<img src="docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-home.png" alt="TrainerOS Alpha 7 Home on AYN Odin 2">
+<img src="docs/alpha-release/publications/screenshots/alpha-7/odin-alpha7-home.png" alt="OctoFox OS Alpha 7 Home on AYN Odin 2">
 
-TrainerOS is the interface you boot into, browse your library from, talk to friends in, launch games from and come back to when you are done.
+OctoFox OS is the interface you boot into, browse your library from, talk to friends in, launch games from and come back to when you are done.
 
 For an ordinary game, that can be as simple as **pick it → press A → play → press Home → return**.
 
-For games TrainerOS understands more deeply, the boundary starts to disappear. Your party, progress, collections and history can live in the system around the game. Friends can see that you are playing, ask to join, and enter a supported multiplayer game without opening an emulator lobby or typing an IP address.
+For games OctoFox OS understands more deeply, the boundary starts to disappear. Your party, progress, collections and history can live in the system around the game. Friends can see that you are playing, ask to join, and enter a supported multiplayer game without opening an emulator lobby or typing an IP address.
 
 The first supported Adventure connects a creature-collecting RPG to the OS beyond launching it. The Games library also supports ordinary games without a semantic adapter.
 
-TrainerOS is still in active development, but the current build already runs as a dedicated handheld session on **Retroid Pocket Flip 2** and **AYN Odin 2**.
+OctoFox OS is still in active development, but the current build already runs as a dedicated handheld session on **Retroid Pocket Flip 2** and **AYN Odin 2**.
 
 [Current handheld screenshots — 11 November 2026](docs/alpha-release/publications/screenshots/alpha-7/README.md)
 
@@ -28,7 +30,7 @@ It describes accepted behaviour; [project status](PROJECT_STATUS.md) distinguish
 
 **Alpha 7 is an installer over existing ArmadaOS for AYN Odin 2 and Retroid
 Pocket Flip 2.** Download `TrainerOS-Full-Setup.tar` from the
-[Alpha release](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7),
+[Alpha release](https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.7),
 extract the whole folder in Desktop, and run `Install TrainerOS.sh` as your normal
 user. Read the [English installation instructions and known limitations](docs/alpha-release/publications/GITHUB_RELEASE.md#how-to-install)
 or the [Russian version](docs/alpha-release/publications/GITHUB_RELEASE_RU.md).
@@ -60,24 +62,24 @@ Games opens collections and platforms, with wheel, list, shelves and screenshot 
 
 <table>
 <tr>
-<td width="50%"><img src="screenshots/site-2026-10-04/02-worlds.png" alt="TrainerOS Worlds"></td>
-<td width="50%"><img src="screenshots/site-2026-10-04/04-multiverse.png" alt="TrainerOS Multiverse"></td>
+<td width="50%"><img src="screenshots/site-2026-10-04/02-worlds.png" alt="OctoFox OS Worlds"></td>
+<td width="50%"><img src="screenshots/site-2026-10-04/04-multiverse.png" alt="OctoFox OS Multiverse"></td>
 </tr>
 </table>
 
 There is no normal setup screen between the library and the game. If a game is ready, **A launches it**.
 
-TrainerOS keeps emulator paths, cores, command lines and room settings out of the everyday interface. Press Home while playing to open Game Options: continue, minimize and browse TrainerOS, manage the current lobby when available, or exit cleanly. Returning to a minimized game restores the same running process; a universal pause is not promised.
+OctoFox OS keeps emulator paths, cores, command lines and room settings out of the everyday interface. Press Home while playing to open Game Options: continue, minimize and browse OctoFox OS, manage the current lobby when available, or exit cleanly. Returning to a minimized game restores the same running process; a universal pause is not promised.
 
-Your ordinary game save stays the ordinary game save. TrainerOS does not make savestates the center of the experience.
+Your ordinary game save stays the ordinary game save. OctoFox OS does not make savestates the center of the experience.
 
-<img src="screenshots/site-2026-10-04/05-game-library.png" alt="TrainerOS game library with media and preview">
+<img src="screenshots/site-2026-10-04/05-game-library.png" alt="OctoFox OS game library with media and preview">
 
 The general library can use Batocera-style folders and existing metadata, artwork and local video previews. Player-count information can be shown where it is known, and games with supported multiplayer can expose it directly from the library instead of making you remember which emulator happens to support what.
 
 ## Chat, invite, play
 
-**Social is built into TrainerOS.** It is not a link that throws you into another app.
+**Social is built into OctoFox OS.** It is not a link that throws you into another app.
 
 Chats keeps the conversation list beside the selected conversation. A left icon rail separates Search, Messages, Groups, Communities and Friends. Messages contains direct conversations; contacts without a conversation stay in Friends. Calls and invitations use Fluxer, with touch and controller navigation.
 
@@ -85,8 +87,8 @@ The screenshots below are dated evidence of an earlier layout; current flows are
 
 <table>
 <tr>
-<td width="50%"><img src="screenshots/social-2026-10-08/messages.png" alt="TrainerOS Messages with touch and controller controls"></td>
-<td width="50%"><img src="screenshots/social-2026-10-08/group-details.png" alt="TrainerOS group membership, game access and notification controls"></td>
+<td width="50%"><img src="screenshots/social-2026-10-08/messages.png" alt="OctoFox OS Messages with touch and controller controls"></td>
+<td width="50%"><img src="screenshots/social-2026-10-08/group-details.png" alt="OctoFox OS group membership, game access and notification controls"></td>
 </tr>
 </table>
 
@@ -96,18 +98,18 @@ Scheduled meetings can create a local reminder after acceptance. Invitations wai
 
 A group voice call is separate from a particular match, so the same friends can keep talking while somebody changes games, leaves a party or joins another one.
 
-Real paired gameplay has already been exercised on handhelds with several classic console games, PSP Lumines and supported multiplayer titles. Some supported games can prepare three or four player seats as well. Compatibility is still being expanded and verified game by game; TrainerOS does not label every multiplayer ROM as online-capable just because an emulator can launch it.
+Real paired gameplay has already been exercised on handhelds with several classic console games, PSP Lumines and supported multiplayer titles. Some supported games can prepare three or four player seats as well. Compatibility is still being expanded and verified game by game; OctoFox OS does not label every multiplayer ROM as online-capable just because an emulator can launch it.
 
 ## Adventures continue outside the game
 
 The first supported Adventure shows how a playthrough can connect to the OS.
 
-With a supported save, the creatures you see in TrainerOS are the same ones that are in your game.
+With a supported save, the creatures you see in OctoFox OS are the same ones that are in your game.
 
 <table>
 <tr>
-<td width="50%"><img src="screenshots/site-2026-10-04/06-field-guide.png" alt="TrainerOS Field Guide"></td>
-<td width="50%"><img src="screenshots/site-2026-10-04/07-party.png" alt="TrainerOS Party"></td>
+<td width="50%"><img src="screenshots/site-2026-10-04/06-field-guide.png" alt="OctoFox OS Field Guide"></td>
+<td width="50%"><img src="screenshots/site-2026-10-04/07-party.png" alt="OctoFox OS Party"></td>
 </tr>
 </table>
 
@@ -115,22 +117,22 @@ The **Field Guide** can show real Seen/Caught progress. **Party** shows the actu
 
 The connection also works in the other direction.
 
-From TrainerOS, supported saves can already be healed, creatures can be moved between Party and Boxes, occupied slots can be swapped, held items can be managed, Boxes can be renamed, and protected releases can be performed. Shops and services can spend the game's real currencies and put the purchased result into the real save.
+From OctoFox OS, supported saves can already be healed, creatures can be moved between Party and Boxes, occupied slots can be swapped, held items can be managed, Boxes can be renamed, and protected releases can be performed. Shops and services can spend the game's real currencies and put the purchased result into the real save.
 
 Launch the game afterwards and the game sees the change.
 
 <table>
 <tr>
-<td width="50%"><img src="screenshots/site-2026-10-04/09-care-center.png" alt="TrainerOS Care Center"></td>
-<td width="50%"><img src="screenshots/site-2026-10-04/11-shops.png" alt="TrainerOS Shops"></td>
+<td width="50%"><img src="screenshots/site-2026-10-04/09-care-center.png" alt="OctoFox OS Care Center"></td>
+<td width="50%"><img src="screenshots/site-2026-10-04/11-shops.png" alt="OctoFox OS Shops"></td>
 </tr>
 </table>
 
 The **Playroom** is deliberately less practical. It gives the real current party somewhere to exist on the handheld outside battles — moving around, reacting and simply being present instead of turning every party screen into another spreadsheet.
 
-<img src="screenshots/site-2026-10-04/10-playroom.png" alt="TrainerOS Playroom">
+<img src="screenshots/site-2026-10-04/10-playroom.png" alt="OctoFox OS Playroom">
 
-TrainerOS also has its own **Link** activities. Two nearby TrainerOS handhelds have already completed protected trades, gifts, creature sales, native trade evolutions and full-team battles using the real saves. That is separate from ordinary emulator multiplayer: persistent creatures moving between two Trainers needs its own safeguards and recovery.
+OctoFox OS also has its own **Link** activities. Two nearby OctoFox OS handhelds have already completed protected trades, gifts, creature sales, native trade evolutions and full-team battles using the real saves. That is separate from ordinary emulator multiplayer: persistent creatures moving between two Trainers needs its own safeguards and recovery.
 
 ## One Trainer across many games
 
@@ -138,21 +140,21 @@ A **Trainer** belongs to the person using the handheld, not to one ROM.
 
 Multiple local Trainers can have their own profiles, optional PINs, history, navigation state and accounts while sharing the same installed game library. The first isolated ordinary-save route is already working for one supported emulator runtime, with more runtimes planned to follow.
 
-<img src="screenshots/site-2026-10-04/12-journey.png" alt="TrainerOS Journey">
+<img src="screenshots/site-2026-10-04/12-journey.png" alt="OctoFox OS Journey">
 
 **Journey** keeps the larger story: current progress, milestones and eventually the pieces worth remembering after a particular save has moved on. Hall records and RetroAchievements remain their own sources instead of being mixed together into invented progress.
 
-The intended end state is that your Trainer can survive the device too: export it, restore it after a reflash, or move it to another supported TrainerOS handheld without treating the whole system as disposable.
+The intended end state is that your Trainer can survive the device too: export it, restore it after a reflash, or move it to another supported OctoFox OS handheld without treating the whole system as disposable.
 
 ## Each series can have its own experience
 
-The **Multiverse** is a full part of TrainerOS, not a waiting room for games that do not have special integration.
+The **Multiverse** is a full part of OctoFox OS, not a waiting room for games that do not have special integration.
 
 A game can simply have a good cover, video preview, play history, direct launch, Home menu and clean return. That is enough.
 
 Series collections and adapter-owned Home/game sections are already available. The installed framework hosts the Pokémon experience and a general fallback; new game families still need their own verified adapters. A Sonic, Final Fantasy, Metal Slug or Need for Speed section should use concepts that fit those games. Test modules do not establish those commercial-game integrations.
 
-Installed Steam games are intended to join the Multiverse in the same way. Steam itself remains available for the things Steam is good at; TrainerOS only needs to make the installed games feel like part of the same handheld.
+Installed Steam games are intended to join the Multiverse in the same way. Steam itself remains available for the things Steam is good at; OctoFox OS only needs to make the installed games feel like part of the same handheld.
 
 ## It behaves like the device, not an app on the device
 
@@ -168,8 +170,8 @@ First run already walks through controls, optional Wi-Fi/Bluetooth, date and tim
 
 <table>
 <tr>
-<td width="50%"><img src="screenshots/site-2026-10-04/13-system-menu.png" alt="TrainerOS system menu"></td>
-<td width="50%"><img src="screenshots/site-2026-10-04/14-settings.png" alt="TrainerOS Settings"></td>
+<td width="50%"><img src="screenshots/site-2026-10-04/13-system-menu.png" alt="OctoFox OS system menu"></td>
+<td width="50%"><img src="screenshots/site-2026-10-04/14-settings.png" alt="OctoFox OS Settings"></td>
 </tr>
 </table>
 
@@ -183,17 +185,17 @@ The first public beta is planned as an **installer over existing ArmadaOS**. It 
 
 Images and other host installers remain later work. Current priorities include the complete ordinary-launch catalogue (including PS3/Switch homebrew checks on Odin), locked compatible emulator configurations, recoverable installation and the named outstanding user/network checks. Your ROMs, firmware, saves and personal media remain yours.
 
-What already exists is deliberately kept separate from what is merely planned. TrainerOS may know that a game launches without claiming it understands the save. It may know that a game has four players without claiming four real TrainerOS users have completed a session. Unsupported things stay unsupported instead of becoming optimistic buttons.
+What already exists is deliberately kept separate from what is merely planned. OctoFox OS may know that a game launches without claiming it understands the save. It may know that a game has four players without claiming four real OctoFox OS users have completed a session. Unsupported things stay unsupported instead of becoming optimistic buttons.
 
-For the current implementation status and the long version of what remains, see the [Roadmap](docs/ROADMAP.md). For the much nerdier development evidence, the [project docs](https://github.com/EriArk/TrainerOS/tree/main/docs) are there on purpose so this README does not have to become one.
+For the current implementation status and the long version of what remains, see the [Roadmap](docs/ROADMAP.md). For the much nerdier development evidence, the [project docs](https://github.com/EriArk/OctoFox-OS/tree/main/docs) are there on purpose so this README does not have to become one.
 
 ---
 
-TrainerOS does not ship commercial ROMs, BIOS files, commercial saves or private ripped media.
+OctoFox OS does not ship commercial ROMs, BIOS files, commercial saves or private ripped media.
 
-TrainerOS is an unofficial fan-made project and is not affiliated with game publishers, Retroid, AYN, ArmadaOS, Valve, Fluxer, ScreenScraper, RetroAchievements, Libretro or the emulator projects it can work with.
+OctoFox OS is an unofficial fan-made project and is not affiliated with game publishers, Retroid, AYN, ArmadaOS, Valve, Fluxer, ScreenScraper, RetroAchievements, Libretro or the emulator projects it can work with.
 
-Original TrainerOS code is licensed under **GNU GPL version 3 or later
+Original OctoFox OS code is licensed under **GNU GPL version 3 or later
 (GPL-3.0-or-later)**. See [LICENSE](LICENSE), [scope and redistribution](LICENSING.md)
 and [third-party notices](THIRD_PARTY_NOTICES.md). This software license does not
 grant rights to game artwork, media or trademarks.

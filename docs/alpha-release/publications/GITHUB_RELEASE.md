@@ -1,8 +1,10 @@
-# TrainerOS Alpha — a home for your handheld games
+# OctoFox OS Alpha — a home for your handheld games
 
-English · [Russian version](https://github.com/EriArk/TrainerOS/blob/main/docs/alpha-release/publications/GITHUB_RELEASE_RU.md)
+Formerly TrainerOS. Alpha 7 binaries, installer labels and filenames still use the original name.
 
-TrainerOS is a gaming shell for ArmadaOS handhelds: your game library, emulators, character profile, apps and conversations in one controller-friendly interface.
+English · [Russian version](https://github.com/EriArk/OctoFox-OS/blob/main/docs/alpha-release/publications/GITHUB_RELEASE_RU.md)
+
+OctoFox OS is a gaming shell for ArmadaOS handhelds: your game library, emulators, character profile, apps and conversations in one controller-friendly interface.
 
 This early Alpha is for **AYN Odin 2 and Retroid Pocket Flip 2 running ArmadaOS**. You can already explore the main screens; game and network compatibility still need testing together with the community. This installer does not support installation over Android or a general-purpose Linux distribution.
 
@@ -15,23 +17,23 @@ In this build:
 - Import games and BIOS through the interface, launch emulators, use Lobby and try experimental network modes.
 - Bazaar has illustrated previews of future worlds. **The worlds are not available yet, and Bazaar purchases are disabled.**
 
-[Odin 2 and Flip 2 screenshots](https://github.com/EriArk/TrainerOS/tree/main/docs/alpha-release/publications/screenshots/alpha-7) show the actual build, with captions.
+[Odin 2 and Flip 2 screenshots](https://github.com/EriArk/OctoFox-OS/tree/main/docs/alpha-release/publications/screenshots/alpha-7) show the actual build, with captions.
 
 On Flip 2, a single-launch installation, automatic sign-in to the system session, the complete wizard and an ordinary reboot were checked. Odin 2 received an in-place application update with its existing profile preserved. Game launch and normal exit were checked on both devices; this verification did not include a shared multiplayer game session.
 
 ## How to install
 
-1. Download **[TrainerOS-Full-Setup.tar](https://github.com/EriArk/TrainerOS/releases/download/v0.1.0-alpha.7/TrainerOS-Full-Setup.tar)**. The other large archives with `Sources` in their names are source code for developers; you do not need them to install TrainerOS.
+1. Download **[TrainerOS-Full-Setup.tar](https://github.com/EriArk/OctoFox-OS/releases/download/v0.1.0-alpha.7/TrainerOS-Full-Setup.tar)**. The other large archives with `Sources` in their names are source code for developers; you do not need them to install OctoFox OS.
 2. In Armada, switch to **Desktop** and extract the entire archive. Keep the `TrainerOS-Setup` folder intact.
 3. Open **Install TrainerOS.sh** as your normal user. If prompted how to open the file, choose to run it. Do not run the entire installer as root.
 4. Select **Alpha**, confirm installation and enter your system password in the standard authorization dialogs. Internet access is required: some emulators and dependencies are downloaded from their official sources.
-5. Wait for installation to finish. TrainerOS opens automatically and takes you through its first-run wizard. After the first installation, it becomes the default session; Desktop and Steam remain available.
+5. Wait for installation to finish. OctoFox OS opens automatically and takes you through its first-run wizard. After the first installation, it becomes the default session; Desktop and Steam remain available.
 
 Allow about **4 GB** for downloading and extracting the archive, plus at least **20 GB of free space on the system drive** for the application, emulators, downloads and recovery. Installation time depends on your connection and storage. Do not interrupt writes or turn off the device during installation.
 
-**Games, BIOS, console firmware and keys are not included.** Add your own files through Import. TrainerOS emulators use their own data and settings; an existing EmuDeck installation is not replaced.
+**Games, BIOS, console firmware and keys are not included.** Add your own files through Import. OctoFox OS emulators use their own data and settings; an existing EmuDeck installation is not replaced.
 
-[Download the English installation guide as plain text](https://github.com/EriArk/TrainerOS/releases/download/v0.1.0-alpha.7/INSTALL-EN.txt).
+[Download the English installation guide as plain text](https://github.com/EriArk/OctoFox-OS/releases/download/v0.1.0-alpha.7/INSTALL-EN.txt).
 
 ## Accounts
 
@@ -49,6 +51,6 @@ You can skip sign-in for local games. Fluxer provides the online profile, conver
 
 Setup shows an error and the log path. After an interrupted installation, open **TrainerOS Setup and Recovery** and choose to continue or return to the previous installation. Use the same screen for normal removal: personal games, profiles and saves are preserved. Do not manually delete working directories to attempt recovery.
 
-Report problems in [Issues](https://github.com/EriArk/TrainerOS/issues). Include your device, Armada and TrainerOS versions, the screen and a few steps leading to the error. A screenshot is more useful than a long retelling; do not attach passwords, tokens, ROMs, BIOS or private conversations. See the [tester guide](https://github.com/EriArk/TrainerOS/blob/main/docs/alpha-release/publications/TESTER_GUIDE.md).
+Report problems in [Issues](https://github.com/EriArk/OctoFox-OS/issues). Include your device, Armada and OctoFox OS versions, the screen and a few steps leading to the error. A screenshot is more useful than a long retelling; do not attach passwords, tokens, ROMs, BIOS or private conversations. See the [tester guide](https://github.com/EriArk/OctoFox-OS/blob/main/docs/alpha-release/publications/TESTER_GUIDE.md).
 
-TrainerOS source code, emulator changes, source code for distributed dependencies and license notices are attached to the release. Checksums for the original release files are in `SHA256SUMS`; GitHub also provides a SHA-256 digest for each release asset.
+OctoFox OS source code, emulator changes, source code for distributed dependencies and license notices are attached to the release. Checksums for the original release files are in `SHA256SUMS`; GitHub also provides a SHA-256 digest for each release asset.

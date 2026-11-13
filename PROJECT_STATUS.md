@@ -1,5 +1,9 @@
 # TrainerOS — состояние проекта
 
+## 13 November 2026 — public rename
+
+Public name changed from TrainerOS to OctoFox OS. Repository: `EriArk/OctoFox-OS`. Existing Alpha 7 artifacts and runtime identities are preserved. Website and Discord publication results are recorded in the rename receipt.
+
 ## 11 November 2026 — English public documentation
 
 Public Alpha 7 documentation now defaults to English: release/installation notes,

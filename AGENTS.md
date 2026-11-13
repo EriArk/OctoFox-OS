@@ -1,4 +1,6 @@
-# TrainerOS — active agent / developer contract
+# OctoFox OS — active agent / developer contract
+
+**Owner rename, 13 November 2026:** public project name is **OctoFox OS**; GitHub repository is `EriArk/OctoFox-OS`. Update the website and Discord, including an announcement. Preserve existing package IDs, on-disk paths, signed update identities and already released asset filenames; do not turn this public rename into an untested runtime migration. Historical evidence retains its original names.
 
 **Owner public documentation language, 11 November (latest):** public entry pages,
 release notes, installation/recovery instructions, tester guides and screenshot

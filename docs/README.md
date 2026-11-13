@@ -1,15 +1,15 @@
-# TrainerOS documentation
+# OctoFox OS documentation
 
 English · [Russian technical index](README_RU.md)
 
-## Install and use TrainerOS
+## Install and use OctoFox OS
 
-- [Alpha 7 download and release notes](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7).
+- [Alpha 7 download and release notes](https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.7).
 - [Installation, accounts, recovery and known limitations](alpha-release/publications/GITHUB_RELEASE.md) — English; [Russian version](alpha-release/publications/GITHUB_RELEASE_RU.md).
 - [Tester guide and bug reports](alpha-release/publications/TESTER_GUIDE.md) — English; [Russian version](alpha-release/publications/TESTER_GUIDE_RU.md).
 - [Current handheld screenshots](alpha-release/publications/screenshots/alpha-7/README.md) — English captions; [Russian captions](alpha-release/publications/screenshots/alpha-7/README_RU.md).
 
-## Build and extend TrainerOS
+## Build and extend OctoFox OS
 
 [Build and run from source](DEVELOPMENT.md) · [Contributing](../CONTRIBUTING.md) · [Start an external game, app or widget](../sdk/README.md).
 
@@ -25,8 +25,8 @@ The SDK is a v1 preview; see [implementation and remaining contracts](PLATFORM_S
 | Readiness and outstanding acceptance | [Feature readiness](FEATURE_READINESS.md), [current tasks](CURRENT_TASKS.md) |
 | Tested games and known problems | [Multiplayer game verification](MULTIPLAYER_TESTED_GAMES.md) |
 | Delivered work | [Project status (Russian)](../PROJECT_STATUS.md) |
-| Change history | [Changelog (Russian)](../CHANGELOG.md), [main commits](https://github.com/EriArk/TrainerOS/commits/main/) |
-| Feature requirements | [GitHub issues](https://github.com/EriArk/TrainerOS/issues) |
+| Change history | [Changelog (Russian)](../CHANGELOG.md), [main commits](https://github.com/EriArk/OctoFox-OS/commits/main/) |
+| Feature requirements | [GitHub issues](https://github.com/EriArk/OctoFox-OS/issues) |
 | Implementation and builds | [Architecture](ARCHITECTURE.md), [development setup](DEVELOPMENT.md) |
 
 [Requirements coverage (Russian)](REQUIREMENTS_COVERAGE_RU.md) maps 256 issues, with the 24 October #257–259 addition, to stable readiness R-IDs, S-owners and F-flows. Superseded decisions and open acceptance conditions remain separate from actual implementation.

@@ -1,6 +1,6 @@
-# Contributing to TrainerOS
+# Contributing to OctoFox OS
 
-TrainerOS is a controller-first Linux gaming operating environment built as a native C++20 / Qt Quick shell, initially on ArmadaOS. Start with the [current product map](docs/PRODUCT_ARCHITECTURE_RU.md), [documentation index](docs/README.md), [development setup](docs/DEVELOPMENT.md) and [current work](docs/CURRENT_TASKS.md). An accepted design issue is not proof that it is installed.
+OctoFox OS is a controller-first Linux gaming operating environment built as a native C++20 / Qt Quick shell, initially on ArmadaOS. Start with the [current product map](docs/PRODUCT_ARCHITECTURE_RU.md), [documentation index](docs/README.md), [development setup](docs/DEVELOPMENT.md) and [current work](docs/CURRENT_TASKS.md). An accepted design issue is not proof that it is installed.
 
 ## Discuss the scope
 
@@ -9,7 +9,7 @@ experience and integration boundary first. Keep normal game launch direct,
 controller navigation consistent, and existing libraries/saves intact. Avoid
 adding setup screens or nested confirmations to ordinary play.
 
-Original TrainerOS code is licensed under **GPL-3.0-or-later**. Contributions to
+Original OctoFox OS code is licensed under **GPL-3.0-or-later**. Contributions to
 that code should be offered under the same terms; retain your copyright and all
 existing third-party notices. This does not require copyright assignment or grant
 permission to import incompatible code or unlicensed graphics. Identify any
@@ -36,7 +36,7 @@ CI status a prerequisite without an owner decision. See the
 ## Report problems
 
 Use a bug issue for reproducible behavior and a feature issue for a concrete
-player need. Include the TrainerOS commit/build, device, OS and emulator/core
+player need. Include the OctoFox OS commit/build, device, OS and emulator/core
 versions when relevant. Describe expected/actual behavior and minimal steps.
 Redact tokens, account details, personal network addresses and file paths.
 Do not upload ROMs, BIOS, saves or full private logs. Report vulnerabilities

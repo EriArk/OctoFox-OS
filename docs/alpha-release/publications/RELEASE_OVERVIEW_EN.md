@@ -1,14 +1,14 @@
-# TrainerOS — The First Public Alpha Is Here! 😁
+# OctoFox OS — The First Public Alpha Is Here! 😁
 
 Well, this project got a little out of hand.
 
-I've been building **TrainerOS**, a gaming environment designed to bring games, multiplayer, friends, apps, and everything around them into one connected system.
+I've been building **OctoFox OS**, a gaming environment designed to bring games, multiplayer, friends, apps, and everything around them into one connected system.
 
 And today, I'm finally releasing the **first public alpha!**
 
 ### One Lobby. A ridiculous number of different systems.
 
-Multiplayer is probably the most ambitious part of TrainerOS.
+Multiplayer is probably the most ambitious part of OctoFox OS.
 
 Retro multiplayer is a mess of completely different technologies: NetPlay, link cables, wireless connections, LAN adapters, arcade networks, original online services... Every platform does things differently.
 
@@ -16,7 +16,7 @@ I wanted to make all of that feel like **one multiplayer system**.
 
 The idea is simple: create or join a Lobby, invite your friends, choose a game and its multiplayer mode, get ready, and press Start. You can even suggest several games and vote on what to play.
 
-**TrainerOS handles the technical side automatically.** It checks compatibility, prepares the appropriate emulators and settings, and coordinates the network connection and game launch.
+**OctoFox OS handles the technical side automatically.** It checks compatibility, prepares the appropriate emulators and settings, and coordinates the network connection and game launch.
 
 Under the hood, the mechanisms can be completely different. But for the players, the process stays the same.
 
@@ -28,7 +28,7 @@ Some games have already been played successfully on real devices. Many more inte
 
 ### Keep talking while you play
 
-TrainerOS integrates friends, communities, messaging, group voice calls, and game streams.
+OctoFox OS integrates friends, communities, messaging, group voice calls, and game streams.
 
 And you don't have to leave your game to use them.
 
@@ -40,7 +40,7 @@ I want playing and hanging out to feel like parts of the same experience.
 
 ### Your character is more than a profile picture
 
-TrainerOS also has a shared, customizable 3D player character.
+OctoFox OS also has a shared, customizable 3D player character.
 
 Supported games can use that same character and appearance instead of making you create a new one every time.
 
@@ -58,17 +58,17 @@ There are already projects to try, including **Pocket Golf** and **Micro Rally**
 
 But I want Crates to become more than just a download catalogue.
 
-That's why I'm also developing the **TrainerOS SDK**, allowing other developers to connect their own games and applications to the system.
+That's why I'm also developing the **OctoFox OS SDK**, allowing other developers to connect their own games and applications to the system.
 
 The early SDK already includes access to shared avatars, Lobby integration, multiplayer communication, match results, and widgets.
 
-So developers can create their own games, use TrainerOS characters, launch multiplayer sessions through the same Lobby, and integrate with the surrounding environment without building all that infrastructure themselves.
+So developers can create their own games, use OctoFox OS characters, launch multiplayer sessions through the same Lobby, and integrate with the surrounding environment without building all that infrastructure themselves.
 
 The first working integrations are already here, and there's plenty more planned.
 
 ### And there's more
 
-TrainerOS also includes a customizable dashboard, widgets, quick apps, game-specific hubs, screenshots, gaming history, Steam library integration, and more.
+OctoFox OS also includes a customizable dashboard, widgets, quick apps, game-specific hubs, screenshots, gaming history, Steam library integration, and more.
 
 There's even a separate **Nearby Link** system for supported save-based activities such as trading, gifting, and battling between devices.
 
@@ -90,7 +90,7 @@ Even reports about games that work perfectly are useful!
 
 ### Want to help the project grow? ❤️
 
-**TrainerOS is free**, but developing and maintaining a project of this scale takes a lot of time, work, and money.
+**OctoFox OS is free**, but developing and maintaining a project of this scale takes a lot of time, work, and money.
 
 If you like what I'm building and want to help it grow, please consider supporting me on **Patreon**.
 
@@ -102,7 +102,7 @@ And if you can't contribute financially, testing, reporting bugs, sharing the pr
 
 **Download the first alpha:** [Release link]
 
-**GitHub:** https://github.com/EriArk/TrainerOS
+**GitHub:** https://github.com/EriArk/OctoFox-OS
 
 **Discord:** https://discord.gg/xBN9DXt8Q
 

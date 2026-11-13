@@ -1,8 +1,8 @@
-# TrainerOS Alpha publication materials
+# OctoFox OS Alpha publication materials
 
 ## Install and try Alpha 7
 
-- [Official Alpha 7 release and download](https://github.com/EriArk/TrainerOS/releases/tag/v0.1.0-alpha.7).
+- [Official Alpha 7 release and download](https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.7).
 - [Installation, accounts, recovery and known limitations — English](GITHUB_RELEASE.md) · [Russian](GITHUB_RELEASE_RU.md).
 - [Plain-text installation guide — English](INSTALL-EN.txt).
 - [Tester guide — English](TESTER_GUIDE.md) · [Russian](TESTER_GUIDE_RU.md).
