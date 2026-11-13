@@ -1437,6 +1437,46 @@ private slots:
         QVERIFY(!resolveRetroArchSave(r,i).supported);
         cmd.arguments={r.contentPath};QVERIFY(!prepareRetroArchLaunch(cmd,r,i,cancel).isEmpty());
     }
+    void installedLaunchConfigsSurviveBrandRename_data() {
+        QTest::addColumn<bool>("generic");
+        QTest::newRow("ordinary") << false;
+        QTest::newRow("generic") << true;
+    }
+    void installedLaunchConfigsSurviveBrandRename() {
+        QFETCH(bool, generic);
+        QTemporaryDir dir; std::atomic_bool cancelled{false};
+        const auto write=[](const QString& path,const QByteArray& data) {
+            QFile f(path);return f.open(QIODevice::WriteOnly)&&f.write(data)==data.size();
+        };
+        RetroArchInstallation installation{probe(),{},dir.filePath("retroarch.cfg")};
+        QVERIFY(write(installation.configFile,"auto_overrides_enable = \"false\"\n"));
+        installation.cores["fixture"]=probe();
+        AdventureRegistration record;record.contentPath=dir.filePath("game.bin");
+        record.integrationConfig["core"]="fixture";touch(record.contentPath);
+        const auto path=dir.filePath(generic?"traineros-generic-ordinary-v1.cfg":"traineros-ordinary-v1.cfg");
+        const QByteArray legacy=generic
+            ? QByteArray("# TrainerOS generic ordinary launch v1\nsavestate_auto_save = \"false\"\nsavestate_auto_load = \"false\"\nconfig_save_on_exit = \"false\"\nauto_overrides_enable = \"false\"\n")
+            : QByteArray("# TrainerOS ordinary launch v1\nsavestate_auto_save = \"false\"\nsavestate_auto_load = \"false\"\nsavestate_thumbnail_enable = \"false\"\nconfig_save_on_exit = \"false\"\nauto_overrides_enable = \"false\"\n");
+        const auto prepare=[&] {
+            ProcessCommand cmd{probe(),{record.contentPath},{}};
+            return generic?prepareGenericRetroArchLaunch(cmd,record,installation,cancelled)
+                          :prepareRetroArchLaunch(cmd,record,installation,cancelled);
+        };
+        auto renamed=legacy;renamed.replace("# TrainerOS","# OctoFox OS");
+        for(const auto& data:{legacy,renamed}) {
+            QVERIFY(write(path,data));QVERIFY2(prepare().isEmpty(),"Installed exact v1 must remain usable");
+            QFile f(path);QVERIFY(f.open(QIODevice::ReadOnly));QCOMPARE(f.readAll(),data);
+        }
+        auto changed=renamed;changed.replace("savestate_auto_load = \"false\"","savestate_auto_load = \"true\"");
+        for(const auto& data:{changed,legacy+"\n",renamed+"\n"}) {
+            QVERIFY(write(path,data));QVERIFY(!prepare().isEmpty());
+            QFile f(path);QVERIFY(f.open(QIODevice::ReadOnly));QCOMPARE(f.readAll(),data);
+        }
+#ifndef Q_OS_WIN
+        QVERIFY(QFile::remove(path));const auto other=dir.filePath("external.cfg");
+        QVERIFY(write(other,legacy));QVERIFY(QFile::link(other,path));QVERIFY(!prepare().isEmpty());
+#endif
+    }
     void ordinaryLaunchDoesNotNeedOrCreateStateFolders() {
         QTemporaryDir dir;
         RetroArchInstallation installation;

@@ -25,6 +25,9 @@ The following are compatibility identifiers, not names to show in product UI:
   session/system service IDs and `TRAINEROS_*` environment variables.
 - Existing data/configuration/cache roots, emulator input profiles, keychain
   services `TrainerOS.Backend` / `TrainerOS.Fluxer`, and Steam ownership markers.
+- Exact RetroArch ordinary-launch v1 config headers and moved-save filename
+  digests. Legacy and renamed headers are accepted only with identical protected
+  settings; existing configs are never rewritten to implement branding.
 - Package/schema IDs, trusted signing keys, source inventory records, save-lineage
   and avatar encryption domains, SDK contracts, emulator bridge messages and
   multiplayer discovery/session markers, including virtual controller names.

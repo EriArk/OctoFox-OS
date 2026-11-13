@@ -1,5 +1,12 @@
 # Задачи и условия готовности
 
+**13 November — handheld follow-up resumed:** the owner requested immediate
+installation and verification on both devices. Initial candidate launch was
+rejected by the persisted RetroArch v1 header comparison after branding. The
+compatibility fix keeps exact setting validation and existing files unchanged.
+See [hardware follow-up](evidence/2026-11-13-game-resources/README.md#handheld-follow-up)
+for current installed build, measurements and remaining acceptance.
+
 **13 November — game resource use:** hidden-window graphics/3D cleanup and safe
 browser lifecycle are implemented. Host measurements: median shell RSS
 724.6 → 450.2 MiB. Flip/Odin Vulkan/driver behavior, real-game memory/FPS and

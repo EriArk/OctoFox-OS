@@ -10,6 +10,15 @@
 
 namespace trainer {
 using namespace retroarch;
+namespace {
+bool launchConfigMatches(const QByteArray& actual, const QByteArray& legacy) {
+    // These bytes are persisted identities, including the moved-save filename
+    // digest. Keep emitting v1; accept only the exact renamed header as well.
+    auto renamed = legacy;
+    renamed.replace(0, QByteArray("# TrainerOS").size(), "# OctoFox OS");
+    return actual == legacy || actual == renamed;
+}
+}
 QString prepareGenericRetroArchLaunch(ProcessCommand& command,const AdventureRegistration& record,
         const RetroArchInstallation& installation,const std::atomic_bool& cancelled) {
     if(cancelled)return "Opening was cancelled.";
@@ -23,7 +32,7 @@ QString prepareGenericRetroArchLaunch(ProcessCommand& command,const AdventureReg
     if(settings.isEmpty())return "Couldn't read this game's play settings.";
     // Generic ordinary play is independent of exact-build save providers and RA
     // mode. Keep emulator saves in place; only suppress automatic savestates.
-    const QByteArray bytes="# OctoFox OS generic ordinary launch v1\n"
+    const QByteArray bytes="# TrainerOS generic ordinary launch v1\n"
         "savestate_auto_save = \"false\"\nsavestate_auto_load = \"false\"\n"
         "config_save_on_exit = \"false\"\nauto_overrides_enable = \"false\"\n";
     const auto path=QFileInfo(installation.configFile).dir().filePath("traineros-generic-ordinary-v1.cfg");
@@ -33,7 +42,8 @@ QString prepareGenericRetroArchLaunch(ProcessCommand& command,const AdventureReg
         if(config.write(bytes)!=bytes.size() || !config.flush())return "Couldn't prepare the game's launch settings.";
         config.close();
     }
-    if(QFileInfo(path).isSymLink() || !config.open(QIODevice::ReadOnly) || config.read(bytes.size()+1)!=bytes)
+    if(QFileInfo(path).isSymLink() || !config.open(QIODevice::ReadOnly)
+        || !launchConfigMatches(config.read(bytes.size()+2),bytes) || config.error()!=QFile::NoError)
         return "The game's launch settings changed. Try opening it again.";
     if(cancelled)return "Opening was cancelled.";
     if(command.arguments.isEmpty() || command.arguments.last()!=record.contentPath)return "The game's launch route changed.";
@@ -62,7 +72,7 @@ QString prepareRetroArchLaunch(ProcessCommand& command, const AdventureRegistrat
         ? QFileInfo(target.savePath).dir().filePath("traineros-owner-v1.cfg")
         : QFileInfo(installation.configFile).dir().filePath("traineros-ordinary-v1.cfg");
     if (!safePath(path)) return "Couldn't prepare the Adventure. Your saves are unchanged.";
-    QByteArray bytes = "# OctoFox OS ordinary launch v1\n"
+    QByteArray bytes = "# TrainerOS ordinary launch v1\n"
         "savestate_auto_save = \"false\"\nsavestate_auto_load = \"false\"\n"
         "savestate_thumbnail_enable = \"false\"\nconfig_save_on_exit = \"false\"\n"
         "auto_overrides_enable = \"false\"\n";
@@ -88,7 +98,7 @@ QString prepareRetroArchLaunch(ProcessCommand& command, const AdventureRegistrat
         }
     }
     if (QFileInfo(path).isSymLink() || !config.open(QIODevice::ReadOnly)
-        || config.read(bytes.size() + 1) != bytes || config.error() != QFile::NoError)
+        || !launchConfigMatches(config.read(bytes.size() + 2),bytes) || config.error() != QFile::NoError)
         return "The Adventure's launch settings changed. Try opening it again.";
     if (cancelled) return "Opening was cancelled.";
     if (command.arguments.isEmpty() || command.arguments.last() != record.contentPath)

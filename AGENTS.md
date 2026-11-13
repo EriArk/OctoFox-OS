@@ -1,5 +1,12 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner immediate handheld validation, 13 November 2026 (latest):** install and
+verify the resource changes on reachable Flip and Odin now. Preserve personal
+state and one working rollback. Test real game launch, Home and return; host
+benchmarks alone do not complete this increment. The first device candidate
+exposed a rename regression in exact RetroArch v1 configuration headers; those
+persisted bytes are compatibility identities, not product copy.
+
 **Owner stability / resource use, 13 November 2026 (latest):** reduce shell
 resource use while games run, retaining working Home, saves, notifications and
 multiplayer. Release the hidden main window's graphics and hidden 3D previews;

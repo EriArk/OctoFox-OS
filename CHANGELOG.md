@@ -1,5 +1,15 @@
 # OctoFox OS — Changelog
 
+## 13 November 2026 — handheld validation and launch compatibility
+
+Device validation resumed on both handhelds. The first renamed candidate exposed
+an exact-config mismatch before game launch: the branding change altered a
+persisted RetroArch v1 comment. The correction retains the stable v1 identity and
+accepts the exact renamed header without rewriting settings or weakening save
+protection. Device acceptance and resource measurements are recorded in the
+[hardware follow-up](docs/evidence/2026-11-13-game-resources/README.md#handheld-follow-up).
+Public Alpha 7 assets/feed remain unchanged.
+
 ## 13 November 2026 — shell memory during games
 
 Hidden shell graphics and 3D previews now release their memory while session

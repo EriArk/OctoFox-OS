@@ -133,3 +133,22 @@ have a separate opt-in fixture using the same real widget/controller; broad
 navigation/persistence repair remains a separate task. Emulator gameplay, real
 save acceptance, actual game Home input and long-session device behavior remain
 unverified by this host-only work.
+
+
+## Handheld follow-up
+
+The owner resumed installation and real-device checks on 13 November. Both
+handhelds were reachable through the existing SSH server. Alpha 7 was measured
+before replacement. The first private signed candidate (sequence 32, source
+`13a63d1f`, ELF SHA-256
+`3a60fc29a0b07e661db77f6eab558537d0f282277127a1ddff3816c112b479e9`)
+started successfully on both, preserved SQLite table counts and passed integrity
+checks; Flip confirmed its first frame and retained the UFS workaround.
+
+That candidate **failed game launch**: the internal rename changed the exact
+header of existing `traineros-ordinary-v1.cfg` / generic v1 files. Repeating the
+launch did not resolve it. The compatibility correction preserves the legacy
+bytes (including moved-save digest names), accepts the exact renamed header,
+and continues rejecting changed settings, trailing data and symlinks. It never
+rewrites an existing file. This was found through real UI launch, not a synthetic
+successful process probe. Final corrected-device results follow below.
