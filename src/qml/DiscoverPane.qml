@@ -62,7 +62,7 @@ Item {
     }
     Item {
         id: content; x: 20; width: parent.width-40; y: root.viewState.home?recentBlock.y+recentBlock.height+(root.compact?8:15):search.y+search.height+19; height: parent.height-y-16
-        Text { id: title; x: root.viewState.all?27:0; text: root.viewState.all?"Recently together":root.viewState.home?"Popular TrainerOS communities":"Search results"; font.family: Theme.displayFamily; font.pixelSize: root.compact?17:20; color: Theme.ink }
+        Text { id: title; x: root.viewState.all?27:0; text: root.viewState.all?"Recently together":root.viewState.home?"Popular OctoFox OS communities":"Search results"; font.family: Theme.displayFamily; font.pixelSize: root.compact?17:20; color: Theme.ink }
         Text { x: title.x+title.implicitWidth+18; y: 5; width: Math.max(0,parent.width-x-110); text: root.viewState.status || ""; visible: !root.viewState.all&&root.social.searchResults.length>0; font.pixelSize: 11; color: Theme.muted; elide: Text.ElideRight; textFormat: Text.PlainText }
         SocialIconButton { x: -7; y: -5; visible: root.viewState.all; icon: "arrow-left"; label: "Back to Discover"; onClicked: root.social.discoverAction("back") }
         Row { anchors.right: parent.right; y: -5; spacing: 5; visible: root.viewState.pages>1||root.viewState.more||root.viewState.previous

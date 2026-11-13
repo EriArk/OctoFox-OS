@@ -1,4 +1,4 @@
-# Enable only with the registered TrainerOS client, exact HTTPS callback, and protected secret file.
+# Enable only with the registered OctoFox OS client, exact HTTPS callback, and protected secret file.
 services:
   api:
     environment:

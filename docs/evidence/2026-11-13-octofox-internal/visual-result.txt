@@ -1,0 +1,3 @@
+first-run exit=0
+settings exit=0
+updates exit=0

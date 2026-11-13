@@ -164,11 +164,13 @@ def update(request, running=steam_running):
                          IsHidden=integer(0), AllowDesktopConfig=integer(1), AllowOverlay=integer(1),
                          OpenVR=integer(0), Devkit=integer(0), DevkitGameID=(1, marker), LastPlayTime=entry.get("LastPlayTime", integer(0)))
             tags = dict(entry.get("tags", (0, {}))[1])
-            if (1, "TrainerOS") not in tags.values():
+            # Only this already-owned shortcut is being updated; preserve user tags.
+            tags = {key: value for key, value in tags.items() if value != (1, "TrainerOS")}
+            if (1, "OctoFox OS") not in tags.values():
                 tag = 0
                 while str(tag) in tags:
                     tag += 1
-                tags[str(tag)] = (1, "TrainerOS")
+                tags[str(tag)] = (1, "OctoFox OS")
             entry["tags"] = (0, tags)
             shortcuts[key] = (0, entry)
         else:
@@ -214,7 +216,7 @@ def launch(state, owner, game):
             first = stream.readline(4096)
             response = json.loads(first)
             if response.get("state") != "started":
-                raise RuntimeError(response.get("error", "TrainerOS could not start this game"))
+                raise RuntimeError(response.get("error", "OctoFox OS could not start this game"))
             # Steam must see the real game's lifetime, including launcher's children.
             client.settimeout(None)
             final = json.loads(stream.readline(4096))

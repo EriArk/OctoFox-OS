@@ -364,7 +364,7 @@ def main():
             factory = Factory.forProtocol(Nearby)
             if host:
                 key = ec.generate_private_key(ec.SECP256R1())
-                name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "TrainerOS DS session")])
+                name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "OctoFox OS DS session")])
                 now = datetime.now(timezone.utc)
                 cert = (x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(key.public_key())
                         .serial_number(x509.random_serial_number()).not_valid_before(now-timedelta(minutes=1))

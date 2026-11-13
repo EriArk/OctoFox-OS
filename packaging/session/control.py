@@ -131,7 +131,7 @@ def main():
     atomic_write(MARKER, json.dumps({"pids": session_pids(), "time": time.monotonic()}))
     if action in {"desktop", "steam"}:
         # Armada's switch-gamemode tries KDE logout first. D-Bus can activate
-        # org.kde.Shutdown even in TrainerOS and report success without ending
+        # org.kde.Shutdown even in OctoFox OS and report success without ending
         # this session. Let Armada choose the destination, then end the actual
         # SDDM session explicitly; never depend on a different desktop's logout.
         result = subprocess.call([ARMADA, "default-desktop" if action == "desktop" else "default-gamemode"])

@@ -130,7 +130,7 @@ void LobbyCoordinator::saveIndex() {
         QSaveFile f(file+".index");if(QFileInfo(f.fileName()).isSymLink()||!QDir().mkpath(QFileInfo(file).absolutePath())||!f.open(QIODevice::WriteOnly))continue;
         f.setPermissions(QFile::ReadOwner|QFile::WriteOwner);
         f.write(QJsonDocument(QJsonObject{{"v",1},{"self",self},{"active",active_->local()==local?active_->state()["id"]:QJsonValue()},{"rooms",ids}}).toJson());
-        if(!f.commit())emit notice("Couldn't save the lobby list. Keep TrainerOS open and retry.");
+        if(!f.commit())emit notice("Couldn't save the lobby list. Keep OctoFox OS open and retry.");
     }
 }
 void LobbyCoordinator::setLocalStorage(QString file) {

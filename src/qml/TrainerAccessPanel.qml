@@ -5,7 +5,7 @@ Item {
     required property var access
     ChassisFrame { anchors.fill: parent }
     ChassisTopRim { }
-    Text { x: 12; y: 0; width: Theme.brandWidth-24; height: Theme.brandHeight; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; text: "TRAINER OS"; color: Theme.textColor("#edf5e9"); font.family: Theme.brandFamily; font.pixelSize: 25; font.bold: true }
+    Text { x: 12; y: 0; width: Theme.brandWidth-24; height: Theme.brandHeight; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; text: "OCTOFOX OS"; fontSizeMode: Text.Fit; minimumPixelSize: 18; color: Theme.textColor("#edf5e9"); font.family: Theme.brandFamily; font.pixelSize: 25; font.bold: true }
     MountedPanel {
         x: 30; y: 83; width: parent.width-60; height: parent.height-136; color: Theme.surfaceColor("#e5eadc")
         Text { x: 28; y: 22; width: parent.width-56; text: root.access.title; textFormat: Text.PlainText; color: Theme.ink; font.pixelSize: 27; font.bold: true; elide: Text.ElideRight }

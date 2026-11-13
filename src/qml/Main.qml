@@ -8,7 +8,7 @@ Window {
     width: 960; height: 540
     minimumWidth: 800; minimumHeight: 450
     visible: true
-    title: "TrainerOS"
+    title: "OctoFox OS"
     color: Theme.chassisDark
     property bool notificationsAtFooter: true
     function openNotificationsAt(footer) {
@@ -682,7 +682,7 @@ Window {
             anchors.fill: parent; visible: (sessionState.entryGate || sessionState.firstRunPage) && !sessionState.access.active
             ChassisFrame { anchors.fill: parent }
             ChassisTopRim { }
-            Text { x: 12; y: 0; width: Theme.brandWidth-24; height: Theme.brandHeight; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; text: "TRAINER OS"; color: Theme.textColor("#edf5e9"); font.family: Theme.brandFamily; font.pixelSize: 25; font.bold: true }
+            Text { x: 12; y: 0; width: Theme.brandWidth-24; height: Theme.brandHeight; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter; text: "OCTOFOX OS"; fontSizeMode: Text.Fit; minimumPixelSize: 18; color: Theme.textColor("#edf5e9"); font.family: Theme.brandFamily; font.pixelSize: 25; font.bold: true }
             FirstRunPanel { anchors.fill: parent; shell: shellController; flow: sessionState.firstRun; session: sessionState; visible: sessionState.firstRunPage }
             Loader { x: 0; y: 43; width: parent.width; height: parent.height-63; active: parent.visible && !sessionState.firstRunPage; visible: active; sourceComponent: TrainerSetupPanel { entry: true; shell: shellController } }
             Text {

@@ -1,5 +1,5 @@
 [Unit]
-Description=TrainerOS Crates metadata catalogue
+Description=OctoFox OS Crates metadata catalogue
 After=network.target
 
 [Service]

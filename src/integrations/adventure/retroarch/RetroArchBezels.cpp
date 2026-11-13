@@ -79,7 +79,7 @@ AutomaticBezel automaticBezel(const BezelGame& game,const QStringList& roots,con
         const auto identity=candidate.path+QString("/%1/%2/%3").arg(display.width()).arg(display.height()).arg(aspect,0,'f',6);
         const auto hash=QString::fromLatin1(QCryptographicHash::hash(identity.toUtf8(),QCryptographicHash::Sha256).toHex());
         const auto imagePath=QDir(cache).filePath(hash+".png"),configPath=QDir(cache).filePath(hash+".cfg");
-        const auto stamp=QByteArray("# TrainerOS margin artwork v1 ")+QByteArray::number(source.size())+" "+QByteArray::number(source.lastModified().toMSecsSinceEpoch())+"\n";
+        const auto stamp=QByteArray("# OctoFox OS margin artwork v1 ")+QByteArray::number(source.size())+" "+QByteArray::number(source.lastModified().toMSecsSinceEpoch())+"\n";
         const auto config=stamp+"overlays = 1\noverlay0_overlay = \""+imagePath.toUtf8()+"\"\noverlay0_full_screen = true\noverlay0_descs = 0\n";
         QFile existing(configPath);
         if(!source.isSymLink()&&QFileInfo(imagePath).isFile()&&!QFileInfo(imagePath).isSymLink()&&existing.open(QIODevice::ReadOnly)&&existing.readAll()==config)

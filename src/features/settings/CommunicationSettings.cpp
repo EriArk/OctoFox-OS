@@ -150,7 +150,7 @@ void CommunicationSettings::startTest(){
     bool exists=false;for(const auto& value:inputs_)if(value.toMap()["id"]==device)exists=true;
     if(!exists||device.endsWith(".monitor")){error_="Connect a microphone and try again.";emit changed();return;}
     testing_=true;meterBytes_.clear();error_.clear();
-    capture_.start(QStandardPaths::findExecutable("parec"),{"--record","--raw","--format=s16le","--rate=24000","--channels=1","--latency-msec=80","--device="+device,"--client-name=TrainerOS Microphone Test"});
+    capture_.start(QStandardPaths::findExecutable("parec"),{"--record","--raw","--format=s16le","--rate=24000","--channels=1","--latency-msec=80","--device="+device,"--client-name=OctoFox OS Microphone Test"});
     testLimit_.start();emit changed();
 }
 void CommunicationSettings::activate(int index){

@@ -734,7 +734,7 @@ private slots:
         Harness h;
         {BackendAccount a;a.setServices(h.services());a.configure("retry");a.activate();h.callback();}
         h.loseRefresh=true;BackendAccount a;a.setServices(h.services());a.configure("retry");
-        QCOMPARE(a.actionLabel(),"Retry TrainerOS connection");
+        QCOMPARE(a.actionLabel(),"Retry OctoFox OS connection");
         h.loseRefresh=false;h.deferRefresh=true;a.activate();a.activate();
         QCOMPARE(h.refreshRequests.size(),2);QCOMPARE(h.refreshRequests[0],h.refreshRequests[1]);
         h.pendingRefresh(200,credentials());QCOMPARE(a.snapshot()["player_id"].toString(),Player);
@@ -751,7 +751,7 @@ private slots:
         {BackendAccount a;a.setServices(h.services());a.configure("save-retry");a.activate();h.callback();}
         h.deferRefresh=true;BackendAccount a;a.setServices(h.services());a.configure("save-retry");
         h.failStorage=true;h.pendingRefresh(200,credentials());
-        QCOMPARE(a.actionLabel(),"Retry TrainerOS connection");QVERIFY(a.snapshot()["player_id"].toString().isEmpty());
+        QCOMPARE(a.actionLabel(),"Retry OctoFox OS connection");QVERIFY(a.snapshot()["player_id"].toString().isEmpty());
         for(const auto& call:h.calls)QVERIFY(!call.startsWith("/v1/auth/sessions/"));
         h.failStorage=false;h.deferRefresh=false;a.activate();QCOMPARE(a.snapshot()["player_id"].toString(),Player);
         QCOMPARE(h.refreshRequests[0],h.refreshRequests[1]);

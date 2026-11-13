@@ -100,7 +100,7 @@ def prepare(stage, row, progress=lambda *args: None, runner=subprocess.run):
     phase = 'Downloading verified runtime: ' + row['ref']; progress(phase)
     # Identify our downloader: the CDN rejects the bare libostree user-agent.
     # Keep HTTPS, GPG verification, commit bindings and content hashes enabled.
-    command([*ostree, 'pull', '--http-header=User-Agent=TrainerOS-Setup/1',
+    command([*ostree, 'pull', '--http-header=User-Agent=OctoFox-OS-Setup/1',
              'flathub', ref + '@' + row['commit']])
     if command([*ostree, 'rev-parse', 'flathub:' + ref], 30) != row['commit']:
         raise ValueError('Downloaded Flatpak version differs')

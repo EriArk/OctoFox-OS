@@ -32,7 +32,7 @@ class VitaUpstreamTests(unittest.TestCase):
                   'sha256': runtime_payload.digest(self.packed / name)} for name in ['component.json', 'component.tar.gz']]
         fullbundle.build({'schema': 1, 'files': files}, self.root / 'media')
         output = self.root / 'hybrid.tar'
-        upstream_media.build(self.root / 'media/TrainerOS-Full-CANDIDATE.tar', {'schema': 1, 'vita': vita.SPEC}, output)
+        upstream_media.build(self.root / 'media/OctoFox-OS-Full-CANDIDATE.tar', {'schema': 1, 'vita': vita.SPEC}, output)
         with tarfile.open(output) as t:
             inventory = json.load(t.extractfile('fullbundle.json'))
         stage = self.root / 'stage'; stage.mkdir()

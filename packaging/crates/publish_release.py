@@ -59,7 +59,7 @@ def add_project_presentations(value, records, catalogue, root):
 
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument('--repository', choices=('EriArk/TrainerOS','EriArk/crates'), default='EriArk/TrainerOS')
+    p.add_argument('--repository', choices=('EriArk/OctoFox-OS','EriArk/TrainerOS','EriArk/crates'), default='EriArk/OctoFox-OS')
     p.add_argument('tag');p.add_argument('--record',type=Path,action='append',required=True)
     p.add_argument('--asset',type=Path,action='append',required=True)
     p.add_argument('--key',type=Path,required=True);p.add_argument('--ssh-target',required=True)
@@ -92,7 +92,7 @@ def main():
         publish(d/'input.json',a.key,d/'signed.json',d/'before.json',pub)
         exists=subprocess.run(['gh','release','view',a.tag,'--repo',a.repository],capture_output=True).returncode==0
         if not exists:
-            notes=d/'notes.txt';notes.write_text('Experimental Crates packages. See individual package records for architecture and compatibility. Sources, package recipes and SHA-256 checksums are included. This is not a TrainerOS OS release.\n')
+            notes=d/'notes.txt';notes.write_text('Experimental Crates packages. See individual package records for architecture and compatibility. Sources, package recipes and SHA-256 checksums are included. This is not an OctoFox OS release.\n')
             run('gh','release','create',a.tag,'--repo',a.repository,'--prerelease','--latest=false','--title','Crates · '+a.tag,'--notes-file',str(notes),*[str(f) for f in a.asset])
         else:
             inventory=json.loads(run('gh','release','view',a.tag,'--repo',a.repository,'--json','assets',capture_output=True).stdout)

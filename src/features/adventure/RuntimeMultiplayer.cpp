@@ -891,7 +891,7 @@ void RuntimeMultiplayer::startParty(bool host,const QJsonObject& endpoint) {
             fail("This linked-game invitation is invalid.");return;
         }
     }
-    request_.nickname="TrainerOS-"+randomToken().left(12);output_.clear();
+    request_.nickname="OctoFox OS-"+randomToken().left(12);output_.clear();
     deadline_=QDateTime::currentSecsSinceEpoch()+((ds()||azahar()||vita()||(rmg()&&online_))?180:dolphin()?150:75);timer_.start();
     dolphinRequest_={};dolphinRequest_.expected=selected;dolphinRequest_.host=host;dolphinRequest_.online=online_;
     if(nativeLan()) {

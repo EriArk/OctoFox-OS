@@ -58,7 +58,7 @@ def main(path, control_fd, outside_namespace):
             raise ValueError('native start cancelled')
         control.settimeout(None)
         if config['slot'] == 1:
-            server = subprocess.Popen([str(root/'bin/rmg-netplay-server'), '--name', 'TrainerOS',
+            server = subprocess.Popen([str(root/'bin/rmg-netplay-server'), '--name', 'OctoFox OS',
                 '--disable-broadcast', '--verify-ip', '--close-on-finish', '--timeout', '2'],
                 stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 start_new_session=True, preexec_fn=guard)

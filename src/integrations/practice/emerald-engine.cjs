@@ -1,5 +1,5 @@
 'use strict';
-// TrainerOS' bounded bridge to the pinned offline simulator. No save/file API.
+// OctoFox OS' bounded bridge to the pinned offline simulator. No save/file API.
 const reference = require('../../../data/emerald-reference.json');
 const medicines = {
     13:{name:'Potion',heal:20},19:{name:'Full Restore',heal:999,status:true},

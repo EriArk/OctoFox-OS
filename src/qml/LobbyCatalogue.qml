@@ -104,7 +104,7 @@ Item {
                             name: card.modelData.name || (card.modelData.kind==="community" ? "+" : "?")
                             source: card.modelData.avatar ? "https://fluxerusercontent.com/avatars/"+card.modelData.owner+"/"+card.modelData.avatar+".png?size=64" : ""
                         }
-                        Text { y: portrait.y+portrait.height+4; width: parent.width; height: 14; text: card.modelData.name || "TrainerOS"; color: Theme.muted; font.pixelSize: card.compact ? 8 : 10
+                        Text { y: portrait.y+portrait.height+4; width: parent.width; height: 14; text: card.modelData.name || "OctoFox OS"; color: Theme.muted; font.pixelSize: card.compact ? 8 : 10
                             horizontalAlignment: Text.AlignHCenter; elide: Text.ElideRight; textFormat: Text.PlainText }
                     }
                     Column {

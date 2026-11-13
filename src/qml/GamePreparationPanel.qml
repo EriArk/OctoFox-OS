@@ -33,7 +33,7 @@ Item {
         Row {
             id: tools; x: 10; y: header.height+2; width: parent.width-20; spacing: 12
             CapButton { objectName: "game-preparation-pack"; width: 190; height: 38; label: "Import BIOS pack"; textSize: 14; tint: Theme.blue; selected: root.takesFocus && flow.focusIndex===0; onActivated: flow.choosePack() }
-            Text { width: Math.max(0,parent.width-550); visible: width > 100; height: 42; text: "Put all your BIOS files in one archive.\nTrainerOS will sort them into the right places."; wrapMode: Text.Wrap; font.pixelSize: 12; color: Theme.muted; verticalAlignment: Text.AlignVCenter }
+            Text { width: Math.max(0,parent.width-550); visible: width > 100; height: 42; text: "Put all your BIOS files in one archive.\nOctoFox OS will sort them into the right places."; wrapMode: Text.Wrap; font.pixelSize: 12; color: Theme.muted; verticalAlignment: Text.AlignVCenter }
             CapButton { width: 76; height: 38; label: flow.busy?"Cancel":"Recheck"; textSize: 12; selected: root.takesFocus && flow.focusIndex===1; onActivated: flow.activate(1) }
             CapButton { width: 62; height: 38; label: "Back"; textSize: 12; tint: Theme.pink; selected: root.takesFocus && flow.focusIndex===2; onActivated: flow.close() }
             CapButton { objectName: "game-preparation-emulator"; width: 164; height: 38; label: flow.setupRunning ? "Return to emulator" : "Open emulator"; textSize: 13; enabled: flow.setupRunning || (!flow.busy && flow.setupAvailable); selected: root.takesFocus && flow.focusIndex===3; onActivated: flow.openSetup() }
@@ -69,7 +69,7 @@ Item {
             Column {
                 id: body; width: details.width; spacing: 7
                 Text { width: parent.width; text: flow.platformTitle || "Choose a platform"; color: Theme.ink; font.pixelSize: 19; font.bold: true; textFormat: Text.PlainText }
-                Text { width: parent.width; text: "You can import a mixed archive here — TrainerOS sorts the files."; color: Theme.muted; font.pixelSize: 11; wrapMode: Text.Wrap }
+                Text { width: parent.width; text: "You can import a mixed archive here — OctoFox OS sorts the files."; color: Theme.muted; font.pixelSize: 11; wrapMode: Text.Wrap }
                 Repeater {
                     model: flow.files
                     delegate: Item {
@@ -115,5 +115,5 @@ Item {
         }
         Text { x: 12; y: parent.height-24; width: parent.width-24; height: 22; text: flow.status; font.pixelSize: 11; color: Theme.muted; elide: Text.ElideRight; textFormat: Text.PlainText }
     }
-    ChatFilePicker { anchors.fill: parent; picker: flow.picker; title: "Import BIOS or firmware"; subtitle: "Choose a file or a mixed BIOS archive. TrainerOS will find the right destination." }
+    ChatFilePicker { anchors.fill: parent; picker: flow.picker; title: "Import BIOS or firmware"; subtitle: "Choose a file or a mixed BIOS archive. OctoFox OS will find the right destination." }
 }

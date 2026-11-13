@@ -1,6 +1,6 @@
 # OctoFox OS
 
-Formerly TrainerOS. Renamed on 13 November 2026 because the previous name was already in use. This is the same project; Alpha 7 downloads and installed builds still use the old technical names.
+Formerly TrainerOS. Renamed on 13 November 2026 because the previous name was already in use. This is the same project. Current source displays OctoFox OS; published Alpha 7 downloads and existing installations still carry the previous branding. Existing data and package identities remain compatible. See [branding compatibility](docs/BRANDING.md).
 
 **A controller-first handheld system built around your games, your progress and the people you play with — not emulator menus.**
 

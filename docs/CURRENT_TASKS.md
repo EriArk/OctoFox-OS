@@ -1,5 +1,12 @@
 # Задачи и условия готовности
 
+**13 November — internal rename:** current source uses OctoFox OS in the shell,
+Setup and account screens. Existing data/package/protocol identities are retained;
+new archive names accept legacy Setup input. Published Alpha 7 and handheld
+installations are unchanged by this source work.
+[Compatibility](BRANDING.md) · [Verification](evidence/2026-11-13-octofox-internal/README.md).
+
+
 **4 ноября — Setup получает закреплённые оригинальные пакеты автоматически.**
 Добавлены проверенные upstream AppImages, 10 точных Flathub commits и Vita3K
 без перепаковки его runtime; наши мультиплеерные компоненты, PPSSPP и прежний

@@ -1,5 +1,5 @@
 [Unit]
-Description=TrainerOS Fluxer lobby directory
+Description=OctoFox OS Fluxer lobby directory
 After=network-online.target
 Wants=network-online.target
 

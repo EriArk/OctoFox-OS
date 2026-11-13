@@ -98,7 +98,7 @@ def supervise(config):
     game = found[0]
     if game['steamRoot'] != config['steamRoot']: raise ValueError('Steam library changed. Refresh Games before playing.')
     # A second session must never adopt an independently running instance.
-    if snapshot(app, {}, {}): raise ValueError('This game is already running in Steam. Close it before launching from TrainerOS.')
+    if snapshot(app, {}, {}): raise ValueError('This game is already running in Steam. Close it before launching from OctoFox OS.')
     before = {}
     for path in Path('/proc').iterdir():
         if path.name.isdecimal():

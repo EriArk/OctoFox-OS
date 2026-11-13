@@ -205,12 +205,14 @@ int main(int argc, char* argv[]) {
     for (const auto& family : {QString("Noto Sans"), QString("DejaVu Sans"), QString("Segoe UI")}) {
         if (installedFonts.contains(family)) { app.setFont(QFont(family)); break; }
     }
+    // Keep the existing QStandardPaths/QSettings identity across the public rename.
     app.setApplicationName("TrainerOS");
+    app.setApplicationDisplayName("OctoFox OS");
     app.setOrganizationName("TrainerOS");
     app.setDesktopFileName("org.traineros.TrainerOS");
     app.setApplicationVersion("0.1.0");
     QCommandLineParser parser;
-    parser.setApplicationDescription("TrainerOS native shell prototype. Safe application mode.");
+    parser.setApplicationDescription("OctoFox OS native shell prototype. Safe application mode.");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOption({"windowed", "Run in a development window instead of full-screen."});
@@ -1189,7 +1191,7 @@ int main(int argc, char* argv[]) {
                     || session.writesPending() || shell.scraper()->busy() || shell.libraryManager()->saving() || shell.libraryTools()->busy()
                     || shell.settings()->storage()->busy() || deviceService.busy() || shell.network()->busy()
                     || (saveBackups && saveBackups->busy()))
-                    return "Finish the game and current save, file or download operation before restarting TrainerOS.";
+                    return "Finish the game and current save, file or download operation before restarting OctoFox OS.";
                 return {};
             };
             softwareUpdates->attachInstallation(qEnvironmentVariable("TRAINEROS_SOFTWARE_ROOT"),stateDirectory,QCoreApplication::applicationFilePath());
@@ -1272,7 +1274,7 @@ int main(int argc, char* argv[]) {
         bindings.connect(&platform, &ArmadaPlatformService::transitionFinished, &session, [&](bool success) {
             if (success) { app.exit(); return; }
             transitionStarted = false; pendingMode.clear(); session.cancelPendingExit();
-            shell.showNotice("The mode could not be changed. Your journal is saved; TrainerOS remains open.");
+            shell.showNotice("The mode could not be changed. Your journal is saved; OctoFox OS remains open.");
         });
         app.installEventFilter(&input);
         if (!smoke) {

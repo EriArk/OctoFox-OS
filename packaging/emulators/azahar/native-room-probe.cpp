@@ -32,7 +32,7 @@ int main() {
     const auto room=Network::GetRoom().lock();const auto member=Network::GetRoomMember().lock();
     const auto password=config.at("password").get<std::string>();const auto port=config.at("port").get<u16>();
     if(host) {
-        if(!room->Create("TrainerOS group check","","127.0.0.1",port,password,players,
+        if(!room->Create("OctoFox OS group check","","127.0.0.1",port,password,players,
             "Player1","",0,std::make_unique<Network::VerifyUser::NullBackend>()))return 2;
         std::cout<<"[TrainerOS3DS] room-ready"<<std::endl;
     }

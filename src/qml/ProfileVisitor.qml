@@ -30,7 +30,7 @@ Item {
             profile: ({avatarPreview: root.visitor.avatarPreview, avatarRendererAvailable: root.shell.trainer.avatarRendererAvailable, profile: {emblem:"compass"}})
             appearance: ["aurora","dusk","orbit"].indexOf(root.card.appearance)>=0?root.card.appearance:""
             showAvatar: root.hasProfile
-            Text { anchors.bottom: parent.bottom; anchors.bottomMargin: 14; anchors.horizontalCenter: parent.horizontalCenter; text: root.visitor.preview?"As another player sees you":"TrainerOS player"; color: "#fff8e8"; style: Text.Outline; styleColor: "#183b40"; font.pixelSize: 11 }
+            Text { anchors.bottom: parent.bottom; anchors.bottomMargin: 14; anchors.horizontalCenter: parent.horizontalCenter; text: root.visitor.preview?"As another player sees you":"OctoFox OS player"; color: "#fff8e8"; style: Text.Outline; styleColor: "#183b40"; font.pixelSize: 11 }
         }
         Flickable {
             id: facts; x: scene.width+22; width: parent.width-x; height: parent.height-44

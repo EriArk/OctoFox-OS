@@ -326,5 +326,5 @@ def idle(protected=(), owned_home=None):
             if ((item / 'comm').read_text().strip().lower() in names or
                     protected and str((item/'exe').resolve()) in protected or
                     environment_markers and environment_markers.intersection((item/'environ').read_bytes().split(b'\0'))):
-                raise ValueError('Close TrainerOS and emulators before runtime installation')
+                raise ValueError('Close OctoFox OS and emulators before runtime installation')
         except (FileNotFoundError, ProcessLookupError, PermissionError): continue

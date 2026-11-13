@@ -32,7 +32,7 @@ class AbyssME(unittest.TestCase):
         self.assertEqual((value['v'], value['product'], value['protocol']), (2, 'abyssme', 1))
         self.assertEqual(value['owner'], '123')
         self.assertNotIn('token', value)
-        # The existing TrainerOS reader accepts exactly v=1.
+        # The existing OctoFox OS reader accepts exactly v=1.
         self.assertNotEqual(value['v'], 1)
 
     def test_game_capability_and_private_field_allowlist(self):

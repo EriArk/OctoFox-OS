@@ -30,7 +30,7 @@ extern "C" {
 int ngpc_frontend_open(const char* fontPath) {
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,"0");
     if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_GAMECONTROLLER)!=0||TTF_Init()!=0)return -1;
-    window=SDL_CreateWindow("TrainerOS · Neo Geo Pocket Link",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,960,912,SDL_WINDOW_FULLSCREEN_DESKTOP|SDL_WINDOW_RESIZABLE);
+    window=SDL_CreateWindow("OctoFox OS · Neo Geo Pocket Link",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,960,912,SDL_WINDOW_FULLSCREEN_DESKTOP|SDL_WINDOW_RESIZABLE);
     if(!window)return -1;
     renderer=SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
     if(!renderer)renderer=SDL_CreateRenderer(window,-1,SDL_RENDERER_SOFTWARE);
@@ -63,7 +63,7 @@ int ngpc_frontend_poll() {
     if(keys[SDL_SCANCODE_Z]||held(SDL_CONTROLLER_BUTTON_A))result|=16;
     if(keys[SDL_SCANCODE_X]||held(SDL_CONTROLLER_BUTTON_B))result|=32;
     if(keys[SDL_SCANCODE_RETURN]||held(SDL_CONTROLLER_BUTTON_START))result|=64;
-    // Home and system shortcuts remain owned by the ordinary TrainerOS overlay.
+    // Home and system shortcuts remain owned by the ordinary OctoFox OS overlay.
     return result;
 }
 void ngpc_frontend_present(const uint16_t* pixels,const void* samples,int bytes,const char* text) {

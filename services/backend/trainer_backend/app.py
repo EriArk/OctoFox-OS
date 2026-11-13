@@ -48,7 +48,7 @@ def create_app(settings=None, *, provider=None, reward_provider=None, support_pr
         finally:
             app.state.database.close()
 
-    app = FastAPI(title='TrainerOS Backend foundation', version=__version__,
+    app = FastAPI(title='OctoFox OS Backend foundation', version=__version__,
                   lifespan=lifespan, docs_url=None, redoc_url=None)
     app.add_middleware(AuthLimits)
     app.include_router(router)

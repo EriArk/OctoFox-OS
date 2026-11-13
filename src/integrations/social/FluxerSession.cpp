@@ -326,7 +326,7 @@ void FluxerSession::publish() {
         if(!onlineEnvelope.isEmpty())continue;
         const auto guild=channels_.value(channel_)["guild_id"].toString();
         const bool welcome=communityIdentity::matches(m,guild,guilds_.value(guild)["owner_id"].toString(),communityChannels_.value(guild));
-        QString text=welcome?QString("A gathering place for TrainerOS players. Welcome!"):m["content"].toString().left(4000);
+        QString text=welcome?QString("A gathering place for OctoFox OS players. Welcome!"):m["content"].toString().left(4000);
         const bool callEvent=m["type"].toInt()==3;
         QString callDetail;
         bool missedCall=false;
@@ -366,7 +366,7 @@ void FluxerSession::publish() {
         const bool marked=communityMarked_.contains(it.key());
         // Joined communities stay visible regardless of discovery tags.
         communities.append(QVariantMap{{"id",it.key()},{"name",it.value()["name"].toString()},
-            {"kind","community"},{"owner",it.value()["owner_id"].toString()},{"traineros",marked},{"detail",marked?"TrainerOS":"Community"}});
+            {"kind","community"},{"owner",it.value()["owner_id"].toString()},{"traineros",marked},{"detail",marked?"OctoFox OS":"Community"}});
     }
     std::sort(communities.begin(),communities.end(),[](const QVariant& a,const QVariant& b){return a.toMap()["name"].toString()<b.toMap()["name"].toString();});
     int unreadCount=0;for(auto it=channels_.cbegin();it!=channels_.cend();++it)
@@ -410,7 +410,7 @@ void FluxerSession::request(QByteArray method, QString path, QJsonObject body, C
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute,QNetworkRequest::ManualRedirectPolicy);
     req.setTransferTimeout(15000);
     req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-    req.setRawHeader("User-Agent","TrainerOS/0.1 (native user client)");
+    req.setRawHeader("User-Agent","OctoFoxOS/0.1 (native user client)");
     if(!captcha.isEmpty())req.setRawHeader("X-Captcha-Token",captcha);
     if(!anonymous && !token_.isEmpty()) req.setRawHeader("Authorization",token_.toUtf8());
     auto* reply=network_->sendCustomRequest(req,method,method=="GET"?QByteArray():QJsonDocument(body).toJson(QJsonDocument::Compact));
@@ -1177,7 +1177,7 @@ void FluxerSession::sendAttachment(const QVariantMap& args) {
     QHttpPart file;file.setHeader(QNetworkRequest::ContentDispositionHeader,"form-data; name=\"files[0]\"; filename=\""+filename+"\"");
     file.setHeader(QNetworkRequest::ContentTypeHeader,mime);file.setBody(bytes);multipart->append(file);
     QNetworkRequest request(QUrl("https://api.fluxer.app/v1/channels/"+channel+"/messages"));
-    request.setRawHeader("Authorization",token_.toUtf8());request.setRawHeader("User-Agent","TrainerOS/0.1 (native user client)");
+    request.setRawHeader("Authorization",token_.toUtf8());request.setRawHeader("User-Agent","OctoFoxOS/0.1 (native user client)");
     request.setTransferTimeout(30000);request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,QNetworkRequest::ManualRedirectPolicy);
     auto* reply=network_->post(request,multipart);attachmentReply_=reply;multipart->setParent(reply);reply->setReadBufferSize(responseLimit+1);
     auto received=std::make_shared<QByteArray>();
@@ -1607,7 +1607,7 @@ void FluxerSession::checkCommunities() {
 void FluxerSession::createCommunity(QString name) {
     name=name.trimmed();if(mutationBusy_||name.isEmpty()||name.size()>100)return;
     mutationBusy_=true;communityStatus_="Creating your community...";publish();
-    const QJsonObject setup{{"name","TrainerOS"},{"roles",QJsonArray{}},{"system_channel_id","1"},
+    const QJsonObject setup{{"name","OctoFox OS"},{"roles",QJsonArray{}},{"system_channel_id","1"},
         {"channels",QJsonArray{QJsonObject{{"id","1"},{"type",0},{"name","general"},{"position",0}}}}};
     verifiedRequest("POST","/v1/guilds",{{"name",name},{"template",setup}},[this](Reply r){
         mutationBusy_=false;const auto g=r.body.object();const auto id=g["id"].toString();
@@ -1628,7 +1628,7 @@ void FluxerSession::markCommunity(QString id) {
     mutationBusy_=true;communityStatus_="Preparing your community...";publish();
     auto finish=[this,id](bool success,const Reply& reply) {
         mutationBusy_=false;
-        communityStatus_=success?QString():"Community kept. TrainerOS setup is incomplete; retry from Options.";
+        communityStatus_=success?QString():"Community kept. OctoFox OS setup is incomplete; retry from Options.";
         if(reply.status==401){fail(reply,communityStatus_);return;}
         invalidateCommunity(id);
         if(face_=="communities"&&guild_==id)command("guild",{{"id",id}});
@@ -1694,7 +1694,7 @@ void FluxerSession::gatewayEvent(const QJsonObject& event) {
         const int interval=d["heartbeat_interval"].toInt();if(interval<1000||interval>120000){socket_->abort();return;}
         awaitingAck_=false;heartbeat_->start(interval);
         if(!gatewaySession_.isEmpty())gatewaySend(6,QJsonObject{{"token",token_},{"session_id",gatewaySession_},{"seq",sequence_}});
-        else gatewaySend(2,QJsonObject{{"token",token_},{"properties",QJsonObject{{"e2ee_capable",voiceAvailable()},{"os","Linux"},{"browser","TrainerOS"},{"device","handheld"}}}});
+        else gatewaySend(2,QJsonObject{{"token",token_},{"properties",QJsonObject{{"e2ee_capable",voiceAvailable()},{"os","Linux"},{"browser","OctoFox OS"},{"device","handheld"}}}});
     } else if(op==11)awaitingAck_=false;
     else if(op==1)gatewaySend(1,sequence_);
     else if(op==7)socket_->abort();

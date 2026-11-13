@@ -57,7 +57,7 @@ def build(payload, output, private_key, public_key, version, sequence, source, r
     published_record = {**record, 'sourceArchive': 'corresponding-source.tar.gz', 'notices': 'THIRD_PARTY_NOTICES.txt'}
     sw.atomic(output / 'build-provenance.json', published_record)
     with tempfile.TemporaryDirectory() as temporary:
-        tree = Path(temporary) / 'TrainerOS-Setup'; tree.mkdir()
+        tree = Path(temporary) / 'OctoFox-OS-Setup'; tree.mkdir()
         # Use the same explicit helper inventory as the installed bootstrap.
         holder = Path(temporary) / 'holder'; holder.mkdir()
         installer.bootstrap(holder, SOURCE / 'packaging')
@@ -65,10 +65,10 @@ def build(payload, output, private_key, public_key, version, sequence, source, r
         shutil.copyfile(public_key, tree / 'trusted-key.pem')
         feeds = {name: f'https://raw.githubusercontent.com/{repository}/updates/{name}.json' for name in channels.CHANNELS}
         sw.atomic(tree / 'bootstrap.json', {'schema': 1, 'feeds': feeds, 'publicKey': 'trusted-key.pem', 'defaultChannel': channel})
-        launch = tree / 'Install TrainerOS.sh'
+        launch = tree / 'Install OctoFox OS.sh'
         launch.write_bytes(b'#!/bin/sh\nset -eu\nHERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\nexec /usr/bin/python3 "$HERE/packaging/software/installer.py" --gui\n')
         launch.chmod(0o755)
-        (tree / 'README.txt').write_text('Extract this archive in Armada Desktop and open Install TrainerOS.sh.\n'
+        (tree / 'README.txt').write_text('Extract this archive in Armada Desktop and open Install OctoFox OS.sh.\n'
             'Keep the folder together. Setup/Recovery preserves personal data.\n'
             'Do not run as root. The session step uses the normal system authorization dialog.\n'
             'Hardware installation acceptance is required before advertising a supported public release.\n')
@@ -77,7 +77,7 @@ def build(payload, output, private_key, public_key, version, sequence, source, r
             info.uid = info.gid = 0; info.uname = info.gname = ''
             info.mode = 0o755 if info.isdir() or info.name.endswith('.sh') else 0o644
             return info
-        with tarfile.open(output / 'TrainerOS-Setup.tar.gz', 'w:gz') as archive:
+        with tarfile.open(output / 'OctoFox-OS-Setup.tar.gz', 'w:gz') as archive:
             archive.add(tree, arcname=tree.name, filter=permissions)
     hashes = {p.name: sw.sha256(p) for p in output.iterdir() if p.is_file()}
     sw.atomic(output / 'publication.json', {'schema': 1, 'repository': repository, 'tag': tag,

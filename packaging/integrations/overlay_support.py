@@ -278,7 +278,7 @@ class X11:
             finally:
                 if children: self.x.XFree(children)
         for window in windows:
-            if self.pid(window) == shell_pid and (all_windows or self.prop(window, '_NET_WM_NAME') == 'TrainerOS — Return from Adventure'.encode()):
+            if self.pid(window) == shell_pid and (all_windows or self.prop(window, '_NET_WM_NAME') in ('OctoFox OS — Return from Adventure'.encode(), 'TrainerOS — Return from Adventure'.encode())):
                 self.x.XUnmapWindow(self.display, window)
         self.x.XFlush(self.display)
 

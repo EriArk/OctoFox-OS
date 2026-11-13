@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "TrainerOS Backend contract definitions — unimplemented draft",
+  "title": "OctoFox OS Backend contract definitions — unimplemented draft",
   "$defs": {
     "Id": {
       "type": "string",

@@ -148,7 +148,7 @@ void BackendAccount::rewardRequest(QString action,QJsonObject body,bool sync) {
         progressionStale_=!progression_.isEmpty();
         const auto code=result["code"].toString();
         if(code=="ra_challenge_missing")rewardStatus_="Add the exact code to your RA profile motto, save it, then verify again.";
-        else if(code=="ra_already_linked")rewardStatus_="This RA profile is already bound to a TrainerOS account. Existing rewards stay with their owner.";
+        else if(code=="ra_already_linked")rewardStatus_="This RA profile is already bound to an OctoFox OS account. Existing rewards stay with their owner.";
         else if(code=="ra_challenge_expired")rewardStatus_="The link code expired. Refresh account progress and start again.";
         else if(status==429)rewardStatus_="Please wait a few seconds before checking again.";
         else if(code=="ra_account_ineligible")rewardStatus_="This RA account is not eligible for rewards. Local play is unchanged.";
@@ -202,11 +202,11 @@ QVariantMap BackendAccount::profileIdentity(const QVariantMap& social,const QStr
         {"presence",matching && social["state"]=="connected"?social["presence"].toString():QString()}};
 }
 QString BackendAccount::actionLabel() const {
-    if(state_=="waiting"||state_=="opening")return "Cancel TrainerOS sign-in";
-    if(state_=="connected")return "Sign out of TrainerOS";
-    if(state_=="reconnecting")return "Retry TrainerOS connection";
-    if(state_=="restoring"||state_=="refreshing"||state_=="claiming"||state_=="signing_out")return "TrainerOS account — please wait";
-    return "Sign in to TrainerOS with Fluxer";
+    if(state_=="waiting"||state_=="opening")return "Cancel OctoFox OS sign-in";
+    if(state_=="connected")return "Sign out of OctoFox OS";
+    if(state_=="reconnecting")return "Retry OctoFox OS connection";
+    if(state_=="restoring"||state_=="refreshing"||state_=="claiming"||state_=="signing_out")return "OctoFox OS account — please wait";
+    return "Sign in to OctoFox OS with Fluxer";
 }
 void BackendAccount::viewProfile(QString player,QString subject,QString before,Reply done) {
     if(state_!="connected"||player_.isEmpty()){done(401,{});return;}
@@ -249,7 +249,7 @@ void BackendAccount::configure(const QString& owner) {
     if(!lock_->tryLock()){state("disabled","This Trainer's account is open in another process");return;}
     loadCommerce();
     encryptedStore_=EncryptedCredentials::available()&&(!vaultRunning()||QFileInfo::exists(EncryptedCredentials::path(key_)));
-    state("restoring","Restoring your TrainerOS session…");const auto epoch=epoch_;
+    state("restoring","Restoring your OctoFox OS session…");const auto epoch=epoch_;
     read([this,epoch](bool ok,QByteArray bytes){
         if(epoch!=epoch_)return;
         if(!ok){state("error","Could not open secure storage. Try again.");return;}
@@ -302,7 +302,7 @@ void BackendAccount::begin() {
     if(!listener_.listen(QHostAddress::LocalHost,0)){fail("Could not prepare browser return. Try again.");return;}
     listener_.setMaxPendingConnections(4);
     state("opening","Opening Fluxer in your browser…");expiry_.start(600000);
-    QJsonObject body{{"provider","fluxer"},{"device_label","TrainerOS"},{"claim_challenge_method","S256"},
+    QJsonObject body{{"provider","fluxer"},{"device_label","OctoFox OS"},{"claim_challenge_method","S256"},
         {"claim_challenge",QString::fromLatin1(QCryptographicHash::hash(verifier_.toLatin1(),QCryptographicHash::Sha256).toBase64(QByteArray::Base64UrlEncoding|QByteArray::OmitTrailingEquals))},
         {"return_uri",QString("http://127.0.0.1:%1%2").arg(listener_.serverPort()).arg(callbackPath_)}};
     if(!socialSubject_.isEmpty())body["expected_subject"]=socialSubject_;
@@ -311,7 +311,7 @@ void BackendAccount::begin() {
         QUrl url(result["authorization_url"].toString());
         if(status!=201||!uuid(result["attempt_id"].toString())||url.scheme()!="https"||url.host()!="traineros-api.abysstail.art"||url.port(-1)!=-1||!url.userInfo().isEmpty()||url.path()!="/v1/auth/fluxer/start") {fail("Could not start sign-in. Check your connection and try again.");return;}
         if(loginGuard){const auto error=loginGuard();if(!error.isEmpty()){fail(error);return;}}
-        attempt_=result["attempt_id"].toString();state("waiting","Finish sign-in in Fluxer. TrainerOS will return automatically.");
+        attempt_=result["attempt_id"].toString();state("waiting","Finish sign-in in Fluxer. OctoFox OS will return automatically.");
         const bool opened=services_.openBrowser?services_.openBrowser(url):QDesktopServices::openUrl(url);
         if(!opened)fail("Could not open the browser. Try again.");
     });
@@ -369,7 +369,7 @@ void BackendAccount::activateSupport(int action) {
         }
     }else if(action==2 && !supportBusy_ && (support_["state"]=="connected"||support_["state"]=="needs_relink")) {
         if(supportReview_)supportRequest("DELETE","/v1/me/support/patreon");
-        else {supportReview_=true;supportMessage_="Disconnect TrainerOS? This does not cancel billing on Patreon. Earned Sparks and purchases stay yours.";emit changed();}
+        else {supportReview_=true;supportMessage_="Disconnect OctoFox OS? This does not cancel billing on Patreon. Earned Sparks and purchases stay yours.";emit changed();}
     }else if(action==3){supportReview_=false;emit changed();}
 }
 void BackendAccount::beginSupport() {
@@ -418,7 +418,7 @@ void BackendAccount::accept() {
             valid&=hasError||token(proof);
             if(!valid){socket->abort();return;}
             // Browser gets no credentials, third-party resources or reflected input.
-            const QByteArray page="<!doctype html><meta charset=utf-8><title>TrainerOS</title><h1>Return to TrainerOS</h1><p>You can close this window.</p>";
+            const QByteArray page="<!doctype html><meta charset=utf-8><title>OctoFox OS</title><h1>Return to OctoFox OS</h1><p>You can close this window.</p>";
             socket->write("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\nReferrer-Policy: no-referrer\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'\r\nConnection: close\r\nContent-Length: "+QByteArray::number(page.size())+"\r\n\r\n"+page);
             socket->disconnectFromHost();listener_.close();expiry_.stop();emit returnRequested();
             if(supportPending_) {
@@ -486,7 +486,7 @@ void BackendAccount::refresh() {
     if(refresh_.isEmpty()||refreshInFlight_)return;
     refreshTimer_.stop();refreshInFlight_=true;
     if(refreshProof_.isEmpty())refreshProof_=randomSecret().toLatin1();
-    state("refreshing","Checking your TrainerOS session…");const auto epoch=epoch_;const auto credential=refresh_;
+    state("refreshing","Checking your OctoFox OS session…");const auto epoch=epoch_;const auto credential=refresh_;
     const auto proof=refreshProof_;
     // Persist the exact recoverable operation before any network request. A
     // retry carries both secrets; old-token replay without this proof is rejected.
@@ -524,7 +524,7 @@ void BackendAccount::request(QByteArray method,QString path,QJsonObject body,Rep
             request("POST","/v1/play/commands",{{"action","revoke"},{"operation_id",QUuid::createUuid().toString(QUuid::WithoutBraces)},{"payload",QJsonObject{}}},[](int,QJsonObject){},result["grant_token"].toString().toLatin1());
     };
     if(services_.request){services_.request(method,path,body,access,std::move(finish));return;}
-    QNetworkRequest request(QUrl(Origin+path));request.setRawHeader("User-Agent","TrainerOS-Backend/0.0.1");request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+    QNetworkRequest request(QUrl(Origin+path));request.setRawHeader("User-Agent","OctoFoxOS-Backend/0.0.1");request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,QNetworkRequest::ManualRedirectPolicy);request.setTransferTimeout(path.endsWith("/progression/ra/sync")?80000:15000);
     if(!access.isEmpty())request.setRawHeader("Authorization","Bearer "+access);
     if(path=="/v1/auth/login-attempts")request.setRawHeader("Idempotency-Key",QUuid::createUuid().toString(QUuid::WithoutBraces).toLatin1());

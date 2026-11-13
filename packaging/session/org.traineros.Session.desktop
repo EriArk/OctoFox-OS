@@ -1,13 +1,13 @@
 [Desktop Entry]
-Name=Return to TrainerOS
-Name[ru]=Вернуться в TrainerOS
-Comment=Save desktop work before entering the TrainerOS session
-Comment[ru]=Сохраните работу на рабочем столе перед возвращением в TrainerOS
+Name=Return to OctoFox OS
+Name[ru]=Вернуться в OctoFox OS
+Comment=Save desktop work before entering the OctoFox OS session
+Comment[ru]=Сохраните работу на рабочем столе перед возвращением в OctoFox OS
 Exec=/usr/bin/sudo -n /var/opt/traineros/session/control.py traineros
 TryExec=/var/opt/traineros/session/control.py
 Type=Application
 Terminal=false
 Categories=Game;
 Icon=applications-games
-Keywords=TrainerOS;session;return;
-Keywords[ru]=TrainerOS;сессия;вернуться;
+Keywords=OctoFox OS;session;return;
+Keywords[ru]=OctoFox OS;сессия;вернуться;

@@ -37,7 +37,7 @@ void VisitorProfile::refresh(bool more){
     account_.viewProfile(player_,subject_,cursor,[this,guard=QPointer<VisitorProfile>(this),generation](int code,QJsonObject value){
         if(!guard||generation!=generation_)return;busy_=false;
         if(code==200 && !value["player_id"].toString().isEmpty()) {data_=value;status_.clear();render();}
-        else status_=code==404?"This player has not connected a TrainerOS profile yet.":code==401?"Sign in to TrainerOS to view player profiles.":"Profile unavailable. Try again.";
+        else status_=code==404?"This player has not connected an OctoFox OS profile yet.":code==401?"Sign in to OctoFox OS to view player profiles.":"Profile unavailable. Try again.";
         emit changed();
     });
 }

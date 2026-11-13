@@ -1406,7 +1406,7 @@ void ShellController::systemAction(const QString& id){
 QStringList ShellController::menuItems() const {
     if (powerMenu_) {
         QStringList items{"Sleep", powerControl_.keepAwake()?"Keep awake: On":"Keep awake: Off", "Restart", "Power off", "Cancel"};
-        if (!platform_.dedicatedSession()) items.append(platform_.canSwitchSession() ? "Enter TrainerOS Mode" : "Exit Development App");
+        if (!platform_.dedicatedSession()) items.append(platform_.canSwitchSession() ? "Enter OctoFox OS Mode" : "Exit Development App");
         return items;
     }
     // Stable action IDs: slot 1 retired when Controller moved into Settings.
@@ -1709,7 +1709,7 @@ void ShellController::confirm() {
             if (menuFocus_ == 1) { powerControl_.toggleKeepAwake(); return; }
             if (menuFocus_ == 4) { powerMenu_ = menuOpen_ = false; return; }
             if (menuFocus_ == 5) {
-                if (platform_.canSwitchSession()) { mode_ = "traineros"; notice_ = "Enter the TrainerOS session?"; }
+                if (platform_.canSwitchSession()) { mode_ = "traineros"; notice_ = "Enter the OctoFox OS session?"; }
                 else { mode_ = "development-exit"; notice_ = "Close the development app?"; }
                 return;
             }
@@ -1721,7 +1721,7 @@ void ShellController::confirm() {
         if (menuFocus_ >= 4 && platform_.canSwitchSession()) {
             mode_ = menuFocus_ == 5 ? "steam" : "desktop";
             notice_ = mode_ == "steam" ? "Open Steam Gaming Mode? Your Trainer data will be saved first."
-                : mode_ == "traineros" ? "Enter the dedicated TrainerOS session? Your Trainer data will be saved first."
+                : mode_ == "traineros" ? "Enter the dedicated OctoFox OS session? Your Trainer data will be saved first."
                                       : "Open Desktop / Maintenance Mode? Your Trainer data will be saved first.";
             return;
         }

@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "PS2Netplay.h"
 #include "RetroArchConfiguration.h"
 #include <QFile>
@@ -17,7 +18,7 @@ bool candidate(const AdventureRegistration& record) {
         && QStringList{"iso","chd"}.contains(QFileInfo(record.contentPath).suffix().toLower());
 }
 }
-QString bundleRoot() {return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/ps2-netplay";}
+QString bundleRoot() {return runtimepaths::data()+"/TrainerOS/emulators/ps2-netplay";}
 RetroArchInstallation installation(const RetroArchInstallation& ordinary,const std::atomic_bool& cancel,const QString& root) {
     const auto canonical=QFileInfo(root).canonicalFilePath();
     if(!retroarch::safePath(root))return {};
@@ -56,7 +57,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& record,const RetroArchI
     return retroarch::netplayIdentity(networkRecord(record),installed,cancel);
 }
 ProcessCommand command(const AdventureRegistration& record,const RetroArchInstallation& ordinary,const retroarch::NetplayRequest& request,const QString& root) {
-    ProcessCommand result;
+    ProcessCommand result;result.emulatorRuntime=true;
     result.runtimeControls={{"kind","retroarch"},{"game",record.adventure.id},{"netplay",request.expected.toVariantMap()},{"temporaryProgress",true}};
     result.prepare=[record,ordinary,request,root](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         const auto installed=installation(ordinary,cancel,root);

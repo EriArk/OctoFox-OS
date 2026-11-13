@@ -31,7 +31,7 @@ def web(name,source,stage,recipes):
         init=target/'js/initialization.js';text=init.read_text()
         text=re.sub(r'\(function\(i, s, o, g, r, a, m\).*?ga\(\x27send\x27, \x27pageview\x27\);','',text,flags=re.S)
         init.write_text(text)
-        (stage/'ADAPTATION.txt').write_text('Hextris by Logan Engstrom, Garrett Finucane, Noah Moroze and Michael Yang.\nTrainerOS offline adaptation: external advertising/analytics/score telemetry removed; original gameplay and local saves retained. GPL-3.0-or-later.\n')
+        (stage/'ADAPTATION.txt').write_text('Hextris by Logan Engstrom, Garrett Finucane, Noah Moroze and Michael Yang.\nOctoFox OS offline adaptation: external advertising/analytics/score telemetry removed; original gameplay and local saves retained. GPL-3.0-or-later.\n')
     elif name=='breakout':
         copy(source,target,('index.html','game.js','breakout.js','levels.js','breakout.css','images','LICENSE'))
         shutil.copy2(source/'LICENSE',stage/'LICENSE.upstream')
@@ -40,7 +40,7 @@ def web(name,source,stage,recipes):
         html=html.replace('</head>', '<style>#breakout{width:min(96vw,calc(94vh * 4 / 3));height:auto;aspect-ratio:4/3;margin:2vh auto}#canvas{width:100%;height:100%}</style></head>')
         html=html.replace('<b>space</b> to start','<b>Enter / A</b> to start')
         shutil.copy2(recipes/'webgame/breakout-audio.js',target/'traineros-audio.js')
-        (stage/'ADAPTATION.txt').write_text('Javascript Breakout by Jake Gordon and contributors (MIT).\nOriginal Freesound recordings and Flash sound engine are not distributed in this binary package. TrainerOS procedural Web Audio cues are GPL-3.0-or-later; see corresponding runner source.\n')
+        (stage/'ADAPTATION.txt').write_text('Javascript Breakout by Jake Gordon and contributors (MIT).\nOriginal Freesound recordings and Flash sound engine are not distributed in this binary package. OctoFox OS procedural Web Audio cues are GPL-3.0-or-later; see corresponding runner source.\n')
     else: raise ValueError('Unknown web port')
     # CSP applies even to dynamically injected scripts; local games cannot make
     # analytics requests or navigate to a third-party site from an in-game link.

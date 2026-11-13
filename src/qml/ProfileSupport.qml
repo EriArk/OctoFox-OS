@@ -20,7 +20,7 @@ Item {
         Text { text:root.progress.stale?"LAST CONFIRMED BALANCE":"AVAILABLE NOW";font.pixelSize:9;font.letterSpacing:1;color:Theme.muted }
         Row { spacing:7;SparkIcon {width:25;height:25} Text {text:root.shell.profileAccount.sparksText;font.pixelSize:24;color:Theme.ink} }
     }
-    Text { id:intro;y:title.height+9;width:parent.width-current.width-24;text:root.progress.support && !root.progress.stale?"Current earning rate: \u00d7"+root.progress.support.multiplier+". Compare the remaining bonus below.":"Support TrainerOS. See what your earned rewards would become.";wrapMode:Text.WordWrap;font.pixelSize:12;color:Theme.muted }
+    Text { id:intro;y:title.height+9;width:parent.width-current.width-24;text:root.progress.support && !root.progress.stale?"Current earning rate: \u00d7"+root.progress.support.multiplier+". Compare the remaining bonus below.":"Support OctoFox OS. See what your earned rewards would become.";wrapMode:Text.WordWrap;font.pixelSize:12;color:Theme.muted }
     Row {
         id:tiers;y:Math.max(intro.y+intro.height,current.height)+(root.compact?16:20);width:parent.width;height:root.compact?142:190;spacing:28
         Repeater {

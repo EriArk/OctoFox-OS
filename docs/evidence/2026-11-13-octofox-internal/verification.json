@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-13",
+  "baseRevision": "002e44a2dd0098d4d9004fb9497ae3976add163c",
+  "nativeBuild": {
+    "architecture": "x86_64",
+    "type": "Release",
+    "Qt": "6.11.2",
+    "avatarPreview": true,
+    "webEngine": true,
+    "result": "passed"
+  },
+  "backendTests": {
+    "passed": 188
+  },
+  "nativeRegressionGroups": {
+    "passed": 12,
+    "staleTestExpectationsCorrected": [
+      "storage",
+      "adventure_exit"
+    ],
+    "packagingInNativeBuilder": "Not accepted: missing openssl executable; checked in appropriate environments below"
+  },
+  "packaging": {
+    "isolatedModules": 21,
+    "tests": 251,
+    "environmentSkipped": 3,
+    "runtimeInstallationRerun": {
+      "passed": 27,
+      "environment": "existing backend test image"
+    },
+    "additionalPassed": {
+      "overlay": 28,
+      "steamShortcuts": 8,
+      "legacyDesktopShortcutUpgrade": 1
+    },
+    "note": "Initial combined-process imports conflicted; isolated runs used instead. One process-environment timing failure passed on isolated local and container reruns. Full Setup tests passed on the workstation; server images lack some of their prerequisites."
+  },
+  "guiScenarios": {
+    "firstRun": "passed",
+    "settings": "passed",
+    "updates": "passed",
+    "rendered": "Xvfb/OpenGL with fixture data, no handheld acceptance"
+  },
+  "productionChanges": {
+    "handhelds": false,
+    "liveBackend": false,
+    "signedRelease": false
+  },
+  "staticChecks": [
+    "Python/JSON parse",
+    "backend contracts",
+    "adapter knowledge/export",
+    "git diff --check"
+  ]
+}

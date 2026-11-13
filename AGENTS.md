@@ -1,5 +1,13 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner internal rename, 13 November 2026 (latest):** rename the application and
+Setup user-facing surfaces to **OctoFox OS**, including the wizard, accounts,
+menus, notifications, desktop entries and new installer filenames. Preserve
+persisted application/package IDs, data paths, keychain services, cryptographic
+contexts and multiplayer wire identifiers. Accept legacy installer archives and
+GitHub URLs. Historical records and published Alpha 7 binaries retain their
+original names. See [branding compatibility](docs/BRANDING.md).
+
 **Owner rename, 13 November 2026:** public project name is **OctoFox OS**; GitHub repository is `EriArk/OctoFox-OS`. Update the website and Discord, including an announcement. Preserve existing package IDs, on-disk paths, signed update identities and already released asset filenames; do not turn this public rename into an untested runtime migration. Historical evidence retains its original names.
 
 **Owner public documentation language, 11 November (latest):** public entry pages,

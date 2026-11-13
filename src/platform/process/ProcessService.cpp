@@ -20,7 +20,7 @@ ProcessService::ProcessService(QObject* parent) : QObject(parent), worker_(new Q
         drainOutput();
         complete(code, status == QProcess::CrashExit, !validationError_.isEmpty() ? validationError_
             : !childStarted_ && !readyMarker_.isEmpty() ? "Steam did not open the game. Check its launch in Steam before trying again."
-            : status == QProcess::CrashExit ? "The Adventure stopped unexpectedly. You're back in TrainerOS." : QString());
+            : status == QProcess::CrashExit ? "The Adventure stopped unexpectedly. You're back in OctoFox OS." : QString());
     });
     connect(&process_, &QProcess::readyReadStandardOutput, this, &ProcessService::drainOutput);
 }

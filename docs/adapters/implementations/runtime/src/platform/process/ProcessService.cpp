@@ -1,4 +1,5 @@
 #include "ProcessService.h"
+#include "platform/emulation/RuntimePaths.h"
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -19,7 +20,7 @@ ProcessService::ProcessService(QObject* parent) : QObject(parent), worker_(new Q
         drainOutput();
         complete(code, status == QProcess::CrashExit, !validationError_.isEmpty() ? validationError_
             : !childStarted_ && !readyMarker_.isEmpty() ? "Steam did not open the game. Check its launch in Steam before trying again."
-            : status == QProcess::CrashExit ? "The Adventure stopped unexpectedly. You're back in TrainerOS." : QString());
+            : status == QProcess::CrashExit ? "The Adventure stopped unexpectedly. You're back in OctoFox OS." : QString());
     });
     connect(&process_, &QProcess::readyReadStandardOutput, this, &ProcessService::drainOutput);
 }
@@ -53,6 +54,7 @@ bool ProcessService::start(const ProcessCommand& command) {
         QMetaObject::invokeMethod(worker_, [this, token, command, cancel = cancelled_]() mutable {
             auto prepared = command;
             const auto error = prepared.prepare(prepared, *cancel);
+            prepared.emulatorRuntime = prepared.emulatorRuntime || command.emulatorRuntime;
             prepared.prepare = {};
             QMetaObject::invokeMethod(this, [this, token, prepared, error] {
                 if (token != request_ || !active_) return;
@@ -76,6 +78,8 @@ void ProcessService::execute(const ProcessCommand& command) {
     process_.setProcessChannelMode(QProcess::MergedChannels);
     process_.setStandardOutputFile(inspectOutput_ || !readyMarker_.isEmpty() || runtimeControls_.contains("netplay") || runtimeControls_.contains("achievements") ? QString() : QProcess::nullDevice());
     process_.setProgram(command.program); process_.setArguments(command.arguments);
+    process_.setProcessEnvironment(command.emulatorRuntime ? runtimepaths::environment()
+                                                          : QProcessEnvironment::systemEnvironment());
     process_.setWorkingDirectory(command.workingDirectory);
     launchStage_=readyMarker_.isEmpty()?"Starting emulator…":"Waiting for Steam to open the game…";emit launchStageChanged();
     if(stopRequested_){complete(0,false,{});return;}

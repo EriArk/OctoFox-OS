@@ -28,7 +28,7 @@ Item {
             Column {
                 x: 8; width: parent.width-16; spacing: 7; bottomPadding: 16
                 visible: !root.flow.recoveryOpen
-                Text { objectName: "updates-installed"; width: parent.width; text: "TrainerOS  ·  "+root.flow.installedVersion; textFormat: Text.PlainText; wrapMode: Text.WrapAnywhere; color: Theme.muted; font.pixelSize: 13 }
+                Text { objectName: "updates-installed"; width: parent.width; text: "OctoFox OS  ·  "+root.flow.installedVersion; textFormat: Text.PlainText; wrapMode: Text.WrapAnywhere; color: Theme.muted; font.pixelSize: 13 }
                 Text { width: parent.width; visible: root.flow.version.length>0; text: root.flow.version+(root.flow.sizeText.length?"  ·  "+root.flow.sizeText:""); textFormat: Text.PlainText; wrapMode: Text.WrapAnywhere; color: Theme.ink; font.pixelSize: 18; font.weight: Font.DemiBold }
                 Text { objectName: "updates-status"; width: parent.width; text: root.flow.confirming ? "Ready for your confirmation." : root.flow.message; textFormat: Text.PlainText; wrapMode: Text.WordWrap; color: root.flow.status==="error" || root.flow.status==="blocked" ? Theme.textColor("#853b24") : Theme.muted; font.pixelSize: 14 }
                 Rectangle { width: parent.width; height: 4; radius: 2; color: Theme.divider; visible: root.flow.busy || root.flow.status==="paused"
@@ -36,7 +36,7 @@ Item {
                 }
                 Text { width: parent.width; visible: root.flow.lastChecked.length>0; text: "Last checked: "+root.flow.lastChecked; color: Theme.muted; font.pixelSize: 12 }
             }
-            Text { x: 8; width: parent.width-16; bottomPadding: 16; visible: root.flow.recoveryOpen; text: "Check or restore your TrainerOS installation. Restarting requires a separate confirmation."; color: Theme.muted; font.pixelSize: 14; wrapMode: Text.WordWrap }
+            Text { x: 8; width: parent.width-16; bottomPadding: 16; visible: root.flow.recoveryOpen; text: "Check or restore your OctoFox OS installation. Restarting requires a separate confirmation."; color: Theme.muted; font.pixelSize: 14; wrapMode: Text.WordWrap }
             Text { x: 8; width: parent.width-16; bottomPadding: 12; visible: root.flow.recoveryOpen; text: root.flow.message; textFormat: Text.PlainText; color: Theme.muted; font.pixelSize: 14; wrapMode: Text.WordWrap }
             Repeater {
                 id: buttons; model: root.flow.confirming ? [] : root.flow.pageActions
@@ -71,7 +71,7 @@ Item {
         MouseArea { anchors.fill: parent }
         Column {
             x: 24; width: parent.width-48; anchors.verticalCenter: parent.verticalCenter; spacing: 18
-            Text { width: parent.width; text: "Restart TrainerOS?"; color: Theme.ink; font.pixelSize: 24; font.weight: Font.DemiBold; wrapMode: Text.WordWrap }
+            Text { width: parent.width; text: "Restart OctoFox OS?"; color: Theme.ink; font.pixelSize: 24; font.weight: Font.DemiBold; wrapMode: Text.WordWrap }
             Text { width: parent.width; text: root.flow.message; color: Theme.muted; font.pixelSize: 16; wrapMode: Text.WordWrap }
             Column { width: parent.width; spacing: 8
                 Repeater { model: root.flow.confirming ? root.flow.pageActions : []

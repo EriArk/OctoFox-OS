@@ -1,5 +1,5 @@
 [Unit]
-Description=TrainerOS graphical session
+Description=OctoFox OS graphical session
 BindsTo=graphical-session.target
 Before=graphical-session.target
 Wants=graphical-session-pre.target

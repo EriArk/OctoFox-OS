@@ -346,7 +346,7 @@ QVariantList SessionState::setupAccountRows() const {
     return {
         QVariantMap{{"label",connected?(social["state"]=="connected"?"Fluxer connected":"Fluxer account saved"):waiting?"Cancel Fluxer sign-in":"Sign in to Fluxer"},
             {"detail",social["code"].toString().isEmpty()?social["status"].toString():"On your phone: fluxer.app/handoff · "+social["code"].toString()}, {"enabled",!connected}},
-        QVariantMap{{"label",state=="connected"?"TrainerOS profile connected":state=="disabled"?QString("TrainerOS sign-in unavailable"):backend->actionLabel()},
+        QVariantMap{{"label",state=="connected"?"OctoFox OS profile connected":state=="disabled"?QString("OctoFox OS sign-in unavailable"):backend->actionLabel()},
             {"detail",state=="disabled"?QString("Account access is unavailable in this session. You can continue offline."):backend->detail()},{"enabled",state=="signed_out" || state=="error" || state=="waiting" || state=="opening" || state=="reconnecting"}},
         QVariantMap{{"label","Done"},{"detail","Return to accounts"},{"enabled",true}}
     };

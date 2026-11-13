@@ -42,7 +42,7 @@ def worker(path, control_fd, outside_namespace):
             raise ValueError('cancelled fixture')
         if config['slot'] == 1:
             server = subprocess.Popen([str(Path(runtime['root'])/'bin/rmg-netplay-server'),
-                '--name', 'TrainerOS-four-lobby-test', '--disable-broadcast', '--verify-ip',
+                '--name', 'OctoFox OS-four-lobby-test', '--disable-broadcast', '--verify-ip',
                 '--close-on-finish', '--timeout', '2'],
                 stdout=(path.parent/'server.log').open('wb'), stderr=subprocess.STDOUT,
                 start_new_session=True, preexec_fn=island.death_guard(os.getpid(), signal.SIGKILL))

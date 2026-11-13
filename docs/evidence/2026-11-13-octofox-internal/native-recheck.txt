@@ -1,0 +1,13 @@
+[0/2] Re-checking globbed directories...
+[1/5] Automatic MOC for target trainer_storage_tests
+[2/4] Building CXX object CMakeFiles/trainer_storage_tests.dir/tests/StorageTests.cpp.o
+[3/4] Linking CXX executable trainer_storage_tests
+Test project /work/build
+    Start 105: storage
+1/2 Test #105: storage ..........................   Passed    7.41 sec
+    Start 114: adventure_exit
+2/2 Test #114: adventure_exit ...................   Passed    4.30 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =  11.71 sec

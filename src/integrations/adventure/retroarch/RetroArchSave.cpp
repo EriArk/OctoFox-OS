@@ -23,7 +23,7 @@ QString prepareGenericRetroArchLaunch(ProcessCommand& command,const AdventureReg
     if(settings.isEmpty())return "Couldn't read this game's play settings.";
     // Generic ordinary play is independent of exact-build save providers and RA
     // mode. Keep emulator saves in place; only suppress automatic savestates.
-    const QByteArray bytes="# TrainerOS generic ordinary launch v1\n"
+    const QByteArray bytes="# OctoFox OS generic ordinary launch v1\n"
         "savestate_auto_save = \"false\"\nsavestate_auto_load = \"false\"\n"
         "config_save_on_exit = \"false\"\nauto_overrides_enable = \"false\"\n";
     const auto path=QFileInfo(installation.configFile).dir().filePath("traineros-generic-ordinary-v1.cfg");
@@ -62,7 +62,7 @@ QString prepareRetroArchLaunch(ProcessCommand& command, const AdventureRegistrat
         ? QFileInfo(target.savePath).dir().filePath("traineros-owner-v1.cfg")
         : QFileInfo(installation.configFile).dir().filePath("traineros-ordinary-v1.cfg");
     if (!safePath(path)) return "Couldn't prepare the Adventure. Your saves are unchanged.";
-    QByteArray bytes = "# TrainerOS ordinary launch v1\n"
+    QByteArray bytes = "# OctoFox OS ordinary launch v1\n"
         "savestate_auto_save = \"false\"\nsavestate_auto_load = \"false\"\n"
         "savestate_thumbnail_enable = \"false\"\nconfig_save_on_exit = \"false\"\n"
         "auto_overrides_enable = \"false\"\n";

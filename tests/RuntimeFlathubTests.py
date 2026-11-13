@@ -32,7 +32,7 @@ class RuntimeFlathubTests(unittest.TestCase):
         result=upstream.prepare(self.stage,self.row,runner=self.run_command)
         pull=next(args for args,_ in self.calls if 'pull' in args)
         self.assertEqual(pull[-1],'app/'+self.row['ref']+'@'+'a'*64)
-        self.assertIn('--http-header=User-Agent=TrainerOS-Setup/1',pull)
+        self.assertIn('--http-header=User-Agent=OctoFox-OS-Setup/1',pull)
         self.assertFalse(any('install' in args or 'update' in args for args,_ in self.calls))
         for _,kwargs in self.calls:
             self.assertTrue(Path(kwargs['env']['HOME']).is_relative_to(self.stage))

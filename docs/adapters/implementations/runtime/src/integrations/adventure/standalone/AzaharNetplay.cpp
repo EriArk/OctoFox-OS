@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "AzaharNetplay.h"
 #include "NetplayCache.h"
 #include "core/model/GamePlayers.h"
@@ -58,9 +59,9 @@ bool writePrivate(const QString& path,const QByteArray& bytes) {
 }
 
 QJsonObject content(const AdventureRegistration& record,const std::atomic_bool& cancel,bool install=false,const QString& expected={},const QString& configDirectory={},const QString& dataDirectory={}) {
-    const auto config=configDirectory.isEmpty()?QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)+"/azahar-emu":configDirectory;
+    const auto config=configDirectory.isEmpty()?runtimepaths::config()+"/azahar-emu":configDirectory;
     QSettings original(config+"/qt-config.ini",QSettings::IniFormat);
-    const auto data=dataDirectory.isEmpty()?QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/azahar-emu":dataDirectory;
+    const auto data=dataDirectory.isEmpty()?runtimepaths::data()+"/azahar-emu":dataDirectory;
     const bool custom=!original.value("Data Storage/use_custom_storage/default",false).toBool()
         &&original.value("Data Storage/use_custom_storage",false).toBool();
     QTemporaryDir directory(QDir::tempPath()+"/traineros-3ds-content-XXXXXX");
@@ -68,11 +69,11 @@ QJsonObject content(const AdventureRegistration& record,const std::atomic_bool& 
     const QJsonObject request{{"source",record.contentPath},{"runtime",bundleRoot()+"/bin/azahar"},
         {"nand",custom?original.value("Data Storage/nand_directory").toString():data+"/nand"},
         {"sdmc",custom?original.value("Data Storage/sdmc_directory").toString():data+"/sdmc"},
-        {"state",QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/content/azahar"},
+        {"state",runtimepaths::data()+"/TrainerOS/content/azahar"},
         {"expected",expected}};
     const auto path=directory.path()+"/request.json";
     if(!writePrivate(path,QJsonDocument(request).toJson(QJsonDocument::Compact)))return {};
-    QProcess process;process.setProgram(bundleRoot()+"/transport/venv/bin/python");
+    QProcess process;process.setProcessEnvironment(runtimepaths::environment());process.setProgram(bundleRoot()+"/transport/venv/bin/python");
     process.setArguments({bundleRoot()+"/content.py",install?"install":"inspect",path});
     process.setStandardErrorFile(QProcess::nullDevice());process.start();
     if(!process.waitForStarted(3000))return {};
@@ -92,7 +93,7 @@ QJsonObject content(const AdventureRegistration& record,const std::atomic_bool& 
 }
 
 }
-QString bundleRoot() {return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/azahar-netplay";}
+QString bundleRoot() {return runtimepaths::data()+"/TrainerOS/emulators/azahar-netplay";}
 QJsonObject bundle(const std::atomic_bool& cancel) {
     const auto root=bundleRoot(),canonical=QFileInfo(root).canonicalFilePath();
     QFile file(root+"/manifest.json");
@@ -151,7 +152,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& record,const std::atomi
     const auto suffix=QFileInfo(record.contentPath).suffix().toLower();
     if(observe) {
         observe(bundleRoot()+"/manifest.json");observe(bundleRoot()+"/content.py");
-        observe(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)+"/azahar-emu/qt-config.ini");
+        observe(runtimepaths::config()+"/azahar-emu/qt-config.ini");
     }
     QFile file(record.contentPath);if(!file.open(QIODevice::ReadOnly)||file.size()<32)return {};
     const auto header=file.read(512);
@@ -176,7 +177,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& record,const std::atomi
         {"players",installed["settings"]=="native-room-group-private-v2"?4:2},{"lateJoin",false},{"temporaryProgress",false}};
 }
 ProcessCommand command(const AdventureRegistration& record,const Request& request,const QStringList& inputPrefix) {
-    ProcessCommand result;result.runtimeControls={{"kind","azahar"},{"game",record.adventure.id},
+    ProcessCommand result;result.emulatorRuntime=true;result.runtimeControls={{"kind","azahar"},{"game",record.adventure.id},
         {"netplay",request.expected.toVariantMap()},{"temporaryProgress",false}};
     result.prepare=[record,request,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(request.players<2||request.players>request.expected["players"].toInt(2)||request.players>4
@@ -186,7 +187,7 @@ ProcessCommand command(const AdventureRegistration& record,const Request& reques
         if(!sameMultiplayerGame(netplayIdentity(record,cancel),request.expected))return "Your 3DS game or emulator changed. Invite again.";
         auto contentPath=record.contentPath;
         if(package(record)) {
-            ProcessCommand preparation;preparation.arguments={record.contentPath};
+            ProcessCommand preparation;preparation.emulatorRuntime=true;preparation.arguments={record.contentPath};
             const auto error=prepareContent(preparation,record,cancel);if(!error.isEmpty())return error;
             contentPath=preparation.runtimeControls["installedContent"].toString();
             if(!sameMultiplayerGame(netplayIdentity(record,cancel),request.expected))return "Your 3DS updates changed. Choose the game again.";
@@ -197,10 +198,10 @@ ProcessCommand command(const AdventureRegistration& record,const Request& reques
         if(!QDir().mkpath(user+"/config"))return "Couldn't prepare private 3DS settings.";
         if(!prepareNetplayCache(user+"/shaders","azahar",request.expected["runtime"].toString()))
             return "Couldn't prepare the graphics cache.";
-        QSettings original(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)+"/azahar-emu/qt-config.ini",QSettings::IniFormat);
+        QSettings original(runtimepaths::config()+"/azahar-emu/qt-config.ini",QSettings::IniFormat);
         const int graphics=original.value("Renderer/graphics_api",2).toInt();
         if(graphics!=0&&graphics!=2)return "This 3DS renderer isn't available in the multiplayer build.";
-        const auto data=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/azahar-emu";
+        const auto data=runtimepaths::data()+"/azahar-emu";
         const bool custom=!original.value("Data Storage/use_custom_storage/default",false).toBool()
             &&original.value("Data Storage/use_custom_storage",false).toBool();
         const auto prepareDirectory=[](const QString& value)->QString {
@@ -214,7 +215,7 @@ ProcessCommand command(const AdventureRegistration& record,const Request& reques
         QSettings settings(user+"/config/qt-config.ini",QSettings::IniFormat);
         for(const auto& key:original.allKeys())if(key.startsWith("Controls/")||key.startsWith("Layout/")||key.startsWith("Renderer/")||key.startsWith("Audio/")||key.startsWith("Core/")||key.startsWith("System/"))settings.setValue(key,original.value(key));
         const auto set=[&](const QString& key,const QVariant& value){settings.setValue(key,value);settings.setValue(key+"/default",false);};
-        // Physical Home belongs to TrainerOS even when an older ordinary
+        // Physical Home belongs to OctoFox OS even when an older ordinary
         // emulator profile mapped it to the emulated console's Home button.
         for(const auto& key:settings.allKeys())if(key.startsWith("Controls/")&&key.endsWith("/button_home"))set(key,"engine:keyboard,code:0");
         set("UI/firstStart",false);set("UI/confirmClose",false);set("UI/pauseWhenInBackground",false);

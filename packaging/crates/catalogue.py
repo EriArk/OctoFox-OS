@@ -227,7 +227,7 @@ def sync(cache, endpoint=ENDPOINT, public_key=PUBLIC_KEY, fetch=None):
         cursor=str(previous['signed']['revision']) if previous else '0'
         query='?revision='+cursor+'&digest='+(digest(previous['signed']) if previous else '')
         if fetch is None:
-            request=urllib.request.Request(endpoint+query,headers={'User-Agent':'TrainerOS-Crates/1','Accept':'application/json'})
+            request=urllib.request.Request(endpoint+query,headers={'User-Agent':'OctoFoxOS-Crates/1','Accept':'application/json'})
             with urllib.request.build_opener(NoRedirect()).open(request,timeout=12) as response:
                 response=decode(response.read(MAX_BYTES+1))
         else: response=fetch(query)

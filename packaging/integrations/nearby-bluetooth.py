@@ -1,4 +1,4 @@
-"""BlueZ RFCOMM transport for the existing, consent-gated TrainerOS Link protocol.
+"""BlueZ RFCOMM transport for the existing, consent-gated OctoFox OS Link protocol.
 
 The localhost bridge never listens on a LAN address. Discovery belongs to this
 D-Bus client; existing bonds, other profiles and radio power are left alone.
@@ -234,7 +234,7 @@ class NearbyBluetooth:
         self.old_alias = self.props(self.adapter, ADAPTER)['Alias']
         self.profile = self.Profile(self.bus, PROFILE_PATH)
         self.iface('/org/bluez', SERVICE+'.ProfileManager1').RegisterProfile(PROFILE_PATH, PROFILE,
-            self.d.Dictionary({'Name': 'TrainerOS Link', 'Channel': self.d.UInt16(0),
+            self.d.Dictionary({'Name': 'OctoFox OS Link', 'Channel': self.d.UInt16(0),
                                'RequireAuthentication': self.d.Boolean(False),
                                'RequireAuthorization': self.d.Boolean(False), 'AutoConnect': self.d.Boolean(False)},
                               signature='sv'), timeout=3)

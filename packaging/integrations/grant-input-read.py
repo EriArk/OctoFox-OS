@@ -65,4 +65,4 @@ def grant(account):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2: raise SystemExit(2)
-    print('TrainerOS pad read access ready' if grant(sys.argv[1]) else 'TrainerOS pad not available')
+    print('OctoFox OS pad read access ready' if grant(sys.argv[1]) else 'OctoFox OS pad not available')

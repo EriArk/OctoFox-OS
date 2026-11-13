@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=TrainerOS
+Name=OctoFox OS
 Comment=Your personal trainer terminal
 Exec="@CMAKE_INSTALL_FULL_BINDIR@/traineros"
 TryExec=@CMAKE_INSTALL_FULL_BINDIR@/traineros

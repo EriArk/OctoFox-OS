@@ -60,7 +60,7 @@ static void Start(GMainWindow& window, Core::System& system) {
     const auto port = static_cast<u16>(config[QStringLiteral("port")].toInt());
     const bool host = config[QStringLiteral("host")].toBool();
     if (!room || !member || !system.IsPoweredOn() ||
-        (host && !room->Create("TrainerOS", "", "127.0.0.1", port, password, config[QStringLiteral("players")].toInt(),
+        (host && !room->Create("OctoFox OS", "", "127.0.0.1", port, password, config[QStringLiteral("players")].toInt(),
                               "Player1", "", 0,
                               std::make_unique<Network::VerifyUser::NullBackend>()))) {
         std::cout << "[TrainerOS3DS] error" << std::endl;

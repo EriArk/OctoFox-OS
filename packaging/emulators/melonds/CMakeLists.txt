@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(TrainerOSDetMPChecks LANGUAGES C CXX)
+project(OctoFoxOSDetMPChecks LANGUAGES C CXX)
 
 # Build the patched core, focused checks and player frontend. Packaging still
 # requires the isolated transport environment and verified admission manifest.

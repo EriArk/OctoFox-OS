@@ -107,7 +107,13 @@ private slots:
                     auto entry=it.value().toObject();for(const auto& key:{"0","1"})if(entry[key].toString().isEmpty())entry.remove(key);
                     it.value()=entry;
                 }
-                experience["entries"]=entries;state["experienceNavigation"]=experience;return state;
+                experience["entries"]=entries;state["experienceNavigation"]=experience;
+                // Modern per-game navigation is authoritative; these two exported
+                // legacy face aliases are not restored when that state exists.
+                if(state["experienceVersion"].toInt()==2 && !experience.isEmpty()) {
+                    state.remove("pokemonFace");state.remove("pokedexFace");
+                }
+                return state;
             };
             // Fresh launches always start at Home, retaining the remembered
             // positions inside the other roots for subsequent tab switches.

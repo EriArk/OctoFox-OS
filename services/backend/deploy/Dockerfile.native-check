@@ -1,4 +1,4 @@
-# Server-only Linux checks, not a TrainerOS release or handheld runtime.
+# Server-only Linux checks, not an OctoFox OS release or handheld runtime.
 # Pass the pinned PYTHON_IMAGE from images.env (Debian trixie base).
 ARG PYTHON_IMAGE
 FROM ${PYTHON_IMAGE}

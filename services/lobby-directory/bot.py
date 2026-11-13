@@ -1,4 +1,4 @@
-"""TrainerOS directory bot: authenticated Fluxer DMs -> public announcements."""
+"""OctoFox OS directory bot: authenticated Fluxer DMs -> public announcements."""
 import argparse
 import datetime
 import hashlib
@@ -39,7 +39,7 @@ class API:
         req = urllib.request.Request(self.base + path, method=method,
             data=json.dumps(body, ensure_ascii=False).encode() if body is not None else None,
             headers={'Authorization': 'Bot ' + self.token, 'Content-Type': 'application/json',
-                     'User-Agent': 'TrainerOS Lobby Directory/1.0'})
+                     'User-Agent': 'OctoFoxOS-LobbyDirectory/1.0'})
         try:
             with urllib.request.urlopen(req, timeout=20) as response:
                 raw = response.read(2*1024*1024+1)
@@ -136,7 +136,7 @@ def run(config, state_path):
                         stop.set()
             heartbeat = threading.Thread(target=beat, daemon=True)
             heartbeat.start()
-            identify = {'token': api.token, 'properties': {'os': 'Linux', 'browser': 'TrainerOS Lobby Directory', 'device': 'server'}}
+            identify = {'token': api.token, 'properties': {'os': 'Linux', 'browser': 'OctoFox OS Lobby Directory', 'device': 'server'}}
             if session and sequence is not None:
                 socket.send(json.dumps({'op': 6, 'd': {'token': api.token, 'session_id': session, 'seq': sequence}}))
             else:

@@ -47,7 +47,7 @@ void useRetroArchAchievementAccount(ProcessCommand& command, AchievementAccount 
         auto file = std::make_shared<QTemporaryFile>(QFileInfo(base).dir().filePath(".traineros-ra-XXXXXX.cfg"));
         if (!file->open() || !file->setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner))
             return "Couldn't prepare the game's account settings. Check storage and try again.";
-        QByteArray bytes = "# TrainerOS per-launch account\n"
+        QByteArray bytes = "# OctoFox OS per-launch account\n"
             "config_save_on_exit = \"false\"\nauto_overrides_enable = \"false\"\n"
             "cheevos_enable = \"" + QByteArray(connected ? "true" : "false") + "\"\n"
             "cheevos_username = \"" + account.username.toUtf8() + "\"\n"

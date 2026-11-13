@@ -46,7 +46,7 @@ def supervise(command, attempts=3, ready_timeout=None):
             finally:
                 os.close(reader)
         result = child.wait()
-        logging.info("TrainerOS exited: %s", result)
+        logging.info("OctoFox OS exited: %s", result)
         while True:
             try:
                 pid, status = os.waitpid(-1, 0)

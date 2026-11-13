@@ -31,7 +31,7 @@ def prepare_uninstall(owned, override, select_desktop):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--user", required=True)
-    parser.add_argument("--default", action="store_true", help="Boot into the validated TrainerOS session")
+    parser.add_argument("--default", action="store_true", help="Boot into the validated OctoFox OS session")
     parser.add_argument("--managed", action="store_true", help="Record ownership for the recoverable Software installer")
     parser.add_argument("--uninstall", action="store_true", help="Remove only unchanged managed session files")
     parser.add_argument("--plasma-audio-library", type=Path, help="Reviewed optional PulseAudioQt shutdown repair artifact")
@@ -82,7 +82,7 @@ def main():
         if not os.access(binary, os.X_OK):
             parser.error("Missing platform prerequisite: " + binary)
     if not os.access(Path(account.pw_dir) / ".local/bin/traineros", os.X_OK):
-        parser.error("Install and validate the normal TrainerOS application first")
+        parser.error("Install and validate the normal OctoFox OS application first")
     if args.default:
         boot_service = Path("/usr/lib/systemd/system/armada-session-default.service")
         if not boot_service.is_file() or "ExecStart=/usr/libexec/armada/session-control default-gamemode" not in boot_service.read_text():
@@ -227,9 +227,9 @@ def main():
     if args.default:
         subprocess.run(["/usr/bin/systemctl", "daemon-reload"], check=True)
         subprocess.run([helper, "default-traineros"], check=True)
-        print("TrainerOS is the boot default. Steam and Desktop choices remain available.")
+        print("OctoFox OS is the boot default. Steam and Desktop choices remain available.")
     else:
-        print("TrainerOS session choice installed. Current autologin is unchanged.")
+        print("OctoFox OS session choice installed. Current autologin is unchanged.")
 
 
 if __name__ == "__main__":

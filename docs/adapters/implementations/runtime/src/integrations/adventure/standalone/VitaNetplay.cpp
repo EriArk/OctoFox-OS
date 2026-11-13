@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "VitaNetplay.h"
 #include "core/model/GamePlayers.h"
 #include <QCryptographicHash>
@@ -43,7 +44,7 @@ bool helperVerified(const std::atomic_bool& cancel) {
 }
 QJsonObject helper(const QString& mode,const QString& target,const std::atomic_bool& cancel) {
     if(!helperVerified(cancel))return {};
-    QProcess process;
+    QProcess process;process.setProcessEnvironment(runtimepaths::environment());
     process.start(bundleRoot()+"/transport/venv/bin/python",{bundleRoot()+"/transport/launcher.py",mode,target});
     if(!process.waitForStarted(3000))return {};
     QElapsedTimer timer;timer.start();QByteArray output;
@@ -60,7 +61,7 @@ bool writePrivate(const QString& path,const QByteArray& bytes) {
         &&file.setPermissions(QFile::ReadOwner|QFile::WriteOwner)&&file.write(bytes)==bytes.size()&&file.flush();
 }
 }
-QString bundleRoot() {return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/vita3k-netplay";}
+QString bundleRoot() {return runtimepaths::data()+"/TrainerOS/emulators/vita3k-netplay";}
 QJsonObject netplayIdentity(const AdventureRegistration& record,const std::atomic_bool& cancel) {
     if(record.adventure.platformId!="psvita"||record.adventure.adapterId!="vita3k"||record.adventure.collectionOnly
        ||QFileInfo(record.contentPath).suffix().toLower()!="psvita")return {};
@@ -70,7 +71,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& record,const std::atomi
     value["label"]=record.adventure.title.left(96);return value;
 }
 ProcessCommand command(const AdventureRegistration& record,const Request& request,const QStringList& inputPrefix) {
-    ProcessCommand result;result.runtimeControls={{"kind","vita3k"},{"game",record.adventure.id},
+    ProcessCommand result;result.emulatorRuntime=true;result.runtimeControls={{"kind","vita3k"},{"game",record.adventure.id},
         {"netplay",request.expected.toVariantMap()},{"temporaryProgress",false}};
     result.prepare=[record,request,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(!hex(request.identity)||(!request.host&&(!endpoint(request.endpoint)||request.endpoint["mode"]!=(request.online?"online":"nearby")))

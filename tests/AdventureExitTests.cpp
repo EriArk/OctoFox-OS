@@ -110,7 +110,12 @@ private slots:
         QVERIFY(!game.exit().cancel()); QCOMPARE(game.closes.size(), 1);
         QVERIFY(game.completed.isEmpty()); QVERIFY(game.process.active());
         QVERIFY(game.command("exit")); QTRY_COMPARE(game.returned.size(), 1);
-        QCOMPARE(game.returned.first()[0].toJsonObject(), game.context);
+        // A confirmed launch becomes the Home game while keeping its return route.
+        auto expectedContext = game.context;
+        expectedContext["homeAdventure"] = "fixture";
+        expectedContext["homeResume"] = QString();
+        expectedContext["homeResumeSource"] = QJsonObject{};
+        QCOMPARE(game.returned.first()[0].toJsonObject(), expectedContext);
         QCOMPARE(game.completed.size(), 1); QCOMPARE(game.completed.first()[0].toULongLong(), second);
         QCOMPARE(qvariant_cast<QImage>(game.completed.first()[1]), latest);
         QVERIFY(game.completed.first()[2].toBool()); QCOMPARE(game.started.size(), 1);

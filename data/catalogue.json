@@ -872,7 +872,7 @@
       "title": "Learn with Pokémon: Typing Adventure",
       "platform": "nds",
       "world": "playroom",
-      "limitation": "Requires keyboard input. Controller text entry in TrainerOS does not replace the in-game keyboard.",
+      "limitation": "Requires keyboard input. Controller text entry in OctoFox OS does not replace the in-game keyboard.",
       "order": 640,
       "releaseYear": 2011,
       "releaseSource": "https://www.pokemon.co.jp/game/",

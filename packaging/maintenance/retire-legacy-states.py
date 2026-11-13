@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline, reversible retirement of exact TrainerOS mgba-entry-v1 folders.
+"""Offline, reversible retirement of exact OctoFox OS mgba-entry-v1 folders.
 
 Default: inventory only. --apply archives only fully recognized flat sessions.
 --restore MANIFEST reverses recorded moves after verifying every byte.
@@ -138,7 +138,7 @@ def idle():
         except (OSError, IndexError):
             continue
         if state != 'Z' and name in ('traineros', 'retroarch'):
-            raise ValueError('Stop TrainerOS and RetroArch before moving legacy files.')
+            raise ValueError('Stop OctoFox OS and RetroArch before moving legacy files.')
 
 
 @contextmanager

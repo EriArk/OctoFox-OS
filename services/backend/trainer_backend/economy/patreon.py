@@ -53,7 +53,7 @@ class PatreonProvider:
             'redirect_uri': self.config.callback_url, 'scope': 'identity', 'state': state})
 
     def _request(self, path, form=None, bearer=None):
-        headers = {'Accept': 'application/json', 'User-Agent': 'TrainerOS-Backend/0.0.1'}
+        headers = {'Accept': 'application/json', 'User-Agent': 'OctoFoxOS-Backend/0.0.1'}
         body = None
         if form is not None:
             headers['Content-Type'] = 'application/x-www-form-urlencoded'

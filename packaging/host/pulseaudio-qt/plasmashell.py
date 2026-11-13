@@ -21,7 +21,7 @@ def environment(root=ROOT, stock=STOCK, original=None):
             raise ValueError('repair library missing or changed')
         env['LD_PRELOAD'] = str(library) + (' ' + env['LD_PRELOAD'] if env.get('LD_PRELOAD') else '')
     except (OSError, ValueError, KeyError, TypeError) as error:
-        print('TrainerOS: Plasma audio compatibility repair skipped: ' + str(error), file=sys.stderr)
+        print('OctoFox OS: Plasma audio compatibility repair skipped: ' + str(error), file=sys.stderr)
     return env
 
 

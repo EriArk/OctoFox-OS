@@ -143,7 +143,7 @@ def unpack_setup(archive, destination, progress=sw.event):
     destination = Path(destination)
     if destination.is_symlink(): raise ValueError('Redirected Setup folder retained')
     with tarfile.open(archive) as source:
-        members = source.getmembers(); seen = set(); total = 0
+        members = source.getmembers(); seen = set(); total = 0; setup_root = None
         for member in members:
             # Setup's desktop launchers intentionally have spaces in their names.
             # Retain all other portable path restrictions used by Software.
@@ -151,17 +151,20 @@ def unpack_setup(archive, destination, progress=sw.event):
             name = member.name
             if any(part.endswith((' ', '.')) for part in name.split('/')):
                 raise ValueError('Ambiguous Setup archive path')
-            if (name in seen or not (name == 'TrainerOS-Setup' or name.startswith('TrainerOS-Setup/'))
+            root = name.split('/')[0]
+            # Old released archives remain valid; never combine two Setup trees.
+            if setup_root is None: setup_root = root
+            if (name in seen or root not in ('OctoFox-OS-Setup', 'TrainerOS-Setup') or root != setup_root
                     or not (member.isfile() or member.isdir()) or member.size < 0):
                 raise ValueError('Unsafe Setup archive entry')
             seen.add(name); total += member.size
-        if total > 32 * 1024**3 or 'TrainerOS-Setup/packaging/software/installer.py' not in seen:
+        if total > 32 * 1024**3 or not setup_root or setup_root + '/packaging/software/installer.py' not in seen:
             raise ValueError('Incomplete or oversized Setup archive')
         if destination.exists():
             if not destination.is_dir(): raise ValueError('Existing Setup destination is not a folder')
             files = {p.relative_to(destination).as_posix(): p for p in destination.rglob('*')
                      if not p.is_dir() or p.is_symlink()}
-            expected = {m.name.removeprefix('TrainerOS-Setup/'): m for m in members if m.isfile()}
+            expected = {m.name.removeprefix(setup_root + '/'): m for m in members if m.isfile()}
             if set(files) != set(expected): raise ValueError('Existing Setup folder changed; retained without overwrite')
             done = 0
             for name, member in expected.items():
@@ -187,7 +190,7 @@ def unpack_setup(archive, destination, progress=sw.event):
                         target.write(block); done += len(block); progress('Extracting verified Setup', done, total)
                 path.chmod(0o755 if member.mode & 0o111 else 0o644)
             if destination.exists(): raise ValueError('Setup destination appeared during extraction')
-            os.rename(Path(tmp) / 'TrainerOS-Setup', destination)
+            os.rename(Path(tmp) / setup_root, destination)
     return destination
 
 
@@ -198,17 +201,17 @@ def kit(parts, output):
     manifest = parts / 'parts.json'; digest = sw.sha256(manifest); load(manifest, digest)
     if output.exists(): raise ValueError('Download kit output already exists')
     with tempfile.TemporaryDirectory() as tmp:
-        root = Path(tmp); tree = root / 'TrainerOS-Download'; tree.mkdir()
+        root = Path(tmp); tree = root / 'OctoFox-OS-Download'; tree.mkdir()
         holder = root / 'bootstrap'; holder.mkdir()
         installer.bootstrap(holder, Path(__file__).resolve().parents[1])
         shutil.copytree(holder / 'bootstrap/packaging', tree / 'packaging')
         shutil.copyfile(manifest, tree / 'parts.json')
-        launch = tree / 'Download TrainerOS.sh'
+        launch = tree / 'Download OctoFox OS.sh'
         launch.write_bytes(('#!/bin/sh\nset -eu\nHERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\n'
                            'exec /usr/bin/python3 "$HERE/packaging/software/release_parts.py" gui '
                            '"$HERE/parts.json" --sha256 ' + digest + '\n').encode())
         launch.chmod(0o755)
-        (tree / 'README.txt').write_text('Extract this folder in Armada Desktop and open Download TrainerOS.sh.\n'
+        (tree / 'README.txt').write_text('Extract this folder in Armada Desktop and open Download OctoFox OS.sh.\n'
             'Choose storage with space for the download and extraction. Interrupted downloads resume.\n'
             'Setup opens after all parts and the complete archive are verified. Do not run as root.\n'
             'This download kit does not itself approve or publish a release.\n', encoding='utf-8')
@@ -237,14 +240,14 @@ def main():
             import installer
             if os.geteuid() == 0: raise ValueError('Run the download as your desktop user')
             plan = load(args.manifest, args.sha256)
-            choice = installer.dialog('--getexistingdirectory', str(Path.home()), '--title', 'Choose storage for TrainerOS Setup')
+            choice = installer.dialog('--getexistingdirectory', str(Path.home()), '--title', 'Choose storage for OctoFox OS Setup')
             if choice.returncode: return 0
             parent = Path(choice.stdout.strip())
             if not parent.is_dir(): raise ValueError('Choose an existing storage folder')
             cache = parent / ('TrainerOS-download-' + plan['archive']['sha256'][:16])
             with installer.Progress() as progress:
                 archive = assemble(args.manifest, args.sha256, cache, True, progress.update)
-                target = unpack_setup(archive, cache / 'TrainerOS-Setup', progress.update)
+                target = unpack_setup(archive, cache / 'OctoFox-OS-Setup', progress.update)
             return subprocess.call([sys.executable, str(target / 'packaging/software/installer.py'), '--gui'],
                                    env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'})
         else: result = {'archive': str(assemble(args.manifest, args.sha256, args.cache, args.command == 'fetch'))}

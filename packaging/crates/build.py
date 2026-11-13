@@ -37,7 +37,7 @@ elif name=='2048':
     shutil.copy2(recipe_root.parents[1]/'LICENSE',stage/'LICENSE.runner')
     # A bounded landscape-port stylesheet, kept in this game's recipe.
     html=(stage/'web/index.html').read_text()
-    html=html.replace('</head>','<style>html,body{margin:0}body{padding:16px 0}.game-container{margin-top:16px}.game-explanation,hr,.game-explanation~p{display:none}.container:after{content:"Gabriele Cirulli · TrainerOS adaptation · MIT";display:block;font-size:12px;margin-top:12px}</style></head>')
+    html=html.replace('</head>','<style>html,body{margin:0}body{padding:16px 0}.game-container{margin-top:16px}.game-explanation,hr,.game-explanation~p{display:none}.container:after{content:"Gabriele Cirulli · OctoFox OS adaptation · MIT";display:block;font-size:12px;margin-top:12px}</style></head>')
     html=html.replace('</body>','<script>document.addEventListener("keydown",function(e){if(e.key!=="Enter")return;var m=document.querySelector(".game-message");if(m.classList.contains("game-over"))document.querySelector(".retry-button").click();else if(m.classList.contains("game-won"))document.querySelector(".keep-playing-button").click();});</script></body>')
     (stage/'web/index.html').write_text(html)
 elif name=='qalculate':
@@ -63,7 +63,7 @@ with tarfile.open(archive,'w:gz') as tar:
 size=sum(p.stat().st_size for p in stage.rglob('*') if p.is_file())
 record=dict(recipe,sha256=hashlib.sha256(archive.read_bytes()).hexdigest(),size=archive.stat().st_size,
             unpackedSize=size+1024*1024,compatibility='untested',channel='Experimental',
-            notes='Initial TrainerOS package. User data is kept separately.',
-            url='https://github.com/EriArk/TrainerOS/releases/download/'+(sys.argv[3] if len(sys.argv)>3 else 'crates-test-20261018')+'/'+archive.name)
+            notes='Initial OctoFox OS package. User data is kept separately.',
+            url='https://github.com/EriArk/OctoFox-OS/releases/download/'+(sys.argv[3] if len(sys.argv)>3 else 'crates-test-20261018')+'/'+archive.name)
 (out/(name+'-record.json')).write_text(json.dumps(record,indent=2))
 print(json.dumps(record))

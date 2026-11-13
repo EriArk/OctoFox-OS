@@ -25,7 +25,7 @@ QString statusMessage(Status s) {
     case Status::MissingCredentials:return "ScreenScraper access is not configured for this installation.";
     case Status::Denied:return "ScreenScraper refused access. Check your login and password in Settings.";
     case Status::MembersOnly:return "ScreenScraper currently restricts guest or inactive accounts. Sign in or try again later.";
-    case Status::ClientRejected:return "ScreenScraper requires an updated or approved TrainerOS client.";
+    case Status::ClientRejected:return "ScreenScraper requires an updated or approved OctoFox OS client.";
     case Status::Quota:return "Today's ScreenScraper limit has been reached. Resume tomorrow.";
     case Status::Busy:return "ScreenScraper is busy. Pause and retry later.";
     case Status::NotFound:return "No matching game found. Try another title or skip this game.";
@@ -103,7 +103,7 @@ QVariantList ScrapeController::settingsRows() const {
         row("Scrape library",setupMode_?"Available from Settings after setup":"Choose and review the job before starting",enabled&&!setupMode_),
         row("Display · main image",display_["picture"].toString()=="cover"?"Cover first":"Screenshot first",enabled),
         row("Display · logos",display_["logos"].toBool(true)?"Game logos":"Text titles",enabled),
-        row("Display · background",display_["background"].toBool(false)?"Downloaded artwork":"TrainerOS theme",enabled),
+        row("Display · background",display_["background"].toBool(false)?"Downloaded artwork":"OctoFox OS theme",enabled),
         row("Display · game facts",display_["facts"].toBool(true)?"On · year, genre, developer, publisher":"Off",enabled),
         row("Display · descriptions",display_["description"].toBool(true)?"On":"Off",enabled),
         row("Matching",preferences_.aggressive?"Aggressive · choose strong title matches automatically":"Cautious · send more candidates to review",enabled),

@@ -197,7 +197,7 @@ bool changeAppearance(const QString& id,const QString& action) {
 QString prepareAppearance(ProcessCommand& command,const QString& id,const QString& baseConfig,const QString& runtimeFile,QSize displaySize,const BezelGame& game) {
     QSettings settings;const auto prefix=key(id);
     const int ratio=value(settings,prefix,"ratio",Ratios.size()),filter=value(settings,prefix,"filter",Filters.size()),shader=value(settings,prefix,"shader",Shaders.size());
-    QByteArray bytes="# TrainerOS per-game appearance; preserves the base configuration\nstdin_cmd_enable = \"true\"\n";
+    QByteArray bytes="# OctoFox OS per-game appearance; preserves the base configuration\nstdin_cmd_enable = \"true\"\n";
     if(ratio) {
         bytes+="video_force_aspect = \""+QByteArray(ratio==4?"false":"true")+"\"\n";
         if(ratio==1)bytes+="aspect_ratio_index = \"22\"\n";

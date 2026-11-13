@@ -8,7 +8,7 @@ Window {
     required property bool playing
     required property var bridge
     required property bool permitted
-    title: "TrainerOS — Invitation"
+    title: "OctoFox OS — Invitation"
     color: "transparent"
     flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowDoesNotAcceptFocus
     transientParent: null

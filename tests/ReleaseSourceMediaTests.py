@@ -33,7 +33,7 @@ class ReleaseSourceMediaTests(unittest.TestCase):
         fullbundle.build({'schema': 1, 'files': [
             {'path': name, 'source': str(path), 'sha256': fullbundle.payload.digest(path)}
             for name, path in [(media.MEMBER, self.original), ('runtimes/core.so', self.core)]]}, self.root / 'base')
-        self.archive = self.root / 'base/TrainerOS-Full-CANDIDATE.tar'
+        self.archive = self.root / 'base/OctoFox-OS-Full-CANDIDATE.tar'
         self.pin = {'bytes': self.archive.stat().st_size, 'sha256': fullbundle.payload.digest(self.archive)}
         self.output = self.root / 'new.tar'
 
@@ -85,14 +85,14 @@ class ReleaseSourceMediaTests(unittest.TestCase):
             destination = self.root / ('release' if release_mode else 'candidate')
             result = offline_setup.build(self.output, software, key, public, destination, 1,
                                          self.filtered, release=release_mode, feed_urls=feeds)
-            self.assertEqual(result['file'], 'TrainerOS-Full-Setup.tar' if release_mode else 'TrainerOS-Full-Setup-CANDIDATE.tar')
+            self.assertEqual(result['file'], 'OctoFox-OS-Full-Setup.tar' if release_mode else 'OctoFox-OS-Full-Setup-CANDIDATE.tar')
             self.assertFalse(result['published']); self.assertFalse(result['cleanDeviceAcceptance'])
             with tarfile.open(destination / result['file']) as tar:
-                config = json.load(tar.extractfile('TrainerOS-Setup/bootstrap.json'))
+                config = json.load(tar.extractfile('OctoFox-OS-Setup/bootstrap.json'))
                 self.assertEqual(config['feeds'], feeds); self.assertEqual(config['defaultChannel'], 'alpha')
-                readme = tar.extractfile('TrainerOS-Setup/README.txt').read().decode()
+                readme = tar.extractfile('OctoFox-OS-Setup/README.txt').read().decode()
                 self.assertEqual('NOT A PUBLIC RELEASE' in readme, not release_mode)
-                self.assertEqual(tar.extractfile('TrainerOS-Setup/offline/traineros.tar.gz').read(),
+                self.assertEqual(tar.extractfile('OctoFox-OS-Setup/offline/traineros.tar.gz').read(),
                                  (software / 'traineros.tar.gz').read_bytes())
 
     def test_bad_feed_contract_is_rejected_before_creating_setup(self):

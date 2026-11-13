@@ -49,7 +49,7 @@ Item {
             anchors.fill: parent; anchors.margins: 8
             PageHeader {
                 y: 4; compact: true
-                title: root.shell.modeConfirmation ? "Before you go" : root.shell.notice.length > 0 ? "TrainerOS" : root.shell.powerMenu ? "Power" : "System menu"
+                title: root.shell.modeConfirmation ? "Before you go" : root.shell.notice.length > 0 ? "OctoFox OS" : root.shell.powerMenu ? "Power" : "System menu"
             }
             MountedPanel {
                 x: 9; y: root.shell.powerMenu ? 65 : 48; width: parent.width - 18; height: parent.height - y - 9

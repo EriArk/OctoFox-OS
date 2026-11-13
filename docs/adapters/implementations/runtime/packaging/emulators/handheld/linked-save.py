@@ -5,7 +5,7 @@
 Online uses Magic Wormhole's authenticated, encrypted ordered-message API.
 At most eight 16 KiB data messages, one offer and one receipt per preparation.
 Nearby uses a one-shot TLS upload pinned to the accepted invitation's certificate.
-Input/output are private, bounded JSON pipes owned by TrainerOS, not log streams.
+Input/output are private, bounded JSON pipes owned by OctoFox OS, not log streams.
 """
 import base64
 import hashlib
@@ -126,7 +126,7 @@ def nearby(config, data):
         from cryptography.x509.oid import NameOID
         from datetime import datetime, timedelta, timezone
         key = ec.generate_private_key(ec.SECP256R1())
-        name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "TrainerOS session")])
+        name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "OctoFox OS session")])
         now = datetime.now(timezone.utc)
         cert = (x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(key.public_key())
                 .serial_number(x509.random_serial_number()).not_valid_before(now - timedelta(minutes=1))

@@ -62,7 +62,7 @@ Item {
             Text { id: title; width: parent.width-17; height: Math.min(58,implicitHeight); text: root.project.title || ""; textFormat: Text.PlainText
                 font.family: Theme.displayFamily; font.pixelSize: 24; maximumLineCount: 2; wrapMode: Text.WordWrap; elide: Text.ElideRight; color: Theme.ink }
             Text { id: creator; y: title.height+3; width: parent.width; text: root.project.creator ? "by "+root.project.creator : ""; textFormat: Text.PlainText; elide: Text.ElideRight; color: Theme.muted; font.pixelSize: 13 }
-            Text { y: creator.y+22; width: parent.width; text: (root.project.kind === "module" ? "TrainerOS module" : root.project.kind === "app" ? "Application" : "Game")+(root.project.license ? " · "+root.project.license : ""); elide: Text.ElideRight; color: Theme.muted; font.pixelSize: 12 }
+            Text { y: creator.y+22; width: parent.width; text: (root.project.kind === "module" ? "OctoFox OS module" : root.project.kind === "app" ? "Application" : "Game")+(root.project.license ? " · "+root.project.license : ""); elide: Text.ElideRight; color: Theme.muted; font.pixelSize: 12 }
             Flickable {
                 id: description; y: creator.y+47; width: parent.width; height: metadata.y-y-10; clip: true
                 contentHeight: body.height; boundsBehavior: Flickable.StopAtBounds

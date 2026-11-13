@@ -1,4 +1,19 @@
-# TrainerOS — состояние проекта
+# OctoFox OS — Project status
+
+
+## 13 November 2026 — application and Setup branding
+
+The native shell, first-run wizard, accounts, settings, notifications, game
+windows, desktop/session entries and Setup now display OctoFox OS. New Setup
+archives and launchers use the new name; legacy archives and Crates download
+URLs remain supported. The backend migration changes only first-party shop
+publisher labels, preserving offer IDs, prices and purchases.
+
+Existing profiles, credentials, saves, package signatures and multiplayer wire
+identities retain their compatibility names. Published Alpha 7 files are not
+replaced. [Compatibility boundaries](docs/BRANDING.md) and
+[verification](docs/evidence/2026-11-13-octofox-internal/README.md).
+
 
 ## 13 November 2026 — public rename
 

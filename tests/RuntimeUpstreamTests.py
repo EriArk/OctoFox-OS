@@ -49,7 +49,7 @@ class RuntimeUpstreamTests(unittest.TestCase):
         files=[{'path':'runtimes/DuckStation/'+name,'source':str(packed/name),'sha256':runtime_payload.digest(packed/name)} for name in ['component.json','component.tar.gz']]
         files.append({'path':'runtimes/other/core.so','source':str(extra),'sha256':runtime_payload.digest(extra)})
         fullbundle.build({'schema':1,'files':files},self.root/'offline')
-        return self.root/'offline/TrainerOS-Full-CANDIDATE.tar'
+        return self.root/'offline/OctoFox-OS-Full-CANDIDATE.tar'
 
     def test_hybrid_has_no_upstream_binary_and_preserves_netplay_inputs(self):
         original=self.media();before=runtime_payload.digest(original);output=self.root/'hybrid.tar'
@@ -125,7 +125,7 @@ class RuntimeUpstreamTests(unittest.TestCase):
         key=self.root/'flathub.gpg';key.write_bytes(b'official key')
         plan={'schema':1,'flatpak':{'refs':[refs[0]['ref']],'keyFile':str(key),'keySha256':runtime_payload.digest(key)}}
         output=self.root/'flatpak-hybrid.tar'
-        upstream_media.build(self.root/'flatpak-media/TrainerOS-Full-CANDIDATE.tar',plan,output)
+        upstream_media.build(self.root/'flatpak-media/OctoFox-OS-Full-CANDIDATE.tar',plan,output)
         with tarfile.open(output) as tar:
             self.assertNotIn('flatpak/flycast.flatpak',tar.getnames())
             self.assertEqual(tar.extractfile('flatpak/ppsspp.flatpak').read(),b'ppsspp')

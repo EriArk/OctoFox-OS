@@ -44,7 +44,7 @@ QVariantList runtimes(const QString& state,const QString& home,const QString& ar
     const auto umu=state+"/runtimes/umu/1.4.4/umu-run";
     const QList<QPair<QString,QString>> roots{{home+"/.local/share/Steam/compatibilitytools.d","Steam / host"},
         {home+"/.steam/root/compatibilitytools.d","Steam / host"},{home+"/.steam/steam/steamapps/common","Steam / host"},
-        {state+"/runtimes/proton","TrainerOS cache"},{home+"/.local/share/lutris/runners/wine","Lutris / host"}};
+        {state+"/runtimes/proton","OctoFox OS cache"},{home+"/.local/share/lutris/runners/wine","Lutris / host"}};
     for(const auto& [root,source]:roots)for(const auto& dir:QDir(root).entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot,QDir::Name|QDir::Reversed)) {
         const auto path=dir.canonicalFilePath();if(path.isEmpty()||seen.contains(path))continue;
         const bool proton=QFileInfo(path+"/proton").isFile();const auto wine=path+"/bin/wine";

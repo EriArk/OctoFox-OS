@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "RetroArchConfiguration.h"
 #include <QCryptographicHash>
 #include <QDir>
@@ -45,7 +46,7 @@ bool enabled(const Settings& s, const QString& key, bool fallback) {
 QString configuredPath(const Settings& s, const QString& key, const QString& fallback) {
     auto path = s.value(key);
     if (path.isEmpty() || path == "default") path = fallback;
-    if (path.startsWith("~/")) path = QDir::home().filePath(path.mid(2));
+    if (path.startsWith("~/")) path = QDir(runtimepaths::userHome()).filePath(path.mid(2));
     return path;
 }
 QString configDirectory(const Settings& settings, const RetroArchInstallation& i) {
@@ -89,7 +90,7 @@ QString prepareFileMove(const AdventureRegistration& record,LibraryEdit& edit,co
         if(settings.value(key)!="true" && settings.value(key)!="false")return "This save layout needs to be checked before moving the game.";
     const auto oldFolder=QFileInfo(record.contentPath).dir().dirName(),newFolder=QFileInfo(edit.text).fileName();
     // Core/title overrides can redirect saves too. Keep this first route bounded
-    // to the ordinary configuration used by TrainerOS, without changing it.
+    // to the ordinary configuration used by OctoFox OS, without changing it.
     QDirIterator configs(configDirectory(settings,installation),{"*.cfg","*.opt","*.rmp"},QDir::Files,QDirIterator::Subdirectories);
     while(configs.hasNext()) {
         const QFileInfo file(configs.next());const auto name=file.completeBaseName();

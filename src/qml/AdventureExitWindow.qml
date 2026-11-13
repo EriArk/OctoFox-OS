@@ -5,7 +5,7 @@ Window {
     id: window
     required property var presentation
     objectName: "adventure-exit-window"
-    title: "TrainerOS — Return from Adventure"
+    title: "OctoFox OS — Return from Adventure"
     width: 960; height: 540
     color: Theme.chassisDark
     flags: Qt.Window | Qt.FramelessWindowHint

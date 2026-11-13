@@ -90,7 +90,7 @@ QString prepareFileMove(const AdventureRegistration& record,LibraryEdit& edit,co
         if(settings.value(key)!="true" && settings.value(key)!="false")return "This save layout needs to be checked before moving the game.";
     const auto oldFolder=QFileInfo(record.contentPath).dir().dirName(),newFolder=QFileInfo(edit.text).fileName();
     // Core/title overrides can redirect saves too. Keep this first route bounded
-    // to the ordinary configuration used by TrainerOS, without changing it.
+    // to the ordinary configuration used by OctoFox OS, without changing it.
     QDirIterator configs(configDirectory(settings,installation),{"*.cfg","*.opt","*.rmp"},QDir::Files,QDirIterator::Subdirectories);
     while(configs.hasNext()) {
         const QFileInfo file(configs.next());const auto name=file.completeBaseName();

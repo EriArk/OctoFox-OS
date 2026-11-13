@@ -1,0 +1,180 @@
+Test project /work/build
+      Start  17: software_update
+      Start  59: standalone
+ 1/14 Test  #59: standalone .......................   Passed   13.97 sec
+      Start  94: social
+ 2/14 Test  #94: social ...........................   Passed    1.71 sec
+      Start  18: backend_account
+ 3/14 Test  #18: backend_account ..................   Passed    5.32 sec
+      Start   3: software_installation
+ 4/14 Test   #3: software_installation ............***Failed    0.27 sec
+......E
+======================================================================
+ERROR: setUpClass (__main__.InstallationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/source/tests/SoftwareChannelTests.py", line 34, in setUpClass
+    subprocess.run(['openssl', 'genpkey', '-algorithm', 'ED25519', '-out', str(cls.key)], check=True, capture_output=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'openssl'
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.018s
+
+FAILED (errors=1)
+
+      Start  14: runtime_installation
+ 5/14 Test  #14: runtime_installation .............***Failed    0.63 sec
+........E.............E....
+======================================================================
+ERROR: test_incomplete_media_preparation_retries_and_changed_ready_media_is_rejected (__main__.RuntimeInstallationTests.test_incomplete_media_preparation_retries_and_changed_ready_media_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/source/tests/RuntimeInstallationTests.py", line 308, in test_incomplete_media_preparation_retries_and_changed_ready_media_is_rejected
+    manifest,archive=self.signed_media()
+                     ~~~~~~~~~~~~~~~~~^^
+  File "/work/source/tests/RuntimeInstallationTests.py", line 291, in signed_media
+    subprocess.run(['openssl','genpkey','-algorithm','ED25519','-out',str(key)],check=True,capture_output=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'openssl'
+
+======================================================================
+ERROR: test_runtime_signature_and_archive_identity_precede_extraction (__main__.RuntimeInstallationTests.test_runtime_signature_and_archive_identity_precede_extraction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/source/tests/RuntimeInstallationTests.py", line 301, in test_runtime_signature_and_archive_identity_precede_extraction
+    manifest,archive=self.signed_media();envelope=sw.decode(manifest.read_bytes())
+                     ~~~~~~~~~~~~~~~~~^^
+  File "/work/source/tests/RuntimeInstallationTests.py", line 291, in signed_media
+    subprocess.run(['openssl','genpkey','-algorithm','ED25519','-out',str(key)],check=True,capture_output=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'openssl'
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.495s
+
+FAILED (errors=2)
+
+      Start  39: overlay_helper
+ 6/14 Test  #39: overlay_helper ...................   Passed    1.13 sec
+      Start  88: local_lobby
+ 7/14 Test  #88: local_lobby ......................   Passed    7.69 sec
+      Start  90: lobby
+ 8/14 Test  #90: lobby ............................   Passed    0.46 sec
+      Start  92: runtime_multiplayer
+ 9/14 Test  #17: software_update ..................   Passed   33.75 sec
+      Start 105: storage
+10/14 Test #105: storage ..........................***Failed    7.89 sec
+********* Start testing of StorageTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : StorageTests::initTestCase()
+PASS   : StorageTests::appearanceSurvivesRestart()
+PASS   : StorageTests::shellCannotExitOrNavigateWhileAdventureOwnsPresentation()
+FAIL!  : StorageTests::durableProfileFavoritesAndRoutes() Compared values are not the same
+   Actual   (normalized(f.shell.navigationState())): QJsonObject({"adapterMenuOpen":false,"appsFace":"apps","bazaar":{"favorites":[],"favoritesOnly":false,"lastRoom":"","scroll":0,"search":"","selection":"official"},"centerRoute":"clinic","collectionFocus":0,"collectionsRoot":true,"drawer":{"favorite":"","favoriteLost":false,"favoriteScroll":-1,"recentScroll":-1,"source":"recent"},"experienceNavigation":{"entries":{"[\"emerald-demo\",\"pokemon\",2]":{"groups":{"team":"party"},"navigation":{"hall":{"achievementView":{"action":0,"route":"sets","zone":"list"},"achievements":{},"action":0,"archive":"crystal-champion","archiveView":{"action":0,"route":"archive-list","zone":"list"},"champion":"","gallery":false,"galleryAccount":"","galleryFilter":0,"galleryProvider":"","gallerySort":0,"gameBrowser":false,"journeyView":{"action":0,"route":"archive-journey","zone":"actions"},"route":"archive-journey","set":"emerald-sample","zone":"actions"},"module":{"centerRoute":"clinic","party":{"adventure":"emerald-demo","box":0,"context":"","party":0,"slots":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},"playroomRoute":"playroom","pokedex":{"entry":"bulbasaur","form":"","query":"","rail":0,"sort":"number","status":"","type":"","world":"","zone":"list"}}},"screen":"party"}},"owner":"8210af3b-e89e-4530-857b-938a58dba45a","version":2},"experienceVersion":2,"gamesRoot":{"collection":"pokemon","collectionScroll":0,"platform":"","platformScroll":0,"zone":"collections"},"globalHome":true,"hall":{"achievementView":{"action":0,"route":"sets","zone":"list"},"achievements":{},"action":0,"archive":"crystal-champion","archiveView":{"action":0,"route":"archive-list","zone":"list"},"champion":"","gallery":false,"galleryAccount":"","galleryFilter":0,"galleryProvider":"","gallerySort":0,"gameBrowser":false,"journeyView":{"action":0,"route":"archive-journey","zone":"actions"},"route":"archive-journey","set":"emerald-sample","zone":"actions"},"homeAdventure":"","homeCollection":"pokemon","homeDomain":"pokemon","homeResume":"","homeResumeSource":{"adapter":"","integration":"","revision":"","source":""},"hubFace":"adapter","multiverse":{"collection":"multiverse","collections":{"multiverse":{"filters":{},"focused":"emerald-trails-demo","positions":{},"queries":{},"route":"systems","selected":"","system":"","views":{}}},"filters":{},"focused":"emerald-trails-demo","positions":{},"queries":{},"route":"systems","selected":"","system":"","views":{}},"onlineFace":"lobby","overviewFace":"summary","page":"home","party":{"adventure":"emerald-demo","box":0,"context":"","party":0,"slots":[0,0,0,0,0,0,0,0,0,0,0,0,0,0]},"pokedex":{"entry":"bulbasaur","form":"","query":"","rail":0,"sort":"number","status":"","type":"","world":"","zone":"list"},"pokedexFace":"pokedex","pokemonFace":"dex","resume":"emerald-1","socialFace":"chats","version":4,"worldCollection":"pokemon","worlds":{"action":"resume","adventures":{"hoenn":"emerald-demo","kanto":"firered-demo"},"back":false,"browsing":{},"route":"detail","world":"hoenn"},"worldsFace":"multiverse"})
+   Expected (normalized(navigation))               : QJsonObject({"adapterMenuOpen":false,"appsFace":"apps","bazaar":{"favorites":[],"favoritesOnly":false,"lastRoom":"","scroll":0,"search":"","selection":"official"},"centerRoute":"clinic","collectionFocus":0,"collectionsRoot":true,"drawer":{"favorite":"","favoriteLost":false,"favoriteScroll":-1,"recentScroll":-1,"source":"recent"},"experienceNavigation":{"entries":{"[\"emerald-demo\",\"pokemon\",2]":{"groups":{"team":"party"},"navigation":{"hall":{"achievementView":{"action":0,"route":"sets","zone":"list"},"achievements":{},"action":0,"archive":"crystal-champion","archiveView":{"action":0,"route":"archive-list","zone":"list"},"champion":"","gallery":false,"galleryAccount":"","galleryFilter":0,"galleryProvider":"","gallerySort":0,"gameBrowser":false,"journeyView":{"action":0,"route":"archive-journey","zone":"actions"},"route":"archive-journey","set":"emerald-sample","zone":"actions"},"module":{"centerRoute":"clinic","party":{"adventure":"emerald-demo","box":0,"context":
+   Loc: [/work/source/tests/StorageTests.cpp(116)]
+PASS   : StorageTests::lockedWriteKeepsDraftAndUiResponsive()
+PASS   : StorageTests::failedFavoriteKeepsCommittedValue()
+PASS   : StorageTests::secondInstanceAndRetry()
+PASS   : StorageTests::corruptForeignAndFutureStoresArePreserved()
+PASS   : StorageTests::unavailableDirectory()
+PASS   : StorageTests::staleNavigationAndDraftExclusion()
+PASS   : StorageTests::navigationFailureRetryAndExplicitSkip()
+PASS   : StorageTests::completionContextMayDisappear()
+PASS   : StorageTests::cleanupTestCase()
+Totals: 12 passed, 1 failed, 0 skipped, 0 blacklisted, 7686ms
+********* Finished testing of StorageTests *********
+
+      Start 108: first_run
+11/14 Test #108: first_run ........................   Passed    3.54 sec
+      Start 114: adventure_exit
+12/14 Test #114: adventure_exit ...................***Failed    4.59 sec
+********* Start testing of AdventureExitTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : AdventureExitTests::initTestCase()
+PASS   : AdventureExitTests::cleanExitBeforeCloseDispatchIsNotConfirmedCompletion()
+FAIL!  : AdventureExitTests::manualAndUnknownRequireConfirmation(unknown) Compared values are not the same
+   Actual   (game.returned.first()[0].toJsonObject()): QJsonObject({"homeAdventure":"fixture","homeResume":"","homeResumeSource":{},"page":"worlds","route":"detail","selected":"fixture"})
+   Expected (game.context)                           : QJsonObject({"page":"worlds","route":"detail","selected":"fixture"})
+   Loc: [/work/source/tests/AdventureExitTests.cpp(113)]
+FAIL!  : AdventureExitTests::manualAndUnknownRequireConfirmation(manual) Compared values are not the same
+   Actual   (game.returned.first()[0].toJsonObject()): QJsonObject({"homeAdventure":"fixture","homeResume":"","homeResumeSource":{},"page":"worlds","route":"detail","selected":"fixture"})
+   Expected (game.context)                           : QJsonObject({"page":"worlds","route":"detail","selected":"fixture"})
+   Loc: [/work/source/tests/AdventureExitTests.cpp(113)]
+PASS   : AdventureExitTests::verifiedAutosaveClosesOnlyAfterExplicitIntentAndFreshCapture()
+PASS   : AdventureExitTests::temporarySessionExitPreservesCaptureFallbackAndOrdinarySaveQuestion()
+PASS   : AdventureExitTests::autosaveCaptureFailureRemainsCancellable()
+PASS   : AdventureExitTests::captureFailureAndTimeoutKeepExitAndCancellationUsable(explicit-failure)
+PASS   : AdventureExitTests::captureFailureAndTimeoutKeepExitAndCancellationUsable(deadline)
+PASS   : AdventureExitTests::cancellationWhileCapturingAndLostCapabilityDoNotStopGame()
+PASS   : AdventureExitTests::newSessionRejectsOldCaptureAndDoesNotInheritAutosavePolicy()
+PASS   : AdventureExitTests::failedCloseRequiresFreshCaptureAndConfirmation()
+PASS   : AdventureExitTests::interruptedOrUnconfirmedExitNeverPublishesFrame(during-capture)
+PASS   : AdventureExitTests::interruptedOrUnconfirmedExitNeverPublishesFrame(during-question)
+PASS   : AdventureExitTests::interruptedOrUnconfirmedExitNeverPublishesFrame(crash-after-confirm)
+PASS   : AdventureExitTests::interruptedOrUnconfirmedExitNeverPublishesFrame(error-after-confirm)
+PASS   : AdventureExitTests::interruptedOrUnconfirmedExitNeverPublishesFrame(force-after-confirm)
+PASS   : AdventureExitTests::cleanupTestCase()
+Totals: 16 passed, 2 failed, 0 skipped, 0 blacklisted, 4407ms
+********* Finished testing of AdventureExitTests *********
+
+      Start 115: adventure_exit_presentation
+13/14 Test #115: adventure_exit_presentation ......   Passed    0.19 sec
+14/14 Test  #92: runtime_multiplayer ..............   Passed  117.80 sec
+
+71% tests passed, 4 tests failed out of 14
+
+Total Test time (real) = 148.98 sec
+
+The following tests FAILED:
+	  3 - software_installation (Failed)
+	 14 - runtime_installation (Failed)
+	105 - storage (Failed)
+	114 - adventure_exit (Failed)
+Errors while running CTest

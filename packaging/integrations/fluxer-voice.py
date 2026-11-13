@@ -88,7 +88,7 @@ async def main():
                     if process is None:
                         revision = output_revision
                         process = await asyncio.create_subprocess_exec('/usr/bin/pacat', '--playback', '--raw', '--format=s16le',
-                            '--client-name=TrainerOS Voice', '--rate=48000', '--channels=1', '--latency-msec=60', stdin=asyncio.subprocess.PIPE,
+                            '--client-name=OctoFox OS Voice', '--rate=48000', '--channels=1', '--latency-msec=60', stdin=asyncio.subprocess.PIPE,
                             *(['--device='+output_name] if output_name else []),
                             stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL, preexec_fn=die_with_parent)
                         outputs.add(process)
@@ -193,7 +193,7 @@ async def main():
                 emit('input-error')
                 return
             capture = await asyncio.create_subprocess_exec('/usr/bin/parec', '--record', '--raw', '--format=s16le',
-                '--device='+device, '--client-name=TrainerOS Voice', '--rate=48000', '--channels=1', '--latency-msec=40',
+                '--device='+device, '--client-name=OctoFox OS Voice', '--rate=48000', '--channels=1', '--latency-msec=40',
                 stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL, preexec_fn=die_with_parent)
             capture_device = device
             track.unmute()

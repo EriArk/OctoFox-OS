@@ -77,7 +77,7 @@ def build(plan, output):
               'target': 'linux-aarch64', 'redistributionReviewed': False,
               'installerAcceptance': False, 'files': files}
     output.mkdir(parents=True)
-    archive = output / 'TrainerOS-Full-CANDIDATE.tar'
+    archive = output / 'OctoFox-OS-Full-CANDIDATE.tar'
     raw = (json.dumps(record, indent=2) + '\n').encode()
     with tarfile.open(archive, 'x:', format=tarfile.PAX_FORMAT) as tar:
         info = tarfile.TarInfo('fullbundle.json'); info.size = len(raw); info.mode = 0o644
@@ -103,7 +103,7 @@ def split(archive, output, part_bytes=1800 * 1024**2):
     output.mkdir(parents=True); rows = []; complete = hashlib.sha256(); total = 0
     with archive.open('rb') as source:
         while chunk := source.read(min(1024**2, part_bytes)):
-            name = 'TrainerOS-Full.tar.part' + str(len(rows) + 1).zfill(3)
+            name = 'OctoFox-OS-Full.tar.part' + str(len(rows) + 1).zfill(3)
             size = 0; digest = hashlib.sha256()
             with (output / name).open('xb') as part:
                 while chunk:

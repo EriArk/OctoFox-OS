@@ -51,8 +51,8 @@ def shortcut_contents(root, home=None):
         return ('[Desktop Entry]\nType=Application\nName=' + name + '\nExec=/usr/bin/python3 ' + quoted(helper / entry) +
                 ' --root ' + quoted(root) + extra + '\nIcon=applications-games\nTerminal=false\nCategories=Game;\n').encode()
     return {home / '.local/bin/traineros': (launch, 0o755),
-            home / '.local/share/applications/org.traineros.TrainerOS.desktop': (desktop('TrainerOS', 'launcher.py'), 0o644),
-            home / '.local/share/applications/org.traineros.Recovery.desktop': (desktop('TrainerOS Setup and Recovery', 'installer.py', ' --gui'), 0o644)}
+            home / '.local/share/applications/org.traineros.TrainerOS.desktop': (desktop('OctoFox OS', 'launcher.py'), 0o644),
+            home / '.local/share/applications/org.traineros.Recovery.desktop': (desktop('OctoFox OS Setup and Recovery', 'installer.py', ' --gui'), 0o644)}
 
 
 def shortcuts(root, home=None, preflight=False):
@@ -126,11 +126,11 @@ def integrate(root, remove=False):
 
 
 def dialog(*args):
-    return subprocess.run(['kdialog', '--title', 'TrainerOS Setup', *args], capture_output=True, text=True)
+    return subprocess.run(['kdialog', '--title', 'OctoFox OS Setup', *args], capture_output=True, text=True)
 
 
 def error_message(error, phase=''):
-    return ('TrainerOS Setup could not finish.\n' + (phase + '\n\n' if phase else '')
+    return ('OctoFox OS Setup could not finish.\n' + (phase + '\n\n' if phase else '')
             + str(error)[:2000] + '\n\nReopen Setup to retry or repair. Your games, profiles and saves are kept.')
 
 
@@ -183,8 +183,8 @@ def complete_gui(result):
         subprocess.run(['/usr/bin/sudo', '-n', '/var/opt/traineros/session/control.py', 'traineros'],
                        check=True, timeout=20)
     except (OSError, subprocess.SubprocessError) as error:
-        raise RuntimeError('TrainerOS is installed, but switching to it failed. '
-                           'Save any open desktop work, then use Return to TrainerOS.') from error
+        raise RuntimeError('OctoFox OS is installed, but switching to it failed. '
+                           'Save any open desktop work, then use Return to OctoFox OS.') from error
     return 0
 
 
@@ -198,7 +198,7 @@ class Progress:
     def __enter__(self):
         self.dbus = shutil.which('qdbus6') or shutil.which('qdbus-qt6') or shutil.which('qdbus')
         if not self.dbus: raise ValueError('The Armada KDE qdbus utility is required for progress and cancellation')
-        result = dialog('--progressbar', 'Preparing TrainerOS...', '100')
+        result = dialog('--progressbar', 'Preparing OctoFox OS...', '100')
         self.ref = result.stdout.strip().split(); self.last = 0; self.phase = ''
         if result.returncode or len(self.ref) != 2: raise ValueError('Could not open installation progress')
         self.call('setAutoClose', 'false'); self.call('showCancelButton', 'true')
@@ -214,7 +214,7 @@ class Progress:
         self.last = now; self.phase = phase
         state = self.call('wasCancelled')
         if state.returncode or state.stdout.strip() == 'true': raise Cancelled('Download cancelled. Reopen Setup to resume.')
-        self.call('setLabelText', {'download': 'Downloading TrainerOS', 'extract': 'Preparing verified files',
+        self.call('setLabelText', {'download': 'Downloading OctoFox OS', 'extract': 'Preparing verified files',
                                  'verify-archive': 'Verifying download', 'prepared': 'Download verified'}.get(phase, phase))
         self.call('Set', '', 'maximum', '100' if total else '0')
         self.call('Set', '', 'value', str(int(done * 100 / total) if total else 0))
@@ -261,7 +261,7 @@ def payload_dependencies(prepared):
     if (payload / 'lib').is_dir(): env['LD_LIBRARY_PATH'] = str(payload / 'lib')
     result = subprocess.run(['/usr/bin/ldd', str(payload / 'bin/traineros')], env=env, capture_output=True, text=True, timeout=30)
     if result.returncode or 'not found' in result.stdout:
-        raise ValueError('The signed TrainerOS build needs unavailable system libraries. Use a matching Armada build; installation was not activated.')
+        raise ValueError('The signed OctoFox OS build needs unavailable system libraries. Use a matching Armada build; installation was not activated.')
 
 
 def resolve_offline(root, media, prepare=False, progress=sw.event, allow_current=False):
@@ -283,7 +283,7 @@ def resolve_offline(root, media, prepare=False, progress=sw.event, allow_current
 
 
 def recover_full(root, source):
-    choice=dialog('--menu','An interrupted full installation must be recovered before launching TrainerOS.',
+    choice=dialog('--menu','An interrupted full installation must be recovered before launching OctoFox OS.',
                   'resume','Continue installation','undo','Restore the previous installation')
     if choice.returncode: return 0
     with sw.cache_lock(root/'runtime'),sw.cache_lock(root/'transaction'):
@@ -345,8 +345,8 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
     # Reject a legacy channel contract before replacing its working Recovery.
     install.configuration(root)
     if not bootstrap(root, source, confirm_update=lambda: dialog('--yesno',
-            'Update TrainerOS Setup and Recovery components?\nThe previous version will be retained for recovery. '
-            'Close TrainerOS and games first. Personal data and the trusted signing key are kept.').returncode == 0): return 0
+            'Update OctoFox OS Setup and Recovery components?\nThe previous version will be retained for recovery. '
+            'Close OctoFox OS and games first. Personal data and the trusted signing key are kept.').returncode == 0): return 0
     if runtime_manager.pending(root): return recover_full(root,source)
     if (root/'setup-pending.json').exists():
         job=install.read(root/'setup-pending.json')
@@ -361,8 +361,8 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
     current = install.receipt(root)
     action = 'install'
     if current['active'] or install.read(root/'shortcuts.json',[]) or runtime_manager.receipt(root)['active']:
-        choice = dialog('--menu', 'TrainerOS installation and recovery', 'install', 'Update / install full runtime set', 'audit', 'Check installation', 'repair', 'Repair installed files',
-                        'rollback', 'Return to the previous compatible version', 'cache', 'Clear downloaded update files', 'uninstall', 'Uninstall TrainerOS')
+        choice = dialog('--menu', 'OctoFox OS installation and recovery', 'install', 'Update / install full runtime set', 'audit', 'Check installation', 'repair', 'Repair installed files',
+                        'rollback', 'Return to the previous compatible version', 'cache', 'Clear downloaded update files', 'uninstall', 'Uninstall OctoFox OS')
         if choice.returncode: return 0
         action = choice.stdout.strip()
     disk = report['osStorage']
@@ -409,12 +409,12 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
         progress.update('Checking update channel')
         candidate = resolve_offline(root, offline, allow_current=bool(runtime_manifest)) if offline is not None else install.resolve(root, channel)
     if candidate['status'] != 'available': raise ValueError('No compatible release is available for this installation')
-    description = (f"Install TrainerOS {candidate['version']}?\nSoftware download: {candidate['downloadBytes'] / 1048576:.1f} MiB\n"
+    description = (f"Install OctoFox OS {candidate['version']}?\nSoftware download: {candidate['downloadBytes'] / 1048576:.1f} MiB\n"
                    + ('The emulator set may require additional downloads from its original providers.\n' if runtime_manifest else '')
                    + f"OS: {report['system']}\nOS storage: {disk['location']} ({disk['disk']})\n"
                    f"Free installation space: {report['freeBytes'] / 1073741824:.1f} GiB\n"
-                   'Your OS, games, profiles and saves will be kept. TrainerOS becomes the boot default on first setup; Desktop and Steam remain available. Later updates keep your choice.\n'
-                   'Save any open desktop work now. After successful installation, Setup switches to TrainerOS automatically.')
+                   'Your OS, games, profiles and saves will be kept. OctoFox OS becomes the boot default on first setup; Desktop and Steam remain available. Later updates keep your choice.\n'
+                   'Save any open desktop work now. After successful installation, Setup switches to OctoFox OS automatically.')
     if dialog('--yesno', description).returncode: return 0
     with Progress() as progress:
         result = (resolve_offline(root, offline, prepare=True, progress=progress.update, allow_current=bool(runtime_manifest)) if offline is not None else
@@ -434,7 +434,7 @@ def gui(root, config_path, offline=None, runtime_manifest=None, runtime_archive=
                 progress.update('Verifying the emulator set and pinned downloads')
                 stage=runtimes.prepare(root,runtime_manifest,runtime_archive,progress.update)
                 def confirm_migration(message):
-                    if dialog('--yesno','An earlier TrainerOS system helper needs updating. Setup will retain its original for recovery. Your other emulators are not modified.\n\n'+message+'\n\nUpdate this TrainerOS helper?').returncode:
+                    if dialog('--yesno','An earlier OctoFox OS system helper needs updating. Setup will retain its original for recovery. Your other emulators are not modified.\n\n'+message+'\n\nUpdate this OctoFox OS helper?').returncode:
                         raise Cancelled("Installation cancelled before activation.")
                     return True
                 job=runtime_manager.plan(root,stage,result['prepared'],progress=progress.update,

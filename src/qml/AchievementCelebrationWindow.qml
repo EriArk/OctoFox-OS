@@ -12,7 +12,7 @@ Window {
     property var displayedAward: ({})
     onAwardChanged: if (award.title) displayedAward = award
     readonly property bool showing: !!award.title
-    title: "TrainerOS — Achievement"
+    title: "OctoFox OS — Achievement"
     color: "transparent"
     flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowDoesNotAcceptFocus | Qt.WindowTransparentForInput
     transientParent: null

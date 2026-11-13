@@ -96,7 +96,7 @@ class RuntimeInstallationTests(unittest.TestCase):
         try:
             runtime_set.idle(owned_home=private)
             owned=subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)'],env=dict(os.environ,HOME=str(private)))
-            with self.assertRaisesRegex(ValueError,'Close TrainerOS'):runtime_set.idle(owned_home=private)
+            with self.assertRaisesRegex(ValueError,'Close OctoFox OS'):runtime_set.idle(owned_home=private)
         finally:
             for process in (owned,other):
                 if process:process.terminate();process.wait(timeout=5)

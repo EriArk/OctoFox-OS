@@ -81,7 +81,7 @@ void PcGamesController::startMaintenance(const QString& operation,const QString&
     c["arguments"]=QJsonArray();
     ProcessCommand cmd;cmd.program="/usr/bin/python3";cmd.arguments={helper,QString::fromUtf8(QJsonDocument(c).toJson(QJsonDocument::Compact))};
     pc::captureFailure(cmd);
-    cmd.workingDirectory=installRoot_;busy_=true;stage_="installing";operationState_="running";message_="Running in this game's environment. Home returns to TrainerOS; Cancel stops this operation.";
+    cmd.workingDirectory=installRoot_;busy_=true;stage_="installing";operationState_="running";message_="Running in this game's environment. Home returns to OctoFox OS; Cancel stops this operation.";
     if(!installer_.start(cmd)){busy_=false;stage_="settings";operationState_="failed";message_="The environment tool could not start.";}emit changed();
 }
 void PcGamesController::loadSteamUsers() {

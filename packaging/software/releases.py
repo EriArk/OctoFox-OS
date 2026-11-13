@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""TrainerOS Software release preparation; never activates code or modifies user data.
+"""OctoFox OS Software release preparation; never activates code or modifies user data.
 
 Installer and OTA share this verified cache. The trust key comes from the caller's
 trusted bootstrap, never from the downloaded envelope. No production key/feed is
@@ -176,7 +176,7 @@ def download(archive, part, progress=event, opener=None):
     if offset > expected:
         part.unlink(); offset = 0
     if offset < expected:
-        request = urllib.request.Request(https(archive['url']), headers={'Accept-Encoding': 'identity', 'User-Agent': 'TrainerOS-Software/1'})
+        request = urllib.request.Request(https(archive['url']), headers={'Accept-Encoding': 'identity', 'User-Agent': 'OctoFoxOS-Software/1'})
         if offset:
             request.add_header('Range', f'bytes={offset}-')
         open_url = opener or urllib.request.build_opener(SecureRedirect()).open

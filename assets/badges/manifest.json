@@ -1,5 +1,5 @@
 {
-  "author": "TrainerOS contributors",
+  "author": "OctoFox OS contributors",
   "license": "GPL-3.0-or-later",
   "source": "tools/generate-original-medallions.py",
   "description": "Original abstract ordinal medallions; semantic badge identities are retained separately.",

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Exact original Vita runtime; TrainerOS wrappers stay in the signed component."""
+"""Exact original Vita runtime; OctoFox OS wrappers stay in the signed component."""
 from pathlib import Path
 import shutil
 import subprocess

@@ -88,7 +88,7 @@ QString configDirectory(const Route& route, bool flatpak, const EmulatorEnvironm
     return QDir(base).filePath(route.id == "dolphin" ? "dolphin-emu" : route.id == "azahar" ? "azahar-emu" : route.id == "melonds" ? "melonDS" : route.id == "vita3k" ? "Vita3K" : route.id);
 }
 QByteArray dsDefaults(const EmulatorEnvironment& env) {
-    QByteArray bytes = "# TrainerOS initial controller defaults; future user edits are preserved.\n"
+    QByteArray bytes = "# OctoFox OS initial controller defaults; future user edits are preserved.\n"
         "[Emu]\nDirectBoot = true\nExternalBIOSEnable = false\n"
         "[Instance0]\nJoystickID = 0\n[Instance0.Joystick]\n";
     const QStringList keys{"A", "B", "X", "Y", "L", "R", "Start", "Select", "Up", "Down", "Left", "Right"};
@@ -97,7 +97,7 @@ QByteArray dsDefaults(const EmulatorEnvironment& env) {
     return bytes;
 }
 QByteArray dolphinDefaults(const EmulatorEnvironment& env) {
-    return "# TrainerOS initial SDL controller; never replaced on update.\n[GCPad1]\nDevice = SDL/0/"
+    return "# OctoFox OS initial SDL controller; never replaced on update.\n[GCPad1]\nDevice = SDL/0/"
         + env.controllerName.toUtf8() + "\n"
         "Buttons/A = `Button E`\nButtons/B = `Button S`\nButtons/X = `Button N`\nButtons/Y = `Button W`\n"
         "Buttons/Z = `Shoulder R`\nButtons/Start = `Start`\n"
@@ -109,7 +109,7 @@ QByteArray dolphinDefaults(const EmulatorEnvironment& env) {
 }
 void controllerDefaults(const Route& route, const QString& configDir, const EmulatorEnvironment& env, QStringList& notices) {
     if (route.id == "rpcs3") {
-        // TrainerOS already confirms Exit; leave existing desktop preferences alone.
+        // OctoFox OS already confirms Exit; leave existing desktop preferences alone.
         if (!seed(QDir(configDir).filePath("GuiConfigs/CurrentSettings.ini"),
                   "[main_window]\ninfoBoxEnabledWelcome=false\nconfirmationBoxExitGame=false\n"))
             notices << "rpcs3: initial window settings unavailable";
@@ -359,7 +359,7 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
             const auto saves = QDir(configDir).filePath("saves");
             const auto bios = QFileInfo(env.libraryRoot).dir().filePath("bios");
             if (!retroarch::safePath(saves) || !retroarch::safePath(bios)) continue;
-            const auto bytes = QByteArray("# TrainerOS initial defaults; preserve user edits.\n")
+            const auto bytes = QByteArray("# OctoFox OS initial defaults; preserve user edits.\n")
                 + "input_driver = \"sdl2\"\ninput_joypad_driver = \"sdl2\"\ninput_autodetect_enable = \"true\"\n"
                 + "video_fullscreen = \"true\"\nconfig_save_on_exit = \"false\"\n"
                 + "savestate_auto_load = \"false\"\nsavestate_auto_save = \"false\"\n"
@@ -380,7 +380,7 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
             controllerDefaults(route, configDir, env, result.notices);
             if (route.id == "rpcs3" && !env.controllerName.isEmpty()) {
                 // Separate named input profile: keep the user's global mapping
-                // (often Steam Virtual Gamepad) intact outside TrainerOS.
+                // (often Steam Virtual Gamepad) intact outside OctoFox OS.
                 auto device=QJsonDocument(QJsonArray{env.controllerName+" 1"}).toJson(QJsonDocument::Compact);
                 device=device.mid(1,device.size()-2); // JSON string is also a YAML quoted scalar.
                 QByteArray bytes="Player 1 Input:\n  Handler: SDL\n  Device: "+device+"\n  Config:\n"

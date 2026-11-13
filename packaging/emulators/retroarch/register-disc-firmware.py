@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Register existing Sega CD firmware in a TrainerOS installation profile.
+"""Register existing Sega CD firmware in an OctoFox OS installation profile.
 
 No firmware is downloaded or replaced. Existing unrelated profile fields stay
 intact; keep the backup to undo this bounded installation repair.

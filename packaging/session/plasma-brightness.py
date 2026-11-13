@@ -66,7 +66,7 @@ def sync(path, panel):
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
-    print('TrainerOS: preserved panel brightness for ' + panel[0])
+    print('OctoFox OS: preserved panel brightness for ' + panel[0])
     return True
 
 
@@ -78,4 +78,4 @@ if __name__ == '__main__':
         sync(config / 'kwinoutputconfig.json', panel_value('/sys/class/backlight', '/sys/class/drm'))
     except (OSError, ValueError, TypeError) as error:
         # An unfamiliar host must still reach its desktop.
-        print('TrainerOS: brightness handoff skipped: ' + str(error))
+        print('OctoFox OS: brightness handoff skipped: ' + str(error))

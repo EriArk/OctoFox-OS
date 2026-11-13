@@ -9,7 +9,7 @@
       "license": "MIT",
       "sample": true,
       "summary": "Slide, combine, and reach 2048.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nSlide the numbered tiles and merge equal pairs. A small puzzle built around one simple goal: make a 2048 tile.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nSlide the numbered tiles and merge equal pairs. A small puzzle built around one simple goal: make a 2048 tile.",
       "hero": "qrc:/crates/examples/2048.png",
       "screenshots": [
         "qrc:/crates/examples/2048.png"
@@ -24,7 +24,7 @@
       "license": "GPL-3.0-or-later",
       "sample": true,
       "summary": "Turn the hexagon. Match the colours.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nRotate the central hexagon to catch falling blocks. Match colours and clear space before the stack grows too large.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nRotate the central hexagon to catch falling blocks. Match colours and clear space before the stack grows too large.",
       "hero": "qrc:/crates/examples/hextris-2.png",
       "screenshots": [
         "qrc:/crates/examples/hextris-2.png",
@@ -40,7 +40,7 @@
       "license": "MIT",
       "sample": true,
       "summary": "A paddle, a ball, and a wall of bricks.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nKeep the ball in play and clear the coloured bricks. A small browser arcade game with multiple layouts and touch controls.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nKeep the ball in play and clear the coloured bricks. A small browser arcade game with multiple layouts and touch controls.",
       "hero": "qrc:/crates/examples/breakout-2.png",
       "screenshots": [
         "qrc:/crates/examples/breakout-2.png",
@@ -56,7 +56,7 @@
       "license": "GPL-3.0",
       "sample": true,
       "summary": "A light editor for notes and text.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nEdit plain text in tabs or a side pane. Search, syntax highlighting and session management keep everyday notes and small files close at hand.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nEdit plain text in tabs or a side pane. Search, syntax highlighting and session management keep everyday notes and small files close at hand.",
       "hero": "qrc:/crates/examples/featherpad.png",
       "screenshots": [
         "qrc:/crates/examples/featherpad.png",
@@ -72,7 +72,7 @@
       "license": "GPL-2.0-or-later",
       "sample": true,
       "summary": "Numbers, units, and quick conversions.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nA desktop calculator for everyday arithmetic, percentages and unit conversions, with a history of calculations and more advanced mathematical tools.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nA desktop calculator for everyday arithmetic, percentages and unit conversions, with a history of calculations and more advanced mathematical tools.",
       "hero": "qrc:/crates/examples/qalculate.png",
       "screenshots": [
         "qrc:/crates/examples/qalculate.png"
@@ -86,7 +86,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "A session timer and an optional Start widget.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nTrack manual or game-session time and choose gentle visual break reminders. Open the app, then add its widget in Start. Requires a compatible TrainerOS Platform SDK. Experimental Linux builds; handheld controls and performance acceptance are pending.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nTrack manual or game-session time and choose gentle visual break reminders. Open the app, then add its widget in Start. Requires a compatible OctoFox OS Platform SDK. Experimental Linux builds; handheld controls and performance acceptance are pending.",
       "hero": "qrc:/crates/projects/session-timer.png",
       "screenshots": [
         "qrc:/crates/projects/session-timer.png"
@@ -100,7 +100,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Two tanks, destructible hills, one more duel.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nAim, choose your power and pass the controls for a local two-player duel. Optional friend play uses TrainerOS Lobby and Platform SDK. Experimental Linux builds; handheld controls, performance and live internet play are not yet verified.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nAim, choose your power and pass the controls for a local two-player duel. Optional friend play uses OctoFox OS Lobby and Platform SDK. Experimental Linux builds; handheld controls, performance and live internet play are not yet verified.",
       "hero": "qrc:/crates/projects/pocket-artillery.png",
       "screenshots": [
         "qrc:/crates/projects/pocket-artillery.png"
@@ -114,7 +114,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Two paddles. First to five.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nKeep the ball in play and change its angle with the edge of your paddle. Play against a bot, with two local players or with a friend through TrainerOS Lobby and Platform SDK. Experimental Linux builds; physical controls and live internet play remain unverified.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nKeep the ball in play and change its angle with the edge of your paddle. Play against a bot, with two local players or with a friend through OctoFox OS Lobby and Platform SDK. Experimental Linux builds; physical controls and live internet play remain unverified.",
       "hero": "qrc:/crates/projects/pong.png",
       "screenshots": [
         "qrc:/crates/projects/pong.png"
@@ -128,7 +128,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Two snakes share one arena.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nEat fruit, grow and avoid colliding with trails. Play against a bot, with two local players or with a friend through TrainerOS Lobby and Platform SDK. Experimental Linux builds; physical controls and live internet play remain unverified.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nEat fruit, grow and avoid colliding with trails. Play against a bot, with two local players or with a friend through OctoFox OS Lobby and Platform SDK. Experimental Linux builds; physical controls and live internet play remain unverified.",
       "hero": "qrc:/crates/projects/snake-arena.png",
       "screenshots": [
         "qrc:/crates/projects/snake-arena.png"
@@ -142,7 +142,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Leave a trail. Stay alive.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nSteer through an arena of permanent trails; the last rider wins. Play against a bot, with two local players or with a friend through TrainerOS Lobby and Platform SDK. Experimental Linux builds; physical controls and live internet play remain unverified.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nSteer through an arena of permanent trails; the last rider wins. Play against a bot, with two local players or with a friend through OctoFox OS Lobby and Platform SDK. Experimental Linux builds; physical controls and live internet play remain unverified.",
       "hero": "qrc:/crates/projects/light-cycles.png",
       "screenshots": [
         "qrc:/crates/projects/light-cycles.png"
@@ -156,7 +156,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Clear lines. Race your rival.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nA two-player race to clear lines, with bot practice and local or TrainerOS Lobby play. Experimental Linux builds; physical controls and live internet acceptance remain open.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nA two-player race to clear lines, with bot practice and local or OctoFox OS Lobby play. Experimental Linux builds; physical controls and live internet acceptance remain open.",
       "hero": "qrc:/crates/projects/falling-blocks.png",
       "screenshots": [
         "qrc:/crates/projects/falling-blocks.png"
@@ -170,7 +170,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Find safe squares faster.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nTwo players reveal safe squares on matched minefields, with bot practice and local or TrainerOS Lobby play. Experimental Linux builds; physical controls and live internet acceptance remain open.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nTwo players reveal safe squares on matched minefields, with bot practice and local or OctoFox OS Lobby play. Experimental Linux builds; physical controls and live internet acceptance remain open.",
       "hero": "qrc:/crates/projects/minesweeper-race.png",
       "screenshots": [
         "qrc:/crates/projects/minesweeper-race.png"
@@ -184,7 +184,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Swap. Match. Build a cascade.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nSwap adjacent tiles and build cascades in a two-player score race, with bot practice and local or TrainerOS Lobby play. Experimental Linux builds; physical controls and live internet acceptance remain open.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nSwap adjacent tiles and build cascades in a two-player score race, with bot practice and local or OctoFox OS Lobby play. Experimental Linux builds; physical controls and live internet acceptance remain open.",
       "hero": "qrc:/crates/projects/chain-reaction.png",
       "screenshots": [
         "qrc:/crates/projects/chain-reaction.png"
@@ -198,7 +198,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Share the road. Race to the finish.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nTwo rivals share a brick-style road with traffic, overtaking and boost. Bot practice, two local players or TrainerOS Lobby. Experimental Linux builds; physical controls and live internet acceptance remain open.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nTwo rivals share a brick-style road with traffic, overtaking and boost. Bot practice, two local players or OctoFox OS Lobby. Experimental Linux builds; physical controls and live internet acceptance remain open.",
       "hero": "qrc:/crates/projects/mini-racing.png",
       "screenshots": [
         "qrc:/crates/projects/mini-racing.png"
@@ -212,7 +212,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Break bricks. Outflank your rival.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nTwo tanks duel on a shared arena with destructible bricks, steel cover and protected respawns. Bot practice, two local players or TrainerOS Lobby. Experimental Linux builds; physical controls and live internet acceptance remain open.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nTwo tanks duel on a shared arena with destructible bricks, steel cover and protected respawns. Bot practice, two local players or OctoFox OS Lobby. Experimental Linux builds; physical controls and live internet acceptance remain open.",
       "hero": "qrc:/crates/projects/tanks.png",
       "screenshots": [
         "qrc:/crates/projects/tanks.png"
@@ -226,7 +226,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Small greens, gentle putts, one more round.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nThree mini-golf courses with slopes and bank shots. Play solo, pass the controls, or join a friend through TrainerOS Lobby. Uses your shared TrainerOS character when available. Experimental release.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nThree mini-golf courses with slopes and bank shots. Play solo, pass the controls, or join a friend through OctoFox OS Lobby. Uses your shared OctoFox OS character when available. Experimental release.",
       "hero": "qrc:/crates/projects/pocket-golf.png",
       "screenshots": [
         "qrc:/crates/projects/pocket-golf.png"
@@ -240,7 +240,7 @@
       "creator": "AbyssTail",
       "license": "GPL-3.0-or-later",
       "summary": "Your avatar, a little care, a place on Home.",
-      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nA gentle virtual pet in your Home widget slot. Feed and rest with your profile avatar, three scenes, achievement reactions and notification hints. Playtime fills while you play games. Requires updated TrainerOS with installed Home widget support (ui.home.widget:1); updating this package alone does not update the shell. Handheld acceptance pending.",
+      "description": "Alpha Preview: an early preview in OctoFox OS. Features, balance and performance are still being developed.\n\nA gentle virtual pet in your Home widget slot. Feed and rest with your profile avatar, three scenes, achievement reactions and notification hints. Playtime fills while you play games. Requires updated OctoFox OS with installed Home widget support (ui.home.widget:1); updating this package alone does not update the shell. Handheld acceptance pending.",
       "hero": "qrc:/crates/projects/home-companion.png",
       "screenshots": [
         "qrc:/crates/projects/home-companion.png",

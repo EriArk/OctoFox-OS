@@ -215,7 +215,7 @@ ProcessCommand command(const AdventureRegistration& record,const Request& reques
         QSettings settings(user+"/config/qt-config.ini",QSettings::IniFormat);
         for(const auto& key:original.allKeys())if(key.startsWith("Controls/")||key.startsWith("Layout/")||key.startsWith("Renderer/")||key.startsWith("Audio/")||key.startsWith("Core/")||key.startsWith("System/"))settings.setValue(key,original.value(key));
         const auto set=[&](const QString& key,const QVariant& value){settings.setValue(key,value);settings.setValue(key+"/default",false);};
-        // Physical Home belongs to TrainerOS even when an older ordinary
+        // Physical Home belongs to OctoFox OS even when an older ordinary
         // emulator profile mapped it to the emulated console's Home button.
         for(const auto& key:settings.allKeys())if(key.startsWith("Controls/")&&key.endsWith("/button_home"))set(key,"engine:keyboard,code:0");
         set("UI/firstStart",false);set("UI/confirmClose",false);set("UI/pauseWhenInBackground",false);

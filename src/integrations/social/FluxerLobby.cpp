@@ -82,7 +82,7 @@ void FluxerSession::lobbyDirectoryCommand(const QString& operation,const QVarian
         if(lobbyDirectoryBusy_)return;
         lobbyMembershipRetry_.stop();
         if(guilds_.contains(lobbyDirectory::guild)){lobbyMembershipReady_=true;lobbyDirectoryNeedsJoin_=false;lobbyDirectoryCommand("lobby-directory-refresh",{});return;}
-        lobbyDirectoryBusy_=true;lobbyDirectoryStatus_="Joining TrainerOS community…";publish();
+        lobbyDirectoryBusy_=true;lobbyDirectoryStatus_="Joining OctoFox OS community…";publish();
         request("POST","/v1/invites/"+lobbyDirectory::invite,{},[this](Reply reply) {
             lobbyDirectoryBusy_=false;
             if(reply.status>=200&&reply.status<300) {lobbyMembershipReady_=true;lobbyDirectoryNeedsJoin_=false;lobbyDirectoryCommand("lobby-directory-refresh",{});}

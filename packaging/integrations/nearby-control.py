@@ -195,7 +195,7 @@ class Nearby:
         self.target = key; self.ready = False; self.network_started = self.incoming
         self.deadline = time.monotonic()+(NETWORK_SECONDS if self.incoming else RESPONSE_SECONDS)
         d = self.d
-        settings = d.Dictionary({'connection': {'id': 'TrainerOS nearby', 'uuid': str(uuid.uuid4()),
+        settings = d.Dictionary({'connection': {'id': 'OctoFox OS nearby', 'uuid': str(uuid.uuid4()),
                                   'type': 'wifi-p2p', 'autoconnect': False},
                     'wifi-p2p': {'peer': self.peers[key]['mac'], 'wps-method': d.UInt32(4)},
                     'ipv4': {'method': 'auto', 'never-default': True}, 'ipv6': {'method': 'disabled'}}, signature='sa{sv}')

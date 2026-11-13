@@ -31,7 +31,7 @@ void BazaarCatalogue::syncBackend() {
     if(reloadDraft_&&!state["busy"].toBool()&&!state["stale"].toBool()) {
         reloadDraft_=false;if(dialog_=="manage")draft_=own_;message_="Saved settings reloaded.";
     }
-    if(!connected_)status_="Sign in to TrainerOS to browse player bazaars.";
+    if(!connected_)status_="Sign in to OctoFox OS to browse player bazaars.";
     if(active_&&(identityChanged||connectionChanged)&&connected_&&!fixture_)refresh();
     if(rentalWaiting_&&!state["busy"].toBool()){if(dialog_=="places")loadPlaces();rentalWaiting_=false;}
     emit changed();
@@ -44,7 +44,7 @@ void BazaarCatalogue::setActive(bool value) {
 }
 void BazaarCatalogue::refresh(bool append) {
     if(!backend_||fixture_||saving_||(append&&(loading_||next_.isEmpty())))return;
-    if(!connected_){status_="Sign in to TrainerOS to browse player bazaars.";emit changed();return;}
+    if(!connected_){status_="Sign in to OctoFox OS to browse player bazaars.";emit changed();return;}
     const auto generation=++generation_;loading_=true;
     if(!append)next_.clear();
     status_="Refreshing bazaars…";emit changed();
@@ -142,7 +142,7 @@ QVariantList BazaarCatalogue::dialogRows() const {
         add("appearance","Card appearance","Preview & edit");
         add("access-settings","Access & players",draft_["access"]=="open"?"Visitors allowed":"Closed");
         }
-        if(!state["connected"].toBool())add("sign-in","Sign in to TrainerOS");
+        if(!state["connected"].toBool())add("sign-in","Sign in to OctoFox OS");
         else if(state["pending"].toBool())add("resolve",state["bazaarPending"].toBool()?"Resolve pending purchase":"Resolve the purchase in your profile",{},state["bazaarPending"].toBool()&&!busy());
         else if(state["stale"].toBool())add("reload","Refresh account",{},!busy());
         else if(dialog_=="manage")add("save","Save changes","Free",!busy()&&!draft_["name"].toString().isEmpty());

@@ -31,7 +31,7 @@ def emit(**value):
 def request(url):
     if not url.startswith(('https://api.github.com/', 'https://github.com/')):
         raise ValueError('Unsupported runtime source')
-    return urlopen(Request(url, headers={'User-Agent': 'TrainerOS-runtime-manager', 'Accept': 'application/vnd.github+json'}), timeout=30)
+    return urlopen(Request(url, headers={'User-Agent': 'OctoFoxOS-runtime-manager', 'Accept': 'application/vnd.github+json'}), timeout=30)
 
 
 def catalogue(arch):

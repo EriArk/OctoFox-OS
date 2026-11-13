@@ -67,7 +67,7 @@ def main():
         shutil.copyfile(original, package / "patches" / name)
         patch_hashes[name] = digest(original)
     with series.open("a") as f:
-        f.write("\n# TrainerOS Iris fixes\n" + "\n".join(PATCHES) + "\n")
+        f.write("\n# OctoFox OS Iris fixes\n" + "\n".join(PATCHES) + "\n")
     # Keep upstream configuration/DTB/build/staging logic. Only cap concurrency
     # and give the complete build its own release so it cannot mix module trees.
     builder = package / "scripts/build-kernel.sh"

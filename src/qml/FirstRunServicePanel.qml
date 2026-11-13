@@ -11,10 +11,10 @@ Item {
     readonly property bool scraper: flow.service === "scraper"
     readonly property bool takesFocus: visible && !shell.keyboard.open
     readonly property var account: shell.hall.account
-    readonly property string serviceName: social ? "TrainerOS · Fluxer" : achievements ? "RetroAchievements" : "ScreenScraper"
+    readonly property string serviceName: social ? "OctoFox OS · Fluxer" : achievements ? "RetroAchievements" : "ScreenScraper"
     readonly property string registrationUrl: social ? "https://fluxer.com/login" : achievements ? "https://retroachievements.org/createaccount.php" : "https://www.screenscraper.fr/membreinscription.php"
     readonly property string explanation: social
-        ? "Fluxer connects friends, chats and invitations. Sign in to TrainerOS with the same Fluxer account for your online profile, level and Sparks. Both can wait until later."
+        ? "Fluxer connects friends, chats and invitations. Sign in to OctoFox OS with the same Fluxer account for your online profile, level and Sparks. Both can wait until later."
         : achievements ? "Sign in to earn and sync achievements in supported games. Without an account, you can still play your local games."
         : "Sign in for covers, game info and player counts. Recommended for multiplayer; optional for local play."
     Rectangle { anchors.fill: parent; radius: 12; color: Theme.paper }

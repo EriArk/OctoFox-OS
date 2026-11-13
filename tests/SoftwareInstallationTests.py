@@ -104,7 +104,7 @@ class InstallationTests(unittest.TestCase):
              patch.object(installer, 'complete_gui', side_effect=switched) as complete:
             self.assertEqual(installer.gui(self.installation, self.root/'unused.json', offline=self.manifest.parent), 0)
         complete.assert_called_once_with({'status': 'installed'})
-        self.assertFalse(any('Start TrainerOS now' in str(c) for c in dialog.call_args_list))
+        self.assertFalse(any('Start OctoFox OS now' in str(c) for c in dialog.call_args_list))
 
     def test_gui_resumes_finalization_then_uses_the_same_completion(self):
         self.install()
@@ -291,6 +291,22 @@ class InstallationTests(unittest.TestCase):
         helper = self.installation / 'bootstrap/packaging/software/launcher.py'; helper.write_text('changed')
         with self.assertRaisesRegex(ValueError, 'modified'): installer.bootstrap(self.installation, SOURCE / 'packaging')
 
+    def test_owned_legacy_shortcuts_rename_in_place_without_moving_user_data(self):
+        records = []
+        before = self.database.read_bytes()
+        for path, (data, mode) in installer.shortcut_contents(self.installation, self.home).items():
+            legacy = data.replace(b'OctoFox OS', b'TrainerOS')
+            installer.atomic_file(path, legacy, mode)
+            records.append({'path': str(path), 'sha256': hashlib.sha256(legacy).hexdigest()})
+        sw.atomic(self.installation / 'shortcuts.json', records)
+        installer.shortcuts(self.installation, self.home)
+        installer.shortcuts(self.installation, self.home)
+        desktop = self.home / '.local/share/applications/org.traineros.TrainerOS.desktop'
+        self.assertIn(b'Name=OctoFox OS\n', desktop.read_bytes())
+        self.assertEqual(self.database.read_bytes(), before)
+        self.assertEqual({str(path) for path in installer.shortcut_contents(self.installation, self.home)},
+                         {row['path'] for row in records})
+
     def test_manual_installation_is_rejected_before_trust_or_bootstrap_writes(self):
         fresh = self.root / 'fresh'
         launcher = self.home / '.local/bin/traineros'
@@ -428,18 +444,18 @@ class InstallationTests(unittest.TestCase):
         result = build(); self.assertFalse(result['published'])
         plan = sw.decode((output / 'publication.json').read_bytes()); self.assertFalse(plan['published'])
         for name, digest in plan['files'].items(): self.assertEqual(sw.sha256(output / name), digest)
-        with tarfile.open(output / 'TrainerOS-Setup.tar.gz') as archive:
-            launch = archive.getmember('TrainerOS-Setup/Install TrainerOS.sh')
+        with tarfile.open(output / 'OctoFox-OS-Setup.tar.gz') as archive:
+            launch = archive.getmember('OctoFox-OS-Setup/Install OctoFox OS.sh')
             self.assertEqual(launch.mode, 0o755); self.assertNotIn(b'\r', archive.extractfile(launch).read())
             for member in archive.getmembers():
                 if member.isfile(): self.assertNotIn(self.key.read_bytes(), archive.extractfile(member).read())
-            self.assertEqual(archive.extractfile('TrainerOS-Setup/trusted-key.pem').read(), self.public.read_bytes())
+            self.assertEqual(archive.extractfile('OctoFox-OS-Setup/trusted-key.pem').read(), self.public.read_bytes())
             unpacked = self.root / 'unpacked'
             archive.extractall(unpacked, filter='data')
         # Exercise the actual session helper inventory from the shipped archive,
         # without importing absent files from the development checkout or writing
         # privileged paths. Ownership must accept every planned install target.
-        packaging = unpacked / 'TrainerOS-Setup/packaging'
+        packaging = unpacked / 'OctoFox-OS-Setup/packaging'
         spec = importlib.util.spec_from_file_location('packed_support', packaging / 'integrations/emulator_support.py')
         support = importlib.util.module_from_spec(spec); spec.loader.exec_module(support)
         planned = []
@@ -492,8 +508,8 @@ class InstallationTests(unittest.TestCase):
         for future in ('beta', 'stable'):
             with self.assertRaisesRegex(ValueError, 'Only Alpha'):
                 build(future)
-        with tarfile.open(output / 'TrainerOS-Setup.tar.gz') as archive:
-            config = sw.decode(archive.extractfile('TrainerOS-Setup/bootstrap.json').read())
+        with tarfile.open(output / 'OctoFox-OS-Setup.tar.gz') as archive:
+            config = sw.decode(archive.extractfile('OctoFox-OS-Setup/bootstrap.json').read())
             self.assertEqual(config['defaultChannel'], 'alpha')
             self.assertEqual(set(config['feeds']), set(ch.CHANNELS))
 

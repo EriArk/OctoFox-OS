@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "Model3Netplay.h"
 #include "CabinetConnection.h"
@@ -31,7 +32,7 @@ QJsonObject bundle(const std::atomic_bool& cancel) {
     return m;
 }
 QJsonObject helper(QStringList args,const std::atomic_bool& cancel) {
-    QProcess p;p.setStandardErrorFile(QProcess::nullDevice());
+    QProcess p;p.setProcessEnvironment(runtimepaths::environment());p.setStandardErrorFile(QProcess::nullDevice());
     args.prepend(bundleRoot()+"/content.py");args.prepend("-I");p.start("/usr/bin/python3",args);
     if(!p.waitForStarted(3000))return {};
     QByteArray data;QElapsedTimer timer;timer.start();
@@ -41,7 +42,7 @@ QJsonObject helper(QStringList args,const std::atomic_bool& cancel) {
     return QJsonDocument::fromJson(data).object();
 }
 }
-QString bundleRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/supermodel-link";}
+QString bundleRoot(){return runtimepaths::data()+"/TrainerOS/emulators/supermodel-link";}
 QJsonObject netplayIdentity(const AdventureRegistration& r,const std::atomic_bool& cancel) {
     if(r.adventure.platformId!="model3"||r.adventure.adapterId!="supermodel"||r.adventure.collectionOnly||bundle(cancel).isEmpty())return {};
     const auto content=helper({"identity",bundleRoot(),r.contentPath},cancel);
@@ -52,14 +53,14 @@ QJsonObject netplayIdentity(const AdventureRegistration& r,const std::atomic_boo
         {"set",content["name"]},{"lateJoin",false},{"privateProgress",true}};
 }
 ProcessCommand command(const AdventureRegistration& r,const QJsonObject& expected,QString connection,bool host,const QStringList& inputPrefix) {
-    ProcessCommand cmd;cmd.runtimeControls={{"kind","supermodel"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
+    ProcessCommand cmd;cmd.emulatorRuntime=true;cmd.runtimeControls={{"kind","supermodel"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
     cmd.prepare=[r,expected,connection,host,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         const auto current=netplayIdentity(r,cancel);
         if(!sameMultiplayerGame(current,expected))return "Your Model 3 game or runtime changed. Choose the game again.";
         const auto c=flycast::CabinetConnection::read(connection);
         if(!c.valid()||(c.seat==1)!=host)return "The Model 3 cabinet seats changed.";
         const auto m=bundle(cancel);if(m.isEmpty())return "The Model 3 package changed.";
-        const auto home=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/model3-link/"+current["content"].toString();
+        const auto home=runtimepaths::data()+"/TrainerOS/model3-link/"+current["content"].toString();
         if(!QDir().mkpath(home))return "Couldn't prepare your cabinet settings.";
         auto lock=std::make_shared<QLockFile>(home+"/session.lock");lock->setStaleLockTime(0);
         if(!lock->tryLock())return "Your Model 3 cabinet is already running.";

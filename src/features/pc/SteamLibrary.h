@@ -5,7 +5,7 @@
 #include <QJsonArray>
 
 namespace trainer {
-// Read-only external discovery; writes only TrainerOS registrations. Serial
+// Read-only external discovery; writes only OctoFox OS registrations. Serial
 // updates preserve AppID history and cannot erase an unplugged library.
 class SteamLibrary final : public QObject {
     Q_OBJECT

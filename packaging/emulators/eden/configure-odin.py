@@ -2,7 +2,7 @@
 """Configure the reviewed Eden 0.2.1 ARM64 AppImage on Armada Odin/Turnip.
 
 Explicit maintenance step, not a setting for arbitrary PCs. No game/save/NAND
-files are changed. Fresh controller mappings are seeded by TrainerOS discovery.
+files are changed. Fresh controller mappings are seeded by OctoFox OS discovery.
 """
 import hashlib
 import os

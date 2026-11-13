@@ -157,7 +157,7 @@ private:
     bool libraryAvailable_ = false, libraryScanning_ = false;
     QString libraryStatus_;
     QString error_;
-    QString backendAction_="Sign in to TrainerOS with Fluxer",backendDetail_="Open your Trainer to sign in";
+    QString backendAction_="Sign in to OctoFox OS with Fluxer",backendDetail_="Open your Trainer to sign in";
     int category_ = 0, row_ = 0;
     bool pane_ = false;
 };

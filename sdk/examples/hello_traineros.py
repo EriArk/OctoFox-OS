@@ -21,11 +21,11 @@ try:
 
         def update():
             if not args.context_only and host.context.get("profile") and host.supports("ui.start.widget"):
-                host.widget("hello", "Hello TrainerOS", f"Press A or tap. Activations: {clicks}")
+                host.widget("hello", "Hello OctoFox OS", f"Press A or tap. Activations: {clicks}")
 
         update()
         if not args.context_only:
-            print("Start > Edit > Add > Hello TrainerOS; close this program to remove it."
+            print("Start > Edit > Add > Hello OctoFox OS; close this program to remove it."
                   if host.context.get("profile") else
                   "Select/create a local Trainer, then restart this example to register its widget.", flush=True)
         while True:

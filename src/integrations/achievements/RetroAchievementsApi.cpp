@@ -85,7 +85,7 @@ AchievementTransport retroAchievementsTransport(std::shared_ptr<std::atomic_bool
         QNetworkRequest request(url);
         request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-        request.setHeader(QNetworkRequest::UserAgentHeader, "TrainerOS/0.1.0");
+        request.setHeader(QNetworkRequest::UserAgentHeader, "OctoFoxOS/0.1.0");
         auto* reply = history ? network.get(request) : network.post(request, achievementFormBody(query));
         reply->setReadBufferSize(MaxResponse + 1);
         QEventLoop loop; QTimer deadline, cancellation;

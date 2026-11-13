@@ -571,7 +571,7 @@ void SocialController::receive(quint64 generation,QVariantMap snapshot) {
         menuDetail_=online()["status"].toString();menu_.clear();menuCommands_.clear();
         for(const auto& value:online()["actions"].toList()){const auto a=value.toMap();menu_.append(a["label"].toString());menuCommands_.append("online:"+a["id"].toString());}
         if(menu_.isEmpty()) {menu_.append("Close");menuCommands_.append("cancel");
-            if(online()["stage"]=="available")menuDetail_="TrainerOS is connected, but no matching activity is ready. Choose a supported saved Adventure on both devices.";}
+            if(online()["stage"]=="available")menuDetail_="OctoFox OS is connected, but no matching activity is ready. Choose a supported saved Adventure on both devices.";}
         menuFocus_=qBound(0,menuFocus_,int(menu_.size())-1);
     }
     if(menuMode_=="community-invite"&&!menu_.isEmpty())menuDetail_=snapshot_["communityInvite"].toString().isEmpty()
@@ -1250,7 +1250,7 @@ void SocialController::nativeActivities() {
     if(online()["stage"]=="connected"&&online()["channel"]==menuChannel_&&link_){
         link_->showOnline();return;
     }
-    menuMode_="online";menuTitle_="Activities";menuDetail_="Checking TrainerOS...";menuFocus_=0;
+    menuMode_="online";menuTitle_="Activities";menuDetail_="Checking OctoFox OS...";menuFocus_=0;
     menu_={"Close"};menuCommands_={"cancel"};
     if(online()["stage"]=="connected") {menuDetail_="Finish your current session first.";emit changed();return;}
     emit commandRequested("online-probe",{{"channel",menuChannel_}});emit changed();

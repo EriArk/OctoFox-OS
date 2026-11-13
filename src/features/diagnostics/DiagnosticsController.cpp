@@ -123,7 +123,7 @@ QJsonObject DiagnosticsController::observations() const {
         {"recentControllerActions", actions_}, {"connectionsObserved", connections_}, {"disconnectionsObserved", disconnections_},
         {"normalization", QJsonObject{{"stickEngage", ControllerInput::StickEngage}, {"stickRelease", ControllerInput::StickRelease},
             {"repeatDelayMs", ControllerInput::RepeatDelayMs}, {"repeatIntervalMs", ControllerInput::RepeatIntervalMs}}},
-        {"readings", "SDL-mapped state before TrainerOS filtering; action history excludes keyboard input"}};
+        {"readings", "SDL-mapped state before OctoFox OS filtering; action history excludes keyboard input"}};
 }
 void DiagnosticsController::activate(int index) {
     if(health_){healthAction(index);return;}

@@ -45,7 +45,7 @@ void FluxerSession::sendFiles(const QVariantMap& args){
         ||nonce.isEmpty()||nonce.size()>32){finish({409,{}});return;}
     if(QDateTime::currentMSecsSinceEpoch()<blockedUntil_){finish({429,{}});return;}
     // Multipart is an official Fluxer route. Fluxer resolves the caller/channel
-    // size and count limits; no second size ceiling is imposed by TrainerOS.
+    // size and count limits; no second size ceiling is imposed by OctoFox OS.
     auto* multipart=new QHttpMultiPart(QHttpMultiPart::FormDataType);
     QJsonArray attachments;int index=0;
     for(const auto& value:files){
@@ -68,7 +68,7 @@ void FluxerSession::sendFiles(const QVariantMap& args){
     json.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");json.setBody(QJsonDocument(payload).toJson(QJsonDocument::Compact));multipart->append(json);
     if(!network_)network_=new QNetworkAccessManager(this);
     QNetworkRequest request(QUrl("https://api.fluxer.app/v1/channels/"+channel+"/messages"));
-    request.setRawHeader("Authorization",token_.toUtf8());request.setRawHeader("User-Agent","TrainerOS/0.1");
+    request.setRawHeader("Authorization",token_.toUtf8());request.setRawHeader("User-Agent","OctoFoxOS/0.1");
     request.setTransferTimeout(60000);request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,QNetworkRequest::ManualRedirectPolicy);
     auto* reply=network_->post(request,multipart);multipart->setParent(reply);fileUpload_=reply;
     reply->setReadBufferSize(1024*1024);auto response=std::make_shared<QByteArray>();

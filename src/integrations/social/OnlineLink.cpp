@@ -24,11 +24,11 @@ QString OnlineLink::identity(const QString& account,const QString& endpoint) {
 }
 QString OnlineLink::encode(const QJsonObject& e) {
     const auto kind=e["kind"].toString();
-    const QString label=kind=="probe"?"Checking TrainerOS availability."
-        :kind=="capabilities"?"TrainerOS availability reply."
-        :kind=="invite"?"TrainerOS invitation: open TrainerOS to accept or decline."
-        :kind=="accept"||kind=="ready"?"TrainerOS invitation accepted."
-        :kind=="close"?"TrainerOS session ended.":"TrainerOS exchange update.";
+    const QString label=kind=="probe"?"Checking OctoFox OS availability."
+        :kind=="capabilities"?"OctoFox OS availability reply."
+        :kind=="invite"?"OctoFox OS invitation: open OctoFox OS to accept or decline."
+        :kind=="accept"||kind=="ready"?"OctoFox OS invitation accepted."
+        :kind=="close"?"OctoFox OS session ended.":"OctoFox OS exchange update.";
     return label+"\n```json\n"+QString::fromUtf8(QJsonDocument(e).toJson(QJsonDocument::Compact))+"\n```";
 }
 QJsonObject OnlineLink::decode(const QString& text) {
@@ -61,7 +61,7 @@ void OnlineLink::probe(QString channel,QString peer,QJsonObject activity) {
     if(account_.isEmpty()||peer==account_||!validUuid(endpoint_)||stage_=="connected"||stage_=="incoming"||stage_=="inviting"||stage_=="accepting")return;
     if(now()-lastProbe_<10)return;
     lastProbe_=now();close();channel_=channel;peer_=peer;request_=uuid();initiator_=true;
-    stage_="checking";status_="Checking your friend's TrainerOS...";deadline_=now()+30;
+    stage_="checking";status_="Checking your friend's OctoFox OS...";deadline_=now()+30;
     if(!activity.isEmpty()&&!supports(capabilities_,activity)){close("This game is no longer available.");return;}
     emitPacket("probe",activity.isEmpty()?QJsonObject{}:QJsonObject{{"activity",activity}});emit changed();
 }
@@ -87,7 +87,7 @@ void OnlineLink::close(QString reason) {
     if(active)emit ended();emit changed();
 }
 void OnlineLink::tick() {
-    if(deadline_&&deadline_<now())close(stage_=="checking"?"No active TrainerOS reply. Your chat is still available.":stage_=="connected"?"Online activity timed out. Reconnect to recover.":"Invitation expired");
+    if(deadline_&&deadline_<now())close(stage_=="checking"?"No active OctoFox OS reply. Your chat is still available.":stage_=="connected"?"Online activity timed out. Reconnect to recover.":"Invitation expired");
 }
 QVariantMap OnlineLink::state() const {
     QVariantList actions;
@@ -122,7 +122,7 @@ void OnlineLink::receive(QString channel,QString author,QString name,const QJson
     if(kind=="capabilities"&&stage_=="checking") {
         const auto caps=e["activities"].toArray();if(caps.size()>12)return;
         peerName_=name.left(100);peerEndpoint_=endpoint;peerBoot_=boot;remoteCapabilities_=caps;
-        stage_="available";status_="TrainerOS is available";deadline_=now()+90;emit changed();return;
+        stage_="available";status_="OctoFox OS is available";deadline_=now()+90;emit changed();return;
     }
     if(boot!=peerBoot_||endpoint!=peerEndpoint_)return;
     if(kind=="invite"&&stage_=="offered"&&available_) {

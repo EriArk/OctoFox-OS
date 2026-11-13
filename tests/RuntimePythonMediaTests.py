@@ -42,7 +42,7 @@ class RuntimePythonMediaTests(unittest.TestCase):
         wheel = self.root/'wheel'; wheel.write_bytes(b'exact unchanged offline wheel')
         add('python/wheels/fixture.whl', wheel)
         fullbundle.build({'schema': 1, 'files': rows}, self.root/'original')
-        self.archive = self.root/'original/TrainerOS-Full-CANDIDATE.tar'
+        self.archive = self.root/'original/OctoFox-OS-Full-CANDIDATE.tar'
         self.expected = {'bytes': self.archive.stat().st_size, 'sha256': fullbundle.payload.digest(self.archive)}
 
     def test_rebinds_all_exact_interpreters_preserving_protocols_and_wheels(self):

@@ -15,7 +15,7 @@ from .play.registry import register,void_match
 
 
 def main():
-    parser = argparse.ArgumentParser(description='TrainerOS Backend foundation')
+    parser = argparse.ArgumentParser(description='OctoFox OS Backend foundation')
     parser.add_argument('command', choices=('api', 'migrate', 'grant-runtime', 'worker','register-ruleset','void-match'))
     parser.add_argument('--file')
     parser.add_argument('--match')

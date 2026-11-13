@@ -79,7 +79,7 @@ bool PlatformHost::start(const QString& endpointFile, QString* error) {
 #endif
     lock_ = std::make_unique<QLockFile>(info.absoluteFilePath() + ".lock");
     lock_->setStaleLockTime(0);
-    if (!lock_->tryLock()) return fail("Another TrainerOS instance owns this SDK endpoint");
+    if (!lock_->tryLock()) return fail("Another OctoFox OS instance owns this SDK endpoint");
     if (!server_.listen(QHostAddress::LocalHost, 0)) return fail(server_.errorString());
     instance_ = QUuid::createUuid().toString(QUuid::WithoutBraces);
     token_ = QUuid::createUuid().toString(QUuid::Id128) + QUuid::createUuid().toString(QUuid::Id128);

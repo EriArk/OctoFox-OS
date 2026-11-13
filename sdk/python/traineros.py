@@ -1,4 +1,4 @@
-"""Optional TrainerOS protocol v1 client. Python 3.10+, standard library only.
+"""Optional OctoFox OS protocol v1 client. Python 3.10+, standard library only.
 
 The wire contract, not this wrapper, is the integration boundary. No automatic
 reconnect across profiles and no hidden launch, storage, or network simulation.
@@ -55,7 +55,7 @@ class Client:
             raise
         except (OSError, ValueError, KeyError, HostUnavailable) as exc:
             self.close()
-            raise HostUnavailable("TrainerOS is not available at this endpoint") from exc
+            raise HostUnavailable("OctoFox OS is not available at this endpoint") from exc
 
     def supports(self, name, version=1):
         return self.capabilities.get(name) == version
@@ -89,7 +89,7 @@ class Client:
     def _receive(self, deadline):
         while b"\n" not in self._buffer:
             if not self._socket:
-                raise HostUnavailable("TrainerOS connection closed")
+                raise HostUnavailable("OctoFox OS connection closed")
             remaining = deadline - time.monotonic()
             try:
                 if not select.select([self._socket], [], [], max(0.0, remaining))[0]:
@@ -97,14 +97,14 @@ class Client:
                 chunk = self._socket.recv(65536)
             except OSError as exc:
                 self.close()
-                raise HostUnavailable("TrainerOS connection lost") from exc
+                raise HostUnavailable("OctoFox OS connection lost") from exc
             if not chunk:
                 self.close()
-                raise HostUnavailable("TrainerOS connection closed")
+                raise HostUnavailable("OctoFox OS connection closed")
             self._buffer.extend(chunk)
             if len(self._buffer) > 262144:
                 self.close()
-                raise HostUnavailable("TrainerOS receive limit exceeded")
+                raise HostUnavailable("OctoFox OS receive limit exceeded")
         line, _, rest = self._buffer.partition(b"\n")
         self._buffer = bytearray(rest)
         packet = json.loads(line)
@@ -116,7 +116,7 @@ class Client:
 
     def call(self, method, **params):
         if not self._socket:
-            raise HostUnavailable("TrainerOS connection closed")
+            raise HostUnavailable("OctoFox OS connection closed")
         self._sequence += 1
         request_id = str(self._sequence)
         wire = (json.dumps({"id": request_id, "method": method, "params": params},
@@ -127,14 +127,14 @@ class Client:
             self._socket.sendall(wire)
         except OSError as exc:
             self.close()
-            raise HostUnavailable("TrainerOS connection lost; delivery is unknown") from exc
+            raise HostUnavailable("OctoFox OS connection lost; delivery is unknown") from exc
         deadline = time.monotonic() + self.timeout
         while True:
             packet = self._receive(deadline)
             if packet is None:
                 # Delivery is unknown. Do not retry a mutation automatically.
                 self.close()
-                raise HostUnavailable("TrainerOS request timed out; result is unknown")
+                raise HostUnavailable("OctoFox OS request timed out; result is unknown")
             if "event" in packet:
                 if len(self._events) >= 256:
                     self.close()

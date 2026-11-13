@@ -9,6 +9,8 @@ English · [Russian technical index](README_RU.md)
 - [Tester guide and bug reports](alpha-release/publications/TESTER_GUIDE.md) — English; [Russian version](alpha-release/publications/TESTER_GUIDE_RU.md).
 - [Current handheld screenshots](alpha-release/publications/screenshots/alpha-7/README.md) — English captions; [Russian captions](alpha-release/publications/screenshots/alpha-7/README_RU.md).
 
+- [Rename and compatibility](BRANDING.md) — new source branding, stable data identities and legacy installers.
+
 ## Build and extend OctoFox OS
 
 [Build and run from source](DEVELOPMENT.md) · [Contributing](../CONTRIBUTING.md) · [Start an external game, app or widget](../sdk/README.md).

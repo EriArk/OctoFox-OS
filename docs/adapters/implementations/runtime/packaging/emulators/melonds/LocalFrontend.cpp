@@ -48,7 +48,7 @@ public:
                 throw std::runtime_error("Input trace must be a new writable file");
             trace.write(QByteArray("TRAINEROS_DS_INPUT_V1 ")+QByteArray::number(seats)+'\n');
         }
-        setWindowTitle("TrainerOS · Nintendo DS");
+        setWindowTitle("OctoFox OS · Nintendo DS");
         setAttribute(Qt::WA_AcceptTouchEvents);
         setFocusPolicy(Qt::StrongFocus);
         resize(1280, 720);

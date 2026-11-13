@@ -241,7 +241,7 @@ QString prepareRetroArchResume(ProcessCommand& command, const AdventureRegistrat
         while ((end = pending->indexOf('\n')) >= 0) {
             const auto line = pending->left(end); pending->remove(0, end + 1);
             if (line.contains("[ERROR] [State]") && line.contains(entryBytes))
-                return "The saved moment couldn't be restored. You're back in TrainerOS; your original state is intact.";
+                return "The saved moment couldn't be restored. You're back in OctoFox OS; your original state is intact.";
         }
         if (pending->size() > 32768) pending->remove(0, pending->size() - 32768);
         return {};

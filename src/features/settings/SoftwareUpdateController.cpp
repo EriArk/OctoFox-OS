@@ -67,17 +67,17 @@ QString SoftwareUpdateController::installedVersion() const {return source_.insta
 QString SoftwareUpdateController::sizeText() const {return candidate_.contains("downloadBytes")?bytes(qint64(candidate_["downloadBytes"].toDouble())):QString();}
 double SoftwareUpdateController::progress() const {return total_>0?std::clamp(double(done_)/double(total_),0.0,1.0):-1.0;}
 QString SoftwareUpdateController::message() const {
-    if(!confirmation_.isEmpty())return confirmation_=="apply"?"Restart TrainerOS and apply the downloaded update? Select Confirm to continue.":confirmation_=="rollback"?"Restart TrainerOS and return to the previous compatible version? Personal files will be kept.":"Restart TrainerOS and repair its installed files? Personal files will be kept.";
+    if(!confirmation_.isEmpty())return confirmation_=="apply"?"Restart OctoFox OS and apply the downloaded update? Select Confirm to continue.":confirmation_=="rollback"?"Restart OctoFox OS and return to the previous compatible version? Personal files will be kept.":"Restart OctoFox OS and repair its installed files? Personal files will be kept.";
     if(!error_.isEmpty())return error_;
     if(!persistenceError_.isEmpty())return persistenceError_;
     if(!operation_.isEmpty())return operation_=="context"?"Reading this installation…":"Checking installation and preparing your request…";
-    if(status_=="restart-required")return "Saving your session before restarting TrainerOS…";
+    if(status_=="restart-required")return "Saving your session before restarting OctoFox OS…";
     if(status_=="audit-ready")return "Installed files verified. Personal files are unchanged.";
     if(status_=="repairable-drift")return "Some installed files need repair. Open Repair to restore them.";
     if(status_=="cache-cleared")return "Downloaded update files cleared. Installed versions and personal files are unchanged.";
     if(!channelAvailable())return "This update channel is not available yet. Choose Alpha.";
     if(status_=="unconfigured")return "Updates are not available for this build yet.";
-    if(status_=="checking")return "Checking for a TrainerOS update…";
+    if(status_=="checking")return "Checking for an OctoFox OS update…";
     if(status_=="running") {
         if(!stopReason_.isEmpty())return stopReason_=="paused"?"Pausing download…":"Cancelling…";
         if(phase_=="download")return "Downloading · "+bytes(done_)+" / "+bytes(total_);
@@ -87,7 +87,7 @@ QString SoftwareUpdateController::message() const {
     }
     if(status_=="available")return "An update is available. Download when you are ready.";
     if(status_=="up-to-date")return "You have the latest available version for this channel.";
-    if(status_=="prepared")return source_.manager.isEmpty()?"Download verified. Applying updates is not available in this build yet.":"Download verified. Apply when you are ready to restart TrainerOS.";
+    if(status_=="prepared")return source_.manager.isEmpty()?"Download verified. Applying updates is not available in this build yet.":"Download verified. Apply when you are ready to restart OctoFox OS.";
     if(status_=="paused")return "Download paused. Resume when you are ready.";
     if(status_=="cancelled")return "Download cancelled. Your installed version is unchanged.";
     if(status_=="blocked") {
@@ -97,7 +97,7 @@ QString SoftwareUpdateController::message() const {
         if(reason=="data-incompatible")return "This update is not compatible with your saved settings and data.";
         return "This update is not compatible with this installation.";
     }
-    return "Check for a new TrainerOS version. Downloads and installation are manual.";
+    return "Check for a new OctoFox OS version. Downloads and installation are manual.";
 }
 QVariantList SoftwareUpdateController::actions() const {
     const auto row=[](const QString& id,const QString& label,bool enabled){return QVariantMap{{"id",id},{"label",label},{"enabled",enabled}};};
@@ -110,9 +110,9 @@ QVariantList SoftwareUpdateController::actions() const {
         row("cancel","Cancel",operation_.isEmpty() && (busy_ || status_=="paused") && stopReason_.isEmpty()),
         row("notes","What's new",!notes().isEmpty()),row("downloads","Downloads",true),
         row("crates","View Crates",!transitionPending()),
-        row("apply",confirmation_=="apply"?"Confirm apply and restart":"Apply and restart TrainerOS",!busy_ && !source_.manager.isEmpty() && status_=="prepared"),
+        row("apply",confirmation_=="apply"?"Confirm apply and restart":"Apply and restart OctoFox OS",!busy_ && !source_.manager.isEmpty() && status_=="prepared"),
         row("rollback",confirmation_=="rollback"?"Confirm rollback and restart":"Previous version",!busy_ && source_.rollbackAvailable),
-        row("repair",confirmation_=="repair"?"Confirm repair and restart":"Repair TrainerOS",!busy_ && !source_.manager.isEmpty()),
+        row("repair",confirmation_=="repair"?"Confirm repair and restart":"Repair OctoFox OS",!busy_ && !source_.manager.isEmpty()),
         row("audit","Check installed files",!busy_ && !source_.manager.isEmpty()),
         row("clean-cache","Clear download cache",!busy_ && !source_.manager.isEmpty()),
         row("back",confirmation_.isEmpty()?(recoveryOpen_?"Back to Updates":"Back to System"):"Cancel",!transitionPending()),
@@ -144,7 +144,7 @@ QVariantList SoftwareUpdateController::tasks() const {
     if(operation_.isEmpty() && (busy_ || status_=="paused") && stopReason_.isEmpty())add("cancel","Cancel");
     add("open","View update");
     const QString state=busy_?"running":status_=="prepared"?"done":status_=="error" || status_=="blocked"?"failed":status_;
-    QVariantMap row{{"id","traineros"},{"title","TrainerOS "+version()},{"platform","Software"},{"source","TrainerOS"},
+    QVariantMap row{{"id","traineros"},{"title","OctoFox OS "+version()},{"platform","Software"},{"source","OctoFox OS"},
         {"state",state},{"detail",message()},{"terminal",!busy_ && status_!="paused"},{"actions",commands}};
     if(progress()>=0)row["progress"]=progress();
     return {row};
@@ -157,7 +157,7 @@ void SoftwareUpdateController::publish(){
 }
 QVariantMap SoftwareUpdateController::notification() const {
     if(notificationVersion_.isEmpty())return {};
-    return {{"id","traineros-software-update"},{"provider","traineros-software"},{"name","TrainerOS update available"},
+    return {{"id","traineros-software-update"},{"provider","traineros-software"},{"name","OctoFox OS update available"},
         {"detail",notificationVersion_+" · Open Settings to review"}};
 }
 void SoftwareUpdateController::dismissNotification(){notificationVersion_.clear();emit changed();}

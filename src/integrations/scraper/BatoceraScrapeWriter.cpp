@@ -113,7 +113,7 @@ QString writeGamelist(const QString& directory,const Fingerprint& file,const Gam
         if(it.value().isEmpty())continue;
         auto node=target.firstChildElement(it.key());
         if(!node.isNull() && !node.nextSiblingElement(it.key()).isNull())return "A metadata field is duplicated; the list was kept unchanged.";
-        // Names may have been intentionally edited in Batocera or TrainerOS.
+        // Names may have been intentionally edited in Batocera or OctoFox OS.
         const auto digest=[](const QString& value){return QString::fromLatin1(QCryptographicHash::hash(value.toUtf8(),QCryptographicHash::Sha256).toHex());};
         const bool owned=node.attribute("traineros-source")=="screenscraper"&&node.attribute("traineros-value")==digest(node.text());
         const bool broken=mediaTags.contains(it.key())&&!validLocalMedia(QDir(root).filePath(node.text()),it.key()=="video");

@@ -108,6 +108,24 @@ class ReleaseDeliveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'changed'): parts.unpack_setup(self.original, target, quiet)
         self.assertEqual(file.read_bytes(), b'changed')
 
+    def test_new_name_and_legacy_archives_share_safe_extraction(self):
+        for root in ('OctoFox-OS-Setup', 'TrainerOS-Setup'):
+            with self.subTest(root=root):
+                tar(self.original, {root + '/packaging/software/installer.py': b'fixture',
+                                    root + '/Install OctoFox OS.sh': b'#!/bin/sh\n'})
+                target = self.root / root
+                parts.unpack_setup(self.original, target, quiet)
+                self.assertEqual((target / 'packaging/software/installer.py').read_bytes(), b'fixture')
+                self.assertEqual(parts.unpack_setup(self.original, target, quiet), target)
+
+    def test_mixed_brand_roots_are_rejected_without_extraction(self):
+        tar(self.original, {'OctoFox-OS-Setup/packaging/software/installer.py': b'fixture',
+                            'TrainerOS-Setup/README.txt': b'unrelated'})
+        target = self.root / 'mixed'
+        with self.assertRaisesRegex(ValueError, 'Unsafe'):
+            parts.unpack_setup(self.original, target, quiet)
+        self.assertFalse(target.exists())
+
     def test_extraction_cancel_and_unsafe_paths(self):
         target = self.root / 'Setup'
         def cancel(*args): raise RuntimeError('cancelled')
@@ -123,8 +141,8 @@ class ReleaseDeliveryTests(unittest.TestCase):
         with tarfile.open(kit) as archive:
             names = archive.getnames()
             for name in ('software/release_parts.py', 'software/releases.py', 'software/installer.py', 'crates/catalogue.py'):
-                self.assertIn('TrainerOS-Download/packaging/' + name, names)
-            launch = archive.extractfile('TrainerOS-Download/Download TrainerOS.sh').read()
+                self.assertIn('OctoFox-OS-Download/packaging/' + name, names)
+            launch = archive.extractfile('OctoFox-OS-Download/Download OctoFox OS.sh').read()
             self.assertIn(self.pin.encode(), launch)
             self.assertTrue(all(m.uid == 0 and m.gid == 0 and not m.uname and not m.gname for m in archive))
         if os.name != 'nt':

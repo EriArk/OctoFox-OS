@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "CabinetConnection.h"
 #include "FlycastNetplay.h"
 #include "integrations/adventure/retroarch/RetroArchDisc.h"
@@ -116,7 +117,7 @@ QJsonObject arcadeContent(const AdventureRegistration& r,const std::atomic_bool&
         {"bundle",bundleRoot()},{"stage",stage},{"expected",expected}};
     const auto file=task.filePath("request.json");
     if(!write(file,QJsonDocument(request).toJson(QJsonDocument::Compact)))return {};
-    QProcess process;process.setProgram("/usr/bin/python3");
+    QProcess process;process.setProcessEnvironment(runtimepaths::environment());process.setProgram("/usr/bin/python3");
     process.setArguments({bundleRoot()+"/arcade.py",stage.isEmpty()?"inspect":"prepare",file});
     process.setStandardErrorFile(QProcess::nullDevice());process.start();
     if(!process.waitForStarted(3000))return {};
@@ -136,7 +137,7 @@ QJsonObject arcadeContent(const AdventureRegistration& r,const std::atomic_bool&
 }
 }
 bool arcadePlatform(const QString& platform) {return platform=="naomi"||platform=="naomi2"||platform=="atomiswave";}
-QString cabinetRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/flycast-lan";}
+QString cabinetRoot(){return runtimepaths::data()+"/TrainerOS/emulators/flycast-lan";}
 namespace {
 QJsonObject cabinetBundle(const std::atomic_bool& cancel,const std::function<void(const QString&)>& observe={}) {
     const auto root=cabinetRoot();
@@ -177,7 +178,7 @@ QJsonObject cabinetIdentity(const AdventureRegistration& r,const std::atomic_boo
     if(content["entry"].toString().isEmpty()||!cabinetConfig(stage.path(),content["region"].toInt(),true,"opengl",true))return {};
     QStringList args{"--die-with-parent","--unshare-net","--bind","/","/","--","/usr/bin/env"};
     args+=cabinetEnvironment(stage.path());args<<"TRAINEROS_FLYCAST_INSPECT=1"<<cabinetRoot()+"/bin/flycast"<<content["entry"].toString();
-    QProcess probe;probe.setWorkingDirectory(stage.path());probe.setStandardErrorFile(QProcess::nullDevice());
+    QProcess probe;probe.setProcessEnvironment(runtimepaths::environment());probe.setWorkingDirectory(stage.path());probe.setStandardErrorFile(QProcess::nullDevice());
     probe.start("/usr/bin/bwrap",args);if(!probe.waitForStarted(3000))return {};
     QElapsedTimer timer;timer.start();QByteArray output;
     while(probe.state()!=QProcess::NotRunning) {
@@ -198,7 +199,7 @@ QJsonObject cabinetIdentity(const AdventureRegistration& r,const std::atomic_boo
     identity["players"]=result["link"]=="naomi"?4:2;identity["link"]=result["link"];identity["connections"]=QJsonArray{"nearby","online"};return identity;
 }
 ProcessCommand cabinetCommand(const AdventureRegistration& r,const QJsonObject& expected,QString connection,bool host,const QStringList& inputPrefix) {
-    ProcessCommand cmd;cmd.runtimeControls={{"kind","flycast"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",true}};
+    ProcessCommand cmd;cmd.emulatorRuntime=true;cmd.runtimeControls={{"kind","flycast"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",true}};
     cmd.prepare=[r,expected,connection,host,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(!sameMultiplayerGame(cabinetIdentity(r,cancel),expected))return "Your arcade game or connection package changed. Choose the game again.";
         const auto config=CabinetConnection::read(connection);
@@ -213,7 +214,7 @@ ProcessCommand cabinetCommand(const AdventureRegistration& r,const QJsonObject& 
         out.settled=[stage](const ProcessOutcome&){};return {};
     };return cmd;
 }
-QString bundleRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/flycast-netplay";}
+QString bundleRoot(){return runtimepaths::data()+"/TrainerOS/emulators/flycast-netplay";}
 QJsonObject bundle(const std::atomic_bool& cancel) {
     const auto root=bundleRoot();QFile file(root+"/manifest.json");
     if(!file.open(QIODevice::ReadOnly)||file.size()>65536)return {};
@@ -276,7 +277,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& r,const std::atomic_boo
         {"connections",m.value("onlineRelay").toString().isEmpty()?QJsonArray{"nearby"}:QJsonArray{"nearby","online"}}};
 }
 ProcessCommand command(const AdventureRegistration& r,const Request& request,const QStringList& inputPrefix) {
-    ProcessCommand cmd;cmd.runtimeControls={{"kind","flycast"},{"game",r.adventure.id},
+    ProcessCommand cmd;cmd.emulatorRuntime=true;cmd.runtimeControls={{"kind","flycast"},{"game",r.adventure.id},
         {"netplay",request.expected.toVariantMap()},{"temporaryProgress",true}};
     cmd.prepare=[r,request,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(!hex(request.token,32)||(!request.host&&request.online&&!key(request.key))
@@ -325,7 +326,7 @@ ProcessCommand command(const AdventureRegistration& r,const Request& request,con
         out.settled=[dir](const ProcessOutcome&){};return {};
     };return cmd;
 }
-QString onlineRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/flycast-online";}
+QString onlineRoot(){return runtimepaths::data()+"/TrainerOS/emulators/flycast-online";}
 namespace {
 constexpr int CardBytes=128*1024;
 const QStringList onlineFiles{"dc_nvmem.bin","vmu_save_A1.bin","vmu_save_A2.bin",
@@ -393,7 +394,7 @@ QJsonObject onlineIdentity(const AdventureRegistration& r,const std::atomic_bool
     QString first;const auto content=discContent(r.contentPath,cancel,&first,false,observe);if(content.isEmpty())return {};
     QTemporaryDir stage(QDir::tempPath()+"/trainer-dc-probe-XXXXXX");
     if(!stage.isValid()||!onlineConfig(stage.path(),installed,false))return {};
-    QProcess probe;probe.setProgram("/usr/bin/env");
+    QProcess probe;probe.setProcessEnvironment(runtimepaths::environment());probe.setProgram("/usr/bin/env");
     auto args=onlineEnvironment(stage.path());args<<"TRAINEROS_DC_INSPECT=1"<<onlineRoot()+"/bin/flycast"<<first;
     probe.setArguments(args);probe.setWorkingDirectory(stage.path());probe.setStandardErrorFile(QProcess::nullDevice());probe.start();
     if(!probe.waitForStarted(3000))return {};
@@ -419,7 +420,7 @@ QJsonObject onlineIdentity(const AdventureRegistration& r,const std::atomic_bool
         {"privateProgress",true},{"temporaryProgress",false},{"connections",QJsonArray{"online"}}};
 }
 ProcessCommand onlineCommand(const AdventureRegistration& r,const QJsonObject& expected,QString owner,QString backupRoot,const QStringList& inputPrefix) {
-    ProcessCommand cmd;cmd.runtimeControls={{"kind","flycast"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
+    ProcessCommand cmd;cmd.emulatorRuntime=true;cmd.runtimeControls={{"kind","flycast"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
     cmd.prepare=[r,expected,owner,backupRoot,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(owner.isEmpty()||owner.size()>128||!QDir::isAbsolutePath(backupRoot)||QFileInfo(backupRoot).isSymLink())return "Your save owner is unavailable.";
         if(!sameMultiplayerGame(onlineIdentity(r,cancel),expected))return "Your Dreamcast game or Online setup changed. Choose the game again.";

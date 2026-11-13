@@ -54,6 +54,21 @@ class SteamShortcuts(unittest.TestCase):
             steam.update(self.request, running=lambda: True)
         self.assertEqual(self.path.read_bytes(), self.original)
 
+    def test_legacy_brand_keeps_owned_shortcut_identity_and_user_tags(self):
+        self.update()
+        tree = steam.decode(self.path.read_bytes())
+        entry = tree['shortcuts'][1]['1'][1]
+        identity = entry['appid'], entry['DevkitGameID'], entry['LaunchOptions']
+        entry['tags'] = (0, {'0': (1, 'TrainerOS'), '1': (1, 'Favorites')})
+        self.path.write_bytes(steam.encode(tree))
+        self.update()
+        updated = steam.decode(self.path.read_bytes())
+        self.assertEqual(len(updated['shortcuts'][1]), 2)
+        entry = updated['shortcuts'][1]['1'][1]
+        self.assertEqual((entry['appid'], entry['DevkitGameID'], entry['LaunchOptions']), identity)
+        self.assertEqual(set(entry['tags'][1].values()), {(1, 'OctoFox OS'), (1, 'Favorites')})
+        self.assertEqual(updated['shortcuts'][1]['0'], self.unrelated['shortcuts'][1]['0'])
+
     def test_concurrent_change_preserved(self):
         calls = 0
         def running():

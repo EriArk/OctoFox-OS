@@ -448,7 +448,7 @@ void PcGamesController::startInstaller() {
     }
     ProcessCommand command;command.program="/usr/bin/python3";command.arguments={helper,QString::fromUtf8(QJsonDocument(config).toJson(QJsonDocument::Compact))};command.workingDirectory=installRoot_;
     pc::captureFailure(command);
-    busy_=true;stage_="installing";message_="Complete the installer. Home lets you return to TrainerOS while it runs.";persist();
+    busy_=true;stage_="installing";message_="Complete the installer. Home lets you return to OctoFox OS while it runs.";persist();
     if(!installer_.start(command)){busy_=false;stage_="failed";message_="The installer could not start.";}
     emit changed();
 }

@@ -78,7 +78,7 @@ def verified(raw, public_key):
 def fetch(url, limit, opener=None):
     """Bounded metadata only; payload downloads use the existing Range path."""
     request = urllib.request.Request(sw.https(url), headers={
-        'User-Agent': 'TrainerOS-Software/1', 'Accept-Encoding': 'identity', 'Cache-Control': 'no-cache'})
+        'User-Agent': 'OctoFoxOS-Software/1', 'Accept-Encoding': 'identity', 'Cache-Control': 'no-cache'})
     open_url = opener or urllib.request.build_opener(sw.SecureRedirect()).open
     with open_url(request, timeout=30) as response:
         sw.https(response.geturl())

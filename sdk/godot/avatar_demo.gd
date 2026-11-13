@@ -36,7 +36,7 @@ func _ready() -> void:
 	var panel := VBoxContainer.new();layer.add_child(panel)
 	var place_controls := func(): panel.position=Vector2(20,maxf(20,get_viewport().get_visible_rect().size.y-panel.size.y-20))
 	panel.resized.connect(place_controls);get_viewport().size_changed.connect(place_controls)
-	status.text="Connecting to TrainerOS…";panel.add_child(status)
+	status.text="Connecting to OctoFox OS…";panel.add_child(status)
 	var reconnect := Button.new();reconnect.text="Connect to current Trainer"
 	reconnect.pressed.connect(func(): _clear("Connecting…");client.connect_host())
 	panel.add_child(reconnect);panel.add_child(actions)
@@ -68,7 +68,7 @@ func _ready() -> void:
 	client.appearance_changed.connect(_appearance)
 	client.unavailable.connect(_clear)
 	add_child(client)
-	_clear("Connecting to TrainerOS…")
+	_clear("Connecting to OctoFox OS…")
 	# Explicit local review mode uses the same hash-checked resolved descriptor.
 	# It neither connects to a host nor writes a profile.
 	for arg in OS.get_cmdline_user_args():

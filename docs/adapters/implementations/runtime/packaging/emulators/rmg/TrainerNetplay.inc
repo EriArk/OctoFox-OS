@@ -1,4 +1,4 @@
-// TrainerOS bridge for RMG 4777ed3f; GPL-3.0-only, as the surrounding RMG code.
+// OctoFox OS bridge for RMG 4777ed3f; GPL-3.0-only, as the surrounding RMG code.
 // No networking protocol here: launch the already admitted upstream session.
 #include <QFile>
 #include <QJsonDocument>
@@ -22,7 +22,7 @@ bool UserInterface::MainWindow::OpenTrainerNetplay(QString file, QString session
         return false;
 
     // One local controller feeds the native network player selected by RMG.
-    // Reuse upstream's SDL gamepad mapping, not a TrainerOS button protocol.
+    // Reuse upstream's SDL gamepad mapping, not an OctoFox OS button protocol.
     QFile profiles(QString::fromStdString(CoreGetSharedDataDirectory().string()) + "/InputProfileDB.json");
     if (!profiles.open(QIODevice::ReadOnly) || profiles.size() > 4 * 1024 * 1024)
         return false;

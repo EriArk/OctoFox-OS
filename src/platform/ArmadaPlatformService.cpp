@@ -33,7 +33,7 @@ bool ArmadaPlatformService::dedicatedSession() const {
     return canSwitchSession() && qEnvironmentVariable("TRAINEROS_SESSION") == "1";
 }
 QString ArmadaPlatformService::sessionStatus() const {
-    return canSwitchSession() ? "TrainerOS, Steam Gaming Mode and Desktop Mode are available."
+    return canSwitchSession() ? "OctoFox OS, Steam Gaming Mode and Desktop Mode are available."
         : "Session controls are unavailable. Install and validate the ArmadaOS session package in Desktop Mode.";
 }
 void ArmadaPlatformService::switchMode(const QString& mode) {

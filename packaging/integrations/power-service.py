@@ -92,7 +92,7 @@ def main():
 
     def inhibit(key, what):
         if key not in leases:
-            leases[key] = manager.Inhibit(what, "TrainerOS", "Power controls and protected writes", "block").take()
+            leases[key] = manager.Inhibit(what, "OctoFox OS", "Power controls and protected writes", "block").take()
 
     def release(key):
         if key in leases:

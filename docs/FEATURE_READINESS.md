@@ -1,5 +1,12 @@
 # Карта готовности функций TrainerOS
 
+**13 November — internal rename:** current source uses OctoFox OS in the shell,
+Setup and account screens. Existing data/package/protocol identities are retained;
+new archive names accept legacy Setup input. Published Alpha 7 and handheld
+installations are unchanged by this source work.
+[Compatibility](BRANDING.md) · [Verification](evidence/2026-11-13-octofox-internal/README.md).
+
+
 **10 ноября — Chats, коррекция структуры.** Левая панель вместо верхних вкладок:
 Search / Messages / Groups / Communities / Friends. Личные/групповые переписки
 разделены; контакты и заявки доступны через Friends. Серверные проверки и

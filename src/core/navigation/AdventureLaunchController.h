@@ -18,7 +18,7 @@ public:
     bool active() const { return state_ == "preparing" || state_ == "starting" || state_ == "running" || state_ == "stopping"; }
     bool preparing() const { return state_ == "preparing" || state_ == "starting"; }
     bool opening() const {return preparing() || (state_=="stopping"&&!started_);}
-    QString launchStage() const {return state_=="stopping"?QString("Cancelling…"):state_=="preparing"?QString("Saving your place in TrainerOS…"):process_.launchStage();}
+    QString launchStage() const {return state_=="stopping"?QString("Cancelling…"):state_=="preparing"?QString("Saving your place in OctoFox OS…"):process_.launchStage();}
     void cancelOpening() {if(preparing())cancel();}
     bool minimized() const { return state_ == "running" && minimized_; }
     QString adventureId() const { return adventureId_; }

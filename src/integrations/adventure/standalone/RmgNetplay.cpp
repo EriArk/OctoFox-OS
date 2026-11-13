@@ -251,7 +251,7 @@ void Lobby::start(const Request& request) {
         server_->setStandardOutputFile(QProcess::nullDevice());server_->setStandardErrorFile(QProcess::nullDevice());
         connect(server_,&QProcess::errorOccurred,this,[this]{fail();});
         connect(server_,&QProcess::finished,this,[this]{fail();});
-        server_->start(request.localServer,{"--name","TrainerOS","--disable-broadcast","--verify-ip","--close-on-finish","--timeout","2"});
+        server_->start(request.localServer,{"--name","OctoFox OS","--disable-broadcast","--verify-ip","--close-on-finish","--timeout","2"});
         retry_.start();
     }else open();
 }

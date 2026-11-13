@@ -50,7 +50,7 @@ class RetroAchievements:
                 def redirect_request(self, *args, **kwargs):
                     return None
             url = 'https://retroachievements.org/API/' + endpoint + '.php?' + urlencode({'y': key, **params})
-            request = Request(url, headers={'User-Agent': 'TrainerOS-Progression/1.0'})
+            request = Request(url, headers={'User-Agent': 'OctoFoxOS-Progression/1.0'})
             with build_opener(NoRedirect).open(request, timeout=12) as response:
                 if response.status != 200:
                     raise AuthError('ra_unavailable', 503)

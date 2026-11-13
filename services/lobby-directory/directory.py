@@ -119,7 +119,7 @@ class Directory:
                     return 'invalid'
                 payload.update(product=product, protocol=1)
             else:
-                # Preserve the deployed TrainerOS listing/session distinction and
+                # Preserve the deployed OctoFox OS listing/session distinction and
                 # scheduled-meeting metadata; v2 remains a single live room.
                 room = command.get('room', lobby)
                 if str(uuid.UUID(room)) != room:

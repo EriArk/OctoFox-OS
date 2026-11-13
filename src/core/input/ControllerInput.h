@@ -10,7 +10,7 @@
 #include <QStringList>
 
 namespace trainer {
-// SDL-mapped readings, before TrainerOS dead zones and foreground gating.
+// SDL-mapped readings, before OctoFox OS dead zones and foreground gating.
 // These are observations, not a claim about the handheld's printed labels.
 struct ControllerSample {
     bool initialized = false, connected = false, enabled = true, awaitingNeutral = true;

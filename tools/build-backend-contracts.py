@@ -461,7 +461,7 @@ def openapi():
             entry['parameters'].append({'name': 'around_self', 'in': 'query',
                 'schema': {'type': 'boolean'}, 'description': 'Cannot be combined with cursor.'})
         paths.setdefault(op['path'], {})[op['method']] = entry
-    return {'openapi': '3.1.1', 'info': {'title': 'TrainerOS Backend — architecture draft',
+    return {'openapi': '3.1.1', 'info': {'title': 'OctoFox OS Backend — architecture draft',
             'version': DRAFT, 'description': 'Unimplemented design. No production server URL. Provider callbacks and normalized adapter ingress are different contracts.'},
         'jsonSchemaDialect': 'https://json-schema.org/draft/2020-12/schema',
         'x-implemented': False, 'paths': paths,
@@ -746,7 +746,7 @@ def documents():
     for name in ('AvatarAppearanceV2', 'AvatarAppearanceV3'):
         DEFS[name] = DEFS.pop(name)
     schemas = {'$schema': 'https://json-schema.org/draft/2020-12/schema',
-        'title': 'TrainerOS Backend contract definitions — unimplemented draft', '$defs': DEFS}
+        'title': 'OctoFox OS Backend contract definitions — unimplemented draft', '$defs': DEFS}
     return {'schemas.json': schemas, 'openapi.json': openapi(), 'sdk.json': sdk,
         'data-model.json': data_model(),
         'policy-gates.json': {'version': DRAFT, 'implemented': False,

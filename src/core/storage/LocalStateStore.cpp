@@ -67,7 +67,7 @@ public:
         const auto path = QDir(directory).filePath("traineros.sqlite3");
         lock = std::make_unique<QLockFile>(path + ".lock");
         lock->setStaleLockTime(0);
-        if (!lock->tryLock()) return fail("Your data is in use or locked. Close the other TrainerOS instance and retry.");
+        if (!lock->tryLock()) return fail("Your data is in use or locked. Close the other OctoFox OS instance and retry.");
         db = QSqlDatabase::addDatabase("QSQLITE", QUuid::createUuid().toString());
         db.setDatabaseName(path);
         if (!db.open()) return fail("Your data couldn't be opened. Check storage access and retry.");
@@ -81,10 +81,10 @@ public:
                 const int version = query.value(0).toInt();
                 query.finish();
                 if (version > SchemaVersion)
-                    openError = "This data was made by a newer TrainerOS. Open it with that version.";
+                    openError = "This data was made by a newer OctoFox OS. Open it with that version.";
                 else if (version == 0) {
                     if (!query.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'") || query.next())
-                        openError = "This file isn't a recognized TrainerOS store. The existing file has been kept.";
+                        openError = "This file isn't a recognized OctoFox OS store. The existing file has been kept.";
                     else {
                         query.finish();
                         if (!db.transaction()) openError = failedWrite();
@@ -306,7 +306,7 @@ public:
                     // Invalid optional navigation can fall back without discarding profile/favorites.
                     state.navigation = QJsonDocument::fromJson(query.value(0).toByteArray()).object();
                     if (state.navigation["version"].toInt() > ShellNavigationVersion)
-                        openError = "This browsing state needs a newer TrainerOS. The existing file has been kept.";
+                        openError = "This browsing state needs a newer OctoFox OS. The existing file has been kept.";
                 }
             }
         }
@@ -355,7 +355,7 @@ public:
             else if (query.next()) {
                 if (query.value(0).toString() != profile.id || profile.id != ownerId_
                     || QDateTime::fromString(query.value(1).toString(), Qt::ISODateWithMs) != profile.createdAt)
-                    error = "This Trainer identity has changed. Reopen TrainerOS before editing.";
+                    error = "This Trainer identity has changed. Reopen OctoFox OS before editing.";
             } else creating = true;
             query.finish();
             if (error.isEmpty() && creating) error = adoptInitialOwner(db, ownerId_, profile.id);
@@ -647,7 +647,7 @@ void LocalStateStore::readMediaAfterOpen() {
     });mediaThread_->start();
 }
 void LocalStateStore::write(std::function<QString(SqliteWorker&)> operation, std::function<void(QString)> completed) {
-    if (!ready_ || staged_) { completed("Your data isn't open yet. Retry after reopening TrainerOS."); return; }
+    if (!ready_ || staged_) { completed("Your data isn't open yet. Retry after reopening OctoFox OS."); return; }
     accessWrite(std::move(operation),std::move(completed));
 }
 void LocalStateStore::accessWrite(std::function<QString(SqliteWorker&)> operation,std::function<void(QString)> completed) {

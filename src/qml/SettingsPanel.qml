@@ -118,7 +118,7 @@ Item {
                 Flickable { x: 12; y: 12; width: parent.width-24; height: parent.height-76; contentHeight: creditsText.height; clip: true; boundsBehavior: Flickable.StopAtBounds
                 Column { id: creditsText; spacing: 12; width: parent.width
                     Text { width: parent.width; wrapMode: Text.WordWrap; text: "Original creature and achievement art"; color: Theme.ink; font.pixelSize: 18; font.bold: true }
-                    Text { text: "TrainerOS contributors"; color: Theme.ink; font.pixelSize: 18 }
+                    Text { text: "OctoFox OS contributors"; color: Theme.ink; font.pixelSize: 18 }
                     Text { text: "GNU General Public License 3.0 or later"; color: Theme.muted; font.pixelSize: 14 }
                     Text { width: parent.width; text: "Cuboid creatures, animations and abstract league medallions are drawn from original geometry. Game names and progress identities remain separate from their artwork."; color: Theme.muted; font.pixelSize: 14; wrapMode: Text.WordWrap; lineHeight: 1.2 }
                 }

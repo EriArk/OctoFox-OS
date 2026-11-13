@@ -69,7 +69,7 @@ public:
     virtual void login(const QString&, const QString&) {}
     virtual void disconnectAccount() {}
     // C++ composition only; never a QML/SDK property. Sent only after explicit
-    // reward-link consent, transiently to the authenticated TrainerOS backend.
+    // reward-link consent, transiently to the authenticated OctoFox OS backend.
     virtual QJsonObject rewardCredentials() const { return {}; }
 signals:
     void historyChanged();

@@ -72,7 +72,7 @@ bool BackendAccount::adoptShop(const QJsonObject& value,bool cached) {
     shopIndex_=qBound(0,shopIndex_,qMax(0,int(shopItems().size())-1));return true;
 }
 QVariantList BackendAccount::shopItems() const {
-    QVariantList result{QVariantMap{{"id",""},{"title","Classic"},{"description","Your original TrainerOS scene. Always free."},{"appearance",""},{"owned",true},{"price",0},{"equipped",shopSnapshot_["equipped"].toString().isEmpty()}}};
+    QVariantList result{QVariantMap{{"id",""},{"title","Classic"},{"description","Your original OctoFox OS scene. Always free."},{"appearance",""},{"owned",true},{"price",0},{"equipped",shopSnapshot_["equipped"].toString().isEmpty()}}};
     QJsonArray rows=shopSnapshot_["catalogue"].toArray();QSet<QString> owned,listed;
     for(const auto row:rows)listed.insert(row.toObject()["id"].toString());
     for(const auto row:shopSnapshot_["items"].toArray()) {const auto id=row.toObject()["id"].toString();owned.insert(id);if(!listed.contains(id))rows.append(row);}
@@ -88,7 +88,7 @@ QVariantMap BackendAccount::shop() const {
     const auto rows=shopItems();const auto selected=rows.value(shopIndex_).toMap();
     const bool connected=state_=="connected"&&!player_.isEmpty();
     const bool pending=!shopPending_.isEmpty()&&shopPending_["player_id"]==player_;
-    QString action=shopBusy_?"Please wait…":!connected?"Sign in to TrainerOS":pending?"Resolve pending purchase":selected["equipped"].toBool()?"Applied":selected["owned"].toBool()?"Apply appearance":"Review purchase";
+    QString action=shopBusy_?"Please wait…":!connected?"Sign in to OctoFox OS":pending?"Resolve pending purchase":selected["equipped"].toBool()?"Applied":selected["owned"].toBool()?"Apply appearance":"Review purchase";
     return {{"items",rows},{"selected",selected},{"index",shopIndex_},{"busy",shopBusy_},{"stale",shopStale_},{"connected",connected},
         {"review",shopReview_.toVariantMap()},{"pending",pending},{"status",shopStatus_},{"action",action}};
 }

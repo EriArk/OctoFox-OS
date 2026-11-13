@@ -117,7 +117,7 @@ int main(int argc,char **argv) {
     int output_flags=fcntl(STDOUT_FILENO,F_GETFL);
     if(output_flags<0||fcntl(STDOUT_FILENO,F_SETFL,output_flags|O_NONBLOCK)<0)return 3;
     c.output=pw_loop_add_io(loop,STDOUT_FILENO,0,false,flush,&c);if(!c.output)return 3;
-    c.stream=pw_stream_new(core,"TrainerOS game capture",pw_properties_new(PW_KEY_MEDIA_TYPE,"Video",PW_KEY_MEDIA_CATEGORY,"Capture",PW_KEY_MEDIA_ROLE,"Screen",NULL));
+    c.stream=pw_stream_new(core,"OctoFox OS game capture",pw_properties_new(PW_KEY_MEDIA_TYPE,"Video",PW_KEY_MEDIA_CATEGORY,"Capture",PW_KEY_MEDIA_ROLE,"Screen",NULL));
     pw_stream_add_listener(c.stream,&c.listener,&StreamEvents,&c);
     uint8_t bytes[1024];struct spa_pod_builder builder=SPA_POD_BUILDER_INIT(bytes,sizeof(bytes));
     const struct spa_pod*params[1];struct spa_rectangle size={1280,720};struct spa_fraction rate={0,1};

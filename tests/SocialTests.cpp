@@ -2625,7 +2625,7 @@ private slots:
         c.dispatch(Action::LocalAction);QVERIFY(!c.menuCommands_.contains("community-filter"));QVERIFY(c.menuCommands_.contains("create-community"));QVERIFY(!c.menuCommands_.contains("create-group"));
         FluxerSession s;bind(s);QString path;s.setTransport([&](auto,QString p,auto,Completion done,auto){path=p;done({200,QJsonDocument(QJsonObject{{"guilds",QJsonArray{}},{"total",0}})});});
         s.search("traineros","");QVERIFY(path.contains("tag=traineros-v1"));QVERIFY(!path.contains("query="));
-        QVERIFY(s.searchStatus_.contains("No public TrainerOS communities"));
+        QVERIFY(s.searchStatus_.contains("No public OctoFox OS communities"));
         s.search("communities","");QVERIFY(path.contains("tag=traineros-v1"));
     }
     void nativeChallengeUsesFreshHeaderAndNeverReplaysUncertainMutation() {

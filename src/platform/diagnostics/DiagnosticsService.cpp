@@ -138,7 +138,7 @@ void DiagnosticsService::saveSupport(const QJsonObject& health) {
         }
         report["database"]=QJsonObject{{"integrity",integrity},{"schema",schema}};
         const auto json=QJsonDocument(report).toJson();
-        const auto payload=tarEntry("diagnostics.json",json)+tarEntry("README.txt","TrainerOS support snapshot. No ROMs, BIOS, saves, account names, history, tokens, private paths or raw logs are included. Setup checks do not certify gameplay or physical hardware.\n")+QByteArray(1024,'\0');
+        const auto payload=tarEntry("diagnostics.json",json)+tarEntry("README.txt","OctoFox OS support snapshot. No ROMs, BIOS, saves, account names, history, tokens, private paths or raw logs are included. Setup checks do not certify gameplay or physical hardware.\n")+QByteArray(1024,'\0');
         QString error;const auto path=QDir(directory_).filePath(filename);
         if(json.size()>128*1024||directory_.isEmpty()||!QDir::isAbsolutePath(directory_)||!QDir().mkpath(directory_))error="Support report folder is unavailable.";
         else {QSaveFile file(path);file.setDirectWriteFallback(false);if(!file.open(QIODevice::WriteOnly))error="Could not create the report.";

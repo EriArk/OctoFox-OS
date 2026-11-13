@@ -138,7 +138,7 @@ QVariantList FirstRunController::rows() const {
     } else if(stage()=="preferences") {
         add("Theme"); add("Interface size"); add("Continue");
     } else if(stage()=="accounts") {
-        add("TrainerOS · Fluxer", "Online profile, friends, chats and invitations");
+        add("OctoFox OS · Fluxer", "Online profile, friends, chats and invitations");
         add("RetroAchievements", "Earn achievements in supported games");
         add("ScreenScraper", "Covers and game info · recommended for multiplayer");
         add("Continue", "You can sign in later");

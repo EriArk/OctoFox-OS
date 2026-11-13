@@ -202,7 +202,7 @@ Panel {
                             ProfileAction { objectName:"profile-screens";anchors.right:parent.right;anchors.bottom:parent.bottom;width:70;actionIndex:5;label:"Screens  ›";textSize:10 }
                         }
                     }
-                    ProfileAction { id:supportEntry;objectName:"profile-support";width:parent.width;height:26;actionIndex:10;label:"✦  Support TrainerOS  ·  Sparks ×2 / ×3  ›";textSize:10 }
+                    ProfileAction { id:supportEntry;objectName:"profile-support";width:parent.width;height:26;actionIndex:10;label:"✦  Support OctoFox OS  ·  Sparks ×2 / ×3  ›";textSize:10 }
                 }
 
             }
@@ -234,7 +234,7 @@ Panel {
                     Text { text:"Account & rewards";font.family:Theme.displayFamily;font.pixelSize:25;color:Theme.ink }
                     Text { width:parent.width;text:root.shell.backendAccount.detail;textFormat:Text.PlainText;wrapMode:Text.WordWrap;font.pixelSize:12;color:Theme.muted }
                     Text { width:parent.width;text:root.shell.backendAccount.rewardStatus;textFormat:Text.PlainText;wrapMode:Text.WordWrap;font.pixelSize:12;color:Theme.muted }
-                    Text { width:parent.width;text:"RA rewards use your Web API key on the TrainerOS server to verify achievements. The key is not stored there. New achievements after linking earn rewards; old imported history does not.";wrapMode:Text.WordWrap;font.pixelSize:11;color:Theme.muted }
+                    Text { width:parent.width;text:"RA rewards use your Web API key on the OctoFox OS server to verify achievements. The key is not stored there. New achievements after linking earn rewards; old imported history does not.";wrapMode:Text.WordWrap;font.pixelSize:11;color:Theme.muted }
                     Text { width:parent.width;visible:!!rewardAccountPage.challenge.challenge;text:"Add this code as a separate word to your RA profile motto, save, then verify. You may remove it afterwards.\n"+(rewardAccountPage.challenge.challenge||"");textFormat:Text.PlainText;wrapMode:Text.WrapAnywhere;font.pixelSize:12;color:root.accent }
                     Repeater { id:accountActions;model:[root.shell.backendAccount.actionLabel,root.shell.backendAccount.rewardActionLabel,"RetroAchievements settings","Copy profile code"]
                         delegate: Item {

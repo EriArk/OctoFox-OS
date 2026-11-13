@@ -7,7 +7,7 @@ Window {
     required property var bridge
     required property bool permitted
     color: "transparent"
-    title: "TrainerOS — Radial input"
+    title: "OctoFox OS — Radial input"
     flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowDoesNotAcceptFocus
     transientParent: null
     x: Screen.virtualX; y: Screen.virtualY; width: Screen.width; height: Screen.height

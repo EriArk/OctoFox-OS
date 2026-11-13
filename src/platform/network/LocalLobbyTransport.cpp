@@ -27,7 +27,7 @@ QByteArray makeIdentity() {
         X509_set_version(cert,2);ASN1_INTEGER_set(X509_get_serialNumber(cert),1);
         X509_gmtime_adj(X509_getm_notBefore(cert),-300);X509_gmtime_adj(X509_getm_notAfter(cert),10L*365*86400);
         auto* subject=X509_get_subject_name(cert);
-        X509_NAME_add_entry_by_txt(subject,"CN",MBSTRING_ASC,reinterpret_cast<const unsigned char*>("TrainerOS Local Lobby"),-1,-1,0);
+        X509_NAME_add_entry_by_txt(subject,"CN",MBSTRING_ASC,reinterpret_cast<const unsigned char*>("OctoFox OS Local Lobby"),-1,-1,0);
         X509_set_issuer_name(cert,subject);
         if(X509_set_pubkey(cert,key)==1&&X509_sign(cert,key,EVP_sha256())>0
            &&PEM_write_bio_PrivateKey(bio,key,nullptr,nullptr,0,nullptr,nullptr)==1&&PEM_write_bio_X509(bio,cert)==1) {

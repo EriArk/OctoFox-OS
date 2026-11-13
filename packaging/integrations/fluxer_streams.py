@@ -197,7 +197,7 @@ class ScreenStreams:
         try:
             process = await asyncio.create_subprocess_exec('/usr/bin/parec', '--record', '--raw',
                 '--format=s16le', '--rate=48000', '--channels=2', '--latency-msec=40',
-                '--client-name=TrainerOS Game Audio', '--device='+monitor, '--monitor-stream='+str(index),
+                '--client-name=OctoFox OS Game Audio', '--device='+monitor, '--monitor-stream='+str(index),
                 stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL, preexec_fn=self.die_with_parent)
             track = rtc.LocalAudioTrack.create_audio_track('game-audio-'+str(index), source)
             publication = await self.room.local_participant.publish_track(track,

@@ -80,7 +80,7 @@ def prepare(stage, record, progress=lambda *args: None, opener=None):
     except urllib.error.HTTPError as error:
         error.close()
         raise ValueError('Cannot download the pinned ' + record['id'] + ' runtime (HTTP '
-                         + str(error.code) + '). Check for an updated TrainerOS Setup. '
+                         + str(error.code) + '). Check for an updated OctoFox OS Setup. '
                          'No different emulator version was substituted.') from error
     # The existing component transaction checks the resulting file again and
     # projects it into the private runtime-home. No public repackaging occurs.

@@ -42,7 +42,7 @@ class LaunchTests(unittest.TestCase):
     def test_only_reviewed_release_repositories(self):
         base=dict(id='session-timer',version='0.1.0',title='Session Timer',kind='app',architecture='x86_64',
                   entry='bin/session-timer',sha256='a'*64,size=100,unpackedSize=1000)
-        for repo in ('TrainerOS','crates'):
+        for repo in ('OctoFox-OS','TrainerOS','crates'):
             installer.validate_records([dict(base,url=f'https://github.com/EriArk/{repo}/releases/download/test/app.tar.gz')])
         for url in ('https://github.com/other/crates/releases/download/test/app.tar.gz',
                     'https://github.com/EriArk/crates-evil/releases/download/test/app.tar.gz',

@@ -13,7 +13,7 @@
 namespace trainer {
 namespace {
 QString intentPath(const QSqlDatabase& db) {return db.databaseName()+".library-move.json";}
-QString recoveryError() {return "A file move needs recovery. Reconnect the game storage and restart TrainerOS.";}
+QString recoveryError() {return "A file move needs recovery. Reconnect the game storage and restart OctoFox OS.";}
 bool writeFile(const QString& path,const QByteArray& bytes) {
     QSaveFile file(path);
     return file.open(QIODevice::WriteOnly) && file.write(bytes)==bytes.size() && file.commit();

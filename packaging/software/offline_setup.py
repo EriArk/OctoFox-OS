@@ -20,7 +20,7 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
     release_mode = release
     if type(release_mode) is not bool: raise ValueError('Release mode must be explicit')
     feeds = dict(feed_urls) if feed_urls is not None else {
-        name:'https://raw.githubusercontent.com/EriArk/TrainerOS/updates/'+name+'.json'
+        name:'https://raw.githubusercontent.com/EriArk/OctoFox-OS/updates/'+name+'.json'
         for name in channels.CHANNELS}
     if set(feeds) != set(channels.CHANNELS): raise ValueError('Alpha, Beta and Stable feeds are required')
     for url in feeds.values(): sw.https(url)
@@ -52,7 +52,7 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
     release_source_media.check(archive, release['source'])
     output.mkdir(parents=True)
     with tempfile.TemporaryDirectory(dir=output,prefix='.setup-') as temp:
-        temp=Path(temp); tree=temp/'TrainerOS-Setup';tree.mkdir()
+        temp=Path(temp); tree=temp/'OctoFox-OS-Setup';tree.mkdir()
         holder=temp/'bootstrap';holder.mkdir();installer.bootstrap(holder,source_root/'packaging')
         shutil.copytree(holder/'bootstrap/packaging',tree/'packaging')
         shutil.copyfile(holder/'bootstrap-files.json',tree/'setup-files.json')
@@ -67,16 +67,16 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
             runtime_set.publish_manifest(media_index,archive,key,tree/'runtime-set.json',sequence,release['source'])
         runtime_set.signed(tree/'runtime-set.json',public)
         shutil.copyfile(source_root/'LICENSE',tree/'LICENSE')
-        launch=tree/'Install TrainerOS.sh'
+        launch=tree/'Install OctoFox OS.sh'
         launch.write_text('#!/bin/sh\nset -eu\nHERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\nexec /usr/bin/python3 "$HERE/packaging/software/installer.py" --gui\n')
         launch.chmod(0o755)
-        (tree/'README.txt').write_text(('TrainerOS Alpha Setup\n' if release_mode else
+        (tree/'README.txt').write_text(('OctoFox OS Alpha Setup\n' if release_mode else
             ('HYBRID' if upstream else 'OFFLINE') + ' SETUP CANDIDATE - NOT A PUBLIC RELEASE\n') +
-            'Extract the entire archive onto storage with enough free space, then open Install TrainerOS.sh in Armada Desktop.\n'
+            'Extract the entire archive onto storage with enough free space, then open Install OctoFox OS.sh in Armada Desktop.\n'
             'Setup installs the signed Software, emulator set and pinned offline dependencies. Run as your desktop user.\n'
-            'System helpers/session registration request normal administrator authorization. TrainerOS becomes the initial boot default; Desktop and Steam remain available.\n'
+            'System helpers/session registration request normal administrator authorization. OctoFox OS becomes the initial boot default; Desktop and Steam remain available.\n'
             'Emulators use a private runtime-home alongside EmuDeck and other installations, including separate Flatpak data.\n'
-            'Only TrainerOS-owned code is updated or removed. Personal games, firmware, saves and accounts are not included.\n'
+            'Only OctoFox OS-owned code is updated or removed. Personal games, firmware, saves and accounts are not included.\n'
             'Use Setup and Recovery after interruption; do not launch an incomplete installation.\n'
             'Requires the compatible Armada Python and system libraries. No network fallback for offline packages.\n'
             + ('Internet is required to obtain these exact official upstream packages: ' + ', '.join(upstream)
@@ -87,7 +87,7 @@ def build(archive, software, key, public, output, sequence, source_archive, sour
         def permissions(info):
             info.uid=info.gid=0;info.uname=info.gname='';info.mode=0o755 if info.isdir() or info.name.endswith('.sh') else 0o644
             return info
-        target=output/('TrainerOS-Full-Setup.tar' if release_mode else 'TrainerOS-Full-Setup-CANDIDATE.tar')
+        target=output/('OctoFox-OS-Full-Setup.tar' if release_mode else 'OctoFox-OS-Full-Setup-CANDIDATE.tar')
         with tarfile.open(target,'x:') as tar:
             tar.add(tree,arcname=tree.name,filter=permissions)
             tar.add(archive,arcname=tree.name+'/runtimes.tar',filter=permissions)

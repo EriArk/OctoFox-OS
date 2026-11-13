@@ -25,7 +25,7 @@ for path, expected in (
     ('/v1/me/bazaar-rentals/00000000-0000-0000-0000-000000000001', 401 if args.accounts else 503), ('/unpublished', 404),
 ):
     request = Request(args.origin + path, headers={
-        'User-Agent': 'TrainerOS-Backend/0.0.1', 'Accept': 'application/json'})
+        'User-Agent': 'OctoFoxOS-Backend/0.0.1', 'Accept': 'application/json'})
     try:
         response = urlopen(request, timeout=15)
     except HTTPError as error:

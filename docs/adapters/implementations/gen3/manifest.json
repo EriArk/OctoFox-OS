@@ -18,7 +18,7 @@
     "src/core/model/SaveBackup.h": "a012c3b9cb10d267234b2ca8057c45b8a2b32552e9ffd3c6542e672c713a8283",
     "src/integrations/practice/PracticeSession.cpp": "8372cd4f458dd119b1699f8a3c2806093fcc192f13037123144be98bd897a6e7",
     "src/integrations/practice/PracticeSession.h": "5ba3931c7d66558b70dfb1e3dee4a177fb4e3f817b2c714cc3e64a7cae284507",
-    "src/integrations/practice/emerald-engine.cjs": "1de82417e3b2ce5c1b65d8877809d281b988eaf3fdce60038bf232e7954150fd",
+    "src/integrations/practice/emerald-engine.cjs": "ffc67d237e097ce6fad47a1850cf2f6e440483f21ec2c0dc74b7edbcdafc48c6",
     "src/integrations/practice/emerald-worker.cjs": "0842ea0981252a141fe930df08833dac7cc94a351f7274344f3787ab352f495f",
     "src/integrations/progress/EmeraldLink.cpp": "9d4a1b1a0835e17240a06f4874b0c59a0c720025cf6da21b35fdc623c6a488ef",
     "src/integrations/progress/EmeraldLink.h": "aaabde3da0b77b23c6f18c26daca411de483d9e5138238765123e5ae2d369c93",

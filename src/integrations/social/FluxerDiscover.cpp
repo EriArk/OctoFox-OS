@@ -104,7 +104,7 @@ void FluxerSession::search(QString mode,QString text,int offset) {
             // even a valid invite still opens a preview before explicit Join.
             search("invite",searchText_);return;
         }
-        searchStatus_=searchResults_.isEmpty()?"No public TrainerOS communities yet. You can still join with an invitation.":QString();publish();
+        searchStatus_=searchResults_.isEmpty()?"No public OctoFox OS communities yet. You can still join with an invitation.":QString();publish();
     });
 }
 

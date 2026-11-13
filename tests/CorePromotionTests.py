@@ -97,7 +97,7 @@ class CorePromotionTests(unittest.TestCase):
         files={'runtimes/retroarch-cores/component.json':self.root/'base/component.json',
                'runtimes/retroarch-cores/component.tar.gz':self.base,'runtimes/other/component.tar.gz':keep}
         plan={'schema':1,'files':[{'path':n,'source':str(p),'sha256':runtime_payload.digest(p)} for n,p in files.items()]}
-        old=fullbundle.build(plan,self.root/'media-old');base=self.root/'media-old/TrainerOS-Full-CANDIDATE.tar'
+        old=fullbundle.build(plan,self.root/'media-old');base=self.root/'media-old/OctoFox-OS-Full-CANDIDATE.tar'
         output=self.root/'media-new.tar';d=self.root/'promotion'
         result=m.media(base,{'bytes':base.stat().st_size,'sha256':old['sha256']},d/'component',self.candidate,self.pinned,d/'core-source-bindings.json',d/'promoted-builds.json',output)
         with tarfile.open(output) as t:
@@ -116,7 +116,7 @@ class CorePromotionTests(unittest.TestCase):
                 'source':str(self.root/'base'/n),'sha256':runtime_payload.digest(self.root/'base'/n)}
                 for n in ['component.json','component.tar.gz']]}
         media = fullbundle.build(plan,self.root/'media-base')
-        base = self.root/'media-base/TrainerOS-Full-CANDIDATE.tar'
+        base = self.root/'media-base/OctoFox-OS-Full-CANDIDATE.tar'
         first_media = self.root/'media-first.tar'
         first_result = m.media(base,{'bytes':base.stat().st_size,'sha256':media['sha256']},
                 d/'component',self.candidate,self.pinned,d/'core-source-bindings.json',d/'promoted-builds.json',first_media)

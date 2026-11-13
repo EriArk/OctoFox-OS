@@ -5,7 +5,7 @@ Window {
     id: root
     required property var keyboard
     required property var bridge
-    title: "TrainerOS Keyboard"
+    title: "OctoFox OS Keyboard"
     color: "transparent"
     flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowDoesNotAcceptFocus
     transientParent: null

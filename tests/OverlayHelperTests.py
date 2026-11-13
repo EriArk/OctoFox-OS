@@ -23,6 +23,22 @@ PNG = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQI
 
 
 class OverlayHelperTests(unittest.TestCase):
+    def test_hide_prompt_accepts_both_brands_but_requires_shell_identity(self):
+        titles = {1: 'OctoFox OS — Return from Adventure',
+                  2: 'TrainerOS — Return from Adventure',
+                  3: 'OctoFox OS', 4: 'OctoFox OS — Return from Adventure'}
+        display = X11.__new__(X11)
+        display.display = 123; display.root = 456; display.x = Mock()
+        display.x.XQueryTree.return_value = 0
+        display.prop = lambda window, name: list(titles) if name == '_NET_CLIENT_LIST' else titles[window].encode()
+        display.pid = lambda window: 100 if window != 4 else 200
+        with patch('overlay_support.identity', return_value=77):
+            display.hide_prompt(100, 77)
+            self.assertEqual([call.args[1] for call in display.x.XUnmapWindow.call_args_list], [1, 2])
+            display.x.reset_mock()
+            display.hide_prompt(100, 78)
+            display.x.XUnmapWindow.assert_not_called()
+
     def test_native_crates_close_requires_managed_game_marker(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);process=root/'42';process.mkdir()

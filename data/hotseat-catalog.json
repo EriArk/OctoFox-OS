@@ -412,7 +412,7 @@
           "locator": "PDF p. 8 / printed p. 6: Multiplayer"
         }
       ],
-      "note_ru": "Отдельные контроллеры до шести требуют двух Multitap; это ёмкость игры, не готового профиля TrainerOS.",
+      "note_ru": "Отдельные контроллеры до шести требуют двух Multitap; это ёмкость игры, не готового профиля OctoFox OS.",
       "input_requirements": [
         "standard_gamepad"
       ],
@@ -1485,7 +1485,7 @@
           "locator": "Developer announcement: two-player head-to-head on the same PSP"
         }
       ],
-      "note_ru": "Кампания поддерживает совместную игру против CPU и соперничество; реальная сетевая сессия TrainerOS не проверена.",
+      "note_ru": "Кампания поддерживает совместную игру против CPU и соперничество; реальная сетевая сессия OctoFox OS не проверена.",
       "input_requirements": [
         "standard_gamepad"
       ],

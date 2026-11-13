@@ -54,7 +54,7 @@ class Flatpaks:
                 '--set=gpg-verify=true','--set=gpg-verify-summary=true',
                 '--set=xa.noenumerate=true','--set=xa.nodeps=true',remote,runtime_flathub.URL])
         if ostree(['remote','show-url',remote]) != runtime_flathub.URL:
-            raise ValueError('TrainerOS Flatpak remote changed')
+            raise ValueError('OctoFox OS Flatpak remote changed')
         for setting in ('gpg-verify','gpg-verify-summary'):
             if ostree(['config','get','remote "'+remote+'".'+setting]) != 'true':
                 raise ValueError('Flatpak signature verification must remain enabled')
@@ -94,7 +94,7 @@ class Flatpaks:
                     raise ValueError('Upstream Flatpak preparation changed')
             ref = row['ref']; before = self.commit(ref); expected = row['commit']
             if ref in owned and before != owned[ref]['commit']:
-                raise ValueError('Flatpak changed outside TrainerOS: ' + ref)
+                raise ValueError('Flatpak changed outside OctoFox OS: ' + ref)
             if before and before != expected and ref not in owned and not migrate:
                 raise ValueError('Existing Flatpak version requires migration with a backup: ' + ref)
             record = {'ref': ref, 'kind': row['kind'], 'before': before, 'after': expected,
@@ -174,7 +174,7 @@ class Flatpaks:
         ops=[]
         for ref, owner in owned.items():
             old = records[ref]; current=self.commit(ref)
-            if current!=owner['commit']: raise ValueError('Flatpak changed outside TrainerOS: '+ref)
+            if current!=owner['commit']: raise ValueError('Flatpak changed outside OctoFox OS: '+ref)
             artifact=artifacts[ref]
             if sw.sha256(artifact['file'])!=artifact['sha256']: raise ValueError('Runtime recovery artifact changed')
             ops.append({'ref':ref,'kind':old['kind'],'before':current,'after':old['before'],

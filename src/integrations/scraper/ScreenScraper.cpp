@@ -199,7 +199,7 @@ Transport httpsTransport() {
         for(int redirects=0;redirects<=3;++redirects) {
             QNetworkRequest request(current);
             request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,QNetworkRequest::ManualRedirectPolicy);
-            request.setHeader(QNetworkRequest::UserAgentHeader,"TrainerOS/0.1.0");
+            request.setHeader(QNetworkRequest::UserAgentHeader,"OctoFoxOS/0.1.0");
             auto* reply=network.get(request);reply->setReadBufferSize(limit+1);
             QEventLoop loop;QTimer timeout,stop;timeout.setSingleShot(true);timeout.start(45000);stop.start(80);
             QByteArray bytes;bool oversized=false;

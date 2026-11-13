@@ -6,7 +6,7 @@ Window {
     required property var flow
     required property var bridge
     objectName: "app-controls-window"
-    title: "TrainerOS — Home"
+    title: "OctoFox OS — Home"
     color: "transparent"
     flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowDoesNotAcceptFocus
     transientParent: null

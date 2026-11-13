@@ -1,5 +1,5 @@
 #!/bin/sh
-# Run as the handheld user. Install only TrainerOS-owned files.
+# Run as the handheld user. Install only OctoFox OS-owned files.
 set -eu
 test "$(id -u)" -ne 0 || { echo 'Run this installer as the handheld user.' >&2; exit 1; }
 command -v python3 >/dev/null

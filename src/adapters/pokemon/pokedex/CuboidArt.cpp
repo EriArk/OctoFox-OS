@@ -32,7 +32,7 @@ QVariantMap record(const QString& target, const QString& action) {
     return {{"id",id},{"url","image://sprite-detail/"+id},{"kind",sprite?"sprite":"portrait"},
         {"action",action},{"label","Cuboid · "+action},{"frames",sprite?4:1},{"frameWidth",sprite?96:160},
         {"durations",times},{"builtin",true},{"fallback",true},{"available",true},
-        {"credit","TrainerOS original geometric artwork"},{"source","Built-in symbolic creature"},
+        {"credit","OctoFox OS original geometric artwork"},{"source","Built-in symbolic creature"},
         {"license","GPL-3.0-or-later"},{"review","Symbolic representation, not canonical artwork"}};
 }
 // A tiny orthographic modeller: the same rounded blocks, camera, face and feet
@@ -124,7 +124,7 @@ QVariantMap CuboidArt::illustration(const QString& target,const QString& profile
     auto row=record(target,"Normal");
     row["url"]="image://sprite-detail/cuboid/v1/"+target+'/'+profile;
     row["status"]="Cuboid creature · symbolic artwork";
-    row["sourceName"]="TrainerOS Cuboids";
+    row["sourceName"]="OctoFox OS Cuboids";
     return row;
 }
 QVariantList CuboidArt::choices(const QString& target) {

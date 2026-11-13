@@ -8,7 +8,7 @@ namespace trainer::communityIdentity {
 // client capability, session approval, save authority or verified-binary claim.
 inline QString content(const QString& guild) {
     const QJsonObject manifest{{"kind","org.traineros.community"},{"version",1},{"guild_id",guild}};
-    return "A gathering place for TrainerOS players. Welcome!\n\n```json\n"
+    return "A gathering place for OctoFox OS players. Welcome!\n\n```json\n"
         +QString::fromUtf8(QJsonDocument(manifest).toJson(QJsonDocument::Compact))+"\n```";
 }
 inline bool matches(const QJsonObject& message,const QString& guild,const QString& owner,const QString& channel) {

@@ -6,7 +6,7 @@ import sys
 
 
 def logout(bus, request):
-    # KDE Shutdown alone is activatable even in TrainerOS. Require the actual
+    # KDE Shutdown alone is activatable even in OctoFox OS. Require the actual
     # compositor and session manager before invoking it.
     if not all(bus.name_has_owner(name) for name in ('org.kde.KWin', 'org.kde.ksmserver')):
         return 10
@@ -26,7 +26,7 @@ def main():
         return logout(bus, lambda: dbus.Interface(
             bus.get_object('org.kde.Shutdown', '/Shutdown'), 'org.kde.Shutdown').logout(timeout=10))
     except dbus.DBusException as error:
-        print('TrainerOS: desktop logout failed: ' + str(error), file=sys.stderr)
+        print('OctoFox OS: desktop logout failed: ' + str(error), file=sys.stderr)
         return 1
 
 

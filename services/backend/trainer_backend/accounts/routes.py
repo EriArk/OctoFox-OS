@@ -75,13 +75,13 @@ def begin(body: LoginBegin, request: Request, idempotency_key: UUID = Header()):
 def start(request: Request, attempt_id: UUID, ticket: str=Query(pattern=r'^[A-Za-z0-9_-]{43}$')):
     cookie, native_url = service(request).start(attempt_id,ticket)
     response = HTMLResponse('<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-        '<title>Вход в TrainerOS</title><h1>Вход в TrainerOS</h1>'
-        '<p>Введите 8 цифр, которые показаны в TrainerOS на вашем устройстве. '
+        '<title>Вход в OctoFox OS</title><h1>Вход в OctoFox OS</h1>'
+        '<p>Введите 8 цифр, которые показаны в OctoFox OS на вашем устройстве. '
         'Если вы не начинали вход, закройте это окно. Не вводите код, присланный другим человеком.</p>'
         '<form method="post" action="/v1/auth/fluxer/confirm">'
         f'<input type="hidden" name="attempt_id" value="{attempt_id}">'
         f'<input type="hidden" name="proof" value="{cookie}">'
-        '<label>Код из TrainerOS <input name="code" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" autocomplete="off" required></label>'
+        '<label>Код из OctoFox OS <input name="code" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" autocomplete="off" required></label>'
         '<button type="submit">Продолжить через Fluxer</button></form></html>')
     if native_url:
         response = RedirectResponse(native_url,status_code=303)
@@ -112,8 +112,8 @@ def callback(request: Request, state: str=Query(pattern=r'^[A-Za-z0-9_-]{43}$'),
              code: str|None=Query(default=None,min_length=1,max_length=2048),
              error: str|None=Query(default=None,max_length=128)):
     native_url = service(request).callback(state,request.cookies.get(COOKIE,''),code,error)
-    response = HTMLResponse('<!doctype html><html lang="ru"><meta charset="utf-8"><title>TrainerOS</title>'
-        '<h1>Аккаунт Fluxer подтверждён</h1><p>Вернитесь в TrainerOS, чтобы завершить вход. Это окно можно закрыть.</p></html>')
+    response = HTMLResponse('<!doctype html><html lang="ru"><meta charset="utf-8"><title>OctoFox OS</title>'
+        '<h1>Аккаунт Fluxer подтверждён</h1><p>Вернитесь в OctoFox OS, чтобы завершить вход. Это окно можно закрыть.</p></html>')
     if native_url:
         response = RedirectResponse(native_url,status_code=303)
     response.delete_cookie(COOKIE,secure=True,httponly=True,samesite='lax',path='/')
