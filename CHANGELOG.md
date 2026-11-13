@@ -8,6 +8,8 @@ persisted RetroArch v1 comment. The correction retains the stable v1 identity an
 accepts the exact renamed header without rewriting settings or weakening save
 protection. Device acceptance and resource measurements are recorded in the
 [hardware follow-up](docs/evidence/2026-11-13-game-resources/README.md#handheld-follow-up).
+Repeated real Home openings also exposed retained overlay graphics; delayed
+cleanup now covers those independent windows, while visible menus remain live.
 Public Alpha 7 assets/feed remain unchanged.
 
 ## 13 November 2026 — shell memory during games

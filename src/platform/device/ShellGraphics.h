@@ -13,7 +13,8 @@
 namespace trainer {
 
 // Keep the shell/session alive for Home, saves and multiplayer. Release only
-// the hidden main window's render resources; game overlays own other windows.
+// each hidden window's render resources. A visible game overlay is independent
+// of the hidden main window and retains its own live scene graph.
 inline void releaseHiddenShellGraphics(QQuickWindow* window, QQmlEngine* engine)
 {
 #ifdef __GLIBC__

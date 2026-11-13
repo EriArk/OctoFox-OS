@@ -1327,6 +1327,10 @@ int main(int argc, char* argv[]) {
             auto* window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
             if (!window) {qCritical()<<"Shell root is not a window:"<<engine.rootObjects().first()->metaObject()->className();return 2;}
             releaseHiddenShellGraphics(window, &engine);
+            // Home and other overlays own independent scene graphs. Their
+            // previous frames must not keep accumulating after returning to a game.
+            for (auto* overlay : window->findChildren<QQuickWindow*>())
+                releaseHiddenShellGraphics(overlay, &engine);
             auto accountBrowser=std::make_shared<bool>(false);
             bindings.connect(shell.backendAccount(),&BackendAccount::returnRequested,window,[&,window,accountBrowser]{
                 if(adventureLaunch.active())return;

@@ -1,5 +1,6 @@
 #pragma once
 #include "core/navigation/ShellController.h"
+#include "platform/device/ShellGraphics.h"
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
@@ -31,6 +32,7 @@ inline void startResourceSmoke(QQuickWindow* window, trainer::ShellController& s
     auto state=std::make_shared<State>();state->elapsed.start();state->warnings=warnings;
     auto* child=new QProcess(window);
     auto* overlay=new QQuickWindow(window);overlay->resize(320,180);overlay->setColor(Qt::darkCyan);
+    trainer::releaseHiddenShellGraphics(overlay, qmlEngine(window));
     overlay->setTitle("Resource test overlay");
     auto* timer=new QTimer(window);timer->setInterval(6000);
     QObject::connect(child,&QProcess::started,window,[window]{window->hide();});

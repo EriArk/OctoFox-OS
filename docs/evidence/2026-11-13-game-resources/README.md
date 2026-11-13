@@ -152,3 +152,12 @@ bytes (including moved-save digest names), accepts the exact renamed header,
 and continues rejecting changed settings, trailing data and symlinks. It never
 rewrites an existing file. This was found through real UI launch, not a synthetic
 successful process probe. Final corrected-device results follow below.
+
+The corrected sequence 33 launched Advance Wars on both devices and completed
+Home → minimize → return with the same emulator PID. However, repeated Home
+openings exposed retained overlay graphics: shell RSS rose from 569 to 713 MiB
+on Odin and 491 to 637 MiB on Flip over this short sequence. Thus the first
+lower sample alone is not the acceptance result. The next correction applies
+the same delayed hidden-window cleanup to the existing independent overlay
+windows as well. Visible overlays remain untouched; each releases only after
+it has been hidden for one second. Controller/session objects are retained.
