@@ -1,0 +1,10 @@
+**TrainerOS is now OctoFox OS!**
+
+The name TrainerOS was already in use, so I'm renaming the project to **OctoFox OS**. Same project, same development — just a new name.
+
+The GitHub repository, website and Discord project section have been updated. You do not need to reinstall anything because of this rename. Existing Alpha 7 downloads, installer labels and older screenshots may still say TrainerOS.
+
+Website and downloads: https://abysstail.art/en/projects/octofox-os
+GitHub: https://github.com/EriArk/OctoFox-OS
+
+Thanks for following the project!

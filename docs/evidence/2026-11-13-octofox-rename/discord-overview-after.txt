@@ -1,0 +1,37 @@
+## 🛠️ OctoFox OS
+*Formerly TrainerOS — renamed on 13 November 2026. The dated overview below is retained; see the latest posts for Alpha 7.*
+An Armada-based OS for compatible Linux handhelds.
+
+I wanted my handheld to feel like a complete console. Your games, friends and progress stay together, and supported Adventures bring parts of the game into the OS even after you stop playing.
+
+### 📍 Status
+**Active Development · preparing the first public release**
+Running on Odin 2 and Retroid Pocket Flip 2; source builds are available, but there's no ready-to-flash image yet.
+
+### ✨ Features
+✅ Browse games by series, launch them and return to your library
+✅ Messages, groups and voice through Fluxer
+✅ Invite friends to supported games, online or on nearby handhelds
+✅ In the first Adventure: progress, party and storage, healing, shops, nearby trades and friendly battles
+🚧 More multiplayer games and testing across different networks
+🚧 Completing online Adventure activities
+⬜ Game-specific Adventures for more series
+⬜ An installable image and system updates
+
+✅ Available in current builds · 🚧 In development · ⬜ Planned
+Game and device support varies; group voice and multiplayer testing are still ongoing.
+
+### 🔭 Current focus
+→ Making invitations, play and returning to the OS reliable
+→ Finishing personal art-pack tools and preparing the public image
+
+### 💬 Feedback
+What would make your handheld nicer to use? Ask here, or open a Bug / Ideas topic. Include your device and build if something breaks. What you tell me helps decide what to work on next.
+
+### 🌐 Project page
+https://abysstail.art/en/projects/octofox-os
+Screens, source, setup notes, support links and release updates are here.
+
+You bring your own game files, BIOS and artwork. This is an independent project, not affiliated with game publishers.
+
+*Last updated: Oct 2026*

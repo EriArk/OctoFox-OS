@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-13",
+  "github": {
+    "repository": "https://github.com/EriArk/OctoFox-OS",
+    "release": "https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.7",
+    "publicDocsCommit": "5caa3b7e67b5f99e2450c0d9d98a8f1ce9560e9a",
+    "releaseAssetsPreserved": 17
+  },
+  "website": {
+    "url": "https://abysstail.art/en/projects/octofox-os",
+    "oldUrlStatus": 308,
+    "newUrlStatus": 200,
+    "activatedAt": "2026-11-13T11:34:27Z",
+    "image": "sha256:7ad6aee0827d4cf3efc455dfdee39421520c9181f04cccff3394516a4e9e66f2",
+    "checks": "Build, typecheck, 126 tests, all ten locale pages/homepages, translated catalogs, unchanged DB/environment/neighbour hashes; public curl and browser rendering verified. An additional Python urllib request received edge 403 and was not counted as successful page verification."
+  },
+  "discord": {
+    "forumName": "octofox-os",
+    "overviewTitle": "OctoFox OS — overview & development",
+    "overviewUrl": "https://discord.com/channels/1479953345388089457/1557411826478751845",
+    "announcementUrl": "https://discord.com/channels/1479953345388089457/1479953346453573696/1570764563832508530",
+    "status": "published",
+    "verification": "Native Discord UI: renamed forum and thread visible; edited original overview displays new brand, rename note and website link; announcement sent, rendered with website/GitHub previews, permalink copied from its context menu."
+  },
+  "scope": "Public branding only. Existing Alpha installer assets, runtime labels, package IDs, paths and signed identities retained."
+}

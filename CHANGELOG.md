@@ -2,7 +2,7 @@
 
 ## 2026-11-13 — OctoFox OS
 
-Public name changed from TrainerOS to OctoFox OS. Repository: `EriArk/OctoFox-OS`. Existing Alpha 7 artifacts and runtime identities are preserved. Website and Discord publication results are recorded in the rename receipt.
+Public name changed from TrainerOS to OctoFox OS. Repository: `EriArk/OctoFox-OS`. Existing Alpha 7 artifacts and runtime identities are preserved. Website and Discord publication results: [rename evidence](docs/evidence/2026-11-13-octofox-rename/README.md).
 
 ## 11 November 2026 — English public documentation
 
