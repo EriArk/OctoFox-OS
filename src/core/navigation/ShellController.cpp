@@ -37,7 +37,7 @@ void ShellController::prepareShutdown() {
             &libraryManager_, &libraryTools_, &scraper_, &apps_, &crates_, &files_,
             &pcGames_, &gamePerformance_, &browser_, &powerControl_, &downloads_,
             &settings_, &controls_, &device_, &network_, &diagnostics_, &gamePreparation_, &social_, &bazaar_,
-            &backendAccount_, &outfits_, &visitorProfile_, &dashboard_, &album_};
+            &backendAccount_, &outfits_, &visitorProfile_, &inventory_, &dashboard_, &album_};
     for(auto* source:sources)detach(source);
     for(auto& module:modules_)detach(module.get());
 }
@@ -170,6 +170,8 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     });
     connect(&social_,&SocialController::presentationChanged,this,&ShellController::changed,Qt::QueuedConnection);
     connect(&visitorProfile_,&VisitorProfile::changed,this,&ShellController::changed);
+    connect(&inventory_,&ProfileInventory::changed,this,&ShellController::changed);
+    connect(&inventory_,&ProfileInventory::backRequested,this,[this]{profileRoute_="summary";profileFocus_=12;emit changed();});
     social_.openPlayerProfile=[this](QString subject){
         openProfile(subject==social_.account()["userId"].toString());if(service_!="profile")return false;
         if(subject==social_.account()["userId"].toString())return true;
@@ -312,6 +314,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         trainerSettingsAction(index);
     });
     connect(&backendAccount_,&BackendAccount::changed,this,[this]{
+        inventory_.setScope(trainer_.profile()["id"].toString(),backendAccount_.snapshot()["player_id"].toString());
         settings_.setBackendAccount(backendAccount_.actionLabel(),backendAccount_.detail());emit changed();
     });
     backendAccount_.rewardSource=[this,&achievements,offset=0]() mutable {
@@ -892,6 +895,7 @@ void ShellController::syncExperience() {
     if(profileOwnerChanged){++postGamePrizesGeneration_;prizeWardrobeReturn_=false;overviewFocus_=0;overviewSessionId_.clear();overviewFace_="summary";profileSnapshot_.clear();profileReturnNavigation_={};profileRoute_="summary";achievementPhotoReturn_=false;}
     if(!experience_.owner().isEmpty() && experience_.owner()!=owner){dashboard_.reset();achievementNotifications_.clear();achievementToast_.clear();++achievementToastGeneration_;}
     bazaar_.setOwner(owner);
+    inventory_.setScope(owner,backendAccount_.snapshot()["player_id"].toString());
     album_.setOwner(owner);
     dashboard_.setOwner(owner);
     album_.setMedia(storyMedia());
@@ -1872,6 +1876,7 @@ void ShellController::openProfile(bool loadOwn) {
     emit changed();
 }
 void ShellController::closeProfile() {
+    inventory_.close();
     visitorProfile_.close();
     prizeWardrobeReturn_=false;
     backendAccount_.closeCelebration(false);
@@ -1892,6 +1897,7 @@ void ShellController::closeProfile() {
 }
 void ShellController::activateProfile(int index) {
     if(!profileContentActive())return;
+    if(profileRoute_=="inventory"){inventory_.activate(index);return;}
     if(profileRoute_=="privacy") {
         profileFocus_=index;if(index<4)visitorProfile_.toggleSharing(index);else if(index==4)visitorProfile_.loadSharing();
         else if(index==5&&backendAccount_.snapshot()["state"]!="signed_in")backendAccount_.activate();
@@ -1947,9 +1953,10 @@ void ShellController::activateProfile(int index) {
         emit changed();return;
     }
     if(profileRoute_!="summary")return;
-    if(index<0 || index>13 || index==12)return;
+    if(index<0 || index>13)return;
     profileFocus_=index;
-    if(index==13){profileRoute_="privacy";profileFocus_=0;visitorProfile_.loadSharing();}
+    if(index==12){profileRoute_="inventory";inventory_.close();}
+    else if(index==13){profileRoute_="privacy";profileFocus_=0;visitorProfile_.loadSharing();}
     else if(index==11){profileRoute_="prizes";profileFocus_=0;backendAccount_.refreshPrizes();}
     else if(index==10){profileRoute_="support";profileFocus_=0;backendAccount_.refreshProgression(false);backendAccount_.refreshSupport();}
     else if(index==9){profileRoute_="shop";profileFocus_=1;backendAccount_.refreshShop();}
@@ -2009,6 +2016,7 @@ void ShellController::dispatchProfile(Action action) {
         }else if(action==Action::Left||action==Action::Right)profileFocus_=qBound(0,(profileFocus_>=100?0:profileFocus_)+(action==Action::Left?-1:1),4);
         emit changed();return;
     }
+    if(profileRoute_=="inventory"){inventory_.dispatch(action);return;}
     if(profileRoute_=="outfits"){outfits_.dispatch(action);return;}
     if(profileRoute_=="support") {
         if(action==Action::Back){if(backendAccount_.support()["review"].toBool())backendAccount_.activateSupport(3);else {profileRoute_="summary";profileFocus_=10;}}
@@ -2071,7 +2079,7 @@ void ShellController::dispatchProfile(Action action) {
     } else if(action==Action::Back)closeProfile();
     else if(action==Action::Confirm)activateProfile(profileFocus_);
     else if(action==Action::Up || action==Action::Left || action==Action::Down || action==Action::Right) {
-        QList<int> order{0,13,1,9,4,11,3};
+        QList<int> order{0,13,1,12,9,4,11,3};
         for(int i=0;i<profileSnapshot_["badges"].toList().size();++i)order.append(7+i);
         order.append(2);if(!profileSnapshot_["latestSession"].toMap().isEmpty())order.append(6);order.append(5);order.append(10);
         const int delta=action==Action::Up || action==Action::Left?-1:1;
@@ -2232,6 +2240,7 @@ void ShellController::dispatch(Action action) {
         libraryAction(multiverse_.viewStyle()=="wheel"?"view:list":multiverse_.viewStyle()=="list"?"view:shelves":multiverse_.viewStyle()=="shelves"?"view:grid":"view:wheel");return;
     }
     if(action==Action::ScrollUp || action==Action::ScrollDown) {
+        if(service_=="profile"&&profileRoute_=="inventory"&&profileContentActive()){inventory_.dispatch(action);return;}
         if(service_=="profile"&&profileRoute_=="outfits"&&!menuOpen_&&!homeMenuOpen_&&!keyboard_.isOpen()&&!drawerOpen_&&notice_.isEmpty()){
             outfits_.dispatch(action);return;
         }

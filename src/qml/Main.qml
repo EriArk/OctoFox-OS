@@ -10,6 +10,7 @@ Window {
     visible: true
     title: "TrainerOS"
     color: Theme.chassisDark
+    readonly property bool inventoryOpen: shell.service === "profile" && shell.profileRoute === "inventory"
     property bool notificationsAtFooter: true
     function openNotificationsAt(footer) {
         const relocate = shell.notificationsOpen && notificationsAtFooter !== footer
@@ -365,7 +366,7 @@ Window {
             Behavior on y { NumberAnimation {duration:Theme.motion(180);easing.type:Easing.InOutCubic} }
         }
         MouseArea {
-            anchors.fill: parent; z: bazaarPreview.active ? 2.8 : browserPane.expanded ? 1.95 : 1
+            anchors.fill: parent; z: bazaarPreview.active || window.inventoryOpen ? 2.8 : browserPane.expanded ? 1.95 : 1
             enabled: (shell.drawerOpen || shell.quickAppsOpen) && !shell.apps.menu.length && !shell.menuOpen && !shell.keyboard.open && !shell.homeMenuOpen && !shell.notice.length
             onClicked: shell.closeDrawers()
         }
@@ -374,7 +375,7 @@ Window {
             x: Theme.screenBounds.x
             anchors.bottom: footer.top
             shell: shellController; z: 3
-            visible: !shell.social.incomingCall.id && !shell.notificationsOpen && !shell.serviceOpen && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
+            visible: !shell.social.incomingCall.id && !shell.notificationsOpen && (!shell.serviceOpen || (window.inventoryOpen && shell.quickAppsOpen)) && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
             handlesRecessed: shell.quickAppsOpen || shell.drawerOpen || panelVisible || drawer.panelVisible
             otherPanelVisible: drawer.panelVisible
         }
@@ -383,8 +384,8 @@ Window {
             objectName: "continue-drawer"
             x: Theme.screenBounds.x + (expandedWidth-width)/(expandedWidth-closedWidth)*(closedWidth-Theme.drawerHandleOverlap)
             anchors.bottom: footer.top; shell: shellController
-            z: bazaarPreview.active ? 3 : 2
-            visible: !shell.social.incomingCall.id && !shell.serviceOpen && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (shell.chooseAdventureAvailable || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
+            z: bazaarPreview.active || window.inventoryOpen ? 3 : 2
+            visible: !shell.social.incomingCall.id && (!shell.serviceOpen || (window.inventoryOpen && shell.drawerOpen)) && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (shell.chooseAdventureAvailable || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
             handlesRecessed: shell.quickAppsOpen || shell.drawerOpen || panelVisible || quickDrawer.panelVisible
             otherPanelVisible: quickDrawer.panelVisible
         }

@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**Owner profile inventory, 13 November (latest):** build the inventory in the
+TrainerOS profile first, with a free entry beside Wardrobe, an item grid/detail
+and honest empty state. It belongs to the profile; no personal Bazaar purchase is
+required. Pokémon Emerald is the only current semantic adapter in this scope.
+Future transfers must remove/reinsert the real individual through the existing
+protected save owner, then integrate server custody and Bazaar listings. This UI
+increment does not enable transfers, goods ownership, payments or demo possessions
+in production. Keep the separate Bazaar branch and the closed spending policy.
+
 **Owner Bazaar placeholders, 10 November (latest, supersedes spending enablement):**
 The worlds do not exist yet. Show colorful, full-screen explanatory placeholders
 for official and player bazaars with large unmistakable PLACEHOLDER / UNDER

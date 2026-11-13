@@ -9,6 +9,7 @@
 #include <QClipboard>
 #include "features/settings/DisplayScale.h"
 #include "core/input/ControllerInput.h"
+#include "fixtures/ProfileInventoryFixture.h"
 #include <QKeyEvent>
 
 using namespace trainer;
@@ -284,6 +285,30 @@ private slots:
         shell.dispatch(Action::Back);QCOMPARE(shell.profileRoute(),"summary");QCOMPARE(shell.profileFocus(),1);
         shell.dispatch(Action::Back);shell.returnToLiveGame();
         QCOMPARE(returns.size(),1);QCOMPARE(shell.liveGame()["id"].toString(),"live-game");
+    }
+    void profileInventoryNavigationAndOwnerIsolation() {
+        MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;
+        DevelopmentPlatformService platform;MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        shell.openProfile();shell.activate(12,"profile");QCOMPARE(shell.profileRoute(),"inventory");
+        auto* inventory=shell.inventory();QVERIFY(inventory->view()["items"].toList().isEmpty());
+        QVERIFY(!inventory->view()["transfersAvailable"].toBool());
+        shell.dispatch(Action::Confirm);QVERIFY(!inventory->view()["detail"].toBool());
+        ProfileInventoryFixture::populate(*inventory);
+        shell.dispatch(Action::Down);shell.dispatch(Action::Right);QCOMPARE(inventory->view()["index"].toInt(),4);
+        shell.dispatch(Action::Confirm);QVERIFY(inventory->view()["detail"].toBool());
+        QSignalSpy scroll(inventory,&ProfileInventory::scrollRequested);
+        shell.dispatch(Action::Down);QCOMPARE(scroll.size(),1);
+        shell.dispatch(Action::Secondary);QVERIFY(shell.quickAppsOpen());shell.dispatch(Action::Back);
+        QVERIFY(inventory->view()["detail"].toBool());
+        shell.dispatch(Action::Back);QVERIFY(!inventory->view()["detail"].toBool());
+        QCOMPARE(inventory->view()["index"].toInt(),4);
+        shell.dispatch(Action::Back);QCOMPARE(shell.profileRoute(),"summary");QCOMPARE(shell.profileFocus(),12);
+        shell.dispatch(Action::Left);QCOMPARE(shell.profileFocus(),1);shell.dispatch(Action::Right);QCOMPARE(shell.profileFocus(),12);
+        inventory->setScope("other-owner","player-a");QVERIFY(inventory->view()["items"].toList().isEmpty());
+        ProfileInventoryFixture::populate(*inventory);inventory->activate(1);
+        inventory->setScope("other-owner","player-b");QVERIFY(inventory->view()["items"].toList().isEmpty());
+        QVERIFY(!inventory->view()["detail"].toBool());QVERIFY(!inventory->view()["preview"].toBool());
     }
     void playerProfileOwnsHistoryAchievementsAndAccountReturn() {
         MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;

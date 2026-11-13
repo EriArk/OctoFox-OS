@@ -15,6 +15,7 @@
 #include "features/trainer/TrainerController.h"
 #include "features/trainer/OutfitController.h"
 #include "features/trainer/VisitorProfile.h"
+#include "features/trainer/ProfileInventory.h"
 #include "features/trainer/TrainerSetupPresentation.h"
 #include "features/worlds/WorldsController.h"
 #include "features/worlds/MultiversePresentation.h"
@@ -131,6 +132,7 @@ class ShellController final : public QObject {
     Q_PROPERTY(trainer::TrainerController* trainer READ trainer CONSTANT)
     Q_PROPERTY(trainer::OutfitController* outfits READ outfits CONSTANT)
     Q_PROPERTY(trainer::VisitorProfile* visitorProfile READ visitorProfile CONSTANT)
+    Q_PROPERTY(trainer::ProfileInventory* inventory READ inventory CONSTANT)
     Q_PROPERTY(trainer::WorldsController* worlds READ worlds CONSTANT)
     Q_PROPERTY(trainer::HallOfFameController* hall READ hall CONSTANT)
     Q_PROPERTY(trainer::LibraryManagementController* libraryManager READ libraryManager CONSTANT)
@@ -186,6 +188,7 @@ public:
     TrainerController* trainer() { return &trainer_; }
     OutfitController* outfits() { return &outfits_; }
     VisitorProfile* visitorProfile() { return &visitorProfile_; }
+    ProfileInventory* inventory() { return &inventory_; }
     Q_INVOKABLE void openVisitorProfile(QString player);
     Q_INVOKABLE QStringList profileFavoriteTitles() const;
     WorldsController* worlds() { return &worlds_; }
@@ -434,6 +437,7 @@ private:
     BackendAccount backendAccount_;
     OutfitController outfits_{backendAccount_,trainer_,this};
     VisitorProfile visitorProfile_{backendAccount_,this};
+    ProfileInventory inventory_{this};
     HomeDashboardController dashboard_;
     PlayerStory story_;
     QVariantMap profileSnapshot_;
