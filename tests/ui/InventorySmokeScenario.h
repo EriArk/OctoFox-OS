@@ -29,46 +29,60 @@ inline void startInventorySmoke(QQuickWindow* window,trainer::ShellController& s
             QMouseEvent down(QEvent::MouseButtonPress,point,global,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier),up(QEvent::MouseButtonRelease,point,global,Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
             QCoreApplication::sendEvent(window,&down);QCoreApplication::sendEvent(window,&up);
         };
+        const auto hover=[&](QString name){
+            auto* item=find(name);check(item,"Hover target: "+name);if(!item)return;
+            const auto point=item->mapToScene({item->width()/2,item->height()/2});
+            QMouseEvent event(QEvent::MouseMove,point,QPointF(window->mapToGlobal(point.toPoint())),Qt::NoButton,Qt::NoButton,Qt::NoModifier);
+            QCoreApplication::sendEvent(window,&event);
+        };
         auto* inventory=shell.inventory();
         switch((*step)++) {
-        case 0:window->resize(960,540);shell.openProfile();break;
+        case 0:window->resize(800,450);shell.openProfile();shell.activate(12,"profile");break;
         case 1:
-            capture("profile-entry-960");click("profile-inventory");break;
-        case 2:
-            check(shell.profileRoute()=="inventory"&&find("inventory-empty"),"Free profile entry without a bazaar or sign-in");
-            check(inventory->view()["items"].toList().isEmpty(),"No sample possessions in production");
-            capture("inventory-empty-960");window->resize(800,450);break;
+            check(find("inventory-empty")&&inventory->view()["items"].toList().isEmpty(),"Empty state without fake possessions");
+            capture("dense-empty-800");trainer::ProfileInventoryFixture::populate(*inventory);break;
+        case 2: {
+            auto* grid=find("inventory-grid");check(grid,"Grid rendered");
+            auto* last=find("inventory-slot-29");check(last&&grid,"Thirty slots rendered");
+            if(last&&grid){auto top=last->mapToItem(grid,{0,0});check(top.y()>=0&&top.y()+last->height()<=grid->height()+1,"Thirty complete cells fit at 800x450");}
+            check(find("inventory-details"),"Details visible immediately without Confirm");capture("dense-grid-800");
+            shell.dispatch(Action::Right);break;
+        }
         case 3:
-            capture("inventory-empty-800");trainer::ProfileInventoryFixture::populate(*inventory);window->resize(960,540);break;
+            check(inventory->view()["selected"].toMap()["state"]=="listed","D-pad updates inspector immediately");capture("dense-listed-800");
+            hover("inventory-slot-8");break;
         case 4:
-            check(find("inventory-item-0"),"Fixture grid is rendered");capture("inventory-grid-960");click("inventory-item-0");break;
+            check(inventory->view()["index"].toInt()==8,"Mouse hover selects without clicking");click("inventory-slot-6");break;
         case 5:
-            check(inventory->view()["detail"].toBool(),"Touch opens full item details");capture("inventory-detail-960");window->resize(800,450);break;
+            check(inventory->view()["index"].toInt()==6,"Touch selects without changing screen");
+            inventory->activate(30);break;
         case 6:
-            capture("inventory-detail-800");shell.dispatch(Action::Down);shell.dispatch(Action::Back);shell.dispatch(Action::Down);shell.dispatch(Action::Down);break;
+            check(inventory->view()["index"].toInt()==30,"Stationary pointer does not steal focus while grid scrolls");
+            check(find("inventory-grid")->property("contentY").toReal()>0,"Focus scrolls grid");capture("dense-scrolled-800");
+            click("inventory-search");break;
         case 7:
-            check(inventory->view()["index"].toInt()==6,"Controller moves through three-column grid");
-            check(find("inventory-grid")&&find("inventory-grid")->property("contentY").toReal()>0,"Grid scrolls with focus");
-            capture("inventory-grid-scrolled-800");shell.dispatch(Action::Confirm);shell.dispatch(Action::Secondary);break;
+            check(shell.keyboard()->isOpen(),"Search uses shared keyboard");shell.keyboard()->insertText("treecko");shell.keyboard()->pressKey(Qt::Key_Return);break;
         case 8:
-            check(shell.quickAppsOpen()&&find("quick-apps-drawer"),"Global X opens a visible dock over inventory");capture("inventory-dock-800");shell.dispatch(Action::Back);
-            shell.dispatch(Action::ToggleContinue);check(shell.drawerOpen()&&find("continue-drawer"),"Global Y opens a visible drawer over inventory");shell.dispatch(Action::Back);
-            check(inventory->view()["detail"].toBool(),"Closing dock preserves item");shell.dispatch(Action::Back);shell.dispatch(Action::Back);break;
+            check(inventory->view()["items"].toList().size()==4,"Search filters immediately on acceptance");capture("dense-search-800");
+            inventory->clearSearch();click("inventory-filter");click("inventory-filter");break;
         case 9:
-            check(shell.profileRoute()=="summary"&&shell.profileFocus()==12,"Back restores profile entry focus");
-            shell.settings()->cycleTheme();click("profile-inventory");inventory->activate(1);break;
+            check(inventory->view()["items"].toList().size()==1,"On-sale filter");capture("dense-filter-800");click("inventory-filter");click("inventory-sort");break;
         case 10:
-            check(inventory->view()["selected"].toMap()["state"]=="listed","Listing presentation retained");
-            capture("inventory-listed-dark-800");shell.dispatch(Action::SystemMenu);break;
+            check(inventory->view()["sort"]=="Name","Sort control");check(inventory->view()["selected"].toMap()["id"]=="sample-1","Sort preserves selected item identity");
+            shell.settings()->cycleTheme();window->resize(960,540);inventory->activate(0);break;
         case 11:
-            check(shell.menuOpen(),"Start opens over inventory");shell.dispatch(Action::Back);
-            check(shell.profileRoute()=="inventory","Start dismissal retains inventory");shell.dispatch(Action::Home);break;
+            capture("dense-dark-960");shell.dispatch(Action::Secondary);break;
         case 12:
-            check(shell.primaryId()=="home"&&!shell.serviceOpen(),"Home leaves profile");
-            inventory->setScope("another-owner",{});shell.openProfile();shell.activate(12,"profile");break;
+            check(shell.quickAppsOpen()&&find("quick-apps-drawer"),"X dock remains visible");shell.dispatch(Action::Back);
+            shell.dispatch(Action::ToggleContinue);check(shell.drawerOpen()&&find("continue-drawer"),"Y drawer retained");shell.dispatch(Action::Back);
+            shell.dispatch(Action::SystemMenu);break;
         case 13:
-            check(inventory->view()["items"].toList().isEmpty()&&!inventory->view()["detail"].toBool(),"Owner change clears old records and detail");
-            capture("inventory-empty-dark-800");break;
+            check(shell.menuOpen(),"Start overlays inventory");shell.dispatch(Action::Back);shell.dispatch(Action::Back);
+            check(shell.profileRoute()=="summary"&&shell.profileFocus()==12,"One Back returns to profile");
+            shell.activate(12,"profile");shell.dispatch(Action::Home);break;
+        case 14:
+            check(shell.primaryId()=="home"&&!shell.serviceOpen(),"Home returns");inventory->setScope("other-owner",{});
+            check(inventory->view()["items"].toList().isEmpty()&&inventory->view()["search"].toString().isEmpty(),"Owner change clears items and filters");break;
         default:
             check(warnings==0,"No QML warnings");timer->stop();completed=true;
             QFile file(directory+"/inventory-report.json");if(file.open(QIODevice::WriteOnly))file.write(QJsonDocument(QJsonObject{{"success",diagnostics.isEmpty()},{"warnings",warnings},{"diagnostics",QJsonArray::fromStringList(diagnostics)}}).toJson());

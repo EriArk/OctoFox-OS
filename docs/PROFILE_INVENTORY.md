@@ -1,4 +1,4 @@
-# Profile inventory — 13 November 2026
+# Profile inventory — 14 November 2026
 
 The inventory belongs to the TrainerOS profile. Bazaar listings and game adapters
 will use this inventory; owning or renting a bazaar is not a prerequisite to
@@ -7,22 +7,39 @@ semantic game adapter in this scope.
 
 ## Current source implementation
 
-Profile → Inventory is a free entry beside Wardrobe. The page has a controller
-navigable three-column grid and item details: art/name, source game, level, sex,
-nature, ability, held item and moves supplied as presentation data. Listed items
-have a distinct status. Back returns from details to the same grid selection,
-then to the profile Inventory entry. X/Y and Start retain their system roles.
+Profile → Inventory is a free entry beside Wardrobe. The owner rejected the
+large three-column cards and separate details page on 14 November. The replacement
+uses six columns and five fully visible rows at the 800×450 minimum, with a
+permanent inspector beside the grid. Empty cells are visual space, not a capacity
+limit or owned possessions. More items scroll vertically.
 
-Production opens an explicit **UNDER DEVELOPMENT** empty state. It does not claim
+Only the image, level and a small listed marker occupy each cell. Pointer movement,
+touch selection and directional focus update the inspector immediately, without
+Confirm or a page transition. The inspector shows name/source, metadata and moves.
+Transfer/list/withdraw controls remain explicitly disabled.
+
+The compact toolbar provides shared-keyboard search by name/source, All / Stored /
+On sale filtering, and received order / name / descending numeric level sorting.
+Sorting retains the selected stable item ID; filtering retains it when present,
+otherwise selects the first match. Search and filters persist during a same-owner
+visit/return and reset on profile/account change. A search result from an old owner
+or a closed page is ignored.
+
+Up from the first row or Select focuses the toolbar; Left/Right choose its controls,
+A activates and Down returns to items. R3 opens search directly. Directional
+navigation moves through six columns; right-stick scroll reads the inspector.
+Back returns straight to the profile Inventory entry. X/Y and Start retain their
+system roles and the selected item. Touch/mouse controls use the same presenter.
+
+Production opens an explicit **In development** empty state. It does not claim
 that a server returned an empty collection. No local Party/Box individual is
 shown as profile-owned; no samples are inserted into real profiles. Transfers,
 return to game and trading are unavailable. Profile/Backend identity changes
-clear the presentation and selected detail. There is no persistent loot cache or
+clear the presentation, search and filters. There is no persistent loot cache or
 new HTTP API in this increment.
 
 The native presenter accepts no QML mutations of possessions. Isolated UI/test
-fixtures supply sample records and label them **DESIGN PREVIEW · SAMPLE ITEMS,
-NOT OWNED**. Creature images reuse the adapter's original Cuboid image provider;
+fixtures supply sample records and label them **SAMPLE ITEMS** with a sample count. Creature images reuse the adapter's original Cuboid image provider;
 no new franchise artwork or item/game semantics are embedded into the shell.
 The generic item view consumes metadata; it does not implement an Emerald writer.
 
@@ -44,4 +61,6 @@ limitation. No new paid features are enabled by this UI.
 
 See [Bazaar](BAZAAR.md), [adapter knowledge](adapters/README.md),
 [Emerald evidence](adapters/emerald-en.md), and
-[UI evidence](evidence/2026-11-13-profile-inventory/README.md).
+[current UI evidence](evidence/2026-11-14-inventory-density/README.md).
+The [13 November evidence](evidence/2026-11-13-profile-inventory/README.md) records
+the superseded initial layout, not the current interaction contract.

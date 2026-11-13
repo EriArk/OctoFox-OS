@@ -1,0 +1,10 @@
+{
+  "src/core/navigation/ShellController.cpp": "26614a7a9e608081ec6217efc2cecc6ae9c1894e8ab593e73e18f054a5934dde",
+  "src/core/navigation/ShellController.h": "a2610da3b3ceabeed6b12bb39e50c55281675c8207066a7a10582ed2acf82de0",
+  "src/features/trainer/ProfileInventory.cpp": "90c8a444b8fd3bdf8118218ea7fbcf459130cd98fc5b8479192a2246b05b85a9",
+  "src/features/trainer/ProfileInventory.h": "d165d6c937f7914f1e38f588151f0925e496b1cf6f256d6e39294ac6b32296f9",
+  "src/qml/ProfileInventoryPage.qml": "346f3978f1ab4e12869b13be775be3f66e5767d5134dbea3bc440b9d98b3b592",
+  "tests/InteractionTests.cpp": "5755ea59c17cb638f44addd1f331d237df74cf2045416d7ffac8c95edb28a7a3",
+  "tests/fixtures/ProfileInventoryFixture.h": "69c46888b91322e59cd2ad2ce1e7c246a954b3d321a8ed4ec2306105ac7b85ad",
+  "tests/ui/InventorySmokeScenario.h": "ab887189dc879a1f36dd7753adcc32a1f032c7bd52856dd518911a660835ed58"
+}

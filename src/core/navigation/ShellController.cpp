@@ -171,6 +171,10 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&social_,&SocialController::presentationChanged,this,&ShellController::changed,Qt::QueuedConnection);
     connect(&visitorProfile_,&VisitorProfile::changed,this,&ShellController::changed);
     connect(&inventory_,&ProfileInventory::changed,this,&ShellController::changed);
+    connect(&inventory_,&ProfileInventory::searchRequested,this,[this](QString initial){
+        if(!profileContentActive()||profileRoute_!="inventory")return;
+        textTarget_=TextTarget::InventorySearch;keyboard_.begin("Search inventory",initial,64,false,"Search");
+    });
     connect(&inventory_,&ProfileInventory::backRequested,this,[this]{profileRoute_="summary";profileFocus_=12;emit changed();});
     social_.openPlayerProfile=[this](QString subject){
         openProfile(subject==social_.account()["userId"].toString());if(service_!="profile")return false;
@@ -542,7 +546,8 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&keyboard_, &TextEntryController::accepted, this, [this](const QString& text) {
         const auto target = textTarget_;
         textTarget_ = TextTarget::None;
-        if(target==TextTarget::BazaarSearch)bazaar_.applyText(text);
+        if(target==TextTarget::InventorySearch){if(service_=="profile"&&profileRoute_=="inventory")inventory_.applySearch(text);}
+        else if(target==TextTarget::BazaarSearch)bazaar_.applyText(text);
         else if(target==TextTarget::GameInput)settings_.gameInput()->applyText(text);
         else if (target == TextTarget::SetupName) trainerSetup_.applyName(text);
         else if (target == TextTarget::TrainerName) trainer_.setDraftName(text);
@@ -2199,6 +2204,10 @@ void ShellController::dispatch(Action action) {
             if(pairedNavigationAvailable() && !navigationLocked())bazaar_.dispatch(action);
             return;
         }
+    }
+    if(service_=="profile" && profileRoute_=="inventory" && action==Action::ChangeView) {
+        if(profileContentActive() && !navigationLocked())inventory_.control(0);
+        return;
     }
     if(page_==OnlinePage && onlineFace_=="lobby" && (action==Action::ToggleFavorite || action==Action::ChangeView)) {
         if(pairedNavigationAvailable() && !navigationLocked() && !localModalOpen())social_.dispatch(action);

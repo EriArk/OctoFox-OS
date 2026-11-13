@@ -1,5 +1,13 @@
 # TrainerOS — active agent / developer contract
 
+**Owner inventory density correction, 14 November (latest):** replace the large
+three-column cards and separate detail page with a compact six-column grid and
+permanent inspector. Target thirty fully visible cells at 800×450; pointer hover,
+touch and controller focus update details immediately. Keep a short toolbar for
+search/filter/sort, existing X/Y roles, shared keyboard and one-Back profile return.
+Reduce headings/repeated copy. Ownership/transfers/trading remain unavailable;
+only isolated samples may populate the UI. This supersedes the old detail-page UX.
+
 **Owner profile inventory, 13 November (latest):** build the inventory in the
 TrainerOS profile first, with a free entry beside Wardrobe, an item grid/detail
 and honest empty state. It belongs to the profile; no personal Bazaar purchase is

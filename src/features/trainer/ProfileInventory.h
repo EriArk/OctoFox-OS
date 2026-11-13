@@ -5,8 +5,7 @@
 #include <QVariantList>
 
 namespace trainer {
-// Profile-owned presentation. Save transfers and server custody are not enabled.
-// Only isolated fixtures supply entries until an authoritative provider exists.
+// Profile presentation only. Authoritative custody and save transfers remain closed.
 class ProfileInventory final : public QObject {
     Q_OBJECT
     Q_PROPERTY(QVariantMap view READ view NOTIFY changed)
@@ -16,16 +15,21 @@ public:
     void setScope(QString owner,QString account);
     void close();
     void dispatch(Action action);
+    void applySearch(QString text);
     Q_INVOKABLE void activate(int index);
+    Q_INVOKABLE void control(int index);
+    Q_INVOKABLE void clearSearch();
 signals:
     void changed();
     void backRequested();
     void scrollRequested(int delta);
+    void searchRequested(QString initial);
 private:
     friend class ProfileInventoryFixture;
-    QString owner_,account_;
-    QVariantList items_;
-    int index_=0;
-    bool detail_=false,preview_=false;
+    void rebuild();
+    QString owner_,account_,search_,searchOwner_,searchAccount_;
+    QVariantList items_,visible_;
+    int index_=0,control_=-1,filter_=0,sort_=0;
+    bool preview_=false,searchPending_=false;
 };
 }

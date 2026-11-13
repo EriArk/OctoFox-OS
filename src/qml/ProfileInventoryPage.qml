@@ -8,123 +8,134 @@ Item {
     readonly property var inventory: shell.inventory
     readonly property var view: inventory.view
     readonly property var selected: view.selected || ({})
-    readonly property bool compact: height < 400
     readonly property color accent: Theme.dark ? "#a6e0c9" : "#356f60"
     enabled: shell.profileContentActive
 
-    Text {
-        id: title; width: parent.width - 160
-        text: root.view.detail ? "Item details" : "Inventory"
-        font.family: Theme.displayFamily; font.pixelSize: root.compact ? 30 : 38; color: Theme.ink
+    component Tool: Rectangle {
+        required property int action
+        required property string label
+        height: 29; radius: 5
+        color: root.view.control === action ? Theme.selection : Theme.surface
+        border.color: root.view.control === action ? Theme.focus : Theme.divider
+        Text { x: 9; width: parent.width - 18; anchors.verticalCenter: parent.verticalCenter; text: parent.label; textFormat: Text.PlainText; elide: Text.ElideRight; color: Theme.ink; font.pixelSize: 12 }
+        MouseArea { anchors.fill: parent; onClicked: root.inventory.control(parent.action) }
+        Accessible.role: Accessible.Button; Accessible.name: label
+        Accessible.onPressAction: root.inventory.control(action)
     }
-    Text {
-        anchors.right: parent.right; y: 9; text: "FREE WITH YOUR PROFILE"
-        font.pixelSize: 10; font.bold: true; color: root.accent
+    Row {
+        id: toolbar; width: parent.width; height: 30; spacing: 7
+        Text { width: 105; height: 29; verticalAlignment: Text.AlignVCenter; text: "Inventory"; font.family: Theme.displayFamily; font.pixelSize: 22; color: Theme.ink }
+        Tool { objectName: "inventory-search"; width: Math.max(120, root.width - 435); action: 0; label: root.view.search || "Search…  R3" }
+        Tool { objectName: "inventory-filter"; width: 82; action: 1; label: root.view.filter + " ↻" }
+        Tool { objectName: "inventory-sort"; width: 88; action: 2; label: root.view.sort + " ↻" }
+        Text { width: 132; height: 29; verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignRight; text: root.view.preview ? root.view.items.length + " / " + root.view.total + " sample items" : "In development"; font.pixelSize: 11; color: root.accent }
     }
-    Text {
-        y: title.height + 3; width: parent.width
-        text: root.view.preview ? "DESIGN PREVIEW · SAMPLE ITEMS, NOT OWNED" : "Your collection, beyond a single adventure."
-        font.pixelSize: 12; color: root.view.preview ? Theme.ink : Theme.muted
-    }
-
-    Rectangle {
-        id: empty; objectName: "inventory-empty"
-        y: title.height + 30; width: parent.width; height: parent.height - y - 44
-        visible: root.view.items.length === 0
-        radius: 18; color: Theme.surface; border.color: Theme.divider
-        Item {
-            width: parent.width * .29; height: parent.height
-            Rectangle {
-                anchors.centerIn: parent; width: Math.min(parent.width - 20, 130); height: width; radius: 24
-                color: Theme.dark ? "#284e47" : "#d6eadd"; rotation: -9
-            }
-            MenuGlyph { anchors.centerIn: parent; width: 64; height: 64; glyph: "boxes"; ink: root.accent }
-        }
-        Column {
-            x: parent.width * .29; width: parent.width - x - 22; anchors.verticalCenter: parent.verticalCenter
-            spacing: root.compact ? 8 : 14
-            Text { width: parent.width; text: "Your inventory starts here"; wrapMode: Text.WordWrap; font.family: Theme.displayFamily; font.pixelSize: root.compact ? 23 : 30; color: Theme.ink }
-            Text { width: parent.width; text: "A home for collectibles from supported games and future Bazaar purchases. You won't need your own bazaar."; wrapMode: Text.WordWrap; font.pixelSize: root.compact ? 12 : 15; color: Theme.muted }
-            Text { text: "UNDER DEVELOPMENT"; font.pixelSize: 12; font.bold: true; color: root.accent }
-            Text { width: parent.width; text: "Game transfers and trading aren't available yet. Nothing has been moved from your saves."; wrapMode: Text.WordWrap; font.pixelSize: root.compact ? 12 : 14; color: Theme.ink }
-        }
-    }
-
     GridView {
         id: grid; objectName: "inventory-grid"
-        y: title.height + 30; width: parent.width; height: parent.height - y - 44; clip: true
-        visible: root.view.items.length > 0 && !root.view.detail
-        model: root.view.items; cellWidth: width / 3; cellHeight: root.compact ? 133 : 166
-        ScrollBar.vertical: ScrollBar { policy: grid.contentHeight > grid.height ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff }
+        y: 40; width: Math.floor(root.width * .61); height: root.height - y - 24; clip: true
+        model: Math.max(30, root.view.items.length)
+        cellWidth: (width - 9) / 6; cellHeight: height / 5
         currentIndex: root.view.index
+        boundsBehavior: Flickable.StopAtBounds
+        ScrollBar.vertical: ScrollBar { policy: grid.contentHeight > grid.height + 1 ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff }
         onCurrentIndexChanged: positionViewAtIndex(currentIndex, GridView.Contain)
-        onVisibleChanged: if (visible) positionViewAtIndex(currentIndex, GridView.Contain)
+        onCountChanged: Qt.callLater(function() { grid.positionViewAtIndex(grid.currentIndex, GridView.Contain) })
+        HoverHandler {
+            id: gridHover
+            readonly property point pointerScenePosition: point.scenePosition
+            onPointerScenePositionChanged: {
+                const position = grid.mapFromItem(null, pointerScenePosition.x, pointerScenePosition.y)
+                if (position.x >= 0 && position.x < grid.width && position.y >= 0 && position.y < grid.height)
+                    root.inventory.activate(grid.indexAt(position.x + grid.contentX, position.y + grid.contentY))
+            }
+        }
         delegate: Rectangle {
-            id: card
-            required property var modelData
+            id: slot
             required property int index
-            objectName: "inventory-item-" + index
-            width: grid.cellWidth - 10; height: grid.cellHeight - 10; radius: 12
-            color: index === root.view.index ? Theme.selection : Theme.surface
-            border.width: index === root.view.index ? 2 : 1
-            border.color: index === root.view.index ? Theme.focus : Theme.divider
-            Image { x: 10; y: 10; width: root.compact ? 60 : 80; height: width; source: card.modelData.image || ""; fillMode: Image.PreserveAspectFit }
-            Text { anchors.right: parent.right; anchors.rightMargin: 10; y: 14; text: card.modelData.subtitle || ""; textFormat: Text.PlainText; font.pixelSize: 12; color: Theme.ink }
-            Text { x: 10; y: root.compact ? 75 : 96; width: parent.width - 20; text: card.modelData.title; textFormat: Text.PlainText; font.pixelSize: 16; font.bold: true; color: Theme.ink; elide: Text.ElideRight }
-            Text { x: 10; anchors.bottom: parent.bottom; anchors.bottomMargin: 10; width: parent.width - 20; text: card.modelData.state === "listed" ? "On sale" : card.modelData.game; textFormat: Text.PlainText; font.pixelSize: 10; color: root.accent; elide: Text.ElideRight }
-            MouseArea { anchors.fill: parent; onClicked: root.shell.activate(card.index, "profile") }
+            readonly property var record: root.view.items[index] || ({})
+            readonly property bool occupied: !!record.id
+            readonly property bool chosen: occupied && index === root.view.index
+            objectName: "inventory-slot-" + index
+            width: grid.cellWidth - 4; height: grid.cellHeight - 4; radius: 5
+            color: chosen ? Theme.selection : Theme.surface
+            border.width: chosen ? 2 : 1; border.color: chosen ? Theme.focus : Theme.divider
+            Image { anchors.centerIn: parent; width: Math.min(parent.width - 8, parent.height - 4); height: width; source: slot.record.image || ""; fillMode: Image.PreserveAspectFit }
+            Text { anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 4; text: slot.record.subtitle || ""; textFormat: Text.PlainText; font.pixelSize: 10; color: Theme.ink; style: Text.Outline; styleColor: slot.color }
+            Rectangle {
+                visible: slot.record.state === "listed"; x: 4; y: 4; width: 16; height: 16; radius: 4; color: Theme.yellow
+                MenuGlyph { anchors.centerIn: parent; width: 12; height: 12; glyph: "shop"; ink: "#203c38" }
+            }
+            MouseArea {
+                anchors.fill: parent; enabled: slot.occupied
+                onClicked: root.inventory.activate(slot.index)
+            }
             Accessible.role: Accessible.Button
-            Accessible.name: modelData.title + ", " + modelData.game
-            Accessible.onPressAction: root.shell.activate(index, "profile")
+            Accessible.name: occupied ? record.title + ", " + record.subtitle + (record.state === "listed" ? ", on sale" : "") : "Empty slot"
+            Accessible.onPressAction: if (occupied) root.inventory.activate(index)
         }
     }
-
-    Flickable {
-        id: details; objectName: "inventory-details"
-        y: title.height + 30; width: parent.width; height: parent.height - y - 44
-        visible: root.view.detail; clip: true; contentWidth: width; contentHeight: Math.max(portrait.height, facts.height)
-        onVisibleChanged: if (visible) contentY = 0
-        Connections { target: root.inventory; function onScrollRequested(delta) { details.contentY = Math.max(0, Math.min(details.contentY + delta, details.contentHeight - details.height)) } }
-        ScrollBar.vertical: ScrollBar { policy: details.contentHeight > details.height ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff }
-        boundsBehavior: Flickable.StopAtBounds
+    Rectangle { x: grid.width + 5; y: grid.y; width: 1; height: grid.height; color: Theme.divider }
+    Item {
+        id: inspector; objectName: "inventory-inspector"
+        x: grid.width + 17; y: grid.y; width: parent.width - x; height: grid.height
         Column {
-            id: portrait; width: parent.width * .33; spacing: 4
-            Image { anchors.horizontalCenter: parent.horizontalCenter; width: root.compact ? 105 : 155; height: width; source: root.selected.image || ""; fillMode: Image.PreserveAspectFit }
-            Text { width: parent.width; text: root.selected.title || ""; textFormat: Text.PlainText; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap; font.family: Theme.displayFamily; font.pixelSize: 25; color: Theme.ink }
-            Text { width: parent.width; text: root.selected.game || ""; textFormat: Text.PlainText; horizontalAlignment: Text.AlignHCenter; font.pixelSize: 11; color: root.accent }
-            Text { width: parent.width; text: root.selected.state === "listed" ? "ON SALE" : "IN INVENTORY"; horizontalAlignment: Text.AlignHCenter; font.pixelSize: 10; font.bold: true; color: root.accent }
+            id: empty; objectName: "inventory-empty"; visible: !root.selected.id
+            width: parent.width - 8; spacing: 12
+            Text { width: parent.width; text: root.view.total ? "No matches" : "Inventory is being prepared"; wrapMode: Text.WordWrap; font.family: Theme.displayFamily; font.pixelSize: 22; color: Theme.ink }
+            Text { width: parent.width; text: root.view.total ? "Try another name or change the filter." : "Collectibles from supported games will appear here. You won't need your own bazaar."; wrapMode: Text.WordWrap; font.pixelSize: 13; color: Theme.muted }
+            Text { width: parent.width; visible: !root.view.total; text: "Transfers and trading are not available yet. Nothing has been moved from your saves."; wrapMode: Text.WordWrap; font.pixelSize: 12; color: root.accent }
+            CapButton { objectName: "inventory-clear-search"; visible: !!root.view.search; width: 150; height: 30; label: "Clear search"; textSize: 12; onActivated: root.inventory.clearSearch() }
         }
-        Column {
-            id: facts; x: parent.width * .36; width: parent.width - x - 10; spacing: root.compact ? 7 : 10
-            Flow {
-                width: parent.width; spacing: 8
-                Repeater {
-                    model: root.selected.facts || []
-                    delegate: Rectangle {
-                        required property var modelData
-                        width: (facts.width - 8) / 2; height: root.compact ? 40 : 54; radius: 7; color: Theme.surface
-                        Column { x: 10; y: 6; width: parent.width - 20; spacing: 3
-                            Text { text: modelData.label; textFormat: Text.PlainText; font.pixelSize: 10; color: Theme.muted }
+        Flickable {
+            id: details; objectName: "inventory-details"; width: parent.width; height: parent.height - 43
+            visible: !!root.selected.id; contentWidth: width; contentHeight: detailBody.height; clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollBar.vertical: ScrollBar { policy: details.contentHeight > details.height ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff }
+            Connections { target: root.inventory; function onScrollRequested(delta) { details.contentY = Math.max(0, Math.min(details.contentY + delta, details.contentHeight - details.height)) } }
+            property string selectedId: root.selected.id || ""
+            onSelectedIdChanged: contentY = 0
+            Column {
+                id: detailBody; width: parent.width - 10; spacing: 8
+                Column {
+                    width: parent.width; spacing: 3
+                    Text { objectName: "inventory-selected-name"; width: parent.width; text: root.selected.title || ""; textFormat: Text.PlainText; font.family: Theme.displayFamily; font.pixelSize: 23; color: Theme.ink; elide: Text.ElideRight }
+                    Text { width: parent.width; text: (root.selected.game || "") + (root.selected.state === "listed" ? " · On sale" : ""); textFormat: Text.PlainText; font.pixelSize: 11; color: root.accent; elide: Text.ElideRight }
+                }
+                Flow {
+                    width: parent.width; spacing: 5
+                    Repeater {
+                        model: root.selected.facts || []
+                        delegate: Column {
+                            required property var modelData
+                            width: (detailBody.width - 5) / 2; height: 32; spacing: 2
+                            Text { width: parent.width; text: modelData.label; textFormat: Text.PlainText; font.pixelSize: 10; color: Theme.muted; elide: Text.ElideRight }
                             Text { width: parent.width; text: modelData.value; textFormat: Text.PlainText; font.pixelSize: 13; color: Theme.ink; elide: Text.ElideRight }
                         }
                     }
                 }
-            }
-            Text { text: "MOVES"; visible: (root.selected.moves || []).length > 0; font.pixelSize: 10; font.bold: true; color: root.accent }
-            Flow {
-                width: parent.width; spacing: 8
-                Repeater {
-                    model: root.selected.moves || []
-                    delegate: Text { required property string modelData; width: (facts.width - 8) / 2; text: modelData; textFormat: Text.PlainText; font.pixelSize: 12; color: Theme.ink; elide: Text.ElideRight }
+                Text { text: "MOVES"; visible: (root.selected.moves || []).length > 0; font.pixelSize: 10; font.bold: true; color: root.accent }
+                Flow {
+                    width: parent.width; spacing: 5
+                    Repeater { model: root.selected.moves || []; delegate: Text { required property string modelData; width: (detailBody.width - 5) / 2; text: modelData; textFormat: Text.PlainText; font.pixelSize: 12; color: Theme.ink; elide: Text.ElideRight } }
                 }
             }
-            Text { width: parent.width; text: root.selected.state === "listed" ? "An item on sale must be withdrawn before returning it to a game." : "Items will be transferable only to compatible games with room to receive them."; wrapMode: Text.WordWrap; font.pixelSize: 11; color: Theme.muted }
+        }
+        Row {
+            visible: !!root.selected.id; anchors.bottom: parent.bottom; width: parent.width; height: 33; spacing: 6
+            Repeater {
+                model: ["To game", root.selected.state === "listed" ? "Withdraw" : "List for sale"]
+                delegate: Rectangle {
+                    required property string modelData
+                    width: (inspector.width - 6) / 2; height: 30; radius: 5; color: Theme.surface; border.color: Theme.divider; opacity: .5
+                    Text { anchors.centerIn: parent; text: modelData; font.pixelSize: 12; color: Theme.ink }
+                    Accessible.role: Accessible.Button; Accessible.name: modelData + ", not available yet"; Accessible.ignored: false
+                    enabled: false
+                }
+            }
         }
     }
-    Rectangle { anchors.bottom: parent.bottom; anchors.bottomMargin: 35; width: parent.width; height: 1; color: Theme.divider }
     Text {
-        anchors.bottom: parent.bottom; anchors.bottomMargin: 9; width: parent.width
-        text: root.view.detail ? "↑↓  Read   ·   B  Inventory     |     Transfers and trading are not available yet" : root.view.items.length ? "↑↓ ←→  Choose   ·   A  Details   ·   B  Profile     |     Transfers are not available yet" : "Transfer from game · Not available yet     |     No Sparks required"
-        font.pixelSize: 11; color: Theme.muted; wrapMode: Text.WordWrap
+        anchors.bottom: parent.bottom; width: parent.width; font.pixelSize: 10; color: Theme.muted; elide: Text.ElideRight
+        text: (root.view.preview ? "SAMPLE ITEMS · " : "") + "↑↓←→ Select · R3 Search · Select Controls · RS Read · B Profile     |     Transfers / trading unavailable"
     }
 }
