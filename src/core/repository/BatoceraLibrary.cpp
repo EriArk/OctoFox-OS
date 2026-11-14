@@ -3,6 +3,7 @@
 #include "core/model/MultiplayerPreference.h"
 #include "CollectionRepository.h"
 #include "RomPlatforms.h"
+#include "platform/storage/LibraryMountWatcher.h"
 #include <QCryptographicHash>
 #include <QDirIterator>
 #include <QFile>
@@ -198,7 +199,7 @@ Metadata readGamelist(const QString& directory,QStringList& warnings,bool& reada
 QStringList batoceraPlatforms() { return formats().keys(); }
 FolderScan scanBatoceraLibrary(const QString& roms,const QList<AdventureRegistration>& existing,const ExperienceIdentityProbe& probe,const LibraryScanProgress& progress) {
     FolderScan result;QDir root(roms);
-    if(!root.exists() || !QFileInfo(roms).isReadable()) {result.complete=false;result.warnings.append("The ROM folder is unavailable.");return result;}
+    if(!libraryPathIsMounted(roms,mountedLibraryVolumes()) || !root.exists() || !QFileInfo(roms).isReadable()) {result.complete=false;result.warnings.append("The ROM folder is unavailable.");return result;}
     root=QDir(root.canonicalPath());
     QHash<QString,AdventureRegistration> known;
     for(const auto& r:existing)known.insert(key(r.contentPath),r);
@@ -388,6 +389,7 @@ BatoceraLibrary::~BatoceraLibrary() {
 }
 QString BatoceraLibrary::storageRootFor(const QString& id) const {
     const auto record=library_.registration(id);if(!record)return {};
+    if(!libraryPathIsMounted(record->contentPath,mountedLibraryVolumes()))return {};
     const auto file=QFileInfo(record->contentPath).canonicalFilePath();if(file.isEmpty())return {};
     auto roots=knownRoots_;roots.insert(roms_);
     for(const auto& libraryRoot:roots)for(const auto& entry:QDir(libraryRoot).entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot)) {
@@ -430,8 +432,10 @@ void BatoceraLibrary::setFavoriteAsync(const QString& id,bool favorite,QObject* 
     const auto record=library_.registration(id);
     if(!library_.editable() || !record || record->removed || record->adventure.collectionOnly){done("This game is no longer available in the library.");return;}
     QString systemRoot;
+    const auto libraryRoot=storageRootFor(id);
+    if(libraryRoot.isEmpty()){done("Reconnect this game's library storage before changing favorites.");return;}
     const auto path=QFileInfo(record->contentPath).canonicalFilePath();
-    for(const auto& entry:QDir(storageRootFor(id)).entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot)) {
+    for(const auto& entry:QDir(libraryRoot).entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot)) {
         const auto root=entry.canonicalFilePath();
         if(formats().contains(romPlatformId(entry.fileName())) && !root.isEmpty() && path.startsWith(root+'/')){systemRoot=root;break;}
     }

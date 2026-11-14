@@ -6,6 +6,9 @@
 
 namespace trainer {
 QStringList mountedLibraryRoots(const QString& currentRoot);
+QStringList libraryVolumesFromMountInfo(const QByteArray& info,bool localOnly);
+QStringList mountedLibraryVolumes();
+bool libraryPathIsMounted(const QString& path,const QStringList& mounts);
 // Mount changes, not navigation, schedule discovery. Queued work waits for the
 // existing library/game owners; repeated changes coalesce to the latest mounts.
 class LibraryMountWatcher final : public QObject {

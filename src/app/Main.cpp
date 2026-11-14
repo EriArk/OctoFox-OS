@@ -1186,7 +1186,7 @@ int main(int argc, char* argv[]) {
             bindings.connect(&libraryMounts,&LibraryMountWatcher::scanRequested,&folders,[&](const QString& root){
                 folders.rescan(root);
             });
-            libraryMounts.start(QFileInfo(folders.root()).canonicalFilePath(),shell.settings()->scanLibraryAtStartup());
+            libraryMounts.start(folders.root(),shell.settings()->scanLibraryAtStartup());
         }
         shell.scraper()->canStart = [&] {
             return !shell.gamePreparation()->busy() && personalLibrary && !smoke && !adventureLaunch.active() && !session.blocked()

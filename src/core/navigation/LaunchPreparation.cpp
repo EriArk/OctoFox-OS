@@ -1,4 +1,5 @@
 #include "LaunchPreparation.h"
+#include "platform/storage/LibraryMountWatcher.h"
 #include <QFileInfo>
 
 namespace trainer {
@@ -26,7 +27,7 @@ void LaunchPreparation::begin(const QString& id, bool play) {
     if(worker_){worker_->wait();delete worker_;}
     worker_=QThread::create([this,record=*record,prepared,requirements=requirements] {
         const QFileInfo file(record.contentPath);
-        const bool available=file.isAbsolute() && file.isFile() && file.isReadable() && file.size()>0;
+        const bool available=libraryPathIsMounted(record.contentPath,mountedLibraryVolumes()) && file.isAbsolute() && file.isFile() && file.isReadable() && file.size()>0;
         auto issue=available?adapter_.verifyInstallation(prepared):QString("The game file is missing or unreadable. Reconnect its storage or choose its current file.");
         QString repair=available?"software":"file";
         QVariantMap readiness;

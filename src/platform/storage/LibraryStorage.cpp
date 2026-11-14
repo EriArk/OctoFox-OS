@@ -1,5 +1,4 @@
 #include "LibraryStorage.h"
-#include "LibraryMountWatcher.h"
 #include "core/repository/RomPlatforms.h"
 #include <QDir>
 #include <QFileInfo>
@@ -11,21 +10,6 @@
 #include <QSaveFile>
 
 namespace trainer {
-QStringList mountedLibraryRoots(const QString& currentRoot) {
-    QStringList roots;
-    const auto add=[&](const QString& path) {
-        const QFileInfo folder(path);
-        if(folder.isDir() && folder.isReadable())roots.append(folder.canonicalFilePath());
-    };
-    add(currentRoot);
-    for(const auto& disk:QStorageInfo::mountedVolumes()) {
-        const auto mount=disk.rootPath();
-        if(!disk.isValid() || !disk.isReady() || !(mount.startsWith("/run/media/")
-            || mount.startsWith("/media/") || mount.startsWith("/mnt/") || mount.startsWith("/var/mnt/")))continue;
-        for(const auto& relative:{"Emulation/roms","roms","batocera/roms"})add(QDir(mount).filePath(relative));
-    }
-    roots.removeDuplicates();return roots;
-}
 QList<LibraryLocation> libraryLocations(const QString& currentRoot) {
     QList<LibraryLocation> result;
     QSet<QString> seen;

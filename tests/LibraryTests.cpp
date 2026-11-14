@@ -42,6 +42,21 @@ public:
 class LibraryTests final : public QObject {
     Q_OBJECT
 private slots:
+    void removedAutomountIsUnavailableWithoutTouchingItsFilesystem() {
+        const QByteArray mounts="10 1 0:1 / /var/mnt/games rw - autofs systemd-1 rw\n"
+            "11 10 179:1 / /var/mnt/games rw - ext4 /dev/mmcblk0p1 rw\n"
+            "12 1 0:2 / /mnt/network rw - nfs server:/games rw\n"
+            "13 1 8:1 / /run/media/user/My\\040Card rw - exfat /dev/sda1 rw\n";
+        const auto local=libraryVolumesFromMountInfo(mounts,true);
+        QCOMPARE(local,QStringList({"/var/mnt/games","/run/media/user/My Card"}));
+        QVERIFY(libraryVolumesFromMountInfo(mounts,false).contains("/mnt/network"));
+#ifdef Q_OS_LINUX
+        QVERIFY(libraryPathIsMounted("/var/mnt/games/roms/game.gba",local));
+        QVERIFY(!libraryPathIsMounted("/var/mnt/games-other/roms/game.gba",local));
+        QVERIFY(!libraryPathIsMounted("/var/mnt/games/roms/game.gba",libraryVolumesFromMountInfo(mounts.split('\n').first(),false)));
+        QVERIFY(libraryPathIsMounted("/home/user/game.gba",{}));
+#endif
+    }
     void mountChangesCoalesceAndWaitForGameAndWrites() {
         LibraryMountWatcher watcher;
         QByteArray topology="card-a";QStringList roots{"/a/roms","/a/roms"};bool idle=false,writable=false;

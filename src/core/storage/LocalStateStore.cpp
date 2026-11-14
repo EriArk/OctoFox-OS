@@ -1,4 +1,5 @@
 #include "LocalStateStore.h"
+#include "platform/storage/LibraryMountWatcher.h"
 #include "core/model/NavigationVersion.h"
 #include "SqliteLibrary.h"
 #include "LibraryFileMove.h"
@@ -835,7 +836,8 @@ void LocalStateStore::refreshContentAvailability() {
     availabilityPending_=true;
     auto snapshot=std::make_shared<QList<AdventureRegistration>>(registrations_);
     write([snapshot](SqliteWorker& worker) {
-        for(auto& r:*snapshot) {const QFileInfo file(r.contentPath);r.contentAvailable=file.isFile() && file.isReadable();if(r.adventure.adapterId=="steam")r.contentAvailable=r.contentAvailable&&r.integrationConfig["available"].toBool();}
+        const auto mounts=mountedLibraryVolumes();
+        for(auto& r:*snapshot) {const QFileInfo file(r.contentPath);r.contentAvailable=libraryPathIsMounted(r.contentPath,mounts) && file.isFile() && file.isReadable();if(r.adventure.adapterId=="steam")r.contentAvailable=r.contentAvailable&&r.integrationConfig["available"].toBool();}
         return worker.updateAvailability(*snapshot);
     },[this,snapshot](const QString& error) {
         availabilityPending_=false;if(!error.isEmpty())return;

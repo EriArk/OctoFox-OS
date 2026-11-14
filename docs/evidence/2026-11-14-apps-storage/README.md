@@ -31,7 +31,10 @@ the Apps helper with the binary, without replacing root-owned session helpers.
 LibraryMountWatcher checks the removable-mount topology once a second. It queues
 availability refresh through the existing storage worker, coalesces repeated
 changes, and discovers mounted Emulation/roms, roms and batocera/roms libraries,
-including readable read-only cards. ROM and Steam discovery wait for existing
+including readable read-only cards. On Linux it reads mountinfo before probing
+folders: dormant automounts and network shares do not become automatic ROM scan
+targets. Availability, ROM scans and launch preparation reject disconnected
+removable paths before stat calls can reactivate a missing-card automount. ROM and Steam discovery wait for existing
 game, app and library operations to become idle. A topology change invalidates an
 in-flight ROM scan before it can publish stale results.
 
