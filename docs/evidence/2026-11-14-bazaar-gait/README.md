@@ -1,5 +1,10 @@
 # Movement response and running flight — 14 November 2026
 
+**Later delivery:** the owner resumed installation. Bazaar 0.0.9 embeds these
+SDK helpers on both Flip and Odin; shell Software 45 is unchanged.
+[Device record](https://github.com/EriArk/crates/blob/codex/bazaar-world-20261114/games/bazaar/docs/response-evidence/README.md#delivered-on-flip-2-and-odin-2).
+The source-only boundary below describes the earlier test pass.
+
 Source validation on the existing server, Godot 4.7.2. No handheld connection,
 installation, merge or public release. Software 45 / Bazaar 0.0.8 remain installed.
 

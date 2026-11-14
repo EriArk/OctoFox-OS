@@ -1,5 +1,12 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner resumed gait delivery, 14 November (latest):** Bazaar 0.0.9 with SDK
+gait fixes and the 20% outer stick zone is installed on Flip/Odin. This supersedes
+the device hold below for this delivery. Software 45 was preserved without restart;
+no new Software sequence was consumed (reserve 46+). Remote movement and normal
+entry/return passed; physical stick/touch feel remains owner acceptance. Keep the
+separate branches, spending closed and game 0.0.8 rollback.
+
 **Owner movement correction and device hold, 14 November (latest):** prepare
 SDK walk/run correction and a 20% outer left-stick dead zone (full speed at 80%).
 Do not contact, install, restart or test Flip/Odin until the owner resumes device

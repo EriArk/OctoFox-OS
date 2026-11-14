@@ -1,5 +1,15 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — gait correction delivered to both handhelds
+
+Bazaar 0.0.9 now embeds the SDK gait fixes and 20% outer left-stick zone on
+Flip 2 and Odin 2. The existing shell Software 45 was not replaced or restarted;
+the shared helpers are compiled into the game. Remote movement, crouch/jump,
+normal launch/return and log checks passed. Preferences and profile data checks
+passed. Game 0.0.8 remains for rollback. Physical-stick feel remains owner acceptance.
+[Delivery record](https://github.com/EriArk/crates/blob/codex/bazaar-world-20261114/games/bazaar/docs/response-evidence/README.md#delivered-on-flip-2-and-odin-2).
+No merge, public release or spending activation; sequence 46 remains unconsumed.
+
 ## 14 November 2026 — movement response correction prepared
 
 The shared Godot motor maps the left stick linearly with a 20% outer dead zone:
