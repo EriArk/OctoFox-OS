@@ -1,5 +1,13 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner Bazaar entry correction, 14 November (latest):** open the local island from
+Online → Bazaar → Official Bazaar. This isolated branch applies that bounded fix
+to the newer installed shell without merging the older feature branch. Software
+sequence 43 is installed on both Flip/Odin; reserve 44+. Entry and return passed;
+physical controls remain owner acceptance, commerce stays closed.
+[Delivery evidence](https://github.com/EriArk/OctoFox-OS/blob/codex/bazaar-catalogue-20261110/docs/evidence/2026-11-14-bazaar-entry/README.md).
+
+
 **Crates delivery checkpoint, 14 November 2026 (latest):** private Software
 sequence **42** (`c97825ea`) is installed on both Odin and Flip; reserve **43+**
 next. Larger 3×2 grid and the six current categories below passed native checks

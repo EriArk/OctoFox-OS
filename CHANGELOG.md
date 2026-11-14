@@ -1,5 +1,14 @@
 # OctoFox OS — Changelog
 
+## 14 November 2026 — Bazaar launches from its own tab
+
+Corrected the Apps-only delivery: **Online → Bazaar → Official Bazaar** now opens
+island 0.0.7 and returns to the same card. Private Software 43 is installed on both
+Flip/Odin, preserving their newer shell features and rollback. The internal preview
+shortcut is hidden from the Apps grid. Payments and online realms remain closed.
+[Source, tests and device evidence](https://github.com/EriArk/OctoFox-OS/blob/codex/bazaar-catalogue-20261110/docs/evidence/2026-11-14-bazaar-entry/README.md).
+
+
 ## 14 November 2026 — larger Crates and clearer categories
 
 Replaced the uneven 2+4 composition with six equal tiles in a 3×2 grid. Chest
