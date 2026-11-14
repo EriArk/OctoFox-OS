@@ -1,5 +1,13 @@
 # TrainerOS — active agent / developer contract
 
+**Owner handheld test, 14 November (latest):** install Bazaar on both reachable
+handhelds for hands-on testing. This supersedes earlier no-handheld-install notes
+for this scope. Standalone 0.0.7 is now installed on Flip 2 and Odin 2 through Apps;
+existing shells remain unchanged. Physical controls/performance remain owner
+acceptance. Spending remains closed; no merge or public Backend deployment.
+[Installed evidence and limitations](docs/evidence/2026-11-14-bazaar-handheld/README.md).
+
+
 
 **Owner Bazaar services, 14 November (latest):** walk to the Stall Office to rent,
 select an NPC and manage goods. Official Bazaar owner is the user; he sets weekly
