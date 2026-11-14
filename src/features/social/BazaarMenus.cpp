@@ -194,7 +194,7 @@ void BazaarCatalogue::dialogAction(QString action) {
     else if(action=="sign-in"){if(backend_)backend_->activate();}
     else if(action=="mine"){detailId_.clear();beginForm(!own_.isEmpty());return;}
     else if(action=="details") {
-        if(previewEntry()["walkthrough"].toBool()) {const auto id=detailId_;dialog_.clear();activate(id);return;}
+        if(previewEntry()["walkthrough"].toBool()) {const auto id=detailId_;dialog_.clear();emit changed();activate(id);return;}
         dialog_=previewEntry()["preview"].toBool()?"preview-player":"details";
     }
     else if(action=="favorite"){const auto old=dialog_;dialog_.clear();toggleFavorite(detailId_.mid(5));dialog_=old;}
