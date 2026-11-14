@@ -168,10 +168,17 @@ class PcSessions(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def start(self, body):
+    def start(self, body, proton=False):
         script = self.root / "game with spaces"
         script.write_text("#!/usr/bin/python3\n" + body)
         script.chmod(0o700)
+        if proton:
+            # Exercise the real subreaper with a runner fixture, without Wine.
+            code = ("import runpy,os; m=runpy.run_path(" + repr(str(HELPER)) + "); "
+                    "raise SystemExit(m['supervise'](" + repr([sys.executable, str(script)]) + ","
+                    + repr(str(self.root)) + ",dict(os.environ,WINEPREFIX=" + repr(str(self.root))
+                    + "),proton=True))")
+            return subprocess.Popen([sys.executable, '-c', code], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         config = dict(executable=str(script), installRoot=str(self.root), runner="native")
         return subprocess.Popen([sys.executable, str(HELPER), json.dumps(config)])
 
@@ -206,6 +213,46 @@ class PcSessions(unittest.TestCase):
     def test_real_exit_failure_is_not_success(self):
         p = self.start("raise SystemExit(23)\n")
         self.assertEqual(p.wait(timeout=3), 23)
+
+    def test_proton_result_survives_helper_failure_before_or_after_runner_exit(self):
+        for child_delay, runner_delay in ((.15, .02), (.02, .15)):
+            with self.subTest(child_delay=child_delay):
+                p = self.start("import os,time\n"
+                               "if os.fork():\n time.sleep(" + str(runner_delay) + ");os._exit(0)\n"
+                               "if os.fork(): os._exit(0)\n"
+                               "time.sleep(" + str(child_delay) + ");os._exit(255)\n", proton=True)
+                out, err = p.communicate(timeout=5)
+                self.assertEqual(p.returncode, 0)
+                self.assertEqual(out + err, b'')
+                log = self.root / '.traineros-last-session.log'
+                record = json.loads(log.read_bytes().splitlines()[0])
+                self.assertEqual(record['runtimeExit'], 0)
+                self.assertEqual(record['childFailure'], 255)
+                self.assertEqual(record['sessionExit'], 0)
+                self.assertEqual(log.stat().st_mode & 0o777, 0o600)
+
+    def test_proton_failure_keeps_code_with_bounded_private_output(self):
+        p = self.start("import os\nos.write(1,b'driver-noise '*30000)\nraise SystemExit(23)\n", proton=True)
+        out, err = p.communicate(timeout=5)
+        self.assertEqual(p.returncode, 23)
+        self.assertIn(b'code 23', err)
+        self.assertIn(b'diagnostic log', err)
+        self.assertNotIn(b'driver-noise', out + err)
+        self.assertLess(len(out + err), 250)
+        log = self.root / '.traineros-last-session.log'
+        self.assertLessEqual(log.stat().st_size, 65792)
+        self.assertIn(b'driver-noise', log.read_bytes())
+
+    def test_native_detached_failure_is_still_reported(self):
+        p = self.start("import os,time\nif os.fork(): os._exit(0)\ntime.sleep(.1)\nos._exit(23)\n")
+        self.assertEqual(p.wait(timeout=3), 23)
+
+    def test_diagnostic_replaces_link_without_touching_target(self):
+        precious = self.root / 'save.dat';precious.write_bytes(b'keep')
+        (self.root / '.traineros-last-session.log').symlink_to(precious)
+        self.assertTrue(module.save_diagnostic(str(self.root), b'log', 0, 255, 0))
+        self.assertEqual(precious.read_bytes(), b'keep')
+        self.assertFalse(module.save_diagnostic(str(self.root / 'missing'), b'log', 23, None, 23))
 
     def test_outside_game_symlink_rejected(self):
         exe = self.root / "escape"

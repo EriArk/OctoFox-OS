@@ -237,3 +237,17 @@ Install `launch.py`, `steam.py`, `runtimes.py` together under
 Power profiles and supported Proton renderer/sync overrides are owned by the
 shared GamePerformance panel, with per-owner/per-game persistence and the actual
 Adventure prepare/finalize boundary. Host/devices have not been exercised here.
+
+## Proton exit reporting — 14 November 2026
+
+UMU is launched with `waitforexitandrun`, so its exit status is authoritative for
+Proton sessions. The supervisor still waits for every adopted child, but a Wine
+helper's nonzero status cannot turn a successful runner exit into a failed game.
+Native detached-child failures and explicit cancellation keep their prior behavior.
+This is not a blanket exception for code 255 or for a user-requested close.
+
+Proton stdout/stderr is drained while the session runs, retaining only a 64 KiB
+tail. Each prefix has one private `.traineros-last-session.log`, atomically replaced
+on completion, with runner/child/session status. A real runner failure still
+returns nonzero and produces a short compatibility message. Log write failure
+cannot change that result. Driver output is not copied into the normal UI.

@@ -32,7 +32,7 @@ def children():
     return result
 
 
-def supervise(argv, cwd, env):
+def supervise(argv, cwd, env, *, proton=False):
     if not sys.platform.startswith("linux"):
         raise RuntimeError("PC sessions require Linux process supervision")
     libc = ctypes.CDLL(None, use_errno=True)
@@ -46,9 +46,31 @@ def supervise(argv, cwd, env):
 
     for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
         signal.signal(sig, stop)
-    process = subprocess.Popen(argv, cwd=cwd, env=env, start_new_session=True)
+    process = subprocess.Popen(argv, cwd=cwd, env=env, start_new_session=True,
+                               **({'stdout': subprocess.PIPE, 'stderr': subprocess.STDOUT} if proton else {}))
+    tail = bytearray()
+    if proton:
+        os.set_blocking(process.stdout.fileno(), False)
+
+    def drain():
+        if not proton:
+            return
+        # Drain a bounded batch so noisy games cannot starve cancellation/reaping.
+        for _ in range(16):
+            try:
+                data = os.read(process.stdout.fileno(), 16384)
+            except BlockingIOError:
+                break
+            if not data:
+                break
+            tail.extend(data)
+            del tail[:-65536]
+
     result = None
+    primary_result = None
+    child_failure = None
     while True:
+        drain()
         try:
             while True:
                 pid, status = os.waitpid(-1, os.WNOHANG)
@@ -56,12 +78,30 @@ def supervise(argv, cwd, env):
                     break
                 code = os.waitstatus_to_exitcode(status)
                 if pid == process.pid:
+                    primary_result = code
                     result = code or result
                     process.returncode = code
                 elif code and not result:
                     result = code
+                if pid != process.pid and code:
+                    child_failure = code
         except ChildProcessError:
-            return 130 if stopping[0] is not None else (result or 0)
+            # UMU/Proton waitforexitandrun owns the game result. Adopted Wine
+            # helpers may fail during normal shutdown; still reap every child,
+            # but do not replace the runner's successful result with theirs.
+            # Native launchers retain detached-child failure propagation.
+            code = primary_result if proton and primary_result is not None else (result or 0)
+            if stopping[0] is not None:
+                code = 130
+            if proton:
+                drain()
+                process.stdout.close()
+                saved = save_diagnostic(env['WINEPREFIX'], tail, primary_result, child_failure, code)
+                if code and stopping[0] is None:
+                    detail = ' A diagnostic log was saved in the game environment.' if saved else ''
+                    print(f'The Windows runtime ended with code {code}. Check this game\'s compatibility settings.' + detail,
+                          file=sys.stderr)
+            return code
         if stopping[0] is not None:
             sig = signal.SIGKILL if time.monotonic() - stopping[0] > .5 else signal.SIGTERM
             for pid in children():
@@ -70,6 +110,26 @@ def supervise(argv, cwd, env):
                 except ProcessLookupError:
                     pass
         time.sleep(.025)
+
+
+def save_diagnostic(prefix, tail, primary, child_failure, result):
+    """One private, bounded last-session log per existing game environment."""
+    temporary = None
+    try:
+        fd, temporary = tempfile.mkstemp(prefix='.traineros-log-', dir=prefix)
+        with os.fdopen(fd, 'wb') as output:
+            header = json.dumps(dict(runtimeExit=primary, childFailure=child_failure, sessionExit=result))
+            output.write(header.encode() + b'\n' + tail[-65536:])
+        os.replace(temporary, Path(prefix) / '.traineros-last-session.log')
+        return True
+    except OSError:
+        return False  # Diagnostics must not change the game's actual result.
+    finally:
+        if temporary:
+            try:
+                os.unlink(temporary)
+            except OSError:
+                pass
 
 
 def command(config):
@@ -253,8 +313,8 @@ def run(config):
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
                 raise RuntimeError("This game's environment is already in use") from None
-            return supervise(*command(config))
-    return supervise(*command(config))
+            return supervise(*command(config), proton=config.get('runner') == 'proton')
+    return supervise(*command(config), proton=config.get('runner') == 'proton')
 
 
 def main():
