@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**First Bazaar world, 14 November (latest):** an actual standalone local Godot
+square is prepared in Crates branch `codex/bazaar-world-20261114`, with CC0 town
+assets and the unchanged shared avatar SDK. See [current scope](docs/BAZAAR.md).
+This supersedes the blanket "no world exists" statement only for this local
+prototype. The TrainerOS catalogue still shows its explicit placeholders until
+managed package launch/admission/return is wired. Keep all Bazaar spending closed;
+no multiplayer, real shops, public catalogue release, merge or handheld installation
+is claimed. Windows/ARM64 exports are not target-tested.
+
 **Profile inventory continuation, 14 November (latest):** read-only game-neutral
 loot storage/API and the native profile reader are prepared on the Bazaar branch.
 Keep inventory ownership scoped to the authenticated Backend player; late callbacks
