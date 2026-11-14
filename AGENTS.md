@@ -1,13 +1,16 @@
 # TrainerOS — active agent / developer contract
 
-**First Bazaar world, 14 November (latest):** an actual standalone local Godot
-square is prepared in Crates branch `codex/bazaar-world-20261114`, with CC0 town
-assets and the unchanged shared avatar SDK. See [current scope](docs/BAZAAR.md).
-This supersedes the blanket "no world exists" statement only for this local
-prototype. The TrainerOS catalogue still shows its explicit placeholders until
-managed package launch/admission/return is wired. Keep all Bazaar spending closed;
-no multiplayer, real shops, public catalogue release, merge or handheld installation
-is claimed. Windows/ARM64 exports are not target-tested.
+**Bazaar island correction, 14 November (latest):** the festival stalls belong
+in a park, without a ring of houses. Houses, signed shops and enterable rooms
+belong to a separate town square on the same large island, with connecting paths
+and space for other districts. Reuse Pocket Golf’s relief/meadow approach: actual
+walkable hills, grounded chunked grass, clouds and depth haze, with bounded detail
+and no assumption of handheld performance from server rendering. Crates branch `codex/bazaar-world-20261114` contains
+the local prototype, free CC0 town/nature assets and Quaternius locomotion retargeted
+onto the unchanged avatar SDK. See [scope](docs/BAZAAR.md). Keep catalogue placeholders
+until managed launch/admission/return exists, and all Bazaar spending closed.
+No multiplayer, real shops, catalogue release, merge or handheld installation is
+claimed. Preview interiors are walkable rooms, not enabled trading services.
 
 **Profile inventory continuation, 14 November (latest):** read-only game-neutral
 loot storage/API and the native profile reader are prepared on the Bazaar branch.
