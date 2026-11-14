@@ -51,4 +51,3 @@ Smoke test: Rendered password contains only bullets and cursor
 Smoke test: Numeric block remains reachable past hidden symbol slots
 QML smoke test FAILED
 QObject::disconnect: wildcard call disconnects from destroyed signal of trainer::ShellController::unnamed
-
