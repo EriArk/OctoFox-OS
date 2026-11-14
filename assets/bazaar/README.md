@@ -21,7 +21,7 @@ profile scene and do not claim that a playable world has been built. The market
 preset reuses `official.png`; all three are bundled under the repository asset terms.
 
 `island.png` and `station.png` are unedited renders of the shipped empty personal
-worlds, introduced in Bazaar 0.0.10 (`a5b369c`). They replace the previous
+worlds, introduced in Bazaar 0.0.10 (`029ff24`). They replace the previous
 Mika/Ren concept illustrations in the catalogue. Reproduce with
 `games/bazaar/tests/personal_review.gd`, `--world=island` / `--world=station`.
 All new environment geometry and shaders are original project GPL code; the
