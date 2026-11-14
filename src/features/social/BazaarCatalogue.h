@@ -13,6 +13,7 @@ class BackendAccount;
 // with Lobby/SDK/Backend; this preparation does not advertise those services.
 class BazaarCatalogue final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(bool walkthroughAvailable READ walkthroughAvailable NOTIFY changed)
     Q_PROPERTY(QVariantList rooms READ rooms NOTIFY rowsChanged)
     Q_PROPERTY(QString selection READ selection NOTIFY changed)
     Q_PROPERTY(int selectedIndex READ selectedIndex NOTIFY changed)
@@ -34,6 +35,8 @@ class BazaarCatalogue final : public QObject {
     Q_PROPERTY(qreal scroll READ scroll WRITE setScroll NOTIFY scrollChanged)
 public:
     explicit BazaarCatalogue(QObject* parent=nullptr):QObject(parent){}
+    bool walkthroughAvailable() const { return walkthroughAvailable_; }
+    void setWalkthroughAvailable(bool value) { if(walkthroughAvailable_==value)return;walkthroughAvailable_=value;emit changed(); }
     QVariantList rooms() const { return visible_; }
     QString selection() const { return selection_; }
     int selectedIndex() const;
@@ -77,6 +80,7 @@ public:
     Q_INVOKABLE void closeDialog(bool all=false);
     Q_INVOKABLE void chooseRealm(int index);
 signals:
+    void walkthroughRequested();
     void changed();
     void rowsChanged();
     void scrollChanged();
@@ -107,6 +111,7 @@ private:
     bool moderating_=false;
     quint64 accessGeneration_=0;
     QString backendPlayer_, next_, message_, textField_, detailId_;
+    bool walkthroughAvailable_=false;
     bool active_=false, loading_=false, saving_=false, connected_=false, fixture_=false, reloadDraft_=false;
     quint64 generation_=0;
     int dialogIndex_=0;

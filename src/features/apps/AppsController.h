@@ -33,6 +33,7 @@ public:
     void accept(const QJsonObject&); // Platform events, also usable by isolated test providers.
     void dispatch(Action,bool quick=false);
     std::function<QString()> launchGuard;
+    bool hasDesktopId(const QString& id) const;
     QVariantList rows() const;
     QVariantList rail() const;
     int favoriteCapacity() const { return favoriteCapacity_; }

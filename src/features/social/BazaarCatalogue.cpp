@@ -95,6 +95,7 @@ void BazaarCatalogue::focusRoom(int index) {
 void BazaarCatalogue::activate(QString id) {
     if(!dialog_.isEmpty())return;
     focus(id);if(selection_!=id)return;
+    if(id=="official"&&walkthroughAvailable_){emit walkthroughRequested();return;}
     if(id=="official"){dialog_=account()["paymentsAvailable"].toBool()?"realms":"preview-official";realmIndex_=0;emit changed();}
     else if(id=="search")editSearch();
     else if(id=="filter")toggleFilter();

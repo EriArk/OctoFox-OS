@@ -101,6 +101,13 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
       libraryManager_(repo, nullptr, this), libraryTools_(repo,this), scraper_(repo,this), pcGames_(repo,*files_.service(),this), gamePerformance_(repo,this), settings_(this), device_(this), diagnostics_(this), dashboard_(repo,achievements,social_,this), story_(repo,achievements) {
 
     bazaar_.setBackend(&backendAccount_);
+    connect(&apps_,&AppsController::changed,this,[this]{
+        bazaar_.setWalkthroughAvailable(apps_.ready()&&apps_.hasDesktopId("org.traineros.bazaar-preview.desktop"));
+    });
+    connect(&bazaar_,&BazaarCatalogue::walkthroughRequested,this,[this]{
+        // Reuse the native activity owner; keep Online/Bazaar as the return location.
+        apps_.openDesktopId("org.traineros.bazaar-preview.desktop");
+    });
     connect(&bazaar_,&BazaarCatalogue::changed,this,&ShellController::changed);
     connect(&bazaar_,&BazaarCatalogue::scrollChanged,this,&ShellController::changed);
     connect(&bazaar_,&BazaarCatalogue::notice,this,&ShellController::showNotice);

@@ -130,8 +130,12 @@ QVariantMap AppsController::decorated(const QVariantMap& source) const {
     row["minimized"]=row["running"].toBool()&&current_!=id;
     return row;
 }
+bool AppsController::hasDesktopId(const QString& id) const {
+    for(const auto& value:catalogue_)if(value.toMap()["id"]==id)return true;
+    return false;
+}
 QVariantList AppsController::rows() const {
-    QVariantList result;for(const auto& value:catalogue_)if(hiddenIds_.contains(value.toMap()["id"].toString())==hidden_)result.append(decorated(value.toMap()));return result;
+    QVariantList result;for(const auto& value:catalogue_)if(value.toMap()["id"]!="org.traineros.bazaar-preview.desktop" && hiddenIds_.contains(value.toMap()["id"].toString())==hidden_)result.append(decorated(value.toMap()));return result;
 }
 QVariantList AppsController::rail() const {
     QVariantList result;QSet<QString> pinned;

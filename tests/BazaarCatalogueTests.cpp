@@ -14,6 +14,17 @@ class BazaarCatalogueTests : public QObject {
         return rows;
     }
 private slots:
+    void installedWalkthroughUsesOfficialEntryWithoutEnablingCommerce() {
+        BazaarCatalogue page;QSignalSpy launch(&page,&BazaarCatalogue::walkthroughRequested);
+        page.activate("official");QCOMPARE(page.dialog(),"preview-official");page.closeDialog();
+        page.setWalkthroughAvailable(true);
+        page.activate("official");QCOMPARE(launch.size(),1);QVERIFY(page.dialog().isEmpty());
+        QVERIFY(!page.account()["paymentsAvailable"].toBool());
+        page.dispatch(Action::Confirm);QCOMPARE(launch.size(),2);QCOMPARE(page.selection(),"official");
+        page.activate("create");QCOMPARE(page.dialog(),"preview-player");page.closeDialog();
+        page.setWalkthroughAvailable(false);page.activate("official");
+        QCOMPARE(page.dialog(),"preview-official");QCOMPARE(launch.size(),2);
+    }
     void stallReviewIsCancelledByBackAndHome() {
         QStandardPaths::setTestModeEnabled(true);
         auto fixture=std::make_shared<BazaarCommerceFixture>();BackendAccount backend;fixture->install(backend);

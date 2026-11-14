@@ -15,6 +15,19 @@ class AppsTests:public QObject {
         apps.accept({{"event","ready"}});
     }
 private slots:
+    void bazaarUsesDedicatedEntryButRetainsManagedLifecycle() {
+        AppsController apps;QSignalSpy commands(&apps,&AppsController::commandRequested);
+        const QString id="org.traineros.bazaar-preview.desktop";
+        QVERIFY(!apps.hasDesktopId(id));
+        apps.accept({{"event","catalogue"},{"rows",QJsonArray{QJsonObject{{"id",id},{"name","Bazaar"}}}}});
+        apps.accept({{"event","ready"}});QVERIFY(apps.hasDesktopId(id));QVERIFY(apps.rows().isEmpty());
+        apps.openDesktopId(id);QCOMPARE(commands.last()[0].toJsonObject()["id"].toString(),id);
+        apps.accept({{"event","foreground"},{"id",id},{"pid","123"}});
+        QCOMPARE(apps.current(),id);QCOMPARE(apps.rail().size(),1);
+        apps.control(1);QCOMPARE(commands.last()[0].toJsonObject()["command"].toString(),"minimize");
+        apps.accept({{"event","shell"}});QVERIFY(apps.current().isEmpty());
+        apps.accept({{"event","catalogue"},{"rows",QJsonArray{}}});QVERIFY(!apps.hasDesktopId(id));
+    }
     void browserUsesManagedLaunchAndReportsFailure() {
         QTemporaryDir dir;AppsController apps;apps.configure(dir.path(),"alice");
         QSignalSpy commands(&apps,&AppsController::commandRequested),errors(&apps,&AppsController::webOpenFailed);
