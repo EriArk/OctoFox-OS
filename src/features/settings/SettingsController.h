@@ -9,6 +9,8 @@
 #include "core/repository/PreferencesRepository.h"
 #include <QVariantList>
 #include <QPointer>
+#include <QUrl>
+#include <functional>
 #include "core/model/SaveBackup.h"
 
 namespace trainer {
@@ -50,6 +52,8 @@ class SettingsController final : public QObject {
     Q_PROPERTY(QString onlineServiceStatus READ onlineServiceStatus NOTIFY changed)
     Q_PROPERTY(QVariantList onlineControls READ onlineControls NOTIFY changed)
 public:
+    std::function<QString(const QUrl&)> openCommunityLink;
+    void communityLinkFailed(const QString& message) { error_=message; emit changed(); }
     QVariantList onlineControls() const;
     void selectOnlinePlatform(const QString& platform);
     Q_INVOKABLE void onlineAction(int index);

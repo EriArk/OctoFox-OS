@@ -1350,6 +1350,7 @@ int main(int argc, char* argv[]) {
             for (auto* overlay : window->findChildren<QQuickWindow*>())
                 releaseHiddenShellGraphics(overlay, &engine);
             auto accountBrowser=std::make_shared<bool>(false);
+            auto communityBrowser=std::make_shared<bool>(false);
             bindings.connect(shell.backendAccount(),&BackendAccount::returnRequested,window,[&,window,accountBrowser]{
                 if(adventureLaunch.active())return;
                 if(*accountBrowser&&!shell.apps()->current().isEmpty()){shell.apps()->control(1);return;}
@@ -1372,16 +1373,17 @@ int main(int argc, char* argv[]) {
             };
             bindings.connect(shell.apps(),&AppsController::foregroundRequested,window,[window]{window->hide();});
             shell.apps()->webLaunchGuard=[&]{
-                if(adventureLaunch.active() || shell.runtimeChangeBlocked())return QString("Finish the current game or operation before signing in.");
-                if(session.blocked() && !session.setupLoginAllowed())return QString("Finish the current operation before signing in.");
+                if(adventureLaunch.active() || shell.runtimeChangeBlocked())return QString("Finish the current game or operation before opening the browser.");
+                if(session.blocked() && !session.setupLoginAllowed())return QString("Finish the current operation before opening the browser.");
                 return QString();
             };
             shell.backendAccount()->loginGuard=shell.apps()->webLaunchGuard;
-            bindings.connect(shell.apps(),&AppsController::shellRequested,window,[&,window,accountBrowser]{
+            bindings.connect(shell.apps(),&AppsController::shellRequested,window,[&,window,accountBrowser,communityBrowser]{
                 if(adventureLaunch.active())return;
                 // The hidden shell retains the exact launching page, subpage and focus.
                 // Minimize/close must not redirect Quick Apps or Files back to Apps.
                 *accountBrowser=false;
+                *communityBrowser=false;
                 if(parser.isSet("windowed"))window->show();else window->showFullScreen();window->requestActivate();
                   if(pendingSystemAction=="power"){pendingSystemAction.clear();shell.systemAction("power");}
             });
@@ -1392,8 +1394,16 @@ int main(int argc, char* argv[]) {
                 shell.backendAccount()->setBrowserOpener([&,accountBrowser](QUrl url){
                     *accountBrowser=shell.apps()->openWebUrl(url);return *accountBrowser;
                 });
-                bindings.connect(shell.apps(),&AppsController::webOpenFailed,window,[&,accountBrowser](QString message){
-                    *accountBrowser=false;shell.backendAccount()->browserFailed(message);
+                shell.settings()->openCommunityLink=[&,communityBrowser](const QUrl& url){
+                    if(*communityBrowser)return SettingsController::tr("The browser is already opening.");
+                    *communityBrowser=shell.apps()->openWebUrl(url);
+                    return *communityBrowser?QString():shell.apps()->status().isEmpty()
+                        ?SettingsController::tr("Could not open the browser. Check that a web browser is installed and try again.")
+                        :shell.apps()->status();
+                };
+                bindings.connect(shell.apps(),&AppsController::webOpenFailed,window,[&,accountBrowser,communityBrowser](QString message){
+                    if(*communityBrowser){*communityBrowser=false;shell.settings()->communityLinkFailed(message);}
+                    else {*accountBrowser=false;shell.backendAccount()->browserFailed(message);}
                 });
             }
             auto* pointerVisibility = new PointerVisibility(*window, platform.dedicatedSession());

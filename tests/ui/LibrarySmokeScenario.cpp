@@ -141,10 +141,10 @@ void startLibrarySmoke(QQuickWindow* window, ShellController& shell, SessionStat
                 check(shell.service() == "settings" && focusIs("settings-category-5"), "B restores the Settings category");
                 press(down); press(a); break;
             case 20:
-                check(shell.settings()->creditsOpen() && focusIs("credits-back"), "Credits reachable with controller");
+                check(shell.settings()->creditsOpen() && focusIs("credits-website"), "Credits reachable with controller");
                 capture("badge-credits"); press(start); press(b); break;
             case 21:
-                check(shell.settings()->creditsOpen() && focusIs("credits-back"), "Start and Back restore Credits");
+                check(shell.settings()->creditsOpen() && focusIs("credits-website"), "Start and Back restore Credits");
                 press(b); break;
             case 22:
                 check(!shell.settings()->creditsOpen() && focusIs("settings-category-6"), "Back returns to the Credits entry");

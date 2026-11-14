@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <QSettings>
 #include <QCryptographicHash>
+#include <QDesktopServices>
 
 namespace trainer {
 void SettingsController::setCrates(CratesController* value){
@@ -138,6 +139,8 @@ QVariantList SettingsController::controls() const {
     case 3: return {row("Charger vibration","unavailable","Patterns have not been verified on this handheld"),row("Device lighting","unavailable","Lighting support has not been verified")};
     case 4: return {row("Local profile","action","Offline name and emblem"),row("RetroAchievements","action","Manage your account"), trainersAvailable_ ? row("Trainers","action","Choose a player or create a Trainer") : row("Separate Trainers & PIN","unavailable","Not available yet"),row("Trainer PIN",trainersAvailable_?"action":"unavailable","Set, change or remove your PIN"),row("Family code",trainersAvailable_?"action":"unavailable","A parent can reset forgotten PINs"),row(backendAction_,"action",backendDetail_)};
     case 5: return {row("Refresh status","action",""),row("Restart","action",""),row("Power off","action",""),row("System health & game setup","action","Runtime, BIOS and a private support report"),row("Updates","action","OctoFox OS Software")};
+    case 6: return {row(tr("AbyssTail website"),"action",tr("Projects, news and help")),
+        row(tr("Join our Discord"),"action",tr("Find the official invitation on our contact page"))};
     case 7: {
         const auto p=input_?input_->profile():ControllerProfile{}.json();
         const char* kind=input_&&input_->connected()?"stepper":"unavailable";
@@ -223,7 +226,13 @@ void SettingsController::activateRow(int index) {
     if(storage_.isOpen()){storage_.activate(index);return;}
     if(saving_)return;
     pane_=true; row_=std::clamp(index,0,std::max(0,int(controls().size())-1));
-    if(category_==0 && row_<2) activate(row_);
+    if(category_==6) {
+        const QUrl url(row_==0?QStringLiteral("https://abysstail.art/"):QStringLiteral("https://abysstail.art/#contacts"));
+        error_.clear();
+        if(openCommunityLink) error_=openCommunityLink(url);
+        else if(!QDesktopServices::openUrl(url)) error_=tr("Could not open the browser. Check that a web browser is installed and try again.");
+    }
+    else if(category_==0 && row_<2) activate(row_);
     else if(category_==0 && row_==2) emit quickAdjustment(1,Action::Confirm);
     else if(category_==0 && (row_==3 || row_==4)) { adjustDisplay(row_,1); return; }
     else if(category_==0 && row_==5) resetDisplayScale();
@@ -288,7 +297,6 @@ void SettingsController::dispatch(Action action) {
         else if(action==Action::Confirm || action==Action::Right) {pane_=true;emit changed();}
         return;
     }
-    if(category_==6) {if(action==Action::Confirm){pane_=false;emit changed();}return;}
     if(category_==5 && (action==Action::Up || action==Action::Down)) {
         const QList<int> order{4,0,3,1,2};
         row_=order[std::clamp(order.indexOf(row_)+(action==Action::Up?-1:1),qsizetype(0),order.size()-1)];

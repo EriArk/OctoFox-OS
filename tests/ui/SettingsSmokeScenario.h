@@ -44,7 +44,8 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
     auto folder=std::make_shared<QTemporaryDir>();auto library=std::make_shared<SettingsInputLibrary>();
     auto network=new SettingsNetworkFixture(window);
     QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,folder->path());
-    auto step=std::make_shared<int>(0);auto timer=new QTimer(window);timer->setInterval(450);
+    auto step=std::make_shared<int>(qEnvironmentVariableIsSet("TRAINEROS_COMMUNITY_LINKS_PROBE")?86:0);auto timer=new QTimer(window);timer->setInterval(450);
+    auto communityUrls=std::make_shared<QStringList>();
     QObject::connect(timer,&QTimer::timeout,window,[=,&shell,&input,&completed,&warnings,&diagnostics]{
         auto* settings=shell.settings();auto* flow=settings->gameInput();
         const auto capture=[&](QString name){if(!directory.isEmpty()&&!window->grabWindow().save(QDir(directory).filePath(name+".png")))diagnostics<<"Settings capture failed: "+name;};
@@ -179,6 +180,33 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
         case 45: check(settings->onlineServiceStatus().contains("Install the native emulator"),"Missing native setup is explained");capture("online-services-missing-960");settings->activateRow(0);settings->activateRow(1);break;
         case 46: check(settings->controls()[0].toMap()["detail"]=="Nintendo 3DS","Next family retains its own selection");check(settings->controls()[1].toMap()["detail"]=="pretendo","3DS offers Pretendo");settings->activateRow(3);settings->dispatch(trainer::Action::Back);check(!settings->controlsFocused(),"Back returns to Settings navigation");settings->selectPage("online-services",true);settings->activateRow(0);settings->activateRow(1);break;
         case 47: check(settings->controls()[0].toMap()["detail"]=="Wii U","Wii U has independent preparation");check(settings->controls()[3].toMap()["detail"].toString().startsWith("No"),"3DS confirmation does not enable Wii U");capture("online-services-wiiu-960");break;
+        case 86:
+            window->resize(960,540);shell.systemAction("settings");settings->selectPage("credits",true);
+            if(settings->theme()=="dark")settings->cycleTheme(1);
+            settings->openCommunityLink=[communityUrls](const QUrl& url){communityUrls->append(url.toString());return QString();};break;
+        case 87:
+            capture("community-links-light-960");
+            check(visibleItem(window->contentItem(),"credits-website")&&visibleItem(window->contentItem(),"credits-discord"),"Both community actions visible");
+            shell.dispatch(trainer::Action::Confirm);shell.dispatch(trainer::Action::Down);break;
+        case 88:
+            check(window->activeFocusItem()&&window->activeFocusItem()->objectName()=="credits-discord","Controller focuses Discord");
+            shell.dispatch(trainer::Action::Confirm);
+            check(*communityUrls==QStringList{"https://abysstail.art/","https://abysstail.art/#contacts"},"Controller opens official destinations");
+            settings->communityLinkFailed("Could not open the browser. Check that a web browser is installed and try again.");break;
+        case 89:
+            capture("community-links-error-960");
+            check(settings->rowFocus()==1&&settings->creditsOpen(),"Browser failure preserves the selected link");
+            tap(visibleItem(window->contentItem(),"credits-website"));
+            check(communityUrls->size()==3&&communityUrls->last()=="https://abysstail.art/"&&settings->error().isEmpty(),"Touch retries the website without a stale error");
+            settings->cycleTheme(1);break;
+        case 90:
+            capture("community-links-dark-960");shell.dispatch(trainer::Action::Back);break;
+        case 91:
+            check(!settings->controlsFocused()&&shell.service()=="settings","Back returns to settings sections");
+            shell.dispatch(trainer::Action::Confirm);break;
+        case 92:
+            check(settings->creditsOpen()&&communityUrls->size()==3,"Returning to Credits does not reopen the browser");
+            settings->openCommunityLink={};break;
         default:timer->stop();completed=true;qInfo()<<"Settings UI checks"<<diagnostics<<"warnings"<<warnings;QCoreApplication::exit(diagnostics.isEmpty()&&warnings==0?0:1);break;
         }
     });timer->start();

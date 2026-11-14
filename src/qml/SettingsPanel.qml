@@ -12,7 +12,7 @@ Item {
     readonly property var settings: shell.settings
     readonly property bool takesFocus: visible && !shell.menuOpen && !shell.notice.length && !shell.keyboard.open && !shell.libraryTools.open && !shell.scraper.open && !shell.downloads.open
     readonly property string localError: settings.category===4 && shell.trainer.editing ? shell.trainer.error
-        : (settings.category===0 || settings.category===8 || settings.category===9) && settings.error.length ? settings.error
+        : (settings.category===0 || settings.category===6 || settings.category===8 || settings.category===9) && settings.error.length ? settings.error
         : [0,1,5,10].includes(settings.category) ? shell.device.error : ""
     readonly property string statusText: settings.categoryId==="game-input" ? settings.gameInput.title+" / "+(settings.gameInput.status || "Choose a PC or native game. Home is reserved.") : settings.category===4 && shell.trainer.saving || settings.saving ? "Saving..."
         : settings.categoryId==="online-services" ? settings.onlineServiceStatus : localError || (shell.hall.account.open ? shell.hall.account.status : settings.category===8 ? settings.libraryStatus : "")
@@ -115,8 +115,26 @@ Item {
                 }
                 }
                 Item { anchors.fill: parent; visible: root.settings.category===6
-                Flickable { x: 12; y: 12; width: parent.width-24; height: parent.height-76; contentHeight: creditsText.height; clip: true; boundsBehavior: Flickable.StopAtBounds
+                Flickable { id: creditsViewport; x: 4; y: 8; width: parent.width-8; height: Math.max(0,parent.height-y-(root.statusText.length?64:8)); contentHeight: creditsText.height; clip: true; boundsBehavior: Flickable.StopAtBounds
+                ScrollBar.vertical: SettingsScrollBar {}
+                function followFocus() {
+                    if (!root.settings.controlsFocused || root.settings.category!==6) return
+                    const item=communityLinks.itemAt(root.settings.rowFocus)
+                    if (!item) return
+                    contentY=Math.max(0,Math.min(Math.max(0,contentHeight-height),item.y<contentY?item.y:item.y+item.height>contentY+height?item.y+item.height-height:contentY))
+                }
+                onHeightChanged: Qt.callLater(followFocus)
+                Connections { target: root.settings; function onChanged() { Qt.callLater(creditsViewport.followFocus) } }
                 Column { id: creditsText; spacing: 12; width: parent.width
+                    onPositioningComplete: creditsViewport.followFocus()
+                    Repeater { id: communityLinks; model: root.settings.category===6?root.settings.controls:[]
+                        SettingsRow { required property int index; required property var modelData
+                            objectName: index===0?"credits-website":"credits-discord"
+                            width: parent.width; title: modelData.title; detail: modelData.detail
+                            selected: root.takesFocus && root.settings.controlsFocused && root.settings.rowFocus===index
+                            onActivated: root.settings.activateRow(index)
+                        }
+                    }
                     Text { width: parent.width; wrapMode: Text.WordWrap; text: "Original creature and achievement art"; color: Theme.ink; font.pixelSize: 18; font.bold: true }
                     Text { text: "OctoFox OS contributors"; color: Theme.ink; font.pixelSize: 18 }
                     Text { text: "GNU General Public License 3.0 or later"; color: Theme.muted; font.pixelSize: 14 }
@@ -124,7 +142,6 @@ Item {
                 }
                 }
 
-                    CapButton { flat: true; objectName: "credits-back"; x: 22; anchors.bottom: parent.bottom; anchors.bottomMargin: 8; width: 240; height: 44; label: "Categories"; selected: root.takesFocus && root.settings.controlsFocused && root.settings.category===6; onActivated: root.settings.selectCategory(6,false) }
                 }
                 Text {
                     objectName: "settings-status"

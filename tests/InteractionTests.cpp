@@ -30,6 +30,34 @@ void tap(TextEntryController& keyboard, Action action, int count = 1) {
 class InteractionTests : public QObject {
     Q_OBJECT
 private slots:
+    void communityLinksPreserveSettingsAndReportBrowserFailure() {
+        SettingsController settings;
+        QList<QUrl> opened;
+        QString failure;
+        settings.openCommunityLink=[&](const QUrl& url){opened.append(url);return failure;};
+        settings.selectPage("credits");
+        settings.dispatch(Action::Confirm);
+        QCOMPARE(opened.last(),QUrl("https://abysstail.art/"));
+        QCOMPARE(settings.categoryId(),QString("credits"));
+        QVERIFY(settings.controlsFocused());
+        settings.dispatch(Action::Down);
+        settings.dispatch(Action::Confirm);
+        QCOMPARE(opened.last(),QUrl("https://abysstail.art/#contacts"));
+        QCOMPARE(settings.rowFocus(),1);
+        settings.communityLinkFailed("Browser unavailable");
+        QCOMPARE(settings.error(),QString("Browser unavailable"));
+        QCOMPARE(settings.rowFocus(),1);
+        failure="Finish the current game first";
+        settings.activateRow(0);
+        QCOMPARE(settings.error(),failure);
+        failure.clear();settings.activateRow(1);
+        QVERIFY(settings.error().isEmpty());
+        settings.dispatch(Action::Back);
+        QVERIFY(!settings.controlsFocused());
+        settings.dispatch(Action::Confirm);
+        QCOMPARE(settings.rowFocus(),1);
+        QCOMPARE(opened.size(),4); // Returning focus must not open another page.
+    }
     void touchLayoutEditingAndPreferences() {
         QTemporaryDir directory;TextEntryController keyboard;keyboard.configure(directory.path(),"touch-owner");
         QVERIFY(keyboard.touchLayout());QCOMPARE(keyboard.layoutUnits(),10.0);
