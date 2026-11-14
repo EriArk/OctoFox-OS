@@ -1,5 +1,13 @@
 # TrainerOS — active agent / developer contract
 
+
+**Bazaar population, 14 November:** 0.0.5 adds local NPC merchants/pedestrians and
+birds. The owner's latest choice is a mixed population with **more humans**:
+eleven humans, four animal folk, six birds. Keep their original Quaternius rigs;
+do not retarget them through the SDK avatar. NPCs are not live-player occupancy,
+and merchants do not enable purchases. Bounded distance activity/menu pause,
+separate branches, no merge or handheld installation. [Evidence](docs/BAZAAR.md).
+
 **Bazaar animation repair, 14 November:** 0.0.4 corrects the arms-down SDK versus
 T-pose donor reference mismatch, shoulder helper half rotations and fingers.
 The owner's deformation complaint was valid; previous leg-motion tests were
