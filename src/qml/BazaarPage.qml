@@ -51,7 +51,7 @@ Item {
                 y: toolbar.height+10; width: parent.width; height: parent.height-y
                 clip: true; boundsBehavior: Flickable.StopAtBounds
                 model: root.catalogue.rooms
-                cellWidth: width/2; cellHeight: Math.max(root.compact ? 130 : 146,Math.floor(height/2.15))
+                cellWidth: width; cellHeight: Math.max(root.compact ? 158 : 172,Math.floor(height/2))
                 currentIndex: root.catalogue.selectedIndex
                 cacheBuffer: cellHeight
                 ScrollBar.vertical: ScrollBar {
@@ -66,7 +66,7 @@ Item {
                     BazaarCard {
                         objectName: "bazaar-room-"+modelData.id
                         width: parent.width-10; height: parent.height-10
-                        entry: modelData; compact: root.compact
+                        entry: modelData; compact: root.compact; horizontal: true
                         selected: root.takesFocus && root.catalogue.selection==="room:"+modelData.id
                         onActivated: root.catalogue.activate("room:"+modelData.id)
                         onFavoriteRequested: root.catalogue.toggleFavorite(modelData.id)
@@ -82,20 +82,11 @@ Item {
                     function onRowsChanged() { Qt.callLater(root.restoreScroll) }
                 }
             }
-            Rectangle {
+            Column {
                 objectName: "bazaar-empty"; visible: root.catalogue.rooms.length===0
-                x: 0; y: grid.y; width: parent.width-5; height: grid.height-7; radius: 12; color: "#153e40"; clip: true
-                Image { anchors.fill: parent; source: "qrc:/bazaar/grove.png"; fillMode: Image.PreserveAspectCrop; asynchronous: true }
-                Rectangle { anchors.fill: parent; radius: 12; gradient: Gradient { GradientStop {position:0;color:"#30102b38"} GradientStop {position:1;color:"#fa102b38"} } }
-                Column {
-                    anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 18; spacing: 8
-                    Text { text: "PLAYER BAZAARS"; color:"#ffffff"; font.pixelSize:root.compact?23:28; font.bold:true }
-                    Text { width:parent.width; text:"Your own place to gather, build and trade."; color:"#ebf5ed"; font.pixelSize:16; wrapMode:Text.WordWrap }
-                    Text { width:parent.width; text:"PLACEHOLDER · IN DEVELOPMENT"; color:"#ffda74"; font.pixelSize:root.compact?14:16; font.bold:true; wrapMode:Text.WordWrap }
-                    Text { objectName:"bazaar-status"; width:parent.width; text:root.catalogue.search?"No matching bazaars. See what's planned.":root.catalogue.favoritesOnly?"No favorites yet. See what's planned.":"Open the preview — no Sparks required."; color:"#ebf5ed";font.pixelSize:12;wrapMode:Text.WordWrap }
-                }
-                MouseArea { anchors.fill:parent;onClicked:root.catalogue.activate("create") }
-                Accessible.role:Accessible.Button;Accessible.name:"Player bazaars placeholder preview";Accessible.onPressAction:root.catalogue.activate("create")
+                x: 20; y: grid.y+36; width: parent.width-40; spacing: 10
+                Text { width:parent.width; text: "No bazaars found"; color:Theme.ink; font.family:Theme.displayFamily; font.pixelSize:24; wrapMode:Text.WordWrap }
+                Text { objectName:"bazaar-status"; width:parent.width; text:root.catalogue.favoritesOnly?"Save a bazaar with the star to find it here.":"Try another name or clear the search."; color:Theme.muted;font.pixelSize:14;wrapMode:Text.WordWrap }
             }
         }
     }

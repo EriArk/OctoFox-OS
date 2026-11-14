@@ -26,6 +26,7 @@ class BazaarCatalogue final : public QObject {
     Q_PROPERTY(QVariantList dialogRows READ dialogRows NOTIFY changed)
     Q_PROPERTY(int dialogIndex READ dialogIndex NOTIFY changed)
     Q_PROPERTY(QVariantMap cardPreview READ cardPreview NOTIFY changed)
+    Q_PROPERTY(QVariantMap previewEntry READ previewEntry NOTIFY changed)
     Q_PROPERTY(QVariantMap account READ account NOTIFY changed)
     Q_PROPERTY(QString summary READ summary NOTIFY changed)
     Q_PROPERTY(QString message READ message NOTIFY changed)
@@ -34,7 +35,7 @@ class BazaarCatalogue final : public QObject {
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY changed)
     Q_PROPERTY(qreal scroll READ scroll WRITE setScroll NOTIFY scrollChanged)
 public:
-    explicit BazaarCatalogue(QObject* parent=nullptr):QObject(parent){}
+    explicit BazaarCatalogue(QObject* parent=nullptr):QObject(parent){rebuild();}
     bool walkthroughAvailable() const { return walkthroughAvailable_; }
     void setWalkthroughAvailable(bool value) { if(walkthroughAvailable_==value)return;walkthroughAvailable_=value;emit changed(); }
     QVariantList rooms() const { return visible_; }
@@ -56,6 +57,7 @@ public:
     bool more() const { return !next_.isEmpty(); }
     QString summary() const;
     QVariantMap cardPreview() const;
+    QVariantMap previewEntry() const;
     void managePlayer(QString player);
     QString message() const { return message_; }
     QVariantMap account() const;

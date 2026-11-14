@@ -38,7 +38,7 @@ inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shel
         switch((*step)++) {
         case 0:window->resize(960,540);shell.openOnlineFace("bazaar");break;
         case 1:
-            check(page->rooms().isEmpty(),"No invented player worlds");capture("catalogue-preview-960");click("bazaar-official");break;
+            check(page->rooms().size()==2&&page->rooms()[0].toMap()["preview"].toBool()&&page->rooms()[1].toMap()["preview"].toBool(),"Two explicitly labelled test-account previews");capture("catalogue-preview-960");click("bazaar-official");break;
         case 2:
             check(page->dialog()=="preview-official"&&find("bazaar-world-preview"),"Official opens fullscreen placeholder");capture("official-preview-960");
             shell.dispatch(Action::NextFace);check(shell.onlineFace()=="bazaar","Preview traps face switching");
@@ -47,9 +47,9 @@ inline void startBazaarSmoke(QQuickWindow* window,trainer::ShellController& shel
             shell.dispatch(Action::ToggleContinue);check(shell.drawerOpen()&&find("continue-drawer"),"Y opens visible drawer over preview");shell.dispatch(Action::Back);
             shell.dispatch(Action::SystemMenu);check(shell.menuOpen(),"Start overlays preview");shell.dispatch(Action::Back);break;
         case 3:
-            check(page->dialog()=="preview-official","Start dismissal preserves preview");click("bazaar-preview-back");click("bazaar-create");break;
+            check(page->dialog()=="preview-official","Start dismissal preserves preview");click("bazaar-preview-back");click("bazaar-room-preview-mika");break;
         case 4:
-            check(page->dialog()=="preview-player","Personal preview without signing in or buying");capture("player-preview-960");window->resize(800,450);break;
+            check(page->dialog()=="preview-player"&&page->previewEntry()["ownerName"]=="Mika","Chosen test bazaar opens without sign-in or buying");capture("player-preview-960");window->resize(800,450);break;
         case 5:
             capture("player-preview-800");press(ControllerInput::BackButton);click("bazaar-official");break;
         case 6:

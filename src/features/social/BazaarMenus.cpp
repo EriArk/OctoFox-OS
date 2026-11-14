@@ -49,7 +49,10 @@ void BazaarCatalogue::refresh(bool append) {
     if(!append)next_.clear();
     status_="Refreshing bazaars…";emit changed();
     QJsonObject args{{"q",search_}};if(append)args["after"]=next_;
-    if(favoritesOnly_)args["favorites"]=QJsonArray::fromStringList(favorites_.values());
+    if(favoritesOnly_) {
+        QStringList ids;for(const auto& id:favorites_)if(!QUuid(id).isNull())ids.append(id);
+        args["favorites"]=QJsonArray::fromStringList(ids);
+    }
     backend_->bazaarRequest("directory",args,[this,generation,append](int status,QJsonObject result){
         if(generation!=generation_)return;
         loading_=false;
@@ -189,8 +192,8 @@ void BazaarCatalogue::dialogAction(QString action) {
     if(action=="listed")draft_["listed"]=!draft_["listed"].toBool();
     else if(action=="access")draft_["access"]=draft_["access"]=="open"?"closed":"open";
     else if(action=="sign-in"){if(backend_)backend_->activate();}
-    else if(action=="mine"){beginForm(!own_.isEmpty());return;}
-    else if(action=="details")dialog_="details";
+    else if(action=="mine"){detailId_.clear();beginForm(!own_.isEmpty());return;}
+    else if(action=="details")dialog_=previewEntry()["preview"].toBool()?"preview-player":"details";
     else if(action=="favorite"){const auto old=dialog_;dialog_.clear();toggleFavorite(detailId_.mid(5));dialog_=old;}
     else if(action=="refresh"||action=="more"){dialog_.clear();refresh(action=="more");}
     else if(action=="reload"){if(backend_){reloadDraft_=true;backend_->refreshShop();}}

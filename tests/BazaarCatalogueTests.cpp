@@ -14,6 +14,24 @@ class BazaarCatalogueTests : public QObject {
         return rows;
     }
 private slots:
+    void testAccountPreviewsStayLocalAndKeepTheirOwnDetails() {
+        BazaarCatalogue page;QCOMPARE(page.rooms().size(),2);
+        QCOMPARE(page.rooms()[0].toMap()["ownerName"].toString(),"Mika");
+        QCOMPARE(page.rooms()[1].toMap()["ownerName"].toString(),"Ren");
+        for(const auto& value:page.rooms()) {const auto row=value.toMap();QVERIFY(row["preview"].toBool());QVERIFY(!row.contains("visitors"));QVERIFY(!row.contains("owner_id"));}
+        page.dispatch(Action::Right);QCOMPARE(page.selection(),"room:preview-mika");
+        page.dispatch(Action::Down);QCOMPARE(page.selection(),"room:preview-ren");
+        page.dispatch(Action::Confirm);QCOMPARE(page.dialog(),"preview-player");
+        QCOMPARE(page.previewEntry()["ownerName"].toString(),"Ren");
+        QCOMPARE(page.previewEntry()["cover"].toString(),"qrc:/bazaar/harbor.png");
+        page.closeDialog();page.openMenu();page.dialogAction("details");QCOMPARE(page.dialog(),"preview-player");
+        page.closeDialog();page.activate("create");QVERIFY(page.previewEntry().isEmpty());page.closeDialog();
+        page.applySearch("Mika");QCOMPARE(page.rooms().size(),1);
+        page.toggleFavorite("preview-mika");page.applySearch("");page.toggleFilter();QCOMPARE(page.rooms().size(),1);
+        page.toggleFilter();page.setPresentation(rooms(),{},{});QCOMPARE(page.rooms().size(),12);
+        for(const auto& row:page.rooms())QVERIFY(!row.toMap()["preview"].toBool());
+        page.setPresentation({}, {}, {});QVERIFY(page.rooms().isEmpty());
+    }
     void installedWalkthroughUsesOfficialEntryWithoutEnablingCommerce() {
         BazaarCatalogue page;QSignalSpy launch(&page,&BazaarCatalogue::walkthroughRequested);
         page.activate("official");QCOMPARE(page.dialog(),"preview-official");page.closeDialog();
@@ -38,16 +56,15 @@ private slots:
             page.closeDialog(true);
         }
     }
-    void fixedOfficialAndTwoColumns() {
+    void fixedOfficialAndScrollableRows() {
         BazaarCatalogue page;page.setPresentation(rooms(),{},{});
         page.dispatch(Action::Right);QCOMPARE(page.selectedIndex(),0);
-        page.dispatch(Action::Right);QCOMPARE(page.selectedIndex(),1);
-        page.dispatch(Action::Down);QCOMPARE(page.selectedIndex(),3);
-        page.dispatch(Action::Left);QCOMPARE(page.selectedIndex(),2);
+        page.dispatch(Action::Down);QCOMPARE(page.selectedIndex(),1);
+        page.dispatch(Action::Down);QCOMPARE(page.selectedIndex(),2);
         page.dispatch(Action::Left);QCOMPARE(page.selection(),"official");
         page.dispatch(Action::Right);QCOMPARE(page.selectedIndex(),2);
         for(int i=0;i<10;++i)page.dispatch(Action::Down);
-        QCOMPARE(page.selectedIndex(),10);
+        QCOMPARE(page.selectedIndex(),11);
         page.dispatch(Action::Back);QCOMPARE(page.selection(),"official");
         QVERIFY(!page.dispatch(Action::Back));
     }
@@ -71,7 +88,8 @@ private slots:
         auto state=page.navigation();page.activate("official");QVERIFY(!page.dialog().isEmpty());
         page.restore(state);QCOMPARE(page.selection(),"room:4");QCOMPARE(page.scroll_,185.0);QVERIFY(page.dialog().isEmpty());
         page.blocks_={QVariantMap{{"name","Private block"}}};page.accessTarget_={{"name","Private target"}};page.moderating_=true;
-        page.setOwner("two");QVERIFY(page.blocks_.isEmpty());QVERIFY(page.accessTarget_.isEmpty());QVERIFY(!page.moderating_);QCOMPARE(page.selection(),"official");QVERIFY(page.rooms().isEmpty());
+        page.setOwner("two");QVERIFY(page.blocks_.isEmpty());QVERIFY(page.accessTarget_.isEmpty());QVERIFY(!page.moderating_);QCOMPARE(page.selection(),"official");QCOMPARE(page.rooms().size(),2);
+        for(const auto& row:page.rooms())QVERIFY(row.toMap()["preview"].toBool());
         QVERIFY(page.favorites_.isEmpty());QCOMPARE(page.scroll_,0.0);QVERIFY(page.dialog().isEmpty());
     }
     void emptyDisconnectedAndUnavailableActions() {
