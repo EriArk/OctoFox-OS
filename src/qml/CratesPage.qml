@@ -11,7 +11,7 @@ Item {
     readonly property real sideMargin: 27
     readonly property real innerWidth: width-2*sideMargin
     readonly property real headerHeight: 37
-    readonly property real usableHeight: height-headerHeight-14
+    readonly property real usableHeight: height-headerHeight-30
     readonly property real tileHeight: (usableHeight-gutter)/2
     Item {
         visible: !flow.opened
