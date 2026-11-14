@@ -48,9 +48,9 @@ func save(rows: Array) -> bool:
 static func defaults() -> Array:
  return [
   {"item":"armchair","x":-2.2,"z":-5.2,"angle":PI},
-  {"item":"low-table","x":0.0,"z":-6.0,"angle":0.0},
-  {"item":"plant","x":-5.0,"z":-8.8,"angle":0.0},
-  {"item":"plant","x":5.0,"z":-8.8,"angle":0.0},
-  {"item":"lamp","x":4.8,"z":-3.5,"angle":0.0},
-  {"item":"rug","x":0.0,"z":-5.5,"angle":0.0},
+  {"item":"low-table","x":-2.4,"z":-3.6,"angle":0.0},
+  {"item":"plant","x":-5.1,"z":-4.3,"angle":0.0},
+  {"item":"plant","x":5.1,"z":-4.3,"angle":0.0},
+  {"item":"lamp","x":-4.8,"z":-2.8,"angle":0.0},
+  {"item":"rug","x":-2.7,"z":-4.3,"angle":0.0},
   {"item":"stool","x":-5.5,"z":2.5,"angle":0.0}]

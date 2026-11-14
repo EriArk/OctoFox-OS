@@ -1,5 +1,18 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner Ship Home redesign, 14 November 2026 (latest):** the first layout was
+rejected as a low-poly house in space. Redesign the actual interior as a cozy
+spacecraft; add a pilot console at the panoramic window. Partly derive the visual
+language from `assets/profile-scenes/orbit.png`: light curved hull, brass bands,
+blue inset lighting, amber instruments and a ringed planet. Keep this a separate
+third-person application. No handheld access or Bazaar changes.
+
+**Ship redesign checkpoint, 14 November 2026:** Orbit-inspired pressure hull,
+panoramic helm, ringed planet and fitted rooms are implemented in the development
+branch. Godot geometry/physics/storage checks and seven engine captures passed.
+Flight and functional room integrations remain unfinished. No device access.
+[Current design evidence](docs/evidence/2026-11-14-ship-redesign/README.md).
+
 **Owner ship-home, 14 November 2026 (latest):** build a separate third-person
 cozy retrofuturist ship game, entered via a ship icon replacing the upper bell.
 Keep the footer inbox. Large windows overlook space. Reuse the shared avatar and

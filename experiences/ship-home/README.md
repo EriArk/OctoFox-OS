@@ -2,7 +2,10 @@
 
 A separate third-person home for the OctoFox character. A panoramic lounge leads
 into a central passage, with a workshop, gallery, cabin and wardrobe on either
-side. Large windows look out onto a procedural star field and planet.
+side. Curved hull ribs, ivory panels, brass bands and blue inset lights borrow
+ideas from the Orbit profile background. A helm and pilot chair face the panorama,
+with a procedural star field and ringed planet outside. The helm is a visual
+station; flight controls are not implemented.
 
 This is the **first playable layout**, not the finished art or a public release.
 Walking, a collision-aware camera, per-profile furnishing saves and the shared
@@ -94,7 +97,9 @@ SHIP_CAPTURE_DIR=/tmp/ship-tour /path/to/godot --path experiences/ship-home --sc
 ```
 
 `checks.gd` covers replacement/reload, profile isolation, corrupt-save protection,
-placement and undo, protected doors, world collisions and camera retraction.
+placement and undo, protected doors, world/helm collisions, camera retraction and
+triangle preservation when batching indexed and unindexed meshes.
+`design_tour.gd` captures seven architecture views with the avatar and HUD hidden.
 `live_avatar.gd` is driven by the native `shipConsumesLiveHostAvatar` test against
 an actual PlatformBinding host; set `OCTOFOX_SHIP_TEST_GODOT` and
 `OCTOFOX_SHIP_TEST_PROJECT` when running `trainer_interaction_tests`. It checks
@@ -102,5 +107,7 @@ shared mesh/rig loading, locomotion posing, appearance refresh and revocation.
 An optional `SHIP_TEST_DESCRIPTOR` lets the screenshot tour show a locally
 resolved development character; it is not a production identity override.
 
-[Development evidence and screenshots](../../docs/evidence/2026-11-14-ship-home/README.md).
+[Initial development evidence and screenshots](../../docs/evidence/2026-11-14-ship-home/README.md).
 No Odin or Flip access was used for this increment.
+
+[Current interior redesign and screenshots](../../docs/evidence/2026-11-14-ship-redesign/README.md).

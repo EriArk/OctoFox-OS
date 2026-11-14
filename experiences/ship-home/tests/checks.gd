@@ -3,7 +3,21 @@ var failures:Array[String]=[]
 func check(ok:bool,message:String) -> void:
  if not ok:failures.append(message);push_error(message)
 func _initialize() -> void:call_deferred("run")
+func triangles(node:Node3D) -> int:
+ var count=0
+ for mesh in node.find_children("*","MeshInstance3D",true,false):
+  var arrays=mesh.mesh.surface_get_arrays(0)
+  var indices=arrays[Mesh.ARRAY_INDEX]
+  count+=(indices.size() if indices!=null and not indices.is_empty() else arrays[Mesh.ARRAY_VERTEX].size())/3
+ return count
 func run() -> void:
+ var geometry=Node3D.new();root.add_child(geometry)
+ var art=ShipInterior.new()
+ art.box(geometry,Vector3.ZERO,Vector3.ONE,ShipInterior.PAPER,true)
+ art.cylinder(geometry,Vector3(2,0,0),0.5,1.0,ShipInterior.PAPER)
+ var before=triangles(geometry);art.batch_static(geometry)
+ check(before>0 and triangles(geometry)==before,"Batching retains both indexed and unindexed geometry")
+ geometry.queue_free()
  var store=ShipLayoutStore.new();store.directory="user://checks-"+str(Time.get_ticks_usec())
  var original=store.load_home("alpha");check(store.save(original),"Initial save")
  var moved=original.duplicate(true);moved[0].x=-3.0
@@ -26,11 +40,12 @@ func run() -> void:
  check(not home.can_place("plant",Vector3(0,0,5),0),"Passage remains clear")
  check(not home.can_place("plant",Vector3(0,0,-12),0),"Outside hull rejected")
  check(not home.can_place("armchair",Vector3(-5.5,0,1),0),"Workbench overlap rejected")
+ check(not home.can_place("plant",Vector3(0,0,-7.65),0),"Cockpit console overlap rejected")
  home._edit(true);home.item_index=2;home.placement=Vector3(4,0,-7);home.placement_valid=true
  home._place();check(home.rows.size()==8,"Place furniture through game operation")
  check(home.store.load_home("test-walker").size()==8,"Placement saved")
  home._undo();check(home.rows.size()==7,"Undo restores arrangement")
- home._edit(false);home.walker.position=Vector3(0,0.1,-7.5);home.walker.yaw=0
+ home._edit(false);home.walker.position=Vector3(5.5,0.1,-7.5);home.walker.yaw=0
  Input.action_press("walk_forward")
  for i in 150:await physics_frame
  Input.action_release("walk_forward")

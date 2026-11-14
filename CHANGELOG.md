@@ -1,5 +1,21 @@
 # OctoFox OS — Changelog
 
+## 14 November 2026 — Ship Home interior redesign
+
+Reworked the first layout into a spacecraft with curved pressure-hull ribs,
+framed hatches and metal deck plates. The panoramic window now has a curved
+helm and pilot chair. Ivory panels, brass bands, blue inset lights and a ringed
+planet borrow ideas from the existing Orbit profile background. Built-in lounge
+seating and cabin furniture preserve the home functions. Fixed mixed-mesh
+batching that could hide sections of the interior.
+
+Godot physics/storage and geometry regression checks passed; seven actual
+engine views were captured on the development server. No handheld access,
+Bazaar changes, deployment or release. Flight controls and the previously
+unfinished room functions remain unimplemented; final art and handheld
+performance acceptance are still open.
+[Evidence and screenshots](docs/evidence/2026-11-14-ship-redesign/README.md).
+
 ## 14 November 2026 — Ship Home development preview
 
 Added a separate Godot third-person home with a panoramic lounge, workshop,

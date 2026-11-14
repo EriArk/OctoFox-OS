@@ -226,7 +226,8 @@ func _undo() -> void:
 
 func _interact() -> void:
  var p=Vector2(walker.position.x,walker.position.z)
- if p.distance_to(Vector2(-5.5,1))<2.2:notify("Workbench · crafting recipes will be connected here.")
+ if p.distance_to(Vector2(0,-7.65))<2.7:notify("Navigation console · flight controls coming later.")
+ elif p.distance_to(Vector2(-5.5,1))<2.2:notify("Workbench · crafting recipes will be connected here.")
  elif p.distance_to(Vector2(5.5,13))<2.6:notify("Wardrobe · your saved OctoFox appearance is shared with this home.")
  elif Art.ROOMS.Gallery.has_point(p):notify("Your gallery · reserved for cards and trophies you actually own.")
  elif p.distance_to(Vector2(-6.8,11.3))<2.5:notify("Your cabin · make room for your favourite things.")
