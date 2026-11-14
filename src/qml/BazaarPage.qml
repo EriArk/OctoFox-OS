@@ -17,7 +17,7 @@ Item {
             id: official; objectName: "bazaar-official"
             x: 0; y: 4; width: Math.floor(parent.width*.43); height: parent.height-8
             official: true; compact: root.compact
-            entry: ({title:"Official Bazaar",cover:"qrc:/bazaar/official.png"})
+            entry: ({title:"Official Bazaar",cover:"qrc:/bazaar/official.png",walkthrough:root.catalogue.walkthroughAvailable})
             selected: root.takesFocus && root.catalogue.selection==="official"
             onActivated: root.catalogue.activate("official")
         }

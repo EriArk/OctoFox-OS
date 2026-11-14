@@ -36,6 +36,7 @@ public:
     std::function<QString()> webLaunchGuard;
     std::function<QString(const QString&)> launchManagedGame;
     void setGameState(const QVariantMap& game, bool minimized);
+    bool hasDesktopId(const QString& id) const;
     QVariantList rows() const;
     QVariantList rail() const;
     int favoriteCapacity() const { return favoriteCapacity_; }

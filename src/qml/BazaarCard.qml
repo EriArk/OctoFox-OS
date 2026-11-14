@@ -46,7 +46,7 @@ Rectangle {
         }
         Text {
             visible: root.official; width: parent.width
-            text: "Squares, shops and shared adventures."; font.pixelSize: root.compact ? 11 : 12; color: Theme.muted
+            text: root.entry.walkthrough ? "Explore Festival Park as your character." : "Squares, shops and shared adventures."; font.pixelSize: root.compact ? 11 : 12; color: Theme.muted
             wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight
         }
         Row {
@@ -57,7 +57,7 @@ Rectangle {
             }
             Text { visible: !root.official; width: Math.max(20,parent.width-105); text: root.entry.ownerName || "Player"; textFormat: Text.PlainText; font.pixelSize: 11; color: Theme.muted; elide: Text.ElideRight }
             Text {
-                text: root.official ? "IN DEVELOPMENT · PREVIEW" : (root.entry.visitors===undefined || root.entry.visitors===null ? (root.entry.access==="closed"?"Closed":"Not open yet") : root.entry.visitors+" visiting")
+                text: root.official ? (root.entry.walkthrough ? "ENTER · LOCAL ALPHA" : "IN DEVELOPMENT · PREVIEW") : (root.entry.visitors===undefined || root.entry.visitors===null ? (root.entry.access==="closed"?"Closed":"Not open yet") : root.entry.visitors+" visiting")
                 font.pixelSize: root.official ? 12 : 11; color: Theme.muted
             }
         }
