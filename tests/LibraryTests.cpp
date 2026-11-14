@@ -434,7 +434,8 @@ private slots:
         shell.dispatch(Action::Back);
         QVERIFY(!shell.libraryTools()->isOpen());QCOMPARE(shell.multiverse()->route(),"games");
         QVERIFY(!shell.canEditWorld());
-        shell.dispatch(Action::NextPage);QCOMPARE(shell.page(),2);QVERIFY(!shell.libraryTools()->isOpen());
+        // This unconfigured game has no GameHub adapter page.
+        shell.dispatch(Action::NextPage);QCOMPARE(shell.page(),ShellController::OnlinePage);QVERIFY(!shell.libraryTools()->isOpen());
         shell.goToPage(1);QVERIFY(!shell.collectionsRoot());QCOMPARE(shell.multiverse()->route(),"games");
         shell.dispatch(Action::ContextMenu);QVERIFY(shell.libraryTools()->isOpen());
         shell.dispatch(Action::SystemMenu);QVERIFY(shell.menuOpen());

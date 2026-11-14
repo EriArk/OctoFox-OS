@@ -8,8 +8,12 @@ Detect mounted-card changes automatically, reuse cached catalogues and reconcile
 in the background at idle, preserving personal metadata/history/saves. Install
 and verify on reachable Flip/Odin. Physical card removal is separate acceptance;
 never unmount a personal card with active users just to manufacture a test.
-Source implementation is being validated; sequence 34 remains installed until
-the new device delivery is explicitly recorded.
+Private Software sequence 35 (`7b7050ec`) is installed on both devices. Ark and
+KWrite lifecycle passed on both; Steam Dead Cells passed on Flip. Physical card
+swap and general Windows compatibility remain open. See the dated Apps/storage
+evidence. The owner is replacing problematic Sacred with a small free Windows
+test game and also requested an installer check; do not turn Sacred-specific
+failure into a universal Proton/FEX verdict. No public release in this increment.
 
 **Owner immediate handheld validation, 13 November 2026 (latest):** install and
 verify the resource changes on reachable Flip and Odin now. Preserve personal
