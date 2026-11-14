@@ -1,5 +1,14 @@
 # TrainerOS — active agent / developer contract
 
+**Owner server services continuation, 14 November (latest):** connect the office
+and stalls to real Backend reads while all Sparks spending remains disabled, then
+prepare the recoverable Emerald/profile inventory round trip. Do not contact,
+install, restart or test either handheld until the owner resumes device work.
+Build and validate on the workstation/server in the separate branches. The official
+venue belongs to the verified owner of the existing Lobby Directory application;
+match its Fluxer subject to Backend identity, never a local nickname or test profile.
+
+
 **Owner Bazaar entry correction, 14 November (latest):** the island belongs in
 Online → Bazaar → Official Bazaar, not an Apps-only shortcut. Fixed in this feature
 branch and in isolated device branch `codex/bazaar-entry-device-20261114` based on
