@@ -7,8 +7,10 @@ Fantasy Town/Nature and Quaternius CC0 scenery/residents, with no personal avata
 Reproduce from Crates `games/bazaar/tests/movement_review.gd`; source attribution
 and original licence files are retained under that game’s `assets/` and `licenses/`.
 
-Player cards in isolated UI fixtures reuse the existing original profile-scene
-art. They are not advertised player worlds in the normal application.
+The normal catalogue now has two owner-requested, explicitly labelled test-card
+previews: Mika uses `grove.png`, Ren uses `harbor.png`. They are illustrations of
+planned personal bazaars, not registered venues or playable worlds. Isolated
+scrolling fixtures additionally reuse the existing original profile-scene art.
 
 
 `grove.png` and `harbor.png` are original player-card illustrations generated with

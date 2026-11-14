@@ -1,5 +1,26 @@
 # Bazaar — Online, экономика и границы интеграции
 
+## Catalogue update — 14 November 2026
+
+The official Festival Park card on the left launches the local island (0.0.9 on
+Flip/Odin). The right side is now a scrollable list of wide player cards. While
+there are no real directory rows, it shows the owner-requested **Mika** garden
+and **Ren** harbor examples, each marked **TEST BAZAAR / IN DEVELOPMENT**. Their
+cover, owner, description, favorite and preview use the normal card layout.
+Search/favorites filter them locally; no visitor count, server owner ID, personal
+license or world admission is fabricated. Real directory rows replace these
+samples. Confirm and the details menu both open the selected labelled preview.
+The generic player-bazaar action still opens the general explanation.
+
+Up/Down moves through right-hand cards, Left returns to the fixed official card,
+Right returns to the remembered player card. Card selection and scroll survive
+leaving/reopening the catalogue. No payments are enabled. The historical
+10 November official-placeholder description below is superseded by the local
+walkthrough; player spaces and trading remain in development.
+
+Private Software **46** is installed on both devices; reserve 47+ next.
+[Build and device evidence](evidence/2026-11-14-bazaar-player-cards/README.md).
+
 ## Сейчас: красочные заглушки, без расходов Искр — 10 ноября
 
 Игровых миров пока нет. Вход в официальный базар и карточки базаров игроков

@@ -1,5 +1,17 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner personal Bazaar catalogue, 14 November (latest):** replace the right
+placeholder banner with two realistic card previews for the test accounts Mika
+and Ren. Keep the official card fixed on the left and the right list scrollable.
+Use clear development/test labels, no invented visitors, paid rights or server
+records. Each card opens its own labelled preview; search/favorites and pad
+navigation must work. Delivered as private Software **46** on Flip 2 and Odin 2,
+with Bazaar 0.0.9.
+Reserve **47+** next. Remote selection/scroll/preview/Back and official island
+entry/return passed; physical pad/touch remains owner acceptance. Software 45
+and game 0.0.8 rollback retained. Separate branches, no merge.
+[Evidence](docs/evidence/2026-11-14-bazaar-player-cards/README.md).
+
 **Owner resumed gait delivery, 14 November (latest):** Bazaar 0.0.9 with SDK
 gait fixes and the 20% outer stick zone is installed on Flip/Odin. This supersedes
 the device hold below for this delivery. Software 45 was preserved without restart;

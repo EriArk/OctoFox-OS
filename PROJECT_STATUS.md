@@ -1,5 +1,22 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — Mika and Ren Bazaar catalogue previews
+
+Private Software **46** is installed on Flip 2 and Odin 2. The official island
+stays fixed on the left; the scrollable right list now has individual Mika and
+Ren cards with cover, owner, description, favorite and clear test/development
+labels. Each opens its own full-screen preview. These are local presentation
+samples, without invented visitors, ownership records or Sparks charges.
+
+Native/ARM builds, 9 Bazaar tests, 20 Apps tests and light/dark compact UI checks
+passed. Both devices passed remote directional selection, scrolling, both
+previews, Back and official island launch/Leave. Profiles and game preferences
+were preserved; task staging was cleaned. Software 45 and game 0.0.8 remain for
+rollback. Bazaar 0.0.9 includes the previously delivered SDK gait correction.
+Physical-stick/touch acceptance remains separate; personal playable worlds and
+commerce remain in development. Separate branches, no merge or public release.
+[Evidence](docs/evidence/2026-11-14-bazaar-player-cards/README.md). Reserve 47+ next.
+
 ## 14 November 2026 — gait correction delivered to both handhelds
 
 Bazaar 0.0.9 now embeds the SDK gait fixes and 20% outer left-stick zone on

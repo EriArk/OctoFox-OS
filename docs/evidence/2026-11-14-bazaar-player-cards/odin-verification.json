@@ -1,0 +1,24 @@
+{
+  "sequence": 46,
+  "bazaarGame": "0.0.9",
+  "binarySha256": "ae41bfef40b4669c00b014571e175e707b5c1f47ef775bc39851f2c7811dfb35",
+  "databaseQuickCheck": true,
+  "preservedCounts": [
+    "trainer_profile",
+    "trainer_owners",
+    "adventures"
+  ],
+  "freeBytes": 8268087296,
+  "rollbackVerified": true,
+  "remoteUiChecks": [
+    "Mika preview",
+    "Ren preview",
+    "directional selection and scrolling",
+    "Back restores selection",
+    "official island launch and normal Leave"
+  ],
+  "noLiveGameProcess": true,
+  "gameSettingsUnchanged": true,
+  "gameLogErrors": false,
+  "physicalInputAcceptance": false
+}
