@@ -83,11 +83,16 @@ Item {
                         sourceSize.width: 256; sourceSize.height: 256
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true; visible: false
+                        // The shell is scaled as an item, not through window DPR.
+                        // Render the effect input at physical size to avoid soft icons.
+                        layer.enabled: true; layer.smooth: true
+                        layer.textureSize: Qt.size(Math.ceil(width * Theme.uiScale), Math.ceil(height * Theme.uiScale))
                     }
                     Rectangle {
                         id: artMask
                         width: art.width; height: art.height; radius: width/2
-                        color: "white"; visible: false; layer.enabled: true
+                        color: "white"; visible: false; layer.enabled: true; layer.smooth: true
+                        layer.textureSize: Qt.size(Math.ceil(width * Theme.uiScale), Math.ceil(height * Theme.uiScale))
                     }
                     MultiEffect {
                         x: art.x; y: art.y; width: art.width; height: art.height
