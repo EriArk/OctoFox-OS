@@ -1,12 +1,14 @@
 # OctoFox OS — active agent / developer contract
 
-**Owner Bazaar locomotion, 14 November (in progress):** movement belongs to the
-shared SDK. Keep the approved avatar rig/bind pose; Bazaar consumes optional Godot
-motor/retargeting helpers, with game-owned input/camera. Replace the official cover
-with an actual island render, compact the HUD, scale NPCs below the visitor and
-keep counters near waist height with overhead canopies. Preserve spending gates.
-Source/host checks are not handheld delivery. See [SDK movement](sdk/LOCOMOTION.md).
-
+**Bazaar locomotion delivery, 14 November (latest):** shared optional Godot
+motor/retargeting helpers preserve the approved rig; Bazaar owns input/camera.
+Private Software **45** and Bazaar **0.0.8** are installed on Flip/Odin. Reserve
+**46+** next (44 was superseded without installation). Actual island cover,
+compact HUD, corrected scales and counter fronts passed source/native checks and
+remote device movement/menu/return. Physical pad/touch remains owner acceptance.
+Spending stays closed; task staging cleaned, sequence 43/game 0.0.7 rollback kept.
+See [delivery evidence](docs/evidence/2026-11-14-bazaar-movement/README.md) and
+[SDK movement](sdk/LOCOMOTION.md). Older checkpoints below are historical.
 
 **Owner Bazaar entry correction, 14 November (latest):** open the local island from
 Online → Bazaar → Official Bazaar. This isolated branch applies that bounded fix

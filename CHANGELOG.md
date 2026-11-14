@@ -1,13 +1,14 @@
 # OctoFox OS — Changelog
 
-## 14 November 2026 — Bazaar movement and card (source)
+## 14 November 2026 — Bazaar movement and card delivered
 
-Added optional shared Godot locomotion (walk/run/sprint/crouch/jump), preserving
-avatar identity and the approved rig. Festival Park's official card now uses a
-render of the actual island, with clearer typography. SDK motor and seven-state
-pose checks passed; installed-device acceptance is recorded separately in the
-[Bazaar movement evidence](docs/evidence/2026-11-14-bazaar-movement/README.md).
-
+Private Software 45 and Bazaar 0.0.8 are installed on Flip 2 and Odin 2. The
+shared Godot SDK supplies walk/run/sprint/crouch/jump; the game uses corrected
+visitor/NPC proportions, a compact HUD and festival stalls facing the aisle.
+The official Festival Park card shows the actual island. Native/source checks
+and real-device remote movement, menu and return passed. Physical pad/touch and
+sustained performance remain separate acceptance; personal settings and rollback
+are preserved. [Delivery evidence](docs/evidence/2026-11-14-bazaar-movement/README.md).
 
 ## 14 November 2026 — Bazaar launches from its own tab
 
