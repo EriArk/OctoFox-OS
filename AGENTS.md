@@ -1,5 +1,18 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner personal starting grounds, 14 November (latest):** a personal Bazaar is
+one empty square, expanded later with paid shops, stalls, training arenas and
+social places. Prepare two local frames: Mika has a roughly circular beach island
+in the sea; Ren has a circular orbital station under a glass dome. Each opens from
+its own Bazaar card through the existing app lifecycle and shares the SDK avatar
+and motor. No facilities, ownership or spending are granted by these previews.
+Delivered on Flip/Odin as private **Software 47 / Bazaar 0.0.10**. Remote entry,
+movement and normal Leave passed for all three worlds on both devices. Profiles
+and preferences are preserved; task staging cleaned, Software 46 / game 0.0.9
+rollback kept. Reserve **48+** next. Physical pad/touch remains owner acceptance.
+Separate branches, no merge. Do not conflate these with the future private home/Orbiter.
+[Evidence](docs/evidence/2026-11-14-bazaar-personal-worlds/README.md).
+
 **Owner personal Bazaar catalogue, 14 November (latest):** replace the right
 placeholder banner with two realistic card previews for the test accounts Mika
 and Ren. Keep the official card fixed on the left and the right list scrollable.

@@ -1,6 +1,27 @@
 # Bazaar — Online, экономика и границы интеграции
 
-## Catalogue update — 14 November 2026
+## Personal starting grounds — 14 November 2026
+
+A personal Bazaar begins as **one empty square**. Its owner will add shops, stalls,
+training arenas, social places and similar facilities through later purchases.
+Version 0.0.10 supplies two local frames: Mika's roughly round sea island with a
+beach, and Ren's circular orbital station under glass. Both leave the central
+square clear. These replace the previous illustrated placeholders when installed;
+they do not create registered player venues or unlock Sparks spending.
+
+The two fixed desktop entries use the normal app lifecycle and return to the
+selected catalogue card. Real server rows cannot choose launch commands or use
+these local sample routes. Missing installations retain the explanation screen.
+The official multi-district Festival Park and future private home remain separate.
+
+Private **Software 47 / Bazaar 0.0.10** is installed on Flip/Odin. Remote entry,
+movement and normal return passed for all three worlds; physical pad/touch
+acceptance remains separate. [Delivery evidence](evidence/2026-11-14-bazaar-personal-worlds/README.md).
+Reserve **48+** next.
+
+## Earlier catalogue update — Software 46, 14 November 2026
+
+Historical checkpoint: the personal starting grounds above supersede the garden/harbor illustrations and preview-only entry below.
 
 The official Festival Park card on the left launches the local island (0.0.9 on
 Flip/Odin). The right side is now a scrollable list of wide player cards. While

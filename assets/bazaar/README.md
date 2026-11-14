@@ -8,8 +8,8 @@ Reproduce from Crates `games/bazaar/tests/movement_review.gd`; source attributio
 and original licence files are retained under that game’s `assets/` and `licenses/`.
 
 The normal catalogue now has two owner-requested, explicitly labelled test-card
-previews: Mika uses `grove.png`, Ren uses `harbor.png`. They are illustrations of
-planned personal bazaars, not registered venues or playable worlds. Isolated
+previews: Mika uses `island.png`, Ren uses `station.png`. They show the two local
+empty starting grounds; no registered venue or player ownership is created. Isolated
 scrolling fixtures additionally reuse the existing original profile-scene art.
 
 

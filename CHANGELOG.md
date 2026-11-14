@@ -1,5 +1,20 @@
 # OctoFox OS — Changelog
 
+## 14 November 2026 — playable personal Bazaar frames
+
+Private **Software 47 / Bazaar 0.0.10** is installed on Flip 2 and Odin 2.
+Mika's card opens a beach island; Ren's opens a circular orbital station under a
+glass dome. Each has one empty square, the existing SDK avatar/motor and normal
+menu/return. Covers show the actual worlds. Purchases and multiplayer stay closed.
+
+Native/ARM builds, 10 Bazaar and 20 Apps tests, UI checks and source world physics
+passed. Both handhelds passed remote entry/movement/Leave for all three worlds,
+with correct profile avatars and clean game logs. Personal data/preferences were
+preserved; staging was cleaned and Software 46 / game 0.0.9 rollback retained.
+Physical pad/touch and sustained performance remain separate acceptance.
+Separate branches, no merge or public release. Reserve **48+** next.
+[Evidence](docs/evidence/2026-11-14-bazaar-personal-worlds/README.md).
+
 ## 14 November 2026 — Mika and Ren Bazaar catalogue previews
 
 Private Software **46** is installed on Flip 2 and Odin 2. The official island
