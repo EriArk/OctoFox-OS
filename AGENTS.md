@@ -1,6 +1,14 @@
 # TrainerOS — active agent / developer contract
 
 
+**Bazaar resident variety, 14 November:** 0.0.6 adds Dino, Frog and Birb; eighteen
+NPCs remain human-majority (eleven humans, seven animal folk), plus six birds.
+Humans now have five natural skin tones and dark facial details through isolated
+material overrides. Keep original rigs/meshes and clothing/hair. Native Wave is
+played at 0.65× with matching duration after a sharp-arm-rise check. Preserve the
+new native-animation/material checks. Separate branches, spending closed, no
+merge or handheld installation. [Evidence](docs/BAZAAR.md).
+
 **Bazaar population, 14 November:** 0.0.5 adds local NPC merchants/pedestrians and
 birds. The owner's latest choice is a mixed population with **more humans**:
 eleven humans, four animal folk, six birds. Keep their original Quaternius rigs;
