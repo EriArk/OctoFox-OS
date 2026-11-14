@@ -168,6 +168,10 @@ def test_official_owner_can_set_rent_without_consuming_personal_license(account,
     bought=shop.purchase(owner['access_token'],uuid4(),'bazaar.stall',1,500)
     assert bought['purchased_place']['bazaar_id']==personal['id']
     assert len(trading.world(s,owner['access_token'],'festival')['places'])==12
+    s.update(owner['access_token'],bid,1,{'name':'Festival','description':'','listed':True,'access':'closed'})
+    assert len(trading.world(s,owner['access_token'],'festival')['places'])==12
+    account.provider.subject='3333388';visitor=login(account)
+    with pytest.raises(AuthError,match='access_denied'):trading.world(s,visitor['access_token'],'festival')
     manifest.write_text(manifest.read_text().replace(subject,'999999999'))
     with pytest.raises(ValueError,match='identity_mismatch'):register(postgres[0],manifest)
 

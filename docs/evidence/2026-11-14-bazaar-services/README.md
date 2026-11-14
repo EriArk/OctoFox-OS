@@ -7,6 +7,8 @@ Sparks spending, game save mutation, merge or handheld install.
   PostgreSQL, including rental fees, NPC fee, concurrent buyers, replay, rollback,
   expiry/withdrawal, payload isolation, HTTP validation, operator identity binding,
   official/personal coexistence, and unavailable 50-Spark costumes.
+- [Follow-up ownership check](owner-checks.txt): owner can inspect his closed official
+  venue; other players cannot. Relevant trade/rental tests pass after the fix.
 - [Native](native-tests.txt): BackendAccount, Platform SDK real TCP socket and Bazaar
   controller suites pass. TrainerOS application and test targets build. SDK tests
   check credential containment, read pagination, rejection of financial/arbitrary

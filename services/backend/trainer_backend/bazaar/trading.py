@@ -194,13 +194,14 @@ def world(service, token, key):
         actor=service.progression.account(conn,token)
         bound=conn.execute('SELECT bazaar_id FROM trainer_backend.bazaar_worlds WHERE world_key=%s',(key,)).fetchone()
         if not bound:raise AuthError('world_not_configured',409)
-        access(conn,actor,bound['bazaar_id'])
+        venue=rentals.visible(conn,actor,bound['bazaar_id'])
+        if venue['owner_id']!=actor.player_id:access(conn,actor,bound['bazaar_id'])
         rows=conn.execute('''SELECT w.slot,p.id,p.name,p.weekly_price,p.revision,r.id AS rental_id,r.tenant_id,r.expires_at,s.species
             FROM trainer_backend.bazaar_world_places w JOIN trainer_backend.bazaar_places p ON p.id=w.place_id
             LEFT JOIN LATERAL (SELECT * FROM trainer_backend.bazaar_rentals WHERE place_id=p.id AND expires_at>clock_timestamp()
                 ORDER BY expires_at DESC LIMIT 1) r ON true
             LEFT JOIN trainer_backend.bazaar_sellers s ON s.rental_id=r.id
             WHERE w.world_key=%s AND p.bazaar_id=%s ORDER BY w.slot''',(key,bound['bazaar_id'])).fetchall()
-        owner=conn.execute('SELECT owner_id FROM trainer_backend.bazaars WHERE id=%s',(bound['bazaar_id'],)).fetchone()['owner_id']
+        owner=venue['owner_id']
         return {'player_id':actor.player_id,'bazaar_id':bound['bazaar_id'],'owner_id':owner,'places':rows,
                 'payments_available':policy.PAYMENTS_AVAILABLE,'seller_price':SELLER_PRICE,'seller_revision':1}
