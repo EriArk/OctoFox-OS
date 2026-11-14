@@ -1,0 +1,26 @@
+{
+  "adventure": {
+    "triangles": 292,
+    "meshes": 4,
+    "render_size": [
+      768,
+      640
+    ]
+  },
+  "workshop": {
+    "triangles": 320,
+    "meshes": 4,
+    "render_size": [
+      768,
+      640
+    ]
+  },
+  "arcade": {
+    "triangles": 296,
+    "meshes": 4,
+    "render_size": [
+      768,
+      640
+    ]
+  }
+}

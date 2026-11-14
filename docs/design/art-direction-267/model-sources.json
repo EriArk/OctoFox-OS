@@ -1,0 +1,16 @@
+{
+  "author": "Kenney",
+  "pack": "Pirate Kit 2.1",
+  "license": "CC0-1.0",
+  "source": "https://kenney.nl/assets/pirate-kit",
+  "publication": "https://opengameart.org/content/pirate-kit",
+  "download": "https://opengameart.org/sites/default/files/kenney_pirate-kit_2.1.zip",
+  "download_sha256": "667ed2caf92954ddb98f7b7cede831fe99ab75063c26b25e23d32715bee9c943",
+  "checked": "2026-11-14",
+  "included": {
+    "models/kenney/chest.glb": "26d26c4c032a12320fe05b5005a72eba96db7167db0d35873639a4b7dcc06bcb",
+    "models/kenney/LICENSE.txt": "dfb74a2cae139d14eada1670c8016c6bbafe6f0c5fa10b3cffd0f42243c72a90",
+    "models/kenney/Textures/colormap.png": "451e1d7a53b8e76f4b2ee58742e241509fee5f82cf2cee6e3f7aca86ba718abe"
+  },
+  "license_text_transform": "Whitespace and line endings normalized; licence wording preserved."
+}

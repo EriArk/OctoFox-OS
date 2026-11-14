@@ -17,6 +17,11 @@ TrainerOS. If not, see <https://www.gnu.org/licenses/>.
 text is in [LICENSE](LICENSE). The grant above explicitly permits later versions;
 the presence of the version 3 text does not limit the project to GPL-3.0-only.
 
+The #267 art studies retain explicit [per-source notices](docs/design/art-direction-267/README.md#provenance-and-licences):
+Kenney's source model is CC0, Evan-Amos console photographs carry public-domain
+dedications, and original SVG/adaptation code and outputs use GPL-3.0-or-later.
+The studies are not included in runtime assets.
+
 ## Scope and existing notices
 
 This is the default license for original TrainerOS source code, tests, build and

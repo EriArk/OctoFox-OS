@@ -1,0 +1,50 @@
+[
+  {
+    "id": "gb",
+    "author": "Evan-Amos",
+    "license": "Public domain (PD-self)",
+    "source": "https://commons.wikimedia.org/wiki/File:Game-Boy-FL.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Game-Boy-FL.png",
+    "sha256": "b51251ed9c9a8418ae63aabd5f38861d78b5ae4259b418a2e18bbbf853494c69",
+    "file": "platforms/gb.png",
+    "transform": "Trim transparent margins; proportionally resize to at most 640 px; PNG RGBA",
+    "output_sha256": "83fb70caff49625ab50165dd934b851d6756f96b5d3772717d74bce1c466a030",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "nes",
+    "author": "Evan-Amos",
+    "license": "Public domain (PD-self)",
+    "source": "https://commons.wikimedia.org/wiki/File:NES-Console-Set.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/b/b2/NES-Console-Set.png",
+    "sha256": "f8257bb9ae5fdd0f72955698014444d71ca4554810b0beab9748dff47b4651ea",
+    "file": "platforms/nes.png",
+    "transform": "Trim transparent margins; proportionally resize to at most 640 px; PNG RGBA",
+    "output_sha256": "4a8a992ac3cf1cf20da56f6e204ff45f7b8e99a088a9894657490f2791ea9f44",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "nds",
+    "author": "Evan-Amos",
+    "license": "Public domain (PD-self)",
+    "source": "https://commons.wikimedia.org/wiki/File:Nintendo-DS-Lite-Black-Open.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/5/56/Nintendo-DS-Lite-Black-Open.png",
+    "sha256": "08b8928e12c8e06c6ec283f3bb14484716edc4b6aaba5e5b53a924f7e7772647",
+    "file": "platforms/nds.png",
+    "transform": "Trim transparent margins; proportionally resize to at most 640 px; PNG RGBA",
+    "output_sha256": "2770a3e3f1fb71d5bc5adacda35249a2cee74d82c6cb83200f09fae70bd1ece4",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "gba",
+    "author": "Evan-Amos",
+    "license": "Public domain (PD-self)",
+    "source": "https://commons.wikimedia.org/wiki/File:Nintendo-Game-Boy-Advance-Purple-FL.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Nintendo-Game-Boy-Advance-Purple-FL.png",
+    "sha256": "bc88bac888992eff605a15ace75bea66a2d6a5b00fb2939d02e212534c60e326",
+    "file": "platforms/gba.png",
+    "transform": "Trim transparent margins; proportionally resize to at most 640 px; PNG RGBA",
+    "output_sha256": "48d6320d43ebf4840bc185eff6feab096f7c3a88ab86d8c22456376a600dbc9f",
+    "checked": "2026-11-14"
+  }
+]

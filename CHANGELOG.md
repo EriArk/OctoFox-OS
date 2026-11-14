@@ -1,5 +1,12 @@
 # OctoFox OS — Changelog
 
+## 14 ноября 2026 — образцы оформления коллекций, Crates и платформ
+
+Добавлены [сравнения и редактируемые исходники](docs/design/art-direction-267/README.md)
+для #267: SVG-коллекции, адаптированные CC0-сундуки Kenney и реальные фотографии
+четырёх консолей с подтверждённым происхождением. Подготовлен выборочный аудит
+остальных иллюстраций. Runtime, навигация и установленная версия не изменялись.
+
 ## 14 November 2026 — official community links
 
 - Added website and Discord actions to Settings → System → Credits, with

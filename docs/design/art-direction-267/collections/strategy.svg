@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><!-- Original code-authored geometry, OctoFox contributors, GPL-3.0-or-later. No image generator. --><rect width="256" height="256" fill="#b4ccd4"/><circle cx="128" cy="117" r="89" fill="#d4e4df"/><ellipse cx="128" cy="204" rx="76" ry="11" fill="#8eafb7"/>
+<path d="M51 179 L125 139 L207 179 L131 220Z" fill="#365d68"/>
+<path d="M51 171 L125 131 L207 171 L131 211Z" fill="#f1d999"/>
+<path d="M51 171 L76 158 L101 171 L76 185Z M101 145 L125 131 L152 145 L127 158Z M101 171 L127 158 L153 172 L129 186Z M153 172 L180 158 L207 171 L181 185Z M103 199 L129 186 L155 199 L131 211Z" fill="#ca9b67"/>
+<path d="M89 165 L92 95 L159 95 L167 169 L128 191Z" fill="#d3dbc5"/>
+<path d="M127 107 L159 95 L167 169 L128 191Z" fill="#85a9a5"/>
+<path d="M82 80 L96 73 L96 90 L110 95 L110 77 L124 71 L124 89 L139 83 L139 65 L154 60 L154 77 L170 72 L170 99 L125 117 L82 98Z" fill="#f1e8cb"/>
+<path d="M125 117 L170 99 L170 72 L154 77 L154 90 L139 96 L139 83 L124 89Z" fill="#a4c0b4"/>
+<path d="M117 174 V149 Q117 136 128 136 Q139 136 139 149 V180 L128 185Z" fill="#365d68"/>
+<path d="M125 69 V31" stroke="#365d68" stroke-width="5"/>
+<path d="M128 31 L163 37 L128 53Z" fill="#da7758"/></svg>

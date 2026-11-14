@@ -1,5 +1,13 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner art direction, 14 November 2026 (#267):** address the recognisable
+AI-illustration look, preserving the colourful UI and game Home. Free sourced
+assets are welcome when their provenance permits redistribution. First prepare
+small collection/chest comparisons before bulk replacement. The current
+[study](docs/design/art-direction-267/README.md) is outside runtime resources;
+style approval, QML integration and handheld acceptance remain open. Bazaar
+art/implementation belongs to the other active conversation.
+
 **Owner community links and issue reconciliation, 14 November 2026:** update
 stale issues and add website/Discord actions in Settings. Bazaar, trading and
 economy implementation belongs to the owner's other active conversation; do not
