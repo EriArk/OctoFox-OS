@@ -1,0 +1,24 @@
+{
+  "source": "3cb40ccd",
+  "image": "traineros-backend:bazaar-read14",
+  "image_id": "sha256:045c6996b14f36141b2082643d20b131d3d4cc0b8724ec04c9215b46c100fe5a",
+  "rollback_image_id": "sha256:4127987971876cee09add914d3412a2e53bf6a42af3f90e91ebb8cd9dc1d82de",
+  "api_healthy": true,
+  "worker_running": true,
+  "migrations": 23,
+  "mapped_places": 12,
+  "priced_places": 0,
+  "verified_owner": true,
+  "payments_enabled": false,
+  "handhelds_touched": false,
+  "backend_tests": 201,
+  "registration_replay_verified": true,
+  "rollback_rehearsal": {
+    "restored": true,
+    "migrations": 23,
+    "registrationVerified": true,
+    "rollbackReady": true
+  },
+  "first_activation": "Registration manifest permissions prevented maintenance; compatible rollback started successfully. Registration retried with default maintenance UID and readable single-file manifest bind; candidate resumed healthy.",
+  "authenticated_game_live_http": "not tested"
+}

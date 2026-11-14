@@ -1,5 +1,16 @@
 # TrainerOS — состояние проекта
 
+## 14 November 2026 — live Bazaar read services
+
+The existing Backend now runs the Bazaar world/offer and private profile-loot
+read services (23 migrations). Festival Park is bound to the verified owner of
+the Lobby Directory application, with twelve stable places and no weekly prices
+yet. Spending remains disabled. No test loot, wallet grants or purchases were
+made. [Deployment, rollback and verification](docs/evidence/2026-11-14-bazaar-live-reads/README.md).
+The game read client is prepared in its separate branch; installed handheld
+shells still lack the read bridge. Devices are on hold by owner instruction.
+Recoverable game/profile transfers and trusted in-world checkout remain pending.
+
 ## 14 November 2026 — Bazaar launches from its own tab
 
 Corrected the Apps-only delivery: **Online → Bazaar → Official Bazaar** now opens

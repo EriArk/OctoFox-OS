@@ -1,5 +1,11 @@
 # TrainerOS — active agent / developer contract
 
+**Server read delivery, 14 November (latest):** live Backend has 23 migrations,
+private loot reads and the official Festival Park mapped to the verified Lobby
+application owner. Twelve places, weekly prices unset, spending closed. Device
+work remains paused; neither handheld was contacted. Transfer custody is still
+unfinished. [Evidence](docs/evidence/2026-11-14-bazaar-live-reads/README.md).
+
 **Owner server services continuation, 14 November (latest):** connect the office
 and stalls to real Backend reads while all Sparks spending remains disabled, then
 prepare the recoverable Emerald/profile inventory round trip. Do not contact,

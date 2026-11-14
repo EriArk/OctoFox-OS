@@ -8,8 +8,8 @@ The older SELECT-only description below records the preceding read-only incremen
 no save-import/export custody or enabled transfers are claimed.
 
 This increment implements **read-only storage/projection**, not item issuance or
-save transfers. It is prepared on the separate Bazaar branch and tested in an
-isolated database; the public backend has not been upgraded by this increment.
+save transfers. It is deployed to the existing Backend after isolated database tests and a
+restore/migration rehearsal. [Live evidence](../../docs/evidence/2026-11-14-bazaar-live-reads/README.md).
 Shop licenses (`owned_items`), wardrobe slots and Bazaar entitlements retain their
 existing endpoints. Profile loot is free and does not require Bazaar ownership.
 
@@ -23,7 +23,7 @@ The version-1 response has `player_id`, decimal-string `revision`, numeric `tota
 up to 60 `items`, nullable decimal-string `next`, and `transfers_available: false`.
 Each item contains a UUID `id`, `game_id`, `adapter_id`, positive `payload_version`,
 `kind`, `state` (`stored` / `listed`), `received_at`, `presentation`, and empty
-`actions`. The listed state is representable but there is no listing operation.
+`actions`. Listing/withdrawal is prepared in the Bazaar contract; new paid operations remain closed.
 
 Presentation consists of `title`, source title `game`, `subtitle`, a fixed local
 `icon` key, optional numeric `level`, and at most 16 label/value `facts`.

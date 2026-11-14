@@ -1,6 +1,6 @@
 # Bazaar rentals, sellers and trading — 14 November 2026
 
-This is prepared source on the separate Bazaar branch, not a live economy release.
+Read services are deployed on the existing server; this is not a live economy release.
 `bazaar.policy.PAYMENTS_AVAILABLE` remains false. Exact receipt recovery and owner
 withdrawal remain available when spending is closed. No live accounts were charged.
 
@@ -86,8 +86,12 @@ After official registration, a compatible rollback must retain the `kind=persona
 owner lookup and personal-stall provisioning filter; older pre-0022 code cannot
 safely distinguish the owner's two venue types. Do not drop paid/history tables.
 
-**Not run against production.** Owner identity must be explicitly verified for the
-real binding; no account was guessed from a nickname or source checkout.
+**Registered on the live server, 14 November.** The Lobby Directory application
+owner was verified through Fluxer and matched to the existing Backend identity.
+Twelve places are mapped; their weekly prices remain unset. The deployment
+maintenance wrapper is `python /ops/manage.py register-bazaar /ops/official-owner.json`
+on the normal maintenance UID, with a read-only single-file manifest bind.
+Exact replay was verified. [Deployment evidence](../../docs/evidence/2026-11-14-bazaar-live-reads/README.md).
 
 ## Integration and remaining work
 
