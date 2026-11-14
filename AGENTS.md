@@ -1,5 +1,11 @@
 # TrainerOS — active agent / developer contract
 
+**Bazaar animation repair, 14 November:** 0.0.4 corrects the arms-down SDK versus
+T-pose donor reference mismatch, shoulder helper half rotations and fingers.
+The owner's deformation complaint was valid; previous leg-motion tests were
+insufficient. Preserve the shared SDK/model/bind pose and use the new before/after
+anatomy checks in Crates. [Evidence](docs/BAZAAR.md). No device install or merge.
+
 **Bazaar polish/camera, 14 November:** local Crates prototype 0.0.3 adds a closer
 third-person camera, horizontal-reference FOV 75–105° (90° default at 16:9),
 wall collision, shorter indoor boom, distinct shop dressing and local fountain
