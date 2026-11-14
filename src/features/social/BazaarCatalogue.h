@@ -13,6 +13,7 @@ class BackendAccount;
 // with Lobby/SDK/Backend; this preparation does not advertise those services.
 class BazaarCatalogue final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(bool walkthroughAvailable READ walkthroughAvailable NOTIFY changed)
     Q_PROPERTY(QVariantList rooms READ rooms NOTIFY rowsChanged)
     Q_PROPERTY(QString selection READ selection NOTIFY changed)
     Q_PROPERTY(int selectedIndex READ selectedIndex NOTIFY changed)
@@ -25,6 +26,7 @@ class BazaarCatalogue final : public QObject {
     Q_PROPERTY(QVariantList dialogRows READ dialogRows NOTIFY changed)
     Q_PROPERTY(int dialogIndex READ dialogIndex NOTIFY changed)
     Q_PROPERTY(QVariantMap cardPreview READ cardPreview NOTIFY changed)
+    Q_PROPERTY(QVariantMap previewEntry READ previewEntry NOTIFY changed)
     Q_PROPERTY(QVariantMap account READ account NOTIFY changed)
     Q_PROPERTY(QString summary READ summary NOTIFY changed)
     Q_PROPERTY(QString message READ message NOTIFY changed)
@@ -33,7 +35,10 @@ class BazaarCatalogue final : public QObject {
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY changed)
     Q_PROPERTY(qreal scroll READ scroll WRITE setScroll NOTIFY scrollChanged)
 public:
-    explicit BazaarCatalogue(QObject* parent=nullptr):QObject(parent){}
+    explicit BazaarCatalogue(QObject* parent=nullptr):QObject(parent){rebuild();}
+    void setPersonalWalkthroughs(bool island, bool station);
+    bool walkthroughAvailable() const { return walkthroughAvailable_; }
+    void setWalkthroughAvailable(bool value) { if(walkthroughAvailable_==value)return;walkthroughAvailable_=value;emit changed(); }
     QVariantList rooms() const { return visible_; }
     QString selection() const { return selection_; }
     int selectedIndex() const;
@@ -53,6 +58,7 @@ public:
     bool more() const { return !next_.isEmpty(); }
     QString summary() const;
     QVariantMap cardPreview() const;
+    QVariantMap previewEntry() const;
     void managePlayer(QString player);
     QString message() const { return message_; }
     QVariantMap account() const;
@@ -77,6 +83,8 @@ public:
     Q_INVOKABLE void closeDialog(bool all=false);
     Q_INVOKABLE void chooseRealm(int index);
 signals:
+    void walkthroughRequested();
+    void personalWalkthroughRequested(QString world);
     void changed();
     void rowsChanged();
     void scrollChanged();
@@ -107,6 +115,8 @@ private:
     bool moderating_=false;
     quint64 accessGeneration_=0;
     QString backendPlayer_, next_, message_, textField_, detailId_;
+    bool walkthroughAvailable_=false;
+    bool islandAvailable_=false, stationAvailable_=false;
     bool active_=false, loading_=false, saving_=false, connected_=false, fixture_=false, reloadDraft_=false;
     quint64 generation_=0;
     int dialogIndex_=0;

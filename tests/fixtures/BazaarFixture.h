@@ -2,8 +2,8 @@
 #include "features/social/BazaarCatalogue.h"
 
 namespace trainer {
-// Explicit testing-only data; no development names, occupancy or join success
-// are installed into the normal product catalogue.
+// Isolated scrolling/occupancy fixture. The normal product has only the two
+// owner-requested, explicitly labelled Mika/Ren previews and no fake occupancy.
 class BazaarFixture {
 public:
     static void useProvider(BazaarCatalogue& page) { page.fixture_=false;page.all_.clear();page.rebuild();page.refresh(); }

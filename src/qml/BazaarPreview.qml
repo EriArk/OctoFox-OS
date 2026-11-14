@@ -5,11 +5,12 @@ Rectangle {
     required property var shell
     readonly property bool official: shell.bazaar.dialog==="preview-official"
     readonly property bool compact: width<900
+    readonly property var entry: shell.bazaar.previewEntry
     objectName: "bazaar-world-preview"
     color: "#102e3b"
     enabled: !shell.menuOpen && !shell.homeMenuOpen && !shell.drawerOpen && !shell.quickAppsOpen && !shell.notificationsOpen && !shell.serviceOpen
     Image {
-        anchors.fill: parent; source: root.official?"qrc:/bazaar/official.png":"qrc:/bazaar/grove.png"
+        anchors.fill: parent; source: root.official?"qrc:/bazaar/official.png":(root.entry.cover || "qrc:/bazaar/grove.png")
         fillMode: Image.PreserveAspectCrop; asynchronous: true; sourceSize.width: 1600
     }
     Rectangle {
@@ -39,15 +40,15 @@ Rectangle {
         x:32;y:root.compact?80:92;width:parent.width*.64;spacing:root.compact?9:14
         Text {
             objectName:"bazaar-preview-title";width:parent.width
-            text:root.official?"Official Bazaar":"Player Bazaars";color:"#ffffff";font.family:Theme.displayFamily;font.pixelSize:root.compact?43:52
+            text:root.official?"Official Bazaar":(root.entry.title || "Player Bazaars");textFormat:Text.PlainText;color:"#ffffff";font.family:Theme.displayFamily;font.pixelSize:root.compact?43:52
             font.bold:true;wrapMode:Text.WordWrap
         }
         Text {
-            width:parent.width; text:root.official?"A fantasy town made for meeting up.":"A place of your own, shared with others."
+            width:parent.width; text:root.official?"A fantasy town made for meeting up.":root.entry.preview===true?"Test bazaar · "+root.entry.ownerName:"A place of your own, shared with others.";textFormat:Text.PlainText
             color:"#ffda74";font.pixelSize:root.compact?21:25;wrapMode:Text.WordWrap
         }
         Text {
-            width:parent.width; text:root.official?"Walk between lively squares, meet other players and discover places to trade.":"Build a personal gathering space, welcome visitors and rent out trading stalls."
+            width:parent.width; text:root.official?"Walk between lively squares, meet other players and discover places to trade.":"Start with one empty square. Add shops, stalls, training arenas and places to meet as they become available."
             color:"#eef5f1";font.pixelSize:root.compact?16:19;wrapMode:Text.WordWrap
         }
     }
@@ -62,9 +63,9 @@ Rectangle {
                     {title:"Meet & explore",detail:"Walk around as your character",glyph:"companion",tint:"#90ded2"},
                     {title:"Parallel realms",detail:"Choose a less crowded town",glyph:"guide",tint:"#c6adf4"}
                 ]:[
-                    {title:"Your own space",detail:"Personal bazaars to shape",glyph:"community",tint:"#90ded2"},
+                    {title:"Your own space",detail:"One empty starting square",glyph:"community",tint:"#90ded2"},
                     {title:"Trading stalls",detail:"Places for players to rent",glyph:"shop",tint:"#ffda74"},
-                    {title:"Shared visits",detail:"Gather and explore together",glyph:"companion",tint:"#c6adf4"}
+                    {title:"Train & socialize",detail:"Arenas and gathering places",glyph:"companion",tint:"#c6adf4"}
                 ]
                 delegate:Rectangle {
                     required property var modelData

@@ -400,7 +400,7 @@ file(GLOB platform_photos CONFIGURE_DEPENDS assets/platforms/*.png)
 qt_add_resources(traineros platform_photos PREFIX "/platforms" BASE assets/platforms FILES ${platform_photos})
 qt_add_resources(traineros genre_art PREFIX "/genres" BASE assets/genres
     FILES assets/genres/fighting.png assets/genres/brawlers.png assets/genres/shooters.png assets/genres/racing.png assets/genres/sports.png assets/genres/rpg.png assets/genres/strategy.png assets/genres/platform.png assets/genres/puzzle.png assets/genres/party.png assets/genres/adventure.png assets/genres/music.png)
-qt_add_resources(traineros bazaar_art PREFIX "/bazaar" BASE assets/bazaar FILES assets/bazaar/official.png assets/bazaar/grove.png assets/bazaar/harbor.png)
+qt_add_resources(traineros bazaar_art PREFIX "/bazaar" BASE assets/bazaar FILES assets/bazaar/official.png assets/bazaar/grove.png assets/bazaar/harbor.png assets/bazaar/island.png assets/bazaar/station.png)
 qt_add_resources(traineros home_backdrops PREFIX "/home-backdrops" BASE assets/home-backdrops
     FILES assets/home-backdrops/turquoise.png assets/home-backdrops/red.png assets/home-backdrops/green.png assets/home-backdrops/blue.png assets/home-backdrops/orange.png)
 file(GLOB companion_assets CONFIGURE_DEPENDS assets/home-pet/ui/*.svg)

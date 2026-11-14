@@ -4,6 +4,10 @@
 #include <cmath>
 
 namespace trainer {
+void BazaarCatalogue::setPersonalWalkthroughs(bool island,bool station) {
+    if(islandAvailable_==island&&stationAvailable_==station)return;
+    islandAvailable_=island;stationAvailable_=station;rebuild();
+}
 void BazaarCatalogue::setScroll(qreal value) {
     if(!std::isfinite(value))return;
     value=qBound(0.0,value,1000000.0);
@@ -67,9 +71,27 @@ void BazaarCatalogue::setPresentation(QVariantList rooms,QVariantList realms,QSt
     rebuild();
     if(previous.startsWith("room:")&&selectedIndex()<0)focus("official");
 }
+QVariantMap BazaarCatalogue::previewEntry() const {
+    for(const auto& value:visible_) {
+        const auto row=value.toMap();
+        if("room:"+row["id"].toString()==detailId_)return row;
+    }
+    return {};
+}
 void BazaarCatalogue::rebuild() {
     visible_.clear();
-    for(const auto& value:all_) {
+    // Owner-requested catalogue samples, never registered venues or possessions.
+    // Real provider rows and isolated fixtures replace the samples completely.
+    const QVariantList previews{
+        QVariantMap{{"id","preview-mika"},{"title","Mika's Bazaar"},{"ownerName","Mika"},
+            {"description","An empty island square, with a sandy beach and open sea."},
+            {"cover","qrc:/bazaar/island.png"},{"badge","community"},{"preview",true},{"walkthrough",islandAvailable_}},
+        QVariantMap{{"id","preview-ren"},{"title","Ren's Bazaar"},{"ownerName","Ren"},
+            {"description","An empty orbital square beneath a glass dome."},
+            {"cover","qrc:/bazaar/station.png"},{"badge","community"},{"preview",true},{"walkthrough",stationAvailable_}}
+    };
+    const auto& source=all_.isEmpty()&&!fixture_?previews:all_;
+    for(const auto& value:source) {
         auto row=value.toMap();const auto id=row.value("id").toString();
         const bool favorite=favorites_.contains(id);
         if(favoritesOnly_&&!favorite)continue;
@@ -95,11 +117,18 @@ void BazaarCatalogue::focusRoom(int index) {
 void BazaarCatalogue::activate(QString id) {
     if(!dialog_.isEmpty())return;
     focus(id);if(selection_!=id)return;
+    if(id=="official"&&walkthroughAvailable_){emit walkthroughRequested();return;}
+    // Only the two local samples can launch these fixed installed applications.
+    // Remote directory data never supplies commands, desktop IDs or arguments.
+    if(!fixture_&&all_.isEmpty()) {
+        if(id=="room:preview-mika"&&islandAvailable_){emit personalWalkthroughRequested("island");return;}
+        if(id=="room:preview-ren"&&stationAvailable_){emit personalWalkthroughRequested("station");return;}
+    }
     if(id=="official"){dialog_=account()["paymentsAvailable"].toBool()?"realms":"preview-official";realmIndex_=0;emit changed();}
     else if(id=="search")editSearch();
     else if(id=="filter")toggleFilter();
-    else if(id=="create"){if(account()["paymentsAvailable"].toBool())beginForm(!own_.isEmpty());else {dialog_="preview-player";emit changed();}}
-    else if(id.startsWith("room:")){detailId_=id;dialog_=account()["paymentsAvailable"].toBool()?"details":"preview-player";dialogIndex_=0;emit changed();}
+    else if(id=="create"){detailId_.clear();if(account()["paymentsAvailable"].toBool())beginForm(!own_.isEmpty());else {dialog_="preview-player";emit changed();}}
+    else if(id.startsWith("room:")){detailId_=id;dialog_=account()["paymentsAvailable"].toBool()&&!previewEntry()["preview"].toBool()?"details":"preview-player";dialogIndex_=0;emit changed();}
 }
 void BazaarCatalogue::editSearch() {
     if(!dialog_.isEmpty())return;
@@ -167,10 +196,9 @@ bool BazaarCatalogue::dispatch(Action action) {
     const int index=selectedIndex();
     const bool up=action==Action::Up||action==Action::ScrollUp, down=action==Action::Down||action==Action::ScrollDown;
     if(index>=0) {
-        if(up){if(index<2)focus("search");else focusRoom(index-2);}
-        else if(down){if(index+2<visible_.size())focusRoom(index+2);else if(more())refresh(true);}
-        else if(action==Action::Left){if(index%2==0)focus("official");else focusRoom(index-1);}
-        else if(action==Action::Right&&index%2==0&&index+1<visible_.size())focusRoom(index+1);
+        if(up){if(index==0)focus("search");else focusRoom(index-1);}
+        else if(down){if(index+1<visible_.size())focusRoom(index+1);else if(more())refresh(true);}
+        else if(action==Action::Left)focus("official");
     } else if(selection_=="official") {
         if(action==Action::Right) {
             int remembered=0;for(int i=0;i<visible_.size();++i)if("room:"+visible_[i].toMap().value("id").toString()==lastRoom_)remembered=i;

@@ -95,6 +95,76 @@ unfinished, as do final art, handheld performance and compositor acceptance.
 **Neither handheld was accessed**, at the owner's request; Bazaar is untouched.
 [Evidence](docs/evidence/2026-11-14-ship-home/README.md) ·
 [Run and controls](experiences/ship-home/README.md).
+## 14 November 2026 — playable personal Bazaar frames
+
+Private **Software 47 / Bazaar 0.0.10** is installed on Flip 2 and Odin 2.
+Mika's card opens a beach island; Ren's opens a circular orbital station under a
+glass dome. Each has one empty square, the existing SDK avatar/motor and normal
+menu/return. Covers show the actual worlds. Purchases and multiplayer stay closed.
+
+Native/ARM builds, 10 Bazaar and 20 Apps tests, UI checks and source world physics
+passed. Both handhelds passed remote entry/movement/Leave for all three worlds,
+with correct profile avatars and clean game logs. Personal data/preferences were
+preserved; staging was cleaned and Software 46 / game 0.0.9 rollback retained.
+Physical pad/touch and sustained performance remain separate acceptance.
+Separate branches, no merge or public release. Reserve **48+** next.
+[Evidence](docs/evidence/2026-11-14-bazaar-personal-worlds/README.md).
+
+## 14 November 2026 — Mika and Ren Bazaar catalogue previews
+
+Private Software **46** is installed on Flip 2 and Odin 2. The official island
+stays fixed on the left; the scrollable right list now has individual Mika and
+Ren cards with cover, owner, description, favorite and clear test/development
+labels. Each opens its own full-screen preview. These are local presentation
+samples, without invented visitors, ownership records or Sparks charges.
+
+Native/ARM builds, 9 Bazaar tests, 20 Apps tests and light/dark compact UI checks
+passed. Both devices passed remote directional selection, scrolling, both
+previews, Back and official island launch/Leave. Profiles and game preferences
+were preserved; task staging was cleaned. Software 45 and game 0.0.8 remain for
+rollback. Bazaar 0.0.9 includes the previously delivered SDK gait correction.
+Physical-stick/touch acceptance remains separate; personal playable worlds and
+commerce remain in development. Separate branches, no merge or public release.
+[Evidence](docs/evidence/2026-11-14-bazaar-player-cards/README.md). Reserve 47+ next.
+
+## 14 November 2026 — gait correction delivered to both handhelds
+
+Bazaar 0.0.9 now embeds the SDK gait fixes and 20% outer left-stick zone on
+Flip 2 and Odin 2. The existing shell Software 45 was not replaced or restarted;
+the shared helpers are compiled into the game. Remote movement, crouch/jump,
+normal launch/return and log checks passed. Preferences and profile data checks
+passed. Game 0.0.8 remains for rollback. Physical-stick feel remains owner acceptance.
+[Delivery record](https://github.com/EriArk/crates/blob/codex/bazaar-world-20261114/games/bazaar/docs/response-evidence/README.md#delivered-on-flip-2-and-odin-2).
+No merge, public release or spending activation; sequence 46 remains unconsumed.
+
+## 14 November 2026 — movement response correction prepared
+
+The shared Godot motor maps the left stick linearly with a 20% outer dead zone:
+80% travel reaches full normal running speed. Partial movement chooses walking
+from actual collision-resolved speed. Jog/sprint preserve their flight phase,
+fixing the old foot correction that pulled the pelvis down throughout the stride.
+20 motor checks, seven complete animation-state checks and an OpenGL comparison
+passed. [Evidence](docs/evidence/2026-11-14-bazaar-gait/README.md).
+This is source preparation, not an install: the owner paused handheld work.
+
+## 14 November 2026 — Bazaar movement and card delivered
+
+Private Software 45 and Bazaar 0.0.8 are installed on Flip 2 and Odin 2. The
+shared Godot SDK supplies walk/run/sprint/crouch/jump; the game uses corrected
+visitor/NPC proportions, a compact HUD and festival stalls facing the aisle.
+The official Festival Park card shows the actual island. Native/source checks
+and real-device remote movement, menu and return passed. Physical pad/touch and
+sustained performance remain separate acceptance; personal settings and rollback
+are preserved. [Delivery evidence](docs/evidence/2026-11-14-bazaar-movement/README.md).
+
+## 14 November 2026 — Bazaar launches from its own tab
+
+Corrected the Apps-only delivery: **Online → Bazaar → Official Bazaar** now opens
+island 0.0.7 and returns to the same card. Private Software 43 is installed on both
+Flip/Odin, preserving their newer shell features and rollback. The internal preview
+shortcut is hidden from the Apps grid. Payments and online realms remain closed.
+[Source, tests and device evidence](https://github.com/EriArk/OctoFox-OS/blob/codex/bazaar-catalogue-20261110/docs/evidence/2026-11-14-bazaar-entry/README.md).
+
 
 ## 14 November 2026 — Crates layout and categories
 

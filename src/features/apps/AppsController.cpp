@@ -146,8 +146,12 @@ void AppsController::setGameState(const QVariantMap& game,bool minimized) {
     if(game_==game && gameMinimized_==minimized)return;
     game_=game;gameMinimized_=minimized;normalize();emit changed();
 }
+bool AppsController::hasDesktopId(const QString& id) const {
+    for(const auto& value:catalogue_)if(value.toMap()["id"]==id)return true;
+    return false;
+}
 QVariantList AppsController::rows() const {
-    QVariantList result;for(const auto& value:catalogue_)if(hiddenIds_.contains(value.toMap()["id"].toString())==hidden_)result.append(decorated(value.toMap()));return result;
+    QVariantList result;for(const auto& value:catalogue_)if(!QStringList{"org.traineros.bazaar-preview.desktop","org.traineros.bazaar-island.desktop","org.traineros.bazaar-station.desktop"}.contains(value.toMap()["id"].toString()) && hiddenIds_.contains(value.toMap()["id"].toString())==hidden_)result.append(decorated(value.toMap()));return result;
 }
 QVariantList AppsController::rail() const {
     QVariantList result;QSet<QString> pinned;

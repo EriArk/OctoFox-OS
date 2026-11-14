@@ -1,5 +1,11 @@
 # OctoFox OS — active agent / developer contract
 
+**Header entry correction, 15 November 2026:** the owner requires the saucer
+entry in the upper header on both handhelds, replacing the upper bell. Integrate
+the Ship Home shell entry with the currently installed Software 47 Bazaar shell;
+preserve the footer inbox, Bazaar worlds and each device’s state. Earlier Apps-only
+delivery is incomplete for this requirement. Validate the actual header launch.
+
 **Warm ship handheld delivery, 14 November 2026 (latest):** the owner resumed
 handheld deployment, superseding the pause below. Standalone preview
 `34aa5da8b7518ad3` is installed on Odin and Flip. Use Vulkan Mobile for this
@@ -76,6 +82,63 @@ implemented; crafting, wardrobe actions and owned reward displays remain targets
 No device access, release, OTA or Bazaar merge. See
 [development evidence](docs/evidence/2026-11-14-ship-home/README.md) before making
 installation or performance claims.
+
+**Owner personal starting grounds, 14 November (latest):** a personal Bazaar is
+one empty square, expanded later with paid shops, stalls, training arenas and
+social places. Prepare two local frames: Mika has a roughly circular beach island
+in the sea; Ren has a circular orbital station under a glass dome. Each opens from
+its own Bazaar card through the existing app lifecycle and shares the SDK avatar
+and motor. No facilities, ownership or spending are granted by these previews.
+Delivered on Flip/Odin as private **Software 47 / Bazaar 0.0.10**. Remote entry,
+movement and normal Leave passed for all three worlds on both devices. Profiles
+and preferences are preserved; task staging cleaned, Software 46 / game 0.0.9
+rollback kept. Reserve **48+** next. Physical pad/touch remains owner acceptance.
+Separate branches, no merge. Do not conflate these with the future private home/Orbiter.
+[Evidence](docs/evidence/2026-11-14-bazaar-personal-worlds/README.md).
+
+**Owner personal Bazaar catalogue, 14 November (latest):** replace the right
+placeholder banner with two realistic card previews for the test accounts Mika
+and Ren. Keep the official card fixed on the left and the right list scrollable.
+Use clear development/test labels, no invented visitors, paid rights or server
+records. Each card opens its own labelled preview; search/favorites and pad
+navigation must work. Delivered as private Software **46** on Flip 2 and Odin 2,
+with Bazaar 0.0.9.
+Reserve **47+** next. Remote selection/scroll/preview/Back and official island
+entry/return passed; physical pad/touch remains owner acceptance. Software 45
+and game 0.0.8 rollback retained. Separate branches, no merge.
+[Evidence](docs/evidence/2026-11-14-bazaar-player-cards/README.md).
+
+**Owner resumed gait delivery, 14 November (latest):** Bazaar 0.0.9 with SDK
+gait fixes and the 20% outer stick zone is installed on Flip/Odin. This supersedes
+the device hold below for this delivery. Software 45 was preserved without restart;
+no new Software sequence was consumed (reserve 46+). Remote movement and normal
+entry/return passed; physical stick/touch feel remains owner acceptance. Keep the
+separate branches, spending closed and game 0.0.8 rollback.
+
+**Owner movement correction and device hold, 14 November (latest):** prepare
+SDK walk/run correction and a 20% outer left-stick dead zone (full speed at 80%).
+Do not contact, install, restart or test Flip/Odin until the owner resumes device
+work. Current changes are source/server validation only; installed Software 45
+and Bazaar 0.0.8 remain the previous delivery. Keep separate branches, no merge.
+[Gait evidence](docs/evidence/2026-11-14-bazaar-gait/README.md).
+
+**Bazaar locomotion delivery, 14 November (latest):** shared optional Godot
+motor/retargeting helpers preserve the approved rig; Bazaar owns input/camera.
+Private Software **45** and Bazaar **0.0.8** are installed on Flip/Odin. Reserve
+**46+** next (44 was superseded without installation). Actual island cover,
+compact HUD, corrected scales and counter fronts passed source/native checks and
+remote device movement/menu/return. Physical pad/touch remains owner acceptance.
+Spending stays closed; task staging cleaned, sequence 43/game 0.0.7 rollback kept.
+See [delivery evidence](docs/evidence/2026-11-14-bazaar-movement/README.md) and
+[SDK movement](sdk/LOCOMOTION.md). Older checkpoints below are historical.
+
+**Owner Bazaar entry correction, 14 November (latest):** open the local island from
+Online → Bazaar → Official Bazaar. This isolated branch applies that bounded fix
+to the newer installed shell without merging the older feature branch. Software
+sequence 43 is installed on both Flip/Odin; reserve 44+. Entry and return passed;
+physical controls remain owner acceptance, commerce stays closed.
+[Delivery evidence](https://github.com/EriArk/OctoFox-OS/blob/codex/bazaar-catalogue-20261110/docs/evidence/2026-11-14-bazaar-entry/README.md).
+
 
 **Crates delivery checkpoint, 14 November 2026 (latest):** private Software
 sequence **42** (`c97825ea`) is installed on both Odin and Flip; reserve **43+**

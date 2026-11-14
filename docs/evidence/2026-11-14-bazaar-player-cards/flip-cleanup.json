@@ -1,0 +1,12 @@
+{
+  "cleaned": true,
+  "freeBeforeBytes": 23515127808,
+  "freeAfterBytes": 23515127808,
+  "removed": [
+    "microSD task staging",
+    "superseded Software 43"
+  ],
+  "rollbackSoftware": 45,
+  "rollbackGame": "0.0.8",
+  "personalDataPreserved": true
+}
