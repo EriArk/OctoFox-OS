@@ -1,5 +1,10 @@
 # Bazaar 0.0.7 — Flip 2 / Odin 2 installation, 14 November 2026
 
+**Superseded entry:** the owner rejected Apps-only access. The subsequent
+[catalogue correction](../2026-11-14-bazaar-entry/README.md) installs entry through
+Online → Bazaar on both devices. The installation history below remains dated.
+
+
 The owner explicitly authorized handheld installation for hands-on testing.
 This supersedes earlier no-device-install notes for this Bazaar build only.
 Separate source branches remain unmerged; no public Backend or catalogue release.

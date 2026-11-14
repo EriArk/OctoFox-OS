@@ -1,5 +1,14 @@
 # Bazaar — Online, экономика и границы интеграции
 
+## 14 November 2026 — Bazaar launches from its own tab
+
+Corrected the Apps-only delivery: **Online → Bazaar → Official Bazaar** now opens
+island 0.0.7 and returns to the same card. Private Software 43 is installed on both
+Flip/Odin, preserving their newer shell features and rollback. The internal preview
+shortcut is hidden from the Apps grid. Payments and online realms remain closed.
+[Source, tests and device evidence](evidence/2026-11-14-bazaar-entry/README.md).
+
+
 ## 14 ноября 2026 — Bazaar 0.0.7 установлен на Flip 2 и Odin 2
 
 По разрешению владельца добавлен **Apps → Bazaar (Alpha 0.0.7)** на обе портативки.

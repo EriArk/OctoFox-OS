@@ -1,5 +1,13 @@
 # TrainerOS — active agent / developer contract
 
+**Owner Bazaar entry correction, 14 November (latest):** the island belongs in
+Online → Bazaar → Official Bazaar, not an Apps-only shortcut. Fixed in this feature
+branch and in isolated device branch `codex/bazaar-entry-device-20261114` based on
+the newer installed shell. Software sequence 43 is installed on both; reserve 44+.
+Preserve the newer device baseline rather than deploying this entire older branch.
+[Evidence and remaining boundaries](docs/evidence/2026-11-14-bazaar-entry/README.md).
+
+
 **Owner handheld test, 14 November (latest):** install Bazaar on both reachable
 handhelds for hands-on testing. This supersedes earlier no-handheld-install notes
 for this scope. Standalone 0.0.7 is now installed on Flip 2 and Odin 2 through Apps;

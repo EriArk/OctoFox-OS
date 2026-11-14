@@ -1,0 +1,36 @@
+********* Start testing of trainer::BazaarCatalogueTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : trainer::BazaarCatalogueTests::initTestCase()
+PASS   : trainer::BazaarCatalogueTests::installedWalkthroughUsesOfficialEntryWithoutEnablingCommerce()
+PASS   : trainer::BazaarCatalogueTests::stallReviewIsCancelledByBackAndHome()
+PASS   : trainer::BazaarCatalogueTests::fixedOfficialAndTwoColumns()
+PASS   : trainer::BazaarCatalogueTests::filtersOnlyPersonalPlacesAndKeepsStableIds()
+PASS   : trainer::BazaarCatalogueTests::ownerAndRestoreNeverRestoreSession()
+PASS   : trainer::BazaarCatalogueTests::emptyDisconnectedAndUnavailableActions()
+PASS   : trainer::BazaarCatalogueTests::cleanupTestCase()
+Totals: 8 passed, 0 failed, 0 skipped, 0 blacklisted, 16ms
+********* Finished testing of trainer::BazaarCatalogueTests *********
+********* Start testing of AppsTests *********
+Config: Using QtTest library 6.11.2, Qt 6.11.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260819 (Red Hat 16.2.1-2)), fedora 44
+PASS   : AppsTests::initTestCase()
+PASS   : AppsTests::bazaarUsesDedicatedEntryButRetainsManagedLifecycle()
+PASS   : AppsTests::managedGamesUseGameLifecycleAndStayInQuickApps()
+PASS   : AppsTests::helperCrashReconnectsAndRestoresQuickApps()
+PASS   : AppsTests::browserUsesManagedLaunchAndReportsFailure()
+PASS   : AppsTests::setupBrowserPermissionDoesNotUnlockOrdinaryApps()
+PASS   : AppsTests::browserRestartsStoppedHelperAndWaitsForReadiness()
+PASS   : AppsTests::leavingForAnotherPrimaryPreservesBrowsingModeAndFocus()
+PASS   : AppsTests::pinnedAndRunningAreSeparateWithoutDuplicates()
+PASS   : AppsTests::favoriteCapacityBlocksNewPinsWithoutDeletingSavedFavorites()
+PASS   : AppsTests::runningFavoritesSurviveCapacityAndMinimizeWithoutDuplicates()
+PASS   : AppsTests::launchStateIsImmediateAndErrorsReachTheOrigin()
+PASS   : AppsTests::catalogueRefreshKeepsTheSelectedApplication()
+PASS   : AppsTests::unavailableFileAndCratesLaunchAreVisibleFailures()
+PASS   : AppsTests::emptyQuickTrayNeverLaunchesTheUnderlyingGrid()
+PASS   : AppsTests::preferencesArePerTrainerAndSurviveReopen()
+PASS   : AppsTests::hiddenRunningAppRemainsReachable()
+PASS   : AppsTests::launchGuardAndOrdinaryCloseCommands()
+PASS   : AppsTests::failedPreferenceWriteDoesNotPretendSuccess()
+PASS   : AppsTests::cleanupTestCase()
+Totals: 20 passed, 0 failed, 0 skipped, 0 blacklisted, 1942ms
+********* Finished testing of AppsTests *********
