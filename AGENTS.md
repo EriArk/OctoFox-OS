@@ -1,5 +1,13 @@
 # OctoFox OS — active agent / developer contract
 
+**Crates delivery checkpoint, 14 November 2026 (latest):** private Software
+sequence **42** (`c97825ea`) is installed on both Odin and Flip; reserve **43+**
+next. Larger 3×2 grid and the six current categories below passed native checks
+and real-device open/Back/refresh checks. Input was remote pointer/keyboard;
+physical-pad/touch acceptance remains separate. Device staging was cleaned,
+with sequence 41 retained for rollback and the PC exit fix preserved.
+[Evidence and screenshots](docs/evidence/2026-11-14-crates-grid/README.md).
+
 **Owner Crates categories, 14 November 2026 (latest):** the six categories must
 be **What's New, Workshop, Games, Apps, Games Tools, Addons/Extensions**, in that
 order. Update emblems and actual contents, keeping the larger 3×2 overview and

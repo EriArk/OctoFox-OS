@@ -1,14 +1,23 @@
 # OctoFox OS — Project status
 
-## 14 November 2026 — Crates composition correction
+## 14 November 2026 — Crates layout and categories
 
 The owner rejected the installed 2+4 overview as uneven and too small. Crates
 now uses a 3×2 grid, consistent centred titles, wider near-front model renders
 and tightly packed images. Opening pulls back to keep the lid visible; controller
-navigation follows the three columns. Catalogue IDs and actions are unchanged.
-Native/ARM builds and 27 Crates tests passed, including row boundaries and
-vertical-column retention. Native light/dark/open/back scenarios passed.
-Handheld delivery is being completed; the dated evidence will record acceptance.
+navigation follows the three columns. The six categories are now What's New,
+Workshop, Games, Apps, Games Tools and Addons/Extensions, with matching emblems
+and contents. Legacy signed catalogues are regrouped without changing project,
+package or installation identities; refresh cannot restore obsolete labels.
+
+Native/ARM builds, 28 Crates tests and 9 signed-catalogue tests passed, along
+with light/dark/open/back and normal catalogue UI scenarios. Private sequence
+**42** (`c97825ea`) is installed on both Odin and Flip. All six categories opened
+and returned correctly with remote pointer/keyboard input; real screenshots
+confirm the larger grid and dock clearance. Personal databases and the PC exit
+fix remain intact. Task staging/captures and superseded rollback were cleaned,
+retaining sequence 41 for recovery. Physical-pad/touch and sustained performance
+acceptance remain separate. [Evidence and screenshots](docs/evidence/2026-11-14-crates-grid/README.md).
 
 ## 14 November 2026 — approved artwork integration (#267)
 

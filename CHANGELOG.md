@@ -1,10 +1,15 @@
 # OctoFox OS — Changelog
 
-## 14 November 2026 — larger, aligned Crates overview
+## 14 November 2026 — larger Crates and clearer categories
 
 Replaced the uneven 2+4 composition with six equal tiles in a 3×2 grid. Chest
 renders use a straighter angle and tighter framing; all titles sit underneath.
 Directional controls follow the new grid and retain selection on catalogue return.
+The six categories are What's New, Workshop, Games, Apps, Games Tools and
+Addons/Extensions, with matching emblems and actual content grouping. Older
+signed catalogues remain compatible and cannot overwrite the new navigation.
+Installed private sequence 42 on Odin and Flip; all six sections and Back were
+checked on both. [Screenshots and validation](docs/evidence/2026-11-14-crates-grid/README.md).
 
 ## 14 November 2026 — approved collection, Crates and platform artwork
 

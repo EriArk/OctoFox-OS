@@ -1,5 +1,9 @@
 # Approved artwork replacement — 14 November 2026
 
+**Crates layout superseded:** the owner rejected this 2+4 composition. The
+[following correction](../2026-11-14-crates-grid/README.md) uses larger, equal
+3×2 tiles. This record and its sequence 39 screenshots remain historical.
+
 Runtime replaces 12 genre and 10 series paintings with editable SVG-derived
 icons, six painted Crates with Kenney-based low-poly chest renders, and 31
 platform drawings with attributed hardware photographs. Unknown/virtual
