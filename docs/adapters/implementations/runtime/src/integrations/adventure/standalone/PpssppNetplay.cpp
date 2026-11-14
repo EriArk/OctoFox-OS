@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "PpssppNetplay.h"
 #include "PspContentIdentity.h"
 #include "integrations/adventure/retroarch/RetroArchConfiguration.h"
@@ -16,7 +17,7 @@
 
 namespace trainer::ppsspp {
 QString contentProbeRoot() {
-    return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/traineros/psp-content";
+    return runtimepaths::data()+"/traineros/psp-content";
 }
 QString contentProbeFile() {
 #ifdef Q_OS_WIN
@@ -40,7 +41,7 @@ QString packedDiscId(const QString& path,const std::atomic_bool& cancel) {
     if(manifest["recipe"]!="psp-content-v1"||manifest["source"]!="fa50bb1976065c4f8b1b47af227d367fe9771555")return {};
     const auto expected=manifest["files"].toObject()[binary.fileName()].toString();
     if(expected.size()!=64||retroarch::fileDigest(binary.absoluteFilePath(),64*1024*1024,cancel)!=expected)return {};
-    QProcess process;process.setProgram(binary.absoluteFilePath());
+    QProcess process;process.setProcessEnvironment(runtimepaths::environment());process.setProgram(binary.absoluteFilePath());
     process.setArguments({"--psp-content",source.absoluteFilePath()});
     process.setStandardErrorFile(QProcess::nullDevice());process.start();
     if(!process.waitForStarted(1500))return {};
@@ -58,7 +59,7 @@ QString packedDiscId(const QString& path,const std::atomic_bool& cancel) {
 }
 }
 QString hostRelayRoot() {
-    const auto root=QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/traineros/psp-network";
+    const auto root=runtimepaths::data()+"/traineros/psp-network";
     QFile file(root+"/manifest.json");if(!file.open(QIODevice::ReadOnly)||file.size()>4096)return {};
     const auto manifest=QJsonDocument::fromJson(file.readAll()).object();
     if(manifest["recipe"]!="psp-host-v1")return {};
@@ -72,8 +73,8 @@ QString hostRelayRoot() {
 QString configFile(const StandaloneInstallation& i) {
     if(!i.configFile.isEmpty())return i.configFile;
     const auto root=i.prefixArguments.contains("org.ppsspp.PPSSPP")
-        ?QDir::homePath()+"/.var/app/org.ppsspp.PPSSPP/config"
-        :QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+        ?runtimepaths::userHome()+"/.var/app/org.ppsspp.PPSSPP/config"
+        :runtimepaths::config();
     return root+"/ppsspp/PSP/SYSTEM/ppsspp.ini";
 }
 QString discId(const QString& path,const std::atomic_bool& cancel) {

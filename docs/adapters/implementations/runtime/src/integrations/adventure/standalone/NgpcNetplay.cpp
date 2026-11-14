@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "NgpcNetplay.h"
 #include "CabinetConnection.h"
@@ -39,7 +40,7 @@ QJsonObject bundle(const std::atomic_bool& cancel,const std::function<void(const
     return m;
 }
 }
-QString bundleRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/ngpc";}
+QString bundleRoot(){return runtimepaths::data()+"/TrainerOS/emulators/ngpc";}
 QJsonObject netplayIdentity(const AdventureRegistration& r,const std::atomic_bool& cancel,const std::function<void(const QString&)>& observe) {
     if(!QStringList{"ngp","ngpc"}.contains(r.adventure.platformId)||r.adventure.collectionOnly)return {};
     if(observe)observe(r.contentPath);
@@ -50,7 +51,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& r,const std::atomic_boo
         {"runtime",package["runtime"]},{"settings",Settings},{"players",2},{"lateJoin",false}};
 }
 ProcessCommand command(const AdventureRegistration& r,const QJsonObject& expected,QString connection,bool host,QString owner,const QStringList& prefix) {
-    ProcessCommand cmd;cmd.runtimeControls={{"kind","ngpc"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()}};
+    ProcessCommand cmd;cmd.emulatorRuntime=true;cmd.runtimeControls={{"kind","ngpc"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()}};
     cmd.prepare=[=](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         const auto current=netplayIdentity(r,cancel);
         if(owner.isEmpty()||!sameMultiplayerGame(current,expected))return "Your Pocket game or runtime changed. Choose it again.";

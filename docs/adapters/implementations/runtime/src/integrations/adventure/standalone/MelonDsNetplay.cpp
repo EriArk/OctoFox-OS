@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "MelonDsNetplay.h"
 #include "integrations/adventure/CartridgeContent.h"
 #include "core/model/GamePlayers.h"
@@ -27,7 +28,7 @@ bool endpoint(const QJsonObject& value) {
         &&hex(value["fingerprint"].toString())&&hex(value["token"].toString(),32);
 }
 }
-QString bundleRoot() {return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/melonds-netplay";}
+QString bundleRoot() {return runtimepaths::data()+"/TrainerOS/emulators/melonds-netplay";}
 QJsonObject bundle(const std::atomic_bool& cancel) {
     const auto root=bundleRoot(),canonical=QFileInfo(root).canonicalFilePath();
     QFile file(root+"/manifest.json");
@@ -64,7 +65,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& record,const std::atomi
 }
 ProcessCommand command(const AdventureRegistration& record,const Request& request,const QString& backupRoot,
                        const SaveTargetResolver& resolve,const QStringList& inputPrefix) {
-    ProcessCommand result;result.runtimeControls={{"kind","melonds"},{"game",record.adventure.id},
+    ProcessCommand result;result.emulatorRuntime=true;result.runtimeControls={{"kind","melonds"},{"game",record.adventure.id},
         {"netplay",request.expected.toVariantMap()},{"temporaryProgress",false}};
     result.prepare=[record,request,backupRoot,resolve,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(request.players<2||request.players>request.expected["players"].toInt()||request.seat<1||request.seat>request.players||request.host!=(request.seat==1)||!hex(request.identity)||(!request.host&&(!endpoint(request.endpoint)

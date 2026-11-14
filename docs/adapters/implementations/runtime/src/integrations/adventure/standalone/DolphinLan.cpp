@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 #include "DolphinLan.h"
 #include "NativeLanConnection.h"
 #include "DolphinNetplay.h"
@@ -31,7 +32,7 @@ bool write(const QString& path,const QByteArray& bytes) {
         &&file.write(bytes)==bytes.size()&&file.commit();
 }
 }
-QString bundleRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/dolphin-lan";}
+QString bundleRoot(){return runtimepaths::data()+"/TrainerOS/emulators/dolphin-lan";}
 bool supportedDisc(const QString& id) {
     // Native LAN families, independent of region/revision. These are not a
     // NetPlay allowlist. Full content must still match on both peers.
@@ -63,7 +64,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& r,const StandaloneInsta
        ||!hex(m["toolSha256"].toString())||retroarch::fileDigest(tool,128LL*1024*1024,cancel)!=m["toolSha256"].toString())return {};
     const auto runtime=retroarch::fileDigest(dolphin::bridgeFile(),256LL*1024*1024,cancel);
     if(!hex(runtime)||runtime!=m["sha256"].toString())return {};
-    QProcess probe;probe.setStandardErrorFile(QProcess::nullDevice());probe.start(tool,{"header","-j","-i",r.contentPath});
+    QProcess probe;probe.setProcessEnvironment(runtimepaths::environment());probe.setStandardErrorFile(QProcess::nullDevice());probe.start(tool,{"header","-j","-i",r.contentPath});
     if(!probe.waitForStarted(1500))return {};
     QElapsedTimer timer;timer.start();
     while(!probe.waitForFinished(50))if(cancel||timer.elapsed()>10000||probe.bytesAvailable()>8192){probe.kill();probe.waitForFinished(1000);return {};}
@@ -88,7 +89,7 @@ QString configure(ProcessCommand& cmd,const StandaloneInstallation& i,QString co
     auto dir=std::make_shared<QTemporaryDir>(QDir::tempPath()+"/traineros-bba-XXXXXX");
     if(!dir->isValid()||!QDir().mkpath(dir->path()+"/Config"))return "Couldn't prepare GameCube LAN.";
     const auto root=dir->path();
-    const auto input=i.configFile.isEmpty()?QDir::homePath()+"/.var/app/org.DolphinEmu.dolphin-emu/config/dolphin-emu/GCPadNew.ini":QFileInfo(i.configFile).dir().filePath("GCPadNew.ini");
+    const auto input=i.configFile.isEmpty()?runtimepaths::userHome()+"/.var/app/org.DolphinEmu.dolphin-emu/config/dolphin-emu/GCPadNew.ini":QFileInfo(i.configFile).dir().filePath("GCPadNew.ini");
     if(QFileInfo(input).size()>1024*1024||!QFile::copy(input,root+"/Config/GCPadNew.ini"))return "Couldn't read your GameCube controller settings.";
     if(!prepareNetplayCache(root+"/Cache/Shaders","dolphin",expected["runtime"].toString()))return "Couldn't prepare the graphics cache.";
     const QByteArray config="[Interface]\nConfirmStop = False\nOnScreenDisplayMessages = False\n[Display]\nFullscreen = True\nRenderToMain = False\n"
@@ -107,7 +108,7 @@ QString configure(ProcessCommand& cmd,const StandaloneInstallation& i,QString co
     return {};
 }
 ProcessCommand command(const AdventureRegistration& r,const StandaloneInstallation& i,const QJsonObject& expected,QString connection,bool host) {
-    ProcessCommand cmd;cmd.runtimeControls={{"kind","dolphin"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",true}};
+    ProcessCommand cmd;cmd.emulatorRuntime=true;cmd.runtimeControls={{"kind","dolphin"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",true}};
     cmd.prepare=[r,i,expected,connection,host](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(!sameMultiplayerGame(netplayIdentity(r,i,cancel),expected))return "Your GameCube game or LAN setup changed. Choose the game again.";
         const auto error=configure(out,i,r.contentPath,connection,host,expected);out.runtimeControls["game"]=r.adventure.id;return error;

@@ -33,6 +33,7 @@ struct ProcessCommand {
     // Optional supervisor readiness marker. History/overlays begin with a real
     // game, not a detached launcher. Input is bounded and handles split reads.
     QByteArray readyMarker{};
+    bool emulatorRuntime = false;
 };
 class ProcessService final : public QObject {
     Q_OBJECT

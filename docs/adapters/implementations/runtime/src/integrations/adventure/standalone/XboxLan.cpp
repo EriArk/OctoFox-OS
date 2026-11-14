@@ -1,3 +1,4 @@
+#include "platform/emulation/RuntimePaths.h"
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "XboxLan.h"
 #include "NativeLanConnection.h"
@@ -34,7 +35,7 @@ QJsonObject bundle(const std::atomic_bool& cancel) {
     return m;
 }
 }
-QString bundleRoot(){return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)+"/TrainerOS/emulators/xemu-lan";}
+QString bundleRoot(){return runtimepaths::data()+"/TrainerOS/emulators/xemu-lan";}
 QJsonObject netplayIdentity(const AdventureRegistration& r,const std::atomic_bool& cancel) {
     if(r.adventure.platformId!="xbox"||r.adventure.adapterId!="xemu"||r.adventure.collectionOnly
        ||QFileInfo(r.contentPath).suffix().compare("iso",Qt::CaseInsensitive))return {};
@@ -46,7 +47,7 @@ QJsonObject netplayIdentity(const AdventureRegistration& r,const std::atomic_boo
         {"lateJoin",false},{"privateProgress",true}};
 }
 ProcessCommand command(const AdventureRegistration& r,const QJsonObject& expected,QString connection,bool host,const QStringList& inputPrefix) {
-    ProcessCommand cmd;cmd.runtimeControls={{"kind","xemu"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
+    ProcessCommand cmd;cmd.emulatorRuntime=true;cmd.runtimeControls={{"kind","xemu"},{"game",r.adventure.id},{"netplay",expected.toVariantMap()},{"temporaryProgress",false}};
     cmd.prepare=[r,expected,connection,host,inputPrefix](ProcessCommand& out,const std::atomic_bool& cancel)->QString {
         if(!sameMultiplayerGame(netplayIdentity(r,cancel),expected))return "Your Xbox game or emulator changed. Choose the game again.";
         const auto group=NativeLanConnection::read(connection);
@@ -54,7 +55,7 @@ ProcessCommand command(const AdventureRegistration& r,const QJsonObject& expecte
         const auto m=bundle(cancel);if(m.isEmpty())return "The Xbox connection package changed.";
         auto stage=std::make_shared<QTemporaryDir>(QDir::tempPath()+"/traineros-xbox-XXXXXX");
         if(!stage->isValid())return "Couldn't prepare private Xbox connection settings.";
-        QProcess prepare;prepare.setProcessChannelMode(QProcess::MergedChannels);
+        QProcess prepare;prepare.setProcessEnvironment(runtimepaths::environment());prepare.setProcessChannelMode(QProcess::MergedChannels);
         prepare.start("/usr/bin/python3",{"-I",bundleRoot()+"/session.py",m["config"].toString(),stage->path(),group.mac()});
         if(!prepare.waitForFinished(5000)||prepare.exitStatus()!=QProcess::NormalExit||prepare.exitCode()!=0) {
             prepare.kill();prepare.waitForFinished(1000);
