@@ -1,5 +1,12 @@
 # TrainerOS — active agent / developer contract
 
+**Gait delivery resumed and completed, 14 November (latest):** the owner
+authorized applying SDK movement fixes to both handhelds. Bazaar 0.0.9 is now
+installed on Flip/Odin; shell Software 45 was preserved. This bounded game update
+supersedes the earlier device hold. It does not install this older feature branch
+or its native read bridge. Separate branches and closed spending remain in force.
+[Game delivery](https://github.com/EriArk/crates/blob/codex/bazaar-world-20261114/games/bazaar/docs/response-evidence/README.md#delivered-on-flip-2-and-odin-2).
+
 **Server read delivery, 14 November (latest):** live Backend has 23 migrations,
 private loot reads and the official Festival Park mapped to the verified Lobby
 application owner. Twelve places, weekly prices unset, spending closed. Device
