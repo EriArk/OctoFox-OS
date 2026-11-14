@@ -1,5 +1,25 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — compact saucer layout and cockpit
+
+Replaced the rectangular room plan with a single oval pressure hull, a shallow
+curved ceiling and rooms that narrow toward the rim. The original 372 m² deck
+becomes an approximately 102 m² polygonal footprint, before partitions and
+fittings. Small chamfered, tapered windows replace full-height glazing. A pilot
+seat enclosed by side consoles and an overhead instrument pod replaces the broad
+control desk. The home keeps a galley/dinette, workshop, archive, cabin and wardrobe.
+
+Shortened the chase camera and hide the avatar only when wall retraction would
+put the camera inside it. Placement now checks the curved hull and all compact
+door routes. Earlier preview layouts are preserved in their original directory;
+this development deck uses independent per-profile `saucer-v2` arrangements.
+
+Godot checks cover all starter furniture, four walk-through hatches, curved hull
+and cockpit collisions, camera retraction, and persistence. Engine architecture,
+cutaway and shared-avatar camera captures are recorded separately from handheld
+acceptance. No Odin/Flip access, Bazaar changes, release or deployment.
+[Evidence and screenshots](docs/evidence/2026-11-14-ship-compact/README.md).
+
 ## 14 November 2026 — Ship Home interior redesign
 
 Reworked the first layout into a spacecraft with curved pressure-hull ribs,

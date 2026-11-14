@@ -1,5 +1,19 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner compact saucer correction, 14 November 2026 (latest):** the Orbit
+restyle is still too spacious and rectangular. Build the rooms inside one curved
+saucer hull, reduce wasted floor area and window size, use shaped glazing, and
+replace the wide control desk with an enclosing single-seat cockpit. Keep the
+cozy Orbit palette, third-person play and all room purposes. No handheld access
+or Bazaar changes. This supersedes the earlier floor-to-ceiling panorama target.
+
+**Compact saucer checkpoint, 14 November 2026:** curved hull and clipped room
+footprints replace the rectangular plan; a single-seat cockpit replaces the wide
+helm. All starter placements, four physical hatch routes, hull/seat collisions,
+camera and persistence checks pass. Previous preview layouts remain in `homes/`;
+new arrangements use `homes/saucer-v2/`. No device access. See
+[current evidence](docs/evidence/2026-11-14-ship-compact/README.md).
+
 **Owner Ship Home redesign, 14 November 2026 (latest):** the first layout was
 rejected as a low-poly house in space. Redesign the actual interior as a cozy
 spacecraft; add a pilot console at the panoramic window. Partly derive the visual

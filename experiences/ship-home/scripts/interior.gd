@@ -6,10 +6,20 @@ const PAPER = Color("d4cbbb")
 const TRIM = Color("354650")
 const WOOD = Color("a77c56")
 const BRASS = Color("d0ac72")
+# One shallow oval pressure hull; rooms are clipped by its actual footprint.
+const HULL_RADII = Vector2(5.3,6.2)
+const HULL_CENTER = Vector2(0,0.6)
 const ROOMS = {
- "Lounge": Rect2(-6,-10,12,10), "Workshop": Rect2(-9,0,7,7),
- "Gallery": Rect2(2,0,7,7), "Bedroom": Rect2(-9,7,7,7),
- "Wardrobe": Rect2(2,7,7,7), "Passage": Rect2(-2,0,4,14)}
+ "Cockpit": Rect2(-1.85,-5.6,3.7,3.6), "Lounge": Rect2(-5.3,-2.0,10.6,3.1),
+ "Workshop": Rect2(-5.3,1.1,4.45,2.5), "Gallery": Rect2(0.85,1.1,4.45,2.5),
+ "Bedroom": Rect2(-4.7,3.6,3.85,3.2), "Wardrobe": Rect2(0.85,3.6,3.85,3.2),
+ "Passage": Rect2(-0.85,1.1,1.7,5.7)}
+const DOORS = [Vector2(-0.85,2.3),Vector2(0.85,2.3),Vector2(-0.85,4.8),Vector2(0.85,4.8)]
+
+static func inside_hull(point:Vector2,margin:float=0.0) -> bool:
+ var normalized=(point-HULL_CENTER)/(HULL_RADII-Vector2.ONE*margin)
+ return normalized.length_squared()<1.0
+
 const ITEMS = ["armchair","low-table","plant","lamp","stool","books","rug"]
 var materials: Dictionary = {}
 var meshes: Dictionary = {}
@@ -95,85 +105,215 @@ func arch(parent:Node3D, x:float, z:float, width:float, spring:float, rise:float
   var a=PI*i/48;path.append(Vector3(x-width*0.5*cos(a),spring+rise*sin(a),z))
  tube(parent,path,radius,color,glow)
 
-func vault(parent:Node3D, x:float, from_z:float, to_z:float, width:float, spring:float, rise:float) -> void:
+func panel(parent:Node3D, vertices:Array[Vector3], color:Color, solid:bool=false) -> MeshInstance3D:
  var st=SurfaceTool.new();st.begin(Mesh.PRIMITIVE_TRIANGLES)
- for i in 48:
-  var a=PI*i/48;var b=PI*(i+1)/48
-  var first=Vector3(x-width*0.5*cos(a),spring+rise*sin(a),from_z)
-  var next=Vector3(x-width*0.5*cos(b),spring+rise*sin(b),from_z)
-  var vertices=[first,next,next+Vector3(0,0,to_z-from_z),first+Vector3(0,0,to_z-from_z)]
-  for k in [0,2,1,0,3,2]:
-   var angle=a if k in [0,3] else b
-   st.set_normal(Vector3(cos(angle)/ (width*0.5),-sin(angle)/rise,0).normalized());st.add_vertex(vertices[k])
- var mesh=MeshInstance3D.new();mesh.mesh=st.commit();mesh.material_override=material(Color("aaa999"));parent.add_child(mesh)
+ # Facing is explicit in the vertex ordering; collision uses the same surface.
+ for i in range(1,vertices.size()-1):
+  var normal=(vertices[i]-vertices[0]).cross(vertices[i+1]-vertices[0]).normalized()
+  for k in [0,i+1,i]:st.set_normal(normal);st.add_vertex(vertices[k])
+ var mesh=MeshInstance3D.new();mesh.mesh=st.commit();mesh.material_override=material(color);parent.add_child(mesh)
+ if solid:mesh.create_trimesh_collision()
+ return mesh
 
-func hatch(parent:Node3D, x:float,z:float,title:String,facing:float) -> void:
+func bulkhead(parent:Node3D,a:Vector2,b:Vector2,height:float=2.65) -> void:
+ var middle=(a+b)*0.5;var length=a.distance_to(b)
+ var root=Node3D.new();root.position=Vector3(middle.x,0,middle.y)
+ root.rotation.y=-atan2(b.y-a.y,b.x-a.x);parent.add_child(root)
+ box(root,Vector3(0,height/2,0),Vector3(length,height,0.14),PAPER,true)
+ for side in [-1,1]:
+  box(root,Vector3(0,0.30,side*0.085),Vector3(length,0.60,0.04),TRIM)
+  box(root,Vector3(0,0.64,side*0.11),Vector3(length,0.025,0.025),BRASS)
+
+func hatch(parent:Node3D,x:float,z:float,title:String,facing:float) -> void:
  var root=Node3D.new();root.position=Vector3(x,0,z);root.rotation.y=facing;parent.add_child(root)
- # Pressure frame: rounded shoulders and a low sill, with the full walking gap.
  for side in [-1,1]:
-  box(root,Vector3(side*1.12,1.20,0),Vector3(0.22,2.4,0.48),TRIM,true)
-  box(root,Vector3(side*1.12,1.2,0.16),Vector3(0.16,2.3,0.28),PAPER)
-  box(root,Vector3(side*1.00,1.27,0.22),Vector3(0.035,1.9,0.03),Color("a8dbca"),false,true)
- arch(root,0,0,2.24,2.4,0.65,0.18,PAPER)
- arch(root,0,0.21,2.03,2.4,0.54,0.025,Color("a8dbca"),true)
- box(root,Vector3(0,3.35,0),Vector3(2.42,0.58,0.42),PAPER,true)
- box(root,Vector3(0,0.025,0),Vector3(2.15,0.05,0.46),Color("6f898d"))
- label(root,title,Vector3(0,3.18,0.24),0,32)
- for side in [-1,1]:box(root,Vector3(side*1.27,1.12,0.25),Vector3(0.13,0.34,0.04),BRASS)
+  box(root,Vector3(side*0.72,0.92,0),Vector3(0.16,1.84,0.28),TRIM,true)
+  box(root,Vector3(side*0.64,0.95,0.16),Vector3(0.025,1.65,0.025),Color("9bd5dd"),false,true)
+ arch(root,0,0,1.44,1.84,0.34,0.10,PAPER)
+ arch(root,0,0.12,1.29,1.84,0.28,0.018,Color("9bd5dd"),true)
+ box(root,Vector3(0,2.47,0),Vector3(1.62,0.65,0.20),PAPER,true)
+ label(root,title,Vector3(0,2.31,0.13),0,23)
 
-func window(parent:Node3D,pos:Vector3,width:float,angle:float=0.0) -> void:
- var root=Node3D.new();root.position=pos;root.rotation.y=angle;parent.add_child(root)
- # A deep sill and curved crown make the opening part of a pressure hull.
- box(root,Vector3(0,0.28,0),Vector3(width,0.56,0.45),PAPER,true)
- box(root,Vector3(0,0.59,0.10),Vector3(width,0.07,0.48),PAPER)
- box(root,Vector3(0,3.6,0),Vector3(width,0.38,0.48),PAPER,true)
- for side in [-1,1]:
-  box(root,Vector3(side*width/2,1.95,0),Vector3(0.34,3.5,0.55),PAPER,true)
-  for y in [0.85,2.85]:
-   box(root,Vector3(side*width/2,y,0.06),Vector3(0.44,0.12,0.60),BRASS)
-  box(root,Vector3(side*width/2,1.95,0.31),Vector3(0.16,0.92,0.08),TRIM)
-  box(root,Vector3(side*width/2,1.95,0.36),Vector3(0.055,0.71,0.025),Color("78c7f3"),false,true)
-  var corner=box(root,Vector3(side*(width/2-0.22),3.23,0.08),Vector3(0.16,0.62,0.38),PAPER)
-  corner.rotation.z=-side*PI/4
- box(root,Vector3(0,3.33,0.19),Vector3(width-0.75,0.035,0.025),Color("bfe4de"),false,true)
- box(root,Vector3(0,0.42,0.24),Vector3(width-0.5,0.025,0.025),Color("e6b881"),false,true)
- var body=StaticBody3D.new();var c=CollisionShape3D.new();var shape=BoxShape3D.new();shape.size=Vector3(width,3.8,0.12)
- c.shape=shape;body.position.y=1.9;body.add_child(c);root.add_child(body)
+func hull_segment(parent:Node3D,a:Vector2,b:Vector2,glazed:bool) -> void:
+ var root=Node3D.new();var center=(a+b)*0.5;var width=a.distance_to(b)
+ root.position=Vector3(center.x,0,center.y);root.rotation.y=-atan2(b.y-a.y,b.x-a.x);parent.add_child(root)
+ var h=2.35;var inset=0.34
+ # Sloping outer pressure wall, with a chamfered aperture cut into an opaque panel.
+ var outside:Array[Vector2]=[Vector2(-width/2,0),Vector2(width/2,0),Vector2(width/2,h/3),Vector2(width/2,h*2/3),Vector2(width/2,h),Vector2(-width/2,h),Vector2(-width/2,h*2/3),Vector2(-width/2,h/3)]
+ if glazed:
+  var w=width*0.44;var lo=1.10;var hi=1.85;var c=0.16
+  var opening:Array[Vector2]=[Vector2(-w*0.82+c,lo),Vector2(w*0.82-c,lo),Vector2(w*0.82,lo+c),Vector2(w,hi-c),Vector2(w-c,hi),Vector2(-w+c,hi),Vector2(-w,hi-c),Vector2(-w*0.82,lo+c)]
+  var rim:Array[Vector3]=[]
+  for i in 8:
+   var j=(i+1)%8
+   var poly:Array[Vector3]=[]
+   for v in [outside[i],outside[j],opening[j],opening[i]]:poly.append(Vector3(v.x,v.y,v.y/h*inset))
+   panel(root,poly,PAPER)
+   rim.append(Vector3(opening[i].x,opening[i].y,opening[i].y/h*inset+0.025))
+  rim.append(rim[0]);tube(root,rim,0.055,TRIM)
+  # A fine brass inner seal, not a floor-to-ceiling storefront.
+  var seal:Array[Vector3]=[]
+  for v in rim:seal.append(v+Vector3(0,0,0.035))
+  tube(root,seal,0.015,BRASS)
+ else:
+  panel(root,[Vector3(-width/2,0,0),Vector3(width/2,0,0),Vector3(width/2,h,inset),Vector3(-width/2,h,inset)],PAPER)
+ # The whole wall remains solid, including glazing. Hidden geometry is collision-only.
+ var boundary=panel(root,[Vector3(-width/2,0,0),Vector3(width/2,0,0),Vector3(width/2,h,inset),Vector3(-width/2,h,inset)],PAPER,true)
+ boundary.visible=false;boundary.set_meta("collision_only",true)
+ box(root,Vector3(0,0.24,0.10),Vector3(width,0.48,0.22),TRIM)
+ box(root,Vector3(0,0.52,0.13),Vector3(width,0.025,0.025),Color("cbb18b"),false,true)
+ beam(root,Vector3(-width/2,0,0.06),Vector3(-width/2,h,inset+0.03),0.035,TRIM)
+
+func saucer(parent:Node3D) -> void:
+ var floor_mesh=SurfaceTool.new();floor_mesh.begin(Mesh.PRIMITIVE_TRIANGLES)
+ var roof_mesh=SurfaceTool.new();roof_mesh.begin(Mesh.PRIMITIVE_TRIANGLES)
+ var roof=Node3D.new();roof.name="HullRoof";parent.add_child(roof)
+ for i in 48:
+  var a=i*TAU/48;var b=(i+1)*TAU/48
+  var pa=HULL_CENTER+Vector2(sin(a),-cos(a))*HULL_RADII
+  var pb=HULL_CENTER+Vector2(sin(b),-cos(b))*HULL_RADII
+  for point in [Vector3(HULL_CENTER.x,0,HULL_CENTER.y),Vector3(pa.x,0,pa.y),Vector3(pb.x,0,pb.y)]:
+   floor_mesh.set_normal(Vector3.UP);floor_mesh.add_vertex(point)
+  # Faceted radial deck seams follow the saucer instead of a rectangular room grid.
+  if i%4==0:beam(parent,Vector3(0,0.007,0.6),Vector3(pa.x,0.007,pa.y),0.012,Color("243a46"))
+  for ring in 6:
+   var vertices:Array[Vector3]=[]
+   for spec in [[a,ring],[b,ring],[b,ring+1],[a,ring+1]]:
+    var r=float(spec[1])/6;var p=HULL_CENTER+Vector2(sin(spec[0]),-cos(spec[0]))*(HULL_RADII-Vector2.ONE*0.34)*r
+    vertices.append(Vector3(p.x,3.03-0.68*r*r,p.y))
+   for k in [0,1,2,0,2,3]:roof_mesh.set_normal(Vector3.DOWN);roof_mesh.add_vertex(vertices[k])
+  # Pair two small hull facets into one framed porthole bay.
+  if i%2==0:
+   var end=HULL_CENTER+Vector2(sin(a+TAU/24),-cos(a+TAU/24))*HULL_RADII
+   hull_segment(parent,pa,end,i in [0,2,10,24,36,44,46])
+ var deck=MeshInstance3D.new();deck.mesh=floor_mesh.commit();deck.material_override=material(Color("596b72"));parent.add_child(deck);deck.create_trimesh_collision()
+ var ceiling=MeshInstance3D.new();ceiling.mesh=roof_mesh.commit();ceiling.material_override=material(Color("8e9994"));roof.add_child(ceiling);ceiling.create_trimesh_collision()
+ for r in [0.40,0.74,0.96]:
+  var path:Array[Vector3]=[];var light:Array[Vector3]=[]
+  for i in 97:
+   var a=i*TAU/96;var p=HULL_CENTER+Vector2(sin(a),-cos(a))*(HULL_RADII-Vector2.ONE*0.34)*r
+   path.append(Vector3(p.x,2.99-0.68*r*r,p.y));light.append(Vector3(p.x,2.93-0.68*r*r,p.y))
+  tube(roof,path,0.065,TRIM)
+  if r!=0.40:tube(roof,light,0.014,Color("a8d0db"),true)
+ # Radial structural ribs make the curved plan readable from inside.
+ for i in 8:
+  var a=i*TAU/8;var path:Array[Vector3]=[]
+  for k in 25:
+   var r=float(k)/24;var p=HULL_CENTER+Vector2(sin(a),-cos(a))*(HULL_RADII-Vector2.ONE*0.34)*r
+   path.append(Vector3(p.x,2.97-0.68*r*r,p.y))
+  tube(roof,path,0.055,TRIM)
+
+func instrument(parent:Node3D,pos:Vector3,angle:float,radar:bool=false) -> void:
+ var root=Node3D.new();root.position=pos;root.rotation=Vector3(-0.32,angle,0);parent.add_child(root)
+ box(root,Vector3.ZERO,Vector3(0.54,0.32,0.07),TRIM)
+ box(root,Vector3(0,0,0.04),Vector3(0.46,0.24,0.008),Color("4b311e"),false,true)
+ if radar:
+  for radius in [0.035,0.075,0.105]:
+   var points:Array[Vector3]=[]
+   for k in 49:points.append(Vector3(cos(k*TAU/48)*radius,sin(k*TAU/48)*radius,0.048))
+   tube(root,points,0.002,Color("e9c38c"),true)
+ else:
+  for i in 4:box(root,Vector3(-0.16+i*0.105,-0.025,0.047),Vector3(0.04,0.04+i*0.025,0.004),Color("e9c38c"),false,true)
 
 func console(parent:Node3D) -> void:
- var root=Node3D.new();root.position=Vector3(0,0,-7.65);parent.add_child(root)
- # Cockpit island follows the panorama, with central pilot position and wings.
- for i in range(-2,3):
-  var pod=Node3D.new();pod.position=Vector3(i*1.36,0,-0.18*abs(i));pod.rotation.y=-i*0.10;root.add_child(pod)
-  box(pod,Vector3(0,0.49,0),Vector3(1.30,0.98,0.76),PAPER,true)
-  box(pod,Vector3(0,0.11,0),Vector3(1.38,0.16,0.83),Color("172a34"))
-  var desk=box(pod,Vector3(0,1.03,-0.05),Vector3(1.39,0.16,1.06),PAPER,true);desk.rotation.x=-0.12
-  var screen=Node3D.new();screen.position=Vector3(0,1.28,-0.32);screen.rotation.x=-0.24;pod.add_child(screen)
-  box(screen,Vector3.ZERO,Vector3(0.97,0.56,0.08),Color("132a35"))
-  box(screen,Vector3(0,0,0.047),Vector3(0.84,0.42,0.012),Color("56371b"),false,true)
-  if i==0:
-   for radius in [0.065,0.13,0.185]:
-    var circle:Array[Vector3]=[]
-    for k in 65:
-     var a=k*TAU/64;circle.append(Vector3(cos(a)*radius,sin(a)*radius,0.062))
-    tube(screen,circle,0.0035,Color("ffd086"),true)
-  # Minimal original instrument marks, not a busy wall of fake text.
-  for j in (0 if i==0 else 4):
-   box(screen,Vector3(-0.30+j*0.20,-0.08,0.058),Vector3(0.08,0.08+0.055*((j+i+5)%4),0.006),Color("ffc46d"),false,true)
-  box(screen,Vector3(0,0.14,0.058),Vector3(0.62,0.012,0.005),Color("e1bd7f"),false,true)
-  for j in 5:
-   cylinder(pod,Vector3(-0.46+j*0.23,1.15,0.31),0.035,0.04,BRASS if j==4 else Color("668b95"))
-  box(pod,Vector3(0,0.78,0.40),Vector3(1.03,0.025,0.025),Color("f3b85e"),false,true)
- # Pilot yoke and a built-in padded pedestal seat.
- beam(root,Vector3(0,1.1,0.36),Vector3(0,1.32,0.62),0.035,TRIM)
- beam(root,Vector3(-0.23,1.32,0.62),Vector3(0.23,1.32,0.62),0.038,TRIM)
- for side in [-1,1]:beam(root,Vector3(side*0.23,1.25,0.62),Vector3(side*0.23,1.47,0.62),0.045,Color("b17c58"))
- cylinder(root,Vector3(0,0.28,1.45),0.20,0.56,TRIM)
- box(root,Vector3(0,0.60,1.45),Vector3(0.86,0.23,0.80),Color("c08c67"),true)
- box(root,Vector3(0,1.10,1.80),Vector3(0.90,1.05,0.22),Color("c08c67"),true)
- for side in [-1,1]:box(root,Vector3(side*0.53,0.89,1.46),Vector3(0.14,0.12,0.70),TRIM)
- # Floor frame and nose designation.
- label(root,"O C T O F O X   /   0 1",Vector3(0,0.48,0.43),0,26)
+ var root=Node3D.new();root.position=Vector3(0,0,-3.75);parent.add_child(root)
+ # A single pilot well: seat inside the consoles, with a clear approach behind.
+ for side in [-1,1]:
+  var wing=Node3D.new();wing.position=Vector3(side*0.76,0,-0.10);wing.rotation.y=side*0.16;root.add_child(wing)
+  box(wing,Vector3(0,0.42,0),Vector3(0.49,0.84,1.42),TRIM,true)
+  box(wing,Vector3(0,0.88,0),Vector3(0.55,0.12,1.5),PAPER)
+  box(wing,Vector3(side*0.26,0.55,0),Vector3(0.03,0.40,1.16),Color("637b80"))
+  instrument(wing,Vector3(0,1.07,-0.48),side*0.30)
+  for j in 5:cylinder(wing,Vector3(0,0.96,-0.15+j*0.15),0.027,0.018,BRASS if j==0 else Color("718d95"))
+  beam(wing,Vector3(0,0.96,0.20),Vector3(0,1.13,0.15),0.025,TRIM)
+  box(wing,Vector3(0,1.15,0.15),Vector3(0.12,0.05,0.06),BRASS)
+ box(root,Vector3(0,0.89,-0.85),Vector3(1.48,0.22,0.42),PAPER,true)
+ instrument(root,Vector3(0,1.11,-0.87),0,true)
+ for x in [-0.47,0.47]:instrument(root,Vector3(x,1.08,-0.81),-x*0.4)
+ # Contoured pilot seat with headrest, arm supports and a narrow pedestal.
+ cylinder(root,Vector3(0,0.22,0.35),0.18,0.44,TRIM)
+ box(root,Vector3(0,0.49,0.35),Vector3(0.58,0.20,0.64),Color("ac805f"),true)
+ var back=box(root,Vector3(0,0.88,0.63),Vector3(0.61,0.78,0.17),Color("ac805f"),true);back.rotation.x=0.10
+ box(root,Vector3(0,1.34,0.69),Vector3(0.40,0.23,0.16),TRIM)
+ for side in [-1,1]:box(root,Vector3(side*0.37,0.73,0.38),Vector3(0.10,0.12,0.55),TRIM)
+ # Canopy shoulder ribs and overhead instrument pod enclose the seat.
+ for side in [-1,1]:
+  tube(parent,[Vector3(side*1.48,0,-2.05),Vector3(side*1.48,1.75,-2.05),Vector3(side*1.04,2.52,-3.7),Vector3(side*0.82,2.22,-4.95)],0.09,TRIM)
+  bulkhead(parent,Vector2(side*1.62,-2.0),Vector2(side*1.13,-4.6),0.72)
+ box(parent,Vector3(0,2.53,-3.55),Vector3(1.5,0.16,0.48),TRIM)
+ for x in [-0.45,0,0.45]:box(parent,Vector3(x,2.43,-3.55),Vector3(0.26,0.018,0.18),Color("b69864"),false,true)
+ label(parent,"01 / FLIGHT",Vector3(0,2.12,-2.08),0,24)
+
+func fittings(parent:Node3D) -> void:
+ # Sealed bow shoulders reserve machinery volume inside the circular hull.
+ for side in [-1,1]:
+  bulkhead(parent,Vector2(side*1.62,-2.0),Vector2(side*4.66,-2.35))
+  var rack=Node3D.new();rack.position=Vector3(side*3.05,0,-2.25);rack.rotation.y=side*0.12;parent.add_child(rack)
+  box(rack,Vector3(0,1.08,0.13),Vector3(1.35,1.75,0.18),TRIM)
+  for x in [-0.34,0.34]:
+   box(rack,Vector3(x,1.08,0.24),Vector3(0.59,1.60,0.06),Color("7c9192"))
+   box(rack,Vector3(x,1.0,0.29),Vector3(0.13,0.025,0.03),BRASS)
+  label(rack,"SERVICE",Vector3(0,2.08,0.24),0,20)
+ # Short central access spine; all four rooms share it, not separate corridors.
+ for x in [-0.85,0.85]:
+  for segment in [[1.1,1.58],[3.02,4.08],[5.52,6.6]]:bulkhead(parent,Vector2(x,segment[0]),Vector2(x,segment[1]))
+ for side in [-1,1]:
+  bulkhead(parent,Vector2(side*0.85,1.1),Vector2(side*5.1,1.1))
+  bulkhead(parent,Vector2(side*0.85,3.6),Vector2(side*4.6,3.6))
+ hatch(parent,-0.85,2.3,"WORKSHOP",PI/2);hatch(parent,0.85,2.3,"ARCHIVE",-PI/2)
+ hatch(parent,-0.85,4.8,"CABIN",PI/2);hatch(parent,0.85,4.8,"WARDROBE",-PI/2)
+ for x in [-0.52,0.52]:box(parent,Vector3(x,0.015,3.55),Vector3(0.02,0.02,5),Color("9ebfc4"),false,true)
+ # A compact aft service cabinet, not another large engineering hall.
+ box(parent,Vector3(0,1.05,6.28),Vector3(1.2,2.1,0.4),TRIM,true)
+ for x in [-0.26,0.26]:box(parent,Vector3(x,1.03,6.05),Vector3(0.47,1.83,0.07),Color("5f777d"))
+ label(parent,"LIFE SUPPORT",Vector3(0,2.17,6.02),PI,20)
+ # Two-person dinette fitted into the forward starboard shoulder.
+ var booth=Node3D.new();booth.position=Vector3(3.35,0,-0.62);booth.rotation.y=-0.50;parent.add_child(booth)
+ box(booth,Vector3(0,0.26,0),Vector3(1.75,0.52,0.72),TRIM,true)
+ box(booth,Vector3(0,0.57,0),Vector3(1.74,0.14,0.73),Color("b98e6b"))
+ box(booth,Vector3(0,0.88,-0.29),Vector3(1.78,0.65,0.18),Color("7e9d92"))
+ var top=cylinder(booth,Vector3(0,0.74,0.68),0.48,0.07,WOOD);top.scale.x=1.35
+ cylinder(booth,Vector3(0,0.36,0.68),0.08,0.72,TRIM)
+ # Small galley integrated into the opposite shoulder, with overhead storage.
+ var galley=Node3D.new();galley.position=Vector3(-3.65,0,-0.85);galley.rotation.y=0.5;parent.add_child(galley)
+ box(galley,Vector3(0,0.42,0),Vector3(1.7,0.84,0.64),TRIM,true)
+ box(galley,Vector3(0,0.88,0),Vector3(1.74,0.08,0.70),WOOD)
+ box(galley,Vector3(0,1.91,-0.23),Vector3(1.7,0.52,0.3),PAPER)
+ for x in [-0.52,0,0.52]:box(galley,Vector3(x,0.5,0.33),Vector3(0.42,0.035,0.025),BRASS)
+ cylinder(galley,Vector3(-0.5,0.98,0),0.08,0.17,PAPER)
+ box(galley,Vector3(0.3,0.93,0),Vector3(0.5,0.025,0.40),Color("243b43"))
+ # Workshop bench along the short transverse bulkhead.
+ box(parent,Vector3(-2.85,0.82,1.48),Vector3(2.65,0.12,0.62),PAPER,true)
+ for x in [-3.8,-1.9]:box(parent,Vector3(x,0.4,1.48),Vector3(0.57,0.8,0.6),TRIM,true)
+ box(parent,Vector3(-2.85,1.65,1.23),Vector3(2.65,0.97,0.12),TRIM)
+ for i in 5:
+  var x=-3.75+i*0.43
+  box(parent,Vector3(x,1.60,1.32),Vector3(0.05,0.30,0.04),BRASS)
+  box(parent,Vector3(x,1.76,1.32),Vector3(0.16,0.06,0.04),BRASS)
+ box(parent,Vector3(-2.85,2.18,1.33),Vector3(2.65,0.035,0.18),Color("cbb794"),false,true)
+ # Display storage shares a compact bay; empty until real owned rewards connect.
+ for x in [1.65,2.65,3.65]:
+  box(parent,Vector3(x,1.25,1.30),Vector3(0.87,2.1,0.25),TRIM)
+  box(parent,Vector3(x,0.4,1.48),Vector3(0.87,0.8,0.53),Color("647d80"),true)
+  box(parent,Vector3(x,0.83,1.48),Vector3(0.90,0.04,0.55),BRASS)
+  box(parent,Vector3(x,2.22,1.47),Vector3(0.70,0.025,0.025),Color("9dc6c8"),false,true)
+ # Single berth follows the tapering aft hull; storage occupies its plinth.
+ var berth=Node3D.new();berth.position=Vector3(-2.7,0,4.5);berth.rotation.y=1.10;parent.add_child(berth)
+ box(berth,Vector3(0,0.28,0),Vector3(1.0,0.56,1.72),TRIM,true)
+ box(berth,Vector3(0,0.61,0),Vector3(0.94,0.16,1.65),Color("c8b99a"))
+ box(berth,Vector3(0,0.73,-0.18),Vector3(0.95,0.09,1.25),Color("6d9092"))
+ box(berth,Vector3(0,0.76,0.55),Vector3(0.78,0.18,0.36),Color("dfd0b1"))
+ for z in [-0.88,0.88]:
+  arch(berth,0,z,1.10,0.74,0.90,0.075,PAPER)
+  arch(berth,0,z-0.06,0.96,0.74,0.80,0.012,Color("d5b58b"),true)
+ for z in [-0.55,0.18]:box(berth,Vector3(0.51,0.30,z),Vector3(0.025,0.035,0.45),BRASS)
+ # Outfitting lockers follow the other aft shoulder, leaving a standing alcove.
+ var wardrobe=Node3D.new();wardrobe.position=Vector3(3.05,0,4.9);wardrobe.rotation.y=0.80;parent.add_child(wardrobe)
+ for x in [-0.68,0.68]:
+  box(wardrobe,Vector3(x,1.02,0),Vector3(0.61,2.04,0.48),TRIM,true)
+  for y in [0.45,1.12,1.78]:box(wardrobe,Vector3(x,y,-0.26),Vector3(0.53,0.04,0.25),Color("78908e"))
+ box(wardrobe,Vector3(0,1.04,0.12),Vector3(0.64,1.98,0.10),Color("4d707f"),true)
+ box(wardrobe,Vector3(0,2.10,-0.10),Vector3(1.95,0.035,0.15),Color("cbb794"),false,true)
 
 func build(parent:Node3D) -> void:
  var env=WorldEnvironment.new();env.environment=Environment.new()
@@ -194,8 +334,8 @@ func build(parent:Node3D) -> void:
  env.environment.tonemap_mode=Environment.TONE_MAPPER_FILMIC;parent.add_child(env)
  var sun=DirectionalLight3D.new();sun.rotation_degrees=Vector3(-25,-28,0);sun.light_color=Color("b5d5ec");sun.light_energy=0.45
  sun.shadow_enabled=false;sun.directional_shadow_max_distance=38;parent.add_child(sun)
- var bridge_light=SpotLight3D.new();bridge_light.position=Vector3(0,4.05,-4.4);bridge_light.rotation_degrees.x=-90
- bridge_light.light_color=Color("ffe1b8");bridge_light.light_energy=0.85;bridge_light.spot_range=11;bridge_light.spot_angle=65
+ var bridge_light=SpotLight3D.new();bridge_light.position=Vector3(0,2.75,-1.8);bridge_light.rotation_degrees.x=-90
+ bridge_light.light_color=Color("ffe1b8");bridge_light.light_energy=0.45;bridge_light.spot_range=6;bridge_light.spot_angle=65
  bridge_light.shadow_enabled=true;bridge_light.shadow_bias=0.08;bridge_light.shadow_normal_bias=1.5;parent.add_child(bridge_light)
  var planet=MeshInstance3D.new();var sphere=SphereMesh.new();sphere.radius=48;sphere.height=96;sphere.radial_segments=96;sphere.rings=48
  planet.mesh=sphere;planet.position=Vector3(32,11,-165)
@@ -210,119 +350,10 @@ func build(parent:Node3D) -> void:
  for position in [Vector3(-58,28,-170),Vector3(7,37,-125)]:
   var moon=MeshInstance3D.new();var ball=SphereMesh.new();ball.radius=3.4;ball.height=6.8;ball.radial_segments=32
   moon.mesh=ball;moon.position=position;moon.material_override=material(Color("a293bc"));parent.add_child(moon)
- for title in ROOMS:
-  var r:Rect2=ROOMS[title];var c=r.get_center()
-  box(parent,Vector3(c.x,-0.14,c.y),Vector3(r.size.x,0.28,r.size.y),Color("414f5a"),true)
-  # Inset deck plates, no wall-to-wall domestic floorboards.
-  for ix in range(int(r.size.x/1.4)):
-   for iz in range(int(r.size.y/1.8)):
-    box(parent,Vector3(r.position.x+0.72+ix*1.4,0.006,r.position.y+0.92+iz*1.8),Vector3(1.35,0.016,1.74),Color("637580"))
-  var light=OmniLight3D.new();light.position=Vector3(c.x,3.0,c.y);light.light_color=Color("ffe0b6");light.light_energy=0.65;light.omni_range=7;parent.add_child(light)
-  if title!="Passage":
-   vault(parent,c.x,r.position.y,r.end.y,r.size.x,3.20,1.20 if title=="Lounge" else 0.65)
-   for z in [r.position.y+0.25,c.y,r.end.y-0.25]:
-    arch(parent,c.x,z,r.size.x,3.2,1.2 if title=="Lounge" else 0.65,0.12,TRIM)
-    arch(parent,c.x,z+0.14,r.size.x-0.3,3.19,1.1 if title=="Lounge" else 0.54,0.027,Color("e8c99c"),true)
-  else:
-   vault(parent,0,0,14,4,3.15,0.65)
-   for z in [0.2,3.5,7,10.5,13.7]:arch(parent,0,z,4,3.15,0.65,0.12,TRIM)
- window(parent,Vector3(0,0,-10),12)
- # Curved mullions bend overhead: bridge canopy rather than house glazing.
- for side in [-1,1]:
-  var path:Array[Vector3]=[]
-  for i in 33:
-   var t=float(i)/32;path.append(Vector3(side*(5.7-2.1*t),0.6+3.75*t,-9.85+0.85*t*t))
-  tube(parent,path,0.13,PAPER)
-  window(parent,Vector3(side*6,0,-6.5),7,PI/2)
-  box(parent,Vector3(side*6,1.9,-1.5),Vector3(0.24,3.8,3),PAPER,true)
- for x in [-9,9]:
-  window(parent,Vector3(x,0,3.5),7,PI/2);window(parent,Vector3(x,0,10.5),7,PI/2)
- for x in [-5.5,5.5]:
-  for z in [0,7]:
-   box(parent,Vector3(x,1.9,z),Vector3(7,3.8,0.22),PAPER,true)
-   box(parent,Vector3(x,0.40,z+0.13),Vector3(6.7,0.8,0.16),TRIM)
-   box(parent,Vector3(x,2.8,z+0.13),Vector3(6.6,0.035,0.025),BRASS)
- box(parent,Vector3(0,1.9,14),Vector3(18,3.8,0.25),PAPER,true)
- for x in [-2,2]:
-  for part in [[0,2.3],[4.7,9.3],[11.7,14]]:
-   var center=(part[0]+part[1])*0.5;var length=part[1]-part[0]
-   box(parent,Vector3(x,1.9,center),Vector3(0.22,3.8,length),PAPER,true)
-   box(parent,Vector3(x-sign(x)*0.14,0.42,center),Vector3(0.16,0.8,length),TRIM)
-   box(parent,Vector3(x-sign(x)*0.24,0.83,center),Vector3(0.045,0.03,max(0.1,length-0.3)),Color("e5bd81"),false,true)
- hatch(parent,-2,3.5,"02  /  WORKSHOP",PI/2);hatch(parent,2,3.5,"03  /  GALLERY",-PI/2)
- hatch(parent,-2,10.5,"04  /  CABIN",PI/2);hatch(parent,2,10.5,"05  /  WARDROBE",-PI/2)
- # Broad pressure arch separates the observation bridge from the living spine.
- arch(parent,0,-0.12,4,2.65,0.9,0.16,TRIM)
- for x in [-1.93,1.93]:box(parent,Vector3(x,1.25,-0.12),Vector3(0.28,2.5,0.42),TRIM,true)
- for x in [-0.75,0.75]:box(parent,Vector3(x,0.025,7),Vector3(0.028,0.02,13.2),Color("9fc9bc"),false,true)
- # A sealed aft service bulkhead makes the ship's spine readable.
- box(parent,Vector3(0,1.55,13.7),Vector3(2.5,3.1,0.18),TRIM,true)
- for x in [-0.62,0.62]:box(parent,Vector3(x,1.55,13.58),Vector3(1.17,2.8,0.08),Color("627c82"))
- label(parent,"06  /  ENGINEERING",Vector3(0,3.28,13.55),PI,32)
- for x in [-0.9,0.9]:box(parent,Vector3(x,1.55,13.50),Vector3(0.025,0.6,0.025),BRASS,false,true)
- console(parent)
- # Profile Orbit motif: a circular deck inset with a brass rim and blue light.
- cylinder(parent,Vector3(0,0.013,-2.7),1.64,0.010,BRASS)
- cylinder(parent,Vector3(0,0.019,-2.7),1.56,0.008,PAPER)
- for side in [-1,1]:
-  var path:Array[Vector3]=[]
-  for i in 33:
-   var a=side*PI/2-0.6+i*1.2/32;path.append(Vector3(sin(a)*1.77,0.025,-2.7+cos(a)*1.77))
-  tube(parent,path,0.022,Color("8dd7ff"),true)
- arch(parent,0,-9.84,11.9,3.2,1.18,0.14,PAPER)
- arch(parent,0,-9.68,11.65,3.20,1.06,0.028,Color("9ad5fc"),true)
- # Fitted lounge pod and galley behind the cockpit, with warm upholstery.
- for i in 5:
-  var seat=Node3D.new();seat.position=Vector3(4.35,0,-1.30-i*0.68);seat.rotation.y=-PI/2;parent.add_child(seat)
-  box(seat,Vector3(0,0.29,0),Vector3(0.66,0.58,1.2),TRIM,true)
-  box(seat,Vector3(0,0.67,0),Vector3(0.65,0.20,1.0),Color("c7956d"))
-  box(seat,Vector3(0,1.02,0.48),Vector3(0.66,0.74,0.20),Color("8ea99c"))
- cylinder(parent,Vector3(3.05,0.35,-2.8),0.16,0.7,TRIM)
- cylinder(parent,Vector3(3.05,0.75,-2.8),0.66,0.10,WOOD)
- for x in [-4.7,-3.3]:
-  box(parent,Vector3(x,0.49,-0.6),Vector3(1.35,0.98,0.8),TRIM,true)
-  box(parent,Vector3(x,1.02,-0.6),Vector3(1.4,0.1,0.85),WOOD)
-  box(parent,Vector3(x,0.55,-1.02),Vector3(0.85,0.025,0.04),BRASS)
- box(parent,Vector3(-4.0,2.45,-0.20),Vector3(2.8,0.85,0.42),TRIM)
- box(parent,Vector3(-4.0,2.02,-0.20),Vector3(2.5,0.025,0.30),Color("ebce9e"),false,true)
- cylinder(parent,Vector3(-4.6,1.2,-0.6),0.13,0.26,Color("ead9ae"))
- label(parent,"01  /  OBSERVATION",Vector3(-4,1.68,-0.26),PI,28)
- # Workshop: integrated equipment rack and tool bench.
- box(parent,Vector3(-5.5,0.95,1.0),Vector3(4.7,0.18,1.15),PAPER,true)
- for x in [-7.4,-3.6]:box(parent,Vector3(x,0.45,1),Vector3(0.65,0.9,0.8),TRIM,true)
- box(parent,Vector3(-5.5,2.05,0.2),Vector3(4.7,1.25,0.12),TRIM)
- for x in [-6.8,-6.1,-5.4,-4.7]:
-  box(parent,Vector3(x,2.0,0.32),Vector3(0.10,0.55,0.08),BRASS)
-  box(parent,Vector3(x,2.25,0.32),Vector3(0.3,0.12,0.08),BRASS)
- box(parent,Vector3(-5.5,2.77,0.25),Vector3(4.7,0.06,0.4),Color("ead5aa"),false,true)
- label(parent,"FABRICATION",Vector3(-5.5,3.12,0.33),0,36)
- # Recessed trophy niches; no invented rewards.
- for x in [3.5,5.4,7.3]:
-  box(parent,Vector3(x,1.65,0.35),Vector3(1.5,2.75,0.36),TRIM)
-  box(parent,Vector3(x,0.63,0.8),Vector3(1.42,1.2,1.03),Color("536c73"),true)
-  box(parent,Vector3(x,1.25,0.8),Vector3(1.45,0.06,1.06),BRASS)
-  box(parent,Vector3(x,2.8,0.58),Vector3(1.15,0.025,0.025),Color("a9d8ca"),false,true)
- label(parent,"COLLECTION ARCHIVE",Vector3(5.5,3.23,0.60),0,34)
- # Sleep pod: thick rounded enclosure, illuminated inner rim, textile lining.
- box(parent,Vector3(-6.8,0.30,11.3),Vector3(2.8,0.6,3.5),TRIM,true)
- box(parent,Vector3(-6.8,0.68,11.3),Vector3(2.45,0.35,3.3),Color("d8c9a9"))
- box(parent,Vector3(-6.8,0.9,11.0),Vector3(2.48,0.12,2.5),Color("698f91"))
- box(parent,Vector3(-6.8,1.2,13.1),Vector3(2.8,1.8,0.24),TRIM,true)
- for x in [-7.4,-6.2]:box(parent,Vector3(x,0.94,12.55),Vector3(0.95,0.22,0.55),Color("eee1be"))
- for z in [9.5,13.0]:
-  arch(parent,-6.8,z,3.0,1.1,1.45,0.16,PAPER)
-  arch(parent,-6.8,z-0.08,2.7,1.1,1.32,0.025,Color("e6bb8a"),true)
- box(parent,Vector3(-3.5,0.9,12.7),Vector3(1.9,0.12,0.9),WOOD,true)
- for x in [-4.3,-2.7]:box(parent,Vector3(x,0.45,12.7),Vector3(0.1,0.9,0.7),TRIM,true)
- # Wardrobe is an outfitting bay with curved frames and enclosed lockers.
- for x in [3.2,7.8]:
-  box(parent,Vector3(x,1.45,13.5),Vector3(1.6,2.9,0.6),TRIM,true)
-  for y in [0.6,1.4,2.2]:box(parent,Vector3(x,y,13.16),Vector3(1.45,0.06,0.7),Color("657c83"))
-  box(parent,Vector3(x,2.87,13.13),Vector3(1.2,0.03,0.03),Color("b9d6cd"),false,true)
- box(parent,Vector3(5.5,1.65,13.7),Vector3(1.8,3.1,0.15),TRIM)
- box(parent,Vector3(5.5,1.65,13.6),Vector3(1.6,2.9,0.05),Color("4d707f"))
- arch(parent,5.5,13.47,2.1,2.5,0.7,0.08,BRASS)
- label(parent,"OUTFITTING",Vector3(5.5,3.42,13.5),PI,34)
+ saucer(parent);console(parent);fittings(parent)
+ # Warm local pools, with no wasteful full-height glazing or cavernous room lights.
+ for p in [Vector3(0,2.35,-2.3),Vector3(0,2.5,0.2),Vector3(-2.8,2.2,2.5),Vector3(2.8,2.2,2.5),Vector3(-2.2,2.1,4.8),Vector3(2.2,2.1,4.8)]:
+  var light=OmniLight3D.new();light.position=p;light.light_color=Color("ffe1b8");light.light_energy=0.65;light.omni_range=4.0;parent.add_child(light)
 
 func footprint(id: String) -> Vector2:
  return {"armchair":Vector2(1.25,1.25),"low-table":Vector2(1.6,1.0),"plant":Vector2(0.7,0.7),"lamp":Vector2(0.5,0.5),"stool":Vector2(0.65,0.65),"books":Vector2(0.5,0.38),"rug":Vector2(2.8,2.0)}.get(id,Vector2.ONE)
@@ -389,6 +420,7 @@ func batch_static(parent:Node3D) -> void:
  var groups:Dictionary={}
  var originals:Array[MeshInstance3D]=[]
  for node in parent.find_children("*","MeshInstance3D",true,false):
+  if node.get_meta("collision_only",false) or node.get_parent().name=="HullRoof":continue
   if not node.material_override is StandardMaterial3D:continue
   var id=node.material_override.get_instance_id()
   if not groups.has(id):

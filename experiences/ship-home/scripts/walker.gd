@@ -14,13 +14,14 @@ var skeleton:Skeleton3D
 var joints:Dictionary={}
 var stride=0.0
 var walk_blend=0.0
+var camera_occludes_avatar=false
 
 func _ready() -> void:
  collision_layer=4;collision_mask=3;floor_snap_length=0.3
  var shape=CollisionShape3D.new();var capsule=CapsuleShape3D.new();capsule.radius=0.25;capsule.height=1.3
  shape.shape=capsule;shape.position.y=0.65;add_child(shape)
  pivot=Node3D.new();pivot.position.y=1.25;add_child(pivot)
- arm=SpringArm3D.new();arm.spring_length=3.0;arm.margin=0.2;arm.collision_mask=3
+ arm=SpringArm3D.new();arm.spring_length=2.1;arm.margin=0.2;arm.collision_mask=3
  var probe=SphereShape3D.new();probe.radius=0.14;arm.shape=probe;arm.add_excluded_object(get_rid());pivot.add_child(arm)
  camera=Camera3D.new();camera.fov=68;camera.near=0.06;camera.far=600;arm.add_child(camera);camera.current=true
  anonymous()
@@ -54,6 +55,14 @@ func install_avatar(descriptor:Dictionary) -> bool:
    var bone=skeleton.find_bone(name)
    if bone>=0:joints[name]=[bone,skeleton.get_bone_pose_rotation(bone)]
  return true
+
+func _process(_delta:float) -> void:
+ # Wall retraction must not turn the screen into the inside of the avatar's head.
+ # Hide only our own presentation near the camera, with hysteresis at the boundary.
+ var distance=arm.get_hit_length()
+ if distance<0.85:camera_occludes_avatar=true
+ elif distance>1.05:camera_occludes_avatar=false
+ if is_instance_valid(visual):visual.visible=not camera_occludes_avatar
 
 func _unhandled_input(event:InputEvent) -> void:
  if walking and event is InputEventMouseMotion and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:

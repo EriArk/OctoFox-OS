@@ -13,7 +13,7 @@ func run() -> void:
  var out=OS.get_environment("SHIP_CAPTURE_DIR")
  if out.is_empty():out="/tmp/ship-tour"
  DirAccess.make_dir_recursive_absolute(out)
- var points={"lounge":[Vector3(0,0.1,-1.4),0.0,-0.08],"panorama":[Vector3(2.0,0.1,-7),0.0,0.08],"workshop":[Vector3(-4.5,0.1,4.5),0.0,-0.18],"gallery":[Vector3(4.5,0.1,4.5),0.0,-0.12],"cabin":[Vector3(-4.7,0.1,9),PI,-0.20],"wardrobe":[Vector3(5.5,0.1,9.4),PI,-0.10]}
+ var points={"lounge":[Vector3(0,0.1,-0.6),-0.8,-0.12],"panorama":[Vector3(0,0.1,-2.3),0.0,-0.04],"workshop":[Vector3(-1.9,0.1,2.7),0.0,-0.18],"gallery":[Vector3(2.5,0.1,2.8),0.0,-0.12],"cabin":[Vector3(-1.55,0.1,5.5),1.0,-0.20],"wardrobe":[Vector3(2.2,0.1,4.0),-2.5,-0.10]}
  var selected=OS.get_environment("SHIP_CAPTURE_ROOMS").split(",",false)
  for name in points:
   if not selected.is_empty() and not name in selected:continue
@@ -22,7 +22,7 @@ func run() -> void:
   await RenderingServer.frame_post_draw
   var result=root.get_texture().get_image().save_png(out+"/"+name+".png")
   assert(result==OK)
- home.walker.position=Vector3(0,0.1,-2);home.walker.yaw=0;home.walker.pitch=-0.35;home._edit(true)
+ home.walker.position=Vector3(0,0.1,0);home.walker.yaw=0;home.walker.pitch=-0.35;home._edit(true)
  await create_timer(0.5).timeout;await RenderingServer.frame_post_draw
  assert(root.get_texture().get_image().save_png(out+"/decorating.png")==OK)
  print("SHIP TOUR PASSED; objects=",Performance.get_monitor(Performance.OBJECT_NODE_COUNT),"; draw_calls=",Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"; static_bytes=",Performance.get_monitor(Performance.MEMORY_STATIC))

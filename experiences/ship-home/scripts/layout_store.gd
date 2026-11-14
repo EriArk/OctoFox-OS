@@ -2,7 +2,8 @@
 class_name ShipLayoutStore
 extends RefCounted
 const MAX_ITEMS=48
-var directory="user://homes"
+# Different deck coordinates: preserve all earlier preview layouts in homes/.
+var directory="user://homes/saucer-v2"
 var owner="guest"
 var error=""
 var writable=true
@@ -47,10 +48,10 @@ func save(rows: Array) -> bool:
 
 static func defaults() -> Array:
  return [
-  {"item":"armchair","x":-2.2,"z":-5.2,"angle":PI},
-  {"item":"low-table","x":-2.4,"z":-3.6,"angle":0.0},
-  {"item":"plant","x":-5.1,"z":-4.3,"angle":0.0},
-  {"item":"plant","x":5.1,"z":-4.3,"angle":0.0},
-  {"item":"lamp","x":-4.8,"z":-2.8,"angle":0.0},
-  {"item":"rug","x":-2.7,"z":-4.3,"angle":0.0},
-  {"item":"stool","x":-5.5,"z":2.5,"angle":0.0}]
+  {"item":"armchair","x":-1.95,"z":-0.90,"angle":PI},
+  {"item":"low-table","x":-1.9,"z":0.30,"angle":0.0},
+  {"item":"plant","x":-4.35,"z":0.35,"angle":0.0},
+  {"item":"plant","x":4.3,"z":0.50,"angle":0.0},
+  {"item":"lamp","x":-3.7,"z":0.60,"angle":0.0},
+  {"item":"rug","x":-2.2,"z":-0.65,"angle":0.0},
+  {"item":"stool","x":-2.8,"z":2.65,"angle":0.0}]

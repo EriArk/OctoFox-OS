@@ -1,12 +1,15 @@
 # Ship Home — development preview
 
-A separate third-person home for the OctoFox character. A panoramic lounge leads
-into a central passage, with a workshop, gallery, cabin and wardrobe on either
-side. Curved hull ribs, ivory panels, brass bands and blue inset lights borrow
-ideas from the Orbit profile background. A helm and pilot chair face the panorama,
-with a procedural star field and ringed planet outside. The helm is a visual
-station; flight controls are not implemented.
+A separate third-person home for the OctoFox character. Rooms fit inside one
+10.6 × 12.4 metre oval pressure hull. A single-seat cockpit sits at the bow,
+a small galley/dinette occupies the middle, and four compact bays share a short
+central passage. The curved ceiling lowers toward the rim; shaped portholes
+replace the initial full-height glazing. Ivory panels, brass and blue light
+retain the Orbit profile background's visual language.
 
+The pilot sits between side consoles under an overhead instrument pod. The
+cockpit is currently scenery with an explanatory interaction; flight controls
+and sitting animations are not implemented.
 This is the **first playable layout**, not the finished art or a public release.
 Walking, a collision-aware camera, per-profile furnishing saves and the shared
 avatar are implemented. The workbench, wardrobe and gallery have physical spaces
@@ -63,6 +66,8 @@ translucent green preview means placement is valid; red means it overlaps a
 solid object or blocks a protected route. Changes save immediately. Undo restores
 the previous arrangement. The menu releases the mouse; losing focus pauses
 movement and caps rendering at 10 fps. Foreground rendering is capped at 60 fps.
+The chase camera retracts against walls. At very short distances, the character
+presentation is hidden until the camera clears it, avoiding an inside-head view.
 
 ## Identity, saves and resources
 
@@ -74,9 +79,13 @@ the character and returns to a separate guest home. A basic guest figure is
 available when the host is absent.
 
 Layouts live under Godot's custom user folder, normally
-`$XDG_DATA_HOME/octofox-ship-home/homes/<profile-hash>.json` (or
-`~/.local/share/octofox-ship-home/homes`). Saves use a bounded schema, temporary
-file and atomic replacement. Invalid files remain untouched/read-only. The Linux
+`$XDG_DATA_HOME/octofox-ship-home/homes/saucer-v2/<profile-hash>.json` (or
+`~/.local/share/octofox-ship-home/homes/saucer-v2`). Saves use a bounded schema, temporary
+file and atomic replacement. Invalid files remain untouched/read-only.
+The compact deck uses a separate `saucer-v2` layout namespace because the original
+coordinates no longer fit. Earlier preview layouts remain unchanged in `homes/`;
+they are not automatically migrated or deleted. Each profile starts a new compact
+arrangement. This is a development-preview boundary, not a production migration. The Linux
 launcher keeps a single-instance lock through `exec`, retaining the process ID
 tracked by Apps. Start failures are logged under
 `$XDG_STATE_HOME/octofox-ship-home/launch-error.txt`, with a desktop dialog when
@@ -97,9 +106,12 @@ SHIP_CAPTURE_DIR=/tmp/ship-tour /path/to/godot --path experiences/ship-home --sc
 ```
 
 `checks.gd` covers replacement/reload, profile isolation, corrupt-save protection,
-placement and undo, protected doors, world/helm collisions, camera retraction and
+placement and undo, all starter furniture footprints, walking through all four
+hatches, curved-hull/seat collisions, camera retraction/close-avatar hiding and
 triangle preservation when batching indexed and unindexed meshes.
-`design_tour.gd` captures seven architecture views with the avatar and HUD hidden.
+`design_tour.gd` captures eight architecture views and a roof cutaway of the
+actual deck, with the avatar and HUD hidden. `tour.gd` retains the gameplay camera
+and character for a separate visual check.
 `live_avatar.gd` is driven by the native `shipConsumesLiveHostAvatar` test against
 an actual PlatformBinding host; set `OCTOFOX_SHIP_TEST_GODOT` and
 `OCTOFOX_SHIP_TEST_PROJECT` when running `trainer_interaction_tests`. It checks
@@ -110,4 +122,6 @@ resolved development character; it is not a production identity override.
 [Initial development evidence and screenshots](../../docs/evidence/2026-11-14-ship-home/README.md).
 No Odin or Flip access was used for this increment.
 
-[Current interior redesign and screenshots](../../docs/evidence/2026-11-14-ship-redesign/README.md).
+[Earlier Orbit interior study and screenshots](../../docs/evidence/2026-11-14-ship-redesign/README.md).
+
+[Current compact saucer layout and screenshots](../../docs/evidence/2026-11-14-ship-compact/README.md).

@@ -32,7 +32,7 @@ func _ready() -> void:
  Engine.max_fps=60
  _inputs();art.build(self);art.batch_static(self)
  furnishings=Node3D.new();add_child(furnishings)
- walker=Walker.new();walker.position=Vector3(0,0.1,-2.7);add_child(walker)
+ walker=Walker.new();walker.position=Vector3(0,0.1,-0.55);add_child(walker)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
  avatar_client.appearance_changed.connect(_appearance)
@@ -172,11 +172,15 @@ func can_place(id:String,pos:Vector3,rotation_y:float,ignored:int=-1) -> bool:
  var area=Rect2(Vector2(pos.x,pos.z)-extent,extent*2)
  var in_room=false
  for room in Art.ROOMS:
-  if room!="Passage" and Art.ROOMS[room].grow(-0.2).encloses(area):in_room=true
+  if room not in ["Passage","Cockpit"] and Art.ROOMS[room].grow(-0.2).encloses(area):in_room=true
  if not in_room:return false
- # Entry routes and both ends of each door remain clear.
- for door in [Vector2(-2,3.5),Vector2(2,3.5),Vector2(-2,10.5),Vector2(2,10.5),Vector2(0,0)]:
-  if area.intersects(Rect2(door-Vector2(1.4,1.4),Vector2(2.8,2.8))):return false
+ # The rectangular room tags are clipped to the real curved pressure hull.
+ for corner in [area.position,area.end,Vector2(area.position.x,area.end.y),Vector2(area.end.x,area.position.y)]:
+  if not Art.inside_hull(corner,0.45):return false
+ # Keep the spine and both ends of the compact hatches clear.
+ if area.intersects(Rect2(-0.72,-2.1,1.44,8.7)):return false
+ for door in Art.DOORS:
+  if area.intersects(Rect2(door-Vector2(0.72,0.83),Vector2(1.44,1.66))):return false
  if id=="rug":return true
  if area.grow(0.3).has_point(Vector2(walker.position.x,walker.position.z)):return false
  var query=PhysicsShapeQueryParameters3D.new();var shape=BoxShape3D.new();shape.size=Vector3(f.x-0.04,1.8,f.y-0.04)
@@ -226,11 +230,11 @@ func _undo() -> void:
 
 func _interact() -> void:
  var p=Vector2(walker.position.x,walker.position.z)
- if p.distance_to(Vector2(0,-7.65))<2.7:notify("Navigation console · flight controls coming later.")
- elif p.distance_to(Vector2(-5.5,1))<2.2:notify("Workbench · crafting recipes will be connected here.")
- elif p.distance_to(Vector2(5.5,13))<2.6:notify("Wardrobe · your saved OctoFox appearance is shared with this home.")
+ if p.distance_to(Vector2(0,-3.2))<1.4:notify("Navigation console · flight controls coming later.")
+ elif p.distance_to(Vector2(-2.85,1.5))<1.5:notify("Workbench · crafting recipes will be connected here.")
+ elif p.distance_to(Vector2(3.05,4.9))<1.8:notify("Wardrobe · your saved OctoFox appearance is shared with this home.")
  elif Art.ROOMS.Gallery.has_point(p):notify("Your gallery · reserved for cards and trophies you actually own.")
- elif p.distance_to(Vector2(-6.8,11.3))<2.5:notify("Your cabin · make room for your favourite things.")
+ elif p.distance_to(Vector2(-2.7,4.5))<1.5:notify("Your cabin · make room for your favourite things.")
  else:notify("X / Tab opens your furniture collection.")
 
 func _quit() -> void:
