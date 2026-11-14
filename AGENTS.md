@@ -1,5 +1,12 @@
 # TrainerOS — active agent / developer contract
 
+**Bazaar polish/camera, 14 November:** local Crates prototype 0.0.3 adds a closer
+third-person camera, horizontal-reference FOV 75–105° (90° default at 16:9),
+wall collision, shorter indoor boom, distinct shop dressing and local fountain
+sound preferences. See [scope/evidence](docs/BAZAAR.md). Keep hardware performance,
+real controls and audio listening unverified until tested. Separate branches;
+no catalogue launch, network/trading enablement, merge or handheld installation.
+
 **Bazaar island correction, 14 November (latest):** the festival stalls belong
 in a park, without a ring of houses. Houses, signed shops and enterable rooms
 belong to a separate town square on the same large island, with connecting paths

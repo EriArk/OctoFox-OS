@@ -1,5 +1,9 @@
 # Карта готовности функций TrainerOS
 
+Bazaar update, 14 November: the separate local world is at 0.0.3 with camera/FOV,
+world and interior polish. This does not change catalogue, network, commerce or
+handheld acceptance. See [current scope](BAZAAR.md).
+
 **10 ноября — Chats, коррекция структуры.** Левая панель вместо верхних вкладок:
 Search / Messages / Groups / Communities / Friends. Личные/групповые переписки
 разделены; контакты и заявки доступны через Friends. Серверные проверки и
