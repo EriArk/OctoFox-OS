@@ -9,6 +9,25 @@
 #include <algorithm>
 
 namespace trainer {
+namespace {
+const QStringList legacyCrateIds{"whats-new","workshop","adventure","arcade","strategy","tools"};
+// Signed older catalogues retain their project/package identities. Only their
+// presentation groups are adapted to the current app-owned navigation.
+void regroupLegacyCatalogue(CratesCatalogue& catalogue,const QStringList& gamingTools) {
+    QStringList order;
+    const auto append=[&](const QStringList& ids){for(const auto& id:ids)if(!order.contains(id))order<<id;};
+    append(catalogue.contents.value("whats-new"));append(catalogue.contents.value("workshop"));
+    QStringList remaining=catalogue.projects.keys();remaining.sort();append(remaining);
+    const auto fresh=catalogue.contents.value("whats-new"),workshop=catalogue.contents.value("workshop");
+    catalogue.contents.clear();catalogue.contents["whats-new"]=fresh;catalogue.contents["workshop"]=workshop;
+    for(const auto& id:order) {
+        const auto kind=catalogue.projects.value(id).value("kind").toString();
+        const auto group=kind=="game"?"games":kind=="app"?"apps":"addons";
+        catalogue.contents[group]<<id;
+        if(gamingTools.contains(id)&&kind!="game")catalogue.contents["game-tools"]<<id;
+    }
+}
+}
 CratesController::CratesController(QObject* parent):QObject(parent) {
     connect(&installer_,&CratesInstaller::changed,this,[this]{emit projectChanged();emit changed();});
     QFile data(":/crates/showcase.json");
@@ -82,10 +101,15 @@ bool CratesController::applyCatalogue(const QJsonObject& response){
     const auto nextCrates=response["crates"].toArray().toVariantList();
     if(nextCrates.size()!=6)return false;
     QStringList ids;for(const auto& c:nextCrates)ids<<c.toMap()["id"].toString();
+    QStringList currentIds;for(const auto& c:crates_)currentIds<<c.toMap()["id"].toString();
+    const bool legacy=ids==legacyCrateIds;
+    if(!legacy&&ids!=currentIds)return false;
     CratesCatalogue next;
     if(!CratesCatalogue::read(QJsonDocument(response["catalogue"].toObject()).toJson(),ids,next,catalogueCache_+"/assets"))return false;
+    if(legacy)regroupLegacyCatalogue(next,catalogue_.contents.value("game-tools"));
     const auto crateId=current()["id"].toString(),projectId=project()["id"].toString();
-    crates_=nextCrates;focus_=std::max(0,int(ids.indexOf(crateId)));catalogue_=std::move(next);
+    // The server supplies projects and packages, not replacement navigation labels.
+    focus_=std::max(0,int(currentIds.indexOf(crateId)));catalogue_=std::move(next);
     if(detailOpen_&&!catalogue_.contents.value(crateId).contains(projectId))closeDetail();
     screenshotIndex_=0;
     installer_.useCatalogue(response["packages"].toArray().toVariantList(),catalogueCache_+"/current.json");
@@ -107,7 +131,10 @@ void CratesController::open(int index,bool reducedMotion) {
 bool CratesController::loadCatalogue(const QByteArray& data) {
     QStringList ids;for(const auto& crate:crates_)ids<<crate.toMap()["id"].toString();
     CratesCatalogue next;
-    if(!CratesCatalogue::read(data,ids,next))return false;
+    if(!CratesCatalogue::read(data,ids,next)) {
+        if(!CratesCatalogue::read(data,legacyCrateIds,next))return false;
+        regroupLegacyCatalogue(next,catalogue_.contents.value("game-tools"));
+    }
     catalogue_=std::move(next);closeDetail();emit catalogueChanged();emit projectChanged();emit changed();return true;
 }
 int CratesController::projectCount() const {return catalogue_.contents.value(current()["id"].toString()).size();}

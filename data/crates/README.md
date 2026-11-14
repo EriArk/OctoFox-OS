@@ -1,5 +1,18 @@
 # Reviewed Crates presentation data
 
+Current navigation (owner correction, 14 November 2026): **What's New, Workshop,
+Games, Apps, Games Tools, Addons/Extensions**. IDs are `whats-new`, `workshop`,
+`games`, `apps`, `game-tools`, `addons`. Games contains games; Apps contains apps;
+Games Tools is a curated subset (currently Session Timer); Addons/Extensions
+contains modules (currently empty). A project may appear in more than one list.
+
+The app owns these navigation labels/order. Authenticated legacy feeds with
+`adventure`, `arcade`, `strategy`, `tools` remain readable: the controller keeps
+What's New/Workshop membership, groups projects by their existing kind and uses
+the current curated Games Tools membership. Package IDs, signatures, trust,
+installation records and downloaded content are unchanged. Canonical new feeds
+keep their explicitly curated membership. Unknown category sets are rejected.
+
 `showcase.json` defines the manually ordered containers. `catalogue.json` defines
 projects separately and maps each crate ID to an explicitly ordered array of
 project IDs. A project can belong to several crates without duplicate identities.

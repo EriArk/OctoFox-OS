@@ -1,5 +1,11 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner Crates categories, 14 November 2026 (latest):** the six categories must
+be **What's New, Workshop, Games, Apps, Games Tools, Addons/Extensions**, in that
+order. Update emblems and actual contents, keeping the larger 3×2 overview and
+clearance above Quick Apps. Older signed/cached catalogues must not restore old
+labels. Preserve project/package identities, installer trust and personal data.
+
 **Owner Crates correction, 14 November 2026:** the installed sequence 39
 composition was rejected as uneven/ugly and too small. Replace the 2+4 layout
 with a balanced 3×2 overview, larger tightly framed chests and titles underneath;

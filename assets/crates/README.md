@@ -22,3 +22,10 @@ no longer bundled or displayed. The obsolete `CrateIllustration.qml` is likewise
 excluded from the QML module. Existing example project artwork and licences are
 separate: [examples/README.md](examples/README.md). `gamepad.svg` remains original
 GPL-3.0-or-later vector artwork.
+
+Current category emblems: spark, wrench, controller, application tiles, gear and
+puzzle piece. Historical resource filenames remain stable: `new`, `workshop`,
+`adventure`, `arcade`, `strategy`, `tools` map to art indices 0–5; the last four
+now represent Games, Apps, Games Tools and Addons/Extensions respectively.
+For a partial offline re-render, append keys after Blender's `--`, then pass
+the same keys to `pack-crates.py`. With no keys both scripts process all six.

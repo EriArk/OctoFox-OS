@@ -283,31 +283,30 @@
       "session-timer",
       "pocket-artillery"
     ],
-    "adventure": [],
-    "arcade": [
+    "games": [
       "pocket-golf",
-      "tanks",
-      "mini-racing",
       "falling-blocks",
+      "minesweeper-race",
+      "chain-reaction",
+      "mini-racing",
+      "tanks",
       "pong",
       "snake-arena",
       "light-cycles",
       "pocket-artillery",
+      "2048",
       "hextris",
       "breakout"
     ],
-    "strategy": [
-      "chain-reaction",
-      "minesweeper-race",
-      "pocket-artillery",
-      "2048",
-      "hextris"
-    ],
-    "tools": [
+    "apps": [
       "home-companion",
       "session-timer",
       "featherpad",
       "qalculate"
-    ]
+    ],
+    "game-tools": [
+      "session-timer"
+    ],
+    "addons": []
   }
 }

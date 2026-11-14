@@ -25,7 +25,7 @@ inline QByteArray cratesCatalogueFixture() {
     }
     const QJsonObject contents{
         {"workshop",ids}, {"whats-new",QJsonArray{"preview-0","preview-5"}},
-        {"adventure",QJsonArray{"preview-0","preview-3"}}, {"tools",QJsonArray{"preview-5"}}
+        {"games",QJsonArray{"preview-0","preview-3"}}, {"addons",QJsonArray{"preview-5"}}
     };
     return QJsonDocument(QJsonObject{{"schema",1},{"projects",projects},{"contents",contents}}).toJson();
 }

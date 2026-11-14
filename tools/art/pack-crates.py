@@ -2,9 +2,10 @@
 GPL-3.0-or-later. Run after render-crates.py.
 """
 from pathlib import Path
+import sys
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[2]/'assets/crates/low-poly'
-for key in ('new','workshop','adventure','arcade','strategy','tools'):
+for key in (sys.argv[1:] or ('new','workshop','adventure','arcade','strategy','tools')):
  frames=[Image.open(ROOT/f'{key}-{i}.png').convert('RGBA') for i in range(6)]
  assert all(f.size==(512,448) for f in frames)
  packed=[]

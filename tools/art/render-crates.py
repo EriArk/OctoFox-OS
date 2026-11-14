@@ -4,18 +4,18 @@ Run: blender -b -t 4 --python tools/art/render-crates.py
 Kenney source geometry retains CC0; see models/kenney/LICENSE.txt.
 """
 from pathlib import Path
-import bpy, math, json
+import bpy, math, json, sys
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[2]/"assets/crates"
 OUT=ROOT/"low-poly"
 OUT.mkdir(exist_ok=True)
 PALETTES={
  'new': ('#798d64','#e6bc65','#fff0ba','spark'),
- 'strategy': ('#708aab','#e6cf9b','#f8e6b4','tower'),
- 'tools': ('#557f87','#a8babc','#ffe0a0','gear'),
- 'adventure': ('#487d73','#e4bc70','#eae1bd','mountain'),
+ 'strategy': ('#708aab','#e6cf9b','#f8e6b4','gear'),
+ 'tools': ('#557f87','#a8babc','#ffe0a0','puzzle'),
+ 'adventure': ('#487d73','#e4bc70','#eae1bd','gamepad'),
  'workshop': ('#638fa4','#d8d9c9','#eaba78','wrench'),
- 'arcade': ('#bd7463','#7b789d','#ffe2a0','bolt'),
+ 'arcade': ('#bd7463','#7b789d','#ffe2a0','apps'),
 }
 def mat(name,colour,metal=0):
  c=[int(colour[i:i+2],16)/255 for i in (1,3,5)]
@@ -34,8 +34,10 @@ def icon_mesh(points,material):
  return o
 
 def aim(o,target):o.rotation_euler=(Vector(target)-o.location).to_track_quat('-Z','Y').to_euler()
-stats={}
+selected=sys.argv[sys.argv.index("--")+1:] if "--" in sys.argv else []
+stats=json.loads((OUT/"model-stats.json").read_text()) if (OUT/"model-stats.json").exists() else {}
 for key,(body_c,band_c,emblem_c,symbol) in PALETTES.items():
+ if selected and key not in selected:continue
  bpy.ops.wm.read_factory_settings(use_empty=True)
  bpy.ops.import_scene.gltf(filepath=str(ROOT/'models/kenney/chest.glb'))
  body=mat('paint',body_c);band=mat('edge bands',band_c,.15);inside=mat('interior','#253f43');accent=mat('emblem',emblem_c)
@@ -55,13 +57,18 @@ for key,(body_c,band_c,emblem_c,symbol) in PALETTES.items():
  bpy.context.scene.frame_set(1)
  bpy.ops.mesh.primitive_cylinder_add(vertices=12,radius=.219,depth=.035,location=(0,-.665,.28),rotation=(math.pi/2,0,0))
  plate=bpy.context.object;plate.name='category badge';plate.data.materials.append(inside)
- if symbol=='mountain':points=[(-.16,-.09),(-.045,.12),(.01,.02),(.07,.095),(.16,-.09)]
+ if symbol=='gamepad':points=[(-.17,-.10),(-.19,-.05),(-.13,.10),(-.06,.11),(-.035,.075),(.035,.075),(.06,.11),(.13,.10),(.19,-.05),(.17,-.10),(.12,-.10),(.065,-.035),(-.065,-.035),(-.12,-.10)]
+ elif symbol=='apps':points=[(-.14,-.14),(-.02,-.14),(-.02,-.02),(-.14,-.02)]
+ elif symbol=='puzzle':points=[(-.14,-.14),(.14,-.14),(.14,-.045),(.19,-.065),(.22,-.035),(.22,.02),(.19,.05),(.14,.03),(.14,.14),(.035,.14),(.055,.19),(.025,.22),(-.03,.22),(-.06,.19),(-.04,.14),(-.14,.14),(-.14,.04),(-.10,.06),(-.075,.035),(-.075,-.025),(-.10,-.05),(-.14,-.03)]
+ elif symbol=='mountain':points=[(-.16,-.09),(-.045,.12),(.01,.02),(.07,.095),(.16,-.09)]
  elif symbol=='bolt':points=[(.015,.16),(-.13,-.025),(-.025,-.025),(-.055,-.15),(.13,.055),(.02,.055)]
  elif symbol=='spark':points=[(0,.18),(.045,.055),(.16,0),(.045,-.05),(0,-.16),(-.045,-.05),(-.16,0),(-.045,.055)]
  elif symbol=='tower':points=[(-.13,-.14),(.13,-.14),(.10,-.07),(.09,.08),(.13,.08),(.13,.16),(.065,.16),(.065,.11),(.025,.11),(.025,.16),(-.025,.16),(-.025,.11),(-.065,.11),(-.065,.16),(-.13,.16),(-.13,.08),(-.09,.08),(-.10,-.07)]
  elif symbol=='gear':points=[((.17 if i%4 in (0,1) else .12)*math.cos(i*math.pi/12),(.17 if i%4 in (0,1) else .12)*math.sin(i*math.pi/12)) for i in range(24)]
  else:points=[(-.14,-.10),(-.10,-.14),(.055,.015),(.12,.015),(.16,.06),(.16,.125),(.10,.07),(.065,.105),(.12,.16),(.05,.16),(.015,.12),(.015,.055)]
  icon_mesh(points,accent)
+ if symbol=='apps':
+  for dx,dz in ((.16,0),(0,.16),(.16,.16)):icon_mesh([(x+dx,z+dz) for x,z in points],accent)
  scene=bpy.context.scene;scene.frame_start=1;scene.frame_end=25
  scene.render.engine='CYCLES';scene.cycles.samples=32;scene.cycles.use_denoising=True
  scene.render.resolution_x=512;scene.render.resolution_y=448;scene.render.resolution_percentage=100

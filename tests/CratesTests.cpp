@@ -271,6 +271,44 @@ private slots:
         QVERIFY(!jobs.state("fixture")["canInstall"].toBool());
         QVERIFY(jobs.state("fixture")["packageReleases"].toList().isEmpty());
     }
+    void legacyRemoteCatalogueKeepsCurrentCategories() {
+#ifndef Q_OS_LINUX
+        QSKIP("Host catalogue worker runs on Linux");
+#else
+        CratesController c;
+        const QStringList expected{"whats-new","workshop","games","apps","game-tools","addons"};
+        QStringList ids;for(const auto& v:c.crates())ids<<v.toMap()["id"].toString();QCOMPARE(ids,expected);
+        const QStringList legacy{"whats-new","workshop","adventure","arcade","strategy","tools"};
+        auto oldCrates=QJsonArray::fromVariantList(c.crates());
+        for(int i=0;i<oldCrates.size();++i){auto v=oldCrates[i].toObject();v["id"]=legacy[i];v["title"]="Old title";oldCrates[i]=v;}
+        QFile source(":/crates/catalogue.json");QVERIFY(source.open(QIODevice::ReadOnly));
+        auto catalogue=QJsonDocument::fromJson(source.readAll()).object();const auto original=catalogue["contents"].toObject();
+        auto projects=catalogue["projects"].toArray();
+        projects<<QJsonObject{{"id","module-fixture"},{"title","Test extension"},{"kind","module"},{"creator","Test data"}};
+        catalogue["projects"]=projects;
+        catalogue["contents"]=QJsonObject{{"whats-new",original["whats-new"]},{"workshop",original["workshop"]},
+            {"adventure",QJsonArray{}},{"arcade",original["games"]},{"strategy",original["games"]},{"tools",original["apps"]}};
+        // Legacy regrouping must also work for local/cached presentation input.
+        QVERIFY(c.loadCatalogue(QJsonDocument(catalogue).toJson()));
+        c.open(2,true);QCOMPARE(c.projectCount(),original["games"].toArray().size());
+        for(const auto& p:c.projects())QCOMPARE(p.toMap()["kind"].toString(),QString("game"));
+        c.back();c.open(3,true);QCOMPARE(c.projectCount(),original["apps"].toArray().size());
+        for(const auto& p:c.projects())QCOMPARE(p.toMap()["kind"].toString(),QString("app"));
+        c.back();c.open(4,true);QCOMPARE(c.projectCount(),1);QCOMPARE(c.project()["id"].toString(),QString("session-timer"));
+        c.back();c.open(5,true);QCOMPARE(c.projectCount(),1);QCOMPARE(c.project()["id"].toString(),QString("module-fixture"));c.back();c.select(4);
+        QTemporaryDir temp;QVERIFY(temp.isValid());
+        const QJsonObject response{{"catalogue",catalogue},{"crates",oldCrates},{"packages",QJsonArray{}},{"result","snapshot"},{"revision",1}};
+        QFile payload(temp.path()+"/response.json");QVERIFY(payload.open(QIODevice::WriteOnly));payload.write(QJsonDocument(response).toJson());payload.close();
+        QFile worker(temp.path()+"/worker.py");QVERIFY(worker.open(QIODevice::WriteOnly));
+        worker.write("import sys,pathlib\nprint((pathlib.Path(sys.argv[2])/'response.json').read_text())\n");worker.close();
+        c.configureCatalogue(worker.fileName(),temp.path());c.leave();c.enter();
+        QTRY_VERIFY(c.syncStatus().isEmpty());
+        ids.clear();for(const auto& v:c.crates())ids<<v.toMap()["id"].toString();QCOMPARE(ids,expected);
+        QCOMPARE(c.crates()[4].toMap()["title"].toString(),QString("Games Tools"));
+        QCOMPARE(c.focusIndex(),4);c.open(4,true);QCOMPARE(c.project()["id"].toString(),QString("session-timer"));
+        QVERIFY(c.installer()->tasks().isEmpty());
+#endif
+    }
     void catalogueOnlySyncsOnExplicitEntry() {
 #ifndef Q_OS_LINUX
         QSKIP("Host catalogue worker runs on Linux");
