@@ -1,5 +1,15 @@
 # TrainerOS — active agent / developer contract
 
+**Profile inventory continuation, 14 November (latest):** read-only game-neutral
+loot storage/API and the native profile reader are prepared on the Bazaar branch.
+Keep inventory ownership scoped to the authenticated Backend player; late callbacks
+must not cross local profile/account/closed-page boundaries. Loading, errors,
+confirmed empty and older-server unavailability are distinct. Paging is revision
+checked; filters apply to loaded rows. Runtime has SELECT-only loot access, no
+issuance/transfer/listing routes. Save handoff/recovery remains next work. No public
+backend deployment, merge or handheld installation in this increment. See
+[contract](services/backend/inventory.md) and [evidence](docs/evidence/2026-11-14-inventory-server/README.md).
+
 **Owner adapter home / generic inventory, 14 November (latest):** adapter entry
 opens a dedicated home with large newly generated sticker illustrations and clear
 labels. Selecting a sticker opens a full workspace; L2/R2 cycle actual screens,

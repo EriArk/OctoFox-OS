@@ -48,6 +48,8 @@ Item {
         "folder": "M2 6 H10 L13 9 H22 V21 H2 Z",
         "arrow-up": "M12 21 V3 M5 10 L12 3 L19 10",
         "arrow-down": "M12 3 V21 M5 14 L12 21 L19 14",
+        "shield": "M12 2 L21 6 V12 Q21 19 12 23 Q3 19 3 12 V6 Z",
+        "star": "M12 2 L15 9 L23 10 L17 15 L19 23 L12 19 L5 23 L7 15 L1 10 L9 9 Z",
         "shop": "M3 9 L5 3 H19 L21 9 V12 H3 Z M5 12 V21 H19 V12 M10 21 V15 H15 V21",
         "profile": "M3 4 H21 V20 H3 Z M8 8 A2 2 0 1 0 8 12 A2 2 0 1 0 8 8 M5 17 Q8 12 11 17 M15 8 H18 M15 12 H18 M15 16 H18",
         "journey": "M3 5 L9 3 L15 6 L21 3 V19 L15 22 L9 19 L3 21 Z M9 3 V19 M15 6 V22",

@@ -31,28 +31,39 @@ navigation moves through six columns; right-stick scroll reads the inspector.
 Back returns straight to the profile Inventory entry. X/Y and Start retain their
 system roles and the selected item. Touch/mouse controls use the same presenter.
 
-Production opens an explicit **In development** empty state. It does not claim
-that a server returned an empty collection. No local Party/Box individual is
-shown as profile-owned; no samples are inserted into real profiles. Transfers,
-return to game and trading are unavailable. Profile/Backend identity changes
-clear the presentation, search and filters. There is no persistent loot cache or
-new HTTP API in this increment.
+The source now reads the private server inventory through the existing TrainerOS
+account owner. It distinguishes sign-in required, loading, confirmed empty,
+connection failure and older-server unavailability. Refresh is in the toolbar;
+the loaded/total counter loads another page when available. Select / Up opens
+the toolbar and Left/Right reaches these controls on a controller. Search, filters
+and sort apply to loaded rows; the status line states when more remain.
 
-The native presenter accepts no QML mutations of possessions. Isolated UI/test
-fixtures supply sample records and label them **SAMPLE ITEMS** with a sample count. Creature images reuse the adapter's original Cuboid image provider;
-no new franchise artwork or item/game semantics are embedded into the shell.
-The generic item view consumes metadata; it does not implement an Emerald writer.
+No local Party/Box individual is shown as profile-owned. Transfer, return and
+trading controls remain disabled. There is no item-creation API or persistent
+loot cache. Scope/connection changes clear data and invalidate in-flight requests;
+identity changes also clear search/filters. Same-owner query/filter/sort persist
+through refresh. Responses after closing the inventory are ignored.
+
+The native presenter accepts no QML mutations of possessions. Isolated fixtures
+supply sample records; none are inserted into real profiles. Server presentation
+uses bounded text, facts and allowlisted local glyphs; arbitrary URLs/save payloads
+never reach QML. Existing Cuboid art remains only in the older isolated creature
+layout fixture. The new wire fixtures use unrelated equipment and vehicle kinds.
+
+The private API and schema are prepared and tested, **not deployed publicly** in
+this increment. The old server therefore yields an explicit unavailable state.
+[Server contract](../services/backend/inventory.md).
 
 ## Common item boundary
 
 The profile inventory and future server custody belong to the platform, not to
-Pokemon. The shared contract will identify each owned item, owner, source game,
+Pokemon. The shared read contract identifies each recorded item, owner, source game,
 adapter/schema version, presentation metadata and allowed actions. Game-specific
-payload stays namespaced and opaque to the host. An adapter validates eligibility,
-serializes its own entity and performs protected save removal/restoration through
+payload stays namespaced and opaque to the host. The transfer adapter will validate eligibility,
+serialize its own entity and perform protected save removal/restoration through
 the existing owner. Another game can describe equipment or other collectibles
-without adopting Pokemon fields. The current generic UI already consumes artwork,
-facts and actions; the server/transfer contract is still pending implementation.
+without adopting Pokemon fields. The current generic UI consumes facts and
+presentation. Private storage/read projection exists; custody issuance and transfer recovery remain unimplemented.
 
 ## Next complete path
 
@@ -64,14 +75,15 @@ facts and actions; the server/transfer contract is still pending implementation.
 4. Add fixed-price Bazaar listings. Listed items cannot return to a game until
    withdrawn; listing/custody/payment share authoritative Backend ownership.
 
-Server inventory, save transfer, offline recovery and listing ownership need their
-own implementation/acceptance. A successful local save edit and a server ledger
-commit are separate operations; do not claim a single distributed atomic write.
+Read-only server inventory is prepared. Save transfer, offline recovery and
+listing ownership still need their own implementation/acceptance. A successful
+local save edit and a server ledger commit are separate operations; do not claim a single distributed atomic write.
 Restoring external copies of offline saves remains a separate duplication/trust
 limitation. No new paid features are enabled by this UI.
 
 See [Bazaar](BAZAAR.md), [adapter knowledge](adapters/README.md),
-[Emerald evidence](adapters/emerald-en.md), and
-[current UI evidence](evidence/2026-11-14-inventory-density/README.md).
+[Emerald evidence](adapters/emerald-en.md),
+[current server/UI evidence](evidence/2026-11-14-inventory-server/README.md), and
+[the dense layout evidence](evidence/2026-11-14-inventory-density/README.md).
 The [13 November evidence](evidence/2026-11-13-profile-inventory/README.md) records
 the superseded initial layout, not the current interaction contract.

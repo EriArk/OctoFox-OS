@@ -9,6 +9,10 @@ Item {
     readonly property var view: inventory.view
     readonly property var selected: view.selected || ({})
     readonly property color accent: Theme.dark ? "#a6e0c9" : "#356f60"
+    readonly property string statusText: view.preview ? "SAMPLE ITEMS" : view.busy ? "Loading inventory…" : view.message ||
+        (view.state === "signed_out" ? "Connect your TrainerOS account to view your items." :
+         view.state === "offline" ? "Reconnect your TrainerOS account to load your inventory." :
+         view.state === "ready" ? (view.hasMore ? "Search and filters apply to loaded items. Load more to see the rest." : "Inventory up to date.") : "Inventory is being prepared.")
     enabled: shell.profileContentActive
 
     component Tool: Rectangle {
@@ -17,6 +21,7 @@ Item {
         height: 29; radius: 5
         color: root.view.control === action ? Theme.selection : Theme.surface
         border.color: root.view.control === action ? Theme.focus : Theme.divider
+        opacity: enabled ? 1 : .45
         Text { x: 9; width: parent.width - 18; anchors.verticalCenter: parent.verticalCenter; text: parent.label; textFormat: Text.PlainText; elide: Text.ElideRight; color: Theme.ink; font.pixelSize: 12 }
         MouseArea { anchors.fill: parent; onClicked: root.inventory.control(parent.action) }
         Accessible.role: Accessible.Button; Accessible.name: label
@@ -24,15 +29,16 @@ Item {
     }
     Row {
         id: toolbar; width: parent.width; height: 30; spacing: 7
-        Text { width: 105; height: 29; verticalAlignment: Text.AlignVCenter; text: "Inventory"; font.family: Theme.displayFamily; font.pixelSize: 22; color: Theme.ink }
-        Tool { objectName: "inventory-search"; width: Math.max(120, root.width - 435); action: 0; label: root.view.search || "Search…  R3" }
-        Tool { objectName: "inventory-filter"; width: 82; action: 1; label: root.view.filter + " ↻" }
-        Tool { objectName: "inventory-sort"; width: 88; action: 2; label: root.view.sort + " ↻" }
-        Text { width: 132; height: 29; verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignRight; text: root.view.preview ? root.view.items.length + " / " + root.view.total + " sample items" : "In development"; font.pixelSize: 11; color: root.accent }
+        Text { width: 90; height: 29; verticalAlignment: Text.AlignVCenter; text: "Inventory"; font.family: Theme.displayFamily; font.pixelSize: 21; color: Theme.ink }
+        Tool { objectName: "inventory-search"; width: Math.max(100, root.width - 421); action: 0; label: root.view.search || "Search…  R3" }
+        Tool { objectName: "inventory-filter"; width: 76; action: 1; label: root.view.filter + " ↻" }
+        Tool { objectName: "inventory-sort"; width: 82; action: 2; label: root.view.sort + " ↻" }
+        Tool { objectName: "inventory-more"; width: 100; action: 3; label: root.view.loaded + " / " + root.view.total + (root.view.hasMore ? " ↓" : ""); enabled: root.view.hasMore && !root.view.busy; Accessible.name: "Load more items" }
+        Tool { objectName: "inventory-refresh"; width: 38; action: 4; label: "↻"; enabled: root.view.connected && !root.view.busy && !root.view.preview; Accessible.name: "Refresh inventory" }
     }
     GridView {
         id: grid; objectName: "inventory-grid"
-        y: 40; width: Math.floor(root.width * .61); height: root.height - y - 24; clip: true
+        y: 40; width: Math.floor(root.width * .61); height: root.height - y - 42; clip: true
         model: Math.max(30, root.view.items.length)
         cellWidth: (width - 9) / 6; cellHeight: height / 5
         currentIndex: root.view.index
@@ -60,6 +66,7 @@ Item {
             color: chosen ? Theme.selection : Theme.surface
             border.width: chosen ? 2 : 1; border.color: chosen ? Theme.focus : Theme.divider
             Image { anchors.centerIn: parent; width: Math.min(parent.width - 8, parent.height - 4); height: width; source: slot.record.image || ""; fillMode: Image.PreserveAspectFit }
+            MenuGlyph { anchors.centerIn: parent; width: Math.min(parent.width - 18, parent.height - 16); height: width; visible: slot.occupied && !slot.record.image; glyph: slot.record.icon === "inventory" ? "boxes" : slot.record.icon === "gamepad" ? "game-controller" : slot.record.icon === "map" ? "journey" : slot.record.icon || "boxes"; ink: root.accent }
             Text { anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 4; text: slot.record.subtitle || ""; textFormat: Text.PlainText; font.pixelSize: 10; color: Theme.ink; style: Text.Outline; styleColor: slot.color }
             Rectangle {
                 visible: slot.record.state === "listed"; x: 4; y: 4; width: 16; height: 16; radius: 4; color: Theme.yellow
@@ -81,8 +88,8 @@ Item {
         Column {
             id: empty; objectName: "inventory-empty"; visible: !root.selected.id
             width: parent.width - 8; spacing: 12
-            Text { width: parent.width; text: root.view.total ? "No matches" : "Inventory is being prepared"; wrapMode: Text.WordWrap; font.family: Theme.displayFamily; font.pixelSize: 22; color: Theme.ink }
-            Text { width: parent.width; text: root.view.total ? "Try another name or change the filter." : "Collectibles from supported games will appear here. You won't need your own bazaar."; wrapMode: Text.WordWrap; font.pixelSize: 13; color: Theme.muted }
+            Text { width: parent.width; text: root.view.loaded ? "No matches" : root.view.busy ? "Loading inventory" : root.view.state === "ready" ? "Your inventory is empty" : root.view.state === "signed_out" ? "Your profile inventory" : "Inventory unavailable"; wrapMode: Text.WordWrap; font.family: Theme.displayFamily; font.pixelSize: 22; color: Theme.ink }
+            Text { width: parent.width; text: root.view.loaded ? "Try another name, change the filter or load more items." : root.view.state === "ready" ? "Collectibles from supported games will appear here. You won't need your own bazaar." : root.statusText; textFormat: Text.PlainText; wrapMode: Text.WordWrap; font.pixelSize: 13; color: Theme.muted }
             Text { width: parent.width; visible: !root.view.total; text: "Transfers and trading are not available yet. Nothing has been moved from your saves."; wrapMode: Text.WordWrap; font.pixelSize: 12; color: root.accent }
             CapButton { objectName: "inventory-clear-search"; visible: !!root.view.search; width: 150; height: 30; label: "Clear search"; textSize: 12; onActivated: root.inventory.clearSearch() }
         }
@@ -133,6 +140,10 @@ Item {
                 }
             }
         }
+    }
+    Text {
+        anchors.bottom: parent.bottom; anchors.bottomMargin: 18; width: parent.width; font.pixelSize: 11; color: root.accent; elide: Text.ElideRight
+        text: root.statusText; textFormat: Text.PlainText
     }
     Text {
         anchors.bottom: parent.bottom; width: parent.width; font.pixelSize: 10; color: Theme.muted; elide: Text.ElideRight

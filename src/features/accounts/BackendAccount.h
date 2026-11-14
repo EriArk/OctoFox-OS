@@ -59,6 +59,9 @@ public:
     void viewProfile(QString player,QString subject,QString before,Reply done);
     void profileSharing(QJsonObject update,Reply done);
     void publishProfileFavorites(QJsonArray games,QString revision,Reply done);
+    // Private read-only collectible projection; no caller-chosen URL or owner.
+    void readInventory(QString before,QString revision,Reply done);
+    bool inventoryConnected() const { return state_=="connected" && !player_.isEmpty(); }
     QVariantMap progression() const;
     QString rewardStatus() const { return rewardStatus_; }
     QString rewardActionLabel() const;

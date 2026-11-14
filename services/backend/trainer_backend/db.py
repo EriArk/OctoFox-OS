@@ -71,6 +71,7 @@ def grant_runtime(database_url, role):
         'players': 'SELECT,UPDATE', 'external_identities': 'SELECT',
         'public_profiles': 'SELECT,INSERT,UPDATE',
         'profile_sharing': 'SELECT,INSERT,UPDATE',
+        'loot_items': 'SELECT', 'loot_revisions': 'SELECT',
         'progression_accounts': 'SELECT,INSERT,UPDATE',
         'reward_links': 'SELECT,INSERT', 'reward_link_challenges': 'SELECT,INSERT,UPDATE',
         'reward_ledger': 'SELECT,INSERT',

@@ -16,6 +16,7 @@ from .accounts.service import Accounts
 from .accounts.routes import router
 from .accounts.showcase_routes import router as showcase_router
 from .accounts.limits import AuthLimits
+from .inventory import router as inventory_router
 from .economy.service import Progression
 from .economy.shop import Shop
 from .economy.shop_routes import router as shop_router
@@ -53,6 +54,7 @@ def create_app(settings=None, *, provider=None, reward_provider=None, support_pr
     app.add_middleware(AuthLimits)
     app.include_router(router)
     app.include_router(showcase_router)
+    app.include_router(inventory_router)
     app.include_router(play_router)
     app.include_router(progression_router)
     app.include_router(shop_router)
@@ -116,7 +118,7 @@ def create_app(settings=None, *, provider=None, reward_provider=None, support_pr
             if module['name'] in ('rewards','wallet') and settings.oauth: module['state']='ra_earning_preview'
         return {'version': __version__, 'capabilities': {'accounts.fluxer_login':1,'accounts.sessions':1,'accounts.native_return':1,
                 'play.scorecards':1,'boards.peer_confirmed':1,'account.progression':1,'inventory.profile_purchases':1,'bazaar.catalogue':1,'bazaar.management':1,'bazaar.rentals':0,'bazaar.stall_purchases':0,'bazaar.payments':0,'bazaar.previews':1,
-                'support.balance_preview':1,'profiles.showcase':1,'profiles.sharing':1} if settings.oauth else {},
+                'support.balance_preview':1,'profiles.showcase':1,'profiles.sharing':1,'inventory.loot_read':1,'inventory.loot_transfer':0} if settings.oauth else {},
                 'modules': modules}
 
     # Draft OpenAPI operations are NOT mounted as success-returning placeholders.

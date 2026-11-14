@@ -221,6 +221,17 @@ void BackendAccount::profileSharing(QJsonObject update,Reply done) {
     if(state_!="connected"||player_.isEmpty()){done(401,{});return;}
     request(update.isEmpty()?"GET":"PUT","/v1/me/profile/sharing",update,std::move(done),access_);
 }
+void BackendAccount::readInventory(QString before,QString revision,Reply done) {
+    if(!inventoryConnected()){done(401,{});return;}
+    QString path="/v1/me/loot";
+    if(!before.isEmpty()||!revision.isEmpty()) {
+        bool valid=false;const auto cursor=before.toLongLong(&valid);
+        if(!valid||cursor<=0||QString::number(cursor)!=before
+            ||!QRegularExpression("^(0|[1-9][0-9]{0,18})$").match(revision).hasMatch()){done(422,{});return;}
+        path+="?before="+before+"&revision="+revision;
+    }
+    request("GET",path,{},std::move(done),access_);
+}
 void BackendAccount::publishProfileFavorites(QJsonArray games,QString revision,Reply done) {
     if(state_!="connected"||player_.isEmpty()){done(401,{});return;}
     request("PUT","/v1/me/profile/favorites",{{"games",games},{"revision",revision}},std::move(done),access_);

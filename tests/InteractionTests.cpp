@@ -10,6 +10,7 @@
 #include "features/settings/DisplayScale.h"
 #include "core/input/ControllerInput.h"
 #include "fixtures/ProfileInventoryFixture.h"
+#include "fixtures/InventoryResponseFixture.h"
 #include <QKeyEvent>
 
 using namespace trainer;
@@ -285,6 +286,56 @@ private slots:
         shell.dispatch(Action::Back);QCOMPARE(shell.profileRoute(),"summary");QCOMPARE(shell.profileFocus(),1);
         shell.dispatch(Action::Back);shell.returnToLiveGame();
         QCOMPARE(returns.size(),1);QCOMPARE(shell.liveGame()["id"].toString(),"live-game");
+    }
+    void inventoryReadsPagesRetriesAndRejectsStaleResponses() {
+        ProfileInventory inventory;ProfileInventory::Reply reply;QString cursor,revision;int calls=0;
+        inventory.read=[&](QString c,QString r,ProfileInventory::Reply done){cursor=c;revision=r;reply=std::move(done);++calls;};
+        inventory.open();QCOMPARE(calls,0);QCOMPARE(inventory.view()["state"].toString(),"signed_out");
+        inventory.setScope("owner","player");QCOMPARE(calls,1);QVERIFY(inventory.view()["busy"].toBool());
+        inventory.refresh();QCOMPARE(calls,1);reply(200,inventoryResponse("player"));
+        QCOMPARE(inventory.view()["loaded"].toInt(),60);QCOMPARE(inventory.view()["total"].toInt(),61);
+        QVERIFY(inventory.view()["hasMore"].toBool());QVERIFY(!inventory.view()["transfersAvailable"].toBool());
+        QCOMPARE(inventory.view()["selected"].toMap()["title"].toString(),"Rally car 1");
+        QVERIFY(!inventory.view()["selected"].toMap().contains("payload"));
+        inventory.activate(4);const auto selected=inventory.view()["selected"].toMap()["id"];
+        inventory.control(3);QCOMPARE(cursor,"2");QCOMPARE(revision,"1");
+        reply(0,{});QCOMPARE(inventory.view()["loaded"].toInt(),60);QCOMPARE(inventory.view()["state"].toString(),"error");
+        inventory.control(3);reply(200,inventoryResponse("player",60,1));
+        QCOMPARE(inventory.view()["loaded"].toInt(),61);QVERIFY(!inventory.view()["hasMore"].toBool());
+        QCOMPARE(inventory.view()["selected"].toMap()["id"],selected);
+        inventory.control(0);inventory.applySearch("Iron shield");QCOMPARE(inventory.view()["items"].toList().size(),30);
+        inventory.control(4);QVERIFY(cursor.isEmpty());reply(200,inventoryResponse("player"));
+        QCOMPARE(inventory.view()["selected"].toMap()["title"].toString(),"Iron shield 2");
+        inventory.loadMore();reply(409,{});QCOMPARE(inventory.view()["loaded"].toInt(),0);
+        QVERIFY(inventory.view()["message"].toString().contains("changed"));
+        inventory.refresh();auto old=reply;inventory.close();old(200,inventoryResponse("player"));
+        QCOMPARE(inventory.view()["loaded"].toInt(),0);
+        inventory.open();old=reply;inventory.setScope("owner-b","player-b");
+        old(200,inventoryResponse("player"));QCOMPARE(inventory.view()["loaded"].toInt(),0);
+        reply(200,inventoryResponse("player-b",0,0,0));QCOMPARE(inventory.view()["state"].toString(),"ready");
+        inventory.refresh();reply(404,{});QCOMPARE(inventory.view()["state"].toString(),"unavailable");
+        inventory.refresh();reply(401,{});QCOMPARE(inventory.view()["state"].toString(),"signed_out");
+        inventory.setScope("owner-b","player-b",false);QCOMPARE(inventory.view()["state"].toString(),"offline");
+    }
+    void inventoryRejectsWrongOwnerMalformedAndDuplicatePages() {
+        ProfileInventory inventory;ProfileInventory::Reply reply;
+        inventory.read=[&](QString,QString,ProfileInventory::Reply done){reply=std::move(done);};
+        inventory.setScope("owner","player");inventory.open();
+        reply(200,inventoryResponse("other"));QCOMPARE(inventory.view()["loaded"].toInt(),0);
+        inventory.refresh();auto bad=inventoryResponse("player");bad["total"]=0;reply(200,bad);
+        QCOMPARE(inventory.view()["state"].toString(),"error");
+        inventory.refresh();bad=inventoryResponse("player");auto rows=bad["items"].toArray();rows[1]=rows[0];bad["items"]=rows;reply(200,bad);
+        QCOMPARE(inventory.view()["loaded"].toInt(),0);
+        inventory.refresh();reply(200,inventoryResponse("player"));inventory.loadMore();
+        bad=inventoryResponse("player",0,1);bad["next"]=QJsonValue(QJsonValue::Null);reply(200,bad);
+        QCOMPARE(inventory.view()["loaded"].toInt(),60);QCOMPARE(inventory.view()["state"].toString(),"error");
+        inventory.loadMore();reply(200,inventoryResponse("player",60,1,61,"2"));
+        QCOMPARE(inventory.view()["loaded"].toInt(),60);
+        inventory.refresh();bad=inventoryResponse("player",0,1,1);rows=bad["items"].toArray();auto row=rows[0].toObject();
+        auto presentation=row["presentation"].toObject();presentation["icon"]="file:///private";row["presentation"]=presentation;rows[0]=row;bad["items"]=rows;reply(200,bad);
+        QCOMPARE(inventory.view()["loaded"].toInt(),0);
+        inventory.refresh();auto late=reply;inventory.setScope("owner",{});late(200,inventoryResponse("player"));
+        QCOMPARE(inventory.view()["state"].toString(),"signed_out");QVERIFY(inventory.view()["items"].toList().isEmpty());
     }
     void profileInventoryNavigationAndOwnerIsolation() {
         MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;

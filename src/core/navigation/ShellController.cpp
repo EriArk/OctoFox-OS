@@ -171,12 +171,13 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     });
     connect(&social_,&SocialController::presentationChanged,this,&ShellController::changed,Qt::QueuedConnection);
     connect(&visitorProfile_,&VisitorProfile::changed,this,&ShellController::changed);
+    inventory_.read=[this](QString before,QString revision,ProfileInventory::Reply done){backendAccount_.readInventory(before,revision,std::move(done));};
     connect(&inventory_,&ProfileInventory::changed,this,&ShellController::changed);
     connect(&inventory_,&ProfileInventory::searchRequested,this,[this](QString initial){
         if(!profileContentActive()||profileRoute_!="inventory")return;
         textTarget_=TextTarget::InventorySearch;keyboard_.begin("Search inventory",initial,64,false,"Search");
     });
-    connect(&inventory_,&ProfileInventory::backRequested,this,[this]{profileRoute_="summary";profileFocus_=12;emit changed();});
+    connect(&inventory_,&ProfileInventory::backRequested,this,[this]{inventory_.close();profileRoute_="summary";profileFocus_=12;emit changed();});
     social_.openPlayerProfile=[this](QString subject){
         openProfile(subject==social_.account()["userId"].toString());if(service_!="profile")return false;
         if(subject==social_.account()["userId"].toString())return true;
@@ -319,7 +320,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         trainerSettingsAction(index);
     });
     connect(&backendAccount_,&BackendAccount::changed,this,[this]{
-        inventory_.setScope(trainer_.profile()["id"].toString(),backendAccount_.snapshot()["player_id"].toString());
+        inventory_.setScope(trainer_.profile()["id"].toString(),backendAccount_.snapshot()["player_id"].toString(),backendAccount_.inventoryConnected());
         settings_.setBackendAccount(backendAccount_.actionLabel(),backendAccount_.detail());emit changed();
     });
     backendAccount_.rewardSource=[this,&achievements,offset=0]() mutable {
@@ -896,10 +897,10 @@ void ShellController::syncExperience() {
     const auto record=game?repository_.registration(game->id):std::nullopt;
     const auto owner=trainer_.profile()["id"].toString();
     const bool profileOwnerChanged=experience_.owner()!=owner;
-    if(profileOwnerChanged){++postGamePrizesGeneration_;prizeWardrobeReturn_=false;overviewFocus_=0;overviewSessionId_.clear();overviewFace_="summary";profileSnapshot_.clear();profileReturnNavigation_={};profileRoute_="summary";achievementPhotoReturn_=false;}
+    if(profileOwnerChanged){inventory_.close();++postGamePrizesGeneration_;prizeWardrobeReturn_=false;overviewFocus_=0;overviewSessionId_.clear();overviewFace_="summary";profileSnapshot_.clear();profileReturnNavigation_={};profileRoute_="summary";achievementPhotoReturn_=false;}
     if(!experience_.owner().isEmpty() && experience_.owner()!=owner){dashboard_.reset();achievementNotifications_.clear();achievementToast_.clear();++achievementToastGeneration_;}
     bazaar_.setOwner(owner);
-    inventory_.setScope(owner,backendAccount_.snapshot()["player_id"].toString());
+    inventory_.setScope(owner,backendAccount_.snapshot()["player_id"].toString(),backendAccount_.inventoryConnected());
     album_.setOwner(owner);
     dashboard_.setOwner(owner);
     album_.setMedia(storyMedia());
@@ -1960,7 +1961,7 @@ void ShellController::activateProfile(int index) {
     if(profileRoute_!="summary")return;
     if(index<0 || index>13)return;
     profileFocus_=index;
-    if(index==12){profileRoute_="inventory";inventory_.close();}
+    if(index==12){profileRoute_="inventory";inventory_.open();}
     else if(index==13){profileRoute_="privacy";profileFocus_=0;visitorProfile_.loadSharing();}
     else if(index==11){profileRoute_="prizes";profileFocus_=0;backendAccount_.refreshPrizes();}
     else if(index==10){profileRoute_="support";profileFocus_=0;backendAccount_.refreshProgression(false);backendAccount_.refreshSupport();}
