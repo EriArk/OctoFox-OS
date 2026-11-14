@@ -1,5 +1,36 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — official community links
+
+Settings → System → Credits now offers **AbyssTail website** and **Join our
+Discord**, using the existing external-browser/Apps lifecycle. The page and
+selected row survive browser minimization and close; opening failures stay visible
+in Settings. New action strings use Qt translation hooks. Until a stable redirect
+is available (`/discord` returned 404), Discord opens the official site's contact
+section; its invitation was observed to lead to **AbyssTail** without joining.
+
+Private Software sequence 37 (`5991c2b5`) is installed on Odin and Flip. Both ran
+ARM64 binary `6639746c248d79766541db37b70430f2b27a01ca442f37d34f8e8c944853e816`.
+Flip's managed receipt confirmed the first frame and retains sequence 36 for
+rollback; Odin used the existing legacy update path with a profile/binary backup.
+Live website/contact opening, minimize/reopen on Flip and close/return on both
+preserved Credits focus. Remote navigation/pointer input and an InputPlumber Home
+lease were used; this is not physical-controller or disconnected-network acceptance.
+The native host passed 61 InteractionTests and 19 AppsTests. The isolated
+960×540 UI probe passed controller/touch link selection, light/dark rendering,
+visible browser failure, retry and Back/focus return; production ARM was built
+separately and observed on both devices.
+Both profile databases passed quick_check and retained adventure counts. The
+previous PC exit helper fix remains installed. Task archives/cache/captures and
+Flip's superseded sequence 35 were removed; working rollback and user data remain. Final free space: Odin 9.82 GiB, Flip 22.74 GiB.
+
+Issues #262–265 were reconciled with later accepted decisions, keeping their
+original specifications as history and their remaining acceptance open. Bazaar,
+trading and economy implementation belongs to the owner's other active
+conversation; none of that code was changed or merged. No public release/feed
+was changed. #266 tracks the remaining physical/offline acceptance and future
+stable Discord redirect.
+
 ## 14 November 2026 — corrected Proton exit reporting
 
 Fixed a confirmed OctoFox supervisor error: a failed adopted Wine child no longer

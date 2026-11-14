@@ -1,5 +1,14 @@
 # Карта готовности функций TrainerOS
 
+**14 November 2026 — #266 community links, installed sequence 37:** Settings → System → Credits
+adds website and Discord contact-page actions. Existing Apps owns external browser
+launch/minimize/return; Settings retains page/focus and displays opening failures.
+The first-party `/discord` route returned 404, so the contact page is used until
+a redirect is available. Native host: 61 interaction and 19 Apps checks plus
+light/dark/error UI probe passed. Live browser return was observed on Odin/Flip;
+physical controller and disconnected-network acceptance remain. This does not
+complete the broader R085/R133 criteria.
+
 **14 November — Apps and card changes:** current source routes Steam shortcuts
 through game controls and retains running PC/Crates games in Quick Apps. App
 windows/reconnect and removable-library reconciliation share existing owners.

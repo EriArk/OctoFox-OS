@@ -1,5 +1,15 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner community links and issue reconciliation, 14 November 2026:** update
+stale issues and add website/Discord actions in Settings. Bazaar, trading and
+economy implementation belongs to the owner's other active conversation; do not
+change or merge that code in this increment. The 29 October Patreon-only decision
+still supersedes Ko-fi. Website is `https://abysstail.art/`; until a stable Discord
+redirect exists, use the verified first-party `/#contacts` destination.
+Private Software sequence 37 (`5991c2b5`) is installed on both handhelds; reserve
+38+ next. Live website/contact/invite and Settings return were checked, keeping
+the PC exit helper patch. Public Alpha 7 and Bazaar code are unchanged.
+
 **Owner bounded PC repair, 14 November 2026:** investigate/fix OctoFox's close
 error without deep game-specific work. Confirmed primary UMU exit 0 was overridden
 by an adopted child's 255. System helper patch `c6728a74` is installed on both;

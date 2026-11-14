@@ -1,5 +1,11 @@
 # Покрытие требований картой структуры
 
+**14 November 2026 — #266:** Settings → System → Credits exposes the official
+website and Discord contact-page actions through existing browser/Apps handling.
+Covered by R085 (help), R133 (UI acceptance), S04/S15; return/failure uses the
+existing Apps lifecycle. Issues #262–265 were reconciled with later owner
+decisions; their active implementation belongs to a separate conversation.
+
 **2 ноября — развитие Companion (S01/S04, R002).** Общий Qt SDK получил idle
 директор и плавную смену клипов; provider — структурированные новые награды с
 ID/иконкой. На Home добавлены семь видимых занятий, реакции на сообщения/ачивки

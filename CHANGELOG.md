@@ -1,5 +1,17 @@
 # OctoFox OS — Changelog
 
+## 14 November 2026 — official community links
+
+- Added website and Discord actions to Settings → System → Credits, with
+  preserved focus on browser return and visible opening errors.
+- Installed private sequence 37 (`5991c2b5`) on Odin and Flip. Live links and
+  browser return passed; 61 interaction/19 Apps checks and light/dark/error UI
+  checks passed on the native host. Physical/offline acceptance remains open.
+- Reconciled issues #262–266 with accepted decisions. Bazaar, trading and economy
+  code and the public Alpha 7 release remain unchanged.
+- Removed temporary handheld delivery files and retained working rollback.
+  [Delivery details](PROJECT_STATUS.md#14-november-2026--official-community-links).
+
 ## 14 November 2026 — corrected Proton exit reporting
 
 Fixed a confirmed OctoFox supervisor error: a failed adopted Wine child no longer
