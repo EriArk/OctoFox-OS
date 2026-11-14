@@ -1,6 +1,17 @@
 # TrainerOS — active agent / developer contract
 
 
+**Owner Bazaar services, 14 November (latest):** walk to the Stall Office to rent,
+select an NPC and manage goods. Official Bazaar owner is the user; he sets weekly
+rent and receives it. Official ownership is separate from his one personal Bazaar.
+NPC seller costs **100 Sparks for each rental**, not a permanent unlock. Players
+sell profile-inventory loot; Traveller/Mage/Merchant avatar costumes are **50 Sparks
+each in alpha**, separate from free wardrobe items. Blueprints/crafting and a personal
+Orbiter-like home are future directions. [Prepared services and exact gaps](services/backend/bazaar-trading.md).
+Keep unavailable purchases closed until real delivery, trusted host confirmation and
+recovery exist. No live deployment, merge or device install was performed.
+
+
 **Bazaar resident variety, 14 November:** 0.0.6 adds Dino, Frog and Birb; eighteen
 NPCs remain human-majority (eleven humans, seven animal folk), plus six birds.
 Humans now have five natural skin tones and dark facial details through isolated

@@ -16,7 +16,7 @@ from .play.registry import register,void_match
 
 def main():
     parser = argparse.ArgumentParser(description='TrainerOS Backend foundation')
-    parser.add_argument('command', choices=('api', 'migrate', 'grant-runtime', 'worker','register-ruleset','void-match'))
+    parser.add_argument('command', choices=('api', 'migrate', 'grant-runtime', 'worker','register-ruleset','void-match','register-bazaar'))
     parser.add_argument('--file')
     parser.add_argument('--match')
     parser.add_argument('--operation')
@@ -25,7 +25,7 @@ def main():
     args = parser.parse_args()
     try:
         settings = Settings.from_env()
-        if args.command in ('migrate', 'grant-runtime','register-ruleset','void-match'):
+        if args.command in ('migrate', 'grant-runtime','register-ruleset','void-match','register-bazaar'):
             migration_url = os.environ.get('TRAINEROS_BACKEND_MIGRATION_DATABASE_URL')
             if not migration_url:
                 raise ValueError('migration_url_required')
@@ -33,6 +33,9 @@ def main():
                 print(f'migrations_applied={migrate(migration_url)}')
             elif args.command=='register-ruleset':
                 print('registered_rules_hash='+register(migration_url,args.file))
+            elif args.command=='register-bazaar':
+                from .bazaar.registry import register as register_bazaar
+                print('registered_bazaar='+str(register_bazaar(migration_url,args.file)))
             elif args.command=='void-match':
                 print('void_receipt='+str(void_match(migration_url,args.match,args.operation)['id']))
             else:

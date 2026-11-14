@@ -1,5 +1,12 @@
 # Структура TrainerOS: владельцы, контракты и связи
 
+
+**14 ноября — S11/S06/S14, Bazaar services.** Backend владеет арендами, наймом,
+листингами, квитанциями и переносом уже хранимого лута; прежний ledger — единственный
+баланс. PlatformHost/BackendAccount передают только ограниченные чтения, без
+финансовых прав SDK. Crates-владелец мира открывает контору/товары и показывает
+серверных NPC. Идентичность/отзыв очищают эти проекции. [Контракт и открытые зависимости](../services/backend/bazaar-trading.md).
+
 **10 ноября — S04 / Chats, левая панель.** ShellController владеет фокусом
 вертикальной панели Search / Messages / Groups / Communities / Friends;
 SocialController выдаёт отдельные DM/group/relationship списки и счётчики,

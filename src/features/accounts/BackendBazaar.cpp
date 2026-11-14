@@ -63,6 +63,35 @@ void BackendAccount::reviewBazaarPurchase(bool stall) {
     shopReview_=offer;emit changed();
 }
 void BackendAccount::resolveBazaarPurchase(){if(shopPending_.value("offer_id")=="bazaar.personal"||shopPending_.value("offer_id")=="bazaar.stall"||shopPending_.value("kind")=="bazaar.rent")recoverPurchase(true);}
+// Read-only SDK projection. No access/refresh token, arbitrary path or spending
+// method crosses this boundary; a self-declared app ID is not publisher trust.
+void BackendAccount::bazaarRead(const QString& method,QJsonObject args,Reply done) {
+    if(state_!="connected"||player_.isEmpty()){done(401,{{"code","sign_in_required"}});return;}
+    QString path;
+    if(method=="bazaar.world"&&args.isEmpty())path="/v1/bazaar-worlds/festival";
+    else if(method=="bazaar.costumes"&&args.isEmpty())path="/v1/bazaar-costumes";
+    else if(method=="bazaar.sellers"&&args.isEmpty())path="/v1/bazaar-sellers";
+    else if(method=="bazaar.listings"||method=="bazaar.own_listings") {
+        if(method=="bazaar.listings") {
+            const auto place=args.take("place_id");if(!id(place)){done(422,{{"code","invalid_place"}});return;}
+            path="/v1/bazaar-places/"+place.toString()+"/listings";
+        } else path="/v1/me/bazaar-listings";
+        if(args.contains("after")) {
+            const auto after=args.take("after");if(!id(after)){done(422,{{"code","invalid_page"}});return;}
+            path+="?after="+after.toString();
+        }
+        if(!args.isEmpty()){done(422,{{"code","unsupported_bazaar_read"}});return;}
+    }
+    else {done(422,{{"code","unsupported_bazaar_read"}});return;}
+    const auto player=player_;
+    request("GET",path,{},[this,player,done=std::move(done)](int status,QJsonObject result){
+        if(player!=player_||state_!="connected")return;
+        if(status==200&&(result["player_id"]!=player||QJsonDocument(result).toJson(QJsonDocument::Compact).size()>60000)) {
+            done(502,{{"code","invalid_bazaar_snapshot"}});return;
+        }
+        done(status,std::move(result));
+    },access_);
+}
 void BackendAccount::bazaarRequest(const QString& action,QJsonObject args,Reply done) {
     if(state_!="connected"||player_.isEmpty()){done(401,{{"code","sign_in_required"}});return;}
     if(action=="directory") {

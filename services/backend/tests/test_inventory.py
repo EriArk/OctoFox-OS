@@ -74,11 +74,11 @@ def test_pages_are_owner_scoped_revision_checked_and_fail_after_revocation(accou
         read_inventory(account, token, before=int(first['next']), revision=first['revision'])
 
 
-def test_runtime_cannot_mint_edit_or_delete_collectibles(account, postgres):
+def test_runtime_cannot_mint_edit_payload_or_delete_collectibles(account, postgres):
     owner = login(account); ids = seed(postgres, owner['player_id'])
     for statement in (
         'DELETE FROM trainer_backend.loot_items',
-        "UPDATE trainer_backend.loot_items SET state='listed'",
+        "UPDATE trainer_backend.loot_items SET payload='{}'::jsonb",
         "INSERT INTO trainer_backend.loot_revisions VALUES('11111111-1111-4111-8111-111111111111',1)",
         'INSERT INTO trainer_backend.loot_items(id,player_id,game_id,adapter_id,payload_version,kind,payload,presentation) '
         'SELECT id,player_id,game_id,adapter_id,payload_version,kind,payload,presentation FROM trainer_backend.loot_items',

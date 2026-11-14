@@ -1,8 +1,9 @@
 # Карта готовности функций TrainerOS
 
-Bazaar update, 14 November: the separate local world is at 0.0.4 with camera/FOV,
-world/interior polish and corrected arm/shoulder animation transfer. This does not change catalogue, network, commerce or
-handheld acceptance. See [current scope](BAZAAR.md).
+Bazaar update, 14 November: 0.0.7 adds the rental office and service previews;
+Backend rental-scoped sellers/listings/atomic purchases are prepared. SDK is
+read-only; host checkout, save custody, costumes, managed launch and device
+acceptance remain open. See [current scope](BAZAAR.md).
 
 **10 ноября — Chats, коррекция структуры.** Левая панель вместо верхних вкладок:
 Search / Messages / Groups / Communities / Friends. Личные/групповые переписки
@@ -687,7 +688,7 @@ R-ID не перенумеровывать; новая функция получ
 | --- | --- | --- | --- | --- |
 | ☐ | <a id="r146"></a>**R146** Trainer Mastery / Level | **[S11]**; [S10], [S01], [S04] | Частично | [Начальная политика](../services/backend/progression.md): нетратимый XP на TrainerOS ID, растущие пороги, уровень/шкала в профиле и шапке. Покупки/поддержка не создают XP. Первая живая RA-награда и расширенные источники остаются открыты. F05/F06. |
 | ☐ | <a id="r147"></a>**R147** Online Bazaar: каталог → точная комната → возврат | **[S04]**; [S06], [S12], [S13], [S14], [S03], [S01] | Частично, отдельная ветка | [Локальный игровой остров](https://github.com/EriArk/crates/tree/codex/bazaar-world-20261114/games/bazaar) подготовлен отдельно: парк с фестивальными лотками, отдельная площадь магазинов с входами, сад/берег, SDK-персонаж с анимациями Quaternius, движение/камера/коллизии; Godot/OpenGL и SDK-сокет проверены. Запуск из каталога, сеть и торговля не подключены; Windows/ARM64 только экспортированы. [Заглушки миров](evidence/2026-11-10-bazaar-preview/README.md): красочные бесплатные объяснения планов; покупка базара/лотков и аренда отключены клиентом и сервером до появления миров. Подготовленная экономика сохранена, игровой вход и торговля не готовы. Подготовлены каталог, право на один базар за 5000 Искр и бесплатное создание позже, оформление, права владельца и список блокировок; реальный игровой вход/хосты остаются открыты. [#264, карта пути](BAZAAR.md): постоянный face; official worlds/player rooms через общий owner, typed admission, явная установка, destination/rejoin/return и tournament handoff. SDK, transport и настоящая Crates-игра — зависимости полноценного входа, не отдельные фиктивные UI-успехи. F01/F02/F04/F11/F12. |
-| ☐ | <a id="r148"></a>**R148** Bazaar: торговля игроков и barter | **[S11]**; [S01], [S06], [S14], [S08] | Не сделано | [#263](BAZAAR.md): existing Sparks, custody, оба согласия, versioned offer, atomic transfer/revoke/grant/receipt/outbox; конкурентный покупатель, replay/disconnect, споры/возвраты. [Инвентарь профиля](PROFILE_INVENTORY.md): подготовлены приватное чтение серверных записей, страницы с проверкой ревизии, состояния загрузки/ошибки и сетка 6×5; новый API не установлен публично. Выдача лута, перенос и продажа ещё не реализованы. Предметы адаптеров отдельно требуют verified exact-save commit/recovery. F03/F06/F11/F12. |
+| ☐ | <a id="r148"></a>**R148** Bazaar: торговля игроков и barter | **[S11]**; [S01], [S06], [S14], [S08] | Частично, отдельная ветка | [Подготовлены серверные листинги/покупки/найм](../services/backend/bazaar-trading.md); игровой checkout и save custody ещё открыты. [#263](BAZAAR.md): existing Sparks, custody, оба согласия, versioned offer, atomic transfer/revoke/grant/receipt/outbox; конкурентный покупатель, replay/disconnect, споры/возвраты. [Инвентарь профиля](PROFILE_INVENTORY.md): подготовлены приватное чтение серверных записей, страницы с проверкой ревизии, состояния загрузки/ошибки и сетка 6×5; новый API не установлен публично. Выдача лута и перенос из сейва ещё не реализованы; продажа уже хранимого предмета подготовлена на сервере, но не включена. Предметы адаптеров отдельно требуют verified exact-save commit/recovery. F03/F06/F11/F12. |
 
 ## Обновление карты
 

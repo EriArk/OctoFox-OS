@@ -76,6 +76,7 @@ public:
     void finishRental(int status,QJsonObject result);
     void reviewBazaarPurchase(bool stall=false);
     void resolveBazaarPurchase();
+    void bazaarRead(const QString& method,QJsonObject args,Reply done);
     void bazaarRequest(const QString& action,QJsonObject args,Reply done);
     QString profileAppearance() const;
     Q_INVOKABLE void refreshShop();

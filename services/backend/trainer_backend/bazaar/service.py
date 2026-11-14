@@ -30,7 +30,7 @@ CHANGED = EventSpec('inventory.bazaar_changed', 'inventory', validate_event)
 
 
 def owned(conn, owner):
-    return conn.execute('SELECT * FROM trainer_backend.bazaars WHERE owner_id=%s', (owner,)).fetchone()
+    return conn.execute("SELECT * FROM trainer_backend.bazaars WHERE owner_id=%s AND kind='personal'", (owner,)).fetchone()
 
 
 def create_owned(conn, owner, value):
@@ -67,7 +67,7 @@ class Bazaars:
             actor = self.progression.account(conn, access)
             rows = conn.execute('''SELECT b.*,COALESCE(p.display_name,'Player') AS owner_name
                 FROM trainer_backend.bazaars b LEFT JOIN trainer_backend.public_profiles p ON p.player_id=b.owner_id
-                WHERE (b.listed OR b.owner_id=%s) AND (%s::uuid IS NULL OR b.id>%s)
+                WHERE b.kind='personal' AND (b.listed OR b.owner_id=%s) AND (%s::uuid IS NULL OR b.id>%s)
                 AND strpos(lower(b.name || ' ' || COALESCE(p.display_name,'')),lower(%s))>0
                 AND (%s::uuid[] IS NULL OR b.id=ANY(%s::uuid[])) ORDER BY b.id LIMIT 25''',
                 (actor.player_id, after, after, search, favorites, favorites)).fetchall()
@@ -122,7 +122,7 @@ class Bazaars:
                     WHERE u.id=%s''',(target,)).fetchone()
                 if not person:raise AuthError('profile_not_found',404)
                 selected={**person,'blocked':bool(conn.execute('SELECT 1 FROM trainer_backend.bazaar_blocks WHERE bazaar_id=%s AND player_id=%s',(bazaar_id,target)).fetchone())}
-            return {'player_id':actor.player_id,'bazaar_license':True,'bazaar':row,'blocks':rows[:100],
+            return {'player_id':actor.player_id,'bazaar_license':bool(conn.execute("SELECT 1 FROM trainer_backend.owned_items WHERE player_id=%s AND offer_id='bazaar.personal'",(actor.player_id,)).fetchone()),'bazaar':row,'blocks':rows[:100],
                     'next':str(rows[99]['player_id']) if len(rows)>100 else None,'target':selected,'live_moderation':False}
 
     def block(self, access, bazaar_id, player_id, blocked, revision):
@@ -142,7 +142,7 @@ class Bazaars:
                 conn.execute('INSERT INTO trainer_backend.audit_events(id,actor_id,action,resource_id) VALUES(%s,%s,%s,%s)',
                              (uuid4(),actor.player_id,'inventory.bazaar_blocked' if blocked else 'inventory.bazaar_unblocked',player_id))
                 publish(conn,CHANGED,uuid4(),row['id'],row['revision'],{'bazaar_id':str(row['id']),'owner_id':str(actor.player_id)})
-            return {'player_id':actor.player_id,'bazaar_license':True,'bazaar':row,'target':{'player_id':player_id,'blocked':blocked},'live_moderation':False}
+            return {'player_id':actor.player_id,'bazaar_license':bool(conn.execute("SELECT 1 FROM trainer_backend.owned_items WHERE player_id=%s AND offer_id='bazaar.personal'",(actor.player_id,)).fetchone()),'bazaar':row,'target':{'player_id':player_id,'blocked':blocked},'live_moderation':False}
 
     def access_policy(self, access, bazaar_id):
         # A current policy read is not admission, a reservation, or a host lease.

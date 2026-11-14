@@ -72,6 +72,9 @@ def grant_runtime(database_url, role):
         'public_profiles': 'SELECT,INSERT,UPDATE',
         'profile_sharing': 'SELECT,INSERT,UPDATE',
         'loot_items': 'SELECT', 'loot_revisions': 'SELECT',
+        'bazaar_sellers': 'SELECT,INSERT', 'bazaar_listings': 'SELECT,INSERT,UPDATE',
+        'bazaar_trades': 'SELECT,INSERT',
+        'bazaar_worlds': 'SELECT', 'bazaar_world_places': 'SELECT',
         'progression_accounts': 'SELECT,INSERT,UPDATE',
         'reward_links': 'SELECT,INSERT', 'reward_link_challenges': 'SELECT,INSERT,UPDATE',
         'reward_ledger': 'SELECT,INSERT',
@@ -82,7 +85,7 @@ def grant_runtime(database_url, role):
         'profile_appearances': 'SELECT,INSERT,UPDATE',
         'outfits': 'SELECT,INSERT,UPDATE',
         'bazaar_places': 'SELECT', 'bazaar_rentals': 'SELECT,INSERT',
-        'bazaars': 'SELECT,INSERT', 'bazaar_blocks': 'SELECT,INSERT,DELETE',
+        'bazaars': 'SELECT', 'bazaar_blocks': 'SELECT,INSERT,DELETE',
         'outfit_slots': 'SELECT,INSERT', 'prize_grants': 'SELECT,INSERT',
         'prize_catalogue': 'SELECT', 'prize_receipts': 'SELECT,INSERT',
         'prize_shelf': 'SELECT,INSERT,DELETE',
@@ -98,6 +101,9 @@ def grant_runtime(database_url, role):
         for table, privileges in rights.items():
             conn.execute(sql_builder.SQL('GRANT {} ON TABLE trainer_backend.{} TO {}').format(
                 sql_builder.SQL(privileges), sql_builder.Identifier(table), sql_builder.Identifier(role)))
+        conn.execute(sql_builder.SQL('REVOKE INSERT ON trainer_backend.bazaars FROM {}').format(sql_builder.Identifier(role)))
+        conn.execute(sql_builder.SQL('GRANT INSERT(id,owner_id,name,description,listed,access,cover,badge) ON trainer_backend.bazaars TO {}').format(sql_builder.Identifier(role)))
+        conn.execute(sql_builder.SQL('GRANT UPDATE(player_id,state) ON trainer_backend.loot_items TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT UPDATE(weekly_price,revision) ON trainer_backend.bazaar_places TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT UPDATE(name,description,listed,access,cover,badge,revision,updated_at) ON trainer_backend.bazaars TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT EXECUTE ON FUNCTION trainer_backend.assert_principal(uuid,text) TO {}').format(sql_builder.Identifier(role)))

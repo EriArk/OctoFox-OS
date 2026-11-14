@@ -106,3 +106,80 @@ def rent_place(bazaar_id: UUID, place_id: UUID, body: RentPlace, request: Reques
 @router.get('/v1/me/bazaar-rentals/{operation_id}')
 def rental_receipt(operation_id: UUID, request: Request):
     return wire(rentals.receipt(service(request),bearer(request),operation_id))
+
+# A seller is paid once for this rental only, not a permanent profile unlock.
+from . import trading
+
+
+class HireSeller(RentPlace):
+    species: Literal['Casual_Female','Casual_Male','Chef_Female','Kimono_Female','OldClassy_Male',
+                     'Wizard','Witch','Bunny','Yeti','Dino','Frog','Birb']
+
+
+class ListItem(StrictBody):
+    operation_id: str = Field(pattern=r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+    item_id: str = Field(pattern=r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+    price: int = Field(ge=1,le=2147483647)
+
+
+class ListingRevision(StrictBody):
+    revision: str = Field(pattern=r'^[1-9][0-9]{0,17}$')
+
+
+@router.get('/v1/bazaar-sellers')
+def seller_catalogue(request: Request):
+    s=service(request)
+    with s.db.transaction() as conn:
+        actor=s.progression.account(conn,bearer(request))
+        return wire({'player_id':actor.player_id,'items':[{'id':v,'price':trading.SELLER_PRICE,'revision':1} for v in trading.SPECIES],
+                     'payments_available':trading.policy.PAYMENTS_AVAILABLE,'duration':'current_rental'})
+
+
+@router.post('/v1/me/bazaar-rentals/{rental_id}/seller')
+def hire_seller(rental_id: UUID, body: HireSeller, request: Request):
+    return wire(trading.hire(service(request),bearer(request),rental_id,UUID(body.operation_id),body.species,int(body.revision),body.expected_price))
+
+
+@router.post('/v1/me/bazaar-rentals/{rental_id}/listings')
+def list_item(rental_id: UUID, body: ListItem, request: Request):
+    return wire(trading.create_listing(service(request),bearer(request),rental_id,UUID(body.item_id),UUID(body.operation_id),body.price))
+
+
+@router.get('/v1/me/bazaar-listings')
+def own_listings(request: Request, after: UUID | None = None):
+    return wire(trading.listings(service(request),bearer(request),after=after))
+
+
+@router.get('/v1/bazaar-places/{place_id}/listings')
+def place_listings(place_id: UUID, request: Request, after: UUID | None = None):
+    return wire(trading.listings(service(request),bearer(request),place_id,after))
+
+
+@router.post('/v1/me/bazaar-listings/{listing_id}/withdraw')
+def withdraw_listing(listing_id: UUID, body: ListingRevision, request: Request):
+    return wire(trading.withdraw(service(request),bearer(request),listing_id,int(body.revision)))
+
+
+@router.post('/v1/bazaar-listings/{listing_id}/buy')
+def buy_listing(listing_id: UUID, body: RentPlace, request: Request):
+    return wire(trading.buy(service(request),bearer(request),listing_id,UUID(body.operation_id),int(body.revision),body.expected_price))
+
+
+@router.get('/v1/me/bazaar-trades/{operation_id}')
+def trade_receipt(operation_id: UUID, request: Request):
+    return wire(trading.receipt(service(request),bearer(request),operation_id))
+
+
+@router.get('/v1/bazaar-worlds/{world_key}')
+def world_services(world_key: str, request: Request):
+    if world_key!='festival':raise AuthError('world_not_found',404)
+    return wire(trading.world(service(request),bearer(request),world_key))
+
+
+@router.get('/v1/bazaar-costumes')
+def costume_catalogue(request: Request):
+    s=service(request)
+    with s.db.transaction() as conn:
+        actor=s.progression.account(conn,bearer(request))
+        rows=conn.execute("SELECT id,title,description,price,revision FROM trainer_backend.shop_offers WHERE purpose='avatar_costume' ORDER BY id LIMIT 24").fetchall()
+        return wire({'player_id':actor.player_id,'items':rows,'payments_available':False,'reason':'costume_assets_unavailable'})

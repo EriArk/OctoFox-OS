@@ -1,5 +1,12 @@
 # Private profile loot — 14 November 2026
 
+
+**14 November update:** the read projection remains private and payload-free.
+[Prepared Bazaar trading](bazaar-trading.md) now changes owner/state of existing
+items and bumps revisions. Runtime still cannot mint, delete or edit payloads.
+The older SELECT-only description below records the preceding read-only increment;
+no save-import/export custody or enabled transfers are claimed.
+
 This increment implements **read-only storage/projection**, not item issuance or
 save transfers. It is prepared on the separate Bazaar branch and tested in an
 isolated database; the public backend has not been upgraded by this increment.
