@@ -10,8 +10,12 @@ photographs and chest renders together add 7.93 MiB. This is an asset-size resul
 not a frame-rate claim.
 
 Sources, regeneration tools and per-file licences are committed. Native and ARM
-builds/device delivery are being validated; [dated evidence](docs/evidence/2026-11-14-art-direction/README.md)
-records the actual acceptance checkpoint. The initial prototype-only entry below
+builds passed, with 27 Crates and 32 Series tests plus light/dark/open/back UI
+checks. Private sequence **39** (`4c5c2c36`) is installed on both Odin and Flip;
+real 1920 × 1080 captures confirm sharp collection masks, platform photographs
+and working catalogue return. Personal state and one working rollback remain;
+temporary device artifacts were cleaned. [Dated evidence](docs/evidence/2026-11-14-art-direction/README.md)
+records measurements and acceptance limits. The initial prototype-only entry below
 is historical. Public Alpha 7 and Bazaar implementation are unchanged.
 
 ## 14 ноября 2026 — художественные образцы #267

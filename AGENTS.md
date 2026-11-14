@@ -1,5 +1,16 @@
 # OctoFox OS — active agent / developer contract
 
+**Artwork delivery, 14 November 2026:** private Software sequence **39**
+(`4c5c2c36`) is installed on both Odin and Flip; reserve **40+** next. Includes
+22 SVG-derived collections, 6 rendered model chests and 31 attributed photographs.
+Native tests and real device screenshots/open/back checks passed; physical-pad,
+long-running frame-time and broader artwork review remain separate. Use the
+actual Start → Switch → Desktop flow before managed maintenance: it saves and
+releases the session. Direct external session teardown left a same-boot marker
+on Flip during this task; one normal reboot recovered it without bypassing the
+guard. Later UI exit/update passed without reboot. Preserve the PC exit fix.
+[Evidence](docs/evidence/2026-11-14-art-direction/README.md).
+
 **Owner art direction, 14 November 2026 (#267):** approved the collection SVG,
 low-poly chest and real platform photograph study, then explicitly requested
 replacement. Apply it to runtime, preserve the colourful UI/game Home and custom

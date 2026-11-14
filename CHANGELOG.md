@@ -7,8 +7,10 @@
 - Replaced six painted Crates with attributed low-poly model renders and a short
   opening animation; reduced motion still opens the catalogue immediately.
 - Added 31 licensed console photographs with source hashes and installed credits.
-- Preserved colourful Home, library data and catalogue actions. Device acceptance
-  is tracked in [the evidence record](docs/evidence/2026-11-14-art-direction/README.md).
+- Corrected circular mask resolution at handheld UI scale, keeping small icons sharp.
+- Installed private sequence 39 on Odin and Flip; 59 focused tests and UI checks
+  passed. Captured real screens/open/back, preserved personal data and rollback,
+  and cleaned temporary device artifacts. [Evidence and limits](docs/evidence/2026-11-14-art-direction/README.md).
 
 ## 14 ноября 2026 — образцы оформления коллекций, Crates и платформ
 
