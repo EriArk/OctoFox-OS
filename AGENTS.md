@@ -1,5 +1,15 @@
 # OctoFox OS — active agent / developer contract
 
+**Latest device checkpoint, 14 November 2026:** private Software sequence 36
+(`f318474d`) is installed on both; reserve 37+ for the next signed candidate.
+Windows installer activation waits for its first owned window. Quill installed
+on Odin; library launch/minimize/Quick Apps return and actual Esync/Fsync setting
+propagation were verified. Exit releases the session but still presents raw
+Gamescope output; do not call that clean close acceptance. Standalone installation
+on Flip remains open. Both devices were cleaned, retaining rollback and user data;
+final free space 10.11/22.74 GiB (Odin/Flip). See
+[Windows installer evidence](docs/evidence/2026-11-14-pc-installer/README.md).
+
 **Owner handheld housekeeping, 14 November 2026:** after device work, clean our
 temporary files, installation staging and superseded build/test artifacts from
 the internal storage of **both Odin and Flip**. Check free space before/after;

@@ -1,5 +1,18 @@
 # OctoFox OS — Changelog
 
+## 14 November 2026 — Windows installer and internal storage
+
+Private sequence 36 (`f318474d`) is installed on Odin and Flip. Installer launch
+now keeps the shell and Cancel reachable until an owned window exists; 21 Apps
+helper tests passed. Quill installed through the Odin UI, launched from its new
+library card, minimized and returned through Quick Apps. Esync/Fsync overrides
+were verified in a fresh Proton/FEX process and restored. Closing releases the
+session but still displays a raw driver-log error; clean close acceptance and
+Flip standalone installation remain open. Temporary build/delivery files were
+cleaned on both: final free space is 10.11 GiB on Odin and 22.74 GiB on Flip.
+Profiles, games, required runtimes and rollback were retained. Public Alpha 7
+is unchanged. [Evidence and limits](docs/evidence/2026-11-14-pc-installer/README.md).
+
 ## 14 ноября 2026 — Apps и подключаемые библиотеки
 
 - Steam-игры из Apps направлены в существующий игровой цикл; PC/Crates-игры

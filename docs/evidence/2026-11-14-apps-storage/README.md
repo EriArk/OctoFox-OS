@@ -1,5 +1,8 @@
 # Apps lifecycle and removable libraries — 14 November 2026
 
+Follow-up: [sequence 36, real Windows installer and housekeeping](../2026-11-14-pc-installer/README.md)
+supersedes the installed sequence and pending installer statements below.
+
 ## Implementation
 
 Apps uses the existing XRes-verified window owner and InputPlumber Home lease.
