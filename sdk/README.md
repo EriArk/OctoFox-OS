@@ -12,6 +12,8 @@
 Для лицевой анимации есть [эмоции, реакции и независимый рот](AVATAR_EXPRESSIONS.md)
 в пакете revision 6 и общем Godot presenter: обычные и карикатурные формы глаз.
 
+Shared Godot movement and animation: [integration guide](LOCOMOTION.md).
+
 ## Что уже можно использовать
 
 Для живых Qt-сцен добавлен общий [AvatarView3D / AvatarScene](qt/README.md#live-avatar-scene):

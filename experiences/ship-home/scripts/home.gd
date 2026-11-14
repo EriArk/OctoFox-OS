@@ -55,6 +55,9 @@ func _inputs() -> void:
   var axis=InputEventJoypadMotion.new();axis.axis=axes[action][0];axis.axis_value=axes[action][1];InputMap.action_add_event(action,axis)
 
 func _load_profile(id:String) -> void:
+ if is_instance_valid(walker) and walker.seated:
+  # Profile changes return to the reserved central approach before replacing furniture.
+  walker.stand(Vector3(0,0.08,-2.1))
  profile=id;rows=store.load_home(id);undo_rows=[];has_undo=false;moving_index=-1
  _draw_furniture()
  if not store.error.is_empty():notify(store.error)
@@ -99,10 +102,14 @@ func _unhandled_input(event:InputEvent) -> void:
   _pause(not paused);get_viewport().set_input_as_handled();return
  if event.is_action_pressed("cancel_ship"):
   if paused:_pause(false)
+  elif walker.seated:_leave_pilot()
   elif editing:_edit(false)
   else:_pause(true)
   get_viewport().set_input_as_handled();return
  if paused:return
+ if walker.seated:
+  if event.is_action_pressed("interact"):_leave_pilot();get_viewport().set_input_as_handled()
+  return
  if event.is_action_pressed("decorate"):_edit(not editing)
  elif event.is_action_pressed("undo_place"):_undo()
  elif editing:
@@ -121,11 +128,14 @@ func _process(delta:float) -> void:
  for key in Art.ROOMS:
   if Art.ROOMS[key].has_point(Vector2(walker.position.x,walker.position.z)):room=key;break
  title.text=room+"  /  "+("Guest home" if profile.is_empty() else "Your ship")
- if editing:
+ if walker.seated:
+  status.text=message if message_time>0 else "Pilot seat · flight controls not connected"
+  hints.text="RS / Mouse Look    B / A / F / Esc Stand up    Start / P Menu"
+ elif editing:
   _aim();status.text=("Move " if moving_index>=0 else "Place ")+Art.ITEMS[item_index].replace("-"," ")+"  ·  "+("Ready" if placement_valid else "Keep doors and walkways clear")
   hints.text="LS / WASD Move   RS / Mouse Look   A / Enter Place   LB/RB / [ ] Item   D-pad / Q E Rotate   Y Move nearby   B Cancel"
  else:
-  status.text=message if message_time>0 else "A / F  Interact nearby"
+  status.text=message if message_time>0 else ("A / F  Sit in pilot seat" if _near_pilot() else "A / F  Interact nearby")
   hints.text="LS / WASD Move    RS / Mouse Look    X / Tab Decorate    Start / Esc Menu"
 
 func notify(text:String) -> void:message=text;message_time=6
@@ -136,6 +146,7 @@ func _draw_furniture() -> void:
   var r=rows[i];var node=art.furniture(r.item);node.position=Vector3(r.x,0,r.z);node.rotation.y=r.angle;node.set_meta("row",i);furnishings.add_child(node)
 
 func _edit(value:bool) -> void:
+ if value and walker.seated:notify("Stand up to decorate your ship.");return
  if value and not store.writable:notify(store.error);return
  editing=value;moving_index=-1
  if is_instance_valid(ghost):remove_child(ghost);ghost.queue_free()
@@ -217,6 +228,7 @@ func _pick() -> void:
  moving_index=i;item_index=Art.ITEMS.find(rows[i].item);angle=rows[i].angle;_ghost()
 
 func _remove() -> void:
+ if walker.seated:notify("Stand up to move furniture.");return
  var i=moving_index if moving_index>=0 else _nearest()
  if i<0:notify("Move closer to a piece of furniture.");_pause(false);return
  var next=rows.duplicate(true);next.remove_at(i)
@@ -224,13 +236,28 @@ func _remove() -> void:
  _pause(false)
 
 func _undo() -> void:
+ if walker.seated:notify("Stand up to change the arrangement.");return
  if not has_undo:notify("Nothing to undo yet.");return
  var previous=undo_rows.duplicate(true)
  if _commit(previous):has_undo=false;moving_index=-1
 
+func _near_pilot() -> bool:
+ var p=Vector2(walker.position.x,walker.position.z)
+ return p.y> -3.0 and p.distance_to(Vector2(0,-2.50))<1.0
+
+func _leave_pilot() -> bool:
+ if not walker.seated:return true
+ var previous=walker.standing_position;previous.y=max(previous.y,0.08)
+ for at in [previous,Vector3(0,0.08,-2.1),Vector3(-1.5,0.08,-2.5),Vector3(1.5,0.08,-2.5)]:
+  if walker.can_stand(at):walker.stand(at);notify("Back on deck");return true
+ notify("There is no clear space to stand up.");return false
+
 func _interact() -> void:
  var p=Vector2(walker.position.x,walker.position.z)
- if p.distance_to(Vector2(0,-3.2))<1.4:notify("Navigation console · flight controls coming later.")
+ if walker.seated:_leave_pilot()
+ elif _near_pilot():
+  if editing:_edit(false)
+  walker.sit();notify("Pilot seat · look around with RS / mouse. B / F to stand up.")
  elif p.distance_to(Vector2(-2.85,1.5))<1.5:notify("Workbench · crafting recipes will be connected here.")
  elif p.distance_to(Vector2(3.05,4.9))<1.8:notify("Wardrobe · your saved OctoFox appearance is shared with this home.")
  elif Art.ROOMS.Gallery.has_point(p):notify("Your gallery · reserved for cards and trophies you actually own.")

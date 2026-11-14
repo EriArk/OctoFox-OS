@@ -1,5 +1,20 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — pilot view and shared SDK locomotion
+
+Opened the bow into a panoramic canopy, removed cockpit-side partitions and
+moved the technical-space concept below deck. Angular consoles now surround a
+single pilot chair. Sitting switches to first person; standing restores the chase
+camera at a checked free position. Idle/walk/run consume the common Godot SDK
+locomotion from `c45675a5`, replacing Ship Home's procedural walking code.
+
+Standalone preview `c941fe3279ae760e` is installed on both Odin and Flip. Apps
+launch, shared avatar, walking, seat/look/stand and Save and exit passed using
+remote keyboard/pointer; both Godot test suites passed on ARM64. Existing shell
+and Bazaar builds were retained. Home/minimize/return, physical pad/touch and
+sustained performance acceptance remain open. No release/OTA.
+[Evidence, screenshots and limitations](docs/evidence/2026-11-14-ship-pilot/README.md).
+
 ## 14 November 2026 — compact saucer layout and cockpit
 
 Replaced the rectangular room plan with a single oval pressure hull, a shallow

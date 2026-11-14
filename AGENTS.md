@@ -1,5 +1,20 @@
 # OctoFox OS — active agent / developer contract
 
+**Pilot / SDK checkpoint, 14 November 2026:** Ship Home preview
+`c941fe3279ae760e` is installed on Odin and Flip. Panoramic cockpit, first-person
+seat and common SDK idle/walk/run (`c45675a5`) passed host/ARM checks and real
+Apps launch / save-exit with remote input. Existing Bazaar shells are retained;
+use Apps for entry. Home/minimize/return and physical-pad acceptance remain open.
+No kernel changes, release or OTA. [Evidence](docs/evidence/2026-11-14-ship-pilot/README.md).
+
+**Owner cockpit/pilot correction, 14 November 2026 (latest):** remove the
+partitions and rails beside the cockpit; technical equipment belongs below the
+deck. Restore a panoramic bow canopy. Replace pillowy panel forms with sharper
+metal structure and an Elite Dangerous-inspired pilot station. Sitting must
+switch to first-person view; standing restores third person. The owner has now
+made **both handhelds available again**, superseding the no-device boundary below.
+Verify the standalone ship preview without replacing the current Bazaar build.
+
 **Owner compact saucer correction, 14 November 2026 (latest):** the Orbit
 restyle is still too spacious and rectangular. Build the rooms inside one curved
 saucer hull, reduce wasted floor area and window size, use shaped glazing, and

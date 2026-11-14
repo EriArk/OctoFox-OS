@@ -3,13 +3,18 @@
 A separate third-person home for the OctoFox character. Rooms fit inside one
 10.6 × 12.4 metre oval pressure hull. A single-seat cockpit sits at the bow,
 a small galley/dinette occupies the middle, and four compact bays share a short
-central passage. The curved ceiling lowers toward the rim; shaped portholes
-replace the initial full-height glazing. Ivory panels, brass and blue light
+central passage. The curved ceiling lowers toward the rim; small portholes serve the living bays, while a panoramic bow canopy opens the
+pilot view. Technical space is reserved beneath the deck, with flush service
+hatches above. Ivory panels, brass and blue light
 retain the Orbit profile background's visual language.
 
-The pilot sits between side consoles under an overhead instrument pod. The
-cockpit is currently scenery with an explanatory interaction; flight controls
-and sitting animations are not implemented.
+The pilot seat is surrounded by angular side consoles, a stick, throttle and
+low instruments. Approach from behind and press **A / F** to sit: the camera
+switches to the pilot's eyes. Mouse/right stick turns the view; **B / Esc / A / F**
+stands up in a collision-checked free space and restores the chase camera.
+Start/P opens the menu while seated. Flight controls remain unimplemented.
+The transition is immediate with a simple shared-rig seated pose; there is no
+authored boarding animation or separate first-person hand model yet.
 This is the **first playable layout**, not the finished art or a public release.
 Walking, a collision-aware camera, per-profile furnishing saves and the shared
 avatar are implemented. The workbench, wardrobe and gallery have physical spaces
@@ -43,8 +48,8 @@ In the updated shell, use the saucer icon beside the profile. On Home, move Up
 from the lobby row or screenshot collage to reach it with the controller.
 The bottom notification bell still opens the inbox. The game uses the existing
 Apps supervisor and stable desktop identity, so its launch/return requests go
-through the same path as other native applications. Full minimize/return/close
-acceptance with the handheld compositor is still pending.
+through the same path as other native applications. Apps launch and the game’s Save and exit were checked on both handhelds.
+Native Home/minimize/return acceptance with the handheld compositor is still pending.
 
 ## Controls
 
@@ -58,7 +63,7 @@ acceptance with the handheld compositor is still pending.
 | Rotate | D-pad left / right | Q / E |
 | Move a nearby piece | Y | Y |
 | Cancel / menu | B / Start | Esc / P |
-| Interact | A | F |
+| Interact / sit / stand up | A; B also stands up | F; Esc also stands up |
 | Undo / remove / exit | Pause menu | Pause menu; Z also undoes |
 
 Seven starter furniture types can be placed, moved, rotated and removed. A
@@ -71,7 +76,7 @@ presentation is hidden until the camera clears it, avoiding an inside-head view.
 
 ## Identity, saves and resources
 
-The game consumes `sdk/godot/avatar_client.gd` and `avatar_presenter.gd`; run
+The game consumes `sdk/godot/avatar_client.gd` and `avatar_presenter.gd`, plus `avatar_locomotion.gd` and its animation dependency; run
 `sync_sdk.py` after SDK updates. The host provides the active profile's checked
 model descriptor. No character models or private profiles are bundled. Same-owner
 appearance refreshes preserve furniture; a revoked/disconnected identity clears
@@ -91,8 +96,11 @@ tracked by Apps. Start failures are logged under
 `$XDG_STATE_HOME/octofox-ship-home/launch-error.txt`, with a desktop dialog when
 KDialog or Zenity is available.
 
-The shared rig gets a simple, game-owned procedural walk; this is an early
-animation, not a new outfit or a replacement avatar system. Fixed room meshes are batched by shared material; movable furniture stays separate.
+Idle, walking and running use the shared [Godot SDK locomotion](../../sdk/LOCOMOTION.md)
+module and its attributed CC0 animation pack, synced unchanged from `c45675a5`.
+Cadence follows actual travel after collisions. The ship owns its compact-deck
+controller, camera and temporary seated pose; it no longer poses a private walk.
+The animator is replaced along with the avatar and stops while seated. Fixed room meshes are batched by shared material; movable furniture stays separate.
 Geometry, materials,
 planet and sky are original code, without image textures or third-party room
 models. All project code is GPL-3.0-or-later; the host's avatar assets keep their
@@ -109,6 +117,11 @@ SHIP_CAPTURE_DIR=/tmp/ship-tour /path/to/godot --path experiences/ship-home --sc
 placement and undo, all starter furniture footprints, walking through all four
 hatches, curved-hull/seat collisions, camera retraction/close-avatar hiding and
 triangle preservation when batching indexed and unindexed meshes.
+`pilot_checks.gd` exercises keyboard/controller entry and exit, eye-camera
+selection, fixed seated position, bounded look, pause/focus loss, blocked exit
+and identity loss. The headless display cannot capture a pointer; `pilot_tour.gd`
+checks SDK idle/walk/run selection, captured mouse input and same-profile appearance refresh in a graphical
+session and captures first-person views.
 `design_tour.gd` captures eight architecture views and a roof cutaway of the
 actual deck, with the avatar and HUD hidden. `tour.gd` retains the gameplay camera
 and character for a separate visual check.
@@ -120,8 +133,10 @@ An optional `SHIP_TEST_DESCRIPTOR` lets the screenshot tour show a locally
 resolved development character; it is not a production identity override.
 
 [Initial development evidence and screenshots](../../docs/evidence/2026-11-14-ship-home/README.md).
-No Odin or Flip access was used for this increment.
+The initial preview was host-only; later handheld acceptance is recorded separately.
 
 [Earlier Orbit interior study and screenshots](../../docs/evidence/2026-11-14-ship-redesign/README.md).
 
-[Current compact saucer layout and screenshots](../../docs/evidence/2026-11-14-ship-compact/README.md).
+[Compact layout iteration and screenshots](../../docs/evidence/2026-11-14-ship-compact/README.md).
+
+[Current cockpit, seating and device evidence](../../docs/evidence/2026-11-14-ship-pilot/README.md).

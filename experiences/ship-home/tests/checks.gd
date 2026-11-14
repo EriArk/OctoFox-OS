@@ -31,6 +31,10 @@ func run() -> void:
  check(not store.save(original),"Do not overwrite corrupt save")
  check(FileAccess.get_file_as_string(store.path())=="broken","Corrupt original untouched")
  var home=load("res://main.tscn").instantiate();root.add_child(home)
+ # These checks own synthetic profiles; a live handheld host must not replace them.
+ home.avatar_client.appearance_changed.disconnect(home._appearance)
+ home.avatar_client.unavailable.disconnect(home._identity_lost)
+ home.avatar_client.queue_free()
  await process_frame
  home.store.directory=store.directory+"/scene";home._load_profile("test-walker")
  home._pause(false)

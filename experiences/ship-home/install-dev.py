@@ -33,8 +33,9 @@ def main():
         shutil.copytree(source, stage, ignore=shutil.ignore_patterns('.godot', 'addons', '__pycache__', '*.tmp', 'tests'))
         sdk = source.parents[1] / 'sdk' / 'godot'
         (stage/'addons'/'avatar').mkdir(parents=True)
-        for name in ('avatar_client.gd', 'avatar_presenter.gd'):
+        for name in ('avatar_client.gd', 'avatar_presenter.gd', 'avatar_locomotion.gd'):
             shutil.copy2(sdk/name, stage/'addons'/'avatar'/name)
+        shutil.copytree(sdk/'animations', stage/'addons'/'avatar'/'animations')
         (stage/'runtime.json').write_text(json.dumps({'engine': str(engine)}))
         digest = hashlib.sha256()
         for path in sorted(stage.rglob('*')):
@@ -66,7 +67,7 @@ def main():
     print('Installed:', target)
     print('Runtime:', engine, '('+version+')')
     print('Game:', destination)
-    print('No system files or handhelds changed.')
+    print('Installed for the current user; no system files changed.')
 
 if __name__ == '__main__':
     main()

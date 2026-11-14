@@ -9,9 +9,9 @@ func run() -> void:
  var presenter=home.walker.visual
  if presenter.find_children("*","MeshInstance3D",true,false).size()<3:
   printerr("Shared avatar meshes missing");quit(1);return
- if home.walker.skeleton==null or home.walker.joints.size()<8:
+ if home.walker.skeleton==null or not is_instance_valid(home.walker.motion) or not home.walker.motion.ready_to_animate:
   printerr("Shared locomotion rig is incomplete");quit(1);return
- home.walker.velocity=Vector3(0,0,-2.7);home.walker._locomotion(0.1)
+ home.walker.velocity=Vector3(0,0,-2.7);home.walker._locomotion(0.1,2.7)
  var thigh=home.walker.joints["thigh.L"]
  if home.walker.skeleton.get_bone_pose_rotation(thigh[0]).is_equal_approx(thigh[1]):
   printerr("Walking did not pose the shared rig");quit(1);return
