@@ -157,3 +157,5 @@ version требует отдельной версии, не молчаливо�
 
 See [Home contributions and optional selection API](HOME_WIDGETS.md) for durable
 Crates-installed widgets in the Home slot. This is separate from ephemeral Start widgets.
+
+Godot games may opt into the shared [character locomotion helpers](LOCOMOTION.md): walk, run, sprint, crouch and jump, with game-owned input and simulation.

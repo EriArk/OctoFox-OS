@@ -8,10 +8,10 @@ Rectangle {
     property bool compact: false
     signal activated()
     signal favoriteRequested()
-    radius: 11; color: Theme.paper
+    radius: 8; color: Theme.paper
     border.width: selected ? 3 : 1
     border.color: selected ? Theme.focusGlow : Theme.divider
-    readonly property real captionHeight: official ? (compact ? 91 : 105) : (compact ? 53 : 61)
+    readonly property real captionHeight: official ? (compact ? 120 : 136) : (compact ? 53 : 61)
     Accessible.role: Accessible.Button
     Accessible.name: (entry.title || "Bazaar") + ", " + (official ? "Official" : (entry.ownerName || ""))
     Accessible.onPressAction: root.activated()
@@ -33,20 +33,20 @@ Rectangle {
             MenuGlyph { anchors.centerIn: parent; width: 22; height: 22; glyph: root.entry.badge || "shop"; ink: Theme.ink }
         }
         Rectangle {
-            visible: root.official; x: 9; y: 9; width: 67; height: 21; radius: 6; color: Theme.yellow
-            Text { anchors.centerIn: parent; text: "OFFICIAL"; font.pixelSize: 10; font.bold: true; color: Theme.ink }
+            visible: root.official; x: 9; y: 9; width: 88; height: 24; radius: 3; color: Theme.paper
+            Text { anchors.centerIn: parent; text: "OFFICIAL ISLAND"; font.pixelSize: 9; font.bold: true; font.letterSpacing: 0.7; color: Theme.ink }
         }
     }
     Column {
-        x: 12; y: art.y+art.height+8; width: parent.width-24; spacing: root.official ? 6 : 4
+        x: root.official ? 18 : 12; y: art.y+art.height+(root.official ? 13 : 8); width: parent.width-(root.official ? 36 : 24); spacing: root.official ? 7 : 4
         Text {
             width: parent.width-(root.official ? 0 : 18); text: root.entry.title || "Bazaar"; textFormat: Text.PlainText
-            font.family: Theme.displayFamily; font.pixelSize: root.official ? (root.compact ? 22 : 25) : (root.compact ? 14 : 16)
+            font.family: Theme.displayFamily; font.pixelSize: root.official ? (root.compact ? 26 : 30) : (root.compact ? 14 : 16)
             color: Theme.ink; elide: Text.ElideRight
         }
         Text {
             visible: root.official; width: parent.width
-            text: root.entry.walkthrough ? "Explore Festival Park as your character." : "Squares, shops and shared adventures."; font.pixelSize: root.compact ? 11 : 12; color: Theme.muted
+            text: root.entry.walkthrough ? "Lanterns, little shops and familiar faces." : "The island market is taking shape."; font.pixelSize: root.compact ? 11 : 12; color: Theme.muted
             wrapMode: Text.WordWrap; maximumLineCount: 2; elide: Text.ElideRight
         }
         Row {
@@ -57,8 +57,8 @@ Rectangle {
             }
             Text { visible: !root.official; width: Math.max(20,parent.width-105); text: root.entry.ownerName || "Player"; textFormat: Text.PlainText; font.pixelSize: 11; color: Theme.muted; elide: Text.ElideRight }
             Text {
-                text: root.official ? (root.entry.walkthrough ? "ENTER · LOCAL ALPHA" : "IN DEVELOPMENT · PREVIEW") : (root.entry.visitors===undefined || root.entry.visitors===null ? (root.entry.access==="closed"?"Closed":"Not open yet") : root.entry.visitors+" visiting")
-                font.pixelSize: root.official ? 12 : 11; color: Theme.muted
+                text: root.official ? (root.entry.walkthrough ? "EXPLORE THE ISLAND   →" : "IN DEVELOPMENT") : (root.entry.visitors===undefined || root.entry.visitors===null ? (root.entry.access==="closed"?"Closed":"Not open yet") : root.entry.visitors+" visiting")
+                font.pixelSize: root.official ? 12 : 11; font.bold: root.official; color: root.official ? Theme.ink : Theme.muted
             }
         }
     }

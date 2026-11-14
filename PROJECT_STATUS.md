@@ -1,5 +1,14 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — Bazaar movement and card (source)
+
+Added optional shared Godot locomotion (walk/run/sprint/crouch/jump), preserving
+avatar identity and the approved rig. Festival Park's official card now uses a
+render of the actual island, with clearer typography. SDK motor and seven-state
+pose checks passed; installed-device acceptance is recorded separately in the
+[Bazaar movement evidence](docs/evidence/2026-11-14-bazaar-movement/README.md).
+
+
 ## 14 November 2026 — Bazaar launches from its own tab
 
 Corrected the Apps-only delivery: **Online → Bazaar → Official Bazaar** now opens
