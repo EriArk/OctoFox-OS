@@ -34,6 +34,8 @@ public:
     void dispatch(Action,bool quick=false);
     std::function<QString()> launchGuard;
     std::function<QString()> webLaunchGuard;
+    std::function<QString(const QString&)> launchManagedGame;
+    void setGameState(const QVariantMap& game, bool minimized);
     QVariantList rows() const;
     QVariantList rail() const;
     int favoriteCapacity() const { return favoriteCapacity_; }
@@ -90,6 +92,8 @@ private:
     QUrl queuedWebUrl_;
     QByteArray buffer_;
     QVariantList catalogue_;
+    QVariantMap game_;
+    bool gameMinimized_=false;
     QSet<QString> favorites_,hiddenIds_,running_;
     QString preferences_,menuId_,current_,status_="Applications are available on Armada.",launching_,python_,helper_;
     int focus_=0,railFocus_=0,menuFocus_=0,controlFocus_=0;

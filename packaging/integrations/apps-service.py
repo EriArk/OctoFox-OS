@@ -3,7 +3,7 @@
 
 GIO owns desktop-entry precedence, visibility, localization and Exec expansion.
 Window control is restricted to observed local XRes clients; it never signals a
-process or borrows the game's save/exit policy. Native Wayland is not managed.
+process or borrows the game's save/exit policy. Launches use session Xwayland.
 """
 import argparse
 import ctypes as c
@@ -11,15 +11,33 @@ import json
 import os
 from pathlib import Path
 import select
+import shlex
+import re
 import sys
 import tempfile
 import time
+# Software updates carry this controller beside the shell. Shared input/window
+# primitives remain the installed session integration (also used by games).
+sys.path.append('/var/opt/traineros/integrations')
 from overlay_support import X11, identity
 from keyboard_input import KeyboardWriter
 
 
 def emit(event, **data):
     print(json.dumps(dict(event=event, **data), ensure_ascii=False), flush=True)
+
+
+def steam_game_id(app):
+    try:
+        command=shlex.split(app.get_commandline() or '')
+        if not command:return ''
+        executable=Path(command[0]).name
+        if executable!='steam' and not (executable=='flatpak' and 'run' in command and 'com.valvesoftware.Steam' in command):return ''
+        for argument in command[1:]:
+            match=re.fullmatch(r'steam://(?:rungameid|run)/([1-9][0-9]{0,9})/?',argument)
+            if match:return 'steam:'+match[1]
+    except ValueError:pass
+    return ''
 
 
 def catalogue(Gio):
@@ -37,7 +55,7 @@ def catalogue(Gio):
             icon.get_file().get_path() if isinstance(icon,Gio.FileIcon) else '')
         result[app_id] = (app, dict(id=app_id, name=app.get_display_name(),
             description=app.get_description() or '', icon=icon_name or '',
-            startupClass=app.get_startup_wm_class() or ''))
+            startupClass=app.get_startup_wm_class() or '',gameId=steam_game_id(app)))
     return result
 
 
@@ -90,9 +108,14 @@ class Windows:
                 if not isinstance(classes, bytes): classes = b''
                 transient = next(iter(x.prop(window, 'WM_TRANSIENT_FOR')), 0)
                 if not title and not transient: continue
-                if not transient and x.atom('WM_DELETE_WINDOW') not in x.prop(window, 'WM_PROTOCOLS'): continue
                 attributes = self.Attributes()
                 if not x.x.XGetWindowAttributes(x.display,window,c.byref(attributes)): continue
+                # Games need not advertise WM_DELETE_WINDOW. Input-only and
+                # override-redirect/tool windows must still never become apps.
+                if attributes.klass != 1 or attributes.override_redirect: continue
+                kinds=x.prop(window,'_NET_WM_WINDOW_TYPE')
+                if kinds and not transient and not any(x.atom(name) in kinds for name in
+                    ('_NET_WM_WINDOW_TYPE_NORMAL','_NET_WM_WINDOW_TYPE_DIALOG')): continue
                 result[window] = dict(pid=pid, start=identity(pid),
                     classes=classes.decode(errors='replace').strip('\0').split('\0'),
                     transient=transient, mapped=attributes.map_state==2)
@@ -105,7 +128,10 @@ class Windows:
         except OSError: return False
 
     def map(self, windows, visible):
-        for window, record in windows.items():
+        # Parents before dialogs; never resurrect a window the app hid itself.
+        ordered=sorted(windows.items(),key=lambda item:bool(item[1]['transient']))
+        for window, record in ordered:
+            if visible and not record.get('restore',True):continue
             if self.valid(window, record):
                 (self.x.x.XMapWindow if visible else self.x.x.XUnmapWindow)(self.x.display, window)
                 if visible: self.x.x.XRaiseWindow(self.x.display, window)
@@ -163,7 +189,7 @@ class Service:
                     try:
                         if identity(root[0])!=root[1]:root=None
                     except OSError:root=None
-                matched = {int(w):windows[int(w)] for w,r in session['windows'].items()
+                matched = {int(w):dict(windows[int(w)],restore=r.get('restore',True)) for w,r in session['windows'].items()
                            if int(w) in windows and windows[int(w)]['pid']==r['pid'] and windows[int(w)]['start']==r['start']}
                 if matched or root:
                     self.sessions[app_id] = dict(windows=matched,owners={(r['pid'],r['start']) for r in matched.values()},row=session['row'])
@@ -199,15 +225,36 @@ class Service:
             if root:
                 try: root_alive = identity(root[0]) == root[1]
                 except OSError: pass
-            session['windows'] = {w: r for w, r in session['windows'].items()
+            session['windows'] = {w: dict(windows[w],restore=r.get('restore',True))
+                                  for w, r in session['windows'].items()
                                   if w in windows and windows[w]['pid'] == r['pid'] and windows[w]['start'] == r['start']}
             # Include new windows/dialogs from the exact same application process,
             # plus direct transients. PID reuse must never inherit window ownership.
+            descendants={}
             for w, r in windows.items():
-                owned_child = root_alive and self.windows.x.owns(w, *root)
-                if r['mapped'] and (owned_child or (r['pid'], r['start']) in session['owners'] or r['transient'] in session['windows']):
-                    session['windows'][w] = r
+                if not r['mapped']:continue
+                owner=(r['pid'],r['start'])
+                owned=owner in session['owners'] or r['transient'] in session['windows']
+                if not owned:
+                    if owner not in descendants:
+                        descendants[owner]=(root_alive and self.windows.x.owns(w,*root)) or any(
+                            self.windows.x.owns(w,pid,start) for pid,start in session['owners'])
+                    owned=descendants[owner]
+                if owned:
+                    session['windows'][w] = dict(r,restore=True)
+                    session['owners'].add((r['pid'],r['start']))
                     if app_id != self.current: self.windows.map({w:r},False)
+            if app_id==self.current and session['windows']:
+                if any(r['mapped'] for r in session['windows'].values()):
+                    session.pop('hidden_since',None)
+                    for r in session['windows'].values():r['restore']=r['mapped']
+                elif not root:
+                    # The application's own Minimize button is also a return to
+                    # the shell. Allow a short window-replacement transition;
+                    # retain the last visible set for Quick Apps restoration.
+                    since=session.setdefault('hidden_since',time.monotonic())
+                    if time.monotonic()-since>=.35:
+                        self.current='';self.release();emit('shell')
             if not session['windows'] and not root_alive:
                 del self.sessions[app_id]
                 if self.current == app_id:
@@ -235,11 +282,17 @@ class Service:
                 self.release()
                 emit('error', message='The application did not provide a manageable window. It may already be open in another session.')
         state = dict(current=self.current, running=list(self.sessions), launching=self.pending[0] if self.pending else '')
+        # Window replacement/dialogs can change without changing the app IDs.
+        # Persist those identities too so reconnect restores the current windows.
+        journal=json.dumps({key:value['windows'] for key,value in self.sessions.items()},sort_keys=True)
+        if state != self.last or journal != getattr(self,'last_windows',None):
+            self.save_sessions();self.last_windows=journal
         if state != self.last:
-            self.last = state; self.save_sessions(); emit('state', **state)
+            self.last = state; emit('state', **state)
 
     def activate(self, app_id):
         if app_id not in self.sessions: return
+        self.sessions[app_id].pop('hidden_since',None)
         installer=self.sessions[app_id].get('root')
         if self.lease and getattr(self.lease,'installer',None)!=installer:self.release()
         self.acquire(installer)
@@ -338,6 +391,8 @@ class Service:
                 uris = [uri]
             elif app_id in self.sessions: self.activate(app_id); return
             if app_id not in self.apps: raise ValueError('This application is no longer installed.')
+            if self.apps[app_id][1].get('gameId'):
+                raise ValueError('Open this game through OctoFox OS game controls.')
             self.acquire()
             app = self.apps[app_id][0]
             pids = []
@@ -347,6 +402,9 @@ class Service:
             # can manage these apps. No inherited shell rendering overrides.
             context.setenv('QT_QPA_PLATFORM', 'xcb')
             context.setenv('GDK_BACKEND', 'x11')
+            context.setenv('SDL_VIDEODRIVER', 'x11')
+            context.setenv('MOZ_ENABLE_WAYLAND', '0')
+            context.unsetenv('WAYLAND_DISPLAY')
             context.unsetenv('QT_QUICK_BACKEND'); context.unsetenv('QT_SCALE_FACTOR')
             def started(info, pid, data):
                 try: pids.append((pid, identity(pid)))
@@ -366,6 +424,7 @@ class Service:
             self.lease.open(); emit('controls')
         elif op == 'resume' and self.lease: self.lease.resume()
         elif op == 'minimize':
+            self.scan()  # Capture a just-opened dialog before hiding its parent.
             if self.current in self.sessions: self.windows.map(self.sessions[self.current]['windows'], False)
             self.current = ''; self.release(); emit('shell')
         elif op == 'close' and app_id in self.sessions:

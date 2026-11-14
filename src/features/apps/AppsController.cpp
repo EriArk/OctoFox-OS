@@ -9,18 +9,26 @@
 #include <QCryptographicHash>
 #include <QUrl>
 #include <algorithm>
+#include <memory>
+#include <QElapsedTimer>
 
 namespace trainer {
 AppsController::AppsController(QObject* parent):QObject(parent) {
+    struct Recovery {int attempts=0;QElapsedTimer healthy;};
+    const auto recovery=std::make_shared<Recovery>();
     webStartTimeout_.setSingleShot(true);webStartTimeout_.setInterval(15000);
     connect(&webStartTimeout_,&QTimer::timeout,this,[this]{
         if(!webPending_)return;webPending_=false;queuedWebUrl_=QUrl{};
         status_="Application connection did not become ready. Try again.";emit webOpenFailed(status_);emit changed();
     });
     heartbeat_.setInterval(500);
-    connect(&heartbeat_,&QTimer::timeout,this,[this]{send({{"command","ping"}});});
+    connect(&heartbeat_,&QTimer::timeout,this,[this,recovery]{
+        if(process_.state()==QProcess::NotRunning){start(python_,helper_);return;}
+        if(recovery->healthy.isValid() && recovery->healthy.elapsed()>30000)recovery->attempts=0;
+        send({{"command","ping"}});
+    });
     connect(this,&AppsController::commandRequested,this,&AppsController::send);
-    connect(&process_,&QProcess::started,&heartbeat_,qOverload<>(&QTimer::start));
+    connect(&process_,&QProcess::started,this,[this,recovery]{recovery->healthy.start();heartbeat_.start(500);});
     connect(&process_,&QProcess::readyReadStandardError,this,[this]{process_.readAllStandardError();});
     connect(&process_,&QProcess::readyReadStandardOutput,this,[this]{
         buffer_+=process_.readAllStandardOutput();
@@ -30,10 +38,13 @@ AppsController::AppsController(QObject* parent):QObject(parent) {
             if(packet.isObject())accept(packet.object());
         }
     });
-    const auto lost=[this]{
-        const bool foreground=!current_.isEmpty(), launching=!launching_.isEmpty(), web=webPending_;
-        heartbeat_.stop();ready_=false;controls_=false;current_.clear();processId_=0;launching_.clear();running_.clear();
+    const auto lost=[this,recovery]{
+        const bool foreground=!current_.isEmpty(), launching=!launching_.isEmpty(), web=webPending_, reconnectable=ready_||recovery->attempts>0;
+        heartbeat_.stop();ready_=false;controls_=false;current_.clear();processId_=0;launching_.clear();
         status_="Application connection stopped. Open Apps again to reconnect.";
+        if(reconnectable && !helper_.isEmpty() && recovery->attempts++<3) {
+            status_="Reconnecting application controls…";heartbeat_.start(1500);
+        }
         if(webPending_){webPending_=false;queuedWebUrl_=QUrl{};webStartTimeout_.stop();emit webOpenFailed(status_);}
         if(launching&&!foreground&&!web)emit launchFailed(status_);
         if(foreground)emit shellRequested();
@@ -128,7 +139,12 @@ QVariantMap AppsController::decorated(const QVariantMap& source) const {
     auto row=source;const auto id=row["id"].toString();row["favorite"]=favorites_.contains(id);
     row["hidden"]=hiddenIds_.contains(id);row["running"]=running_.contains(id)||current_==id;row["launching"]=launching_==id;
     row["minimized"]=row["running"].toBool()&&current_!=id;
+    if(!game_.isEmpty() && row["gameId"]==game_["gameId"]) {row["running"]=true;row["minimized"]=gameMinimized_;}
     return row;
+}
+void AppsController::setGameState(const QVariantMap& game,bool minimized) {
+    if(game_==game && gameMinimized_==minimized)return;
+    game_=game;gameMinimized_=minimized;normalize();emit changed();
 }
 QVariantList AppsController::rows() const {
     QVariantList result;for(const auto& value:catalogue_)if(hiddenIds_.contains(value.toMap()["id"].toString())==hidden_)result.append(decorated(value.toMap()));return result;
@@ -137,16 +153,25 @@ QVariantList AppsController::rail() const {
     QVariantList result;QSet<QString> pinned;
     for(const auto& value:catalogue_) {
         const auto id=value.toMap()["id"].toString();
-        if(favorites_.contains(id)&&(!hiddenIds_.contains(id)||running_.contains(id))&&pinned.size()<favoriteCapacity_) {
+        if(favorites_.contains(id)&&(!hiddenIds_.contains(id)||decorated(value.toMap())["running"].toBool())&&pinned.size()<favoriteCapacity_) {
             auto row=decorated(value.toMap());row["railPinned"]=true;result.append(row);pinned.insert(id);
         }
     }
     for(const auto& value:catalogue_) {
         const auto id=value.toMap()["id"].toString();
-        if((running_.contains(id)||current_==id||launching_==id)&&!pinned.contains(id)) {
+        if((decorated(value.toMap())["running"].toBool()||launching_==id)&&!pinned.contains(id)) {
             auto row=decorated(value.toMap());row["railPinned"]=false;result.append(row);
         }
-    }return result;
+    }
+    if(!game_.isEmpty() && std::none_of(result.cbegin(),result.cend(),[&](const QVariant& row){return row.toMap()["gameId"]==game_["gameId"];})) {
+        auto row=decorated(game_);row["railPinned"]=false;result.append(row);
+    }
+    QSet<QString> games;
+    result.erase(std::remove_if(result.begin(),result.end(),[&](const QVariant& value){
+        const auto id=value.toMap()["gameId"].toString();if(id.isEmpty())return false;
+        if(games.contains(id))return true;games.insert(id);return false;
+    }),result.end());
+    return result;
 }
 int AppsController::visibleFavoriteCount() const {
     int count=0;for(const auto& value:catalogue_) {
@@ -190,12 +215,16 @@ void AppsController::watchInstaller(qint64 pid,const QString& title) {
 void AppsController::finishInstaller() {emit commandRequested({{"command","finish-installer"}});}
 void AppsController::resumeInstaller() {emit commandRequested({{"command","resume-installer"}});}
 void AppsController::refresh(){
-    if(process_.state()==QProcess::NotRunning&&!helper_.isEmpty()){start(python_,helper_);return;}
+    if(process_.state()==QProcess::NotRunning&&!helper_.isEmpty()){heartbeat_.stop();start(python_,helper_);return;}
     emit commandRequested({{"command","refresh"}});
 }
 void AppsController::select(int index,bool rail){const auto list=rail?this->rail():rows();if(index<0||index>=list.size())return;railFocused_=rail;(rail?railFocus_:focus_)=index;emit changed();}
 void AppsController::openDesktopId(const QString& id) {
     if(id.isEmpty()||!launching_.isEmpty())return;
+    for(const auto& value:catalogue_)if(value.toMap()["id"]==id && !value.toMap()["gameId"].toString().isEmpty()) {
+        const auto error=launchManagedGame?launchManagedGame(value.toMap()["gameId"].toString()):QString("Game controls are unavailable.");
+        if(!error.isEmpty())failLaunch(error);return;
+    }
     if(!ready_){failLaunch("Application controls are unavailable. Open Apps to reconnect.");return;}
     if(launchGuard){const auto error=launchGuard();if(!error.isEmpty()){failLaunch(error);return;}}
     launching_=id;status_.clear();emit changed();
@@ -205,6 +234,11 @@ void AppsController::openDesktopId(const QString& id) {
 void AppsController::open(int index,bool rail) {
     if(index<0||index>=(rail?this->rail():rows()).size())return;
     select(index,rail);const auto id=selected();if(id.isEmpty()||!launching_.isEmpty())return;
+    const auto game=(rail?this->rail():rows())[index].toMap()["gameId"].toString();
+    if(!game.isEmpty()) {
+        const auto error=launchManagedGame?launchManagedGame(game):QString("Game controls are unavailable.");
+        if(!error.isEmpty())failLaunch(error);return;
+    }
     if(!ready_){failLaunch("Application controls are unavailable. Open Apps to reconnect.");return;}
     if(launchGuard){const auto error=launchGuard();if(!error.isEmpty()){failLaunch(error);return;}}
     launching_=id;status_.clear();emit changed();emit commandRequested({{"command","launch"},{"id",id}});
@@ -212,6 +246,7 @@ void AppsController::open(int index,bool rail) {
 void AppsController::options(int index,bool rail){if(index<0||index>=(rail?this->rail():rows()).size())return;select(index,rail);menuId_=selected();menuFocus_=0;emit changed();}
 QVariantList AppsController::menu() const {
     if(menuId_.isEmpty())return {};
+    if(menuId_.startsWith("game:"))return {QVariantMap{{"label","Back"}}};
     return {QVariantMap{{"label",favorites_.contains(menuId_)?"Remove favorite":visibleFavoriteCount()>=favoriteCapacity_?"Favorites full - remove one":"Add to favorites"}},
             QVariantMap{{"label",hiddenIds_.contains(menuId_)?"Show in Apps":"Hide from Apps"}},
             QVariantMap{{"label",hidden_?"All applications":"Hidden applications"}},QVariantMap{{"label","Back"}}};
@@ -225,6 +260,7 @@ bool AppsController::persist(const QSet<QString>& favorites,const QSet<QString>&
 }
 void AppsController::menuAction(int index) {
     if(menuId_.isEmpty())return;
+    if(menuId_.startsWith("game:")){menuId_.clear();emit changed();return;}
     const auto previous=railFocused_?selected():QString{};
     auto favorites=favorites_,hidden=hiddenIds_;
     if(index==0){

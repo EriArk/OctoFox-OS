@@ -1,5 +1,11 @@
 # Карта готовности функций TrainerOS
 
+**14 November — Apps and card changes:** current source routes Steam shortcuts
+through game controls and retains running PC/Crates games in Quick Apps. App
+windows/reconnect and removable-library reconciliation share existing owners.
+Verification and limitations: [Apps/storage evidence](evidence/2026-11-14-apps-storage/README.md).
+This does not certify every third-party application or physical card removal.
+
 **13 November — handheld follow-up delivered:** private sequence 34 (`52aec748`)
 is installed on both devices. Three game/Home/minimize/return cycles passed;
 Odin RSS after returns 600–642 MiB, Flip 516–535 MiB. Physical-button, long-play

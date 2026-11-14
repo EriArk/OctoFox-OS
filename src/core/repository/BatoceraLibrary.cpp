@@ -17,6 +17,7 @@
 #include <QSaveFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <memory>
 #include <algorithm>
 
@@ -351,23 +352,26 @@ FolderScan scanBatoceraLibrary(const QString& roms,const QList<AdventureRegistra
 BatoceraLibrary::BatoceraLibrary(LibraryRepository& library,QString roms,QObject* parent)
     :QObject(parent),library_(library),roms_(std::move(roms)) {}
 QString BatoceraLibrary::snapshotPath() const {
-    return snapshotDirectory_.isEmpty()?QString():snapshotDirectory_+"/library-catalogue-"+
-        QString::fromLatin1(QCryptographicHash::hash(QDir::cleanPath(roms_).toUtf8(),QCryptographicHash::Sha256).toHex())+".json";
+    return snapshotDirectory_.isEmpty()?QString():snapshotDirectory_+"/library-catalogue-v2.json";
 }
 void BatoceraLibrary::restoreSnapshot(const QString& directory) {
     if(busy_)return;
     snapshotDirectory_=directory;busy_=true;scanStatus_="Loading saved catalogue";emit busyChanged();
     auto result=std::make_shared<QVariantMap>();
-    thread_=QThread::create([result,path=snapshotPath(),root=roms_] {
-        QFile file(path);if(file.size()>32*1024*1024||!file.open(QIODevice::ReadOnly))return;
+    thread_=QThread::create([result,path=snapshotPath(),root=roms_,directory] {
+        const auto legacy=directory+"/library-catalogue-"+QString::fromLatin1(QCryptographicHash::hash(QDir::cleanPath(root).toUtf8(),QCryptographicHash::Sha256).toHex())+".json";
+        QFile file(QFileInfo::exists(path)?path:legacy);if(file.size()>32*1024*1024||!file.open(QIODevice::ReadOnly))return;
         const auto value=QJsonDocument::fromJson(file.readAll()).object();
-        if(value["version"].toInt()==1&&value["root"].toString()==root)*result=value["entries"].toObject().toVariantMap();
+        if(value["version"].toInt()==2 || (value["version"].toInt()==1&&value["root"].toString()==root))*result=value.toVariantMap();
     });
     connect(thread_,&QThread::finished,this,[this,result] {
         thread_->wait();delete thread_;thread_=nullptr;
         media_.clear();
+        knownRoots_={roms_};
+        for(const auto& root:result->value("roots").toStringList())if(QDir::isAbsolutePath(root))knownRoots_.insert(root);
+        const auto entries=result->value("entries").toMap();
         for(const auto& r:library_.registrations()) {
-            const auto cached=result->value(r.adventure.id).toMap();
+            const auto cached=entries.value(r.adventure.id).toMap();
             if(cached["path"]==r.contentPath)media_.insert(r.adventure.id,cached["media"].toMap());
         }
         ++revision_;busy_=false;scanStatus_.clear();emit busyChanged();emit changed();emit snapshotRestored();
@@ -385,11 +389,12 @@ BatoceraLibrary::~BatoceraLibrary() {
 QString BatoceraLibrary::storageRootFor(const QString& id) const {
     const auto record=library_.registration(id);if(!record)return {};
     const auto file=QFileInfo(record->contentPath).canonicalFilePath();if(file.isEmpty())return {};
-    for(const auto& entry:QDir(roms_).entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot)) {
+    auto roots=knownRoots_;roots.insert(roms_);
+    for(const auto& libraryRoot:roots)for(const auto& entry:QDir(libraryRoot).entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot)) {
         auto platform=entry.fileName();if(platform=="gamecube")platform="gc";if(platform=="3ds")platform="n3ds";
         if(!formats().contains(platform))continue;
         const auto root=entry.canonicalFilePath();
-        if(!root.isEmpty() && file.startsWith(root+'/'))return QFileInfo(roms_).canonicalFilePath();
+        if(!root.isEmpty() && file.startsWith(root+'/'))return QFileInfo(libraryRoot).canonicalFilePath();
     }
     return {};
 }
@@ -426,7 +431,7 @@ void BatoceraLibrary::setFavoriteAsync(const QString& id,bool favorite,QObject* 
     if(!library_.editable() || !record || record->removed || record->adventure.collectionOnly){done("This game is no longer available in the library.");return;}
     QString systemRoot;
     const auto path=QFileInfo(record->contentPath).canonicalFilePath();
-    for(const auto& entry:QDir(roms_).entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot)) {
+    for(const auto& entry:QDir(storageRootFor(id)).entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot)) {
         const auto root=entry.canonicalFilePath();
         if(formats().contains(romPlatformId(entry.fileName())) && !root.isEmpty() && path.startsWith(root+'/')){systemRoot=root;break;}
     }
@@ -495,14 +500,22 @@ void BatoceraLibrary::refreshContentAvailability() {
     // Browsing consumes the last catalogue. Only an explicit rescan discovers
     // external filesystem changes; navigation never schedules a delayed pass.
 }
-void BatoceraLibrary::rescan() {
+void BatoceraLibrary::storageChanged() {
+    if(!scanning_)return;
+    scanInvalidated_=true;
+    if(thread_)thread_->requestInterruption();
+}
+void BatoceraLibrary::rescan(const QString& mountedRoot) {
     if(!library_.editable()||busy_)return;
+    scanning_=true;scanInvalidated_=false;
     lastScan_.start();
     library_.refreshContentAvailability();
     const auto existing=library_.registrations();
+    scanRoot_=mountedRoot.isEmpty()?roms_:mountedRoot;
+    knownRoots_.insert(scanRoot_);
     busy_=true;scanStatus_="Scanning library";emit busyChanged();
     auto result=std::make_shared<FolderScan>();
-    thread_=QThread::create([this,result,root=roms_,existing,probe=observeIdentity]{
+    thread_=QThread::create([this,result,root=scanRoot_,existing,probe=observeIdentity]{
         *result=scanBatoceraLibrary(root,existing,probe,[this](const QString& platform,int count){
             QMetaObject::invokeMethod(this,[this,platform,count]{scanStatus_=QString("Scanning %1 · %2 games found").arg(platform).arg(count);emit scanProgress();},Qt::QueuedConnection);
         });
@@ -510,11 +523,17 @@ void BatoceraLibrary::rescan() {
     connect(thread_,&QThread::finished,this,[this,result] {
         thread_->wait();delete thread_;thread_=nullptr;
         scan_=std::move(*result);index_=0;added_=0;
-        nextMedia_=scan_.complete?QHash<QString,QVariantMap>{}:media_;importNext();
+        // Disconnected cards retain their cached artwork and metadata. A scan
+        // replaces observations only for entries it actually discovered.
+        nextMedia_=media_;importNext();
     });
     thread_->start();
 }
 void BatoceraLibrary::importNext() {
+    if(scanInvalidated_) {
+        scan_.warnings.append("Storage changed; the previous catalogue was kept.");
+        nextMedia_.clear();finishScan();return;
+    }
     QElapsedTimer slice;slice.start();
     while(index_<scan_.entries.size()) {
         if(slice.elapsed()>=4) {QTimer::singleShot(0,this,&BatoceraLibrary::importNext);return;}
@@ -581,7 +600,7 @@ void BatoceraLibrary::importNext() {
     QVariantMap entries;
     for(const auto& r:library_.registrations())if(media_.contains(r.adventure.id))
         entries.insert(r.adventure.id,QVariantMap{{"path",r.contentPath},{"media",media_.value(r.adventure.id)}});
-    const auto value=QJsonObject{{"version",1},{"root",roms_},{"entries",QJsonObject::fromVariantMap(entries)}};
+    const auto value=QJsonObject{{"version",2},{"roots",QJsonArray::fromStringList(knownRoots_.values())},{"entries",QJsonObject::fromVariantMap(entries)}};
     auto error=std::make_shared<QString>();
     thread_=QThread::create([error,value,path=snapshotPath()]{
         QSaveFile file(path);QDir().mkpath(QFileInfo(path).absolutePath());
@@ -593,7 +612,7 @@ void BatoceraLibrary::importNext() {
 }
 void BatoceraLibrary::finishScan() {
     if(writing_) {writing_=false;emit writingChanged();}
-    busy_=false;scanStatus_.clear();emit busyChanged();
+    busy_=false;scanning_=false;scanStatus_.clear();emit busyChanged();
     PerformanceTrace::sample("library.scan",lastScan_.elapsed());
     emit scanFinished(added_,scan_.warnings);scan_={};
 }

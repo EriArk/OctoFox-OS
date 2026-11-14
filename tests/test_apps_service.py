@@ -34,6 +34,49 @@ def window(pid=90,start='100',transient=0,mapped=True):
 
 
 class Lifecycle(unittest.TestCase):
+    def test_steam_shortcuts_identify_game_without_executing_desktop_text(self):
+        for command,expected in [('steam steam://rungameid/588650','steam:588650'),
+            ('/usr/bin/flatpak run com.valvesoftware.Steam steam://run/42','steam:42'),
+            ('firefox steam://run/42',''),('sh -c "steam steam://run/42"',''),
+            ('steam steam://rungameid/0',''),('steam steam://run/42;anything',''),('steam "','')]:
+            self.assertEqual(apps.steam_game_id(types.SimpleNamespace(get_commandline=lambda:command)),expected)
+
+    @patch.object(apps,'emit')
+    def test_native_minimize_returns_to_shell_and_remains_resumable(self,emit):
+        s=self.service();s.windows.live={11:window(mapped=False)}
+        with patch.object(apps.time,'monotonic',return_value=10) as clock:
+            s.scan();self.assertEqual(s.current,'a')
+            clock.return_value=10.4;s.scan();self.assertEqual(s.current,'')
+        emit.assert_any_call('shell');self.assertTrue(s.sessions['a']['windows'][11]['restore'])
+        s.command({'command':'launch','id':'a'});self.assertEqual(s.current,'a')
+        self.assertEqual(s.windows.mapped[-1],([11],True))
+
+    @patch.object(apps,'emit')
+    def test_minimize_preserves_app_hidden_windows_and_captures_new_dialog(self,emit):
+        s=self.service();s.windows.live={11:window(mapped=False),12:window(transient=11)}
+        s.command({'command':'minimize'})
+        self.assertFalse(s.sessions['a']['windows'][11]['restore'])
+        self.assertTrue(s.sessions['a']['windows'][12]['restore'])
+        self.assertEqual(set(s.windows.mapped[-1][0]),{11,12})
+
+    @patch.object(apps,'emit')
+    def test_replacement_window_is_journaled_without_app_state_change(self,emit):
+        s=self.service();s.windows.live={11:window()}
+        with patch.object(s,'save_sessions') as save:
+            s.scan();save.reset_mock();emit.reset_mock()
+            s.windows.live={12:window()};s.scan()
+            save.assert_called_once();emit.assert_not_called()
+            self.assertEqual(set(s.sessions['a']['windows']),{12})
+
+    def test_restore_maps_parent_then_dialog_without_unhiding_app_windows(self):
+        calls=[];windows=apps.Windows.__new__(apps.Windows)
+        windows.valid=lambda *args:True
+        windows.x=types.SimpleNamespace(display=None,x=types.SimpleNamespace(
+            XMapWindow=lambda d,w:calls.append(('map',w)),XRaiseWindow=lambda d,w:calls.append(('raise',w)),
+            XUnmapWindow=lambda d,w:calls.append(('hide',w)),XFlush=lambda d:None))
+        windows.map({12:window(transient=11),13:dict(window(),restore=False),11:window()},True)
+        self.assertEqual(calls,[('map',11),('raise',11),('map',12),('raise',12)])
+
     @patch.object(apps,'emit')
     def test_explicit_url_reuses_only_observed_browser_identity(self,emit):
         for reuse,changed,expected in [(True,False,True),(False,False,False),(True,True,False)]:

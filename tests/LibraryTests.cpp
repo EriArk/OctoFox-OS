@@ -16,6 +16,7 @@
 #include "core/storage/LibraryFileMove.h"
 #include "features/crates/CratesLibrary.h"
 #include "core/model/MultiplayerPreference.h"
+#include "platform/storage/LibraryMountWatcher.h"
 
 using namespace trainer;
 namespace {
@@ -41,6 +42,52 @@ public:
 class LibraryTests final : public QObject {
     Q_OBJECT
 private slots:
+    void mountChangesCoalesceAndWaitForGameAndWrites() {
+        LibraryMountWatcher watcher;
+        QByteArray topology="card-a";QStringList roots{"/a/roms","/a/roms"};bool idle=false,writable=false;
+        watcher.topology=[&]{return topology;};watcher.roots=[&]{return roots;};
+        watcher.idle=[&]{return idle;};watcher.availabilityReady=[&]{return writable;};
+        QSignalSpy scans(&watcher,&LibraryMountWatcher::scanRequested),availability(&watcher,&LibraryMountWatcher::availabilityChanged);
+        watcher.poll();watcher.poll();QCOMPARE(scans.size(),0);QCOMPARE(availability.size(),0);
+        topology="card-b";roots={"/b/roms"};watcher.poll(); // A was removed while a game held the library.
+        writable=true;watcher.poll();QCOMPARE(availability.size(),1);QCOMPARE(scans.size(),0);
+        idle=true;watcher.poll();QCOMPARE(scans.size(),1);QCOMPARE(scans[0][0].toString(),"/b/roms");
+        watcher.poll();QCOMPARE(scans.size(),1);QCOMPARE(availability.size(),1);
+        topology="none";roots.clear();watcher.poll();QCOMPARE(availability.size(),2);QCOMPARE(scans.size(),1);
+        topology="card-b-new-mount-id";roots={"/b/roms","/b/roms"};watcher.poll();watcher.poll();QCOMPARE(scans.size(),2);
+    }
+    void cardCataloguesSurviveRemovalAnotherCardAndRestart() {
+        QTemporaryDir dir;const auto first=dir.filePath("a/roms"),second=dir.filePath("b/roms");
+        for(const auto& root:{first,second}){QVERIFY(QDir().mkpath(root+"/gba"));fixtureFile(root+"/gba/fixture.gba");}
+        LocalStateStore store(dir.filePath("state"),nullptr,"user-library-v1");store.open();QTRY_VERIFY(store.ready());
+        QString firstId,secondId;
+        {
+            BatoceraLibrary folders(store,first);folders.restoreSnapshot(dir.filePath("cache"));QTRY_VERIFY(!folders.busy());
+            folders.rescan();QTRY_VERIFY(!folders.busy());QCOMPARE(store.registrations().size(),1);
+            firstId=store.registrations().first().adventure.id;
+            bool saved=false;folders.setFavoriteAsync(firstId,true,this,[&](const QString& error){QVERIFY2(error.isEmpty(),qPrintable(error));saved=true;});QTRY_VERIFY(saved);
+            QVERIFY(QDir().rename(dir.filePath("a"),dir.filePath("a-disconnected")));
+            folders.rescan(second);QTRY_VERIFY(!folders.busy());QCOMPARE(store.registrations().size(),2);
+            QTRY_VERIFY(!store.registration(firstId)->contentAvailable);
+            QVERIFY(!store.registration(firstId)->removed);QVERIFY(folders.artwork(firstId)["favorite"].toBool());
+            for(const auto& r:store.registrations())if(r.adventure.id!=firstId)secondId=r.adventure.id;
+            QCOMPARE(folders.storageRootFor(secondId),second);
+            saved=false;folders.setFavoriteAsync(secondId,true,this,[&](const QString& error){QVERIFY2(error.isEmpty(),qPrintable(error));saved=true;});QTRY_VERIFY(saved);
+        }
+        BatoceraLibrary restored(store,first);restored.restoreSnapshot(dir.filePath("cache"));QTRY_VERIFY(!restored.busy());
+        QVERIFY(restored.artwork(firstId)["favorite"].toBool());QVERIFY(restored.artwork(secondId)["favorite"].toBool());
+        QCOMPARE(restored.storageRootFor(secondId),second);
+        QVERIFY(QDir().rename(dir.filePath("a-disconnected"),dir.filePath("a")));
+        store.refreshContentAvailability();QTRY_VERIFY(store.registration(firstId)->contentAvailable);
+        QCOMPARE(store.registrations().size(),2); // Cached identity/history is reused before another scan.
+    }
+    void interruptedCardScanDoesNotPublishStaleEntries() {
+        QTemporaryDir dir;QVERIFY(QDir().mkpath(dir.filePath("roms/gba")));fixtureFile(dir.filePath("roms/gba/fixture.gba"));
+        LocalStateStore store(dir.filePath("state"),nullptr,"user-library-v1");store.open();QTRY_VERIFY(store.ready());
+        BatoceraLibrary folders(store,dir.filePath("roms"));
+        folders.rescan();folders.storageChanged();QTRY_VERIFY(!folders.busy());QVERIFY(store.registrations().isEmpty());
+        folders.rescan();QTRY_VERIFY(!folders.busy());QCOMPARE(store.registrations().size(),1);
+    }
     void manualMultiplayerSurvivesRestartAndScanAndRejectsForeignModes() {
         QTemporaryDir dir;QVERIFY(QDir().mkpath(dir.filePath("roms/gc")));
         const auto rom=dir.filePath("roms/gc/game.iso");fixtureFile(rom);QString id;
@@ -362,8 +409,13 @@ private slots:
         shell.dispatch(Action::ContextMenu);QVERIFY(!shell.libraryTools()->isOpen());
         shell.dispatch(Action::Back);QVERIFY(!shell.collectionManager()->isOpen());
         shell.dispatch(Action::Confirm);QCOMPARE(shell.multiverse()->route(),"games");
-        QTRY_VERIFY(!shell.notice().isEmpty());
-        QVERIFY(!shell.libraryTools()->isOpen());QVERIFY(!shell.serviceOpen());
+        // Unconfigured games now open the existing repair result, not an old
+        // generic notice. Verify both the selected game and blocked Play state.
+        QTRY_COMPARE(shell.libraryManager()->route(),"result");
+        QCOMPARE(shell.libraryManager()->resultGame(),record.adventure.id);
+        QVERIFY(!shell.libraryManager()->result()["canPlay"].toBool());
+        QVERIFY(!shell.libraryManager()->result()["detail"].toString().isEmpty());
+        QVERIFY(!shell.libraryTools()->isOpen());QVERIFY(shell.serviceOpen());
         shell.dispatch(Action::Back);
         QVERIFY(!shell.libraryTools()->isOpen());QCOMPARE(shell.multiverse()->route(),"games");
         QVERIFY(!shell.canEditWorld());

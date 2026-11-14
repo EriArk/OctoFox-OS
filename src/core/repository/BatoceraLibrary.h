@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QSet>
 
 namespace trainer {
 struct FolderEntry {
@@ -53,10 +54,11 @@ public:
     QVariantMap experienceIdentity(const QString& id) const override { return media_.value(id).value("experienceIdentity").toMap(); }
     void setDisplayPreferences(const QJsonObject& preferences) {if(display_==preferences)return;display_=preferences;++revision_;emit changed();}
     void refreshContentAvailability() override;
-    void rescan();
+    void rescan(const QString& mountedRoot = {});
+    void storageChanged();
     void restoreSnapshot(const QString& directory);
     QString scanStatus() const { return scanStatus_; }
-    bool setRoot(const QString& root) { if(busy_)return false; roms_=root;media_.clear();++revision_;lastScan_.invalidate();return true; }
+    bool setRoot(const QString& root) { if(busy_)return false; roms_=root;++revision_;lastScan_.invalidate();return true; }
     bool busy() const { return busy_; }
     QString root() const { return roms_; }
     bool writing() const { return writing_; }
@@ -75,9 +77,11 @@ private:
     void finishScan();
     QString snapshotPath() const;
     LibraryRepository& library_;
-    QString roms_;
+    QString roms_, scanRoot_;
+    QSet<QString> knownRoots_;
     QThread* thread_ = nullptr;
     bool busy_ = false;
+    bool scanning_ = false, scanInvalidated_ = false;
     bool writing_ = false;
     QElapsedTimer lastScan_;
     QString snapshotDirectory_, scanStatus_;

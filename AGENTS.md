@@ -1,5 +1,16 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner Apps and removable libraries, 14 November 2026 (latest):** ordinary apps
+and games opened from Apps must share reliable launch/minimize/close behavior and
+remain reachable in Quick Apps. Steam desktop shortcuts use the existing game
+lifecycle; retain the colorful game Home and native application save dialogs.
+Detect mounted-card changes automatically, reuse cached catalogues and reconcile
+in the background at idle, preserving personal metadata/history/saves. Install
+and verify on reachable Flip/Odin. Physical card removal is separate acceptance;
+never unmount a personal card with active users just to manufacture a test.
+Source implementation is being validated; sequence 34 remains installed until
+the new device delivery is explicitly recorded.
+
 **Owner immediate handheld validation, 13 November 2026 (latest):** install and
 verify the resource changes on reachable Flip and Odin now. Preserve personal
 state and one working rollback. Test real game launch, Home and return; host

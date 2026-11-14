@@ -1,5 +1,11 @@
 # Задачи и условия готовности
 
+**14 November — Apps lifecycle and removable libraries:** implementation adds
+managed Steam shortcuts, running PC/Crates games in Quick Apps, native minimize
+recovery, bounded helper reconnect, and mount-triggered cached-library refresh.
+Host/device verification is in progress; the existing installed sequence 34 is
+not evidence for these changes. [Current evidence](evidence/2026-11-14-apps-storage/README.md).
+
 **13 November — handheld follow-up delivered:** private sequence 34 (`52aec748`)
 is installed on both devices. Three game/Home/minimize/return cycles passed;
 Odin RSS after returns 600–642 MiB, Flip 516–535 MiB. Physical-button, long-play

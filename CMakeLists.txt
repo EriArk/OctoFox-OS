@@ -86,6 +86,7 @@ add_library(trainer_core STATIC
     src/features/settings/LibraryStorageController.cpp
     src/features/setup/FirstRunController.cpp
     src/platform/storage/LibraryStorage.cpp
+    src/platform/storage/LibraryMountWatcher.cpp
     src/integrations/scraper/ScreenScraper.cpp
     src/integrations/scraper/BatoceraScrapeWriter.cpp
     src/core/storage/SqliteLibraryEdits.cpp
@@ -1114,6 +1115,7 @@ else()
     message(STATUS "Building without separately licensed avatar assets")
 endif()
 install(FILES assets/avatar/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/avatar)
+install(FILES packaging/integrations/apps-service.py DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/integrations)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     find_package(PkgConfig QUIET)
     if(PkgConfig_FOUND)

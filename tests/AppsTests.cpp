@@ -4,6 +4,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QSignalSpy>
+#include <QFile>
+#include <QStandardPaths>
 using namespace trainer;
 class AppsTests:public QObject {
     Q_OBJECT
@@ -15,6 +17,45 @@ class AppsTests:public QObject {
         apps.accept({{"event","ready"}});
     }
 private slots:
+    void managedGamesUseGameLifecycleAndStayInQuickApps() {
+        AppsController apps;QString requested;int launches=0;
+        apps.launchManagedGame=[&](const QString& id){requested=id;++launches;return QString();};
+        apps.launchGuard=[]{return QString("Ordinary apps blocked during game");};
+        apps.accept({{"event","catalogue"},{"rows",QJsonArray{QJsonObject{{"id","game.desktop"},{"name","Game"},{"gameId","steam:42"}}}}});
+        QSignalSpy commands(&apps,&AppsController::commandRequested);
+        apps.open(0);QCOMPARE(requested,"steam:42");QVERIFY(commands.isEmpty());
+        apps.setGameState({{"id","game:steam:42"},{"gameId","steam:42"},{"name","Game"}},true);
+        QCOMPARE(apps.rail().size(),1);QVERIFY(apps.rail().first().toMap()["minimized"].toBool());
+        apps.accept({{"event","state"},{"running",QJsonArray{}},{"current",""}});QCOMPARE(apps.rail().size(),1);
+        apps.open(0,true);QCOMPARE(launches,2);
+        apps.setGameState({},false);QVERIFY(apps.rail().isEmpty());
+        apps.setGameState({{"id","game:crates:fixture"},{"gameId","crates:fixture"},{"name","Crate game"}},true);
+        QCOMPARE(apps.rail().size(),1);apps.open(0,true);QCOMPARE(requested,"crates:fixture");
+        apps.setGameState({},false);QVERIFY(apps.rail().isEmpty());
+    }
+    void helperCrashReconnectsAndRestoresQuickApps() {
+        const auto python=QStandardPaths::findExecutable("python3");if(python.isEmpty())QSKIP("Python3 unavailable");
+        QTemporaryDir dir;const auto helper=dir.filePath("helper.py");
+        QFile file(helper);QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(R"PY(import json, pathlib, sys, time
+marker=pathlib.Path(__file__).with_suffix('.started')
+first=not marker.exists()
+marker.touch()
+def send(**value): print(json.dumps(value),flush=True)
+send(event='catalogue',rows=[dict(id='fixture.desktop',name='Fixture')])
+send(event='ready')
+send(event='state',running=['fixture.desktop'],current='',launching='')
+if first:
+    time.sleep(.3)
+    sys.exit(1)
+for line in sys.stdin: pass
+)PY");file.close();
+        AppsController apps;apps.start(python,helper);
+        QTRY_VERIFY(apps.ready());QCOMPARE(apps.rail().size(),1);
+        QTRY_VERIFY(!apps.ready());QCOMPARE(apps.rail().size(),1);
+        QTRY_VERIFY_WITH_TIMEOUT(apps.ready(),5000);
+        QCOMPARE(apps.rail().size(),1);QVERIFY(apps.rail().first().toMap()["minimized"].toBool());
+    }
     void browserUsesManagedLaunchAndReportsFailure() {
         QTemporaryDir dir;AppsController apps;apps.configure(dir.path(),"alice");
         QSignalSpy commands(&apps,&AppsController::commandRequested),errors(&apps,&AppsController::webOpenFailed);

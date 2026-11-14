@@ -1,6 +1,8 @@
 #include "adapters/pokemon/PokemonExperience.h"
 #include "PlatformBinding.h"
 #include "SessionConnections.h"
+#include "platform/storage/LibraryMountWatcher.h"
+#include "platform/storage/LibraryStorage.h"
 #include "integrations/adventure/CratesAdventureAdapter.h"
 #include "integrations/adventure/PcAdventureAdapter.h"
 #include "integrations/adventure/SteamAdventureAdapter.h"
@@ -1104,6 +1106,7 @@ int main(int argc, char* argv[]) {
             if (!profile || !record) return {};
             return ExitMediaSource{profile->id, record->adventure.domain, *record};
         });
+        LibraryMountWatcher libraryMounts;
         std::unique_ptr<EmulatorRefresh> emulatorRefresh;
         QTimer emulatorPoll;
         if (personalLibrary && !smoke) {
@@ -1169,6 +1172,21 @@ int main(int argc, char* argv[]) {
             // RuntimeMultiplayer watches its own content dependencies. Inventory
             // changes above refresh it; an idle minute is not a library change.
             emulatorPoll.start();
+            libraryMounts.roots=[&]{return mountedLibraryRoots(folders.root());};
+            bindings.connect(&libraryMounts,&LibraryMountWatcher::storageChanged,&folders,&BatoceraLibrary::storageChanged);
+            libraryMounts.availabilityReady=[&]{return store->ready() && !store->pending() && !store->opening();};
+            libraryMounts.idle=[&]{return store->ready() && emulatorRefresh->idle() && !shell.apps()->hasRunningApps()
+                && !steamLibrary.busy() && !shell.scraper()->busy() && !shell.gamePreparation()->busy();};
+            bindings.connect(&libraryMounts,&LibraryMountWatcher::discoveryRequested,&steamLibrary,&SteamLibrary::scan);
+            bindings.connect(&libraryMounts,&LibraryMountWatcher::availabilityChanged,store.get(),[&]{
+                // Existing registrations/metadata are already in memory. Only
+                // availability is reconciled here, without rescanning ROMs.
+                store->refreshContentAvailability();
+            });
+            bindings.connect(&libraryMounts,&LibraryMountWatcher::scanRequested,&folders,[&](const QString& root){
+                folders.rescan(root);
+            });
+            libraryMounts.start(QFileInfo(folders.root()).canonicalFilePath(),shell.settings()->scanLibraryAtStartup());
         }
         shell.scraper()->canStart = [&] {
             return !shell.gamePreparation()->busy() && personalLibrary && !smoke && !adventureLaunch.active() && !session.blocked()
@@ -1368,7 +1386,8 @@ int main(int argc, char* argv[]) {
                   if(pendingSystemAction=="power"){pendingSystemAction.clear();shell.systemAction("power");}
             });
             if(personalLibrary&&!smoke&&platform.dedicatedSession()) {
-                const QString helper="/var/opt/traineros/integrations/apps-service.py";
+                auto helper=QCoreApplication::applicationDirPath()+"/../share/traineros/integrations/apps-service.py";
+                if(!QFileInfo::exists(helper))helper="/var/opt/traineros/integrations/apps-service.py";
                 if(QFileInfo::exists(helper))shell.apps()->start("/usr/bin/python3",helper);
                 shell.backendAccount()->setBrowserOpener([&,accountBrowser](QUrl url){
                     *accountBrowser=shell.apps()->openWebUrl(url);return *accountBrowser;
@@ -1530,12 +1549,26 @@ int main(int argc, char* argv[]) {
                 });
                 multiplayer.requestRuntimeLaunch = requestAdventure;
                 remotePlay.requestGuestLaunch = requestAdventure;
+                shell.apps()->launchManagedGame=[&](const QString& id)->QString {
+                    const auto record=activeLibrary.registration(id);
+                    if(!record || record->removed)return "This game is not installed. Open Games to check its library.";
+                    if(adventureLaunch.minimized() && adventureLaunch.adventureId()==id && adventureOverlay) {
+                        adventureOverlay->returnToGame();return {};
+                    }
+                    if(adventureLaunch.active() || session.blocked() || shell.runtimeChangeBlocked())return "Finish the current game or operation before opening another game.";
+                    shell.launchPreparation().launch(id);return {};
+                };
                 bindings.connect(&adventureLaunch, &AdventureLaunchController::changed, &session, [&] {
                     session.setAdventureActive(adventureLaunch.active());
                     session.setAdventureMinimized(adventureLaunch.minimized());
                     QVariantMap live;
                     if(adventureLaunch.active() && !adventureLaunch.preparing())live={{"id",adventureLaunch.adventureId()},{"title",exitPresentation.gameTitle()}};
                     shell.setLiveGame(live);
+                    QVariantMap game;
+                    if(adventureLaunch.active())if(const auto record=activeLibrary.registration(adventureLaunch.adventureId());record
+                        && QStringList{"steam","pc-local","crates-native"}.contains(record->adventure.adapterId))
+                        game={{"id","game:"+record->adventure.id},{"gameId",record->adventure.id},{"name",record->adventure.title},{"icon","applications-games"}};
+                    shell.apps()->setGameState(game,adventureLaunch.minimized());
                     input.setEnabled(app.applicationState() == Qt::ApplicationActive && (!adventureLaunch.active() || adventureLaunch.preparing()));
                 });
                 bindings.connect(&adventureLaunch, &AdventureLaunchController::checkpointRequested, store.get(),
