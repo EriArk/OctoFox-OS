@@ -1,5 +1,15 @@
 # OctoFox OS — Changelog
 
+## 14 November 2026 — corrected Proton exit reporting
+
+Fixed a confirmed OctoFox supervisor error: a failed adopted Wine child no longer
+overrides a successful UMU/Proton result. Real runner failures remain visible;
+driver output goes to one bounded private log instead of the normal UI.
+The system PC helper from `c6728a74` is installed on Odin and Flip. Twenty-one
+PC checks passed on each; Quill's actual Home → Exit on Odin now returns cleanly.
+Temporary device files were removed. Software stays at sequence 36; no public
+release. [Evidence](docs/evidence/2026-11-14-pc-installer/README.md#follow-up-bounded-exit-fix).
+
 ## 14 November 2026 — Windows installer and internal storage
 
 Private sequence 36 (`f318474d`) is installed on Odin and Flip. Installer launch

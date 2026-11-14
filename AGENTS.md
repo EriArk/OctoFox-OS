@@ -1,5 +1,14 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner bounded PC repair, 14 November 2026:** investigate/fix OctoFox's close
+error without deep game-specific work. Confirmed primary UMU exit 0 was overridden
+by an adopted child's 255. System helper patch `c6728a74` is installed on both;
+21 PC session checks passed per device and Quill Home → Exit returned cleanly on
+Odin. Driver logs are bounded/private, real runner failures retained. Software
+remains sequence 36 (next 37+); this does not publish a new Setup/bootstrap bundle.
+The clean-close result supersedes the earlier pending Quill close statement below;
+standalone installation on Flip remains open. Temporary device files were cleaned.
+
 **Latest device checkpoint, 14 November 2026:** private Software sequence 36
 (`f318474d`) is installed on both; reserve 37+ for the next signed candidate.
 Windows installer activation waits for its first owned window. Quill installed

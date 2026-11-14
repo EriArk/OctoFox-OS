@@ -1,5 +1,46 @@
 # Windows installer and handheld housekeeping — 14 November 2026
 
+## Follow-up: bounded exit fix
+
+The owner requested fixing the close issue without extensive game-specific
+investigation. A temporary status-only trace on Odin established that the primary
+UMU/Proton process exited **0**, while one adopted child exited **255**. The old
+supervisor incorrectly promoted that child status to the whole session's result.
+The instrumentation was removed after diagnosis; Quill itself was not modified.
+
+Commit `c6728a74` uses the primary runner's result for Proton, which is explicitly
+launched with `waitforexitandrun`. It still waits/reaps all children. Nonzero
+runner exits remain failures; native detached-child failures and cancellation
+keep their previous semantics. No exception for a specific game or code 255.
+Proton output now has a 64 KiB retained tail and one private last-session log per
+prefix, with concise UI failure text. This avoids both raw driver-log popups and
+unbounded diagnostic files. Log-write failure does not alter the game result.
+
+Installed `/var/opt/traineros/pc/launch.py` on **Odin and Flip**, SHA-256
+`903a8fe8eda3f8abf79b955dc38a05f67ec8d7047302226562ce071610d13f3e`.
+Retained the original helper and recorded the replacement in Flip's managed
+session ownership journal. This is an installed **system integration patch**;
+the signed Software shell remains sequence 36, and no new public installer,
+bootstrap bundle or Software sequence was published. Source Setup will include
+the helper on its next packaging; reinstalling the old published Setup can
+restore its older helper. Reserve sequence 37+ as before.
+
+Validation: 21 PC session tests passed locally and against the installed helper
+on each handheld. They cover helper failure both before/after the runner,
+nonzero primary status with noisy output, bounded/private logs, detached native
+failure, cancellation and isolated prefix behavior. The 21 Apps helper tests
+also passed locally. On Odin, actual library launch reached Quill's main menu;
+Home → Exit → Leave returned to the library **without an error notice** and no
+remaining PC session. The final 6,568-byte log recorded `runtimeExit: 0`,
+`childFailure: 255`, `sessionExit: 0`, with mode 0600. This supersedes the earlier
+Quill close failure below, not the other pending acceptance items.
+
+Temporary test folders, status tracing and remote screenshots were removed from
+both devices. Original helper rollback and the small bounded runtime log remain.
+No deep Quill/FEX investigation, game patch, suspend test or compatibility-wide
+claim. Full standalone Windows installer acceptance on Flip remains separate.
+
+
 ## Delivered change
 
 On Odin, starting a Windows installer on sequence 35 hid the shell before Wine
