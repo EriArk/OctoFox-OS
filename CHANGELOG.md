@@ -1,5 +1,15 @@
 # OctoFox OS — Changelog
 
+## 15 November 2026 — ship entry delivered in the upper header
+
+Private Software **48** combines the current Software 47 Bazaar shell with the
+Ship Home entry. The saucer replaces the upper bell on **both Odin and Flip**;
+the footer inbox remains. Actual header launch, own avatar, Save and exit and
+footer notification checks passed with remote keyboard/pointer. Ship/Bazaar
+assets and personal state were retained; Software 47 is the rollback. Physical
+controls, Home/minimize/Quick Apps and sustained performance remain separate.
+[Device screenshots and delivery evidence](docs/evidence/2026-11-15-ship-header/README.md).
+
 ## 14 November 2026 — warm ship applied to Odin and Flip
 
 Installed standalone preview `34aa5da8b7518ad3` on both handhelds after the owner

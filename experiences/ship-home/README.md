@@ -1,5 +1,9 @@
 # Ship Home — development preview
 
+**Handheld entry, 15 November 2026:** Software 48 adds the upper saucer button
+on both Odin and Flip, retaining their current Bazaar shell. Enter directly from
+that icon; Apps remains an alternative. [Device checks](../../docs/evidence/2026-11-15-ship-header/README.md).
+
 A separate third-person home for the OctoFox character. Rooms fit inside one
 10.6 × 12.4 metre oval pressure hull. A single-seat cockpit sits at the bow,
 a small galley/dinette occupies the middle, and four compact bays share a short

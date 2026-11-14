@@ -1,0 +1,9 @@
+********* Start testing of trainer::BazaarCatalogueTests *********
+Totals: 10 passed, 0 failed, 0 skipped, 0 blacklisted, 25ms
+********* Start testing of AppsTests *********
+Totals: 20 passed, 0 failed, 0 skipped, 0 blacklisted, 1844ms
+********* Start testing of InteractionTests *********
+SKIP   : InteractionTests::shipConsumesLiveHostAvatar() Set development Godot/project paths for the two-process ship check
+PASS   : InteractionTests::shipEntryUsesManagedAppsAndRespectsModalInput()
+Totals: 62 passed, 0 failed, 1 skipped, 0 blacklisted, 7414ms
+BUILD_PASSED native

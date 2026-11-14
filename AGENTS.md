@@ -1,5 +1,15 @@
 # OctoFox OS — active agent / developer contract
 
+**Header entry delivery, 15 November 2026:** private Software **48** is installed
+on both Odin and Flip, retaining the current Software 47 Bazaar behaviour. The
+upper saucer launches Ship Home; footer notifications remain. Actual entry,
+Save and exit and inbox checks passed with remote keyboard/pointer. Reserve
+**49+** next. Physical controls and Home/minimize/return remain open.
+Odin microSD staging cleanup (`OctoFox/ship-header-20261115`) was still blocked
+on writeback at final check; a scoped cleanup process remains. Do not reboot or
+interrupt the owner’s running Bazaar to clean it. Flip cleanup completed.
+[Evidence](docs/evidence/2026-11-15-ship-header/README.md).
+
 **Header entry correction, 15 November 2026:** the owner requires the saucer
 entry in the upper header on both handhelds, replacing the upper bell. Integrate
 the Ship Home shell entry with the currently installed Software 47 Bazaar shell;
