@@ -23,10 +23,17 @@ motion.advance(delta, motor.actual_speed, controls_enabled,
                motor.crouched, body.is_on_floor(), motor.gait)
 ```
 
+Map raw left-stick input once with `TrainerCharacterMotor.stick_direction(raw)`.
+Its default radial inner dead zone is 18%; the outer dead zone is 20%, so full
+speed is reached at 80% travel. The remaining range is linear, with diagonal
+magnitude capped at one. Do not apply another magnitude/dead-zone multiplication.
+Both thresholds can be supplied explicitly; this helper does not change camera input.
+
 `direction` is a horizontal world vector of length 0–1. The caller owns key/pad/
 touch mappings, camera, permissions, networking and spawn/respawn. Full input
 runs; a light stick walks. `walk` forces walking and `sprint` requests sprinting.
-Crouch takes precedence. `jump_pressed` is an edge, not a held button. A short
+Crouch takes precedence. Resolved travel up to 2.4 m/s selects the walking clip;
+partial input no longer plays a running clip in slow motion. `jump_pressed` is an edge, not a held button. A short
 jump buffer and coyote time tolerate input near the edge of a step. Crouching
 changes the capsule, and standing queries clearance before expanding it. Call
 `motor.reset()` on teleport or input revocation to discard velocity/buffered jumps.
@@ -42,7 +49,9 @@ Supported states: idle, walk, run, sprint, crouch idle, crouch walk and airborne
 jump. AnimationPlayer blends transitions once; an additional pose filter is not
 applied. At bind time, stance foot travel calibrates cadence for the actual
 skeleton. At runtime cadence includes uniform world scale and resolved travel
-speed. Pelvis translation preserves the crouch depth and a ground support point.
+speed. Pelvis translation preserves crouch depth and walking support height. Jog/sprint
+retain the donor's flight clearance above the floor; the physics capsule remains
+on the ground during the ordinary running cycle.
 The world still owns gameplay: these are optional helpers, not mandatory avatar
 protocol behavior. They do not replace a game's existing character controller.
 
@@ -55,10 +64,11 @@ The original stall model and size are preserved. No profile asset was rescaled.
 
 `godot --headless --path sdk/godot --script res://tests/character_motor.gd`
 checks stopping, walking/running/sprinting, crouch clearance, jump/landing,
-wall-blocked velocity and disabled input. `tests/locomotion.gd` takes a synthetic
+wall-blocked velocity, disabled input and the linear inner/outer stick zones. `tests/locomotion.gd` takes a synthetic
 `--descriptor=/absolute/path.json` and `--output=/absolute/report.json` and checks
 seven states over complete cycles, reference silhouettes, unchanged bind data,
-finite rotations, shoulder helpers, lowered crouch pelvis and support feet.
+finite rotations, shoulder helpers, lowered crouch pelvis, support feet and both
+stance/flight phases for jogging and sprinting.
 
 These are controller/pose checks, not physical handheld gamepad acceptance.
 Terrain-specific two-foot IK, stairs, network prediction, swimming, climbing and

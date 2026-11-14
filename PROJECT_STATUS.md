@@ -1,5 +1,15 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — movement response correction prepared
+
+The shared Godot motor maps the left stick linearly with a 20% outer dead zone:
+80% travel reaches full normal running speed. Partial movement chooses walking
+from actual collision-resolved speed. Jog/sprint preserve their flight phase,
+fixing the old foot correction that pulled the pelvis down throughout the stride.
+20 motor checks, seven complete animation-state checks and an OpenGL comparison
+passed. [Evidence](docs/evidence/2026-11-14-bazaar-gait/README.md).
+This is source preparation, not an install: the owner paused handheld work.
+
 ## 14 November 2026 — Bazaar movement and card delivered
 
 Private Software 45 and Bazaar 0.0.8 are installed on Flip 2 and Odin 2. The

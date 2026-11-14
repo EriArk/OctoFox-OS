@@ -1,5 +1,12 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner movement correction and device hold, 14 November (latest):** prepare
+SDK walk/run correction and a 20% outer left-stick dead zone (full speed at 80%).
+Do not contact, install, restart or test Flip/Odin until the owner resumes device
+work. Current changes are source/server validation only; installed Software 45
+and Bazaar 0.0.8 remain the previous delivery. Keep separate branches, no merge.
+[Gait evidence](docs/evidence/2026-11-14-bazaar-gait/README.md).
+
 **Bazaar locomotion delivery, 14 November (latest):** shared optional Godot
 motor/retargeting helpers preserve the approved rig; Bazaar owns input/camera.
 Private Software **45** and Bazaar **0.0.8** are installed on Flip/Odin. Reserve
