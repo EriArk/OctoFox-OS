@@ -244,6 +244,8 @@ class Service:
                     session['windows'][w] = dict(r,restore=True)
                     session['owners'].add((r['pid'],r['start']))
                     if app_id != self.current: self.windows.map({w:r},False)
+            if session.get('activate_when_ready') and session['windows']:
+                self.activate(app_id)
             if app_id==self.current and session['windows']:
                 if any(r['mapped'] for r in session['windows'].values()):
                     session.pop('hidden_since',None)
@@ -292,8 +294,15 @@ class Service:
 
     def activate(self, app_id):
         if app_id not in self.sessions: return
-        self.sessions[app_id].pop('hidden_since',None)
-        installer=self.sessions[app_id].get('root')
+        session = self.sessions[app_id]
+        session.pop('hidden_since',None)
+        installer=session.get('root')
+        if installer and not session['windows']:
+            # Wine may spend minutes preparing a new prefix before creating its
+            # first window. Keep the shell and Cancel reachable until then.
+            session['activate_when_ready'] = True
+            return
+        session.pop('activate_when_ready',None)
         if self.lease and getattr(self.lease,'installer',None)!=installer:self.release()
         self.acquire(installer)
         for other, session in self.sessions.items():

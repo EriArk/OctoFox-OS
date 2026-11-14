@@ -1,5 +1,14 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner handheld housekeeping, 14 November 2026:** after device work, clean our
+temporary files, installation staging and superseded build/test artifacts from
+the internal storage of **both Odin and Flip**. Check free space before/after;
+keep one verified working rollback and preserve profiles, games, saves, BIOS,
+active jobs and required runtime files. Put build/dependency storage on microSD.
+Inspect ownership and live references before deleting; do not blanket-delete
+caches or treat installed runtimes as disposable. Odin's internal cleanup is
+explicitly requested as part of the Windows-installer validation.
+
 **Owner Apps and removable libraries, 14 November 2026 (latest):** ordinary apps
 and games opened from Apps must share reliable launch/minimize/close behavior and
 remain reachable in Quick Apps. Steam desktop shortcuts use the existing game

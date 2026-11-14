@@ -102,7 +102,7 @@ class Lifecycle(unittest.TestCase):
                 else:
                     s.command({'command':'watch-installer','pid':80,'title':'Vita setup'})
                     self.assertEqual(s.sessions['traineros-pc-installer']['root'],(80,'root'))
-                    self.assertEqual(s.current,'traineros-pc-installer')
+                    self.assertEqual(s.current,'')
                     s.command({'command':'finish-installer'})
                     self.assertFalse(s.sessions);self.assertEqual(s.current,'')
 
@@ -225,6 +225,29 @@ class Lifecycle(unittest.TestCase):
     def test_background_dialog_does_not_steal_foreground(self,emit):
         s=self.service();s.current='';s.windows.live={11:window(mapped=False),12:window(transient=11)};s.scan()
         self.assertIn(([12],False),s.windows.mapped)
+    @patch.object(apps,'emit')
+    @patch.object(apps,'identity',return_value='root')
+    def test_installer_keeps_shell_until_first_owned_window(self,identity,emit):
+        s=self.service();s.current='';s.sessions['a']['root']=(80,'root')
+        s.sessions['a']['windows']={};s.sessions['a']['owners']=set()
+        with patch.object(s,'acquire') as acquire:
+            s.activate('a');s.windows.live={13:window(pid=91)};s.scan()
+            acquire.assert_not_called();self.assertEqual(s.current,'')
+            self.assertNotIn('foreground',[call.args[0] for call in emit.call_args_list])
+            s.windows.live[12]=window(pid=81);s.scan()
+            acquire.assert_called_once_with((80,'root'))
+            self.assertEqual(s.current,'a');emit.assert_any_call('foreground',id='a',pid=80)
+            self.assertEqual(set(s.sessions['a']['windows']),{12})
+
+    @patch.object(apps,'emit')
+    @patch.object(apps,'identity',return_value='reused')
+    def test_installer_exiting_without_window_never_hides_shell(self,identity,emit):
+        s=self.service();s.current='';s.sessions['a']['root']=(80,'root')
+        s.sessions['a']['windows']={};s.sessions['a']['owners']=set()
+        s.activate('a');s.windows.live={};s.scan()
+        self.assertFalse(s.sessions);self.assertEqual(s.current,'')
+        self.assertNotIn('foreground',[call.args[0] for call in emit.call_args_list])
+
     @patch.object(apps,'emit')
     @patch.object(apps,'identity',return_value='root')
     def test_installer_waits_between_windows_and_tracks_new_child(self,identity,emit):
