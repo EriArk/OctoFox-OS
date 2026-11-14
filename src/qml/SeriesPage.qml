@@ -80,7 +80,7 @@ Item {
                         id: art
                         x: 5; y: 5; width: rim.width-10; height: width
                         source: modelData.art || ""
-                        sourceSize.width: 512; sourceSize.height: 512
+                        sourceSize.width: 256; sourceSize.height: 256
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true; visible: false
                     }

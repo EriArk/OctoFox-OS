@@ -1,5 +1,19 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — approved artwork integration (#267)
+
+The approved style now covers 12 genre and 10 series collections, all six Crates
+and 31 photographed platforms. Stable collection artwork URLs and catalogue
+navigation are preserved. Crates use pre-rendered model frames, with no live 3D
+or idle animation. Collection PNG storage falls from 54.49 MiB to 0.30 MiB;
+photographs and chest renders together add 7.93 MiB. This is an asset-size result,
+not a frame-rate claim.
+
+Sources, regeneration tools and per-file licences are committed. Native and ARM
+builds/device delivery are being validated; [dated evidence](docs/evidence/2026-11-14-art-direction/README.md)
+records the actual acceptance checkpoint. The initial prototype-only entry below
+is historical. Public Alpha 7 and Bazaar implementation are unchanged.
+
 ## 14 ноября 2026 — художественные образцы #267
 
 Подготовлены три SVG-эмблемы коллекций, три варианта настоящего low-poly сундука

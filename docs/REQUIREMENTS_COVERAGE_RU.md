@@ -2,8 +2,9 @@
 
 **14 ноября — [#267](https://github.com/EriArk/OctoFox-OS/issues/267):** художественное
 направление коллекций/Crates, S04, R133 с зависимостью от R137 по происхождению.
-[Образцы и аудит](design/art-direction-267/README.md) готовы; runtime/устройства
-не изменены. Это отдельная задача стиля, не закрытие #34 или #116.
+[Стиль](design/art-direction-267/README.md) утверждён: заменены 22 коллекции,
+6 Crates, добавлены 31 фото платформ. [Приёмка и ограничения](evidence/2026-11-14-art-direction/README.md).
+Это отдельная задача стиля, не закрытие #34 или #116.
 
 **14 November 2026 — #266:** Settings → System → Credits exposes the official
 website and Discord contact-page actions through existing browser/Apps handling.

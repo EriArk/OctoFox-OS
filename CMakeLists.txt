@@ -396,6 +396,8 @@ endif()
 qt_add_executable(traineros src/app/Main.cpp)
 qt_add_resources(traineros series_art BIG_RESOURCES PREFIX "/series" BASE assets/series
     FILES assets/series/pokemon.png assets/series/mario.png assets/series/zelda.png assets/series/sonic.png assets/series/final-fantasy.png assets/series/metroid.png assets/series/castlevania.png assets/series/kirby.png assets/series/metal-slug.png assets/series/multiverse.png)
+file(GLOB platform_photos CONFIGURE_DEPENDS assets/platforms/*.png)
+qt_add_resources(traineros platform_photos PREFIX "/platforms" BASE assets/platforms FILES ${platform_photos})
 qt_add_resources(traineros genre_art PREFIX "/genres" BASE assets/genres
     FILES assets/genres/fighting.png assets/genres/brawlers.png assets/genres/shooters.png assets/genres/racing.png assets/genres/sports.png assets/genres/rpg.png assets/genres/strategy.png assets/genres/platform.png assets/genres/puzzle.png assets/genres/party.png assets/genres/adventure.png assets/genres/music.png)
 qt_add_resources(traineros bazaar_art PREFIX "/bazaar" BASE assets/bazaar FILES assets/bazaar/official.png assets/bazaar/grove.png assets/bazaar/harbor.png)
@@ -424,7 +426,13 @@ qt_add_resources(traineros crates_showcase PREFIX "/crates" BASE data/crates FIL
 file(GLOB crates_example_images CONFIGURE_DEPENDS assets/crates/examples/*.png)
 file(GLOB crates_example_notices CONFIGURE_DEPENDS assets/crates/examples/*-LICENSE.txt)
 qt_add_resources(traineros crates_art PREFIX "/crates" BASE assets/crates
-    FILES assets/crates/illustrations-wide.png assets/crates/gamepad.svg
+    FILES assets/crates/gamepad.svg
+        assets/crates/low-poly/new.png assets/crates/low-poly/new-opening.png
+        assets/crates/low-poly/workshop.png assets/crates/low-poly/workshop-opening.png
+        assets/crates/low-poly/adventure.png assets/crates/low-poly/adventure-opening.png
+        assets/crates/low-poly/arcade.png assets/crates/low-poly/arcade-opening.png
+        assets/crates/low-poly/strategy.png assets/crates/low-poly/strategy-opening.png
+        assets/crates/low-poly/tools.png assets/crates/low-poly/tools-opening.png
     ${crates_example_images} ${crates_example_notices} assets/crates/examples/sources.json)
 qt_add_resources(traineros crates_projects PREFIX "/crates" BASE assets/crates
     FILES assets/crates/projects/session-timer.png assets/crates/projects/pocket-artillery.png assets/crates/projects/pocket-golf.png
@@ -489,7 +497,6 @@ qt_add_qml_module(traineros
         src/qml/CratesProjectPopup.qml
         src/qml/CrateTile.qml
         src/qml/CrateEmblem.qml
-        src/qml/CrateIllustration.qml
     src/qml/AppsMenu.qml
         src/qml/AppsDock.qml
         src/qml/AppControlsWindow.qml
@@ -1133,6 +1140,9 @@ install(FILES LICENSE LICENSING.md THIRD_PARTY_NOTICES.md
         DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros COMPONENT Licensing)
 install(FILES assets/badges/README.md assets/badges/manifest.json DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/badges)
 install(FILES data/licenses/PokeAPI.txt DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/licenses)
+install(FILES data/licenses/PlatformPhotography.md DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/licenses)
+install(FILES assets/platforms/sources.json DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/licenses RENAME PlatformPhotographySources.json)
+install(FILES assets/crates/models/kenney/LICENSE.txt DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/licenses RENAME KenneyPirateKit.txt)
 install(FILES data/licenses/CuboidCreatures.md DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/licenses)
 install(DIRECTORY assets/fonts assets/icons/files assets/icons/phosphor assets/crates/examples
         DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/traineros/materials

@@ -41,3 +41,14 @@ var themes = {
     android:["#245627","#92f147","#3ba780","portable"]
 }
 function theme(id) { return themes[id === "ps" ? "psx" : id === "dc" ? "dreamcast" : id] || ["#20315e","#40dce1","#467395","console"] }
+
+// Sources, authors and per-file redistribution terms: assets/platforms/sources.json.
+var photographs = ["gb", "gbc", "gba", "nds", "n3ds", "nes", "snes", "n64", "gc", "wii", "wiiu", "switch", "mastersystem", "megadrive", "sega32x", "segacd", "gamegear", "saturn", "dreamcast", "psx", "ps2", "ps3", "psp", "psvita", "pcengine", "pcenginecd", "ngp", "ngpc", "neogeo", "neogeocd", "c64"]
+function photo(id) {
+    const key = id === "ps" ? "psx" : id === "dc" ? "dreamcast" : id
+    return photographs.indexOf(key) >= 0 ? "qrc:/platforms/" + key + ".png" : ""
+}
+function photoTint(id) {
+    const colours = {nes:"#a05461",gb:"#699c65",gbc:"#9875ad",gba:"#7471a4",nds:"#498e9b",n3ds:"#a65f76",snes:"#8277a2",psx:"#638f86",ps2:"#557a9c",ps3:"#717b87",psvita:"#777c9a",psp:"#957497"}
+    return colours[id] || "#658f93"
+}

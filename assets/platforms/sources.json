@@ -1,0 +1,684 @@
+[
+  {
+    "id": "gb",
+    "file": "gb.png",
+    "author": "Transfrom JPEG version and remove white background. Original by Evan-Amos.",
+    "credit": "Media:Game-Boy-FL.jpg",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Game-Boy-FL.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Game-Boy-FL.png",
+    "downloaded_sha256": "b51251ed9c9a8418ae63aabd5f38861d78b5ae4259b418a2e18bbbf853494c69",
+    "sha256": "83fb70caff49625ab50165dd934b851d6756f96b5d3772717d74bce1c466a030",
+    "downloaded_size": [
+      2820,
+      3420
+    ],
+    "size": [
+      526,
+      640
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "gbc",
+    "file": "gbc.png",
+    "author": "Evan-Amos",
+    "credit": "http://en.wikipedia.org/wiki/File:Game-Boy-Color-Purple.jpg",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Game-Boy-Color-Purple.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Game-Boy-Color-Purple.png",
+    "downloaded_sha256": "678fc17530ac80127d4bc6c9c2abd2664e63376a7d17b8a7d67b1d95806eabc9",
+    "sha256": "70f38e7105de37726fc1f85b70c6e420f0f1db694690f5ea70c8e1bd87a0d2c3",
+    "downloaded_size": [
+      1440,
+      2436
+    ],
+    "size": [
+      378,
+      640
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "gba",
+    "file": "gba.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Nintendo-Game-Boy-Advance-Purple-FL.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Nintendo-Game-Boy-Advance-Purple-FL.png",
+    "downloaded_sha256": "bc88bac888992eff605a15ace75bea66a2d6a5b00fb2939d02e212534c60e326",
+    "sha256": "48d6320d43ebf4840bc185eff6feab096f7c3a88ab86d8c22456376a600dbc9f",
+    "downloaded_size": [
+      4200,
+      2900
+    ],
+    "size": [
+      640,
+      417
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "nds",
+    "file": "nds.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Nintendo-DS-Lite-Black-Open.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/5/56/Nintendo-DS-Lite-Black-Open.png",
+    "downloaded_sha256": "08b8928e12c8e06c6ec283f3bb14484716edc4b6aaba5e5b53a924f7e7772647",
+    "sha256": "2770a3e3f1fb71d5bc5adacda35249a2cee74d82c6cb83200f09fae70bd1ece4",
+    "downloaded_size": [
+      3200,
+      2700
+    ],
+    "size": [
+      640,
+      532
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "n3ds",
+    "file": "n3ds.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Nintendo-3DS-AquaOpen.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Nintendo-3DS-AquaOpen.png",
+    "downloaded_sha256": "2afabdaf2f4d0b31fef5ed5da0c22b5f896fbaf33dc0817d5ea51e3c22d67012",
+    "sha256": "bb34b4d9088f3264468d88ca283eaa60352ac3ca4fd7e9f2ab626c248e3affbe",
+    "downloaded_size": [
+      2300,
+      2080
+    ],
+    "size": [
+      640,
+      580
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "nes",
+    "file": "nes.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:NES-Console-Set.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/b/b2/NES-Console-Set.png",
+    "downloaded_sha256": "f8257bb9ae5fdd0f72955698014444d71ca4554810b0beab9748dff47b4651ea",
+    "sha256": "4a8a992ac3cf1cf20da56f6e204ff45f7b8e99a088a9894657490f2791ea9f44",
+    "downloaded_size": [
+      5560,
+      3020
+    ],
+    "size": [
+      640,
+      330
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "snes",
+    "file": "snes.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:SNES-Mod1-Console-Set.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/3/36/SNES-Mod1-Console-Set.png",
+    "downloaded_sha256": "da047bbb84338499b8260ba5d9caa08da18c90dded49fbbad80dba5bf95d2267",
+    "sha256": "3f9327c54dcd72f552dfee5f43fec89ad599dcd506ca87f14b9369586d90fd20",
+    "downloaded_size": [
+      5472,
+      2840
+    ],
+    "size": [
+      640,
+      305
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "n64",
+    "file": "n64.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:N64-Console-Set.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/0/02/N64-Console-Set.png",
+    "downloaded_sha256": "7fb67902fad4c9660d7fea4f4c18a0aedb0e33a832874eb1222b29e2034991ed",
+    "sha256": "f3469ac652bc0f8f2edf6d80a181d11355d126f51cebeb0deea7e714c78d9089",
+    "downloaded_size": [
+      3917,
+      2108
+    ],
+    "size": [
+      640,
+      343
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "gc",
+    "file": "gc.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:GameCube-Console-Set.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/2/2b/GameCube-Console-Set.png",
+    "downloaded_sha256": "2bbe56b19e2e1475b46c75c1da45ffcee06b2d383c2230e5fa555c2b95dbf54d",
+    "sha256": "9d0b5ccbe146da07df37eed5280228f1a9717128b4b9ab4b691f72456824512b",
+    "downloaded_size": [
+      3760,
+      2110
+    ],
+    "size": [
+      640,
+      352
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "wii",
+    "file": "wii.png",
+    "author": "Evan-Amos",
+    "credit": "Own work using: Wii-console.jpg",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Wii-Console.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Wii-Console.png",
+    "downloaded_sha256": "f1e0ae680f45c60580f9250b5a05e36bb78a24b97e4d6d7f576297c37cd5cc1d",
+    "sha256": "0652de3164a68e9e46c8b0f2d956914d12559e2f8e84c688454a06bf30578f0a",
+    "downloaded_size": [
+      2500,
+      2500
+    ],
+    "size": [
+      582,
+      640
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "wiiu",
+    "file": "wiiu.png",
+    "author": "Takimata　(edited by:Tokyoship)",
+    "credit": "File:Wii U Console and Gamepad.jpg",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Wii_U_Console_and_Gamepad.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Wii_U_Console_and_Gamepad.png",
+    "downloaded_sha256": "cd82f1dae17a73505faf400dac158fbdbef5ff5c4bd3eac63fa2581d300e9dab",
+    "sha256": "b8d95db7509933559ad4762f0c6097de3b748a974607950cba9ebfa8e3aa4820",
+    "downloaded_size": [
+      2900,
+      1400
+    ],
+    "size": [
+      640,
+      283
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "switch",
+    "file": "switch.png",
+    "author": "Evan-Amos, modified by Gunnar.offel",
+    "credit": "This file was derived from:  Nintendo-Switch-wJoyCons-BlRd-Standing-FL.jpg",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Nintendo-Switch-wJoyCons-BlRd-Standing-FL.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Nintendo-Switch-wJoyCons-BlRd-Standing-FL.png",
+    "downloaded_sha256": "5c546e495b32af8d80b0319c8b4eb8cd041f7e380dc9d54669d2be2c7c7a73dd",
+    "sha256": "81946d0cf92d8e1f3a854b9be9285e2ae4ba61225be4f9fdda390cd52c35413c",
+    "downloaded_size": [
+      4375,
+      2416
+    ],
+    "size": [
+      640,
+      345
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "mastersystem",
+    "file": "mastersystem.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Sega-Master-System-Set.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Sega-Master-System-Set.png/960px-Sega-Master-System-Set.png",
+    "downloaded_sha256": "b67b4166f8913963fe7e7779f007eb2fcb761e918f62c0b8e055fb0625ecd78a",
+    "sha256": "b061f8ac9428682cade3d32cbe1569b21573f3d308c63451f16b5039e71c6d1a",
+    "downloaded_size": [
+      960,
+      528
+    ],
+    "size": [
+      640,
+      337
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "megadrive",
+    "file": "megadrive.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Sega-Mega-Drive-JP-Mk1-Console-Set.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/Sega-Mega-Drive-JP-Mk1-Console-Set.png/960px-Sega-Mega-Drive-JP-Mk1-Console-Set.png",
+    "downloaded_sha256": "f35c211ce86b736caf870a2d4ac0a9a86c56389a3b063357c79d38e084a14b65",
+    "sha256": "47af0fdb5f0c47e863a4504adb7dc5a71addbb80f83f969e94f77f6b2e223123",
+    "downloaded_size": [
+      960,
+      480
+    ],
+    "size": [
+      640,
+      305
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "sega32x",
+    "file": "sega32x.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Sega-Genesis-Model2-32X.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Sega-Genesis-Model2-32X.png/960px-Sega-Genesis-Model2-32X.png",
+    "downloaded_sha256": "df8f9392b23228f399f33b0e6d8d989da132d075f358ecab6622634ae6e8e6c0",
+    "sha256": "139bbb38a3348785fde9e4334a99963c80f66ec5d6b535dd8f744f14ecfdd550",
+    "downloaded_size": [
+      960,
+      763
+    ],
+    "size": [
+      640,
+      498
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "segacd",
+    "file": "segacd.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Sega-CD-Model2-Set.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Sega-CD-Model2-Set.png",
+    "downloaded_sha256": "0199d2a02e7ee2b6f3486440a2b4f07a50dffd98b138459bdd26540f38ee527b",
+    "sha256": "c66ec0f9296b019dda1ae9196873d1cb270b9ebc65711f8b9fc05c78aeb368f1",
+    "downloaded_size": [
+      4780,
+      2840
+    ],
+    "size": [
+      640,
+      363
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "gamegear",
+    "file": "gamegear.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Sega-Game-Gear-WB.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Sega-Game-Gear-WB.png/960px-Sega-Game-Gear-WB.png",
+    "downloaded_sha256": "c4d61177f0b68ea394288d7e4211d25aba71c6c7d0bc4b26376afd052d4d8214",
+    "sha256": "44cdfc0e5a07472b09725394e6a3e30dfce40ff4f6c64098cbc400266ffeda7e",
+    "downloaded_size": [
+      960,
+      643
+    ],
+    "size": [
+      640,
+      388
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "saturn",
+    "file": "saturn.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Sega-Saturn-Console-Set-Mk1.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Sega-Saturn-Console-Set-Mk1.png/960px-Sega-Saturn-Console-Set-Mk1.png",
+    "downloaded_sha256": "f9c675e94daad36a683b65f7a21f695eefdb7f929a8613b6894b3d0299a41d67",
+    "sha256": "16237270f150e5250a2faa28492b6c39168da24945654d999b6f22fee5204a52",
+    "downloaded_size": [
+      960,
+      531
+    ],
+    "size": [
+      640,
+      345
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "dreamcast",
+    "file": "dreamcast.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Dreamcast-Console-Set.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Dreamcast-Console-Set.png/960px-Dreamcast-Console-Set.png",
+    "downloaded_sha256": "d6239f731b5de7afa1edf3f0b27f50c7e9ecef52770ad9511103cb396f2c27a0",
+    "sha256": "b3abd2811162d08939e5b4d84576fd012706a8a155aa3fd1f006597b029f15f3",
+    "downloaded_size": [
+      960,
+      465
+    ],
+    "size": [
+      640,
+      298
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "psx",
+    "file": "psx.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:PSX-Console-wController.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/PSX-Console-wController.png/960px-PSX-Console-wController.png",
+    "downloaded_sha256": "0b11db694e3819fb9607d421a2e96fcd42c1674482169e34ae4f6da895d76e74",
+    "sha256": "fd9c1083ac1590bb7746db2218715eb0244b09c659a3de8b09b17c13fb3fcaff",
+    "downloaded_size": [
+      960,
+      441
+    ],
+    "size": [
+      640,
+      290
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "ps2",
+    "file": "ps2.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:PS2-Slim-Console-Set.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/1/11/PS2-Slim-Console-Set.png",
+    "downloaded_sha256": "845f24358447726ca073d9f1d07107c1df612bf211990f9be894e247274b6322",
+    "sha256": "e07185e9cb90d72915118af7a1aca1e4decb14aaf4a5964a964be2e382141b12",
+    "downloaded_size": [
+      960,
+      1220
+    ],
+    "size": [
+      494,
+      640
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "psp",
+    "file": "psp.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:PSP-2000-trans.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/PSP-2000-trans.png/960px-PSP-2000-trans.png",
+    "downloaded_sha256": "f78de05e37b674e02da03d7006e9f528f4147b50e55f48e3dbc6ff324ab75b74",
+    "sha256": "3686df29742af67d863f5f6d07d5ee51730ffe470e7f27061c5d141faa57b1d2",
+    "downloaded_size": [
+      960,
+      540
+    ],
+    "size": [
+      640,
+      349
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "pcengine",
+    "file": "pcengine.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:PC-Engine-Console-Set.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/PC-Engine-Console-Set.png/960px-PC-Engine-Console-Set.png",
+    "downloaded_sha256": "c3f187a745fa8217266f5041cf80b067ba0b3b919836be839fa6382adadf0b50",
+    "sha256": "ea4ba7f66ebb46dc427707ed9164c6ae7c23ea01cabe7506ce0febeca10e545a",
+    "downloaded_size": [
+      960,
+      427
+    ],
+    "size": [
+      640,
+      256
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "pcenginecd",
+    "file": "pcenginecd.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:TurboDuo-Console-Set.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/TurboDuo-Console-Set.png/960px-TurboDuo-Console-Set.png",
+    "downloaded_sha256": "79ea8b04e3268d9ad2fda6d95c8c8caddd4212db49de6c2ad10523e44b8c70f2",
+    "sha256": "682cfe9a252fa5ee1abd9b38e1ab5e2589ffbe8c16ae3d72d8d3e6259c9c0069",
+    "downloaded_size": [
+      960,
+      371
+    ],
+    "size": [
+      640,
+      232
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "ngp",
+    "file": "ngp.png",
+    "author": "Evan-Amos",
+    "credit": "https://en.wikipedia.org/wiki/File:Nintendo-Game-Boy-Color-FL.jpg\nhttps://en.wikipedia.org/wiki/File:Neo-Geo-Pocket-Anthra-Left.jpg\nhttps://en.wikipedia.org/wiki/File:Neo-Geo-Pocket-Color-Blue-Left.jpg\nhttps://en.wikipedia.org/wiki/File:WonderSwan-Black-Left.jpg\nhttps://en.wikipedia.org/wiki/File:WonderSwan-Color-Blue-Left.jpg\n\nhttps://en.wikipedia.org/wiki/File:SwanCrystal-Wine-Left.jpg",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Neo-Geo-Pocket-Anthra-Left.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Neo-Geo-Pocket-Anthra-Left.png/960px-Neo-Geo-Pocket-Anthra-Left.png",
+    "downloaded_sha256": "6b98de05ddeecacb4a685043ed7ef04a3730f238b21382f91c7b5ed4af6f7651",
+    "sha256": "53ad7204d78c329aca2f174a44d177ad94ec4acd0ce5c9825e6bec7a0b38ccdb",
+    "downloaded_size": [
+      960,
+      682
+    ],
+    "size": [
+      640,
+      453
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "ngpc",
+    "file": "ngpc.png",
+    "author": "Evan-Amos",
+    "credit": "https://en.wikipedia.org/wiki/File:Nintendo-Game-Boy-Color-FL.jpg\nhttps://en.wikipedia.org/wiki/File:Neo-Geo-Pocket-Anthra-Left.jpg\nhttps://en.wikipedia.org/wiki/File:Neo-Geo-Pocket-Color-Blue-Left.jpg\nhttps://en.wikipedia.org/wiki/File:WonderSwan-Black-Left.jpg\nhttps://en.wikipedia.org/wiki/File:WonderSwan-Color-Blue-Left.jpg\n\nhttps://en.wikipedia.org/wiki/File:SwanCrystal-Wine-Left.jpg",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Neo-Geo-Pocket-Color-Blue-Left.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Neo-Geo-Pocket-Color-Blue-Left.png/960px-Neo-Geo-Pocket-Color-Blue-Left.png",
+    "downloaded_sha256": "c6c94e9553bd17553e2381717db567ecfb215baee2045be6677a2ff4f245c419",
+    "sha256": "32a66afec220fe861bebc2257d04acf2cfb6d4ffe3bcca1763d1885fd747ae77",
+    "downloaded_size": [
+      960,
+      698
+    ],
+    "size": [
+      640,
+      462
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "neogeo",
+    "file": "neogeo.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Neo-Geo-AES-Console-Set.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Neo-Geo-AES-Console-Set.png/960px-Neo-Geo-AES-Console-Set.png",
+    "downloaded_sha256": "7dd5328c363181fdd869cc20d9d3841cca19f71ac547e0eee533132ef46b3ca6",
+    "sha256": "0cea40a7a3f3a2e41e05e97f657e839ee2e097c3a044fadfd361e9f85418c271",
+    "downloaded_size": [
+      960,
+      317
+    ],
+    "size": [
+      640,
+      197
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "neogeocd",
+    "file": "neogeocd.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Neo-Geo-CD-TopLoader-wController-FL.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3e/Neo-Geo-CD-TopLoader-wController-FL.png/960px-Neo-Geo-CD-TopLoader-wController-FL.png",
+    "downloaded_sha256": "615e672af8d5c65f85c16f21eeccdc607215a99d056c48d767afb675f1aa2dbd",
+    "sha256": "5e16368d6707ac711b3ca0cfba3573fdfb0b1be2d7e3f9afd575416f042ce4b1",
+    "downloaded_size": [
+      960,
+      460
+    ],
+    "size": [
+      640,
+      284
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "c64",
+    "file": "c64.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Commodore-64-Computer-FL.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Commodore-64-Computer-FL.png/960px-Commodore-64-Computer-FL.png",
+    "downloaded_sha256": "f7af1f9d697ada1642c1eb5eed872239e8488d74ca811c17b7534200a722333a",
+    "sha256": "55c97917675e588da54409d6df2d55678e4c2e1acb2e461c2ffd80d3c77ffa80",
+    "downloaded_size": [
+      960,
+      543
+    ],
+    "size": [
+      640,
+      325
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "ps3",
+    "file": "ps3.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:PS3-Slim-Console-Vert.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/d/de/PS3-Slim-Console-Vert.png",
+    "downloaded_sha256": "b501374941c24e50e07c6317e9ae50d972cae6e674bddbd8e937a8daa5d76071",
+    "sha256": "e5f69e0a5cc56efe0181ea3510adb783b50032d91277c62c0d7ecbb5890b66c1",
+    "downloaded_size": [
+      960,
+      1453
+    ],
+    "size": [
+      435,
+      640
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  },
+  {
+    "id": "psvita",
+    "file": "psvita.png",
+    "author": "Evan-Amos",
+    "credit": "Own work",
+    "license": "Public domain",
+    "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:PlayStation-Vita-1101-FL.png",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/PlayStation-Vita-1101-FL.png/960px-PlayStation-Vita-1101-FL.png",
+    "downloaded_sha256": "08da33162b13178a65733daab8ffb849fc5d4b708f831e940077263ef6c02a21",
+    "sha256": "e18dce53fc339eed2cfe793a9a5a70c358401dab97c0a33c2c27b7dd3ceb617a",
+    "downloaded_size": [
+      960,
+      586
+    ],
+    "size": [
+      640,
+      371
+    ],
+    "transform": "Trim transparent margins; proportional resize to at most 640px; PNG RGBA. Original licence retained.",
+    "checked": "2026-11-14"
+  }
+]

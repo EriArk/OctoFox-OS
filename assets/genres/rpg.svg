@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><!-- Original code-authored geometry, OctoFox contributors, GPL-3.0-or-later. No image generator. --><rect width="256" height="256" fill="#d5c8df"/><circle cx="128" cy="117" r="89" fill="#e8dfec"/><ellipse cx="130" cy="201" rx="70" ry="11" fill="#b6a5c5"/>
+<path d="M54 71 L153 49 L203 89 L203 185 L105 210 L54 167Z" fill="#29484e"/>
+<path d="M63 160 L110 194 L194 174 L194 184 L106 204 L63 171Z" fill="#f2dfad"/>
+<path d="M56 65 L153 43 L204 82 L104 106Z" fill="#578080"/>
+<path d="M56 65 L104 106 L104 197 L56 159Z" fill="#346066"/>
+<path d="M104 106 L204 82 L204 174 L104 197Z" fill="#456e75"/>
+<path d="M115 115 L192 97 L192 164 L115 182Z" fill="none" stroke="#c7a660" stroke-width="5"/>
+<path d="M148 121 L170 116 L181 135 L159 160 L138 145Z" fill="#efb85c"/>
+<path d="M148 121 L159 141 L170 116 M138 145 L159 141 L159 160 M159 141 L181 135" fill="none" stroke="#fff0ba" stroke-width="3"/>
+<path d="M72 85 L87 97 M72 104 L87 116 M72 142 L87 154" stroke="#d3b575" stroke-width="6" stroke-linecap="round"/>
+<path d="M184 41 L189 28 L194 41 L207 46 L194 51 L189 64 L184 51 L171 46Z" fill="#fff3ce"/></svg>

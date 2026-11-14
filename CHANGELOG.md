@@ -1,5 +1,15 @@
 # OctoFox OS — Changelog
 
+## 14 November 2026 — approved collection, Crates and platform artwork
+
+- Replaced 22 collection paintings with compact SVG-derived geometric icons,
+  preserving existing saved artwork addresses and personal overrides.
+- Replaced six painted Crates with attributed low-poly model renders and a short
+  opening animation; reduced motion still opens the catalogue immediately.
+- Added 31 licensed console photographs with source hashes and installed credits.
+- Preserved colourful Home, library data and catalogue actions. Device acceptance
+  is tracked in [the evidence record](docs/evidence/2026-11-14-art-direction/README.md).
+
 ## 14 ноября 2026 — образцы оформления коллекций, Crates и платформ
 
 Добавлены [сравнения и редактируемые исходники](docs/design/art-direction-267/README.md)

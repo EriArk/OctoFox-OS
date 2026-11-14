@@ -1,17 +1,17 @@
 # Genre collection covers
 
-Twelve original illustrations generated with the built-in `image_gen` tool on
-2026-10-21 at the owner's request. [generation.json](generation.json) records
-the final prompt and source filename for every PNG. No reference images,
-game screenshots, franchise characters or logos were supplied.
+Current artwork (14 November 2026, #267) uses editable SVG geometry and bounded
+384 × 384 PNG renders. These original vector designs were authored in code with
+assistant assistance; they are not commissioned human illustrations. They use
+simple motifs without copied franchise logos or characters. Original SVGs and
+renders are covered by GPL-3.0-or-later.
 
-Each image was visually reviewed. The square originals are packaged unchanged;
-the shell decodes a bounded thumbnail and crops it proportionally inside the
-existing circular collection card. Names and game counts remain separate text.
+Regenerate with `python3 tools/art/collection-art.py` (CairoSVG required).
+Existing `qrc:/genres/<key>.png` addresses remain stable, including persisted
+collection definitions. Personal artwork still takes precedence. Labels and
+counts remain live text. No collection IDs, games or saves are changed.
 
-Personal collection definitions can reference the bundled `qrc:/genres/<key>.png`
-through their optional `art` field. This presentation does not assign genres,
-move games, modify saves or change adapter compatibility.
-
-See [licensing scope](../../LICENSING.md). This asset-design review does not
-close the project's separate public artwork review (#116).
+`generation.json` is a **historical record of the replaced October AI images**,
+not provenance for the current PNGs. Older screenshots and Git history retain
+those images. See [approved study](../../docs/design/art-direction-267/README.md)
+and [licensing scope](../../LICENSING.md).

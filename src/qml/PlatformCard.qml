@@ -7,6 +7,8 @@ Item {
     property bool selected: false
     property bool compact: false
     property bool portrait: false
+    readonly property string photoSource: Platforms.photo(entry.id)
+    readonly property bool photoReady: hardware.status === Image.Ready
     readonly property var cardPalette: Platforms.theme(entry.id)
     signal activated()
     Accessible.role: Accessible.Button
@@ -39,13 +41,9 @@ Item {
             function screen(x,y,rw,rh) {material(x,y,rw,rh,3,"#111c32");polygon([[x+4,y+rh-5],[x+rw*.35,y+rh*.3],[x+rw*.65,y+rh*.65],[x+rw-4,y+8],[x+rw-4,y+rh-5]],p[1]);c.fillStyle="#8ceef9";c.fillRect(x+6,y+5,6,4)}
             function cross(x,y) {material(x,y,7,22,2,"#222b3c");material(x-7,y+7,21,7,2,"#222b3c")}
             round(2,2,w-4,h-4,12);c.save();c.clip()
-            const bg=c.createLinearGradient(0,h,w,0);bg.addColorStop(0,"#101529");bg.addColorStop(.52,p[0]);bg.addColorStop(1,p[1]);c.fillStyle=bg;c.fillRect(0,0,w,h)
+            const bg=c.createLinearGradient(0,h,w,0);bg.addColorStop(0,"#101529");bg.addColorStop(.52,p[0]);bg.addColorStop(1,root.photoSource.length ? Platforms.photoTint(root.entry.id) : p[1]);c.fillStyle=bg;c.fillRect(0,0,w,h)
             c.scale(w/280,h/156)
-            polygon([[70,0],[138,0],[246,156],[187,156]],"#24ffffff")
-            polygon([[130,0],[160,0],[267,156],[237,156]],"#16ffffff")
-            c.lineWidth=1;c.strokeStyle="#36ffffff"
-            for(let y=92;y<156;y+=14){c.beginPath();c.moveTo(0,y);c.lineTo(280,y);c.stroke()}
-            for(let x=-280;x<500;x+=55){c.beginPath();c.moveTo(185,53);c.lineTo(x,156);c.stroke()}
+            if (!root.photoSource.length || hardware.status === Image.Error) {
             c.save()
             if(root.portrait) {
                 c.scale(280/w,156/h);c.translate(w/2,h*0.39)
@@ -100,10 +98,23 @@ Item {
                 circle(-45,39,6,p[1]);circle(-27,39,5,"#f76a66");material(-31,48,57,9,2,Qt.darker(body,2))
             }
             c.restore()
+            }
             const shade=c.createLinearGradient(0,82,0,156);shade.addColorStop(0,"#00101829");shade.addColorStop(1,"#f5101829");c.fillStyle=shade;c.fillRect(0,75,280,81)
             c.restore();round(2,2,w-4,h-4,12);c.lineWidth=2;c.strokeStyle="#67889baa";c.stroke()
             if(root.selected){for(let i=7;i>=0;--i){round(3+i,3+i,w-6-2*i,h-6-2*i,10);c.lineWidth=3;c.strokeStyle="rgba(255,195,47,"+(.08+(7-i)*.03)+")";c.stroke()}round(2,2,w-4,h-4,12);c.lineWidth=4;c.strokeStyle="#ffcc3d";c.stroke()}
         }
+    }
+    Image {
+        id: hardware
+        objectName: "platform-photo-" + root.entry.id
+        x: root.portrait ? 12 : root.width * 0.45
+        y: root.portrait ? 12 : 7
+        width: root.portrait ? root.width - 24 : root.width * 0.50
+        height: root.portrait ? Math.max(1, root.height - 84) : root.height - 26
+        source: root.visible ? root.photoSource : ""
+        sourceSize: Qt.size(512, 512); fillMode: Image.PreserveAspectFit
+        asynchronous: true
+        onStatusChanged: scene.requestPaint()
     }
     Column {
         x: root.portrait ? 10 : 16; anchors.bottom: parent.bottom; anchors.bottomMargin: root.compact ? 10 : 12; width: parent.width-2*x; spacing: 3

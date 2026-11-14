@@ -82,3 +82,15 @@ code is not bundled; the native client uses the provider's documented HTTP API.
 ## Files: libfm-qt and Papirus (17 October 2026)
 
 Files uses the system libfm-qt 2.4 library (PCManFM-Qt, LGPL-2.1-or-later), without modifying its file operation implementation. Runtime dependencies retain their upstream licenses. Source: https://github.com/lxqt/libfm-qt. Selected Papirus SVG icons are GPL-3.0; exact source revision, license and authors are preserved in `assets/icons/files/`. Files controls reuse the existing Phosphor MIT / original TrainerOS icon notices in `assets/icons/files-controls/README.md`.
+
+## Runtime card artwork (14 November 2026)
+
+Collection SVGs and their PNG renders are original code-authored designs under
+GPL-3.0-or-later, replacing the historical generated scenes. Crates use the
+[Kenney Pirate Kit CC0 model](assets/crates/models/kenney/LICENSE.txt), with
+original geometric adaptations. Platform photographs retain their individual
+Public Domain, CC0 or CC BY-SA 3.0 terms, including resized derivatives:
+[authors, source links and licences](assets/platforms/README.md),
+[hashes and transformations](assets/platforms/sources.json). The photograph
+credits and Kenney notice are installed with the application. These notices
+do not clear unrelated artwork or the wider public-asset review (#116).

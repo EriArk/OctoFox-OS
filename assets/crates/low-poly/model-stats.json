@@ -1,0 +1,50 @@
+{
+  "new": {
+    "triangles": 304,
+    "meshes": 4,
+    "render_size": [
+      512,
+      448
+    ]
+  },
+  "strategy": {
+    "triangles": 344,
+    "meshes": 4,
+    "render_size": [
+      512,
+      448
+    ]
+  },
+  "tools": {
+    "triangles": 368,
+    "meshes": 4,
+    "render_size": [
+      512,
+      448
+    ]
+  },
+  "adventure": {
+    "triangles": 292,
+    "meshes": 4,
+    "render_size": [
+      512,
+      448
+    ]
+  },
+  "workshop": {
+    "triangles": 320,
+    "meshes": 4,
+    "render_size": [
+      512,
+      448
+    ]
+  },
+  "arcade": {
+    "triangles": 296,
+    "meshes": 4,
+    "render_size": [
+      512,
+      448
+    ]
+  }
+}

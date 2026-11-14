@@ -1,25 +1,17 @@
-# Collection illustrations
+# Series collection covers
 
-The ten PNGs are independent environment illustrations generated with the
-built-in `image_gen` tool on 2026-10-07 for TrainerOS collection cards.
-[generation.json](generation.json) records every final prompt, source filename
-and consuming asset. No game screenshots, sprites, logos or reference images
-were supplied to generation. Filenames bind to existing collection IDs; names
-are rendered separately by the shell and are not part of the images.
+Current artwork (14 November 2026, #267) uses editable SVG geometry and bounded
+384 × 384 PNG renders. These original vector designs were authored in code with
+assistant assistance; they are not commissioned human illustrations. They use
+simple motifs without copied franchise logos or characters. Original SVGs and
+renders are covered by GPL-3.0-or-later.
 
-The replacement removes the previous explicit franchise motifs (pipes/floating
-blocks, checkerboard cliffs/rings, triangular sanctuary and similar props).
-The scenes instead depict an invented botanical valley, craft town, forest
-reservoir, sailing coast, mesa settlement, research garden, astronomical library,
-flower garden, freight harbor and celestial garden. Each full image was visually
-reviewed; this is an asset-design review, not a guarantee against claims or
-clearance of unrelated project materials. Public asset review remains #116.
+Regenerate with `python3 tools/art/collection-art.py` (CairoSVG required).
+Existing `qrc:/series/<key>.png` addresses remain stable, including persisted
+collection definitions. Personal artwork still takes precedence. Labels and
+counts remain live text. No collection IDs, games or saves are changed.
 
-The images are used directly at 1536 x 1024. Existing QML bounds decoded image
-size for cards. No UI layout, collection identity, ROM, save, title or scraped
-game media is changed. The separate region cards still use the original
-procedural landscape motifs in WorldCard.qml.
-
-See [series delivery](../../docs/SERIES_COLLECTIONS.md) for installed captures
-and [licensing scope](../../LICENSING.md) for the distinction between code and
-visual materials. Historical README/screenshots and Git history are unchanged.
+`generation.json` is a **historical record of the replaced October AI images**,
+not provenance for the current PNGs. Older screenshots and Git history retain
+those images. See [approved study](../../docs/design/art-direction-267/README.md)
+and [licensing scope](../../LICENSING.md).

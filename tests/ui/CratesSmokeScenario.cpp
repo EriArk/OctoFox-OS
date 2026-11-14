@@ -14,7 +14,9 @@
 using namespace trainer;
 void startCratesSmoke(QQuickWindow* window,ShellController& shell,ControllerInput& input,SDL_Joystick* joystick,
         const QString& directory,bool& completed,int& warnings,QStringList& diagnostics) {
-    auto step=std::make_shared<int>(0);auto failed=std::make_shared<bool>(false);
+    const bool artProbe=qEnvironmentVariableIsSet("TRAINEROS_ART_PROBE");
+    auto openingCaptured=std::make_shared<bool>(false);
+    auto step=std::make_shared<int>(artProbe?100:0);auto failed=std::make_shared<bool>(false);
     auto folder=std::make_shared<QTemporaryDir>();
     QSettings::setDefaultFormat(QSettings::IniFormat);QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,folder->path());
     auto timer=new QTimer(window);timer->setInterval(450);
@@ -30,6 +32,50 @@ void startCratesSmoke(QQuickWindow* window,ShellController& shell,ControllerInpu
             return nullptr;
         };
         switch((*step)++) {
+        case 100:
+            window->resize(960,540);
+            if(shell.settings()->theme()=="dark")shell.settings()->cycleTheme(1);
+            shell.goToSection("games");break;
+        case 101: {
+            shot("art-games-light-960");
+            for(const QString& prefix:{QString(":/series"),QString(":/genres"),QString(":/platforms")}) {
+                const auto files=QDir(prefix).entryList({"*.png"},QDir::Files);
+                check(!files.isEmpty(),"Missing artwork resource family "+prefix);
+                for(const auto& name:files)check(!QImage(prefix+'/'+name).isNull(),"Unreadable bundled art "+prefix+'/'+name);
+            }
+            shell.openAppsFace("crates");c->back();break;
+        }
+        case 102:
+            shot("art-crates-light-960");
+            for(const auto& value:c->crates()) {
+                const auto id=value.toMap()["id"].toString();
+                auto* tile=visibleItem(window->contentItem(),"crate-tile-"+id);
+                check(tile&&tile->property("artReady").toBool(),"Chest render unavailable: "+id);
+            }
+            c->select(0);press(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);break;
+        case 103:
+            check(c->focusIndex()==1,"Crate root controller selection changed");
+            press(SDL_CONTROLLER_BUTTON_B);
+            check(c->opening(),"Crate confirm did not start opening");
+            QTimer::singleShot(90,window,[window,directory,openingCaptured] {
+                const auto frame=window->grabWindow();
+                *openingCaptured=!frame.isNull()&&(directory.isEmpty()||frame.save(directory+"/art-crate-opening-960.png"));
+            });break;
+        case 104:
+            check(*openingCaptured&&c->opened(),"Opening did not reach the catalogue");
+            shot("art-crate-catalogue-960");press(SDL_CONTROLLER_BUTTON_A);break;
+        case 105:
+            check(!c->opened()&&c->focusIndex()==1,"Back lost the selected crate");
+            shell.settings()->cycleTheme(1);break;
+        case 106:
+            shot("art-crates-dark-960");c->open(2,true);
+            check(c->opened()&&!c->opening(),"Reduced-motion open must remain immediate");break;
+        case 107:
+            c->back();window->resize(1280,800);break;
+        case 108:
+            shot("art-crates-dark-1280");shell.goToSection("games");break;
+        case 109:
+            shot("art-games-dark-1280");break;
         case 0:check(c->loadCatalogue(cratesCatalogueFixture()),"Catalogue fixture rejected");shell.openAppsFace("crates");c->open(1,true);break;
         case 1:shot("catalogue");check(c->projects().size()==6,"Six cards missing");press(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);break;
         case 2:check(c->projectIndex()==1,"SDL selection failed");press(SDL_CONTROLLER_BUTTON_B);break;

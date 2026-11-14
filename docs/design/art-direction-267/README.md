@@ -1,5 +1,11 @@
 # OctoFox art direction — study 01
 
+**Approved and integrated after this study:** the owner requested replacement.
+Runtime sources now live in `assets/genres`, `assets/series`, `assets/crates` and
+`assets/platforms`. The sections below record the earlier prototype checkpoint.
+The saved comparison PNGs preserve its original baseline; `preview.html` now
+loads current collection assets and must not be recaptured as an old/new baseline.
+
 14 November 2026 · [Issue #267](https://github.com/EriArk/OctoFox-OS/issues/267)
 
 The owner clarified that the primary problem is the recognisable appearance of

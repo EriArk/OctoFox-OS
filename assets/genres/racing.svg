@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><!-- Original code-authored geometry, OctoFox contributors, GPL-3.0-or-later. No image generator. --><rect width="256" height="256" fill="#e6bb9c"/><circle cx="128" cy="117" r="89" fill="#f3d7b8"/><ellipse cx="131" cy="205" rx="78" ry="11" fill="#c9947c"/>
+<path d="M43 170 L160 84 L218 128 L101 215Z" fill="#f8ead0"/>
+<path d="M57 175 L162 99 L202 129 L99 202Z" fill="#3c5760"/>
+<path d="M81 184 L102 169 M117 158 L139 142 M154 131 L175 116" stroke="#fff1c8" stroke-width="4"/>
+<path d="M72 142 L105 53" stroke="#29474c" stroke-width="9" stroke-linecap="round"/>
+<path d="M104 52 L163 61 L149 107 L88 95Z" fill="#fff5d6"/>
+<path d="M104 52 L124 55 L119 70 L99 67Z M139 58 L163 61 L158 77 L134 73Z M119 70 L134 73 L130 88 L114 85Z M94 81 L114 85 L109 99 L88 95Z M130 88 L154 92 L149 107 L125 103Z" fill="#29474c"/>
+<circle cx="173" cy="177" r="31" fill="#29474c"/><circle cx="173" cy="177" r="19" fill="#b8c7bb"/><circle cx="173" cy="177" r="8" fill="#f9e5bc"/>
+<path d="M173 159 V168 M173 186 V195 M155 177 H164 M182 177 H191" stroke="#557579" stroke-width="5"/></svg>
