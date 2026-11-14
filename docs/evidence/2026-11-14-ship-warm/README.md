@@ -1,5 +1,10 @@
 # Warm ship interior and lighting — 14 November 2026
 
+Later the same day the owner resumed deployment. See the
+[handheld delivery record](../2026-11-14-ship-warm-devices/README.md) for the installed
+Vulkan Mobile revision and native captures. This page retains the earlier
+host-only verification and Compatibility-renderer images.
+
 Host-only visual revision on `codex/ship-home-20261114`. The owner paused handheld
 work: **neither Odin nor Flip was accessed, updated or tested in this increment**.
 They retain the preceding installed pilot preview `c941fe3279ae760e`.

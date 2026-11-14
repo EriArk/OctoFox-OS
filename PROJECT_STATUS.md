@@ -1,5 +1,16 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — warm ship applied to Odin and Flip
+
+Installed standalone preview `34aa5da8b7518ad3` on both handhelds after the owner
+resumed access. The ship now defaults to Godot's Vulkan Mobile renderer: it
+removed the camera-dependent black patches observed on Odin's Compatibility
+path while retaining the lighting and shadows. No shell/Bazaar, kernel or system
+package changes. Apps launch, own avatar, walking, pilot seat/look/stand and
+Save and exit passed with remote keyboard/pointer. Physical controls, sustained
+performance and Home/minimize/return acceptance remain separate.
+[Native captures, installation and cleanup evidence](docs/evidence/2026-11-14-ship-warm-devices/README.md).
+
 ## 14 November 2026 — warmer ship interior and integrated lighting
 
 Reworked the standalone ship with smoother hull/ceiling geometry, oval portholes,

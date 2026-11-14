@@ -1,5 +1,14 @@
 # OctoFox OS — active agent / developer contract
 
+**Warm ship handheld delivery, 14 November 2026 (latest):** the owner resumed
+handheld deployment, superseding the pause below. Standalone preview
+`34aa5da8b7518ad3` is installed on Odin and Flip. Use Vulkan Mobile for this
+experience: the current Compatibility path produced camera-dependent black
+patches on Odin; Mobile rendered the tested views correctly on both devices.
+Apps launch, own avatar, walk, pilot seat/look/stand and Save and exit were checked
+with remote keyboard/pointer. Shell/Bazaar builds and profiles are preserved.
+[Device evidence and remaining limits](docs/evidence/2026-11-14-ship-warm-devices/README.md).
+
 **Owner warm interior / device pause, 14 November 2026 (latest):** smooth the
 still angular/grey ship, make it warmer and cozier, and include futuristic lamps.
 **Do not access either handheld**; this supersedes the earlier availability below.

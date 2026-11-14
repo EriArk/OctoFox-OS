@@ -9,8 +9,8 @@ hatches above. Warm ivory panels, sage upholstery, restrained wood and brass
 retain the Orbit profile background's visual language. Smooth hull surfaces,
 rounded console shells and oval portholes replace the earlier faceted treatment.
 Warm ceiling halos, bulkhead lenses, task lights and recessed strips make the
-lighting fixtures part of the ship itself. This latest visual pass is host-only;
-the handhelds still have the earlier pilot preview.
+lighting fixtures part of the ship itself. The warm interior is installed on
+both handhelds as preview `34aa5da8b7518ad3`.
 
 The pilot seat is surrounded by curved side consoles, a stick, throttle and
 low instruments. Approach from behind and press **A / F** to sit: the camera
@@ -27,7 +27,11 @@ owned rewards still need their real providers. There is no new economy or shop.
 
 ## Run on a development computer
 
-Use the tested Godot **4.7.x** Linux runtime. From the repository root:
+Use the tested Godot **4.7.x** Linux runtime with Vulkan. The project defaults
+to the **Mobile** renderer, checked on Odin/Flip with Turnip. Compatibility
+produced camera-dependent black patches on Odin and is not the accepted handheld
+path. Earlier software-renderer screenshots remain historical design evidence.
+From the repository root:
 
 ```sh
 python3 experiences/ship-home/sync_sdk.py
@@ -147,4 +151,6 @@ The initial preview was host-only; later handheld acceptance is recorded separat
 
 [Earlier cockpit, seating and device evidence](../../docs/evidence/2026-11-14-ship-pilot/README.md).
 
-[Current warm interior and lighting — host-only evidence](../../docs/evidence/2026-11-14-ship-warm/README.md).
+[Warm interior and lighting — earlier host evidence](../../docs/evidence/2026-11-14-ship-warm/README.md).
+
+[Current warm handheld deployment and renderer evidence](../../docs/evidence/2026-11-14-ship-warm-devices/README.md).
