@@ -1,5 +1,12 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner warm interior / device pause, 14 November 2026 (latest):** smooth the
+still angular/grey ship, make it warmer and cozier, and include futuristic lamps.
+**Do not access either handheld**; this supersedes the earlier availability below.
+The new warm interior/fixture pass is host-only. Preserve the compact saucer,
+first-person pilot, common SDK motion and the other conversation's Bazaar work.
+[Current evidence](docs/evidence/2026-11-14-ship-warm/README.md).
+
 **Pilot / SDK checkpoint, 14 November 2026:** Ship Home preview
 `c941fe3279ae760e` is installed on Odin and Flip. Panoramic cockpit, first-person
 seat and common SDK idle/walk/run (`c45675a5`) passed host/ARM checks and real

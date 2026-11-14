@@ -1,5 +1,21 @@
 # OctoFox OS — Changelog
 
+## 14 November 2026 — warmer ship interior and integrated lighting
+
+Reworked the standalone ship with smoother hull/ceiling geometry, oval portholes,
+rounded console shells, warm ivory surfaces, sage/terracotta upholstery and
+restrained wood inserts. Replaced radial floor triangles with a matte deck and
+fine inlays. Added ceiling halos, frosted bulkhead lamps, task lights and pilot
+optics, retaining the existing room-light/shadow count. Static ceiling geometry
+batches separately, preserving the roof cutaway.
+
+This is a **host-only visual revision**, on the isolated ship branch. Neither
+handheld was accessed or changed: the owner explicitly paused device work.
+Geometry/storage/collision and pilot checks passed on Godot 4.7.2. These checks
+are not a handheld performance claim; flight and room-provider integrations
+remain outside this visual pass. No Bazaar changes, release or OTA.
+[Captures and verification](docs/evidence/2026-11-14-ship-warm/README.md).
+
 ## 14 November 2026 — pilot view and shared SDK locomotion
 
 Opened the bow into a panoramic canopy, removed cockpit-side partitions and

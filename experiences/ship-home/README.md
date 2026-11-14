@@ -5,10 +5,14 @@ A separate third-person home for the OctoFox character. Rooms fit inside one
 a small galley/dinette occupies the middle, and four compact bays share a short
 central passage. The curved ceiling lowers toward the rim; small portholes serve the living bays, while a panoramic bow canopy opens the
 pilot view. Technical space is reserved beneath the deck, with flush service
-hatches above. Ivory panels, brass and blue light
-retain the Orbit profile background's visual language.
+hatches above. Warm ivory panels, sage upholstery, restrained wood and brass
+retain the Orbit profile background's visual language. Smooth hull surfaces,
+rounded console shells and oval portholes replace the earlier faceted treatment.
+Warm ceiling halos, bulkhead lenses, task lights and recessed strips make the
+lighting fixtures part of the ship itself. This latest visual pass is host-only;
+the handhelds still have the earlier pilot preview.
 
-The pilot seat is surrounded by angular side consoles, a stick, throttle and
+The pilot seat is surrounded by curved side consoles, a stick, throttle and
 low instruments. Approach from behind and press **A / F** to sit: the camera
 switches to the pilot's eyes. Mouse/right stick turns the view; **B / Esc / A / F**
 stands up in a collision-checked free space and restores the chase camera.
@@ -101,9 +105,10 @@ module and its attributed CC0 animation pack, synced unchanged from `c45675a5`.
 Cadence follows actual travel after collisions. The ship owns its compact-deck
 controller, camera and temporary seated pose; it no longer poses a private walk.
 The animator is replaced along with the avatar and stops while seated. Fixed room meshes are batched by shared material; movable furniture stays separate.
-Geometry, materials,
-planet and sky are original code, without image textures or third-party room
-models. All project code is GPL-3.0-or-later; the host's avatar assets keep their
+Geometry, materials, planet and sky are original code. Two small procedural
+noise textures add subtle wood grain and textile variation; no downloaded
+texture sheets or third-party room models are bundled. Ceiling meshes batch
+separately so the inspection cutaway still hides the complete roof and fixtures. All project code is GPL-3.0-or-later; the host's avatar assets keep their
 existing [separate licensing](../../assets/avatar/README.md).
 
 ## Verification
@@ -116,13 +121,14 @@ SHIP_CAPTURE_DIR=/tmp/ship-tour /path/to/godot --path experiences/ship-home --sc
 `checks.gd` covers replacement/reload, profile isolation, corrupt-save protection,
 placement and undo, all starter furniture footprints, walking through all four
 hatches, curved-hull/seat collisions, camera retraction/close-avatar hiding and
-triangle preservation when batching indexed and unindexed meshes.
+triangle preservation when batching indexed and unindexed meshes, including
+ceiling-fixture ownership under the hideable roof.
 `pilot_checks.gd` exercises keyboard/controller entry and exit, eye-camera
 selection, fixed seated position, bounded look, pause/focus loss, blocked exit
 and identity loss. The headless display cannot capture a pointer; `pilot_tour.gd`
 checks SDK idle/walk/run selection, captured mouse input and same-profile appearance refresh in a graphical
 session and captures first-person views.
-`design_tour.gd` captures eight architecture views and a roof cutaway of the
+`design_tour.gd` captures eleven architecture views and a roof cutaway of the
 actual deck, with the avatar and HUD hidden. `tour.gd` retains the gameplay camera
 and character for a separate visual check.
 `live_avatar.gd` is driven by the native `shipConsumesLiveHostAvatar` test against
@@ -139,4 +145,6 @@ The initial preview was host-only; later handheld acceptance is recorded separat
 
 [Compact layout iteration and screenshots](../../docs/evidence/2026-11-14-ship-compact/README.md).
 
-[Current cockpit, seating and device evidence](../../docs/evidence/2026-11-14-ship-pilot/README.md).
+[Earlier cockpit, seating and device evidence](../../docs/evidence/2026-11-14-ship-pilot/README.md).
+
+[Current warm interior and lighting — host-only evidence](../../docs/evidence/2026-11-14-ship-warm/README.md).
