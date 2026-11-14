@@ -23,7 +23,7 @@ private slots:
         page.dispatch(Action::Down);QCOMPARE(page.selection(),"room:preview-ren");
         page.dispatch(Action::Confirm);QCOMPARE(page.dialog(),"preview-player");
         QCOMPARE(page.previewEntry()["ownerName"].toString(),"Ren");
-        QCOMPARE(page.previewEntry()["cover"].toString(),"qrc:/bazaar/harbor.png");
+        QCOMPARE(page.previewEntry()["cover"].toString(),"qrc:/bazaar/station.png");
         page.closeDialog();page.openMenu();page.dialogAction("details");QCOMPARE(page.dialog(),"preview-player");
         page.closeDialog();page.activate("create");QVERIFY(page.previewEntry().isEmpty());page.closeDialog();
         page.applySearch("Mika");QCOMPARE(page.rooms().size(),1);
@@ -31,6 +31,18 @@ private slots:
         page.toggleFilter();page.setPresentation(rooms(),{},{});QCOMPARE(page.rooms().size(),12);
         for(const auto& row:page.rooms())QVERIFY(!row.toMap()["preview"].toBool());
         page.setPresentation({}, {}, {});QVERIFY(page.rooms().isEmpty());
+    }
+    void personalWorldLaunchUsesOnlyInstalledLocalSamples() {
+        BazaarCatalogue page;QSignalSpy launch(&page,&BazaarCatalogue::personalWalkthroughRequested);
+        page.setPersonalWalkthroughs(true,false);
+        page.activate("room:preview-mika");QCOMPARE(launch.size(),1);QCOMPARE(launch[0][0].toString(),"island");QVERIFY(page.dialog().isEmpty());
+        page.activate("room:preview-ren");QCOMPARE(launch.size(),1);QCOMPARE(page.dialog(),"preview-player");page.closeDialog();
+        page.setPersonalWalkthroughs(true,true);page.activate("room:preview-ren");QCOMPARE(launch.size(),2);QCOMPARE(launch[1][0].toString(),"station");
+        const auto saved=page.navigation();page.restore(saved);QCOMPARE(page.selection(),"room:preview-ren");
+        page.setPersonalWalkthroughs(false,false);page.activate("room:preview-ren");QCOMPARE(page.dialog(),"preview-player");page.closeDialog();
+        page.setPersonalWalkthroughs(true,true);page.setPresentation({QVariantMap{{"id","preview-mika"},{"preview",true},{"walkthrough",true}}},{},{});
+        page.activate("room:preview-mika");QCOMPARE(launch.size(),2);QCOMPARE(page.dialog(),"preview-player");
+        QVERIFY(!page.account()["paymentsAvailable"].toBool());
     }
     void installedWalkthroughUsesOfficialEntryWithoutEnablingCommerce() {
         BazaarCatalogue page;QSignalSpy launch(&page,&BazaarCatalogue::walkthroughRequested);

@@ -18,8 +18,8 @@ class AppsTests:public QObject {
     }
 private slots:
     void bazaarUsesDedicatedEntryButRetainsManagedLifecycle() {
+        for(const QString id: {"org.traineros.bazaar-preview.desktop","org.traineros.bazaar-island.desktop","org.traineros.bazaar-station.desktop"}) {
         AppsController apps;QSignalSpy commands(&apps,&AppsController::commandRequested);
-        const QString id="org.traineros.bazaar-preview.desktop";
         QVERIFY(!apps.hasDesktopId(id));
         apps.accept({{"event","catalogue"},{"rows",QJsonArray{QJsonObject{{"id",id},{"name","Bazaar"}}}}});
         apps.accept({{"event","ready"}});QVERIFY(apps.hasDesktopId(id));QVERIFY(apps.rows().isEmpty());
@@ -29,6 +29,7 @@ private slots:
         apps.control(1);QCOMPARE(commands.last()[0].toJsonObject()["command"].toString(),"minimize");
         apps.accept({{"event","shell"}});QVERIFY(apps.current().isEmpty());
         apps.accept({{"event","catalogue"},{"rows",QJsonArray{}}});QVERIFY(!apps.hasDesktopId(id));
+        }
     }
     void managedGamesUseGameLifecycleAndStayInQuickApps() {
         AppsController apps;QString requested;int launches=0;

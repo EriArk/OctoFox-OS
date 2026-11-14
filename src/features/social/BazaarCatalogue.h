@@ -36,6 +36,7 @@ class BazaarCatalogue final : public QObject {
     Q_PROPERTY(qreal scroll READ scroll WRITE setScroll NOTIFY scrollChanged)
 public:
     explicit BazaarCatalogue(QObject* parent=nullptr):QObject(parent){rebuild();}
+    void setPersonalWalkthroughs(bool island, bool station);
     bool walkthroughAvailable() const { return walkthroughAvailable_; }
     void setWalkthroughAvailable(bool value) { if(walkthroughAvailable_==value)return;walkthroughAvailable_=value;emit changed(); }
     QVariantList rooms() const { return visible_; }
@@ -83,6 +84,7 @@ public:
     Q_INVOKABLE void chooseRealm(int index);
 signals:
     void walkthroughRequested();
+    void personalWalkthroughRequested(QString world);
     void changed();
     void rowsChanged();
     void scrollChanged();
@@ -114,6 +116,7 @@ private:
     quint64 accessGeneration_=0;
     QString backendPlayer_, next_, message_, textField_, detailId_;
     bool walkthroughAvailable_=false;
+    bool islandAvailable_=false, stationAvailable_=false;
     bool active_=false, loading_=false, saving_=false, connected_=false, fixture_=false, reloadDraft_=false;
     quint64 generation_=0;
     int dialogIndex_=0;

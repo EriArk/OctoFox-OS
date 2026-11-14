@@ -48,7 +48,7 @@ Rectangle {
             color:"#ffda74";font.pixelSize:root.compact?21:25;wrapMode:Text.WordWrap
         }
         Text {
-            width:parent.width; text:root.official?"Walk between lively squares, meet other players and discover places to trade.":"Build a personal gathering space, welcome visitors and rent out trading stalls."
+            width:parent.width; text:root.official?"Walk between lively squares, meet other players and discover places to trade.":"Start with one empty square. Add shops, stalls, training arenas and places to meet as they become available."
             color:"#eef5f1";font.pixelSize:root.compact?16:19;wrapMode:Text.WordWrap
         }
     }
@@ -63,9 +63,9 @@ Rectangle {
                     {title:"Meet & explore",detail:"Walk around as your character",glyph:"companion",tint:"#90ded2"},
                     {title:"Parallel realms",detail:"Choose a less crowded town",glyph:"guide",tint:"#c6adf4"}
                 ]:[
-                    {title:"Your own space",detail:"Personal bazaars to shape",glyph:"community",tint:"#90ded2"},
+                    {title:"Your own space",detail:"One empty starting square",glyph:"community",tint:"#90ded2"},
                     {title:"Trading stalls",detail:"Places for players to rent",glyph:"shop",tint:"#ffda74"},
-                    {title:"Shared visits",detail:"Gather and explore together",glyph:"companion",tint:"#c6adf4"}
+                    {title:"Train & socialize",detail:"Arenas and gathering places",glyph:"companion",tint:"#c6adf4"}
                 ]
                 delegate:Rectangle {
                     required property var modelData

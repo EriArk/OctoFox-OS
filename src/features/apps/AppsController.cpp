@@ -151,7 +151,7 @@ bool AppsController::hasDesktopId(const QString& id) const {
     return false;
 }
 QVariantList AppsController::rows() const {
-    QVariantList result;for(const auto& value:catalogue_)if(value.toMap()["id"]!="org.traineros.bazaar-preview.desktop" && hiddenIds_.contains(value.toMap()["id"].toString())==hidden_)result.append(decorated(value.toMap()));return result;
+    QVariantList result;for(const auto& value:catalogue_)if(!QStringList{"org.traineros.bazaar-preview.desktop","org.traineros.bazaar-island.desktop","org.traineros.bazaar-station.desktop"}.contains(value.toMap()["id"].toString()) && hiddenIds_.contains(value.toMap()["id"].toString())==hidden_)result.append(decorated(value.toMap()));return result;
 }
 QVariantList AppsController::rail() const {
     QVariantList result;QSet<QString> pinned;

@@ -14,7 +14,7 @@ Rectangle {
     border.color: selected ? Theme.focusGlow : Theme.divider
     readonly property real captionHeight: official ? (compact ? 120 : 136) : (compact ? 53 : 61)
     Accessible.role: Accessible.Button
-    Accessible.name: (entry.title || "Bazaar") + ", " + (official ? "Official" : (entry.ownerName || "")) + (entry.preview===true ? ", test placeholder, in development" : "")
+    Accessible.name: (entry.title || "Bazaar") + ", " + (official ? "Official" : (entry.ownerName || "")) + (entry.preview===true ? (entry.walkthrough ? ", local test world, in development" : ", test placeholder, in development") : "")
     Accessible.onPressAction: root.activated()
     Item {
         id: art; x: 4; y: 4; width: root.horizontal ? Math.floor(parent.width*.44) : parent.width-8; height: root.horizontal ? parent.height-8 : Math.max(24,parent.height-root.captionHeight-5); clip: true
@@ -86,8 +86,8 @@ Rectangle {
         }
         Row {
             anchors.left:parent.left;anchors.right:parent.right;anchors.bottom:parent.bottom;spacing:6
-            Text { width:parent.width-58;text:root.entry.preview===true?"IN DEVELOPMENT":root.entry.visitors===undefined || root.entry.visitors===null?(root.entry.access==="closed"?"Closed":"Not open yet"):root.entry.visitors+" visiting";font.pixelSize:root.compact?10:11;font.bold:root.entry.preview===true;color:Theme.muted;elide:Text.ElideRight }
-            Text { text:root.entry.preview===true?"Preview →":"Details →";font.pixelSize:11;font.bold:true;color:Theme.ink }
+            Text { width:parent.width-58;text:root.entry.preview===true?(root.entry.walkthrough?"EMPTY SQUARE · ALPHA":"IN DEVELOPMENT"):root.entry.visitors===undefined || root.entry.visitors===null?(root.entry.access==="closed"?"Closed":"Not open yet"):root.entry.visitors+" visiting";font.pixelSize:root.compact?10:11;font.bold:root.entry.preview===true;color:Theme.muted;elide:Text.ElideRight }
+            Text { text:root.entry.walkthrough?"Enter →":root.entry.preview===true?"Preview →":"Details →";font.pixelSize:11;font.bold:true;color:Theme.ink }
         }
     }
     MouseArea { anchors.fill: parent; onClicked: root.activated() }

@@ -103,10 +103,17 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     bazaar_.setBackend(&backendAccount_);
     connect(&apps_,&AppsController::changed,this,[this]{
         bazaar_.setWalkthroughAvailable(apps_.ready()&&apps_.hasDesktopId("org.traineros.bazaar-preview.desktop"));
+        bazaar_.setPersonalWalkthroughs(
+            apps_.ready()&&apps_.hasDesktopId("org.traineros.bazaar-island.desktop"),
+            apps_.ready()&&apps_.hasDesktopId("org.traineros.bazaar-station.desktop"));
     });
     connect(&bazaar_,&BazaarCatalogue::walkthroughRequested,this,[this]{
         // Reuse the native activity owner; keep Online/Bazaar as the return location.
         apps_.openDesktopId("org.traineros.bazaar-preview.desktop");
+    });
+    connect(&bazaar_,&BazaarCatalogue::personalWalkthroughRequested,this,[this](const QString& world){
+        if(world=="island")apps_.openDesktopId("org.traineros.bazaar-island.desktop");
+        else if(world=="station")apps_.openDesktopId("org.traineros.bazaar-station.desktop");
     });
     connect(&bazaar_,&BazaarCatalogue::changed,this,&ShellController::changed);
     connect(&bazaar_,&BazaarCatalogue::scrollChanged,this,&ShellController::changed);

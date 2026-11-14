@@ -4,6 +4,10 @@
 #include <cmath>
 
 namespace trainer {
+void BazaarCatalogue::setPersonalWalkthroughs(bool island,bool station) {
+    if(islandAvailable_==island&&stationAvailable_==station)return;
+    islandAvailable_=island;stationAvailable_=station;rebuild();
+}
 void BazaarCatalogue::setScroll(qreal value) {
     if(!std::isfinite(value))return;
     value=qBound(0.0,value,1000000.0);
@@ -80,11 +84,11 @@ void BazaarCatalogue::rebuild() {
     // Real provider rows and isolated fixtures replace the samples completely.
     const QVariantList previews{
         QVariantMap{{"id","preview-mika"},{"title","Mika's Bazaar"},{"ownerName","Mika"},
-            {"description","A garden market for small discoveries and friendly company."},
-            {"cover","qrc:/bazaar/grove.png"},{"badge","community"},{"preview",true}},
+            {"description","An empty island square, with a sandy beach and open sea."},
+            {"cover","qrc:/bazaar/island.png"},{"badge","community"},{"preview",true},{"walkthrough",islandAvailable_}},
         QVariantMap{{"id","preview-ren"},{"title","Ren's Bazaar"},{"ownerName","Ren"},
-            {"description","A harbor market for travelers, finds and familiar faces."},
-            {"cover","qrc:/bazaar/harbor.png"},{"badge","shop"},{"preview",true}}
+            {"description","An empty orbital square beneath a glass dome."},
+            {"cover","qrc:/bazaar/station.png"},{"badge","community"},{"preview",true},{"walkthrough",stationAvailable_}}
     };
     const auto& source=all_.isEmpty()&&!fixture_?previews:all_;
     for(const auto& value:source) {
@@ -114,6 +118,12 @@ void BazaarCatalogue::activate(QString id) {
     if(!dialog_.isEmpty())return;
     focus(id);if(selection_!=id)return;
     if(id=="official"&&walkthroughAvailable_){emit walkthroughRequested();return;}
+    // Only the two local samples can launch these fixed installed applications.
+    // Remote directory data never supplies commands, desktop IDs or arguments.
+    if(!fixture_&&all_.isEmpty()) {
+        if(id=="room:preview-mika"&&islandAvailable_){emit personalWalkthroughRequested("island");return;}
+        if(id=="room:preview-ren"&&stationAvailable_){emit personalWalkthroughRequested("station");return;}
+    }
     if(id=="official"){dialog_=account()["paymentsAvailable"].toBool()?"realms":"preview-official";realmIndex_=0;emit changed();}
     else if(id=="search")editSearch();
     else if(id=="filter")toggleFilter();
