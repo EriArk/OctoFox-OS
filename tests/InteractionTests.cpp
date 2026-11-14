@@ -10,6 +10,8 @@
 #include "features/settings/DisplayScale.h"
 #include "core/input/ControllerInput.h"
 #include <QKeyEvent>
+#include "app/PlatformBinding.h"
+#include <QProcessEnvironment>
 
 using namespace trainer;
 
@@ -30,6 +32,48 @@ void tap(TextEntryController& keyboard, Action action, int count = 1) {
 class InteractionTests : public QObject {
     Q_OBJECT
 private slots:
+    void shipConsumesLiveHostAvatar() {
+        const auto engine=qEnvironmentVariable("OCTOFOX_SHIP_TEST_GODOT"),project=qEnvironmentVariable("OCTOFOX_SHIP_TEST_PROJECT");
+        if(engine.isEmpty()||project.isEmpty())QSKIP("Set development Godot/project paths for the two-process ship check");
+        MockLibraryRepository library;MockTrainerRepository profiles(TrainerProfile{"ship-check","Explorer"});
+        MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        QVERIFY(shell.trainer()->avatarAvailable());
+        QTRY_VERIFY_WITH_TIMEOUT(!shell.trainer()->avatarDescriptor().isEmpty(),30000);
+        ProcessService process;AdventureLaunchController launch(process);QTemporaryDir directory;
+        PlatformBinding binding(shell,launch,directory.filePath("endpoint.json"));
+        QProcess child;auto env=QProcessEnvironment::systemEnvironment();
+        env.insert("TRAINEROS_SDK_ENDPOINT",directory.filePath("endpoint.json"));
+        env.insert("XDG_DATA_HOME",directory.filePath("data"));child.setProcessEnvironment(env);
+        child.start(engine,{"--headless","--path",project,"--script","res://tests/live_avatar.gd"});
+        QVERIFY(child.waitForStarted());
+        QTRY_COMPARE_WITH_TIMEOUT(child.state(),QProcess::NotRunning,30000);
+        const auto output=child.readAllStandardOutput()+child.readAllStandardError();
+        QVERIFY2(child.exitStatus()==QProcess::NormalExit&&child.exitCode()==0,output.constData());
+        QVERIFY2(output.contains("LIVE SHIP AVATAR PASSED"),output.constData());
+    }
+    void shipEntryUsesManagedAppsAndRespectsModalInput() {
+        MockLibraryRepository library;MockTrainerRepository profiles;MockAdventureAdapter adapter;DevelopmentPlatformService platform;
+        MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
+        ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
+        auto* apps=shell.apps();apps->accept({{"event","ready"}});
+        QSignalSpy commands(apps,&AppsController::commandRequested);
+        shell.goToPage(0);shell.dashboard()->select("lobbies");shell.dispatch(Action::Up);
+        QCOMPARE(shell.dashboard()->focus(),QString("ship"));
+        shell.dispatch(Action::Down);QCOMPARE(shell.dashboard()->focus(),QString("lobbies"));
+        shell.dispatch(Action::Up);shell.dispatch(Action::Confirm);
+        QCOMPARE(commands.size(),2);
+        QCOMPARE(commands.last()[0].toJsonObject().value("command").toString(),QString("launch"));
+        QCOMPARE(commands.last()[0].toJsonObject().value("id").toString(),QString("art.abysstail.octofox.ship-home.desktop"));
+        shell.openShip();QCOMPARE(commands.size(),2); // No duplicate while starting.
+        apps->accept({{"event","state"},{"running",QJsonArray{"art.abysstail.octofox.ship-home.desktop"}},{"current",""},{"launching",""}});
+        commands.clear();shell.keyboard()->begin("Test","",20);
+        shell.openShip();QVERIFY(commands.isEmpty());shell.keyboard()->cancel();
+        shell.dispatch(Action::SystemMenu);shell.openShip();QVERIFY(commands.isEmpty());shell.dispatch(Action::Back);
+        shell.openNotifications();QVERIFY(shell.notificationsOpen());shell.openShip();QVERIFY(commands.isEmpty());shell.closeHomeMenu();
+        shell.openShip();QCOMPARE(commands.size(),2); // Same desktop identity delegates resume to Apps.
+    }
     void communityLinksPreserveSettingsAndReportBrowserFailure() {
         SettingsController settings;
         QList<QUrl> opened;

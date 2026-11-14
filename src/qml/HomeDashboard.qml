@@ -14,6 +14,7 @@ Item {
     readonly property real usableHeight: height - (shell.chooseAdventureAvailable ? Theme.adventureCutoutHeight : 0) - 10
     function hints(h) {
         if (!visible) return null
+        if(flow.focus==="ship")return [h("A","Enter ship"),h("B","Back")]
         if(flow.widgetPicking)return [h("A","Select widget"),h("B","Cancel")]
         if(flow.focus==="widget" && flow.companion.interacting)return [h("A","Use"),h("Select","Change widget"),h("B","Back")]
         if(flow.focus==="widget")return [h("A",flow.widget.id?"Open":"Choose widget"),h("Select","Change widget"),h("B","Play focus")]

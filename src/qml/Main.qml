@@ -10,12 +10,7 @@ Window {
     visible: true
     title: "OctoFox OS"
     color: Theme.chassisDark
-    property bool notificationsAtFooter: true
-    function openNotificationsAt(footer) {
-        const relocate = shell.notificationsOpen && notificationsAtFooter !== footer
-        notificationsAtFooter = footer
-        if (!relocate) shell.openNotifications()
-    }
+    function openNotificationsAt(footer) { shell.openNotifications() }
     readonly property real uiScale: shell.settings.displayDensity(Screen.width, Screen.height,
         width, height, shell.settings.displayProfile, shell.settings.interfaceScale)
     Binding { target: controllerInput; property: "pointerMode"; value: !shell.social.incomingCall.id && (filesPane.takesFocus || browserPane.takesFocus) && (!adventureLaunch.active || adventureLaunch.minimized) && !sessionState.blocked }
@@ -85,7 +80,7 @@ Window {
             id: brand
             objectName: "brand-extension"
             width: Theme.brandWidth; height: Theme.brandHeight
-            readonly property real accountTextWidth: Math.max(0,notificationBell.x-headerName.x-7)
+            readonly property real accountTextWidth: Math.max(0,shipButton.x-headerName.x-7)
             z: 1
             AccountAvatar {
                 id: headerAvatar
@@ -106,23 +101,23 @@ Window {
                 elide: Text.ElideRight; textFormat: Text.PlainText; verticalAlignment: Text.AlignVCenter
             }
             MouseArea {
-                objectName: "account-profile-toggle"; anchors.fill: parent; anchors.rightMargin: parent.width-notificationBell.x
+                objectName: "account-profile-toggle"; anchors.fill: parent; anchors.rightMargin: parent.width-shipButton.x
                 enabled: shell.unobstructed && !shell.quickAppsOpen
                 onClicked: shell.openProfile()
                 Accessible.role: Accessible.Button; Accessible.name: "Your player profile"
                 Accessible.onPressAction: shell.openProfile()
             }
             Item {
-                id: notificationBell
-                objectName: "notification-bell"; anchors.right: parent.right; anchors.rightMargin: (parent.height-height)/2
+                id: shipButton
+                objectName: "header-ship"; anchors.right: parent.right; anchors.rightMargin: (parent.height-height)/2
                 anchors.verticalCenter: parent.verticalCenter; width: 44; height: 44
-                function pressAction() { window.openNotificationsAt(false) }
-                Rectangle { anchors.fill: parent; radius: 12; color: "#18ffffff"; visible: bellPointer.containsMouse || shell.notificationsOpen }
-                MenuGlyph { anchors.centerIn: parent; width: 22; height: 22; glyph: "bell"; ink: "#fffef9" }
-                Rectangle { anchors.right: parent.right; anchors.rightMargin: 4; y: 5; width: 7; height: width; radius: width/2; color: Theme.yellow; visible: shell.notifications.length>0 }
-                MouseArea { id: bellPointer; anchors.fill: parent; hoverEnabled: true; enabled: shell.unobstructed || shell.notificationsOpen; onClicked: window.openNotificationsAt(false) }
-                Accessible.role: Accessible.Button; Accessible.name: "Notifications, "+shell.notifications.length+" updates. Home + "+Theme.buttonLabel(Theme.controller?.family==="nintendo"?"west":"north")
-                Accessible.onPressAction: window.openNotificationsAt(false)
+                readonly property bool selected: shell.primaryId === "home" && shell.unobstructed && shell.dashboard.focus === "ship"
+                function pressAction() { shell.openShip() }
+                Rectangle { anchors.fill: parent; radius: 12; color: shipButton.selected ? "#38ffffff" : "#18ffffff"; visible: shipPointer.containsMouse || shipButton.selected; border.width: shipButton.selected ? 2 : 0; border.color: Theme.yellow }
+                MenuGlyph { anchors.centerIn: parent; width: 29; height: 29; glyph: "ship"; ink: "#fffef9" }
+                MouseArea { id: shipPointer; anchors.fill: parent; hoverEnabled: true; enabled: shell.unobstructed && !shell.quickAppsOpen; onClicked: shipButton.pressAction() }
+                Accessible.role: Accessible.Button; Accessible.name: "Enter your ship"; Accessible.description: "Open your personal ship, or return to it."
+                Accessible.onPressAction: shipButton.pressAction()
             }
             Item {
                 id: headerLevel
@@ -654,9 +649,9 @@ Window {
         NotificationPopover {
             width: parent.width; height: Theme.footerTop; z: 5
             shell: shellController
-            anchorX: window.notificationsAtFooter ? parent.width-14 : notificationBell.mapToItem(viewport,notificationBell.width,0).x
-            anchorY: window.notificationsAtFooter ? Theme.footerTop-8 : Theme.brandHeight+6
-            above: window.notificationsAtFooter
+            anchorX: parent.width-14
+            anchorY: Theme.footerTop-8
+            above: true
         }
         Item {
             id: nearbyInvitation

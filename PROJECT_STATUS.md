@@ -1,5 +1,23 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — Ship Home development preview
+
+Added a separate Godot third-person home with a panoramic lounge, workshop,
+gallery, cabin and wardrobe. Original geometry and a procedural space view keep
+room assets independent of the shell. Furniture placement, rotation, moving,
+removal and undo persist per local profile. The shared SDK supplies the character;
+disconnection clears its identity. The upper notification bell becomes a ship
+entry; the lower inbox remains. Launches reuse the existing Apps path.
+
+Native build, 63 interaction checks, Home/Settings UI traversals, Godot
+physics/storage checks and installed-process open/duplicate/close checks passed.
+This is a source/development preview, not installed Software or a public release.
+Crafting, wardrobe actions inside the room and owned reward displays remain
+unfinished, as do final art, handheld performance and compositor acceptance.
+**Neither handheld was accessed**, at the owner's request; Bazaar is untouched.
+[Evidence](docs/evidence/2026-11-14-ship-home/README.md) ·
+[Run and controls](experiences/ship-home/README.md).
+
 ## 14 November 2026 — Crates layout and categories
 
 The owner rejected the installed 2+4 overview as uneven and too small. Crates

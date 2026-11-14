@@ -781,6 +781,7 @@ void ShellController::activateDashboard(const QString& key) {
     if(page_!=HomePage || !pairedNavigationAvailable() || navigationLocked())return;
     const auto target=dashboard_.target(key);if(target.isEmpty())return;
     dashboard_.select(key);
+    if(target["type"]=="ship"){openShip();return;}
     if(target["type"]=="widget"){dashboard_.activateWidget();emit changed();return;}
     if(target["type"]=="lobbies"){if(social_.account()["state"]!="connected")social_.openLobby();else if(social_.myLobbies().isEmpty())social_.createAnotherLobby();else social_.showMyLobbies();return;}
     if(target["type"]=="play"){confirm();emit changed();return;}
@@ -1816,6 +1817,10 @@ void ShellController::confirm() {
 void ShellController::closeHomeMenu() {
     if (!homeMenuOpen_ || navigationLocked()) return;
     homeMenuOpen_ = notificationsOpen_ = false; emit changed();
+}
+void ShellController::openShip() {
+    if(!canReceiveNearby() || quickAppsOpen_ || moduleWriting() || !apps_.menu().isEmpty() || navigationLocked())return;
+    apps_.openDesktopId("art.abysstail.octofox.ship-home.desktop");
 }
 void ShellController::openNotifications() {
     if(notificationsOpen()){closeHomeMenu();return;}

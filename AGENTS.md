@@ -1,5 +1,24 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner ship-home, 14 November 2026 (latest):** build a separate third-person
+cozy retrofuturist ship game, entered via a ship icon replacing the upper bell.
+Keep the footer inbox. Large windows overlook space. Reuse the shared avatar and
+existing external-app lifecycle; save decoration layouts per profile. Work in
+this isolated branch; Bazaar/economy belongs to the other conversation.
+**Do not access, install or test on either handheld: the owner is testing Bazaar.**
+Validate on the development host only. First playable slice: rooms, movement,
+camera, shared avatar, furniture placement/save/reload, header entry. Crafting
+and real reward/wardrobe integration must not fabricate ownership or success.
+
+
+**Ship Home development checkpoint, 14 November 2026:** separate first playable
+project at `experiences/ship-home`, isolated branch `codex/ship-home-20261114`.
+Shared avatar, walking/camera, furniture persistence and the upper ship entry are
+implemented; crafting, wardrobe actions and owned reward displays remain targets.
+No device access, release, OTA or Bazaar merge. See
+[development evidence](docs/evidence/2026-11-14-ship-home/README.md) before making
+installation or performance claims.
+
 **Crates delivery checkpoint, 14 November 2026 (latest):** private Software
 sequence **42** (`c97825ea`) is installed on both Odin and Flip; reserve **43+**
 next. Larger 3×2 grid and the six current categories below passed native checks
