@@ -1,5 +1,11 @@
 # OctoFox OS — Changelog
 
+## 14 November 2026 — larger, aligned Crates overview
+
+Replaced the uneven 2+4 composition with six equal tiles in a 3×2 grid. Chest
+renders use a straighter angle and tighter framing; all titles sit underneath.
+Directional controls follow the new grid and retain selection on catalogue return.
+
 ## 14 November 2026 — approved collection, Crates and platform artwork
 
 - Replaced 22 collection paintings with compact SVG-derived geometric icons,

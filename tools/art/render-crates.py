@@ -48,7 +48,7 @@ for key,(body_c,band_c,emblem_c,symbol) in PALETTES.items():
   for poly in o.data.polygons:
    u=uv[poly.loop_start].uv.x;poly.material_index=0 if u<.2 else (1 if u<.6 else 2)
  # Widen the common parent, keeping the inherited lid pivot.
- chest=bpy.data.objects['chest'];chest.scale.x=1.5
+ chest=bpy.data.objects['chest'];chest.scale.x=1.8
  lid=bpy.data.objects['lid'];lid.rotation_mode='XYZ';lid.rotation_euler=(0,0,0)
  lid.keyframe_insert('rotation_euler',frame=1)
  lid.rotation_euler.x=math.radians(-100);lid.keyframe_insert('rotation_euler',frame=25)
@@ -70,7 +70,7 @@ for key,(body_c,band_c,emblem_c,symbol) in PALETTES.items():
  scene.world=bpy.data.worlds.new('studio');scene.world.use_nodes=True
  scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.62,.72,.8,1)
  scene.world.node_tree.nodes['Background'].inputs[1].default_value=.4
- bpy.ops.object.camera_add(location=(3.5,-6,3.3));camera=bpy.context.object;camera.data.type='ORTHO';camera.data.ortho_scale=3.15;aim(camera,(0,0,.60));scene.camera=camera
+ bpy.ops.object.camera_add(location=(2.0,-7,2.7));camera=bpy.context.object;camera.data.type='ORTHO';camera.data.ortho_scale=3.15;aim(camera,(0,0,.60));scene.camera=camera
  # Fit the union of closed/open bounds once; keep the camera fixed through opening.
  bpy.context.view_layer.update()
  coords=[]

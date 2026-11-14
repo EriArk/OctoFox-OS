@@ -1,5 +1,11 @@
 # OctoFox OS — active agent / developer contract
 
+**Owner Crates correction, 14 November 2026:** the installed sequence 39
+composition was rejected as uneven/ugly and too small. Replace the 2+4 layout
+with a balanced 3×2 overview, larger tightly framed chests and titles underneath;
+verify rendering/opening and corresponding directional navigation. Preserve
+catalogue identity/actions and the rest of the approved artwork.
+
 **Artwork delivery, 14 November 2026:** private Software sequence **39**
 (`4c5c2c36`) is installed on both Odin and Flip; reserve **40+** next. Includes
 22 SVG-derived collections, 6 rendered model chests and 31 attributed photographs.

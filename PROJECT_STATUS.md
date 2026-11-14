@@ -1,5 +1,15 @@
 # OctoFox OS — Project status
 
+## 14 November 2026 — Crates composition correction
+
+The owner rejected the installed 2+4 overview as uneven and too small. Crates
+now uses a 3×2 grid, consistent centred titles, wider near-front model renders
+and tightly packed images. Opening pulls back to keep the lid visible; controller
+navigation follows the three columns. Catalogue IDs and actions are unchanged.
+Native/ARM builds and 27 Crates tests passed, including row boundaries and
+vertical-column retention. Native light/dark/open/back scenarios passed.
+Handheld delivery is being completed; the dated evidence will record acceptance.
+
 ## 14 November 2026 — approved artwork integration (#267)
 
 The approved style now covers 12 genre and 10 series collections, all six Crates

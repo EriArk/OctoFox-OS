@@ -7,12 +7,12 @@ Item {
     enabled: active
     onActiveChanged: if(!active) flow.leave()
     Binding { target: root.flow; property: "reducedMotion"; value: Theme.reducedMotion }
-    readonly property real gutter: 27
+    readonly property real gutter: 12
     readonly property real sideMargin: 27
     readonly property real innerWidth: width-2*sideMargin
     readonly property real headerHeight: 37
-    readonly property real usableHeight: height-headerHeight-22
-    readonly property real featuredHeight: usableHeight*0.54
+    readonly property real usableHeight: height-headerHeight-14
+    readonly property real tileHeight: (usableHeight-gutter)/2
     Item {
         visible: !flow.opened
         x: root.sideMargin; y: 3; width: root.innerWidth; height: root.height-3
@@ -25,11 +25,11 @@ Item {
             CrateTile {
                 required property int index
                 required property var modelData
-                entry: modelData; featured: index<2
-                x: index<2 ? index*(width+root.gutter) : (index-2)*(width+root.gutter)
-                y: index<2 ? root.headerHeight : root.headerHeight+root.featuredHeight+root.gutter
-                width: index<2 ? (root.innerWidth-root.gutter)/2 : (root.innerWidth-3*root.gutter)/4
-                height: index<2 ? root.featuredHeight : root.usableHeight-root.featuredHeight-root.gutter
+                entry: modelData
+                x: (index%3)*(width+root.gutter)
+                y: root.headerHeight+Math.floor(index/3)*(height+root.gutter)
+                width: (root.innerWidth-2*root.gutter)/3
+                height: root.tileHeight
                 selected: root.active && root.flow.focusIndex===index
                 opening: root.flow.opening && root.flow.focusIndex===index
                 onActivated: root.flow.open(index,Theme.reducedMotion)

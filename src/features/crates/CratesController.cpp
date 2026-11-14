@@ -279,11 +279,11 @@ bool CratesController::dispatch(Action action) {
     if(action==Action::Confirm){open(focus_);return true;}
     if(opening()||crates_.isEmpty())return true;
     int next=focus_;
-    // Two featured crates above four thematic crates; vertical moves retain side.
-    if(action==Action::Left)next=std::max(focus_<2?0:2,focus_-1);
-    if(action==Action::Right)next=std::min(focus_<2?1:int(crates_.size())-1,focus_+1);
-    if(action==Action::Down&&focus_<2)next=2+focus_*2;
-    if(action==Action::Up&&focus_>=2)next=(focus_-2)/2;
+    // Three equal columns; vertical moves retain the selected column.
+    if(action==Action::Left)next=std::max((focus_/3)*3,focus_-1);
+    if(action==Action::Right)next=std::min(std::min((focus_/3)*3+2,int(crates_.size())-1),focus_+1);
+    if(action==Action::Down&&focus_+3<int(crates_.size()))next=focus_+3;
+    if(action==Action::Up&&focus_>=3)next=focus_-3;
     select(next);return true;
 }
 }

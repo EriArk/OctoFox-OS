@@ -361,14 +361,18 @@ private slots:
         for(const auto& row:c.crates()){const auto v=row.toMap();QVERIFY(!v["title"].toString().isEmpty());ids.insert(v["id"].toString());}
         QCOMPARE(ids.size(),6);QCOMPARE(c.current()["id"].toString(),QString("whats-new"));
     }
-    void directionalRowsAndEdges() {
-        CratesController c;c.dispatch(Action::Right);QCOMPARE(c.focusIndex(),1);
-        c.dispatch(Action::Right);QCOMPARE(c.focusIndex(),1);
-        c.dispatch(Action::Down);QCOMPARE(c.focusIndex(),4);
-        c.dispatch(Action::Right);QCOMPARE(c.focusIndex(),5);
+    void directionalRowsAndEdges(){
+        CratesController c;c.select(0);
+        c.dispatch(Action::Right);c.dispatch(Action::Right);QCOMPARE(c.focusIndex(),2);
+        c.dispatch(Action::Right);QCOMPARE(c.focusIndex(),2);
+        c.dispatch(Action::Down);QCOMPARE(c.focusIndex(),5);
+        c.dispatch(Action::Down);QCOMPARE(c.focusIndex(),5);
+        c.dispatch(Action::Left);QCOMPARE(c.focusIndex(),4);
         c.dispatch(Action::Up);QCOMPARE(c.focusIndex(),1);
-        c.select(2);c.dispatch(Action::Left);QCOMPARE(c.focusIndex(),2);
-        c.select(-1);c.open(99);QCOMPARE(c.focusIndex(),2);QVERIFY(!c.opening());
+        c.select(3);c.dispatch(Action::Left);QCOMPARE(c.focusIndex(),3);
+        c.dispatch(Action::Up);QCOMPARE(c.focusIndex(),0);
+        c.select(-1);c.open(99);QCOMPARE(c.focusIndex(),0);QVERIFY(!c.opening());
+        c.open(4,true);c.back();QCOMPARE(c.focusIndex(),4);
     }
     void backAndSkipRestoreFocus() {
         CratesController c;c.open(4);QVERIFY(c.opening());
