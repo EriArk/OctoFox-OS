@@ -442,6 +442,10 @@ qt_add_resources(traineros prize_audio PREFIX "/audio" BASE assets/audio FILES a
 qt_add_resources(traineros profile_avatars PREFIX "/avatars" BASE assets/avatars FILES ${profile_avatars})
 install(FILES ${profile_avatars} assets/avatars/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/avatars)
 
+file(GLOB pokemon_navigation_art CONFIGURE_DEPENDS assets/adapters/pokemon/navigation/*.png)
+qt_add_resources(traineros pokemon_navigation_art PREFIX "/adapter-art/pokemon"
+    BASE assets/adapters/pokemon/navigation FILES ${pokemon_navigation_art})
+
 file(GLOB trainer_qml_sources CONFIGURE_DEPENDS src/qml/*.qml src/qml/*.js)
 foreach(qml_file IN LISTS trainer_qml_sources)
     get_filename_component(qml_name "${qml_file}" NAME)
@@ -523,6 +527,7 @@ qt_add_qml_module(traineros
         src/qml/HomeCompanionScene.qml
         src/qml/HomeWidgetSlot.qml
         src/qml/HomeWidgetShutter.qml
+    src/qml/AdapterSticker.qml
     src/qml/GameHubPage.qml
     src/qml/OnlinePage.qml
     src/qml/BazaarPage.qml

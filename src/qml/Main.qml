@@ -261,20 +261,30 @@ Window {
         Row {
             id: faceNavigation
             readonly property bool gameBrowser: shell.page === 1 && !shell.collectionsRoot
+            readonly property bool adapter: shell.primaryId === "gamehub"
+            readonly property bool compact: gameBrowser || adapter
             objectName: "navigation-chassis"; x: 28; y: Theme.brandHeight + Theme.screenBevel + 5; spacing: 12; z: 2
-            visible: shell.faceNames.length > 0 && !browserPane.expanded
+            visible: shell.faceNames.length > 0 && !browserPane.expanded && !(adapter && shell.adapterMenuOpen)
+            Item {
+                objectName: "adapter-home-button"; visible: faceNavigation.adapter; width: visible ? 90 : 0; height: 26
+                MenuGlyph { x: 0; y: 6; width: 14; height: 14; glyph: "back" }
+                Text { x: 20; height: 26; verticalAlignment: Text.AlignVCenter; text: "Spaces"; color: Theme.ink; font.pixelSize: 14 }
+                Accessible.role: Accessible.Button; Accessible.name: "Adapter home"
+                Accessible.onPressAction: if (shell.pairedNavigationAvailable) shell.showAdapterMenu()
+                MouseArea { anchors.fill: parent; enabled: shell.pairedNavigationAvailable; onClicked: shell.showAdapterMenu() }
+            }
             FaceStep { objectName: "face-previous"; visible: shell.faceNames.length>1; enabled: shell.pairedNavigationAvailable; onActivated: shell.pressButton("L2") }
             Row {
-                visible: faceNavigation.gameBrowser
+                visible: faceNavigation.compact
                 spacing: 18
                 Repeater {
-                    model: faceNavigation.gameBrowser ? (shell.faceNames.length > 1 ? [-1,0,1] : [0]) : []
+                    model: faceNavigation.compact ? (shell.faceNames.length > 1 ? [-1,0,1] : [0]) : []
                     Text {
                         required property int modelData
                         readonly property int targetIndex: (shell.faceIndex + modelData + shell.faceNames.length) % Math.max(1,shell.faceNames.length)
                         objectName: modelData < 0 ? "browser-context-previous" : modelData > 0 ? "browser-context-next" : "browser-context-current"
                         text: shell.faceNames[targetIndex] || ""
-                        width: Math.min(implicitWidth, Math.max(70,(Theme.screenBounds.width-180)/3))
+                        width: Math.min(implicitWidth, Math.max(70,(Theme.screenBounds.width-(faceNavigation.adapter ? 290 : 180))/3))
                         height: 26; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
                         color: modelData === 0 ? Theme.ink : Theme.muted
                         opacity: modelData === 0 ? 1 : .72
@@ -288,7 +298,7 @@ Window {
                     }
                 }
             }
-            Repeater {model: faceNavigation.gameBrowser ? [] : shell.faceNames
+            Repeater {model: faceNavigation.compact ? [] : shell.faceNames
                 Text {
                     required property int index;required property string modelData
                     objectName: "face-tab-" + index
@@ -312,7 +322,7 @@ Window {
                 enabled: !shell.drawerOpen && !shell.quickAppsOpen && !shell.serviceOpen
                 anchors.fill: parent; anchors.margins: Theme.panelInset
                 // Home has no face row; its content starts below the active tab.
-                anchors.topMargin: shell.primaryId === "home" || (shell.page === 1 && shell.collectionsRoot) ? Theme.brandHeight + Theme.screenBevel - Theme.screenTop : Theme.contentTopInset
+                anchors.topMargin: shell.primaryId === "home" || (shell.page === 1 && shell.collectionsRoot) || (shell.primaryId === "gamehub" && shell.adapterMenuOpen) ? Theme.brandHeight + Theme.screenBevel - Theme.screenTop : Theme.contentTopInset
                 clip: true
                 anchors.bottomMargin: Theme.panelInset
                 HomeDashboard { id: experienceHost; anchors.fill: parent; shell: shellController; visible: (!shell.serviceOpen || shell.service === "settings" || shell.service === "account-profile") && shell.primaryId === "home" }

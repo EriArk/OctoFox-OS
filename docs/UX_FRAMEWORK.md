@@ -5,6 +5,9 @@
 > Старые «далее/следующий шаг» ниже не назначают новую работу; непроверенные
 > условия остаются непроверенными.
 
+**14 November:** [sticker home and direct L2/R2 screen navigation](ADAPTER_HOME.md)
+supersede the grouped adapter rail. Module/context/save boundaries below remain.
+
 ## Текущая граница
 
 Descriptor v2 и optional GameHub Adapter уже заменили обязательные first/second

@@ -47,7 +47,15 @@ Both families declare no extraction sources yet. Pack Studio, installable extern
 packs/adapters, and ROM-native extraction/cache/migration keep their #59/#92/#95–97
 acceptance; changing the manifest is not an implementation of a decoder.
 
-## Workspace categories (2 November 2026)
+## Sticker home (14 November 2026)
+
+The host now presents all nine declared screens as large sticker buttons, using
+new original generated art owned by this adapter. L2/R2 cycle screens after entry;
+Back returns to the home once local interactions close. The provider still owns
+Party/Boxes/Guide/Care/Shop/Playroom/persona/history behavior and protected save
+operations. [Current navigation contract](../../../docs/ADAPTER_HOME.md).
+
+## Workspace categories (2 November 2026, superseded navigation)
 
 The descriptor owns Team (Party/Boxes), Field Guide, Center (Care Center/Shops/
 Playroom), and Trainer (Trainer Card/Journey/Hall of Fame). The shared host keeps

@@ -43,6 +43,17 @@ fixtures supply sample records and label them **SAMPLE ITEMS** with a sample cou
 no new franchise artwork or item/game semantics are embedded into the shell.
 The generic item view consumes metadata; it does not implement an Emerald writer.
 
+## Common item boundary
+
+The profile inventory and future server custody belong to the platform, not to
+Pokemon. The shared contract will identify each owned item, owner, source game,
+adapter/schema version, presentation metadata and allowed actions. Game-specific
+payload stays namespaced and opaque to the host. An adapter validates eligibility,
+serializes its own entity and performs protected save removal/restoration through
+the existing owner. Another game can describe equipment or other collectibles
+without adopting Pokemon fields. The current generic UI already consumes artwork,
+facts and actions; the server/transfer contract is still pending implementation.
+
 ## Next complete path
 
 1. Verify eligibility for a particular Emerald individual and exact save revision.

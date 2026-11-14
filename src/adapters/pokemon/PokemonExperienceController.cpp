@@ -9,7 +9,8 @@
 
 namespace trainer {
 const ExperienceDescriptor& pokemonExperienceDescriptor() {
-    static const ExperienceDescriptor value{"pokemon",2,"pokemon-home",
+    static const ExperienceDescriptor value=[] {
+        ExperienceDescriptor descriptor{"pokemon",2,"pokemon-home",
         {"Pokémon","companion",{{"party","Party","pokemon-party","party","team","Team"},
             {"boxes","Boxes","pokemon-boxes","boxes","team","Team"},
             {"dex","Field Guide","pokemon-guide","guide","guide","Field Guide"},
@@ -19,6 +20,10 @@ const ExperienceDescriptor& pokemonExperienceDescriptor() {
             {"profile","Trainer Card","pokemon-persona","profile","trainer","Trainer"},
             {"journey","Journey","pokemon-journey","journey","trainer","Trainer"},
             {"hall","Hall of Fame","pokemon-hall","trophy","trainer","Trainer"}}}};
+        for(auto& screen:descriptor.adapter.screens)
+            screen.artwork="qrc:/adapter-art/pokemon/"+screen.id+".png";
+        return descriptor;
+    }();
     return value;
 }
 

@@ -642,10 +642,10 @@ private slots:
         DevelopmentPlatformService platform;MockPokedexRepository dex;MockHallOfFameRepository archive;MockAchievementProvider achievements;
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
         shell.openGameHubFace("spaces");
-        const QStringList categories{"Team","Field Guide","Center","Trainer"};
+        const QStringList categories{"Party","Boxes","Field Guide","Care Center","Shops","Playroom","Trainer Card","Journey","Hall of Fame"};
         QCOMPARE(shell.faceNames(),categories);
-        shell.selectFace(0);
-        for(int i=0;i<8;++i){QCOMPARE(shell.faceIndex(),i%4);QCOMPARE(shell.hubFace(),"adapter");shell.dispatch(Action::NextFace);}
+        shell.selectAdapterScreen("party");
+        for(int i=0;i<18;++i){QCOMPARE(shell.faceIndex(),i%9);QCOMPARE(shell.hubFace(),"adapter");shell.dispatch(Action::NextFace);}
         shell.openGameHubFace("adapter");shell.selectAdapterScreen("party");
         pokemonModule(shell).party()->dispatch(Action::Right);QCOMPARE(pokemonModule(shell).party()->focusIndex(),1);
         shell.selectAdapterScreen("boxes");pokemonModule(shell).party()->changeBox(1);pokemonModule(shell).party()->dispatch(Action::Right);

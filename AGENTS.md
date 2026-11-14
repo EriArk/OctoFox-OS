@@ -1,5 +1,15 @@
 # TrainerOS — active agent / developer contract
 
+**Owner adapter home / generic inventory, 14 November (latest):** adapter entry
+opens a dedicated home with large newly generated sticker illustrations and clear
+labels. Selecting a sticker opens a full workspace; L2/R2 cycle actual screens,
+Back unwinds local actions then returns to adapter home at the last selected
+sticker. Home has no persistent category/section rail. Screen IDs/order/labels/art
+belong to each adapter; keep the host and profile inventory game-neutral. Emerald
+is the first consumer, not a Pokemon-specific custody schema. Preserve global
+X/Y/Home/Start and save-write guards. This supersedes grouped adapter navigation.
+Separate Bazaar branch, no merge or handheld installs; transfers are still pending.
+
 **Owner inventory density correction, 14 November (latest):** replace the large
 three-column cards and separate detail page with a compact six-column grid and
 permanent inspector. Target thirty fully visible cells at 800×450; pointer hover,

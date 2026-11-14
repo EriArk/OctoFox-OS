@@ -1,0 +1,54 @@
+    Start 118: qml_smoke
+5/7 Test #118: qml_smoke ........................***Failed   17.87 sec
+qt.multimedia.ffmpeg: Using Qt multimedia with FFmpeg version 8.1.3 GPL version 3 or later
+Smoke test: Start traps system-menu focus
+Smoke test: Pokedex list focus
+Smoke test: collection focus restored
+Smoke test: Game focus restored within the collection
+Smoke test: empty Trainer focus
+Smoke test: create Trainer starts at Name
+Smoke test: empty name restores editable field
+Smoke test: keyboard starts at Q
+Smoke test: mixed controller text entry
+Smoke test: Start traps focus above keyboard
+Smoke test: Y must not change text under menu
+Smoke test: notice traps focus above menu and keyboard
+Smoke test: Back restores system-menu opener
+Smoke test: Back restores exact key and draft
+Smoke test: Apply restores Name control
+Smoke test: Apply changes draft only
+Smoke test: Save creates Trainer and restores opener
+Smoke test: saved name
+Smoke test: saved emblem
+Smoke test: saved favorite
+Smoke test: stable identity and Home projection
+Smoke test: editing starts from saved name
+Smoke test: B discards only keyboard buffer
+Smoke test: B discards form changes
+Smoke test: all numeric keys reachable
+Smoke test: Delete removes last character
+Smoke test: Clear empties buffer
+Smoke test: Space reachable from numeric block
+Smoke test: cancel numeric tour preserves profile
+Smoke test: R1 escapes keyboard to Social
+Smoke test: switch preserves saved identity and name
+Smoke test: L1 restores Trainer opener
+Smoke test: editing preserves identity
+Smoke test: Unlinked Social has visible shell focus
+Smoke test: Social has no game selector
+Smoke test: Back must not leave primary page
+Smoke test: Physical R2 cycles Social peers
+Failed to connect to pipewire instance "Host is down"
+PulseAudioService: pa_context_connect() failed
+QSoundEffect: playback of this format is not supported on the selected audio device
+Smoke test: Explicit Home action opens normal Adventure after fallback
+Smoke test: Back restores fixed Home action
+Smoke test: Zero battery is valid and never steals focus
+Smoke test: Unavailable charge clears old value without changing focus
+Smoke test: Controller case and symbol entry
+Smoke test: Changing key layout preserves visible focus
+Smoke test: Rendered password contains only bullets and cursor
+Smoke test: Numeric block remains reachable past hidden symbol slots
+QML smoke test FAILED
+QObject::disconnect: wildcard call disconnects from destroyed signal of trainer::ShellController::unnamed
+

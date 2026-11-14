@@ -1,0 +1,69 @@
+{
+  "generator": "OpenAI built-in image_gen",
+  "date": "2026-11-14",
+  "assets": [
+    {
+      "file": "party.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "c15d3f13becbbbb8d366f59be91a7474532f1390e47895408010f5a362a993fc",
+      "bytes": 2138930
+    },
+    {
+      "file": "boxes.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "c78ef84ee2a064ccf7e4fcf0404a2c46c87ace9aa2334b57093dfa2571dc223f",
+      "bytes": 2080275
+    },
+    {
+      "file": "dex.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "f33b7771bccf15f9906de2978fb94cba63a32e703eecfec6ca39aa42e59ac80f",
+      "bytes": 1719584
+    },
+    {
+      "file": "center.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "f7281d1f45db8cb31b1f720998b5c8b8c242aa3c50208a8142064821ddd54073",
+      "bytes": 2091455
+    },
+    {
+      "file": "shops.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "772b1977ad75fb60558b93948689a9f66234cb146940ab8b672a26493bbf5e91",
+      "bytes": 2186336
+    },
+    {
+      "file": "playroom.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "3688dea7a533c3a2ee5dd9cb6d005c3ba8bad8b27ffcc199f0f044c10540e0cb",
+      "bytes": 2151769
+    },
+    {
+      "file": "profile.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "201cc1fe5cc903a7f38346a372975a5668d80589c6d10bffa485e3e848685557",
+      "bytes": 2154672
+    },
+    {
+      "file": "journey.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "5ba22fafda79d588a9bb710d8b3968be51ad4fe179b59634715053ef6762cd07",
+      "bytes": 2091207
+    },
+    {
+      "file": "hall.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "92615eef29dbe6af62a046d1058280557de857c9a7ca833dc15ec0eba7dc1760",
+      "bytes": 2162526
+    }
+  ]
+}
