@@ -126,7 +126,7 @@ private:
     void loadOnlineProfile();
     bool applyOnlineProfile(const QJsonObject& profile);
     QTimer socialRetry_{this},profileRetry_{this};
-    bool socialConnected_=false,autoPaused_=false,socialLogin_=false,profileReady_=false,profileBusy_=false;
+    bool socialConnected_=false,autoPaused_=false,socialLogin_=false,socialClaimBusy_=false,profileReady_=false,profileBusy_=false;
     bool needsName_=false,needsAvatar_=false,avatarIntent_=false;
     int socialFailures_=0;
     QString profileRevision_,nicknameEditor_;

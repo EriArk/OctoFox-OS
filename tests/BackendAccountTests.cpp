@@ -630,7 +630,11 @@ private slots:
         QVERIFY(h.disk.isEmpty());a.setSocialConnection("12345",true);
         QCOMPARE(a.loginState(),"connected");QCOMPARE(a.snapshot()["player_id"].toString(),Player);QVERIFY(!h.disk.isEmpty());QVERIFY(h.browser.isEmpty());
     }
+    void lostAutomaticClaimRetriesSameProofWithoutCreatingAnotherAttempt_data() {
+        QTest::addColumn<bool>("reconnect");QTest::newRow("ordinary retry")<<false;QTest::newRow("Fluxer reconnect after retry elapsed")<<true;
+    }
     void lostAutomaticClaimRetriesSameProofWithoutCreatingAnotherAttempt() {
+        QFETCH(bool,reconnect);
         Harness h;BackendAccount a;auto services=h.services();auto request=services.request;
         int begins=0,claims=0;QJsonObject first;
         services.request=[&](QByteArray m,QString p,QJsonObject b,QByteArray auth,BackendAccount::Reply done){
@@ -645,6 +649,7 @@ private slots:
         a.setServices(services);a.socialCredential=[](QString,auto done){done("restored-fluxer-session");};
         a.configure("lost-claim-response");a.setSocialConnection("12345",true);
         QCOMPARE(a.loginState(),"claiming");QCOMPARE(begins,1);QCOMPARE(claims,1);
+        if(reconnect){a.setSocialConnection("12345",false);QTest::qWait(2300);QCOMPARE(claims,1);a.setSocialConnection("12345",true);}
         QTRY_COMPARE_WITH_TIMEOUT(a.loginState(),"connected",4500);
         QCOMPARE(begins,1);QCOMPARE(claims,2);QCOMPARE(a.snapshot()["player_id"].toString(),Player);
     }

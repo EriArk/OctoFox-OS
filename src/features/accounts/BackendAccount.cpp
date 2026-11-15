@@ -239,7 +239,7 @@ void BackendAccount::publishProfileFavorites(QJsonArray games,QString revision,R
     request("PUT","/v1/me/profile/favorites",{{"games",games},{"revision",revision}},std::move(done),access_);
 }
 void BackendAccount::reset() {
-    socialRetry_.stop();profileRetry_.stop();socialLogin_=false;profileReady_=false;profileBusy_=false;
+    socialRetry_.stop();profileRetry_.stop();socialLogin_=false;socialClaimBusy_=false;profileReady_=false;profileBusy_=false;
     needsName_=false;needsAvatar_=false;profileRevision_.clear();nicknameEditor_.clear();avatarIntent_=false;
     ++supportGeneration_;support_={};supportClaim_={};supportMessage_.clear();supportBusy_=false;supportPending_=false;supportReview_=false;
     prizeBusy_=false;prizeStale_=true;celebrationIds_={};celebrationGroups_={};

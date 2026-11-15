@@ -15,7 +15,8 @@ void BackendAccount::setSocialConnection(const QString& subject,bool connected) 
         if(state_=="connected")logout();
         else {reset();cachedIdentity_={};profileSnapshot_={};write({},[](bool){});state("signed_out","Sign in to Fluxer to connect your OctoFox OS profile");}
     }
-    reconcileSocial();
+    if(socialConnected_ && socialLogin_ && state_=="claiming" && !socialRetry_.isActive())claimSocial();
+    else reconcileSocial();
 }
 void BackendAccount::reconcileSocial() {
     if(!socialCredential||!socialConnected_||socialSubject_.isEmpty()||owner_.isEmpty()||autoPaused_||socialRetry_.isActive())return;
@@ -56,8 +57,10 @@ void BackendAccount::beginSocial() {
     });
 }
 void BackendAccount::claimSocial() {
-    if(!socialLogin_||attempt_.isEmpty()||verifier_.isEmpty()||!socialConnected_)return;
+    if(!socialLogin_||socialClaimBusy_||attempt_.isEmpty()||verifier_.isEmpty()||!socialConnected_)return;
+    socialClaimBusy_=true;
     request("POST","/v1/auth/login-attempts/claim",{{"attempt_id",attempt_},{"claim_verifier",verifier_}},[this](int status,QJsonObject value){
+        socialClaimBusy_=false;
         if(status==0||status==408||status==429||status>=500){
             socialFailures_=qMin(socialFailures_+1,6);socialRetry_.start(qMin(60000,2000*(1<<qMin(socialFailures_-1,5))));
             detail_="Finishing sign-in was interrupted. Retrying automatically…";emit changed();return;
