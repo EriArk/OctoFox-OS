@@ -23,7 +23,7 @@ Item {
         sourceComponent: Component { AvatarEditor { profile: root.shell.trainer; shell: root.shell } }
     }
     Item {
-        anchors.fill: parent; anchors.margins: 20; visible: !root.flow.registration
+        anchors.fill: parent; anchors.margins: 20; visible: !root.flow.registration && !(root.social && root.shell.trainer.avatarEditing)
         Text { id: title; width: parent.width-registerButton.width-16; text: root.serviceName; wrapMode: Text.WordWrap; font.family: Theme.displayFamily; font.pixelSize: 26; color: Theme.ink }
         SettingsRow {
             id: registerButton; objectName: "setup-registration"; anchors.right: parent.right; width: Math.min(260,parent.width*0.40); height: 52
