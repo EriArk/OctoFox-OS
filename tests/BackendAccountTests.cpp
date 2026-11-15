@@ -653,6 +653,18 @@ private slots:
         QTRY_COMPARE_WITH_TIMEOUT(a.loginState(),"connected",4500);
         QCOMPARE(begins,1);QCOMPARE(claims,2);QCOMPARE(a.snapshot()["player_id"].toString(),Player);
     }
+    void fluxerReconnectDoesNotDuplicateAnInFlightClaim() {
+        Harness h;h.deferClaim=true;BackendAccount a;auto services=h.services();auto request=services.request;int claims=0;
+        services.request=[&](QByteArray m,QString p,QJsonObject b,QByteArray auth,BackendAccount::Reply done){
+            if(p=="/v1/auth/fluxer/session"){done(204,{});return;}
+            if(p=="/v1/auth/login-attempts/claim")++claims;
+            request(m,p,b,auth,std::move(done));
+        };
+        a.setServices(services);a.socialCredential=[](QString,auto done){done("verified-test-session");};
+        a.configure("in-flight-claim");a.setSocialConnection("12345",true);QCOMPARE(claims,1);
+        auto reply=std::move(h.pending);a.setSocialConnection("12345",false);a.setSocialConnection("12345",true);
+        QCOMPARE(claims,1);reply(200,credentials());QCOMPARE(a.loginState(),"connected");
+    }
     void nicknameIsServerOwnedAndCannotCommitAcrossAccountSwitch() {
         Harness h;h.publicProfile["revision"]="1";BackendAccount a;auto services=h.services();auto request=services.request;int writes=0;
         services.request=[&](QByteArray m,QString p,QJsonObject b,QByteArray auth,BackendAccount::Reply done){
