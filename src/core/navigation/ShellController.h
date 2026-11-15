@@ -322,6 +322,7 @@ public:
     Q_INVOKABLE void openSocialNotification();
     Q_INVOKABLE void closeHomeMenu();
     Q_INVOKABLE void openNotifications();
+    Q_INVOKABLE void openShip();
     Q_INVOKABLE void openProfile(bool loadOwn=true);
     Q_INVOKABLE void openAccountProfile();
     bool powerMenu() const { return powerMenu_; }

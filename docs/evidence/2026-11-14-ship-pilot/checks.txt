@@ -1,0 +1,14 @@
+Godot 4.7.2-stable (ed1daf0bf)
+Host general checks: PASSED
+Host pilot checks: PASSED
+Host graphical pilot / SDK idle-walk-run / mouse / avatar refresh tour: PASSED
+Odin ARM64 general checks: PASSED
+Odin ARM64 pilot checks: PASSED
+Flip ARM64 general checks: PASSED
+Flip ARM64 pilot checks: PASSED
+Installed game revision: c941fe3279ae760e (both)
+Runtime renderer: freedreno FD740 / FD650, Mesa 26.2.6
+Post-exit Apps sessions: {} (both)
+Post-exit InputPlumber InterceptMode: 0 (both)
+Shared SDK files: byte-identical to c45675a5
+See README.md for input method and unverified acceptance.

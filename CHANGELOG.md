@@ -7,6 +7,109 @@
 
 # OctoFox OS — Changelog
 
+## 15 November 2026 — ship entry delivered in the upper header
+
+Private Software **48** combines the current Software 47 Bazaar shell with the
+Ship Home entry. The saucer replaces the upper bell on **both Odin and Flip**;
+the footer inbox remains. Actual header launch, own avatar, Save and exit and
+footer notification checks passed with remote keyboard/pointer. Ship/Bazaar
+assets and personal state were retained; Software 47 is the rollback. Physical
+controls, Home/minimize/Quick Apps and sustained performance remain separate.
+[Device screenshots and delivery evidence](docs/evidence/2026-11-15-ship-header/README.md).
+
+## 14 November 2026 — warm ship applied to Odin and Flip
+
+Installed standalone preview `34aa5da8b7518ad3` on both handhelds after the owner
+resumed access. The ship now defaults to Godot's Vulkan Mobile renderer: it
+removed the camera-dependent black patches observed on Odin's Compatibility
+path while retaining the lighting and shadows. No shell/Bazaar, kernel or system
+package changes. Apps launch, own avatar, walking, pilot seat/look/stand and
+Save and exit passed with remote keyboard/pointer. Physical controls, sustained
+performance and Home/minimize/return acceptance remain separate.
+[Native captures, installation and cleanup evidence](docs/evidence/2026-11-14-ship-warm-devices/README.md).
+
+## 14 November 2026 — warmer ship interior and integrated lighting
+
+Reworked the standalone ship with smoother hull/ceiling geometry, oval portholes,
+rounded console shells, warm ivory surfaces, sage/terracotta upholstery and
+restrained wood inserts. Replaced radial floor triangles with a matte deck and
+fine inlays. Added ceiling halos, frosted bulkhead lamps, task lights and pilot
+optics, retaining the existing room-light/shadow count. Static ceiling geometry
+batches separately, preserving the roof cutaway.
+
+This is a **host-only visual revision**, on the isolated ship branch. Neither
+handheld was accessed or changed: the owner explicitly paused device work.
+Geometry/storage/collision and pilot checks passed on Godot 4.7.2. These checks
+are not a handheld performance claim; flight and room-provider integrations
+remain outside this visual pass. No Bazaar changes, release or OTA.
+[Captures and verification](docs/evidence/2026-11-14-ship-warm/README.md).
+
+## 14 November 2026 — pilot view and shared SDK locomotion
+
+Opened the bow into a panoramic canopy, removed cockpit-side partitions and
+moved the technical-space concept below deck. Angular consoles now surround a
+single pilot chair. Sitting switches to first person; standing restores the chase
+camera at a checked free position. Idle/walk/run consume the common Godot SDK
+locomotion from `c45675a5`, replacing Ship Home's procedural walking code.
+
+Standalone preview `c941fe3279ae760e` is installed on both Odin and Flip. Apps
+launch, shared avatar, walking, seat/look/stand and Save and exit passed using
+remote keyboard/pointer; both Godot test suites passed on ARM64. Existing shell
+and Bazaar builds were retained. Home/minimize/return, physical pad/touch and
+sustained performance acceptance remain open. No release/OTA.
+[Evidence, screenshots and limitations](docs/evidence/2026-11-14-ship-pilot/README.md).
+
+## 14 November 2026 — compact saucer layout and cockpit
+
+Replaced the rectangular room plan with a single oval pressure hull, a shallow
+curved ceiling and rooms that narrow toward the rim. The original 372 m² deck
+becomes an approximately 102 m² polygonal footprint, before partitions and
+fittings. Small chamfered, tapered windows replace full-height glazing. A pilot
+seat enclosed by side consoles and an overhead instrument pod replaces the broad
+control desk. The home keeps a galley/dinette, workshop, archive, cabin and wardrobe.
+
+Shortened the chase camera and hide the avatar only when wall retraction would
+put the camera inside it. Placement now checks the curved hull and all compact
+door routes. Earlier preview layouts are preserved in their original directory;
+this development deck uses independent per-profile `saucer-v2` arrangements.
+
+Godot checks cover all starter furniture, four walk-through hatches, curved hull
+and cockpit collisions, camera retraction, and persistence. Engine architecture,
+cutaway and shared-avatar camera captures are recorded separately from handheld
+acceptance. No Odin/Flip access, Bazaar changes, release or deployment.
+[Evidence and screenshots](docs/evidence/2026-11-14-ship-compact/README.md).
+
+## 14 November 2026 — Ship Home interior redesign
+
+Reworked the first layout into a spacecraft with curved pressure-hull ribs,
+framed hatches and metal deck plates. The panoramic window now has a curved
+helm and pilot chair. Ivory panels, brass bands, blue inset lights and a ringed
+planet borrow ideas from the existing Orbit profile background. Built-in lounge
+seating and cabin furniture preserve the home functions. Fixed mixed-mesh
+batching that could hide sections of the interior.
+
+Godot physics/storage and geometry regression checks passed; seven actual
+engine views were captured on the development server. No handheld access,
+Bazaar changes, deployment or release. Flight controls and the previously
+unfinished room functions remain unimplemented; final art and handheld
+performance acceptance are still open.
+[Evidence and screenshots](docs/evidence/2026-11-14-ship-redesign/README.md).
+
+## 14 November 2026 — Ship Home development preview
+
+Added a separate Godot third-person home with a panoramic lounge, workshop,
+gallery, cabin and wardrobe. Original geometry and a procedural space view keep
+room assets independent of the shell. Furniture placement, rotation, moving,
+removal and undo persist per local profile. The shared SDK supplies the character;
+disconnection clears its identity. The upper notification bell becomes a ship
+entry; the lower inbox remains. Launches reuse the existing Apps path.
+
+This is a source/development preview, not installed Software or a public release.
+Crafting, wardrobe actions inside the room and owned reward displays remain
+unfinished, as do final art, handheld performance and compositor acceptance.
+**Neither handheld was accessed**, at the owner's request; Bazaar is untouched.
+[Evidence](docs/evidence/2026-11-14-ship-home/README.md) ·
+[Run and controls](experiences/ship-home/README.md).
 ## 14 November 2026 — playable personal Bazaar frames
 
 Private **Software 47 / Bazaar 0.0.10** is installed on Flip 2 and Odin 2.

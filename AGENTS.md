@@ -13,6 +13,99 @@ acceptance is claimed by source implementation alone.
 
 # OctoFox OS — active agent / developer contract
 
+**Header entry delivery, 15 November 2026:** private Software **48** is installed
+on both Odin and Flip, retaining the current Software 47 Bazaar behaviour. The
+upper saucer launches Ship Home; footer notifications remain. Actual entry,
+Save and exit and inbox checks passed with remote keyboard/pointer. Reserve
+**49+** next. Physical controls and Home/minimize/return remain open.
+Odin microSD staging cleanup (`OctoFox/ship-header-20261115`) was still blocked
+on writeback at final check; a scoped cleanup process remains. Do not reboot or
+interrupt the owner’s running Bazaar to clean it. Flip cleanup completed.
+[Evidence](docs/evidence/2026-11-15-ship-header/README.md).
+
+**Header entry correction, 15 November 2026:** the owner requires the saucer
+entry in the upper header on both handhelds, replacing the upper bell. Integrate
+the Ship Home shell entry with the currently installed Software 47 Bazaar shell;
+preserve the footer inbox, Bazaar worlds and each device’s state. Earlier Apps-only
+delivery is incomplete for this requirement. Validate the actual header launch.
+
+**Warm ship handheld delivery, 14 November 2026 (latest):** the owner resumed
+handheld deployment, superseding the pause below. Standalone preview
+`34aa5da8b7518ad3` is installed on Odin and Flip. Use Vulkan Mobile for this
+experience: the current Compatibility path produced camera-dependent black
+patches on Odin; Mobile rendered the tested views correctly on both devices.
+Apps launch, own avatar, walk, pilot seat/look/stand and Save and exit were checked
+with remote keyboard/pointer. Shell/Bazaar builds and profiles are preserved.
+[Device evidence and remaining limits](docs/evidence/2026-11-14-ship-warm-devices/README.md).
+
+**Owner warm interior / device pause, 14 November 2026 (latest):** smooth the
+still angular/grey ship, make it warmer and cozier, and include futuristic lamps.
+**Do not access either handheld**; this supersedes the earlier availability below.
+The new warm interior/fixture pass is host-only. Preserve the compact saucer,
+first-person pilot, common SDK motion and the other conversation's Bazaar work.
+[Current evidence](docs/evidence/2026-11-14-ship-warm/README.md).
+
+**Pilot / SDK checkpoint, 14 November 2026:** Ship Home preview
+`c941fe3279ae760e` is installed on Odin and Flip. Panoramic cockpit, first-person
+seat and common SDK idle/walk/run (`c45675a5`) passed host/ARM checks and real
+Apps launch / save-exit with remote input. Existing Bazaar shells are retained;
+use Apps for entry. Home/minimize/return and physical-pad acceptance remain open.
+No kernel changes, release or OTA. [Evidence](docs/evidence/2026-11-14-ship-pilot/README.md).
+
+**Owner cockpit/pilot correction, 14 November 2026 (latest):** remove the
+partitions and rails beside the cockpit; technical equipment belongs below the
+deck. Restore a panoramic bow canopy. Replace pillowy panel forms with sharper
+metal structure and an Elite Dangerous-inspired pilot station. Sitting must
+switch to first-person view; standing restores third person. The owner has now
+made **both handhelds available again**, superseding the no-device boundary below.
+Verify the standalone ship preview without replacing the current Bazaar build.
+
+**Owner compact saucer correction, 14 November 2026 (latest):** the Orbit
+restyle is still too spacious and rectangular. Build the rooms inside one curved
+saucer hull, reduce wasted floor area and window size, use shaped glazing, and
+replace the wide control desk with an enclosing single-seat cockpit. Keep the
+cozy Orbit palette, third-person play and all room purposes. No handheld access
+or Bazaar changes. This supersedes the earlier floor-to-ceiling panorama target.
+
+**Compact saucer checkpoint, 14 November 2026:** curved hull and clipped room
+footprints replace the rectangular plan; a single-seat cockpit replaces the wide
+helm. All starter placements, four physical hatch routes, hull/seat collisions,
+camera and persistence checks pass. Previous preview layouts remain in `homes/`;
+new arrangements use `homes/saucer-v2/`. No device access. See
+[current evidence](docs/evidence/2026-11-14-ship-compact/README.md).
+
+**Owner Ship Home redesign, 14 November 2026 (latest):** the first layout was
+rejected as a low-poly house in space. Redesign the actual interior as a cozy
+spacecraft; add a pilot console at the panoramic window. Partly derive the visual
+language from `assets/profile-scenes/orbit.png`: light curved hull, brass bands,
+blue inset lighting, amber instruments and a ringed planet. Keep this a separate
+third-person application. No handheld access or Bazaar changes.
+
+**Ship redesign checkpoint, 14 November 2026:** Orbit-inspired pressure hull,
+panoramic helm, ringed planet and fitted rooms are implemented in the development
+branch. Godot geometry/physics/storage checks and seven engine captures passed.
+Flight and functional room integrations remain unfinished. No device access.
+[Current design evidence](docs/evidence/2026-11-14-ship-redesign/README.md).
+
+**Owner ship-home, 14 November 2026 (latest):** build a separate third-person
+cozy retrofuturist ship game, entered via a ship icon replacing the upper bell.
+Keep the footer inbox. Large windows overlook space. Reuse the shared avatar and
+existing external-app lifecycle; save decoration layouts per profile. Work in
+this isolated branch; Bazaar/economy belongs to the other conversation.
+**Do not access, install or test on either handheld: the owner is testing Bazaar.**
+Validate on the development host only. First playable slice: rooms, movement,
+camera, shared avatar, furniture placement/save/reload, header entry. Crafting
+and real reward/wardrobe integration must not fabricate ownership or success.
+
+
+**Ship Home development checkpoint, 14 November 2026:** separate first playable
+project at `experiences/ship-home`, isolated branch `codex/ship-home-20261114`.
+Shared avatar, walking/camera, furniture persistence and the upper ship entry are
+implemented; crafting, wardrobe actions and owned reward displays remain targets.
+No device access, release, OTA or Bazaar merge. See
+[development evidence](docs/evidence/2026-11-14-ship-home/README.md) before making
+installation or performance claims.
+
 **Owner personal starting grounds, 14 November (latest):** a personal Bazaar is
 one empty square, expanded later with paid shops, stalls, training arenas and
 social places. Prepare two local frames: Mika has a roughly circular beach island

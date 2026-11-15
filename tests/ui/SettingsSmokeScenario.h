@@ -157,8 +157,8 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
         case 31: check(shell.network()->detailsOpen(),"Connected network details open after cancelling password");capture("wifi-connected-960");settings->cycleTheme(1);break;
         case 32: capture("wifi-connected-dark");shell.network()->back();shell.network()->otherNetwork();shell.dispatch(trainer::Action::Back);shell.network()->otherNetwork();shell.network()->applyText("Hidden home");shell.keyboard()->cancel();break;
         case 33: capture("wifi-hidden-dark");shell.network()->back();shell.goToSection("home");break;
-        case 34: tap(visibleItem(window->contentItem(),"notification-bell"));break;
-        case 35: check(shell.notificationsOpen(),"Header bell opens popover by touch");check(!visibleItem(window->contentItem(),"shell-home-menu"),"Bell does not show Home menu");capture("notifications-dark-960");shell.dispatch(trainer::Action::Back);settings->cycleTheme(1);window->resize(1280,720);break;
+        case 34: tap(visibleItem(window->contentItem(),"footer-notification-bell"));break;
+        case 35: check(shell.notificationsOpen(),"Footer bell opens popover by touch");check(!visibleItem(window->contentItem(),"shell-home-menu"),"Bell does not show Home menu");capture("notifications-dark-960");shell.dispatch(trainer::Action::Back);settings->cycleTheme(1);window->resize(1280,720);break;
         case 36: shell.openNotifications();break;
         case 37: capture("notifications-light-1280");shell.closeHomeMenu();shell.dispatch(trainer::Action::Home);break;
         case 38: check(!shell.homeMenuOpen()&&!shell.notificationsOpen(),"Home returns directly without a menu");capture("home-menu-no-inbox");shell.closeHomeMenu();break;

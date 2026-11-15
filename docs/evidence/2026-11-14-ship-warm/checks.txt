@@ -1,0 +1,17 @@
+Host validation only; Godot 4.7.2; no handheld access.
+
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SHIP CHECKS: PASSED
+
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SHIP PILOT CHECKS: PASSED
+
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+WARM GEOMETRY: 365396 triangles, 101 mesh instances (including furniture, planet, roof)
+
+Graphical engine tours, Mesa llvmpipe / Xvfb:
+SHIP DESIGN TOUR PASSED
+SHIP PILOT TOUR PASSED

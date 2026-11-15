@@ -140,6 +140,7 @@ QList<QStringList> HomeDashboardController::zones() const {
     }result[0].prepend("lobbies");return result;
 }
 QVariantMap HomeDashboardController::target(const QString& key) const {
+    if(key=="ship")return {{"type","ship"},{"key",key}};
     if(key=="lobbies")return {{"type","lobbies"},{"key",key}};
     if(key=="play" || key=="screens" || key=="widget")return {{"type",key},{"key",key}};
     for(const auto& rows:{people(),achievements()})for(const auto& row:rows)if(row.toMap()["key"]==key)return row.toMap();
@@ -153,6 +154,12 @@ void HomeDashboardController::move(Action action) {
         else if(action==Action::Up || action==Action::Down){widgetChoiceIndex_=std::clamp(widgetChoiceIndex_+(action==Action::Up?-1:1),0,int(widgetChoices().size())-1);emit changed();}
         return;
     }
+    if(focus_=="ship") {
+        if(action==Action::Down || action==Action::Left)select("lobbies");
+        else if(action==Action::Back || action==Action::Right || action==Action::NextFace || action==Action::PreviousFace)reset();
+        return;
+    }
+    if(action==Action::Up && (focus_=="lobbies" || focus_=="screens")){select("ship");return;}
     if(focus_=="widget") {
         if(widget()["renderer"]=="avatar-care-v1"&&companion_.interacting()) {
             if(action==Action::NextFace || action==Action::PreviousFace)reset();

@@ -6,6 +6,7 @@ Item {
     property string glyph: ""
     property color ink: Theme.ink
     readonly property var paths: ({
+        "ship": "M6 11 Q7 4 12 4 Q17 4 18 11 M2 12 Q12 7 22 12 Q24 15 12 18 Q0 15 2 12 Z M7 19 L5 22 M17 19 L19 22 M9 13 H10 M14 13 H15",
         "bell": "M4 17 H20 L18 14 V9 Q18 3 12 3 Q6 3 6 9 V14 Z M9 20 Q12 24 15 20 M12 1 V3",
         "back": "M16 4 L8 12 L16 20",
         "key": "M3 8 A5 5 0 1 0 13 8 A5 5 0 1 0 3 8 M12 11 L22 21 M17 16 L20 13 M20 19 L23 16",

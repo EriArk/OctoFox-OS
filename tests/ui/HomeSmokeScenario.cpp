@@ -444,9 +444,9 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             shell.dispatch(Action::Secondary);break;
         case 42: {
             auto* apps=itemNamed("quick-apps-drawer");auto* games=itemNamed("continue-drawer");
-            if(apps && qAbs(apps->height()-76)>0.1){--*stage;return;}
+            if(apps && qAbs(apps->height()-100)>0.1){--*stage;return;}
             check(apps && games && apps->width()==games->property("expandedWidth").toReal(),"Quick Apps shares the Recent games expanded width");
-            check(apps && apps->height()==76 && apps->height()<games->property("expandedHeight").toReal(),"Quick Apps keeps a shorter one-row body");
+            check(apps && qAbs(apps->height()-100)<0.1 && apps->height()<games->property("expandedHeight").toReal(),"Quick Apps keeps a shorter one-row body");
             check(itemNamed("quick-apps-handle") && !itemNamed("quick-apps-handle")->isVisible(),"Expanded X hides its header");
             capture("quick-apps-empty-960");
             QJsonArray rows,running;
@@ -486,7 +486,7 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             capture("paired-handles-960");window->resize(1920,1080);shell.dispatch(Action::Secondary);break;
         }
         case 48:
-            if(auto* d=itemNamed("quick-apps-drawer");d && qAbs(d->height()-76)>0.1){--*stage;return;}
+            if(auto* d=itemNamed("quick-apps-drawer");d && qAbs(d->height()-100)>0.1){--*stage;return;}
             capture("quick-apps-full-1080p");shell.closeDrawers();break;
         case 49:
             if(auto* d=itemNamed("quick-apps-drawer");d && (qAbs(d->height()-36)>0.1 || qAbs(d->width()-174)>0.1 || d->property("handleDrop").toReal()>.1)){--*stage;return;}
@@ -500,7 +500,7 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
         }
         case 51: {
             auto* apps=itemNamed("quick-apps-drawer");
-            if(apps && qAbs(apps->height()-76)>0.1){--*stage;return;}
+            if(apps && qAbs(apps->height()-100)>0.1){--*stage;return;}
             auto* icon=itemNamed("quick-app-slot-0");
             check(apps && icon && apps->mapRectToScene(apps->boundingRect()).contains(icon->mapRectToScene(icon->boundingRect())),"A single app stays inside the shared drawer");
             check(apps && icon && qAbs(apps->mapRectToScene(apps->boundingRect()).center().x()-icon->mapRectToScene(icon->boundingRect()).center().x())<1,"A single app is centered in the drawer");
@@ -640,17 +640,18 @@ void startHomeSmoke(QQuickWindow* window, ShellController& shell, SessionState& 
             shell.goToPage(1);shell.dispatch(Action::Home);
             check(shell.page()==0 && !shell.homeMenuOpen(),"Home returns directly from Games");
             shell.dispatch(Action::Home);check(!shell.homeMenuOpen() && !itemNamed("shell-home-menu"),"Repeated Home has no Now overlay");
-            QMetaObject::invokeMethod(itemNamed("notification-bell"),"pressAction");break;
+            check(itemNamed("header-ship") && !itemNamed("notification-bell"),"Ship replaces upper bell");
+            QMetaObject::invokeMethod(itemNamed("footer-notification-bell"),"pressAction");break;
         case 82: {
-            auto* popup=itemNamed("notification-popover");auto* bell=itemNamed("notification-bell");
-            check(shell.notificationsOpen() && popup && popup->isVisible(),"Upper bell opens shared inbox");
-            if(popup&&bell)check(popup->mapRectToScene(popup->boundingRect()).top()>bell->mapRectToScene(bell->boundingRect()).bottom(),"Upper bell anchors inbox below itself");
-            capture("inbox-upper-960");QMetaObject::invokeMethod(itemNamed("footer-notification-bell"),"pressAction");break;
+            auto* popup=itemNamed("notification-popover");auto* bell=itemNamed("footer-notification-bell");
+            check(shell.notificationsOpen() && popup && popup->isVisible(),"Footer opens shared inbox");
+            if(popup&&bell)check(popup->mapRectToScene(popup->boundingRect()).bottom()<bell->mapRectToScene(bell->boundingRect()).top(),"Inbox anchors above footer bell");
+            capture("inbox-footer-960");break;
         }
         case 83: {
-            auto* popup=itemNamed("notification-popover");auto* bell=itemNamed("footer-notification-bell");
-            check(shell.notificationsOpen(),"Other bell relocates the same open inbox");
-            if(popup&&bell)check(popup->mapRectToScene(popup->boundingRect()).bottom()<bell->mapRectToScene(bell->boundingRect()).top() && popup->x()>500,"Lower bell anchors inbox above itself on right");
+            auto* popup=itemNamed("notification-popover");
+            check(shell.notificationsOpen(),"Inbox remains open without the removed upper bell");
+            if(popup)check(popup->x()>500,"Inbox stays on the right");
             capture("inbox-lower-960");window->resize(800,450);break;
         }
         case 84: {
