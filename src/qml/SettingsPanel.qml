@@ -108,7 +108,7 @@ Item {
                             muted: kind==="volume" && root.shell.device.rows[0].muted
                             selected: root.takesFocus && root.settings.controlsFocused && (root.shell.hall.account.open ? root.shell.hall.account.focusIndex : root.shell.trainer.editing ? root.shell.trainer.focusIndex : root.settings.rowFocus)===index
                             onActivated: { if(root.shell.trainer.editing || root.shell.hall.account.open) root.shell.activate(index); else root.settings.activateRow(index) }
-                            onAdjustmentRequested: direction => { if(root.settings.category===0 && index===0) root.settings.cycleTheme(direction); else root.settings.adjustDisplay(index,direction) }
+                            onAdjustmentRequested: direction => { if(root.settings.category===0 && index===0) root.settings.cycleAppearance(direction); else root.settings.adjustDisplay(index,direction) }
                             onLevelRequested: value => root.shell.device.setQuickLevel(kind==="volume"?0:1,value)
                         }
                     }

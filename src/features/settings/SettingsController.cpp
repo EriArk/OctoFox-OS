@@ -112,10 +112,8 @@ void SettingsController::reload() { if (repository_ && !saving_) { value_ = repo
 void SettingsController::activate(int index) {
     if(index<0 || index>3 || saving_) return;
     auto candidate = value_;
-    if (index == 0) {
-        const QStringList themes{"light", "dark"};
-        candidate.theme = themes[(themes.indexOf(theme()) + 1) % themes.size()];
-    } else if(index==3) candidate.videoPreviews=!candidate.videoPreviews;
+    if (index == 0) { cycleAppearance(); return; }
+    else if(index==3) candidate.videoPreviews=!candidate.videoPreviews;
     else if(index==2) candidate.worldEditing=!candidate.worldEditing;
     else candidate.reducedMotion = !candidate.reducedMotion;
     error_.clear(); saving_ = true; emit changed();
@@ -132,7 +130,7 @@ QVariantList SettingsController::controls() const {
         return QVariantMap{{"title",title},{"kind",kind},{"detail",detail}};
     };
     switch(category_) {
-    case 0: return {row("Appearance","theme",theme()=="dark"?"Dark":"Light"),row("Reduced motion","toggle",reducedMotion()?"On":"Off"),row("Brightness","brightness",""),row("Display profile","stepper",displayProfile()=="auto"?"Auto · system density":displayProfile()=="tv"?"TV · larger controls":"Handheld"),row("Interface size","stepper",QString::number(interfaceScale())+"%"),row("Reset interface size","action","Restore 100%")};
+    case 0: return {row("Appearance","theme",theme()=="dark"?"Dark":theme()=="light"||theme()=="turquoise"?"Turquoise · Light":theme().left(1).toUpper()+theme().mid(1)+" · Light"),row("Reduced motion","toggle",reducedMotion()?"On":"Off"),row("Brightness","brightness",""),row("Display profile","stepper",displayProfile()=="auto"?"Auto · system density":displayProfile()=="tv"?"TV · larger controls":"Handheld"),row("Interface size","stepper",QString::number(interfaceScale())+"%"),row("Reset interface size","action","Restore 100%")};
     case 1: { const int volume=std::clamp(QSettings().value("achievements/volume",65).toInt(),0,100);
         return {row("Volume","volume",""),row("Achievement jingle","stepper",volume?QString::number(volume)+"%":"Off"),row("Background music","unavailable","Music playback is not available yet")}; }
     case 2: return {row("Video previews","toggle",videoPreviews()?"On · local files only":"Off"),row("Preview sound","action",previewSound()?"On":"Muted"),row("Preview delay","action",QString::number(previewDelay()/1000.0,'f',1)+" seconds"),row("Adventure pictures","status","Clean exit pictures on Home and in Choose Adventure"),row("Field Guide illustrations","status","Illustrations and animated companions")};
@@ -265,11 +263,20 @@ void SettingsController::activateRow(int index) {
     else if(category_==15){if(row_==2&&crates_)crates_->setAutomaticUpdates(!crates_->automaticUpdates());else if(row_<2)emit softwareRequested(row_==0?"apps":"crates");}
     emit changed();
 }
+void SettingsController::cycleAppearance(int direction) {
+    if(saving_ || !direction)return;
+    const QStringList choices{"turquoise","red","green","blue","orange","dark"};
+    const auto current=theme()=="light"?QString("turquoise"):theme();
+    auto candidate=value_;
+    candidate.theme=choices[(qMax(0,int(choices.indexOf(current)))+choices.size()+(direction<0?-1:1))%choices.size()];
+    error_.clear();saving_=true;emit changed();
+    const auto completed=[this,candidate](const QString& error){saving_=false;error_=error;if(error.isEmpty())value_=candidate;else emit messageRequested(error);emit changed();};
+    if(repository_)repository_->savePreferences(candidate,this,completed);else completed({});
+}
 void SettingsController::cycleTheme(int direction) {
     if(saving_) return;
-    const QStringList themes{"light","dark"};
     auto candidate=value_;
-    candidate.theme=themes[(themes.indexOf(theme())+1)%2];
+    candidate.theme=theme()=="dark"?"light":"dark";
     error_.clear();saving_=true;emit changed();
     const auto completed=[this,candidate](const QString& error){saving_=false;error_=error;if(error.isEmpty())value_=candidate;else emit messageRequested(error);emit changed();};
     if(repository_) repository_->savePreferences(candidate,this,completed); else completed({});
@@ -307,7 +314,7 @@ void SettingsController::dispatch(Action action) {
     if(action==Action::Confirm) {activateRow(row_);return;}
     if(action==Action::Left || action==Action::Right) {
         if(category_==7) {adjustDisplay(row_,action==Action::Left?-1:1);return;}
-        if(category_==0 && row_==0) cycleTheme(action==Action::Left?-1:1);
+        if(category_==0 && row_==0) cycleAppearance(action==Action::Left?-1:1);
         else if(category_==0 && row_==1 && reducedMotion()!=(action==Action::Right)) activate(1);
         else if(category_==0 && row_==2) emit quickAdjustment(1,action);
         else if(category_==0 && (row_==3 || row_==4)) adjustDisplay(row_,action==Action::Left?-1:1);
