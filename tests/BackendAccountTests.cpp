@@ -567,12 +567,86 @@ private slots:
         a.configure("consent-alice");a.activate();h.callback();a.refreshProgression();QCOMPARE(sources,0);
         a.activateRewards();QCOMPARE(sources,1);QVERIFY(h.calls.contains("/v1/me/progression/ra/challenge"));
     }
+    void fluxerLoginAutomaticallyCreatesSessionWithoutBrowserAndRestoresProfileFirst() {
+        Harness h;h.publicProfile["avatar"]=QJsonObject{{"schema",1},{"packRevision",QString(64,'a')}};
+        h.publicProfile["needs_name"]=true;h.publicProfile["needs_avatar"]=true;
+        h.publicProfile["display_name"]="Fox-123";h.publicProfile["revision"]="1";
+        BackendAccount a;auto services=h.services();auto request=services.request;QJsonObject begin,verification;int credentialsRead=0,restores=0;
+        services.request=[&](QByteArray m,QString p,QJsonObject b,QByteArray auth,BackendAccount::Reply done){
+            if(p=="/v1/auth/login-attempts")begin=b;
+            if(p=="/v1/auth/fluxer/session"){verification=b;done(204,{});return;}
+            request(m,p,b,auth,std::move(done));
+        };
+        a.setServices(services);a.socialCredential=[&](QString subject,auto done){++credentialsRead;QCOMPARE(subject,"12345");done("private-fluxer-session");};
+        a.restoreProfile=[&](QJsonObject p,auto done){++restores;QCOMPARE(p["display_name"].toString(),"Fox-123");QVERIFY(h.avatars.isEmpty());done(true);};
+        a.configure("automatic-new");a.setSocialConnection("12345",true);
+        QCOMPARE(a.loginState(),"connected");QCOMPARE(a.snapshot()["player_id"].toString(),Player);
+        QCOMPARE(begin["flow"].toString(),"social");QCOMPARE(begin["expected_subject"].toString(),"12345");QVERIFY(!begin.contains("return_uri"));
+        QCOMPARE(verification["fluxer_token"].toString(),"private-fluxer-session");QVERIFY(h.browser.isEmpty());
+        QCOMPARE(credentialsRead,1);QCOMPARE(restores,1);QVERIFY(a.onlineProfile()["needsName"].toBool());
+        a.setPublicAvatar("automatic-new",QJsonObject{{"packRevision",QString(64,'b')}});QVERIFY(h.avatars.isEmpty());
+        a.setSocialConnection("12345",true);QCoreApplication::processEvents();QCOMPARE(credentialsRead,1);
+        QVERIFY(!QJsonDocument::fromVariant(a.onlineProfile()).toJson().contains("private-fluxer-session"));
+        for(const auto& bytes:h.disk)QVERIFY(!bytes.contains("private-fluxer-session"));
+    }
+    void automaticLoginDropsOldOwnerCredentialAndRetriesTransientFailure() {
+        Harness h;BackendAccount a;auto services=h.services();auto request=services.request;int verified=0;
+        services.request=[&](QByteArray m,QString p,QJsonObject b,QByteArray auth,BackendAccount::Reply done){
+            if(p=="/v1/auth/fluxer/session"){++verified;done(503,{});return;}request(m,p,b,auth,std::move(done));
+        };
+        a.setServices(services);std::function<void(QByteArray)> pending;
+        a.socialCredential=[&](QString,auto done){pending=std::move(done);};
+        a.configure("automatic-old");a.setSocialConnection("12345",true);QVERIFY(bool(pending));
+        auto old=std::move(pending);a.configure("automatic-other");old("private-session");QCOMPARE(verified,0);
+        a.setSocialConnection("12345",true);auto next=std::move(pending);next("private-session");
+        QCOMPARE(verified,1);QCOMPARE(a.loginState(),"error");QVERIFY(a.snapshot()["player_id"].toString().isEmpty());
+        QTest::qWait(100);QVERIFY(!pending); // Bounded backoff, no tight login loop.
+        a.activate();QVERIFY(bool(pending));
+    }
+    void upgradeWithSavedFluxerSessionAndNoBackendCredentialConnectsAutomatically() {
+        Harness h;BackendAccount a;auto services=h.services();auto request=services.request;
+        services.request=[&](QByteArray m,QString p,QJsonObject b,QByteArray auth,BackendAccount::Reply done){
+            if(p=="/v1/auth/fluxer/session"){done(204,{});return;}request(m,p,b,auth,std::move(done));
+        };
+        a.setServices(services);a.socialCredential=[](QString,auto done){done("restored-fluxer-session");};
+        a.configure("existing-local-profile-after-update");QCOMPARE(a.loginState(),"signed_out");
+        QVERIFY(h.disk.isEmpty());a.setSocialConnection("12345",true);
+        QCOMPARE(a.loginState(),"connected");QCOMPARE(a.snapshot()["player_id"].toString(),Player);QVERIFY(!h.disk.isEmpty());QVERIFY(h.browser.isEmpty());
+    }
+    void lostAutomaticClaimRetriesSameProofWithoutCreatingAnotherAttempt() {
+        Harness h;BackendAccount a;auto services=h.services();auto request=services.request;
+        int begins=0,claims=0;QJsonObject first;
+        services.request=[&](QByteArray m,QString p,QJsonObject b,QByteArray auth,BackendAccount::Reply done){
+            if(p=="/v1/auth/login-attempts")++begins;
+            if(p=="/v1/auth/fluxer/session"){done(204,{});return;}
+            if(p=="/v1/auth/login-attempts/claim") {
+                ++claims;if(claims==1){first=b;done(0,{});return;}
+                QCOMPARE(b,first);
+            }
+            request(m,p,b,auth,std::move(done));
+        };
+        a.setServices(services);a.socialCredential=[](QString,auto done){done("restored-fluxer-session");};
+        a.configure("lost-claim-response");a.setSocialConnection("12345",true);
+        QCOMPARE(a.loginState(),"claiming");QCOMPARE(begins,1);QCOMPARE(claims,1);
+        QTRY_COMPARE_WITH_TIMEOUT(a.loginState(),"connected",4500);
+        QCOMPARE(begins,1);QCOMPARE(claims,2);QCOMPARE(a.snapshot()["player_id"].toString(),Player);
+    }
+    void nicknameIsServerOwnedAndCannotCommitAcrossAccountSwitch() {
+        Harness h;h.publicProfile["revision"]="1";BackendAccount a;auto services=h.services();auto request=services.request;int writes=0;
+        services.request=[&](QByteArray m,QString p,QJsonObject b,QByteArray auth,BackendAccount::Reply done){
+            if(p=="/v1/me/profile/name") {++writes;h.publicProfile["display_name"]=b["display_name"];h.publicProfile["revision"]="2";done(200,h.publicProfile);return;}
+            request(m,p,b,auth,std::move(done));
+        };
+        a.setServices(services);a.configure("nickname-one");a.activate();h.callback();
+        a.editNickname();a.saveNickname("Custom Fox");QCOMPARE(writes,1);QCOMPARE(a.profileIdentity({},"local")["name"].toString(),"Custom Fox");
+        a.editNickname();a.configure("nickname-two");a.activate();h.callback();a.saveNickname("Wrong owner");QCOMPARE(writes,1);
+    }
     void initTestCase(){QStandardPaths::setTestModeEnabled(true);QCoreApplication::setOrganizationName("TrainerOSAccountTests");QCoreApplication::setApplicationName(QUuid::createUuid().toString(QUuid::Id128));}
     void publicAvatarCoalescesAndFencesOwnerChanges() {
         Harness h;BackendAccount a;a.setServices(h.services());a.configure("alice");a.activate();h.callback();
         const QJsonObject first{{"schema",1},{"packRevision",QString(64,'a')}},second{{"schema",1},{"packRevision",QString(64,'b')}};
         a.setPublicAvatar("other",first);QCOMPARE(h.avatars.size(),0);
-        h.deferAvatar=true;a.setPublicAvatar("alice",first);QCOMPARE(h.avatars.size(),1);
+        h.deferAvatar=true;a.setPublicAvatar("alice",first);QCOMPARE(h.avatars.size(),0);a.publishSelectedAvatar(first);QCOMPARE(h.avatars.size(),1);
         a.setPublicAvatar("alice",second);QCOMPARE(h.avatars.size(),1);
         auto complete=std::move(h.pendingAvatar);h.deferAvatar=false;complete(200,{});
         QCOMPARE(h.avatars.size(),2);QCOMPARE(h.avatars.last()["avatar"].toObject(),second);
@@ -641,7 +715,7 @@ private slots:
         auto identity=account.profileIdentity({},"Offline Alice");
         QCOMPARE(identity["name"].toString(),"Ren");QCOMPARE(identity["playerId"].toString(),Player);
         QCOMPARE(identity["subject"].toString(),"12345");QCOMPARE(identity["source"].toString(),"traineros");
-        QCOMPARE(account.profileIdentity(social,"Offline Alice")["name"].toString(),"Ren updated");
+        QCOMPARE(account.profileIdentity(social,"Offline Alice")["name"].toString(),"Ren");
         social["userId"]="99999";social["name"]="Mika";
         identity=account.profileIdentity(social,"Offline Alice");
         QCOMPARE(identity["name"].toString(),"Ren");QVERIFY(identity["avatar"].toString().isEmpty());

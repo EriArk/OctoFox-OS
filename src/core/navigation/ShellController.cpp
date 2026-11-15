@@ -57,11 +57,13 @@ QVariantMap ShellController::passiveNotice() const {
     if(social_.account()["doNotDisturb"].toBool())return {};
     if(!social_.toastTitle().isEmpty())return {{"title",social_.toastTitle()},{"detail",social_.toastText()},{"kind","social"}};
     if(!achievementToast_.isEmpty())return {{"title",achievementToast_.section('\n',0,0)},{"detail",achievementToast_.section('\n',1)},{"kind","achievement"}};
+    if(!softwareToast_.isEmpty())return {{"title","OctoFox OS update available"},{"detail",softwareToast_+" · Open the notification bell to update"},{"kind","software"}};
     return {};
 }
 void ShellController::dismissPassiveNotice() {
     if(!social_.toastTitle().isEmpty()){dismissNotificationById(social_.toastChannel());social_.hideToast();}
-    else {if(!achievementNotifications_.isEmpty())dismissNotificationById(achievementNotifications_.first().toMap()["id"].toString());achievementToast_.clear();++achievementToastGeneration_;}
+    else if(!achievementToast_.isEmpty()){if(!achievementNotifications_.isEmpty())dismissNotificationById(achievementNotifications_.first().toMap()["id"].toString());achievementToast_.clear();++achievementToastGeneration_;}
+    else {softwareToast_.clear();++softwareToastGeneration_;}
     emit changed();
 }
 void ShellController::configureProgress(GameProgressProvider* provider) {
@@ -325,6 +327,18 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&settings_, &SettingsController::trainerRequested, this, [this](int index) {
         trainerSettingsAction(index);
     });
+    backendAccount_.socialCredential=[this](QString subject,auto done){social_.verifiedSession(subject,std::move(done));};
+    backendAccount_.restoreProfile=[this](QJsonObject profile,auto done){
+        trainer_.restoreOnlineProfile(profile["display_name"].toString(),profile["avatar"].toObject()["appearance"].toObject(),std::move(done));
+    };
+    connect(&trainer_,&TrainerController::appearanceSaved,this,[this](QJsonObject appearance){
+        auto recipe=trainer_.avatarDescriptor()["recipe"].toObject();
+        if(recipe.isEmpty())return;
+        recipe["appearance"]=appearance;backendAccount_.publishSelectedAvatar(recipe);
+    });
+    connect(&backendAccount_,&BackendAccount::nicknameRequested,this,[this](QString name){
+        textTarget_=TextTarget::OnlineName;keyboard_.begin("Your OctoFox OS nickname",name,24,false,"Save");
+    });
     connect(&backendAccount_,&BackendAccount::changed,this,[this]{
         settings_.setBackendAccount(backendAccount_.actionLabel(),backendAccount_.detail());emit changed();
     });
@@ -348,7 +362,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     };
     connect(&social_,&SocialController::changed,this,[this,previous=QVariantMap{}]() mutable {
         const auto social=social_.account();
-        backendAccount_.setSocialSubject(social["userId"].toString());
+        backendAccount_.setSocialConnection(social["userId"].toString(),social["state"]=="connected");
         const auto identity=backendAccount_.profileIdentity(social,trainer_.profile()["name"].toString());
         // Update the global card on identity/presence edits without refreshing
         // the whole shell for every background chat event.
@@ -543,6 +557,10 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(this,&ShellController::changed,this,[this]{if(service_!="profile")outfits_.close();});
     connect(this,&ShellController::changed,this,&ShellController::notificationsChanged);
     connect(settings_.updates(),&SoftwareUpdateController::changed,this,&ShellController::notificationsChanged);
+    connect(settings_.updates(),&SoftwareUpdateController::updateAvailable,this,[this](QString version){
+        softwareToast_=version;const auto generation=++softwareToastGeneration_;emit changed();
+        QTimer::singleShot(10000,this,[this,generation]{if(generation==softwareToastGeneration_){softwareToast_.clear();emit changed();}});
+    });
     connect(&social_, &SocialController::changed, this, [this]{
         emit notificationsChanged();
         if(socialActive()||homeMenuOpen_)emit changed();
@@ -556,6 +574,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         if(target==TextTarget::BazaarSearch)bazaar_.applyText(text);
         else if(target==TextTarget::GameInput)settings_.gameInput()->applyText(text);
         else if (target == TextTarget::SetupName) trainerSetup_.applyName(text);
+        else if (target == TextTarget::OnlineName) backendAccount_.saveNickname(text);
         else if (target == TextTarget::TrainerName) trainer_.setDraftName(text);
         else if (target == TextTarget::OutfitName) outfits_.acceptName(text);
         else if (target == TextTarget::WorldsSearch) worlds_.applySearch(text);
@@ -1969,7 +1988,8 @@ void ShellController::activateProfile(int index) {
     else if(index==9){profileRoute_="shop";profileFocus_=1;backendAccount_.refreshShop();}
     else if(index==1){profileRoute_="outfits";outfits_.open();}
     else if(index==0) {
-        if(profileAccount()["source"]!="local") {
+        if(backendAccount_.onlineProfile()["ready"].toBool())backendAccount_.editNickname();
+        else if(profileAccount()["source"]!="local") {
             accountProfileReturn_=true;service_="account-profile";
             settings_.communication()->beginProfile();settings_.communication()->editProfile();
         }else trainer_.activate(index);

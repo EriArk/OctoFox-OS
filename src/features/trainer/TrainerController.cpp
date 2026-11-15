@@ -84,8 +84,9 @@ void TrainerController::save() {
     })) error_ = "Use a single line for your Trainer name.";
     else error_.clear();
     if (!error_.isEmpty()) { focus_ = 0; return; }
+    const bool publishAppearance=avatarEditing_ || (profile_ && profile_->avatar!=candidate.avatar);
     saving_ = true;
-    repository_.saveAsync(candidate, this, [this, candidate](const ProfileWriteResult& result) {
+    repository_.saveAsync(candidate, this, [this, candidate,publishAppearance](const ProfileWriteResult& result) {
         saving_ = false;
         if (!result.success) {
             error_ = result.error.isEmpty() ? "Couldn't save your Trainer. Try again." : result.error;
@@ -97,6 +98,7 @@ void TrainerController::save() {
             focus_=0;
             error_.clear();
             avatarEditing_=false;previewAvatar_={};refreshAvatar();
+            if(publishAppearance)emit appearanceSaved(appearance());
         }
         emit changed();
     });
@@ -210,4 +212,20 @@ void TrainerController::startAvatarJob() {
     const auto cache=avatarEditing_?avatarDraftCache_.path():QString();
     avatarJob_.setFuture(QtConcurrent::run([a,cache]{return AvatarAssets::resolve(a,{},cache);}));
 }
+}
+
+void trainer::TrainerController::restoreOnlineProfile(const QString& name,const QJsonObject& appearance,std::function<void(bool)> done) {
+    if(!profile_||editing_||saving_){done(false);return;}
+    if(!appearance.isEmpty()&&!AvatarAssets::valid(appearance)){done(false);return;}
+    auto next=*profile_;
+    if(!name.isEmpty() && name.size()<=NameLimit)next.name=name;
+    if(!appearance.isEmpty())next.avatar=AvatarAssets::normalized(appearance);
+    if(next.name==profile_->name && next.avatar==profile_->avatar){done(true);return;}
+    saving_=true;const auto owner=profile_->id;
+    repository_.saveAsync(next,this,[this,next,owner,done=std::move(done)](const ProfileWriteResult& result){
+        saving_=false;
+        if(!profile_||profile_->id!=owner){done(false);return;}
+        if(result.success){profile_=next;refreshAvatar();}else error_=result.error;
+        emit changed();done(result.success);
+    });
 }

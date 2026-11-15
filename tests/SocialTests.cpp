@@ -1731,6 +1731,13 @@ private slots:
         c.openNotificationAt(1);QVERIFY(actions.isEmpty());
         c.closeMenu();c.openNotificationAt(0);QCOMPARE(actions.last()[0].toString(),QString("multiplayer-request:second"));
     }
+    void backendSessionProofIsOnlyAvailableForVerifiedCurrentOwner() {
+        FluxerSession session;bind(session);
+        QCOMPARE(session.verifiedSession(session.self_,session.generation_),session.token_.toUtf8());
+        QVERIFY(session.verifiedSession("other",session.generation_).isEmpty());
+        QVERIFY(session.verifiedSession(session.self_,session.generation_+1).isEmpty());
+        session.state_="connecting";QVERIFY(session.verifiedSession(session.self_,session.generation_).isEmpty());
+    }
     void initTestCase() { QStandardPaths::setTestModeEnabled(true);QCoreApplication::setOrganizationName("TrainerOSTests");QCoreApplication::setApplicationName("SocialTests"); }
     void partyPacketsUseFriendDmWithoutChangingSavedLinkOrCalls() {
         FluxerSession s;bind(s);s.setTransport([](auto,auto,auto,Completion done,auto){done({200,{}});});

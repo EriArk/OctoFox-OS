@@ -37,6 +37,7 @@ public:
     bool editing() const { return editing_; }
     bool saving() const { return saving_; }
     void reload();
+    void restoreOnlineProfile(const QString& name,const QJsonObject& appearance,std::function<void(bool)> done);
     QVariantList editRows() const;
     int focusIndex() const { return focus_; }
     QVariantMap profile() const;
@@ -64,6 +65,7 @@ public:
     Q_INVOKABLE void chooseAvatar(int index, const QString& value);
     Q_INVOKABLE void finishAvatar(bool saveChanges);
 signals:
+    void appearanceSaved(QJsonObject appearance);
     void changed();
     void nameRequested(const QString& initial);
     void messageRequested(const QString& message);

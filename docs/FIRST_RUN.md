@@ -1,3 +1,10 @@
+**15 November 2026:** Fluxer and OctoFox OS now use one sign-in. After the saved
+or new Fluxer session is verified, the server profile connects automatically.
+New players see a temporary nickname and the nickname/avatar actions. Returning
+players restore their server profile and return to Accounts without repeating
+registration. Accounts remain optional for local/offline play. The two-manual-login
+description below is historical; see [automatic accounts](AUTOMATIC_ACCOUNTS.md).
+
 # First-run setup
 
 ## Текущий визард — решение владельца 10 ноября 2026

@@ -1838,3 +1838,7 @@ void FluxerSession::gatewayEvent(const QJsonObject& event) {
     }
 }
 }
+
+QByteArray trainer::FluxerSession::verifiedSession(const QString& subject,quint64 generation) const {
+    return generation==generation_ && state_=="connected" && !subject.isEmpty() && subject==self_ ? token_.toUtf8() : QByteArray();
+}

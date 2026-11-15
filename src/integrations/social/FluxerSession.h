@@ -28,6 +28,7 @@ public:
     using Transport = std::function<void(QByteArray, QString, QJsonObject, Completion, QByteArray)>;
     explicit FluxerSession(QObject* parent = nullptr);
     ~FluxerSession() override;
+    QByteArray verifiedSession(const QString& subject,quint64 generation) const;
     // Deterministic transport seam; supplied before the worker starts, tests only.
     void setTransport(Transport transport) { transport_ = std::move(transport); }
 public slots:

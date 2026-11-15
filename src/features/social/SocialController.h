@@ -121,6 +121,8 @@ class SocialController final : public QObject {
     Q_PROPERTY(QString lobbyTopic READ lobbyTopic NOTIFY changed)
     Q_PROPERTY(bool lobbyFreeOnly READ lobbyFreeOnly NOTIFY changed)
 public:
+    // Host-only callback. Credentials never enter signals, properties or QML.
+    void verifiedSession(QString subject,std::function<void(QByteArray)> done);
     QString peopleFilter() const {return peopleFilter_;}
     QString communityTitle() const;
     bool communityOpen() const {return face_=="communities"&&!communityId_.isEmpty();}

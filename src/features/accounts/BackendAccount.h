@@ -17,6 +17,7 @@ class BackendAccount final : public QObject {
     Q_PROPERTY(QString loginState READ loginState NOTIFY changed)
     Q_PROPERTY(QString actionLabel READ actionLabel NOTIFY changed)
     Q_PROPERTY(QString detail READ detail NOTIFY changed)
+    Q_PROPERTY(QVariantMap onlineProfile READ onlineProfile NOTIFY changed)
     Q_PROPERTY(QVariantMap progression READ progression NOTIFY changed)
     Q_PROPERTY(QString rewardStatus READ rewardStatus NOTIFY changed)
     Q_PROPERTY(QString rewardActionLabel READ rewardActionLabel NOTIFY changed)
@@ -45,6 +46,13 @@ public:
     std::function<QString()> loginGuard;
     void configure(const QString& owner);
     void setSocialSubject(const QString& subject);
+    void setSocialConnection(const QString& subject,bool connected);
+    std::function<void(QString,std::function<void(QByteArray)>)> socialCredential;
+    std::function<void(QJsonObject,std::function<void(bool)>)> restoreProfile;
+    QVariantMap onlineProfile() const;
+    Q_INVOKABLE void editNickname();
+    void saveNickname(const QString& name);
+    void publishSelectedAvatar(const QJsonObject& recipe);
     QJsonObject snapshot() const;
     QVariantMap profileIdentity(const QVariantMap& social, const QString& localName) const;
     QString loginState() const { return state_; }
@@ -99,6 +107,7 @@ public:
     void refreshSupport();
     void activateSupport(int action);
 signals:
+    void nicknameRequested(QString current);
     void rewardsEarned(qint64 xp,qint64 sparks);
     void changed();
     void returnRequested();
@@ -106,6 +115,17 @@ private:
     void state(QString value,QString detail);
     void reset();
     void begin();
+    void reconcileSocial();
+    void beginSocial();
+    void claimSocial();
+    void retrySocial(const QString& message);
+    void loadOnlineProfile();
+    bool applyOnlineProfile(const QJsonObject& profile);
+    QTimer socialRetry_{this},profileRetry_{this};
+    bool socialConnected_=false,autoPaused_=false,socialLogin_=false,profileReady_=false,profileBusy_=false;
+    bool needsName_=false,needsAvatar_=false,avatarIntent_=false;
+    int socialFailures_=0;
+    QString profileRevision_,nicknameEditor_;
     void beginSupport();
     void finishSupport(QString message);
     void supportRequest(QByteArray method,QString path,QJsonObject body={});

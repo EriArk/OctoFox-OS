@@ -118,6 +118,41 @@ private slots:
         FirstRunController flow;flow.configure(dir.path(),root);QSignalSpy requested(&flow,&FirstRunController::trainerRequested);
         flow.begin(true);QCOMPARE(flow.stage(),"preferences");QCOMPARE(requested.size(),0);
     }
+    void automaticAccountInWizard_data() {
+        QTest::addColumn<bool>("newPlayer");QTest::newRow("new nickname and avatar")<<true;QTest::newRow("returning restored")<<false;
+    }
+    void automaticAccountInWizard() {
+        QFETCH(bool,newPlayer);
+        QTemporaryDir dir;LocalStateStore store(dir.path());store.enforceAccess();
+        MockAdventureAdapter adapter;DevelopmentPlatformService platform;MockPokedexRepository dex;MockAchievementProvider ra;
+        ShellController shell(store,store,adapter,platform,builtinExperiences(dex,store),store,ra);SessionState session(shell,&store);
+        auto* flow=session.firstRun();flow->configure(dir.path(),dir.path()+"/roms");isolatedStorage(*flow,dir.path()+"/roms");
+        session.start();QTRY_VERIFY(session.firstRunPage());session.dispatch(Action::Confirm);
+        flow->activate(1);flow->activate(0);QTRY_COMPARE(flow->stage(),"trainer");
+        shell.trainerSetup()->applyName("Local");shell.trainerSetup()->activate(2);QTRY_VERIFY(store.ready());QTRY_COMPARE(flow->stage(),"preferences");
+        flow->activate(2);flow->activate(0);QCOMPARE(flow->service(),"social");
+        auto* account=shell.backendAccount();BackendAccount::Services services;
+        const QString player="11111111-1111-4111-8111-111111111111";
+        services.read=[](QString,auto done){done(true,{});};services.write=[](QString,QByteArray,auto done){done(true);};
+        services.request=[&](QByteArray,QString path,QJsonObject,QByteArray,BackendAccount::Reply done){
+            if(path=="/v1/auth/login-attempts")done(201,{{"attempt_id","22222222-2222-4222-8222-222222222222"}});
+            else if(path=="/v1/auth/fluxer/session")done(204,{});
+            else if(path.endsWith("/claim"))done(200,{{"player_id",player},{"session_id","33333333-3333-4333-8333-333333333333"},{"fluxer_subject","12345"},
+                {"access_token",QString(43,'a')},{"refresh_token",QString(43,'r')},{"expires_at",QDateTime::currentDateTimeUtc().addSecs(900).toString(Qt::ISODateWithMs)}});
+            else if(path=="/v1/me/profile")done(200,{{"player_id",player},{"display_name",newPlayer?"Fox-temporary":"Returning Fox"},{"revision","1"},{"needs_name",newPlayer},{"needs_avatar",newPlayer}});
+            else done(503,{});
+        };
+        account->setServices(services);account->socialCredential=[](QString,auto done){done("verified-test-session");};
+        account->configure("wizard-owner");account->setSocialConnection("12345",true);
+        QTRY_VERIFY(account->onlineProfile()["ready"].toBool());
+        QTRY_COMPARE(store.load()->name,newPlayer?QString("Fox-temporary"):QString("Returning Fox"));
+        if(newPlayer){
+            QCOMPARE(flow->service(),"social");QCOMPARE(session.setupAccountRows().size(),5);
+            QCOMPARE(session.setupAccountRows()[2].toMap()["label"].toString(),"Choose your nickname");
+            QCOMPARE(session.setupAccountRows()[3].toMap()["label"].toString(),"Create your avatar");
+            session.activateSetupService(2);QVERIFY(shell.keyboard()->isOpen());
+        }else QTRY_VERIFY(flow->service().isEmpty());
+    }
     void sessionGatesNavigationAndCompletesRealProfileCreation() {
         QTemporaryDir dir;LocalStateStore store(dir.path());store.enforceAccess();
         MockAdventureAdapter adapter;DevelopmentPlatformService platform;MockPokedexRepository dex;MockAchievementProvider ra;

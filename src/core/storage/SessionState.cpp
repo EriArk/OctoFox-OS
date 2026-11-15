@@ -34,11 +34,22 @@ SessionState::SessionState(ShellController& shell, LocalStateStore* store, QObje
         shell_.setOnboardingSettings(true);emit changed();
     });
     connect(shell_.social(), &SocialController::changed, this, &SessionState::changed);
-    connect(shell_.backendAccount(), &BackendAccount::changed, this, &SessionState::changed);
+    connect(shell_.backendAccount(), &BackendAccount::changed, this, [this]{
+        emit changed();
+        const auto profile=shell_.backendAccount()->onlineProfile();
+        if(firstRun_.service()=="social" && profile["ready"].toBool() && !profile["needsName"].toBool() && !profile["needsAvatar"].toBool()) {
+            QTimer::singleShot(0,this,[this]{
+                const auto p=shell_.backendAccount()->onlineProfile();
+                if(firstRun_.service()=="social" && p["ready"].toBool() && !p["needsName"].toBool() && !p["needsAvatar"].toBool()
+                    && !shell_.trainer()->editing() && !shell_.keyboard()->isOpen())firstRun_.closeService();
+            });
+        }
+    });
     connect(&firstRun_, &FirstRunController::serviceClosed, this, [this](const QString& service) {
         if(service=="achievements")shell_.hall()->account()->close();
         if(service=="scraper")shell_.scraper()->setSetupMode(false);
         if(service=="social") {
+            if(shell_.trainer()->editing())shell_.trainer()->cancel();
             if(shell_.social()->account()["state"]=="authorizing")emit shell_.social()->commandRequested("cancel-login",{});
             const auto state=shell_.backendAccount()->loginState();
             if(state=="opening" || state=="waiting")shell_.backendAccount()->cancel();
@@ -265,6 +276,9 @@ void SessionState::dispatch(Action action) {
             // Only the embedded service gets input; global shell routes stay gated.
             if(action!=Action::Up && action!=Action::Down && action!=Action::Left && action!=Action::Right
                 && action!=Action::Confirm && action!=Action::Back)return;
+            if(firstRun_.service()=="social" && shell_.trainer()->avatarEditing()) {
+                shell_.trainer()->dispatch(action,true);return;
+            }
             if(firstRun_.registration()) {
                 if(action==Action::Back || action==Action::Confirm){firstRun_.closeRegistration();registrationFocused_=true;emit changed();}
                 return;
@@ -282,7 +296,7 @@ void SessionState::dispatch(Action action) {
                 if(action==Action::Back)firstRun_.closeService();
                 else if(action==Action::Confirm)activateSetupService(setupAccountFocus_);
                 else if(action==Action::Up)setupAccountFocus_=std::max(0,setupAccountFocus_-1);
-                else if(action==Action::Down)setupAccountFocus_=std::min(2,setupAccountFocus_+1);
+                else if(action==Action::Down)setupAccountFocus_=std::min(int(setupAccountRows().size())-1,setupAccountFocus_+1);
                 emit changed();
             } else if(service=="achievements") {
                 if(!shell_.hall()->account()->available() && action==Action::Back)firstRun_.closeService();
@@ -329,6 +343,8 @@ void SessionState::activateSetupService(int index) {
         if(!setupAccountRows()[index].toMap()["enabled"].toBool())return;
         if(index==0)emit shell_.social()->commandRequested(shell_.social()->account()["state"]=="authorizing"?"cancel-login":"login",{});
         else if(index==1)shell_.backendAccount()->activate();
+        else if(index==2)shell_.backendAccount()->editNickname();
+        else if(index==3)shell_.trainer()->beginAvatarEdit();
         else firstRun_.closeService();
     } else if(firstRun_.service()=="achievements")shell_.hall()->account()->activate(index);
     else if(firstRun_.service()=="scraper")shell_.scraper()->activateSetting(index);
@@ -346,8 +362,12 @@ QVariantList SessionState::setupAccountRows() const {
     return {
         QVariantMap{{"label",connected?(social["state"]=="connected"?"Fluxer connected":"Fluxer account saved"):waiting?"Cancel Fluxer sign-in":"Sign in to Fluxer"},
             {"detail",social["code"].toString().isEmpty()?social["status"].toString():"On your phone: fluxer.app/handoff · "+social["code"].toString()}, {"enabled",!connected}},
-        QVariantMap{{"label",state=="connected"?"OctoFox OS profile connected":state=="disabled"?QString("OctoFox OS sign-in unavailable"):backend->actionLabel()},
-            {"detail",state=="disabled"?QString("Account access is unavailable in this session. You can continue offline."):backend->detail()},{"enabled",state=="signed_out" || state=="error" || state=="waiting" || state=="opening" || state=="reconnecting"}},
+        QVariantMap{{"label",backend->onlineProfile()["ready"].toBool()?"Profile synchronized":state=="error"?"Retry profile connection":"Your OctoFox OS profile"},
+            {"detail",connected?backend->detail():"Created or restored automatically after Fluxer sign-in"},{"enabled",connected && (state=="error"||state=="signed_out"||state=="reconnecting")}},
+        QVariantMap{{"label",backend->onlineProfile()["needsName"].toBool()?"Choose your nickname":"Nickname"},
+            {"detail",backend->onlineProfile()["name"]},{"enabled",backend->onlineProfile()["ready"].toBool()&&!backend->onlineProfile()["busy"].toBool()}},
+        QVariantMap{{"label",backend->onlineProfile()["needsAvatar"].toBool()?"Create your avatar":"Your avatar"},
+            {"detail","Personalize your appearance; you can also do this later"},{"enabled",backend->onlineProfile()["ready"].toBool()&&shell_.trainer()->avatarAvailable()}},
         QVariantMap{{"label","Done"},{"detail","Return to accounts"},{"enabled",true}}
     };
 }

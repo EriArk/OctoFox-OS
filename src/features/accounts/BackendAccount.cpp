@@ -45,7 +45,10 @@ bool vaultRunning() {
 }
 }
 BackendAccount::BackendAccount(QObject* parent):QObject(parent) {
-    connect(this,&BackendAccount::changed,this,[this]{QTimer::singleShot(0,this,&BackendAccount::flushOutfits);});
+    connect(this,&BackendAccount::changed,this,[this]{QTimer::singleShot(0,this,&BackendAccount::flushOutfits);QTimer::singleShot(0,this,&BackendAccount::reconcileSocial);});
+    socialRetry_.setSingleShot(true);profileRetry_.setSingleShot(true);
+    connect(&socialRetry_,&QTimer::timeout,this,[this]{if(socialLogin_&&state_=="claiming")claimSocial();else reconcileSocial();});
+    connect(&profileRetry_,&QTimer::timeout,this,&BackendAccount::loadOnlineProfile);
     progressionTimer_.setInterval(120000);
     connect(&progressionTimer_,&QTimer::timeout,this,[this]{refreshProgression();});
     connect(&listener_,&QTcpServer::newConnection,this,&BackendAccount::accept);
@@ -192,8 +195,7 @@ QVariantMap BackendAccount::profileIdentity(const QVariantMap& social,const QStr
     const auto subject=subject_.isEmpty()?cachedIdentity_["fluxer_subject"].toString():subject_;
     const bool server=!player.isEmpty();
     const bool matching=hasSocial && (!server || socialId==subject);
-    QString name=matching?social["name"].toString().trimmed():QString();
-    if(name.isEmpty() && server)name=profileName_;
+    QString name=server?profileName_:(matching?social["name"].toString().trimmed():QString());
     if(name.isEmpty())name=(server||hasSocial)?QString("Player"):localName.trimmed();
     if(name.isEmpty())name="Your profile";
     return {{"name",name},{"source",server?"traineros":hasSocial?"fluxer":"local"},
@@ -226,6 +228,8 @@ void BackendAccount::publishProfileFavorites(QJsonArray games,QString revision,R
     request("PUT","/v1/me/profile/favorites",{{"games",games},{"revision",revision}},std::move(done),access_);
 }
 void BackendAccount::reset() {
+    socialRetry_.stop();profileRetry_.stop();socialLogin_=false;profileReady_=false;profileBusy_=false;
+    needsName_=false;needsAvatar_=false;profileRevision_.clear();nicknameEditor_.clear();avatarIntent_=false;
     ++supportGeneration_;support_={};supportClaim_={};supportMessage_.clear();supportBusy_=false;supportPending_=false;supportReview_=false;
     prizeBusy_=false;prizeStale_=true;celebrationIds_={};celebrationGroups_={};
     shopBusy_=false;shopReview_={};shopStale_=true;outfitFlushing_=false;
@@ -239,6 +243,7 @@ void BackendAccount::reset() {
 }
 void BackendAccount::configure(const QString& owner) {
     if(owner_==owner)return;
+    autoPaused_=false;socialConnected_=false;socialFailures_=0;
     reset();cachedIdentity_={};profileSnapshot_={};lock_.reset();shopSnapshot_={};shopPending_={};prizeSnapshot_={};celebrationIds_={};prizeIndex_=0;wardrobeState_={};outfitWrites_={};outfitFlushing_=false;shopStatus_.clear();shopIndex_=0;owner_=owner;socialSubject_.clear();
     if(owner.isEmpty()){state("disabled","Open your Trainer to sign in");return;}
     key_=QString::fromLatin1(QCryptographicHash::hash(("traineros-backend-v1\n"+Origin+"\n"+owner).toUtf8(),QCryptographicHash::Sha256).toHex());
@@ -286,7 +291,10 @@ void BackendAccount::activate() {
     if(state_=="waiting"||state_=="opening"){cancel();return;}
     if(state_=="connected"){logout();return;}
     if(state_=="reconnecting"){refresh();return;}
-    if(state_=="signed_out"||state_=="error")begin();
+    if(state_=="signed_out"||state_=="error") {
+        autoPaused_=false;socialRetry_.stop();
+        if(socialCredential && socialConnected_ && !socialSubject_.isEmpty())beginSocial();else begin();
+    }
 }
 void BackendAccount::restoreCachedProfile() {
     if(cachedIdentity_.isEmpty()||profileSnapshot_["player_id"]!=cachedIdentity_["player_id"])return;
@@ -448,7 +456,7 @@ void BackendAccount::tokens(const QJsonObject& result) {
     const auto expires=QDateTime::fromString(result["expires_at"].toString(),Qt::ISODateWithMs);
     if(!uuid(result["player_id"].toString())||!uuid(result["session_id"].toString())||!token(result["access_token"].toString())||!token(result["refresh_token"].toString())
         ||!QRegularExpression("^[0-9]{1,32}$").match(subject).hasMatch()||!expires.isValid()||expires<=QDateTime::currentDateTimeUtc()
-        ||(!socialSubject_.isEmpty()&&subject!=socialSubject_)){fail("Account verification failed. Sign in again with your Social account.");return;}
+        ||(!socialSubject_.isEmpty()&&subject!=socialSubject_)){autoPaused_=true;fail("Account verification failed. Sign in again with your Social account.");return;}
     const auto player=result["player_id"].toString();const auto epoch=epoch_;
     const QJsonObject identity{{"player_id",player},{"fluxer_subject",subject}};
     const auto replacement=QJsonDocument(QJsonObject{{"refresh_token",result["refresh_token"]},{"identity",identity}}).toJson(QJsonDocument::Compact);
@@ -457,7 +465,7 @@ void BackendAccount::tokens(const QJsonObject& result) {
         if(!ok){
             if(!refreshProof_.isEmpty()){retryRefresh("Could not save the renewed session. Retrying automatically…");return;}
             request("DELETE","/v1/auth/sessions/"+result["session_id"].toString(),{},[](int,QJsonObject){},result["access_token"].toString().toLatin1());
-            fail("Could not save the session securely. Try again.");return;
+            autoPaused_=true;fail("Could not save the session securely. Try again.");return;
         }
         if(profileSnapshot_["player_id"].toString()!=player){profileSnapshot_={};progression_={};profileName_.clear();saveCommerce();}
         cachedIdentity_=identity;
@@ -468,11 +476,7 @@ void BackendAccount::tokens(const QJsonObject& result) {
         if(!shopSnapshot_.isEmpty()&&shopSnapshot_["player_id"].toString()!=player_){shopSnapshot_={};shopIndex_=0;saveCommerce();}
         if(logoutPending_){logoutPending_=false;logout();return;}
         state("connected","Connected through Fluxer");
-        request("GET","/v1/me/profile",{},[this,player](int status,QJsonObject profile){
-            const auto name=profile["display_name"].toString().trimmed();
-            if(status==200 && player_==player && profile["player_id"].toString()==player
-                && !name.isEmpty() && name.size()<=256) {profileName_=name;profileSnapshot_["player_id"]=player;profileSnapshot_["display_name"]=name;saveCommerce();emit changed();}
-        },access_);
+        loadOnlineProfile();
         if(!supportClaim_.isEmpty()) {
             const auto body=std::exchange(supportClaim_,QJsonObject{});supportBusy_=false;
             supportRequest("POST","/v1/me/support/patreon/claim",body);
@@ -495,7 +499,7 @@ void BackendAccount::refresh() {
         if(!ok){retryRefresh("Could not update secure storage. Retrying automatically…");return;}
         request("POST","/v1/auth/refresh",{{"refresh_token",QString::fromLatin1(credential)},{"recovery_proof",QString::fromLatin1(proof)}},[this](int status,QJsonObject result){
             if(status==0||status==408||status==429||status>=500){retryRefresh("Connection interrupted. Reconnecting automatically…");return;}
-            if(status!=200){fail("Session could not be restored. Sign in again.");return;}tokens(result);
+            if(status!=200){fail("Session could not be restored. Reconnecting through Fluxer…");return;}tokens(result);
         });
     });
 }
@@ -507,6 +511,7 @@ void BackendAccount::retryRefresh(const QString& message) {
     state("reconnecting",message);refreshTimer_.start(delay);
 }
 void BackendAccount::logout() {
+    autoPaused_=true;socialRetry_.stop();
     refreshTimer_.stop();state("signing_out","Signing out…");
     request("DELETE","/v1/auth/sessions/"+session_,{},[this](int status,QJsonObject){
         if(status==401&&!refresh_.isEmpty()){logoutPending_=true;refresh();return;}
@@ -549,11 +554,11 @@ void BackendAccount::setPublicAvatar(const QString& owner,const QJsonObject& rec
 }
 void BackendAccount::syncPublicAvatar() {
     // Missing/uninstalled assets are not a request to erase the online appearance.
-    if(state_!="connected"||avatarBusy_||avatarRetry_.isActive()||publicAvatar_.isEmpty()||publicAvatar_==publishedAvatar_)return;
+    if(state_!="connected"||!profileReady_||!avatarIntent_||avatarBusy_||avatarRetry_.isActive()||publicAvatar_.isEmpty()||(publicAvatar_==publishedAvatar_&&!needsAvatar_))return;
     const auto recipe=publicAvatar_;avatarBusy_=true;
-    request("PUT","/v1/me/profile/avatar",{{"avatar",recipe}},[this,recipe](int status,QJsonObject){
+    request("PUT","/v1/me/profile/avatar",{{"avatar",recipe}},[this,recipe](int status,QJsonObject profile){
         avatarBusy_=false;
-        if(status==200){publishedAvatar_=recipe;syncPublicAvatar();}
+        if(status==200){publishedAvatar_=recipe;needsAvatar_=false;profileRevision_=profile["revision"].toString();profileSnapshot_["avatar"]=recipe;saveCommerce();emit changed();syncPublicAvatar();}
         else avatarRetry_.start(60000);
     },access_);
 }

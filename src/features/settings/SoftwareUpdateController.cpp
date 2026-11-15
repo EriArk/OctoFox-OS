@@ -261,7 +261,8 @@ void SoftwareUpdateController::finish(int code,QProcess::ExitStatus exitStatus) 
         publish();return;
     }
     status_=received;candidate_=result_;lastChecked_=QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm");
-    if(status_=="available" && background_ && notifiedVersion_!=version()){notifiedVersion_=notificationVersion_=version();emit updateAvailable(version());}
+    if(status_=="available" && notifiedVersion_!=version()){notifiedVersion_=notificationVersion_=version();emit updateAvailable(version());}
+    if(status_=="up-to-date")notificationVersion_.clear();
     publish();
 }
 void SoftwareUpdateController::stop(const QString& reason) {

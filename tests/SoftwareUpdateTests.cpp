@@ -69,6 +69,13 @@ private slots:
         QVERIFY(!flow.actions()[3].toMap()["enabled"].toBool());QVERIFY(flow.message().contains("not available"));
         QCOMPARE(flow.tasks()[0].toMap()["state"].toString(),"done");
     }
+    void manualDiscoveryNotifiesOnceAndKeepsInboxAfterToastSignal(){
+        QTemporaryDir root;SoftwareUpdateController flow;flow.configure(softwareUpdateFixture(root.path(),UPDATE_PYTHON));
+        QSignalSpy notice(&flow,&SoftwareUpdateController::updateAvailable);
+        flow.check();QTRY_VERIFY(!flow.busy());QCOMPARE(notice.size(),1);QVERIFY(!flow.notification().isEmpty());
+        flow.check();QTRY_VERIFY(!flow.busy());QCOMPARE(notice.size(),1);QVERIFY(!flow.notification().isEmpty());
+        QVERIFY(flow.tasks().isEmpty());
+    }
     void pauseResumeCancelAndNoOverlap(){
         QTemporaryDir root;SoftwareUpdateController flow;flow.configure(softwareUpdateFixture(root.path(),UPDATE_PYTHON));
         flow.check();QTRY_VERIFY(!flow.busy());flow.activate(3);QTRY_VERIFY(flow.progress()>0);

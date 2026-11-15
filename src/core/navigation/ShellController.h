@@ -450,7 +450,7 @@ private:
     bool achievementPhotoReturn_=false;
     QJsonObject achievementPhotoNavigation_;
     QString service_;
-    enum class TextTarget { BazaarSearch, OutfitName, GameInput, None, TrainerName, WorldsSearch, MultiverseSearch, Library, LibraryTools, Collections, Archive, Module, AchievementAccount, SetupName, Network, Social, Communication, Scraper, Files, Browser, PcGame };
+    enum class TextTarget { OnlineName, BazaarSearch, OutfitName, GameInput, None, TrainerName, WorldsSearch, MultiverseSearch, Library, LibraryTools, Collections, Archive, Module, AchievementAccount, SetupName, Network, Social, Communication, Scraper, Files, Browser, PcGame };
     TextTarget textTarget_ = TextTarget::None;
     QList<ContinueEntry> points_;
     QList<ContinueEntry> favorites_;
@@ -490,7 +490,8 @@ private:
     QString notice_;
     bool gameSetupReturn_=false;
     bool gamePreparationFromGames_=false;
-    QString achievementToast_;
+    QString achievementToast_,softwareToast_;
+    quint64 softwareToastGeneration_=0;
     quint64 achievementToastGeneration_ = 0;
     QString mode_;
     struct LiveModuleAction { ExperienceModule* module; ExperienceLiveContext context; QString action; };

@@ -14,10 +14,14 @@ Item {
     readonly property string serviceName: social ? "OctoFox OS · Fluxer" : achievements ? "RetroAchievements" : "ScreenScraper"
     readonly property string registrationUrl: social ? "https://fluxer.com/login" : achievements ? "https://retroachievements.org/createaccount.php" : "https://www.screenscraper.fr/membreinscription.php"
     readonly property string explanation: social
-        ? "Fluxer connects friends, chats and invitations. Sign in to OctoFox OS with the same Fluxer account for your online profile, level and Sparks. Both can wait until later."
+        ? "Sign in once with Fluxer. Your OctoFox OS profile is created or restored automatically. New here? Choose a nickname and avatar, or keep your temporary nickname for now."
         : achievements ? "Sign in to earn and sync achievements in supported games. Without an account, you can still play your local games."
         : "Sign in for covers, game info and player counts. Recommended for multiplayer; optional for local play."
     Rectangle { anchors.fill: parent; radius: 12; color: Theme.paper }
+    Loader {
+        anchors.fill: parent; z: 2; active: root.social && root.shell.trainer.avatarEditing
+        sourceComponent: Component { AvatarEditor { profile: root.shell.trainer; shell: root.shell } }
+    }
     Item {
         anchors.fill: parent; anchors.margins: 20; visible: !root.flow.registration
         Text { id: title; width: parent.width-registerButton.width-16; text: root.serviceName; wrapMode: Text.WordWrap; font.family: Theme.displayFamily; font.pixelSize: 26; color: Theme.ink }

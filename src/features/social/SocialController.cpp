@@ -1657,3 +1657,16 @@ void SocialController::saveDrafts() {
     if(file.write(bytes)==bytes.size())file.commit();
 }
 }
+
+void trainer::SocialController::verifiedSession(QString subject,std::function<void(QByteArray)> done) {
+    const auto generation=generation_;QPointer<SocialController> self(this);auto* worker=session_;
+    QMetaObject::invokeMethod(worker,[worker,self,subject,generation,done=std::move(done)]() mutable {
+        auto token=worker->verifiedSession(subject,generation);
+        if(!self)return;
+        QMetaObject::invokeMethod(self,[self,subject,generation,token=std::move(token),done=std::move(done)]() mutable {
+            if(!self)return;
+            if(generation!=self->generation_ || self->account()["userId"].toString()!=subject || self->account()["state"]!="connected")token.clear();
+            done(std::move(token));
+        },Qt::QueuedConnection);
+    },Qt::QueuedConnection);
+}
