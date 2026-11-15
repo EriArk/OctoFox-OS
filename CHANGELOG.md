@@ -11,8 +11,9 @@
 на Qt BIG_RESOURCES для сборки при ограниченной памяти.
 
 Релиз и подписанное OTA опубликованы; Software 49 установлен через публичное
-OTA на Odin/Flip, с откатом 48. Восстановление Ren проверено на Odin; вход Mika
-на Flip ожидает CAPTCHA. [Доказательства](docs/evidence/2026-11-15-alpha8/README.md).
+OTA на Odin/Flip, с откатом 48. Восстановление Ren проверено через сохранённую
+сессию на Odin; Mika — после обычного входа Fluxer на Flip. Второй вход в OS
+не понадобился, прежние аккаунты сохранены без дубликатов. [Доказательства](docs/evidence/2026-11-15-alpha8/README.md).
 
 ## 15 November 2026 — ship entry delivered in the upper header
 

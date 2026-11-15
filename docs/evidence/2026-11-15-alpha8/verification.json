@@ -80,9 +80,11 @@
   },
   "accountAcceptance": {
     "odin": "Saved Fluxer session automatically restored same Ren server player after OS-only signout on Software 48 and public OTA to 49",
-    "flip": "Provider was already signed out before update. OS-only signout was performed for test. Fresh Fluxer handoff needs user CAPTCHA; this live account check remains pending.",
+    "flip": "Existing Mika test account signed in through the official browser flow and device-code handoff; Software 49 automatically restored the same OS player without a second login or manual Sync. Saved provider session verified with HTTP 200 and expected subject; profile, avatar and personal data unchanged.",
     "serverPlayersBefore": 3,
     "serverPlayersAfter": 3,
-    "socialClaimsAfterOTA": 1
+    "socialClaimsAfterOTA": 2,
+    "flipProviderSessionVerified": true,
+    "flipDuplicatePlayerCreated": false
   }
 }

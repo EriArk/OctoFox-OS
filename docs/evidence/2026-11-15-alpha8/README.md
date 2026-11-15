@@ -52,10 +52,23 @@ identical. The UI reports **Your OctoFox OS profile is synchronized**.
 ![After: automatic restoration](odin-account-restored.png)
 
 Flip's Fluxer session was already signed out before this check. Its old OS session
-was signed out for restoration testing, but the provider login then required
-CAPTCHA. The owner's fresh Fluxer login is still required to complete that device's
-live account acceptance. Its local Mika profile and appearance are unchanged.
-No CAPTCHA was solved or bypassed. New-player temporary names, avatar/name setup,
+was signed out for restoration testing. The direct API password attempt returned
+CAPTCHA_REQUIRED, but that did not prevent normal browser login: the official
+site redirected to fluxer.com and accepted Mika's existing test credentials.
+An isolated Linux Chromium profile completed the ordinary device-code handoff
+without owner intervention or a manual CAPTCHA step. No challenge was bypassed.
+
+After Fluxer connected, Software 49 automatically restored Mika's existing server
+player and showed **Your OctoFox OS profile is synchronized**. No OS sign-in or
+manual Sync action was performed. The saved encrypted provider credential was
+verified against Fluxer's current-user endpoint: HTTP 200, expected Mika subject.
+The server now has two `social / claimed` attempts for the original Ren and Mika
+players and still three players total. A fresh SQLite check confirmed Flip's
+profile, avatar, ownership, history and catalogue are unchanged from its checkpoint.
+
+![Flip: Mika automatically restored](flip-account-restored.png)
+
+New-player temporary names, avatar/name setup,
 lost claim retry and concurrent-claim deduplication are covered by isolated tests;
 a newly registered live provider user on hardware was not manufactured.
 
@@ -81,7 +94,7 @@ a newly registered live provider user on hardware was not manufactured.
 
 The new transient OTA toast is covered by controller/QML tests. The public update
 was discovered by the old Software 48 inbox; that is not presented as a visual
-hardware test of Software 49 advertising a future release. Physical pad/touch,
-a fresh Alpha 8 installer journey and Flip's new Fluxer sign-in remain separate.
+hardware test of Software 49 advertising a future release. Physical pad/touch
+and a fresh Alpha 8 installer journey remain separate.
 
 Machine-readable bounded results: [verification.json](verification.json).

@@ -24,5 +24,6 @@ off automatically; secure-storage and rejected-credential failures stay visible.
 Server migration and API are documented in [the Backend contract](../services/backend/accounts.md). Existing OAuth return flows and
 refresh recovery remain supported. Alpha 8 is published; public OTA succeeded on Odin and Flip. Odin restored the
 same Ren account automatically from its saved Fluxer session after an OS-only
-signout on Software 48. Flip's provider session was already signed out; its fresh
-login requires owner CAPTCHA. See [delivery and limits](evidence/2026-11-15-alpha8/README.md).
+signout on Software 48. Flip's provider session was already signed out; a normal
+official browser sign-in and device handoff automatically restored the same Mika
+player on Software 49. No second OS sign-in or duplicate player was needed. See [delivery and limits](evidence/2026-11-15-alpha8/README.md).

@@ -6,8 +6,9 @@ to managed installation; the later 48→49 download/apply was real public OTA.
 An old network-library scan blocked the first restart; a normal shell restart
 with scanning temporarily disabled recovered it, and the preference is restored.
 Ren's OS-only signout on 48 automatically restored the same player after OTA,
-using the saved Fluxer session. Flip's Fluxer was already signed out; its fresh
-provider login requires owner CAPTCHA, so that live account check remains open.
+using the saved Fluxer session. Flip's Fluxer was already signed out; a normal official browser sign-in and
+handoff restored Mika automatically on Software 49, without a second OS login.
+Both returned to their existing server players; no duplicate was created.
 Both databases/ownership/history checked, staging cleaned, rollback 48 retained,
 Odin volume zero. No fresh Alpha 8 clean-installer or physical-input acceptance.
 [Evidence](docs/evidence/2026-11-15-alpha8/README.md).
