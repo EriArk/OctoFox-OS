@@ -514,7 +514,7 @@ void BackendAccount::refresh() {
         if(!ok){retryRefresh("Could not update secure storage. Retrying automatically…");return;}
         request("POST","/v1/auth/refresh",{{"refresh_token",QString::fromLatin1(credential)},{"recovery_proof",QString::fromLatin1(proof)}},[this](int status,QJsonObject result){
             if(status==0||status==408||status==429||status>=500){retryRefresh("Connection interrupted. Reconnecting automatically…");return;}
-            if(status!=200){fail("Session could not be restored. Reconnecting through Fluxer…");return;}tokens(result);
+            if(status!=200){fail(socialCredential&&!socialSubject_.isEmpty()?"Reconnect to Fluxer to restore your OctoFox OS profile.":"Session could not be restored. Sign in again.");return;}tokens(result);
         });
     });
 }
