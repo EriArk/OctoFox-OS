@@ -62,6 +62,12 @@ Panel {
                     ink: "#ffe2a1"; background: "#e6122229"
                     available: root.profile.exists && root.profile.avatarAvailable
                 }
+                ProfileAction {
+                    objectName: "profile-inventory"
+                    anchors.right: parent.right; anchors.rightMargin: 10; y: 74
+                    width: 116; height: 38; actionIndex: 12; label: "Inventory  ›"
+                    ink: "#ffe2a1"; background: "#e6122229"
+                }
             }
             Item {
                 id:identity;x:portrait.width+22;width:parent.width-x;height:root.compact?52:68
@@ -207,6 +213,7 @@ Panel {
 
             }
         }
+        ProfileInventoryPage { x:0;y:42;width:parent.width;height:parent.height-y;shell:root.shell;visible:root.shell.profileRoute==="inventory" }
         ProfileShop { x:0;y:42;width:parent.width;height:parent.height-y;shell:root.shell;visible:root.shell.profileRoute==="shop" }
         ProfilePrizes { x:0;y:42;width:parent.width;height:parent.height-y;shell:root.shell;visible:root.shell.profileRoute==="prizes" }
         ProfileSupport { x:0;y:42;width:parent.width;height:parent.height-y;shell:root.shell;visible:root.shell.profileRoute==="support" }

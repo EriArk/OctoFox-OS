@@ -47,8 +47,15 @@ private slots:
         QVERIFY(entry>=0);shell.libraryTools()->activate(entry);
         QCOMPARE(shell.page(),2);QCOMPARE(shell.currentAdventureId(),QString("emerald-demo"));
         QVERIFY(shell.adapterActive());QVERIFY(!shell.libraryTools()->isOpen());QVERIFY(launches.isEmpty());
-        QCOMPARE(shell.faceNames(),QStringList({"Team","Field Guide","Center","Trainer"}));
-        shell.selectAdapterScreen("boxes");shell.selectFace(1);shell.selectFace(0);
+        QVERIFY(shell.adapterMenuOpen());QCOMPARE(shell.adapterMenu().size(),9);
+        QCOMPARE(shell.faceNames(),QStringList({"Party","Boxes","Field Guide","Care Center","Shops","Playroom","Trainer Card","Journey","Hall of Fame"}));
+        shell.dispatch(Action::NextFace);QVERIFY(shell.adapterMenuOpen());
+        shell.dispatch(Action::Down);QCOMPARE(shell.adapterMenuFocus(),3);
+        shell.dispatch(Action::Confirm);QCOMPARE(shell.adapterScreen(),QString("center"));QVERIFY(!shell.adapterMenuOpen());
+        shell.dispatch(Action::NextFace);QCOMPARE(shell.adapterScreen(),QString("shops"));
+        shell.dispatch(Action::PreviousFace);QCOMPARE(shell.adapterScreen(),QString("center"));
+        shell.showAdapterMenu();QCOMPARE(shell.adapterMenuFocus(),3);
+        shell.selectAdapterScreen("boxes");shell.selectFace(2);shell.selectFace(1);
         QCOMPARE(shell.adapterScreen(),QString("boxes"));
         auto saved=shell.navigationState();saved["hubFace"]="spaces";
         shell.goToPage(0);shell.restoreNavigation(saved);QVERIFY(shell.adapterActive());
@@ -294,8 +301,11 @@ private slots:
         ShellController shell(library,profiles,adapter,platform,factory,archive,achievements);
         shell.openGameHubFace("adapter");shell.selectAdapterScreen("second");shell.activate(7);
         shell.goToSection("apps");shell.goToSection("gamehub");
-        QCOMPARE(shell.hubFace(),"adapter");QCOMPARE(shell.adapterScreen(),"second");QCOMPARE(shell.focusIndex(),7);
+        QCOMPARE(shell.hubFace(),"adapter");QCOMPARE(shell.adapterScreen(),"second");
+        QVERIFY(shell.adapterMenuOpen());QCOMPARE(shell.adapterMenuFocus(),1);
+        shell.dispatch(Action::Confirm);QCOMPARE(shell.focusIndex(),7);
         shell.openGameHubFace("overview");shell.openGameHubFace("adapter");
+        QVERIFY(shell.adapterMenuOpen());shell.dispatch(Action::Confirm);
         QCOMPARE(shell.adapterScreen(),"second");QCOMPARE(shell.focusIndex(),7);
     }
     void overviewTimelineRunsLeftToRightAndRestoresSession() {
@@ -814,7 +824,7 @@ private slots:
         shell.dispatch(Action::Confirm);QCOMPARE(rpg->count,1);
         shell.activate(7);QCOMPARE(shell.home()["fixtureValue"].toInt(),7);
         shell.selectAdapterScreen("second");QCOMPARE(rpg->lastFace,"second");
-        shell.dispatch(Action::NextFace);QCOMPARE(shell.hubFace(),"adapter");QCOMPARE(rpg->lastFace,"second");
+        shell.dispatch(Action::NextFace);QCOMPARE(shell.hubFace(),"adapter");QCOMPARE(rpg->lastFace,"records");
         shell.openGameHubFace("adapter");
         const auto oldToken=rpg->token();
         auto state=shell.navigationState();state["homeAdventure"]="racing";shell.restoreNavigation(state);
@@ -826,8 +836,9 @@ private slots:
         QVERIFY(shell.invokeLiveExperienceAction(liveId,"rpg","123:1"));QCOMPARE(rpg->liveCalls,1);QCOMPARE(rpg->lastLiveGame,"rpg");
         QVERIFY(shell.invokeLiveExperienceAction(liveId,"rpg","123:2"));QCOMPARE(rpg->liveCalls,1);
         state=shell.navigationState();state["homeAdventure"]="rpg";shell.restoreNavigation(state);
-        QCOMPARE(shell.focusIndex(),7);QCOMPARE(rpg->lastFace,"second");
-        emit rpg->screenRequested("counter",false,oldToken);QCOMPARE(rpg->lastFace,"second");
+        QVERIFY(shell.adapterMenuOpen());QCOMPARE(shell.adapterMenuFocus(),2);
+        shell.dispatch(Action::Confirm);QCOMPARE(shell.focusIndex(),7);QCOMPARE(rpg->lastFace,"records");
+        emit rpg->screenRequested("counter",false,oldToken);QCOMPARE(rpg->lastFace,"records");
         rpg->requestText();QVERIFY(shell.keyboard()->isOpen());
         rpg->setEnabled(false);QCOMPARE(shell.homeView(),"game-home");QVERIFY(shell.dashboard()->genericLayout());QVERIFY(!shell.keyboard()->isOpen());
         rpg->applyText("late");QVERIFY(rpg->lastText.isEmpty());

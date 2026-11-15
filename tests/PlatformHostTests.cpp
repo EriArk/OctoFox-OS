@@ -161,6 +161,32 @@ private slots:
         f.host.setContext(context("bob"));QCOMPARE(c.receive()["event"].toString(),"context.revoked");
         QCOMPARE(bodies.last()["action"].toString(),"revoke");
     }
+    void bazaarReadsNeverAuthorizeWritesOrExposeCredentials() {
+        QStandardPaths::setTestModeEnabled(true);
+        const QString player="11111111-1111-4111-8111-111111111111";
+        QStringList paths;BackendAccount backend;
+        backend.setServices({[&](QByteArray method,QString path,QJsonObject,QByteArray auth,BackendAccount::Reply done){
+            if(path=="/v1/auth/refresh")done(200,{{"player_id",player},{"session_id","22222222-2222-4222-8222-222222222222"},
+                {"fluxer_subject","12345"},{"access_token",QString(43,'a')},{"refresh_token",QString(43,'r')},
+                {"expires_at",QDateTime::currentDateTimeUtc().addSecs(900).toString(Qt::ISODateWithMs)}});
+            else if((path.startsWith("/v1/bazaar-")||path.startsWith("/v1/me/bazaar-"))){QCOMPARE(method,QByteArray("GET"));QCOMPARE(auth,QByteArray(43,'a'));paths<<path;done(200,{{"player_id",player},{"places",QJsonArray{}}});}
+            else done(503,{});
+        },[](QString,auto done){done(true,QJsonDocument(QJsonObject{{"refresh_token",QString(43,'r')}}).toJson());},
+        [](QString,QByteArray,auto done){done(true);},{}});
+        backend.configure("bazaar-sdk-"+QUuid::createUuid().toString());
+        Fixture f;f.host.setBackend(&backend);auto ctx=context();ctx["account"]=backend.snapshot();f.host.setContext(ctx);QVERIFY(f.start());
+        Client c(f.endpoint);QCOMPARE(c.hello("org.traineros.bazaar.services")["result"].toObject()["capabilities"].toObject()["bazaar.read"].toInt(),1);
+        c.send("bazaar.world");auto result=c.receive();QCOMPARE(result["result"].toObject()["player_id"].toString(),player);
+        QVERIFY(!QJsonDocument(result).toJson().contains("token"));QCOMPARE(paths.last(),"/v1/bazaar-worlds/festival");
+        c.send("bazaar.own_listings",{{"after",player}});QVERIFY(c.receive().contains("result"));
+        QCOMPARE(paths.last(),"/v1/me/bazaar-listings?after="+player);
+        const auto count=paths.size();
+        for(const auto method:{"bazaar.buy","bazaar.hire","bazaar.rent"}) {
+            c.send(method,{{"expected_price",100}});QCOMPARE(c.receive()["error"].toObject()["code"].toString(),"unsupported_bazaar_read");
+        }
+        c.send("bazaar.world",{{"url","https://example.test"}});QVERIFY(c.receive().contains("error"));QCOMPARE(paths.size(),count);
+        f.host.setContext(context("bob"));QCOMPARE(c.receive()["event"].toString(),"context.revoked");
+    }
     void discoveryAndExclusiveEndpoint(){
         Fixture f;QVERIFY(f.start());
         ControlsDashboard other;PlatformHost duplicate(other);QString error;

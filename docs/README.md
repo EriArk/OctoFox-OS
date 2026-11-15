@@ -43,6 +43,7 @@ These references retain Russian and mixed-language engineering text.
 - Data: [data model](DATA_MODEL.md), [persistence](LOCAL_PERSISTENCE.md), [save lineage](SAVE_LINEAGE.md), [backups](SAVE_BACKUPS.md), [exiting an adventure](ADVENTURE_EXIT.md).
 - Adapters: [knowledge registry](adapters/README.md), [framework boundaries](UX_FRAMEWORK.md).
 - Communication: [Social](SOCIAL.md), [Fluxer capabilities (Russian)](FLUXER_CAPABILITIES_RU.md), [Lobby](LOBBY.md), [account-free Local Lobby](OFFLINE_LOBBY.md), [Remote Play](REMOTE_PLAY_TRANSPORT.md).
+- Profiles: [automatic Fluxer accounts](AUTOMATIC_ACCOUNTS.md), [inventory](PROFILE_INVENTORY.md).
 - Apps: [Files](FILES68_IMPLEMENTATION.md), [Browser](BROWSER71_IMPLEMENTATION.md), [Crates installer](CRATES76_INSTALLER.md), [catalogue](CRATES77_CATALOGUE.md).
 - Device: [Armada platform](ARMADA_PLATFORM.md), [diagnostics](DEVICE_DIAGNOSTICS.md), [performance](PERFORMANCE72.md), [display scaling](DISPLAY_SCALING.md), [input profiles](INPUT_PROFILES.md), [per-game performance and runtime cache](GAME_PERFORMANCE.md).
 - Release engineering: [earlier installer contract (Russian)](EARLY_BETA_INSTALLER_RU.md), [public readiness](PUBLIC_READINESS.md), [licensing](../LICENSING.md), [third-party notices](../THIRD_PARTY_NOTICES.md). Use the Alpha 7 guide above for installation.

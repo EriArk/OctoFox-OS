@@ -10,6 +10,7 @@ Window {
     visible: true
     title: "OctoFox OS"
     color: Theme.chassisDark
+    readonly property bool inventoryOpen: shell.service === "profile" && shell.profileRoute === "inventory"
     function openNotificationsAt(footer) { shell.openNotifications() }
     readonly property real uiScale: shell.settings.displayDensity(Screen.width, Screen.height,
         width, height, shell.settings.displayProfile, shell.settings.interfaceScale)
@@ -255,20 +256,30 @@ Window {
         Row {
             id: faceNavigation
             readonly property bool gameBrowser: shell.page === 1 && !shell.collectionsRoot
+            readonly property bool adapter: shell.primaryId === "gamehub"
+            readonly property bool compact: gameBrowser || adapter
             objectName: "navigation-chassis"; x: 28; y: Theme.brandHeight + Theme.screenBevel + 5; spacing: 12; z: 2
-            visible: shell.faceNames.length > 0 && !browserPane.expanded
+            visible: shell.faceNames.length > 0 && !browserPane.expanded && !(adapter && shell.adapterMenuOpen)
+            Item {
+                objectName: "adapter-home-button"; visible: faceNavigation.adapter; width: visible ? 90 : 0; height: 26
+                MenuGlyph { x: 0; y: 6; width: 14; height: 14; glyph: "back" }
+                Text { x: 20; height: 26; verticalAlignment: Text.AlignVCenter; text: "Spaces"; color: Theme.ink; font.pixelSize: 14 }
+                Accessible.role: Accessible.Button; Accessible.name: "Adapter home"
+                Accessible.onPressAction: if (shell.pairedNavigationAvailable) shell.showAdapterMenu()
+                MouseArea { anchors.fill: parent; enabled: shell.pairedNavigationAvailable; onClicked: shell.showAdapterMenu() }
+            }
             FaceStep { objectName: "face-previous"; visible: shell.faceNames.length>1; enabled: shell.pairedNavigationAvailable; onActivated: shell.pressButton("L2") }
             Row {
-                visible: faceNavigation.gameBrowser
+                visible: faceNavigation.compact
                 spacing: 18
                 Repeater {
-                    model: faceNavigation.gameBrowser ? (shell.faceNames.length > 1 ? [-1,0,1] : [0]) : []
+                    model: faceNavigation.compact ? (shell.faceNames.length > 1 ? [-1,0,1] : [0]) : []
                     Text {
                         required property int modelData
                         readonly property int targetIndex: (shell.faceIndex + modelData + shell.faceNames.length) % Math.max(1,shell.faceNames.length)
                         objectName: modelData < 0 ? "browser-context-previous" : modelData > 0 ? "browser-context-next" : "browser-context-current"
                         text: shell.faceNames[targetIndex] || ""
-                        width: Math.min(implicitWidth, Math.max(70,(Theme.screenBounds.width-180)/3))
+                        width: Math.min(implicitWidth, Math.max(70,(Theme.screenBounds.width-(faceNavigation.adapter ? 290 : 180))/3))
                         height: 26; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
                         color: modelData === 0 ? Theme.ink : Theme.muted
                         opacity: modelData === 0 ? 1 : .72
@@ -282,7 +293,7 @@ Window {
                     }
                 }
             }
-            Repeater {model: faceNavigation.gameBrowser ? [] : shell.faceNames
+            Repeater {model: faceNavigation.compact ? [] : shell.faceNames
                 Text {
                     required property int index;required property string modelData
                     objectName: "face-tab-" + index
@@ -306,7 +317,7 @@ Window {
                 enabled: !shell.drawerOpen && !shell.quickAppsOpen && !shell.serviceOpen
                 anchors.fill: parent; anchors.margins: Theme.panelInset
                 // Home has no face row; its content starts below the active tab.
-                anchors.topMargin: shell.primaryId === "home" || (shell.page === 1 && shell.collectionsRoot) ? Theme.brandHeight + Theme.screenBevel - Theme.screenTop : Theme.contentTopInset
+                anchors.topMargin: shell.primaryId === "home" || (shell.page === 1 && shell.collectionsRoot) || (shell.primaryId === "gamehub" && shell.adapterMenuOpen) ? Theme.brandHeight + Theme.screenBevel - Theme.screenTop : Theme.contentTopInset
                 clip: true
                 anchors.bottomMargin: Theme.panelInset
                 HomeDashboard { id: experienceHost; anchors.fill: parent; shell: shellController; visible: (!shell.serviceOpen || shell.service === "settings" || shell.service === "account-profile") && shell.primaryId === "home" }
@@ -361,7 +372,7 @@ Window {
             Behavior on y { NumberAnimation {duration:Theme.motion(180);easing.type:Easing.InOutCubic} }
         }
         MouseArea {
-            anchors.fill: parent; z: bazaarPreview.active ? 2.8 : browserPane.expanded ? 1.95 : 1
+            anchors.fill: parent; z: bazaarPreview.active || window.inventoryOpen ? 2.8 : browserPane.expanded ? 1.95 : 1
             enabled: (shell.drawerOpen || shell.quickAppsOpen) && !shell.apps.menu.length && !shell.menuOpen && !shell.keyboard.open && !shell.homeMenuOpen && !shell.notice.length
             onClicked: shell.closeDrawers()
         }
@@ -370,7 +381,7 @@ Window {
             x: Theme.screenBounds.x
             anchors.bottom: footer.top
             shell: shellController; z: 3
-            visible: !shell.social.incomingCall.id && !shell.notificationsOpen && !shell.serviceOpen && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
+            visible: !shell.social.incomingCall.id && !shell.notificationsOpen && (!shell.serviceOpen || (window.inventoryOpen && shell.quickAppsOpen)) && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
             handlesRecessed: shell.quickAppsOpen || shell.drawerOpen || panelVisible || drawer.panelVisible
             otherPanelVisible: drawer.panelVisible
         }
@@ -379,8 +390,8 @@ Window {
             objectName: "continue-drawer"
             x: Theme.screenBounds.x + (expandedWidth-width)/(expandedWidth-closedWidth)*(closedWidth-Theme.drawerHandleOverlap)
             anchors.bottom: footer.top; shell: shellController
-            z: bazaarPreview.active ? 3 : 2
-            visible: !shell.social.incomingCall.id && !shell.serviceOpen && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (shell.chooseAdventureAvailable || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
+            z: bazaarPreview.active || window.inventoryOpen ? 3 : 2
+            visible: !shell.social.incomingCall.id && (!shell.serviceOpen || (window.inventoryOpen && shell.drawerOpen)) && (!bazaarPreview.active || shell.quickAppsOpen || shell.drawerOpen || panelVisible) && (shell.chooseAdventureAvailable || shell.drawerOpen || panelVisible) && (!browserPane.expanded || shell.quickAppsOpen || shell.drawerOpen)
             handlesRecessed: shell.quickAppsOpen || shell.drawerOpen || panelVisible || quickDrawer.panelVisible
             otherPanelVisible: quickDrawer.panelVisible
         }

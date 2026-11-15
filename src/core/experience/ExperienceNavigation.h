@@ -8,6 +8,7 @@ namespace trainer {
 struct ExperienceScreen {
     QString id, label, view, icon;
     QString group, groupLabel;
+    QString artwork; // Optional trusted module illustration; icon remains the fallback.
     bool operator==(const ExperienceScreen&) const = default;
 };
 struct ExperienceSurface {

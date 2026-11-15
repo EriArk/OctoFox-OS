@@ -1,0 +1,19 @@
+{
+  "services/backend/tests/conftest.py": "fb3716c3e1551159f84d5b92cd6c712582274d2ba81f55ba497b99060c70508c",
+  "services/backend/tests/test_inventory.py": "251d0d78b4595859d4b780dce124d7b0c6c40ef049b343f3929e3554ef632fe8",
+  "services/backend/trainer_backend/app.py": "cfa9d02728f22d4923cdd47080230fd9f6f890ea58390cf865206cd9ba8c783c",
+  "services/backend/trainer_backend/db.py": "d8b2a06bb24cd899f70083b07221167c89fc42e788f847d90e4908495e937a4f",
+  "services/backend/trainer_backend/inventory.py": "8cc44e8ec50c8efffe7202b045df2878ef91a60f03c6e84fe0af9858562d568a",
+  "services/backend/trainer_backend/migrations/0020_profile_loot.sql": "76814b5b699d7068ebc4b90b06bfc34acc69ab82bd1c5503bdcfc036c0404ae1",
+  "src/core/navigation/ShellController.cpp": "e4cf6387a534b4562c580f4223bdcc9e6b9d628b887ba4fa5b2cc99ba65e7e79",
+  "src/features/accounts/BackendAccount.cpp": "653617d02f02a81cf3afbea86dd57006e2624a00e899b24e09ae994fb6b412cb",
+  "src/features/accounts/BackendAccount.h": "554ae11d8f386387db21aa57c2c5f252f752606c88759786995aa0515fefff75",
+  "src/features/trainer/ProfileInventory.cpp": "e24f64e4cbfba9be90b806df426a92aa9cf73b9494975f7c83884d9b41332b2e",
+  "src/features/trainer/ProfileInventory.h": "5cac3432ee55cd8e46d7738d6afe6294dcf9942b288b9459b4b608507ebc8f03",
+  "src/qml/MenuGlyph.qml": "7b16286c1e0ad08a9df36ee5d41421cfcf91433c95d94cd682b9d196e9a1980e",
+  "src/qml/ProfileInventoryPage.qml": "88ce5b974979b23b5a46a0f312a495f1b083804dd4417ee59ccfdd6828dbb477",
+  "tests/BackendAccountTests.cpp": "82ec48cb31a6057ff167c135620bbbeb23df21e0f7ba98f3d0eafc9f77f6021a",
+  "tests/InteractionTests.cpp": "f97d78f0a0f1d3c4e9e4cc3b824aa2b472fafc7e280bd3ed10bfcc947db77238",
+  "tests/fixtures/InventoryResponseFixture.h": "b690830a2a15add09929b7d23e274fd037bb0f86cca2c313012684a8d7b6898c",
+  "tests/ui/InventorySmokeScenario.h": "fa06f73920e38a98766cb214dd1877c6ebabd9e18ecec60d63e6652bc183f530"
+}

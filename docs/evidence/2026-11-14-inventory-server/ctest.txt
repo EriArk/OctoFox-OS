@@ -1,0 +1,13 @@
+Test project /work/build
+    Start 14: backend_account
+1/4 Test #14: backend_account ..................   Passed    5.28 sec
+    Start 76: inventory_qml_smoke
+2/4 Test #76: inventory_qml_smoke ..............   Passed   17.51 sec
+    Start 77: bazaar_qml_smoke
+3/4 Test #77: bazaar_qml_smoke .................   Passed   11.09 sec
+    Start 95: interactions
+4/4 Test #95: interactions .....................   Passed    0.97 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =  34.86 sec

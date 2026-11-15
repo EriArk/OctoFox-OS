@@ -1,0 +1,17 @@
+Test project /work/build
+    Start  76: inventory_qml_smoke
+1/6 Test  #76: inventory_qml_smoke ..............   Passed   14.83 sec
+    Start  77: bazaar_qml_smoke
+2/6 Test  #77: bazaar_qml_smoke .................   Passed   11.17 sec
+    Start  95: interactions
+3/6 Test  #95: interactions .....................   Passed    1.08 sec
+    Start  98: experience
+4/6 Test  #98: experience .......................   Passed    0.55 sec
+    Start 122: artwork_qml_smoke
+5/6 Test #122: artwork_qml_smoke ................   Passed   37.85 sec
+    Start 125: experience_qml_smoke
+6/6 Test #125: experience_qml_smoke .............   Passed   19.99 sec
+
+100% tests passed, 0 tests failed out of 6
+
+Total Test time (real) =  85.48 sec

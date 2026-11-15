@@ -69,6 +69,9 @@ public:
     void viewProfile(QString player,QString subject,QString before,Reply done);
     void profileSharing(QJsonObject update,Reply done);
     void publishProfileFavorites(QJsonArray games,QString revision,Reply done);
+    // Private read-only collectible projection; no caller-chosen URL or owner.
+    void readInventory(QString before,QString revision,Reply done);
+    bool inventoryConnected() const { return state_=="connected" && !player_.isEmpty(); }
     QVariantMap progression() const;
     QString rewardStatus() const { return rewardStatus_; }
     QString rewardActionLabel() const;
@@ -83,6 +86,7 @@ public:
     void finishRental(int status,QJsonObject result);
     void reviewBazaarPurchase(bool stall=false);
     void resolveBazaarPurchase();
+    void bazaarRead(const QString& method,QJsonObject args,Reply done);
     void bazaarRequest(const QString& action,QJsonObject args,Reply done);
     QString profileAppearance() const;
     Q_INVOKABLE void refreshShop();

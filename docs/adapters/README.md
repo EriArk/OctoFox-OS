@@ -1,5 +1,8 @@
 # Game-adapter knowledge base
 
+**14 November:** [adapter sticker home and screen navigation](../ADAPTER_HOME.md).
+Presentation only; semantic readers/writers and exact-build capabilities unchanged.
+
 **3 November, Home layout:** the Pokemon presenter now fits progress and the
 six-member party above the host's separate actions area. [Checks and delivery](../evidence/2026-11-03-home-adapter/README.md).
 No save parser, capability or exact-build gate changed.

@@ -20,6 +20,7 @@ QJsonObject credentials() {
 struct Harness {
     bool shopEnabled=false,failCommerce=false;
     QJsonObject shopValue,purchaseBody,prizeValue,prizeBody;
+    bool deferLoot=false;BackendAccount::Reply pendingLoot;QByteArray lootAuth;
     bool deferPrizes=false;BackendAccount::Reply pendingPrizes;
     BackendAccount::Reply pendingPurchase;
     BackendAccount::Reply pendingOutfit;
@@ -69,6 +70,7 @@ struct Harness {
                     Q_ASSERT(auth==QByteArray(43,'a'));
                     if(deferProgression)pendingProgression=std::move(done);else done(progressionOk?200:503,progress);
                 } else if(path.startsWith("/v1/me/prizes")) {prizeBody=body;if(deferPrizes)pendingPrizes=done;else done(prizeValue.isEmpty()?503:200,prizeValue);
+                } else if(path.startsWith("/v1/me/loot")) {lootAuth=auth;if(deferLoot)pendingLoot=std::move(done);else done(200,{{"player_id",Player}});
                 } else if(path=="/v1/me/inventory"||path.startsWith("/v1/me/purchases/")) {done(shopEnabled?200:503,shopValue);}
                 else if(path=="/v1/me/purchases") {purchaseBody=body;pendingPurchase=std::move(done);}
                 else if(path=="/v1/me/inventory/appearance") {shopValue["equipped"]=body["offer_id"];shopValue["revision"]=QString::number(shopValue["revision"].toString().toInt()+1);done(200,shopValue);}
@@ -110,6 +112,21 @@ class BackendAccountTests:public QObject {
         h.shopValue["receipt"]=receipt;
     }
 private slots:
+    void inventoryUsesFixedAuthenticatedRouteAndFencesOldOwner() {
+        Harness h;BackendAccount account;account.setServices(h.services());account.configure("loot-owner");
+        int status=0;account.readInventory({}, {},[&](int s,QJsonObject){status=s;});QCOMPARE(status,401);
+        account.activate();h.callback();QVERIFY(account.inventoryConnected());
+        account.readInventory({}, {},[&](int s,QJsonObject){status=s;});QCOMPARE(status,200);
+        QCOMPARE(h.calls.last(),"/v1/me/loot");QCOMPARE(h.lootAuth,QByteArray(43,'a'));
+        account.readInventory("2","61",[&](int s,QJsonObject){status=s;});
+        QCOMPARE(h.calls.last(),"/v1/me/loot?before=2&revision=61");
+        const auto count=h.calls.size();account.readInventory("2&owner=other","61",[&](int s,QJsonObject){status=s;});
+        QCOMPARE(status,422);QCOMPARE(h.calls.size(),count);
+        account.readInventory({},"61",[&](int s,QJsonObject){status=s;});QCOMPARE(status,422);
+        h.deferLoot=true;bool called=false;account.readInventory({}, {},[&](int,QJsonObject){called=true;});
+        QVERIFY(bool(h.pendingLoot));account.configure("loot-other-owner");h.pendingLoot(200,{{"player_id",Player}});
+        QVERIFY(!called);QVERIFY(!account.inventoryConnected());
+    }
     void bazaarCreationUsesDurableExactPurchaseAndRestoresLostResponse() {
         auto fixture=std::make_shared<BazaarCommerceFixture>();
         const QJsonObject details{{"name","Nym market"},{"description","Meet here"},{"listed",true},{"access","open"}};

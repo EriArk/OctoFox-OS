@@ -1,0 +1,2 @@
+
+qmlWarnings=0

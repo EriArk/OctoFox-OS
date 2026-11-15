@@ -25,7 +25,7 @@ endif()
 add_library(trainer_core STATIC
     src/integrations/adventure/CartridgeContent.cpp
     src/features/accounts/BackendAccount.cpp src/features/accounts/BackendAutomatic.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp
-    src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/features/trainer/OutfitController.cpp src/features/trainer/VisitorProfile.cpp
+    src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/features/trainer/OutfitController.cpp src/features/trainer/VisitorProfile.cpp src/features/trainer/ProfileInventory.cpp
     src/platform/sdk/PlatformHost.cpp
     src/platform/sdk/SdkNetwork.cpp
     src/features/browser/BrowserController.cpp
@@ -451,6 +451,10 @@ qt_add_resources(traineros prize_audio PREFIX "/audio" BASE assets/audio FILES a
 qt_add_resources(traineros profile_avatars PREFIX "/avatars" BASE assets/avatars FILES ${profile_avatars})
 install(FILES ${profile_avatars} assets/avatars/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/avatars)
 
+file(GLOB pokemon_navigation_art CONFIGURE_DEPENDS assets/adapters/pokemon/navigation/*.png)
+qt_add_resources(traineros pokemon_navigation_art PREFIX "/adapter-art/pokemon"
+    BASE assets/adapters/pokemon/navigation FILES ${pokemon_navigation_art})
+
 file(GLOB trainer_qml_sources CONFIGURE_DEPENDS src/qml/*.qml src/qml/*.js)
 foreach(qml_file IN LISTS trainer_qml_sources)
     get_filename_component(qml_name "${qml_file}" NAME)
@@ -531,6 +535,7 @@ qt_add_qml_module(traineros
         src/qml/HomeCompanionScene.qml
         src/qml/HomeWidgetSlot.qml
         src/qml/HomeWidgetShutter.qml
+    src/qml/AdapterSticker.qml
     src/qml/GameHubPage.qml
     src/qml/OnlinePage.qml
     src/qml/BazaarPage.qml
@@ -547,6 +552,7 @@ qt_add_qml_module(traineros
         src/qml/PlayerProfilePanel.qml
         src/qml/ProfileVisitor.qml
         src/qml/ProfileScene.qml
+        src/qml/ProfileInventoryPage.qml
         src/qml/ProfileShop.qml
         src/qml/ProfileSupport.qml
         src/qml/ProfilePrizes.qml
@@ -917,7 +923,9 @@ if(BUILD_TESTING)
     target_sources(traineros PRIVATE tests/ui/CenterSmokeScenario.cpp tests/ui/CenterSmokeScenario.h)
     target_sources(traineros PRIVATE tests/ui/ExitSmokeScenario.cpp tests/ui/ExitSmokeScenario.h)
     target_sources(traineros PRIVATE tests/ui/AppsSmokeScenario.cpp tests/ui/AppsSmokeScenario.h)
-    target_sources(traineros PRIVATE tests/ui/BazaarSmokeScenario.h tests/fixtures/BazaarFixture.h)
+    target_sources(traineros PRIVATE tests/ui/BazaarSmokeScenario.h tests/fixtures/BazaarFixture.h tests/ui/InventorySmokeScenario.h tests/fixtures/ProfileInventoryFixture.h)
+    add_test(NAME inventory_qml_smoke COMMAND traineros --online-smoke-test --screenshot-dir "${CMAKE_CURRENT_BINARY_DIR}/screenshots/inventory")
+    set_tests_properties(inventory_qml_smoke PROPERTIES ENVIRONMENT "TRAINEROS_INVENTORY_SMOKE=1;QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1" TIMEOUT 45)
     add_test(NAME bazaar_qml_smoke COMMAND traineros --online-smoke-test --screenshot-dir "${CMAKE_CURRENT_BINARY_DIR}/screenshots/bazaar")
     set_tests_properties(bazaar_qml_smoke PROPERTIES ENVIRONMENT "TRAINEROS_BAZAAR_SMOKE=1;QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_FORCE_STDERR_LOGGING=1" TIMEOUT 45)
     target_sources(traineros PRIVATE tests/ui/PlatformSmokeScenario.h)

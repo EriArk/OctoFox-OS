@@ -76,6 +76,8 @@ class Shop:
                 if purchase_details:
                     raise AuthError('invalid_bazaar', 422)
                 offer = conn.execute('SELECT * FROM trainer_backend.lock_shop_offer(%s)', (offer_id,)).fetchone()
+                if offer and offer['purpose']=='avatar_costume':
+                    raise AuthError('costume_assets_unavailable',409)
                 if not offer or not offer['available']:
                     raise AuthError('offer_unavailable', 409)
                 if (offer['revision'], offer['price']) != (revision, price):

@@ -1,7 +1,8 @@
 # Personal bazaars — persistent foundation, 10 November 2026
 
 > **Current delivery — placeholders, no new Bazaar spending (10 November).**
-> The worlds do not exist. The prepared commerce below is disabled by default.
+> A local island now exists; managed entry/checkout and custody are still missing.
+> [Prepared world services/trading](bazaar-trading.md) remain disabled by default.
 > `bazaar.policy.PAYMENTS_AVAILABLE` is false, with no HTTP or environment switch.
 > A new `bazaar.personal` / `bazaar.stall` purchase or rental returns
 > `bazaar_under_development` (409) before any charge. Existing exact operation

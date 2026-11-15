@@ -323,6 +323,133 @@ its visible dashboard and return to its preserved state. **Keep the existing
 beautiful game Home composition, preview and styling**; the owner explicitly
 rejected turning it into a compact list. No handheld installs or Bazaar merge.
 See [evidence](docs/evidence/2026-11-10-popup-polish/README.md).
+**Gait delivery resumed and completed, 14 November (latest):** the owner
+authorized applying SDK movement fixes to both handhelds. Bazaar 0.0.9 is now
+installed on Flip/Odin; shell Software 45 was preserved. This bounded game update
+supersedes the earlier device hold. It does not install this older feature branch
+or its native read bridge. Separate branches and closed spending remain in force.
+[Game delivery](https://github.com/EriArk/crates/blob/codex/bazaar-world-20261114/games/bazaar/docs/response-evidence/README.md#delivered-on-flip-2-and-odin-2).
+
+**Server read delivery, 14 November (latest):** live Backend has 23 migrations,
+private loot reads and the official Festival Park mapped to the verified Lobby
+application owner. Twelve places, weekly prices unset, spending closed. Device
+work remains paused; neither handheld was contacted. Transfer custody is still
+unfinished. [Evidence](docs/evidence/2026-11-14-bazaar-live-reads/README.md).
+
+**Owner server services continuation, 14 November (latest):** connect the office
+and stalls to real Backend reads while all Sparks spending remains disabled, then
+prepare the recoverable Emerald/profile inventory round trip. Do not contact,
+install, restart or test either handheld until the owner resumes device work.
+Build and validate on the workstation/server in the separate branches. The official
+venue belongs to the verified owner of the existing Lobby Directory application;
+match its Fluxer subject to Backend identity, never a local nickname or test profile.
+
+
+**Owner Bazaar entry correction, 14 November (latest):** the island belongs in
+Online → Bazaar → Official Bazaar, not an Apps-only shortcut. Fixed in this feature
+branch and in isolated device branch `codex/bazaar-entry-device-20261114` based on
+the newer installed shell. Software sequence 43 is installed on both; reserve 44+.
+Preserve the newer device baseline rather than deploying this entire older branch.
+[Evidence and remaining boundaries](docs/evidence/2026-11-14-bazaar-entry/README.md).
+
+
+**Owner handheld test, 14 November (latest):** install Bazaar on both reachable
+handhelds for hands-on testing. This supersedes earlier no-handheld-install notes
+for this scope. Standalone 0.0.7 is now installed on Flip 2 and Odin 2 through Apps;
+existing shells remain unchanged. Physical controls/performance remain owner
+acceptance. Spending remains closed; no merge or public Backend deployment.
+[Installed evidence and limitations](docs/evidence/2026-11-14-bazaar-handheld/README.md).
+
+
+
+**Owner Bazaar services, 14 November (latest):** walk to the Stall Office to rent,
+select an NPC and manage goods. Official Bazaar owner is the user; he sets weekly
+rent and receives it. Official ownership is separate from his one personal Bazaar.
+NPC seller costs **100 Sparks for each rental**, not a permanent unlock. Players
+sell profile-inventory loot; Traveller/Mage/Merchant avatar costumes are **50 Sparks
+each in alpha**, separate from free wardrobe items. Blueprints/crafting and a personal
+Orbiter-like home are future directions. [Prepared services and exact gaps](services/backend/bazaar-trading.md).
+Keep unavailable purchases closed until real delivery, trusted host confirmation and
+recovery exist. No live deployment, merge or device install was performed.
+
+
+**Bazaar resident variety, 14 November:** 0.0.6 adds Dino, Frog and Birb; eighteen
+NPCs remain human-majority (eleven humans, seven animal folk), plus six birds.
+Humans now have five natural skin tones and dark facial details through isolated
+material overrides. Keep original rigs/meshes and clothing/hair. Native Wave is
+played at 0.65× with matching duration after a sharp-arm-rise check. Preserve the
+new native-animation/material checks. Separate branches, spending closed, no
+merge or handheld installation. [Evidence](docs/BAZAAR.md).
+
+**Bazaar population, 14 November:** 0.0.5 adds local NPC merchants/pedestrians and
+birds. The owner's latest choice is a mixed population with **more humans**:
+eleven humans, four animal folk, six birds. Keep their original Quaternius rigs;
+do not retarget them through the SDK avatar. NPCs are not live-player occupancy,
+and merchants do not enable purchases. Bounded distance activity/menu pause,
+separate branches, no merge or handheld installation. [Evidence](docs/BAZAAR.md).
+
+**Bazaar animation repair, 14 November:** 0.0.4 corrects the arms-down SDK versus
+T-pose donor reference mismatch, shoulder helper half rotations and fingers.
+The owner's deformation complaint was valid; previous leg-motion tests were
+insufficient. Preserve the shared SDK/model/bind pose and use the new before/after
+anatomy checks in Crates. [Evidence](docs/BAZAAR.md). No device install or merge.
+
+**Bazaar polish/camera, 14 November:** local Crates prototype 0.0.3 adds a closer
+third-person camera, horizontal-reference FOV 75–105° (90° default at 16:9),
+wall collision, shorter indoor boom, distinct shop dressing and local fountain
+sound preferences. See [scope/evidence](docs/BAZAAR.md). Keep hardware performance,
+real controls and audio listening unverified until tested. Separate branches;
+no catalogue launch, network/trading enablement, merge or handheld installation.
+
+**Bazaar island correction, 14 November (latest):** the festival stalls belong
+in a park, without a ring of houses. Houses, signed shops and enterable rooms
+belong to a separate town square on the same large island, with connecting paths
+and space for other districts. Reuse Pocket Golf’s relief/meadow approach: actual
+walkable hills, grounded chunked grass, clouds and depth haze, with bounded detail
+and no assumption of handheld performance from server rendering. Crates branch `codex/bazaar-world-20261114` contains
+the local prototype, free CC0 town/nature assets and Quaternius locomotion retargeted
+onto the unchanged avatar SDK. See [scope](docs/BAZAAR.md). Keep catalogue placeholders
+until managed launch/admission/return exists, and all Bazaar spending closed.
+No multiplayer, real shops, catalogue release, merge or handheld installation is
+claimed. Preview interiors are walkable rooms, not enabled trading services.
+
+**Profile inventory continuation, 14 November (latest):** read-only game-neutral
+loot storage/API and the native profile reader are prepared on the Bazaar branch.
+Keep inventory ownership scoped to the authenticated Backend player; late callbacks
+must not cross local profile/account/closed-page boundaries. Loading, errors,
+confirmed empty and older-server unavailability are distinct. Paging is revision
+checked; filters apply to loaded rows. Runtime has SELECT-only loot access, no
+issuance/transfer/listing routes. Save handoff/recovery remains next work. No public
+backend deployment, merge or handheld installation in this increment. See
+[contract](services/backend/inventory.md) and [evidence](docs/evidence/2026-11-14-inventory-server/README.md).
+
+**Owner adapter home / generic inventory, 14 November (latest):** adapter entry
+opens a dedicated home with large newly generated sticker illustrations and clear
+labels. Selecting a sticker opens a full workspace; L2/R2 cycle actual screens,
+Back unwinds local actions then returns to adapter home at the last selected
+sticker. Home has no persistent category/section rail. Screen IDs/order/labels/art
+belong to each adapter; keep the host and profile inventory game-neutral. Emerald
+is the first consumer, not a Pokemon-specific custody schema. Preserve global
+X/Y/Home/Start and save-write guards. This supersedes grouped adapter navigation.
+Separate Bazaar branch, no merge or handheld installs; transfers are still pending.
+
+**Owner inventory density correction, 14 November (latest):** replace the large
+three-column cards and separate detail page with a compact six-column grid and
+permanent inspector. Target thirty fully visible cells at 800×450; pointer hover,
+touch and controller focus update details immediately. Keep a short toolbar for
+search/filter/sort, existing X/Y roles, shared keyboard and one-Back profile return.
+Reduce headings/repeated copy. Ownership/transfers/trading remain unavailable;
+only isolated samples may populate the UI. This supersedes the old detail-page UX.
+
+**Owner profile inventory, 13 November (latest):** build the inventory in the
+TrainerOS profile first, with a free entry beside Wardrobe, an item grid/detail
+and honest empty state. It belongs to the profile; no personal Bazaar purchase is
+required. Pokémon Emerald is the only current semantic adapter in this scope.
+Future transfers must remove/reinsert the real individual through the existing
+protected save owner, then integrate server custody and Bazaar listings. This UI
+increment does not enable transfers, goods ownership, payments or demo possessions
+in production. Keep the separate Bazaar branch and the closed spending policy.
+
 **Owner Bazaar placeholders, 10 November (latest, supersedes spending enablement):**
 The worlds do not exist yet. Show colorful, full-screen explanatory placeholders
 for official and player bazaars with large unmistakable PLACEHOLDER / UNDER

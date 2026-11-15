@@ -107,6 +107,7 @@
 #include "LobbySmokeScenario.h"
 #include "OnlineSmokeScenario.h"
 #include "BazaarSmokeScenario.h"
+#include "InventorySmokeScenario.h"
 #include "PlayerOverlaySmokeScenario.h"
 #endif
 
@@ -1661,7 +1662,8 @@ int main(int argc, char* argv[]) {
                 } else if(playerOverlaySmoke) {
                     PlayerOverlaySmokeScenario::start(window,shell,exitPresentation,adventureLaunch.exitController(),playerOverlay,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);
                 } else if(onlineSmoke) {
-                    if(qEnvironmentVariableIsSet("TRAINEROS_BAZAAR_SMOKE"))startBazaarSmoke(window,shell,input,joystick,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);
+                    if(qEnvironmentVariableIsSet("TRAINEROS_INVENTORY_SMOKE"))startInventorySmoke(window,shell,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);
+                    else if(qEnvironmentVariableIsSet("TRAINEROS_BAZAAR_SMOKE"))startBazaarSmoke(window,shell,input,joystick,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);
                     else startOnlineSmoke(window,shell,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);
                 } else if(lobbySmoke) {
                     LobbySmokeScenario::start(window,shell,input,joystick,screenshotDir,smokeCompleted,qmlWarnings,diagnostics);

@@ -1,0 +1,13 @@
+{
+  "CMakeLists.txt": "4eb137702abdc386f867b4de41ce4aa4271dffd6c0197d2cd2cf59865aa7ef15",
+  "src/adapters/pokemon/PokemonExperienceController.cpp": "b264875ff5fbe825f58a74ce87536677c4b59792b87d5c499b02b38846f5985b",
+  "src/core/experience/ExperienceNavigation.h": "6e924903ecede109df238e53ba25819cd47881a3f8511d61f492207f40d5bae6",
+  "src/core/navigation/ShellController.cpp": "0ee205154f47ac3d85759f86d7eb2aff5a5cba4e32bd0ca81fdd3a32cfa2b327",
+  "src/qml/GameHubPage.qml": "4b5376fa05843366b2c3e50ad055a3923949e31f413b13c640c755815c09a558",
+  "src/qml/Main.qml": "36b06208ca7fbe2a87e62c17a2e672afb9ff9c133c0a87b9ffbb0139b71794d1",
+  "tests/ExperienceTests.cpp": "1ba0c8ac51bbbcd5f62a87f58cb0594acd93045bff7cacfabbcaeb23a5da40b6",
+  "tests/InteractionTests.cpp": "3c10cbb7287d00b6b0a16b79218b48250fc98a2f7c2d37fe441a25b6d8412597",
+  "tests/ui/ArtworkSmokeScenario.cpp": "7e19f797eefb8cbd4686c221ebf61742f07f44e2fff66a2cf36b21c26d43c35b",
+  "tests/ui/ExperienceSmokeScenario.h": "b1e991a857e10c94db25cc16f6f459f7ec856101b80d4d5969707920a27982bf",
+  "src/qml/AdapterSticker.qml": "dbdd96725b3abe095d3b1d9c25b5e7b8e28cca6974061be37f5896bc573d9ff4"
+}

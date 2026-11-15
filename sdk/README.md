@@ -13,6 +13,8 @@
 в пакете revision 6 и общем Godot presenter: обычные и карикатурные формы глаз.
 
 Shared Godot movement and animation: [integration guide](LOCOMOTION.md).
+В отдельной Bazaar-ветке подготовлены [чтения сервисов игрового базара](BAZAAR.md).
+Оплата через SDK пока недоступна.
 
 ## Что уже можно использовать
 

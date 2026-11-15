@@ -1,3 +1,40 @@
+# Automatic account connection — 15 November 2026
+
+The host starts a `flow: social` login attempt bound to a random S256 claim proof
+and expected Fluxer subject. A host-only callback retrieves the already verified
+Social session; no credential is exposed in QML, signals or the SDK. The fixed
+HTTPS Backend receives it transiently at `/v1/auth/fluxer/session` and verifies it
+against Fluxer's fixed `/v1/users/@me` endpoint with redirects disabled. It rejects
+bots, systems, subject mismatch, expired attempts and wrong proofs. The session
+credential is neither stored nor logged. This explicitly replaces the old
+OAuth-only/no-Social-token operator contract below for the owner-approved
+single-login journey. Existing OAuth/native-return clients remain supported.
+
+Verification creates or resolves the existing `(provider, instance, subject)`
+identity under the existing transactional lock. The ordinary claim endpoint then
+issues a device session; verification retries are idempotent. A Social claim can recover the exact original
+session after response loss using its device proof, until its access/refresh
+credentials change or the attempt expires. Only hashes and the session reference
+are persisted. Legacy browser claims remain single use. Browser login cannot consume a Social attempt. Network failures retry with
+bounded backoff; invalid provider credentials require Fluxer sign-in again.
+
+Migration 0024 adds the flow discriminator and two own-profile completion flags.
+Existing profiles retain their names/avatars and are considered already set up.
+New profiles receive `Fox-<12 UUID hex characters>` and `needs_name/needs_avatar`.
+The public profile remains independent of Fluxer display-name changes. Authenticated
+`PUT /v1/me/profile/name` accepts a normalized 1–24 character nickname and current
+revision; mismatches return 409. Avatar saves use the existing bounded recipe API.
+Own profile GET returns both flags. New and legacy OAuth logins preserve an
+already chosen nickname. Returning clients must read/restore the server profile
+before publishing a user-selected avatar; a starter avatar is not a user edit.
+
+Validation: **214 isolated PostgreSQL tests passed**, including the automatic
+HTTP flow, concurrent first login, invalid proof/session/subject, OAuth coexistence,
+nickname validation/revision conflicts and saved-avatar preservation. Production
+deployment, merged release and handheld OTA are not yet claimed.
+
+## Earlier OAuth-only contract (historical)
+
 # Accounts: вход через Fluxer без второго логина
 
 **25 октября — scoped game access:** `play.scorecards:1` теперь использует

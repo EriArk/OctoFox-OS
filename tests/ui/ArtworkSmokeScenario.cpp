@@ -69,7 +69,8 @@ void startArtworkSmoke(QQuickWindow* window, ShellController& shell, ControllerI
             check(!(shell.page()==2 && shell.experienceModel()==shell.module("pokemon") && pokemonModule(shell).centerFace()),"Paired face leaked through artwork panel");
             press(SDL_CONTROLLER_BUTTON_START); press(b);
             check(dex->zone()=="art","Start/Back must restore artwork panel");
-            press(r1); press(l1); check(dex->zone()=="list","Primary navigation closes draft");
+            press(r1); press(l1); check(dex->zone()=="list" && shell.adapterMenuOpen(),"Primary navigation closes draft and returns adapter home");
+            shell.selectAdapterScreen("dex");
             state->stage++; return;
         }
         if (state->stage == 4) {
@@ -196,9 +197,10 @@ void startArtworkSmoke(QQuickWindow* window, ShellController& shell, ControllerI
             capture("detail-without-inspector");
             press(SDL_CONTROLLER_BUTTON_START); press(b);
             check(dex->zone()=="list","Start returns to the Pokemon detail");
-            press(r1); press(l1); check(dex->zone()=="list","Page navigation preserves detail");
+            press(r1); press(l1); check(dex->zone()=="list" && shell.adapterMenuOpen(),"Page navigation preserves detail behind adapter home");
+            shell.selectAdapterScreen("dex");
             press(b); check(shell.adapterMenuOpen() && dex->zone()=="list","Back returns to adapter categories and preserves the entry");
-            press(down); check(!shell.adapterMenuOpen(),"Down re-enters the remembered Field Guide");
+            shell.dispatch(Action::Confirm); check(!shell.adapterMenuOpen(),"Confirm re-enters the remembered Field Guide");
             press(SDL_CONTROLLER_BUTTON_BACK); check(dex->zone()=="rail","Select opens filters on the same screen");
             dex->applySearch("37"); dex->activateControl("list",0); dex->cycleForm();
             if (QGuiApplication::platformName()=="offscreen") window->resize(960,540);

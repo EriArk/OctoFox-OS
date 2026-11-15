@@ -37,7 +37,7 @@ void ShellController::prepareShutdown() {
             &libraryManager_, &libraryTools_, &scraper_, &apps_, &crates_, &files_,
             &pcGames_, &gamePerformance_, &browser_, &powerControl_, &downloads_,
             &settings_, &controls_, &device_, &network_, &diagnostics_, &gamePreparation_, &social_, &bazaar_,
-            &backendAccount_, &outfits_, &visitorProfile_, &dashboard_, &album_};
+            &backendAccount_, &outfits_, &visitorProfile_, &inventory_, &dashboard_, &album_};
     for(auto* source:sources)detach(source);
     for(auto& module:modules_)detach(module.get());
 }
@@ -159,6 +159,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
             if(!experience_.screenIds().contains(face))return;
             if(accepted){page_=GameHubPage;hubFace_="adapter";adapterMenuOpen_=false;menuOpen_=drawerOpen_=false;service_.clear();}
             else if(navigationLocked())return;
+            if(adapterActive())adapterMenuOpen_=false;
             showExperienceScreen(face);
         });
         connect(module,&ExperienceModule::hostActionRequested,this,[this,module](const QString& action,quint64 generation){
@@ -186,6 +187,13 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     });
     connect(&social_,&SocialController::presentationChanged,this,&ShellController::changed,Qt::QueuedConnection);
     connect(&visitorProfile_,&VisitorProfile::changed,this,&ShellController::changed);
+    inventory_.read=[this](QString before,QString revision,ProfileInventory::Reply done){backendAccount_.readInventory(before,revision,std::move(done));};
+    connect(&inventory_,&ProfileInventory::changed,this,&ShellController::changed);
+    connect(&inventory_,&ProfileInventory::searchRequested,this,[this](QString initial){
+        if(!profileContentActive()||profileRoute_!="inventory")return;
+        textTarget_=TextTarget::InventorySearch;keyboard_.begin("Search inventory",initial,64,false,"Search");
+    });
+    connect(&inventory_,&ProfileInventory::backRequested,this,[this]{inventory_.close();profileRoute_="summary";profileFocus_=12;emit changed();});
     social_.openPlayerProfile=[this](QString subject){
         openProfile(subject==social_.account()["userId"].toString());if(service_!="profile")return false;
         if(subject==social_.account()["userId"].toString())return true;
@@ -340,6 +348,7 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
         textTarget_=TextTarget::OnlineName;keyboard_.begin("Your OctoFox OS nickname",name,24,false,"Save");
     });
     connect(&backendAccount_,&BackendAccount::changed,this,[this]{
+        inventory_.setScope(trainer_.profile()["id"].toString(),backendAccount_.snapshot()["player_id"].toString(),backendAccount_.inventoryConnected());
         settings_.setBackendAccount(backendAccount_.actionLabel(),backendAccount_.detail());emit changed();
     });
     backendAccount_.rewardSource=[this,&achievements,offset=0]() mutable {
@@ -571,7 +580,8 @@ ShellController::ShellController(LibraryRepository& repo, TrainerRepository& pro
     connect(&keyboard_, &TextEntryController::accepted, this, [this](const QString& text) {
         const auto target = textTarget_;
         textTarget_ = TextTarget::None;
-        if(target==TextTarget::BazaarSearch)bazaar_.applyText(text);
+        if(target==TextTarget::InventorySearch){if(service_=="profile"&&profileRoute_=="inventory")inventory_.applySearch(text);}
+        else if(target==TextTarget::BazaarSearch)bazaar_.applyText(text);
         else if(target==TextTarget::GameInput)settings_.gameInput()->applyText(text);
         else if (target == TextTarget::SetupName) trainerSetup_.applyName(text);
         else if (target == TextTarget::OnlineName) backendAccount_.saveNickname(text);
@@ -737,10 +747,7 @@ void ShellController::selectFace(int index) {
        || !pairedNavigationAvailable() || navigationLocked())return;
     quickAppsOpen_=false;
     if(page_==GameHubPage) {
-        if(experience_.showGroup(experience_.groupIds().value(index))) {
-            adapterMenuOpen_=false;
-            showExperienceScreen(experience_.screen());
-        }
+        selectAdapterScreen(experience_.screenIds().value(index));
     }
     else if(page_==OnlinePage) {
         onlineFace_=QStringList{"lobby","bazaar","chats"}.value(index,"lobby");
@@ -764,8 +771,8 @@ bool ShellController::pairedNavigationAvailable() {
 }
 QVariantList ShellController::adapterMenu() const {
     QVariantList rows;
-    for(const auto& screen:experience_.descriptor().adapter.screens)if(experience_.groupScreens().contains(screen.id))
-        rows.append(QVariantMap{{"id",screen.id},{"label",screen.label},{"icon",screen.icon}});
+    for(const auto& screen:experience_.descriptor().adapter.screens)
+        rows.append(QVariantMap{{"id",screen.id},{"label",screen.label},{"icon",screen.icon},{"artwork",screen.artwork}});
     return rows;
 }
 void ShellController::selectAdapterScreen(const QString& screen) {
@@ -773,11 +780,11 @@ void ShellController::selectAdapterScreen(const QString& screen) {
        || !experience_.screenIds().contains(screen))return;
     adapterMenuOpen_=false;
     showExperienceScreen(screen);
-    adapterMenuFocus_=experience_.groupScreens().indexOf(screen);
+    adapterMenuFocus_=experience_.screenIds().indexOf(screen);
 }
 void ShellController::showAdapterMenu() {
     if(!adapterActive() || navigationLocked() || localModalOpen() || keyboard_.isOpen())return;
-    adapterMenuOpen_=true;adapterMenuFocus_=qMax(0,experience_.groupScreens().indexOf(experience_.screen()));emit changed();
+    adapterMenuOpen_=true;adapterMenuFocus_=qMax(0,experience_.index());emit changed();
 }
 void ShellController::showOverview(const QString& face) {
     if(service_=="profile") {if(profileRoute_!="story" || !profileContentActive())return;}
@@ -878,10 +885,11 @@ bool ShellController::dispatchGameHub(Action action) {
     if(hubFace_=="ra"){hall_.dispatch(action==Action::LocalAction?Action::ToggleContinue:action);return true;}
     if(adapterActive() && activeModule_) {
         if(adapterMenuOpen_) {
-            const auto ids=experience_.groupScreens();
-            if(action==Action::Left || action==Action::Right)
-                adapterMenuFocus_=std::clamp(adapterMenuFocus_+(action==Action::Right?1:-1),0,qMax(0,int(ids.size())-1));
-            else if(action==Action::Confirm || action==Action::Down)selectAdapterScreen(ids.value(adapterMenuFocus_));
+            const auto ids=experience_.screenIds();
+            if(action==Action::Left || action==Action::Right || action==Action::Up || action==Action::Down) {
+                const int delta=action==Action::Left?-1:action==Action::Right?1:action==Action::Up?-3:3;
+                adapterMenuFocus_=std::clamp(adapterMenuFocus_+delta,0,qMax(0,int(ids.size())-1));
+            } else if(action==Action::Confirm)selectAdapterScreen(ids.value(adapterMenuFocus_));
             else if(action==Action::Back)goToPage(HomePage);
             emit changed();return true;
         }
@@ -923,9 +931,10 @@ void ShellController::syncExperience() {
     const auto record=game?repository_.registration(game->id):std::nullopt;
     const auto owner=trainer_.profile()["id"].toString();
     const bool profileOwnerChanged=experience_.owner()!=owner;
-    if(profileOwnerChanged){++postGamePrizesGeneration_;prizeWardrobeReturn_=false;overviewFocus_=0;overviewSessionId_.clear();overviewFace_="summary";profileSnapshot_.clear();profileReturnNavigation_={};profileRoute_="summary";achievementPhotoReturn_=false;}
+    if(profileOwnerChanged){inventory_.close();++postGamePrizesGeneration_;prizeWardrobeReturn_=false;overviewFocus_=0;overviewSessionId_.clear();overviewFace_="summary";profileSnapshot_.clear();profileReturnNavigation_={};profileRoute_="summary";achievementPhotoReturn_=false;}
     if(!experience_.owner().isEmpty() && experience_.owner()!=owner){dashboard_.reset();achievementNotifications_.clear();achievementToast_.clear();++achievementToastGeneration_;}
     bazaar_.setOwner(owner);
+    inventory_.setScope(owner,backendAccount_.snapshot()["player_id"].toString(),backendAccount_.inventoryConnected());
     album_.setOwner(owner);
     dashboard_.setOwner(owner);
     album_.setMedia(storyMedia());
@@ -942,7 +951,7 @@ void ShellController::syncExperience() {
         hall_.editor()->cancel();activeModule_=next;
         hubFace_=experience_.hasAdapter()?"adapter":"spaces";
         if(page_==GameHubPage && !experience_.hasAdapter())page_=HomePage;
-        adapterMenuOpen_=false;
+        adapterMenuOpen_=true;
         adapterMenuFocus_=qMax(0,experience_.index());
         ExperienceContext context{owner,currentAdventureId(),game,trainer_.profile(),repository_.home(),progress_,experience_.generation()};
         for(auto& module:modules_)module->refresh(context);
@@ -982,7 +991,7 @@ QVariantList ShellController::gameHistory() const {
 QStringList ShellController::faceNames() const {
     if(page_==GamesPage && !collectionsRoot_) {QStringList names;for(const auto& row:gamesRootZone_=="platforms"?gamesPlatforms():gamesCollections())names.append(row.toMap()["name"].toString());return names;}
     if(page_==GameHubPage) {
-        return experience_.groupLabels();
+        QStringList names;for(const auto& screen:experience_.descriptor().adapter.screens)names.append(screen.label);return names;
     }
     if(page_==OnlinePage)return {"Lobby","Bazaar","Chats"};
     if(page_==AppsPage)return {"Apps","Crates","Browser","Files"};
@@ -992,7 +1001,7 @@ int ShellController::faceIndex() const {
     if(page_==GamesPage) {
         return gamesRootZone_=="platforms"?gamesPlatformIndex():gamesCollectionIndex();
     }
-    if(page_==GameHubPage)return experience_.groupIds().indexOf(experience_.group());
+    if(page_==GameHubPage)return experience_.index();
     if(page_==OnlinePage)return QStringList{"lobby","bazaar","chats"}.indexOf(onlineFace_);
     if(page_==AppsPage)return QStringList{"apps","crates","browser","files"}.indexOf(appsFace_);
     return 0;
@@ -1236,7 +1245,7 @@ void ShellController::restoreNavigation(const QJsonObject& state) {
     }
     if(!requested.isEmpty())experience_.show(requested);
     if(!hubFaceIds().contains(hubFace_))hubFace_="spaces";
-    adapterMenuOpen_=false;
+    adapterMenuOpen_=state["adapterMenuOpen"].toBool(false);
     adapterMenuFocus_=qMax(0,experience_.index());
     drawerFocus_=0;
     for(int i=0;i<points_.size();++i)if(points_[i].id==state["resume"].toString())drawerFocus_=i;
@@ -1489,7 +1498,8 @@ void ShellController::goToPage(int page) {
     // Visiting an unrelated page must not republish the same actors/practice UI.
     syncExperience();
     if(page_==GameHubPage) {
-        adapterMenuOpen_=false;
+        adapterMenuOpen_=true;
+        adapterMenuFocus_=qMax(0,experience_.index());
         setHubFace(hubFace_);
         if(adapterActive() && activeModule_)activeModule_->restoreNavigation(experience_.navigation()["module"].toObject());
     }
@@ -1910,6 +1920,7 @@ void ShellController::openProfile(bool loadOwn) {
     emit changed();
 }
 void ShellController::closeProfile() {
+    inventory_.close();
     visitorProfile_.close();
     prizeWardrobeReturn_=false;
     backendAccount_.closeCelebration(false);
@@ -1930,6 +1941,7 @@ void ShellController::closeProfile() {
 }
 void ShellController::activateProfile(int index) {
     if(!profileContentActive())return;
+    if(profileRoute_=="inventory"){inventory_.activate(index);return;}
     if(profileRoute_=="privacy") {
         profileFocus_=index;if(index<4)visitorProfile_.toggleSharing(index);else if(index==4)visitorProfile_.loadSharing();
         else if(index==5&&backendAccount_.snapshot()["state"]!="signed_in")backendAccount_.activate();
@@ -1985,9 +1997,10 @@ void ShellController::activateProfile(int index) {
         emit changed();return;
     }
     if(profileRoute_!="summary")return;
-    if(index<0 || index>13 || index==12)return;
+    if(index<0 || index>13)return;
     profileFocus_=index;
-    if(index==13){profileRoute_="privacy";profileFocus_=0;visitorProfile_.loadSharing();}
+    if(index==12){profileRoute_="inventory";inventory_.open();}
+    else if(index==13){profileRoute_="privacy";profileFocus_=0;visitorProfile_.loadSharing();}
     else if(index==11){profileRoute_="prizes";profileFocus_=0;backendAccount_.refreshPrizes();}
     else if(index==10){profileRoute_="support";profileFocus_=0;backendAccount_.refreshProgression(false);backendAccount_.refreshSupport();}
     else if(index==9){profileRoute_="shop";profileFocus_=1;backendAccount_.refreshShop();}
@@ -2048,6 +2061,7 @@ void ShellController::dispatchProfile(Action action) {
         }else if(action==Action::Left||action==Action::Right)profileFocus_=qBound(0,(profileFocus_>=100?0:profileFocus_)+(action==Action::Left?-1:1),4);
         emit changed();return;
     }
+    if(profileRoute_=="inventory"){inventory_.dispatch(action);return;}
     if(profileRoute_=="outfits"){outfits_.dispatch(action);return;}
     if(profileRoute_=="support") {
         if(action==Action::Back){if(backendAccount_.support()["review"].toBool())backendAccount_.activateSupport(3);else {profileRoute_="summary";profileFocus_=10;}}
@@ -2110,7 +2124,7 @@ void ShellController::dispatchProfile(Action action) {
     } else if(action==Action::Back)closeProfile();
     else if(action==Action::Confirm)activateProfile(profileFocus_);
     else if(action==Action::Up || action==Action::Left || action==Action::Down || action==Action::Right) {
-        QList<int> order{0,13,1,9,4,11,3};
+        QList<int> order{0,13,1,12,9,4,11,3};
         for(int i=0;i<profileSnapshot_["badges"].toList().size();++i)order.append(7+i);
         order.append(2);if(!profileSnapshot_["latestSession"].toMap().isEmpty())order.append(6);order.append(5);order.append(10);
         const int delta=action==Action::Up || action==Action::Left?-1:1;
@@ -2231,6 +2245,10 @@ void ShellController::dispatch(Action action) {
             return;
         }
     }
+    if(service_=="profile" && profileRoute_=="inventory" && action==Action::ChangeView) {
+        if(profileContentActive() && !navigationLocked())inventory_.control(0);
+        return;
+    }
     if(page_==OnlinePage && onlineFace_=="lobby" && (action==Action::ToggleFavorite || action==Action::ChangeView)) {
         if(pairedNavigationAvailable() && !navigationLocked() && !localModalOpen())social_.dispatch(action);
         return;
@@ -2271,6 +2289,7 @@ void ShellController::dispatch(Action action) {
         libraryAction(multiverse_.viewStyle()=="wheel"?"view:list":multiverse_.viewStyle()=="list"?"view:shelves":multiverse_.viewStyle()=="shelves"?"view:grid":"view:wheel");return;
     }
     if(action==Action::ScrollUp || action==Action::ScrollDown) {
+        if(service_=="profile"&&profileRoute_=="inventory"&&profileContentActive()){inventory_.dispatch(action);return;}
         if(service_=="profile"&&profileRoute_=="outfits"&&!menuOpen_&&!homeMenuOpen_&&!keyboard_.isOpen()&&!drawerOpen_&&notice_.isEmpty()){
             outfits_.dispatch(action);return;
         }
@@ -2407,6 +2426,7 @@ void ShellController::dispatch(Action action) {
         if(pairedNavigationAvailable()) {
             drawerOpen_=false;
             if(page_==HomePage){dashboard_.move(action);return;}
+            if(page_==GameHubPage && adapterMenuOpen_)return;
             const auto count=faceNames().size();
             if(count>1)selectFace((faceIndex()+(action==Action::NextFace?1:count-1))%count);
         }
