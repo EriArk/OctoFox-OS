@@ -452,7 +452,7 @@ qt_add_resources(traineros profile_avatars PREFIX "/avatars" BASE assets/avatars
 install(FILES ${profile_avatars} assets/avatars/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/avatars)
 
 file(GLOB pokemon_navigation_art CONFIGURE_DEPENDS assets/adapters/pokemon/navigation/*.png)
-qt_add_resources(traineros pokemon_navigation_art PREFIX "/adapter-art/pokemon"
+qt_add_resources(traineros pokemon_navigation_art BIG_RESOURCES PREFIX "/adapter-art/pokemon"
     BASE assets/adapters/pokemon/navigation FILES ${pokemon_navigation_art})
 
 file(GLOB trainer_qml_sources CONFIGURE_DEPENDS src/qml/*.qml src/qml/*.js)
