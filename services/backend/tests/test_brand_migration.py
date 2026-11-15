@@ -5,7 +5,7 @@ from trainer_backend.db import migrations
 
 
 def test_existing_offers_keep_ids_prices_and_receipts(postgres):
-    migration = next(sql for name, _, sql in migrations() if name == '0020_octofox_brand.sql')
+    migration = next(sql for name, _, sql in migrations() if name == '0025_octofox_brand.sql')
     with psycopg.connect(postgres[0], row_factory=dict_row) as conn:
         # Recreate the pre-rename display values inside a rolled-back transaction.
         conn.execute("UPDATE trainer_backend.shop_offers SET publisher='TrainerOS' WHERE application='traineros'")

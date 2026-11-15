@@ -19,8 +19,7 @@ compares it to the attempt's expected subject before resolving the player.
 Responses from an old local owner/account are discarded. Network failures back
 off automatically; secure-storage and rejected-credential failures stay visible.
 
-Server migration and API are documented in `services/backend/accounts.md` on the
-matching account-server branch until integration. Existing OAuth return flows and
+Server migration and API are documented in [the Backend contract](../services/backend/accounts.md). Existing OAuth return flows and
 refresh recovery remain supported. The owner requested a merged Alpha release
 and real OTA on both handhelds after publication; source/test results alone are
 not that acceptance.
