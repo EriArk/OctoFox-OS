@@ -33,6 +33,7 @@ class StrictBody(BaseModel):
 
 
 class LoginBegin(StrictBody):
+    flow: Literal['oauth','social'] = 'oauth'
     provider: Literal['fluxer']
     device_label: str = Field(min_length=1,max_length=64,pattern=r'^[^\x00-\x1f\x7f]+$')
     claim_challenge: str = Field(pattern=r'^[A-Za-z0-9_-]{43}$')
@@ -45,6 +46,32 @@ class LoginClaim(StrictBody):
     attempt_id: str = Field(pattern=r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
     claim_verifier: str = Field(pattern=r'^[A-Za-z0-9._~-]{43,128}$')
     handoff_token: str|None = Field(default=None,pattern=r'^[A-Za-z0-9_-]{43}$')
+
+
+class SocialVerify(StrictBody):
+    attempt_id: str = Field(pattern=r'^[0-9a-fA-F-]{36}$')
+    claim_verifier: str = Field(pattern=r'^[A-Za-z0-9._~-]{43,128}$',repr=False)
+    fluxer_token: str = Field(min_length=16,max_length=4096,repr=False)
+
+
+@router.post('/v1/auth/fluxer/session',status_code=204)
+def social_verify(body: SocialVerify, request: Request):
+    try:
+        attempt = UUID(body.attempt_id)
+    except ValueError:
+        raise AuthError('invalid_request',400) from None
+    service(request).verify_social(attempt,body.claim_verifier,body.fluxer_token)
+    return Response(status_code=204)
+
+
+class ProfileName(StrictBody):
+    display_name: str = Field(min_length=1,max_length=96)
+    revision: str = Field(pattern=r'^[1-9][0-9]{0,18}$')
+
+
+@router.put('/v1/me/profile/name')
+def profile_name(body: ProfileName, request: Request):
+    return wire(service(request).rename(bearer(request),body.display_name,int(body.revision)))
 
 
 class Refresh(StrictBody):

@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Confidential Fluxer OAuth client. No Social user token, password or bot token."""
+"""Fixed Fluxer identity verification; provider credentials are never persisted."""
 from dataclasses import dataclass, field
 import json
 import re
 from urllib.parse import urlencode, urlsplit
+from urllib.error import HTTPError
 from urllib.request import Request, HTTPRedirectHandler, build_opener
 
 
@@ -50,7 +51,7 @@ class FluxerProvider:
             'response_type': 'code', 'scope': 'identify', 'state': state,
             'code_challenge': challenge, 'code_challenge_method': 'S256'})
 
-    def _request(self, path, form=None, bearer=None):
+    def _request(self, path, form=None, bearer=None, session=None):
         headers = {'Accept': 'application/json', 'User-Agent': 'TrainerOS-Backend/0.0.1'}
         body = None
         if form is not None:
@@ -58,6 +59,8 @@ class FluxerProvider:
             body = urlencode(form).encode()
         if bearer:
             headers['Authorization'] = 'Bearer ' + bearer
+        if session:
+            headers['Authorization'] = session
         try:
             with build_opener(NoRedirect()).open(Request(self.api+path, data=body, headers=headers), timeout=8) as response:
                 raw = response.read(65537)
@@ -67,6 +70,10 @@ class FluxerProvider:
                 if not isinstance(value, dict):
                     raise ValueError('provider_object_required')
                 return value
+        except HTTPError as error:
+            if session and error.code in (401,403):
+                raise AuthError('fluxer_session_rejected',401) from None
+            raise AuthError('provider_unavailable',503) from None
         except Exception:
             # Never surface a provider response/exception containing secrets or identity.
             raise AuthError('provider_unavailable', 503) from None
@@ -89,3 +96,13 @@ class FluxerProvider:
             raise AuthError('unauthenticated', 401)
         from .profiles import display_name
         return {'subject': subject, 'display_name': display_name(user)}
+
+    def identify_session(self, token):
+        # Fixed provider endpoint, no redirects, no credential persistence/logging.
+        if not isinstance(token,str) or not 16 <= len(token) <= 4096 or any(c.isspace() or ord(c)<33 or ord(c)>126 for c in token):
+            raise AuthError('invalid_request',400)
+        user = self._request('/v1/users/@me', session=token)
+        subject = user.get('id')
+        if not isinstance(subject,str) or not re.fullmatch(r'[0-9]{1,20}',subject) or user.get('bot') or user.get('system'):
+            raise AuthError()
+        return {'subject':subject}

@@ -11,7 +11,7 @@ from urllib.parse import urlencode
 from ..commands import Principal, canonical, require_principal, Forbidden
 from ..events import EventSpec,publish
 from .provider import AuthError
-from .profiles import public_profiles, update_name, update_avatar, avatar_recipe
+from .profiles import public_profiles, ensure_profile, update_avatar, avatar_recipe, nickname
 
 
 def digest(value):
@@ -59,6 +59,9 @@ class Accounts:
 
     def begin(self, operation_id, payload):
         uri = payload.get('return_uri')
+        flow = payload.get('flow','oauth')
+        if flow not in ('oauth','social') or (flow=='social' and (uri or not payload.get('expected_subject'))):
+            raise AuthError('invalid_request',400)
         if uri is not None and not re.fullmatch(r'http://127\.0\.0\.1:([1-9][0-9]{3,4})/traineros/auth/[A-Za-z0-9_-]{43}',uri):
             raise AuthError('invalid_request',400)
         if uri and not 1024 <= int(uri.split(':')[2].split('/')[0]) <= 65535:
@@ -80,10 +83,10 @@ class Accounts:
                 if n>=60:
                     raise AuthError('rate_limited',429)
                 row = conn.execute('''INSERT INTO trainer_backend.login_attempts
-                    (id,operation_id,payload_hash,claim_challenge,device_label,state_hash,status,return_uri,expected_subject)
-                    VALUES(%s,%s,%s,%s,%s,%s,'created',%s,%s) RETURNING id,expires_at''',
+                    (id,operation_id,payload_hash,claim_challenge,device_label,state_hash,status,return_uri,expected_subject,flow)
+                    VALUES(%s,%s,%s,%s,%s,%s,'created',%s,%s,%s) RETURNING id,expires_at''',
                     (attempt,operation_id,payload_hash,payload['claim_challenge'],payload['device_label'],
-                     digest(self.secret('state',attempt)),uri,payload.get('expected_subject'))).fetchone()
+                     digest(self.secret('state',attempt)),uri,payload.get('expected_subject'),flow)).fetchone()
         return {'attempt_id':row['id'], 'expires_at':row['expires_at'],
             'verification_code':self.verification_code(row['id']),
             'authorization_url':self.config.public_base+'/v1/auth/fluxer/start?attempt_id='+str(row['id'])+'&ticket='+self.secret('ticket',row['id'])}
@@ -95,7 +98,7 @@ class Accounts:
         with self.db.transaction() as conn:
             row = conn.execute('''UPDATE trainer_backend.login_attempts
                 SET status=CASE WHEN return_uri IS NULL THEN 'confirming' ELSE 'authorizing' END,browser_hash=%s
-                WHERE id=%s AND status='created' AND expires_at>clock_timestamp() RETURNING id,return_uri''',
+                WHERE id=%s AND flow='oauth' AND status='created' AND expires_at>clock_timestamp() RETURNING id,return_uri''',
                 (digest(browser),attempt)).fetchone()
             if not row:
                 raise AuthError('login_restart_required',409)
@@ -142,7 +145,7 @@ class Accounts:
                     raise AuthError('login_restart_required',409)
                 player = conn.execute('SELECT trainer_backend.resolve_fluxer_player(%s,%s) AS id', (self.provider.instance,subject)).fetchone()['id']
                 self.active(conn,player)
-                update_name(conn,player,identity['display_name'])
+                ensure_profile(conn,player)
                 conn.execute("UPDATE trainer_backend.login_attempts SET status='verified',player_id=%s,handoff_hash=%s WHERE id=%s", (player,digest(handoff) if handoff else None,row['id']))
         except Exception:
             with self.db.transaction() as conn:
@@ -152,6 +155,30 @@ class Accounts:
             raise AuthError('login_restart_required',409) from None
         if row['return_uri']:
             return row['return_uri']+'?'+urlencode({'attempt_id':row['id'],'handoff_token':handoff})
+
+    def verify_social(self, attempt, verifier, token):
+        # The proof binds the already authenticated host session to its own attempt.
+        with self.db.transaction() as conn:
+            row = conn.execute("SELECT * FROM trainer_backend.login_attempts WHERE id=%s AND flow='social' AND expires_at>clock_timestamp()",(attempt,)).fetchone()
+            if not row or not hmac.compare_digest(row['claim_challenge'],challenge(verifier)):
+                raise AuthError()
+            if row['status']=='verified':
+                return
+            if row['status']!='created':
+                raise AuthError('login_restart_required',409)
+        identity = self.provider.identify_session(token)
+        if identity['subject'] != row['expected_subject']:
+            raise AuthError('account_mismatch',409)
+        with self.db.transaction() as conn:
+            current = conn.execute("SELECT status FROM trainer_backend.login_attempts WHERE id=%s AND flow='social' AND expires_at>clock_timestamp() FOR UPDATE",(attempt,)).fetchone()
+            if current and current['status']=='verified':
+                return
+            if not current or current['status']!='created':
+                raise AuthError('login_restart_required',409)
+            player = conn.execute('SELECT trainer_backend.resolve_fluxer_player(%s,%s) AS id',(self.provider.instance,identity['subject'])).fetchone()['id']
+            self.active(conn,player)
+            ensure_profile(conn,player)
+            conn.execute("UPDATE trainer_backend.login_attempts SET status='verified',player_id=%s WHERE id=%s",(player,attempt))
 
     def issue(self, conn, session_id, player, credentials=None):
         access, refresh = credentials or (secrets.token_urlsafe(32), secrets.token_urlsafe(32))
@@ -172,6 +199,20 @@ class Accounts:
                 raise AuthError()
             if row['status'] in ('created','confirming','authorizing','verifying'):
                 raise AuthError('authorization_pending',409)
+            credentials = ((self.secret('social-access:'+verifier,attempt),self.secret('social-refresh:'+verifier,attempt))
+                           if row['flow']=='social' else None)
+            if row['status']=='claimed' and credentials:
+                self.active(conn,row['player_id'])
+                session = conn.execute('''SELECT id,access_expires_at FROM trainer_backend.device_sessions
+                    WHERE id=%s AND player_id=%s AND revoked_at IS NULL AND expires_at>clock_timestamp()
+                    AND access_expires_at>clock_timestamp() AND access_hash=%s FOR SHARE''',
+                    (row['claimed_session_id'],row['player_id'],digest(credentials[0]))).fetchone()
+                refresh = conn.execute('SELECT consumed_at FROM trainer_backend.refresh_credentials WHERE token_hash=%s AND session_id=%s',
+                    (digest(credentials[1]),row['claimed_session_id'])).fetchone()
+                if not session or not refresh or refresh['consumed_at'] is not None:
+                    raise AuthError('login_restart_required',409)
+                return {'player_id':row['player_id'],'session_id':session['id'],'fluxer_subject':row['expected_subject'],
+                    'access_token':credentials[0],'refresh_token':credentials[1],'expires_at':session['access_expires_at']}
             if row['status']!='verified':
                 raise AuthError('login_restart_required',409)
             player = row['player_id']
@@ -184,8 +225,8 @@ class Accounts:
             session = uuid4()
             conn.execute('''INSERT INTO trainer_backend.device_sessions(id,player_id,device_label,access_hash,access_expires_at)
                 VALUES(%s,%s,%s,%s,clock_timestamp())''',(session,player,row['device_label'],digest(secrets.token_urlsafe(32))))
-            result = self.issue(conn,session,player)
-            conn.execute("UPDATE trainer_backend.login_attempts SET status='claimed' WHERE id=%s",(attempt,))
+            result = self.issue(conn,session,player,credentials)
+            conn.execute("UPDATE trainer_backend.login_attempts SET status='claimed',claimed_session_id=%s WHERE id=%s",(session if credentials else None,attempt))
             conn.execute('UPDATE trainer_backend.players SET revision=revision+1 WHERE id=%s',(player,))
             self.audit(conn,player,'accounts.session_created',session)
             return result
@@ -274,7 +315,20 @@ class Accounts:
             who = self.authenticate(conn,access)
             if avatar is not ...:
                 update_avatar(conn,who.player_id,avatar)
-            return public_profiles(conn,[who.player_id])[str(who.player_id)]
+            result = public_profiles(conn,[who.player_id])[str(who.player_id)]
+            setup = conn.execute('SELECT needs_name,needs_avatar FROM trainer_backend.public_profiles WHERE player_id=%s',(who.player_id,)).fetchone()
+            return dict(result, **(setup or {'needs_name':True,'needs_avatar':True}))
+
+    def rename(self, access, name, revision):
+        name = nickname(name)
+        with self.db.transaction() as conn:
+            who = self.authenticate(conn,access)
+            row = conn.execute('''UPDATE trainer_backend.public_profiles SET display_name=%s,needs_name=false,
+                revision=revision+1,updated_at=clock_timestamp() WHERE player_id=%s AND revision=%s RETURNING player_id''',(name,who.player_id,revision)).fetchone()
+            if not row:
+                raise AuthError('profile_changed',409)
+            self.audit(conn,who.player_id,'accounts.nickname_changed',who.player_id)
+        return self.profile(access)
 
     def revoke(self,access,session):
         with self.db.transaction() as conn:

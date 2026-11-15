@@ -1,3 +1,16 @@
+**Owner unified account and Alpha release correction, 15 November 2026:** one
+Fluxer sign-in automatically creates or restores the OctoFox OS server account,
+including a saved Fluxer session restored after updating an older installation.
+New players receive a temporary nickname until they choose their own nickname;
+first-run setup offers nickname and avatar. Returning players restore server
+identity, appearance and progression without duplicate registration or uploading
+the local starter avatar over a saved one. The owner authorizes merging the
+current feature branches and publishing a new Alpha. Verify both handhelds using
+the public OTA **after publication**, including update notification, installation
+and retained personal state. This supersedes separate-branch/no-merge and
+separate-manual-Backend-login directions for this task. No release or device
+acceptance is claimed by source implementation alone.
+
 # TrainerOS — active agent / developer contract
 
 **Gait delivery resumed and completed, 14 November (latest):** the owner

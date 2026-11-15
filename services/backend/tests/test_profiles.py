@@ -76,7 +76,7 @@ def test_own_avatar_update_retry_clear_and_revocation(account,postgres):
     user=login(account);token=user['access_token']
     first=account.profile(token,avatar=RECIPE)
     assert account.profile(token,avatar=RECIPE)==first
-    assert set(first)=={'player_id','display_name','avatar','revision'}
+    assert set(first)=={'player_id','display_name','avatar','revision','needs_name','needs_avatar'}
     assert account.profile(token,avatar=None)['avatar'] is None
     assert account.profile(token)['revision']==first['revision']+1
     account.revoke(token,user['session_id'])

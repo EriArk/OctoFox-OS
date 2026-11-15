@@ -62,6 +62,20 @@ def public_profiles(conn, players):
     return {str(p): profiles.get(str(p), {'player_id': p, 'display_name': 'Player', 'avatar': None, 'revision': 0}) for p in ids}
 
 
+def ensure_profile(conn, player):
+    conn.execute('''INSERT INTO trainer_backend.public_profiles(player_id,display_name,needs_name,needs_avatar)
+        VALUES(%s,%s,true,true) ON CONFLICT(player_id) DO NOTHING''',(player,'Fox-'+str(player).replace('-','')[:12]))
+
+
+def nickname(value):
+    if not isinstance(value,str) or any(unicodedata.category(c).startswith('C') or c in '\r\n\u2028\u2029' for c in value):
+        raise AuthError('invalid_nickname',422)
+    value = ' '.join(unicodedata.normalize('NFC',value).split())
+    if not 1 <= len(value) <= 24:
+        raise AuthError('invalid_nickname',422)
+    return value
+
+
 def update_name(conn, player, name):
     conn.execute('''INSERT INTO trainer_backend.public_profiles(player_id,display_name) VALUES(%s,%s)
         ON CONFLICT(player_id) DO UPDATE SET display_name=EXCLUDED.display_name,
@@ -71,6 +85,6 @@ def update_name(conn, player, name):
 
 def update_avatar(conn, player, avatar):
     conn.execute('''INSERT INTO trainer_backend.public_profiles(player_id,display_name,avatar) VALUES(%s,'Player',%s)
-        ON CONFLICT(player_id) DO UPDATE SET avatar=EXCLUDED.avatar,
+        ON CONFLICT(player_id) DO UPDATE SET avatar=EXCLUDED.avatar,needs_avatar=false,
         revision=public_profiles.revision+1,updated_at=clock_timestamp()
-        WHERE public_profiles.avatar IS DISTINCT FROM EXCLUDED.avatar''', (player, Jsonb(avatar) if avatar is not None else None))
+        WHERE public_profiles.avatar IS DISTINCT FROM EXCLUDED.avatar OR public_profiles.needs_avatar''', (player, Jsonb(avatar) if avatar is not None else None))
