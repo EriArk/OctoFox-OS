@@ -205,7 +205,7 @@ QVariantMap BackendAccount::profileIdentity(const QVariantMap& social,const QStr
 }
 QString BackendAccount::actionLabel() const {
     if(state_=="waiting"||state_=="opening")return "Cancel OctoFox OS sign-in";
-    if(state_=="connected")return "Sign out of OctoFox OS";
+    if(state_=="connected")return socialCredential&&!socialSubject_.isEmpty()?"Sync OctoFox OS profile":"Sign out of OctoFox OS";
     if(state_=="reconnecting")return "Retry OctoFox OS connection";
     if(state_=="restoring"||state_=="refreshing"||state_=="claiming"||state_=="signing_out")return "OctoFox OS account — please wait";
     return "Sign in to OctoFox OS with Fluxer";
@@ -300,7 +300,11 @@ void BackendAccount::setSocialSubject(const QString& subject) {
 void BackendAccount::activate() {
     if(owner_.isEmpty()||state_=="disabled")return;
     if(state_=="waiting"||state_=="opening"){cancel();return;}
-    if(state_=="connected"){logout();return;}
+    if(state_=="connected"){
+        if(socialCredential&&!socialSubject_.isEmpty()){loadOnlineProfile();refreshProgression(false);refreshShop();}
+        else logout();
+        return;
+    }
     if(state_=="reconnecting"){refresh();return;}
     if(state_=="signed_out"||state_=="error") {
         autoPaused_=false;socialRetry_.stop();

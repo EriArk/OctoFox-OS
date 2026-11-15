@@ -605,6 +605,8 @@ private slots:
         a.setSocialConnection("12345",true);QCoreApplication::processEvents();QCOMPARE(credentialsRead,1);
         QVERIFY(!QJsonDocument::fromVariant(a.onlineProfile()).toJson().contains("private-fluxer-session"));
         for(const auto& bytes:h.disk)QVERIFY(!bytes.contains("private-fluxer-session"));
+        QCOMPARE(a.actionLabel(),"Sync OctoFox OS profile");a.activate();
+        QCOMPARE(a.loginState(),"connected");QCOMPARE(credentialsRead,1);QCOMPARE(restores,2);
     }
     void automaticLoginDropsOldOwnerCredentialAndRetriesTransientFailure() {
         Harness h;BackendAccount a;auto services=h.services();auto request=services.request;int verified=0;

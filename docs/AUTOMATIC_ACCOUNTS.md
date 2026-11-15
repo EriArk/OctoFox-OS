@@ -7,7 +7,9 @@ login is required. Identity is the verified Fluxer subject, never a display name
 
 New players get a temporary `Fox-…` nickname. First-run Accounts offers the nickname
 and the existing avatar editor; both may be completed later. The profile page edits
-the OctoFox nickname independently of Fluxer's chat display name. Returning users
+the OctoFox nickname independently of Fluxer's chat display name. For a linked
+Fluxer account, the account action refreshes synchronization; sign-out belongs to
+Fluxer, which also revokes the OctoFox device session. Returning users
 restore their own server name/avatar before local edits can be uploaded, along
 with the existing progression, inventory and rewards synchronization. Local game
 saves are not uploaded by this feature.
