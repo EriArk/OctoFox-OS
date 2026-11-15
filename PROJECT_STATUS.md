@@ -1,5 +1,13 @@
 # OctoFox OS — Project status
 
+## 15 ноября 2026 — обзор Alpha 8 и два исправления
+
+Подготовлен полноценный обзор настоящей системы: оболочка, Steam, Lobby,
+Pokémon, общий персонаж, Crates, Bazaar и Ship Home. В ветке обзора
+восстановлены палитры и исправлено сетевое имя после переименования.
+Проверочная сборка Software 51 отделена от опубликованной Alpha 8 / Software 49.
+[Материал, результаты и оставшиеся ограничения](docs/evidence/alpha8-overview-20261115.md).
+
 ## 15 ноября 2026 — Alpha 8 опубликована, OTA на двух устройствах
 
 [Alpha 8](https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.8),
