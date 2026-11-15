@@ -2,20 +2,20 @@
 
 ## Deliverable
 
-One finished silent MP4, **08:21.1**, **1280×720 / 30 fps / H.264**, with
+One finished silent MP4, **08:15.6**, **1280×720 / 30 fps / H.264**, with
 53 burned-in English explanations and embedded chapter markers.
 
 Owner-local artifact directory:
 `/run/media/eriark/Data/Projects/.codex-artifacts/octofox-alpha8-overview-20261115/`
 
-- Final: `delivery/OctoFox-OS-Alpha-8-Overview.mp4` (39,298,458 bytes).
+- Final: `delivery/OctoFox-OS-Alpha-8-Overview.mp4` (39,285,059 bytes).
 - Editable English text: `delivery/OctoFox-OS-Alpha-8.en.srt`.
 - Original recordings: `sources/`; the named two-view composition has its own provenance JSON.
 - Reproducible cuts, captions and render/verification scripts: `edit/`.
 - Review sheets, full-size frames and decode log: `review/`.
 - SHA-256 manifest and machine-readable verification: `delivery/`.
 
-Final SHA-256: `2b4c97866638a865c4c26bc8296f5bc8483de4ef4a3745e98f00bcb389753ad2`.
+Final SHA-256: `b2642f0fdfecad5d2203a38aada84153246a977488b5d44bc447fe28db4c136c`.
 No MP4, ROM, game save, credential, private message or device support bundle
 was added to Git. The movie contains only the approved test profiles and
 actual installed interfaces; it is not the HTML demonstration.
@@ -26,13 +26,13 @@ actual installed interfaces; it is not the HTML demonstration.
 - **00:33** — Home & Games.
 - **01:17** — Games, apps & the desktop around them.
 - **02:16** — Friends & one shared Lobby.
-- **03:58** — My Story · Remember the session.
-- **04:18** — Pokémon · Beyond the emulator.
-- **05:42** — One character · Many experiences.
-- **06:10** — Crates · Discover and play.
-- **06:51** — Bazaar · Spaces for players.
-- **07:34** — Ship Home · Between adventures.
-- **08:12** — OctoFox OS · Alpha 8.
+- **03:53** — My Story · Remember the session.
+- **04:13** — Pokémon · Beyond the emulator.
+- **05:37** — One character · Many experiences.
+- **06:05** — Crates · Discover and play.
+- **06:46** — Bazaar · Spaces for players.
+- **07:29** — Ship Home · Between adventures.
+- **08:07** — OctoFox OS · Alpha 8.
 
 The tour shows persisted color changes and Dark Mode; four library views,
 collections, Recent/Favorites and Mario Kart 64; Steam launching Dead Cells,
