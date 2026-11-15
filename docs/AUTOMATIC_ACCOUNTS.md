@@ -22,6 +22,7 @@ Responses from an old local owner/account are discarded. Network failures back
 off automatically; secure-storage and rejected-credential failures stay visible.
 
 Server migration and API are documented in [the Backend contract](../services/backend/accounts.md). Existing OAuth return flows and
-refresh recovery remain supported. The owner requested a merged Alpha release
-and real OTA on both handhelds after publication; source/test results alone are
-not that acceptance.
+refresh recovery remain supported. Alpha 8 is published; public OTA succeeded on Odin and Flip. Odin restored the
+same Ren account automatically from its saved Fluxer session after an OS-only
+signout on Software 48. Flip's provider session was already signed out; its fresh
+login requires owner CAPTCHA. See [delivery and limits](evidence/2026-11-15-alpha8/README.md).

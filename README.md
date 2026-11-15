@@ -1,6 +1,6 @@
 # OctoFox OS
 
-Formerly TrainerOS. Renamed on 13 November 2026 because the previous name was already in use. This is the same project. Current source displays OctoFox OS; published Alpha 7 downloads and existing installations still carry the previous branding. Existing data and package identities remain compatible. See [branding compatibility](docs/BRANDING.md).
+Formerly TrainerOS. Renamed on 13 November 2026 because the previous name was already in use. This is the same project. Alpha 8 displays OctoFox OS; older published downloads retain the previous branding. Existing data and package identities remain compatible. See [branding compatibility](docs/BRANDING.md).
 
 **A controller-first handheld system built around your games, your progress and the people you play with — not emulator menus.**
 
@@ -28,19 +28,22 @@ It describes accepted behaviour; [project status](PROJECT_STATUS.md) distinguish
 
 ## Development status and getting started
 
-**Alpha 7 is an installer over existing ArmadaOS for AYN Odin 2 and Retroid
-Pocket Flip 2.** Download `TrainerOS-Full-Setup.tar` from the
-[Alpha release](https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.7),
-extract the whole folder in Desktop, and run `Install TrainerOS.sh` as your normal
-user. Read the [English installation instructions and known limitations](docs/alpha-release/publications/GITHUB_RELEASE.md#how-to-install)
-or the [Russian version](docs/alpha-release/publications/GITHUB_RELEASE_RU.md).
+**Alpha 8 is an installer over existing ArmadaOS for AYN Odin 2 and Retroid
+Pocket Flip 2.** Download `OctoFox-OS-Full-Setup.tar` from the
+[Alpha release](https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.8),
+extract the whole folder in Desktop, and run `Install OctoFox OS.sh` as your normal
+user. The release includes English and Russian installation instructions.
 Internet access and administrator authorization are needed for dependencies.
 Games, BIOS, console firmware and keys are not included.
 
-The one-launch install, first-run wizard and reboot were checked on Flip; Odin
-received an in-place application update with its existing profile preserved.
-This is an early Alpha, with limited multiplayer acceptance. Ready-to-flash images,
-Beta and Stable are not available.
+One Fluxer sign-in now creates or restores your OctoFox OS profile, including
+saved sessions from older installations. New players receive a temporary nickname
+and can choose their nickname and avatar during setup. Managed installations
+receive Alpha updates through Settings → System → Software updates.
+
+This is an early Alpha, with limited multiplayer acceptance. The earlier clean
+installer/wizard/reboot check was on Flip with Alpha 7; a new Alpha 8 clean-device
+installation is not claimed. Ready-to-flash images, Beta and Stable are unavailable.
 
 - [Build and run from source](docs/DEVELOPMENT.md)
 - [Project status (Russian)](PROJECT_STATUS.md) · [Changelog (Russian)](CHANGELOG.md) — current capabilities, evidence and dated changes for posts and the website.
@@ -53,7 +56,7 @@ Beta and Stable are not available.
 | Library, series and handheld shell | Installed device evidence; compatibility depends on available runtimes/content |
 | Semantic game integration | Exact supported game/build adapters, not all games on a platform |
 | Social and multiplayer | Implemented routes with bounded evidence; distinct-network, larger-group and human audio acceptance remain open |
-| Public distribution and updates | Alpha installer over Armada; clean Flip install/wizard/reboot verified. OTA apply/rollback acceptance remains open. Images and SteamOS/Bazzite come later |
+| Public distribution and updates | Alpha installer over Armada; clean Flip install/wizard/reboot verified. Public Alpha 8 OTA applied on both devices; Odin needed a managed baseline and scan recovery. Software 48 rollback is retained; rollback execution remains separate. Images and SteamOS/Bazzite come later |
 | Code license and public artwork | Original code: GPL-3.0-or-later; third-party terms remain separate and artwork review is ongoing |
 
 ## Pick a game and play
