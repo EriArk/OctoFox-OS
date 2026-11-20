@@ -287,7 +287,12 @@ void AvatarScene::frame(){
     }
     d_->animated=nodes;
     for(auto& node:nodes)if(d_->pose.contains(node.name))node.r*=QQuaternion::fromEulerAngles(d_->pose[node.name]);
-    for(auto& node:nodes)if(node.name=="head")node.r*=QQuaternion::fromEulerAngles(-10*d_->headTurn.y(),18*d_->headTurn.x(),0);
+    if(!d_->headTurn.isNull()){
+        for(auto& node:nodes)if(node.name=="head"){
+            node.r*=QQuaternion::fromEulerAngles(-10*d_->headTurn.y(),18*d_->headTurn.x(),0);
+            break;
+        }
+    }
     QVector<QMatrix4x4> world(nodes.size());QVector<int> state(nodes.size(),0);
     std::function<void(int)> update=[&](int i){if(state[i]==2)return;require(state[i]!=1);state[i]=1;const auto& n=nodes[i];QMatrix4x4 local=n.matrix;if(!n.matrixSet){local.setToIdentity();local.translate(n.p);local.rotate(n.r);local.scale(n.s);}if(n.parent>=0){update(n.parent);world[i]=world[n.parent]*local;}else world[i]=local;state[i]=2;};
     for(int i=0;i<nodes.size();++i)update(i);
