@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QTcpServer>
 #include <QHash>
 #include <QPointer>
@@ -36,6 +37,9 @@ public:
     std::function<QString(const QString& app,const QString& widget)> selectHomeWidget;
     std::function<bool(const QString&)> takeShipLaunchKey;
     std::function<bool(const QString& app)> permitsStartWidgets;
+    std::function<QJsonArray()> shipLooks;
+    std::function<QJsonArray(const QJsonObject&,const QString&)> shipParts;
+    std::function<void(const QString&,const QJsonObject&,const QString&,const QString&,std::function<void(QString)>)> wearShipLook;
     void refreshWidgetPolicy();
 private:
     struct Peer {

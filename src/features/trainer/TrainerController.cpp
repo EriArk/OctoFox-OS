@@ -72,7 +72,7 @@ void TrainerController::setDraftName(const QString& name) {
     error_.clear();
     emit changed();
 }
-void TrainerController::save() {
+void TrainerController::save(std::function<void(bool)> done) {
     TrainerProfile candidate = draft_;
     candidate.name = candidate.name.trimmed();
     if (candidate.name.isEmpty()) error_ = "Give your Trainer a name before saving.";
@@ -83,10 +83,10 @@ void TrainerController::save() {
             || c.category() == QChar::Separator_Paragraph;
     })) error_ = "Use a single line for your Trainer name.";
     else error_.clear();
-    if (!error_.isEmpty()) { focus_ = 0; return; }
+    if (!error_.isEmpty()) { focus_ = 0; if(done)done(false); return; }
     const bool publishAppearance=avatarEditing_ || (profile_ && profile_->avatar!=candidate.avatar);
     saving_ = true;
-    repository_.saveAsync(candidate, this, [this, candidate,publishAppearance](const ProfileWriteResult& result) {
+    repository_.saveAsync(candidate, this, [this, candidate,publishAppearance,done=std::move(done)](const ProfileWriteResult& result) {
         saving_ = false;
         if (!result.success) {
             error_ = result.error.isEmpty() ? "Couldn't save your Trainer. Try again." : result.error;
@@ -101,6 +101,7 @@ void TrainerController::save() {
             if(publishAppearance)emit appearanceSaved(appearance());
         }
         emit changed();
+        if(done)done(result.success);
     });
 }
 void TrainerController::reload() {
@@ -178,9 +179,9 @@ void TrainerController::beginAvatarEdit() {
     draft_=*profile_;draft_.avatar=draft_.avatar.isEmpty()?AvatarAssets::defaults():AvatarAssets::normalized(draft_.avatar);
     avatarEditing_=true;editing_=true;focus_=0;error_.clear();previewAvatar_=liveAvatar_;refreshAvatar();emit changed();
 }
-bool TrainerController::applyAppearance(const QJsonObject& appearance) {
+bool TrainerController::applyAppearance(const QJsonObject& appearance, std::function<void(bool)> done) {
     if(!exists()||editing_||saving_||!AvatarAssets::valid(appearance)||!avatarAvailable())return false;
-    draft_=*profile_;draft_.avatar=AvatarAssets::normalized(appearance);error_.clear();save();return true;
+    draft_=*profile_;draft_.avatar=AvatarAssets::normalized(appearance);error_.clear();save(std::move(done));return true;
 }
 void TrainerController::cycleAvatar(int index,int delta) {
     if(!avatarEditing_||saving_||index<0||index>=AvatarAssets::keys().size())return;

@@ -59,7 +59,7 @@ public:
     QVariantList avatarRows() const;
     QJsonObject avatarDescriptor() const { return liveAvatar_; }
     QJsonObject appearance() const;
-    bool applyAppearance(const QJsonObject& appearance);
+    bool applyAppearance(const QJsonObject& appearance, std::function<void(bool)> done = {});
     Q_INVOKABLE void beginAvatarEdit();
     Q_INVOKABLE void cycleAvatar(int index, int delta = 1);
     Q_INVOKABLE void chooseAvatar(int index, const QString& value);
@@ -70,7 +70,7 @@ signals:
     void nameRequested(const QString& initial);
     void messageRequested(const QString& message);
 private:
-    void save();
+    void save(std::function<void(bool)> done = {});
     void refreshAvatar();
     void startAvatarJob();
     QFutureWatcher<QJsonObject> avatarJob_;

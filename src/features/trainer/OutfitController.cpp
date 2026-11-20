@@ -158,6 +158,91 @@ QVariantMap OutfitController::view() const {
         {"conflict",row["conflict"].toBool()},{"status",!status_.isEmpty()?status_:account_.outfits()["status"].toString()},
         {"wearing",true},{"replace",false}};
 }
+QJsonArray OutfitController::shipLooks() const {
+    const auto state=account_.wardrobeState();
+    const auto live=trainer_.appearance();
+    const auto revision=trainer_.avatarDescriptor()["recipe"].toObject()["packRevision"].toString();
+    QJsonArray looks;
+    bool wearingSlot=false;
+    if(revision.isEmpty())return looks;
+    for(const auto& entry:account_.outfits()["items"].toList()) {
+        const auto row=entry.toMap(), saved=row["saved"].toMap();
+        const auto recipe=QJsonObject::fromVariantMap(saved["recipe"].toMap());
+        const auto appearance=recipe["appearance"].toObject();
+        if(row["conflict"].toBool()||!AvatarAssets::valid(appearance))continue;
+        const bool worn=state["active"].toString()==row["id"].toString() && AvatarAssets::normalized(appearance)==live;
+        wearingSlot|=worn;
+        // The profile wardrobe already resolves supported old appearances with the installed pack.
+        looks.append(QJsonObject{{"id",row["id"].toString()},{"name",saved["name"].toString()},
+            {"recipe",QJsonObject{{"schema",1},{"packRevision",revision},{"appearance",appearance}}},{"worn",worn}});
+    }
+    const auto free=wearingSlot?state["free"].toObject():live;
+    if(AvatarAssets::valid(free))
+        looks.prepend(QJsonObject{{"id","current"},{"name",state["freeName"].toString("Everyday")},{"worn",!wearingSlot},
+            {"recipe",QJsonObject{{"schema",1},{"packRevision",revision},{"appearance",free}}}});
+    return looks;
+}
+QJsonArray OutfitController::shipParts(const QJsonObject& recipe,const QString& field) const {
+    QJsonArray parts;
+    if(!QStringList{"headwear","top","bottom","socks","shoes"}.contains(field))return parts;
+    const auto appearance=recipe["appearance"].toObject();
+    if(recipe.size()!=3||recipe["schema"]!=1||recipe["packRevision"].toString().size()!=64||!AvatarAssets::valid(appearance))return parts;
+    for(const auto& item:AvatarAssets::choices(field)){
+        auto variant=recipe;
+        // Selecting the current garment must preserve its existing dye.
+        if(appearance[field]!=item)variant["appearance"]=AvatarAssets::equipped(appearance,field,item);
+        parts.append(QJsonObject{{"id",item},{"name",title(item)},{"recipe",variant}});
+    }
+    return parts;
+}
+void OutfitController::wearShipLook(const QString& slot,const QJsonObject& expected,const QString& field,const QString& item,std::function<void(QString)> done) {
+    if(open_||trainer_.editing()||trainer_.saving()){done("wardrobe_busy");return;}
+    const auto looks=shipLooks();
+    for(const auto& entry:looks) {
+        const auto row=entry.toObject();
+        if(row["id"]!=slot || row["recipe"].toObject()!=expected)continue;
+        auto recipe=expected;
+        if(!field.isEmpty()){
+            bool found=false;
+            for(const auto& choice:shipParts(expected,field)){
+                const auto part=choice.toObject();
+                if(part["id"]==item){recipe=part["recipe"].toObject();found=true;break;}
+            }
+            if(!found){done("invalid_piece");return;}
+        }
+        if(row["worn"].toBool()&&recipe==expected){done({});return;}
+        const auto owner=trainer_.profile()["id"].toString();
+        const auto player=account_.snapshot()["player_id"].toString();
+        const auto before=trainer_.appearance();
+        const auto previousState=account_.wardrobeState();
+        auto state=previousState;
+        for(const auto& look:looks)
+            if(look.toObject()["id"]=="current")state["free"]=look.toObject()["recipe"].toObject()["appearance"];
+        state["active"]=slot;
+        if(slot=="current")state["free"]=recipe["appearance"];
+        const bool changedSlot=slot!="current" && recipe!=expected;
+        if(changedSlot) {
+            const auto items=account_.outfits()["items"].toList();
+            const auto match=std::find_if(items.begin(),items.end(),[&](const QVariant& entry){return entry.toMap()["id"]==slot;});
+            if(match==items.end()){done("look_changed");return;}
+            const auto saved=match->toMap()["saved"].toMap();
+            if(!account_.queueOutfit(slot,saved["name"].toString(),recipe,saved["revision"].toString(),state)){
+                done("wardrobe_state_save_failed");return;
+            }
+        }else if(!account_.storeWardrobeState(state)){done("wardrobe_state_save_failed");return;}
+        const auto complete=[this,owner,player,previousState,changedSlot,done](bool saved){
+            if(trainer_.profile()["id"].toString()!=owner||account_.snapshot()["player_id"].toString()!=player){done("profile_changed");return;}
+            if(saved){done({});return;}
+            if(!account_.storeWardrobeState(previousState)){done("wardrobe_state_save_failed");return;}
+            done(changedSlot?"look_saved_equip_failed":"appearance_save_failed");
+        };
+        const auto appearance=recipe["appearance"].toObject();
+        if(AvatarAssets::normalized(appearance)==before)complete(true);
+        else if(!trainer_.applyAppearance(appearance,complete))complete(false);
+        return;
+    }
+    done("look_changed");
+}
 void OutfitController::open(){
     account_.cancelPurchaseReview();open_=true;owner_=trainer_.profile()["id"].toString();player_=account_.snapshot()["player_id"].toString();
     index_=0;focus_=2;status_.clear();liveFailed_=false;nameSlot_.clear();appearance_=trainer_.appearance();

@@ -97,6 +97,10 @@ func tint(slot:String, choices:Dictionary, palette:Dictionary) -> void:
 			piece.set_surface_override_material(i,coated)
 		else:
 			var dyed:=original.duplicate() as StandardMaterial3D
-			dyed.albedo_color=pigment;dyed.metallic=0.87 if finish=="metallic" else 0.05
-			dyed.roughness=0.3 if finish=="metallic" else (0.47 if finish=="satin" else 0.85)
+			dyed.albedo_color=pigment
+			if finish=="metallic":
+				dyed.metallic=maxf(original.metallic,0.87)
+				dyed.roughness=minf(original.roughness,0.3)
+			elif finish=="satin":dyed.roughness=lerpf(original.roughness,0.45,0.35)
+			elif finish=="matte":dyed.roughness=lerpf(original.roughness,0.85,0.35)
 			piece.set_surface_override_material(i,dyed)

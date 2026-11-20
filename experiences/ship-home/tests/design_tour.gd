@@ -44,7 +44,7 @@ func run() -> void:
   assert(home.walker.install_avatar(descriptor))
   home.walker.show();home._pause(false)
   home.walker.position=ShipInterior.BOOTH+Vector3(-0.65,0.08,-0.65)
-  home._interact();home.fitting.cycle(1)
+  home._interact();home.cards.move(1)
   for stage in ["closed","traveller"]:
    for i in 240:
     await process_frame

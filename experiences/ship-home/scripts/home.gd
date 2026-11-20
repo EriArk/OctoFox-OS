@@ -7,6 +7,8 @@ const AvatarClient=preload("res://scripts/workshop_client.gd")
 var art=Art.new()
 var studio=preload("res://scripts/studio.gd").new()
 var dye=preload("res://scripts/dye_console.gd").new()
+var parts=preload("res://scripts/look_parts.gd").new()
+var cards=preload("res://scripts/look_cards.gd").new()
 var fabricator=preload("res://scripts/fabricator.gd").new()
 var fitting=preload("res://scripts/fitting_station.gd").new()
 var riding=false
@@ -28,6 +30,7 @@ var placement=Vector3.ZERO
 var placement_valid=false
 var moving_index=-1
 var paused=false
+var dot:=Label.new()
 var status:Label
 var title:Label
 var hints:Label
@@ -44,6 +47,18 @@ func _ready() -> void:
  add_child(fitting);fitting.configure(walker,studio)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
+ parts.client=avatar_client;parts.fitting=fitting
+ cards.pieces_requested.connect(parts.open)
+ avatar_client.recipe_resolved.connect(parts.resolved)
+ avatar_client.recipe_failed.connect(parts.failed)
+ avatar_client.parts_received.connect(parts.receive)
+ avatar_client.looks_changed.connect(parts.sync)
+ cards.fitting=fitting
+ cards.appearance_requested.connect(_open_colours)
+ fitting.selection_changed.connect(cards.refresh)
+ avatar_client.looks_changed.connect(fitting.sync_looks)
+ avatar_client.recipe_resolved.connect(fitting.resolved)
+ avatar_client.recipe_failed.connect(fitting.resolve_failed)
  fitting.workshop=avatar_client
  avatar_client.workshop_changed.connect(fitting.restore_colors)
  fabricator.workshop=avatar_client;dye.workshop=avatar_client;dye.fitting=fitting
@@ -73,6 +88,7 @@ func _load_profile(id:String) -> void:
  if is_instance_valid(walker) and walker.seated:
   # Profile changes return to the reserved central approach before replacing furniture.
   walker.stand(Vector3(0,0.08,-2.1))
+ if parts.is_inside_tree():parts.close()
  if dye.is_inside_tree() and dye.visible:dye.close()
  if fabricator.is_inside_tree():fabricator.close()
  fitting.selected_pieces.clear()
@@ -84,16 +100,24 @@ func _appearance(descriptor:Dictionary) -> void:
  var id=str(descriptor.get("profile",""))
  if id.is_empty():_identity_lost("No active profile");return
  if id!=profile:
+  parts.close()
   if editing:_edit(false)
+  fitting.finish()
   _load_profile(id)
+ fitting.live_descriptor=descriptor
+ if fitting.active and id==profile and not fitting.returning:
+  fitting.clear_garment();fitting.preview_installed=false;fitting.current=-1
+  walker.install_avatar(descriptor);return
  if dye.visible:dye.close()
  fitting.finish()
  if not walker.install_avatar(descriptor):notify("Your character could not be loaded.")
 
 func _identity_lost(reason:String) -> void:
+ parts.close()
  if dye.visible:dye.close()
  fabricator.close()
  fitting.finish()
+ fitting.live_descriptor={}
  walker.anonymous()
  if not profile.is_empty():
   if editing:_edit(false)
@@ -105,8 +129,8 @@ func _ui() -> void:
  var overlay=Control.new();overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);overlay.mouse_filter=Control.MOUSE_FILTER_IGNORE;layer.add_child(overlay)
  title=Label.new();title.position=Vector2(28,22);title.add_theme_font_size_override("font_size",26);title.add_theme_color_override("font_color",Color("f4e4bd"));overlay.add_child(title)
  status=Label.new();status.position=Vector2(28,58);status.add_theme_font_size_override("font_size",18);overlay.add_child(status)
- hints=Label.new();hints.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE);hints.offset_left=28;hints.offset_top=-42;hints.offset_bottom=-12;hints.add_theme_font_size_override("font_size",17);overlay.add_child(hints)
- var dot=Label.new();dot.text="·";dot.add_theme_font_size_override("font_size",28);dot.set_anchors_and_offsets_preset(Control.PRESET_CENTER);overlay.add_child(dot)
+ hints=Label.new();hints.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE);hints.offset_left=28;hints.offset_top=-42;hints.offset_bottom=-12;hints.add_theme_font_size_override("font_size",17);hints.add_theme_color_override("font_shadow_color",Color("#10272c"));hints.add_theme_constant_override("shadow_offset_y",2);hints.add_theme_constant_override("shadow_outline_size",3);overlay.add_child(hints)
+ dot.text="·";dot.add_theme_font_size_override("font_size",28);dot.set_anchors_and_offsets_preset(Control.PRESET_CENTER);overlay.add_child(dot)
  menu=PanelContainer.new();menu.set_anchors_and_offsets_preset(Control.PRESET_CENTER);menu.offset_left=-240;menu.offset_right=240;menu.offset_top=-200;menu.offset_bottom=200;overlay.add_child(menu)
  var style=StyleBoxFlat.new();style.bg_color=Color("203e42");style.set_corner_radius_all(20);style.content_margin_left=28;style.content_margin_right=28;style.content_margin_top=24;style.content_margin_bottom=24;menu.add_theme_stylebox_override("panel",style)
  var column=VBoxContainer.new();column.add_theme_constant_override("separation",12);menu.add_child(column)
@@ -114,14 +138,20 @@ func _ui() -> void:
  for entry in [["Return",func():_pause(false)],["Decorate",func():_pause(false);_edit(true)],["Undo last arrangement",func():_undo()],["Remove selected furniture",func():_remove()],["Save and exit",func():_quit()]]:
   var b=Button.new();b.text=entry[0];b.custom_minimum_size.y=44;b.pressed.connect(entry[1]);column.add_child(b)
  menu.visible=false
- layer.add_child(dye)
+ layer.add_child(cards);layer.add_child(dye);layer.add_child(parts)
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
 
+func _open_colours() -> void:
+ if not fitting.returning:
+  dye.open();Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+
 func _pause(value:bool) -> void:
+ if value:parts.close()
  if value and dye.visible:dye.close()
  if value:fabricator.close()
+ cards.visible=fitting.active and not value and not dye.visible
  paused=value;walker.walking=not value;menu.visible=value
- Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value else Input.MOUSE_MODE_CAPTURED
+ Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value or fitting.active else Input.MOUSE_MODE_CAPTURED
  if value:menu.get_child(0).get_child(1).grab_focus()
 
 func _close_fabricator() -> void:
@@ -141,11 +171,13 @@ func _unhandled_input(event:InputEvent) -> void:
   get_viewport().set_input_as_handled();return
  if paused or riding:return
  if fitting.active:
-  if dye.visible:return
-  if event.is_action_pressed("pick_item"):
-   dye.open();Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
-  elif event.is_action_pressed("next_item") or event.is_action_pressed("interact"):fitting.cycle(1)
-  elif event.is_action_pressed("previous_item"):fitting.cycle(-1)
+  if dye.visible or parts.visible:return
+  if event.is_action_pressed("decorate"):cards.open_parts()
+  elif event.is_action_pressed("pick_item"):
+   _open_colours()
+  elif event.is_action_pressed("interact") or event.is_action_pressed("ui_accept"):cards.activate()
+  elif event.is_action_pressed("next_item") or event.is_action_pressed("ui_down",true):cards.move(1)
+  elif event.is_action_pressed("previous_item") or event.is_action_pressed("ui_up",true):cards.move(-1)
   get_viewport().set_input_as_handled();return
  if walker.seated:
   if event.is_action_pressed("interact"):_leave_pilot();get_viewport().set_input_as_handled()
@@ -177,10 +209,12 @@ func _process(delta:float) -> void:
   if Art.ROOMS[key].has_point(Vector2(walker.position.x,walker.position.z)):room=key;break
  if walker.position.y< -0.7:room="Service deck"
  title.text=room+"  /  "+("Guest home" if profile.is_empty() else "Your ship")
+ title.visible=not fitting.active;dot.visible=not fitting.active
  if fitting.active:
-  title.text="Fitting station"
-  status.text=fitting.LOOKS[fitting.requested]+"  ·  Preview"
-  hints.text="" if dye.visible else "LB / RB or [ / ]   Change outfit      Y   Colour studio      B / Esc   Leave"
+  title.text=""
+  status.text=""
+  cards.visible=not paused and not dye.visible and not parts.visible and not fitting.returning
+  hints.text="RS   Turn" if dye.visible or parts.visible else "↑ ↓   Outfit     A   Select     "+("X   Change piece     " if cards.parts.visible else "")+"Y   Colours     RS   Turn     B   Leave"
  elif riding:
   status.text="Deck lift";hints.text=""
  elif walker.seated:

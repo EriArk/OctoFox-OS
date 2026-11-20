@@ -194,6 +194,33 @@ private slots:
         wardrobe.close();wardrobe.open();QCOMPARE(wardrobe.view()["index"].toInt(),1);
         QCOMPARE(repo.load()->name,p.name);QCOMPARE(repo.load()->id,p.id);
         wardrobe.close();
+        QTRY_VERIFY_WITH_TIMEOUT(!trainer.avatarDescriptor()["recipe"].toObject().isEmpty(),15000);
+        const auto looks=wardrobe.shipLooks();
+        QCOMPARE(looks.size(),2);
+        const auto everyday=looks[0].toObject(), weekend=looks[1].toObject();
+        QVERIFY(weekend["worn"].toBool());QVERIFY(!everyday["worn"].toBool());
+        QString status="pending";
+        auto done=[&](QString result){status=result;};
+        wardrobe.wearShipLook("current",weekend["recipe"].toObject(),{}, {},done);
+        QCOMPARE(status,QString("look_changed"));QCOMPARE(trainer.appearance(),before);
+        fail=true;
+        wardrobe.wearShipLook("current",everyday["recipe"].toObject(),{}, {},done);
+        QCOMPARE(status,QString("wardrobe_state_save_failed"));QCOMPARE(trainer.appearance(),before);fail=false;
+        repo.failNextSave();
+        wardrobe.wearShipLook("current",everyday["recipe"].toObject(),{}, {},done);
+        QCOMPARE(status,QString("appearance_save_failed"));QCOMPARE(account.wardrobeState()["active"],weekend["id"]);
+        wardrobe.wearShipLook("current",everyday["recipe"].toObject(),{}, {},done);
+        QCOMPARE(status,QString());QCOMPARE(repo.load()->avatar,p.avatar);
+        wardrobe.wearShipLook("outfit.slot.1",weekend["recipe"].toObject(),{}, {},done);
+        QCOMPARE(status,QString());QCOMPARE(repo.load()->avatar,before);
+        wardrobe.open();QCOMPARE(wardrobe.view()["index"].toInt(),1);wardrobe.close();
+        const auto base=weekend["recipe"].toObject();
+        QVERIFY(!wardrobe.shipParts(base,"headwear").isEmpty());
+        wardrobe.wearShipLook("outfit.slot.1",base,"skinColor","bad",done);
+        QCOMPARE(status,QString("invalid_piece"));
+        wardrobe.wearShipLook("outfit.slot.1",base,"headwear","golf-visor",done);QCOMPARE(status,QString());
+        QCOMPARE(repo.load()->avatar["headwear"].toString(),QString("golf-visor"));
+        QCOMPARE(wardrobe.shipLooks()[1].toObject()["recipe"].toObject()["appearance"].toObject(),repo.load()->avatar);
     }
     void wardrobeCompatibilityAndRig() {
         auto legacy=AvatarAssets::defaults();legacy["schema"]=1;

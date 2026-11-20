@@ -11,14 +11,9 @@ the open deck. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
 
 ### Ship station references
 
-Warframe’s Orbiter and Arsenal guide the interaction design for Ship Home. At the fitting
-platform the character should stay in view as a player browses outfit cards, picks a part,
-and previews a colour. The proposed wardrobe uses the player's existing saved looks;
-selecting a look and editing its appearance are distinct actions. On the handheld,
-show large colour swatches arranged by palette and only the channels available on the
-selected garment. Preserve the authored cloth and metal response for ordinary pigments.
-Special cartridges can additionally unlock metallic or pearlescent finishes.
-These are design references for the next wardrobe pass.
+Warframe’s Arsenal inspired the standing character preview, the outfit list and the
+colour swatches. OctoFox uses its existing profile wardrobe, printed inventory and
+pigment cartridges. Ordinary dyes retain the garment surface's authored metal response.
 [Arsenal and frame selection](https://www.warframe.com/en/patch-notes/pc/37-0-0) ·
 [Official colour picker screenshot](https://www-static.warframe.com/uploads/a370a469ad2348e9f83db978934e27ca.PNG) ·
 [Artist guide to tint masks and materials](https://www.warframe.com/en/steamworkshop/texturing-guide) ·
@@ -40,18 +35,20 @@ on the [Warframe Foundry](https://support.warframe.com/hc/en-us/articles/3838582
 The garment plates are rendered from the ship's THREAD models.
 [Fabricator screenshots](../../docs/evidence/2026-11-20-ship-fabricator/README.md).
 
-At the circular fitting platform press **A / F**, then **LB / RB** or **[ / ]**
-to preview Traveller, Mage and Merchant. The two pleated screens meet at the front
-before the outfit changes and retract to reveal the character. **B / Esc**
-restores the original outfit and walking camera. These standing previews reuse
-the [original THREAD meshes and garment attachment](https://github.com/EriArk/crates/tree/06c010d711d294f72dbd9c877fb3c22f3f5bb6c2/games/bazaar);
-profile ownership and saved appearance remain with the platform.
+At the circular fitting platform press **A / F**. Browse your current look, saved
+outfits and the Traveller, Mage and Merchant collections with the D-pad or **LB / RB**.
+Turn the character with the right stick. Browsing previews an outfit behind the
+pleated screens. **A** on a saved look equips it through the profile wardrobe.
+**X** on a saved look, or **A** on the equipped look, opens its individual pieces.
+Choose the slot and garment, then **Save and wear** to update that outfit. **B**
+discards the preview. Saved looks require a shell with the Ship Looks capability.
 
-**Y** in the fitting booth opens Colour studio. Choose a printed piece, its material
-channel and a finish. Preview any finish, activate a pigment cartridge to unlock
-that colour permanently, then apply it to as many owned pieces as desired.
-Switching back to Original finish restores the authored surface. See the
-[reward rules, trading checks and in-engine capture](../../docs/evidence/2026-11-20-ship-workshop/README.md).
+**A** on a THREAD collection opens its printed pieces. **Y** also opens the colour
+studio. Choose a piece and an authored material channel, then move through the swatch
+grid to preview the finish. A check mark identifies an unlocked colour. Activate a
+cartridge once to add a permanent colour, then apply it to an owned piece. **B**
+returns to the outfit you were browsing. The inventory and marketplace retain
+each item's own finish. [Fitting station screenshots](../../docs/evidence/2026-11-20-ship-workshop/README.md#примерочная).
 
 Stand on the illuminated floor lift and press **A / F** to descend through
 the shaft. The smaller circular service room has walking space around the lift.

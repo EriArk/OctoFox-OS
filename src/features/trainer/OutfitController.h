@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QVariantMap>
 #include <QJsonObject>
+#include <QJsonArray>
+#include <functional>
 #include <QFutureWatcher>
 #include <QTemporaryDir>
 namespace trainer {
@@ -15,6 +17,9 @@ public:
     OutfitController(BackendAccount&,TrainerController&,QObject* parent=nullptr);
     ~OutfitController() override;
     QVariantMap view() const;
+    QJsonArray shipLooks() const;
+    QJsonArray shipParts(const QJsonObject& recipe,const QString& field) const;
+    void wearShipLook(const QString& slot,const QJsonObject& expected,const QString& field,const QString& item,std::function<void(QString)> done);
     void open(); void close(); void dispatch(Action); void acceptName(const QString&);
     Q_INVOKABLE void select(int);
     Q_INVOKABLE void activate(int);

@@ -215,6 +215,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         peer.shipWorkshop=backend_ && app=="art.abysstail.octofox.ship-home" && takeShipLaunchKey
             && takeShipLaunchKey(args["ship_key"].toString());
         if(peer.shipWorkshop){caps["ship.workshop"]=1;caps["ship.timed_prints"]=1;}
+        if(peer.shipWorkshop&&shipLooks&&wearShipLook)caps["ship.looks"]=1;
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}
@@ -227,6 +228,32 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
     if (method == "account.get") {
         const auto account=context_["account"].toObject();
         ok({{"account",QJsonObject{{"state",account["state"].toString("signed_out")},{"player_id",account["player_id"].toString()}}}});return;
+    }
+    if(method=="ship.looks"||method=="ship.wear"||method=="ship.parts") {
+        if(!peer.shipWorkshop||!shipLooks||!wearShipLook){fail("wardrobe_unavailable");return;}
+        if(context_["profile"].toString().isEmpty()||args["profile"]!=context_["profile"]){fail("profile_changed");return;}
+        if(method=="ship.looks"){
+            const int offset=args["offset"].toInt(-1);
+            if(args.size()!=2||offset<0){fail("invalid_page");return;}
+            const auto looks=shipLooks();QJsonArray page;
+            for(qsizetype i=offset;i<looks.size()&&page.size()<16;++i)page.append(looks[i]);
+            const auto end=qsizetype(offset)+page.size();
+            ok({{"items",page},{"next",end<looks.size()?int(end):-1}});return;
+        }
+        if(method=="ship.parts"){
+            if(!shipParts||args.size()!=3||!args["recipe"].isObject()||!args["field"].isString()){fail("invalid_piece");return;}
+            ok({{"items",shipParts(args["recipe"].toObject(),args["field"].toString())}});return;
+        }
+        const bool editing=args.contains("field")||args.contains("item");
+        if((editing&&(!args["field"].isString()||!args["item"].isString()||args["field"].toString().isEmpty()))||
+           args.size()!=(editing?5:3)||!args["id"].isString()||!args["recipe"].isObject()){fail("invalid_look");return;}
+        const QPointer<PlatformHost> host(this);const QPointer<QTcpSocket> target(socket);
+        wearShipLook(args["id"].toString(),args["recipe"].toObject(),args["field"].toString(),args["item"].toString(),[host,target,id](const QString& error){
+            if(!host||!target)return;
+            if(error.isEmpty())host->send(target,{{"id",id},{"result",QJsonObject{}}});
+            else host->send(target,{{"id",id},{"error",QJsonObject{{"code",error}}}});
+        });
+        return;
     }
     if((method.startsWith("bazaar.")||method.startsWith("workshop."))&&backend_) {
         const bool workshop=method.startsWith("workshop.");

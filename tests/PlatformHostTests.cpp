@@ -72,14 +72,23 @@ private slots:
     void workshopRequiresShipLaunchKey() {
         Fixture f;BackendAccount backend;f.host.setBackend(&backend);QVERIFY(f.start());
         f.host.takeShipLaunchKey=[](const QString& key){return key=="fixture-launch";};
+        f.host.shipLooks=[] {QJsonArray rows;for(int i=0;i<18;++i)rows.append(QJsonObject{{"id",QString::number(i)}});return rows;};
+        f.host.wearShipLook=[](const QString&,const QJsonObject&,const QString&,const QString&,auto done){done({});};
         Client other(f.endpoint);
         const QString app="art.abysstail.octofox.ship-home";
         other.send("hello",{{"protocol",1},{"token",other.discovery["token"]},{"app","org.example.game"},{"ship_key","fixture-launch"}});
         QVERIFY(!other.receive()["result"].toObject()["capabilities"].toObject().contains("ship.workshop"));
         other.send("workshop.print");QCOMPARE(other.receive()["error"].toObject()["code"].toString(),QString("workshop_unavailable"));
+        other.send("ship.looks",{{"profile","alice"},{"offset",0}});QVERIFY(other.receive().contains("error"));
         Client ship(f.endpoint);
         ship.send("hello",{{"protocol",1},{"token",ship.discovery["token"]},{"app",app},{"ship_key","fixture-launch"}});
         QCOMPARE(ship.receive()["result"].toObject()["capabilities"].toObject()["ship.workshop"].toInt(),1);
+        ship.send("ship.looks",{{"profile","alice"},{"offset",0}});
+        const auto page=ship.receive()["result"].toObject();QCOMPARE(page["items"].toArray().size(),16);
+        ship.send("ship.looks",{{"profile","alice"},{"offset",page["next"]}});
+        QCOMPARE(ship.receive()["result"].toObject()["items"].toArray().size(),2);
+        ship.send("ship.wear",{{"profile","someone_else"},{"id","current"},{"recipe",QJsonObject{}}});
+        QCOMPARE(ship.receive()["error"].toObject()["code"].toString(),QString("profile_changed"));
         ship.send("workshop.play");QCOMPARE(ship.receive()["error"].toObject()["code"].toString(),QString("sign_in_required"));
     }
     void legacyAvatarIsTransientAndRemovedOnRevocation() {

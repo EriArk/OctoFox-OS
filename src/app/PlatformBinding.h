@@ -34,6 +34,11 @@ public:
         host_.setNetwork(network_.get());
         host_.setBackend(shell_.backendAccount());
         host_.takeShipLaunchKey=[this](const QString& key){return shell_.apps()->takeShipLaunchKey(key);};
+        host_.shipLooks=[this]{return shell_.outfits()->shipLooks();};
+        host_.shipParts=[this](const QJsonObject& recipe,const QString& field){return shell_.outfits()->shipParts(recipe,field);};
+        host_.wearShipLook=[this](const QString& slot,const QJsonObject& recipe,const QString& field,const QString& item,std::function<void(QString)> done){
+            shell_.outfits()->wearShipLook(slot,recipe,field,item,std::move(done));
+        };
         host_.permitsStartWidgets=[this](const QString& app){return shell_.dashboard()->allowsStartWidgets(app);};
         connect(shell_.crates()->installer(),&CratesInstaller::inventoryChanged,this,[this]{
             // Refresh from committed receipts before changing live SDK contributions.

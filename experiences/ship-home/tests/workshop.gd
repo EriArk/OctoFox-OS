@@ -14,9 +14,13 @@ func run() -> void:
  client.disconnect_host()
  var descriptor:=OS.get_environment("SHIP_TEST_DESCRIPTOR")
  if not descriptor.is_empty():
-  check(home.walker.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(descriptor))),"SDK character loads")
+  home.fitting.live_descriptor=JSON.parse_string(FileAccess.get_file_as_string(descriptor))
+  check(home.walker.install_avatar(home.fitting.live_descriptor),"SDK character loads")
  home._pause(false)
  var colors={"sea-glass":{"name":"Sea glass","finish":"satin","hex":"#479b91"},"rose-gold":{"name":"Rose gold","finish":"metallic","hex":"#c78d75"},"aurora":{"name":"Aurora violet","finish":"iridescent","hex":"#7966c2"}}
+ colors["oxide"]={"name":"Oxidised copper","finish":"metallic","hex":"#50867c"}
+ colors["saffron"]={"name":"Saffron","finish":"matte","hex":"#dfae43"}
+ colors["moonstone"]={"name":"Moonstone","finish":"pearlescent","hex":"#accbda"}
  client.supported=true;client.timed_prints=true
  var fab=home.fabricator
  var recipes:Dictionary={}
@@ -65,7 +69,11 @@ func run() -> void:
   var m=piece.get_surface_override_material(i)
   if m is StandardMaterial3D and m.metallic>0.8:metal=true
  check(metal and item.colors==owned,"Metallic preview uses independent surfaces")
- press(JOY_BUTTON_DPAD_DOWN);press(JOY_BUTTON_A)
+ press(JOY_BUTTON_DPAD_DOWN)
+ check(home.dye.color_index==6 and home.dye.cursor==2,"Down reaches the second palette row")
+ press(JOY_BUTTON_DPAD_UP)
+ check(home.dye.color_index==2,"Up returns to the same swatch column")
+ press(JOY_BUTTON_A);press(JOY_BUTTON_A)
  check(client.last_action=="activate","Locked colour consumes a cartridge only on confirmation")
  receive.call({});data.palette.append("rose-gold");receive.call(data);receive.call({"items":[item],"next":null})
  press(JOY_BUTTON_A);check(client.last_action=="paint","Unlocked colour applies separately")
@@ -80,6 +88,50 @@ func run() -> void:
   await process_frame;await RenderingServer.frame_post_draw
   check(root.get_texture().get_image().save_png(capture)==OK,"Write colour studio capture")
  press(JOY_BUTTON_B);check(not home.dye.visible and home.fitting.active,"B returns to fitting booth")
+ var booth=home.fitting
+ check(booth.requested==0,"Back restores the outfit card that opened colours")
+ # The shell resolves saved recipes asynchronously. Browsing never sends a wear request.
+ client.set_process(false);client.active=true
+ client.looks_supported=true;client.profile_id="fixture";client.recipe_supported=true
+ client.saved_looks=[{"id":"current","name":"Everyday","worn":true,"recipe":{}},{"id":"outfit.slot.1","name":"Evening flight","worn":false,"recipe":{"schema":1,"appearance":{"top":"tank","bottom":"base-shorts"}}}]
+ client.looks_changed.emit()
+ press(JOY_BUTTON_DPAD_DOWN)
+ check(booth.requested==4 and not client.wearing,"D-pad selects the saved look for preview")
+ for i in 65:await physics_frame
+ check(home.cards.action.disabled,"A saved look waits for its resolved preview")
+ if not descriptor.is_empty():
+  receive.call({"avatar":booth.live_descriptor})
+  check(not home.cards.action.disabled and booth.preview_installed,"Resolved SDK character enables wear")
+  var angle:float=home.walker.visual.rotation.y
+  Input.action_press("look_right",0.8);booth.update(0.25);Input.action_release("look_right")
+  check(absf(home.walker.visual.rotation.y-angle)>0.1,"Right stick rotates the preview")
+  var shot:=OS.get_environment("SHIP_LOOKS_CAPTURE")
+  if not shot.is_empty() and DisplayServer.get_name()!="headless":
+   await process_frame;await RenderingServer.frame_post_draw
+   check(root.get_texture().get_image().save_png(shot)==OK,"Write look cards capture")
+  press(JOY_BUTTON_X)
+  check(home.parts.visible and client.pending[str(client.serial)].method=="ship.parts","X opens pieces of this saved outfit")
+  var shirt_options=[{"id":"tank","name":"Sports tank","recipe":{"schema":1}},{"id":"everyday-tee","name":"Everyday T-shirt","recipe":{"schema":1}}]
+  receive.call({"items":shirt_options});receive.call({"avatar":booth.live_descriptor})
+  press(JOY_BUTTON_DPAD_DOWN);press(JOY_BUTTON_DPAD_RIGHT)
+  receive.call({"avatar":booth.live_descriptor})
+  check(home.parts.displayed==home.parts.wanted and not home.parts.apply.disabled,"Browse a piece before committing")
+  press(JOY_BUTTON_DPAD_LEFT)
+  var discarded_request:int=client.serial
+  press(JOY_BUTTON_B)
+  check(not home.parts.visible and not client.wearing,"Back discards a piece preview")
+  for i in 65:await physics_frame
+  client._packet({"id":str(discarded_request),"result":{"avatar":booth.live_descriptor}})
+  check(client.serial>discarded_request,"Late discarded piece resumes the saved outfit preview")
+  receive.call({"avatar":booth.live_descriptor})
+  press(JOY_BUTTON_A)
+  check(client.wearing and client.pending[str(client.serial)].method=="ship.wear","Explicit A equips the chosen saved look")
+  receive.call({});receive.call({"items":[{"id":"outfit.slot.1","name":"Evening flight","worn":true,"recipe":{}}],"next":-1})
+  check(booth.requested==0,"Newly worn look returns to equipped card")
+ booth.select(0)
+ press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_A)
+ check(home.dye.visible and home.dye.garment().sku=="mage.top","Collection opens its own parts")
+ press(JOY_BUTTON_B);check(booth.requested==2,"Colour studio preserves collection selection")
  for style in Garment.STYLES:
   for slot in Garment.SLOTS:
    check(not Garment.channels(style,slot).is_empty(),"Selectable surfaces in "+style+" "+slot)

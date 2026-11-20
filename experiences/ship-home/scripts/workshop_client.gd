@@ -2,6 +2,14 @@
 extends "res://addons/avatar/avatar_client.gd"
 signal workshop_changed
 var supported := false
+signal looks_changed
+signal parts_received(ticket:int,items:Array,error:String)
+var looks_supported:=false
+var looks_loading:=false
+var wearing:=false
+var saved_looks:Array=[]
+var pending_looks:Array=[]
+var look_notice:=""
 var timed_prints := false
 var stock_received_ms := 0
 var busy := false
@@ -23,8 +31,27 @@ func _request(method: String, params: Dictionary={}) -> void:
 
 func disconnect_host() -> void:
  super.disconnect_host()
+ looks_supported=false;looks_loading=false;wearing=false;saved_looks.clear();pending_looks.clear();look_notice=""
+ looks_changed.emit()
  expired.clear();supported=false;timed_prints=false;busy=false;inventory.clear();stock.clear();garments.clear();next_page="";notice=""
  workshop_changed.emit()
+
+func refresh_looks() -> void:
+ if not looks_supported or looks_loading or wearing:return
+ looks_loading=true;pending_looks=[]
+ _request("ship.looks",{"profile":profile_id,"offset":0})
+
+func get_parts(row:Dictionary,field:String,ticket:int) -> void:
+ _request("ship.parts",{"profile":profile_id,"recipe":row.recipe,"field":field})
+ pending[str(serial)].ticket=ticket
+
+func wear_look(row:Dictionary,field:String="",item:String="") -> void:
+ if not looks_supported or wearing or looks_loading or (row.get("worn",false) and field.is_empty()):return
+ wearing=true;look_notice="Changing outfit…"
+ var args={"profile":profile_id,"id":row.id,"recipe":row.recipe}
+ if not field.is_empty():args.merge({"field":field,"item":item})
+ _request("ship.wear",args)
+ looks_changed.emit()
 
 func refresh_workshop() -> void:
  if not supported or busy:return
@@ -62,8 +89,30 @@ func _packet(packet:Dictionary) -> void:
  if expired.erase(str(packet.get("id",""))):return
  var method:String=pending.get(str(packet.get("id","")),{}).get("method","")
  if method=="hello":
+  looks_supported=packet.get("result",{}).get("capabilities",{}).get("ship.looks")==1
   timed_prints=packet.get("result",{}).get("capabilities",{}).get("ship.timed_prints")==1
   supported=packet.get("result",{}).get("capabilities",{}).get("ship.workshop")==1
+ if method=="ship.parts":
+  var ticket:int=pending[str(packet.id)].ticket
+  pending.erase(str(packet.id))
+  parts_received.emit(ticket,packet.get("result",{}).get("items",[]),packet.get("error",{}).get("code",""))
+  return
+ if method in ["ship.wear","ship.looks"]:
+  pending.erase(str(packet.id))
+  if packet.has("error"):
+   look_notice=str(packet.error.get("code","Wardrobe unavailable")).replace("_"," ").capitalize()
+   wearing=false;looks_loading=false;pending_looks.clear()
+   if method=="ship.looks":saved_looks.clear()
+   else:refresh_looks()
+  elif method=="ship.wear":
+   wearing=false;look_notice="Outfit equipped";refresh_looks()
+  else:
+   var page:Dictionary=packet.result
+   pending_looks.append_array(page.items)
+   if int(page.next)>0:
+    _request("ship.looks",{"profile":profile_id,"offset":page.next});return
+   saved_looks=pending_looks;pending_looks=[];looks_loading=false
+  looks_changed.emit();return
  if not method.begins_with("workshop."):
   super._packet(packet)
   return
