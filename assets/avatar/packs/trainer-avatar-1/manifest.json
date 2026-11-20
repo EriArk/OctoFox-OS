@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "pack": "trainer-avatar-1",
-  "revision": 10,
+  "revision": 11,
   "template": "template.glb",
   "bodyImage": 1,
   "almondPatches": [
@@ -33,7 +33,7 @@
   "rig": "trainer-humanoid-54-v1",
   "units": "metres",
   "forward": "+Z",
-  "eyeHeight": 0.787,
+  "eyeHeight": 0.799,
   "actions": {
     "wave": "Wave",
     "sit": "Sit",
@@ -61,7 +61,7 @@
   },
   "atlasVersion": 2,
   "files": {
-    "template.glb": "cdc990f8f1aa3db51b5ad153cd9c8b1b0a09860d29dd6c28fc7444e5aefffe09",
+    "template.glb": "288dd9123ea70af6a77aa9a65536776051dd2894a092e7c38bc03b57d32c73ac",
     "face-round.png": "ab8d363c7a0fafe920f38d6636f9e7163dc5b8f27e0990f9a2e9e6fc673abc5e",
     "face-almond.png": "374ff3067e9a7b9622fb80bdcdb39f0b172ab1384b2186dac477f784ff6b0d99",
     "mask-round.png": "c10d8575189afcf21654acddcb97d01b28658e295398bd10cca43c260a71cd00",
@@ -233,6 +233,258 @@
     },
     {
       "accessor": 440,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 878,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 906,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 1342,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 1370,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 1518,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 1546,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 1694,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 1722,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 1870,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 1898,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2046,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2074,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2222,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2250,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2398,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2426,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2574,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2602,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2750,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2778,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2926,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 2954,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 3102,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 3130,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 3278,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 3306,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 3454,
+      "role": "skinColor",
+      "base": [
+        0.87137,
+        0.55201,
+        0.37626
+      ]
+    },
+    {
+      "accessor": 3482,
       "role": "skinColor",
       "base": [
         0.87137,
@@ -813,7 +1065,8 @@
       0.716,
       0
     ],
-    "method": "restore-source-and-project-eye-layers"
+    "method": "restore-source-and-project-eye-layers",
+    "eyePlacement": "fitted-aperture-1"
   },
   "faceContrast": {
     "version": 1,

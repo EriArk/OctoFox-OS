@@ -1,0 +1,442 @@
+{
+  "renderer": "Godot 4.7.2 Vulkan Mobile",
+  "size": [
+    360,
+    360
+  ],
+  "blinkWeights": [
+    0,
+    0.125,
+    0.25,
+    0.375,
+    0.5,
+    0.625,
+    0.75,
+    0.875,
+    1
+  ],
+  "visiblePixelThresholdRGB8": 12,
+  "fullyClosedFrameMatchesControlExactly": true,
+  "captures": [
+    {
+      "style": "round",
+      "yaw": 0,
+      "visiblePixels": [
+        2125,
+        1872,
+        1599,
+        1334,
+        1057,
+        787,
+        526,
+        258,
+        0
+      ]
+    },
+    {
+      "style": "round",
+      "yaw": 32,
+      "visiblePixels": [
+        1747,
+        1549,
+        1340,
+        1116,
+        884,
+        660,
+        444,
+        211,
+        0
+      ]
+    },
+    {
+      "style": "almond",
+      "yaw": 0,
+      "visiblePixels": [
+        1803,
+        1576,
+        1353,
+        1125,
+        887,
+        676,
+        445,
+        208,
+        0
+      ]
+    },
+    {
+      "style": "almond",
+      "yaw": 32,
+      "visiblePixels": [
+        1476,
+        1311,
+        1131,
+        939,
+        746,
+        567,
+        374,
+        175,
+        0
+      ]
+    },
+    {
+      "style": "innocent-base",
+      "yaw": 0,
+      "visiblePixels": [
+        2233,
+        1968,
+        1674,
+        1394,
+        1118,
+        819,
+        558,
+        280,
+        0
+      ]
+    },
+    {
+      "style": "innocent-base",
+      "yaw": 32,
+      "visiblePixels": [
+        1825,
+        1625,
+        1393,
+        1165,
+        935,
+        687,
+        466,
+        233,
+        0
+      ]
+    },
+    {
+      "style": "innocent-feminine",
+      "yaw": 0,
+      "visiblePixels": [
+        2255,
+        1968,
+        1686,
+        1409,
+        1109,
+        817,
+        544,
+        251,
+        0
+      ]
+    },
+    {
+      "style": "innocent-feminine",
+      "yaw": 32,
+      "visiblePixels": [
+        1848,
+        1632,
+        1407,
+        1176,
+        929,
+        690,
+        452,
+        213,
+        0
+      ]
+    },
+    {
+      "style": "calm-base",
+      "yaw": 0,
+      "visiblePixels": [
+        1851,
+        1631,
+        1391,
+        1155,
+        921,
+        701,
+        466,
+        229,
+        0
+      ]
+    },
+    {
+      "style": "calm-base",
+      "yaw": 32,
+      "visiblePixels": [
+        1516,
+        1348,
+        1163,
+        970,
+        773,
+        585,
+        390,
+        191,
+        0
+      ]
+    },
+    {
+      "style": "calm-feminine",
+      "yaw": 0,
+      "visiblePixels": [
+        1857,
+        1636,
+        1402,
+        1161,
+        921,
+        681,
+        457,
+        209,
+        0
+      ]
+    },
+    {
+      "style": "calm-feminine",
+      "yaw": 32,
+      "visiblePixels": [
+        1528,
+        1360,
+        1169,
+        967,
+        773,
+        574,
+        381,
+        176,
+        0
+      ]
+    },
+    {
+      "style": "rogue-base",
+      "yaw": 0,
+      "visiblePixels": [
+        1809,
+        1588,
+        1359,
+        1117,
+        876,
+        651,
+        405,
+        164,
+        0
+      ]
+    },
+    {
+      "style": "rogue-base",
+      "yaw": 32,
+      "visiblePixels": [
+        1500,
+        1334,
+        1157,
+        946,
+        748,
+        557,
+        350,
+        153,
+        0
+      ]
+    },
+    {
+      "style": "rogue-feminine",
+      "yaw": 0,
+      "visiblePixels": [
+        1825,
+        1593,
+        1355,
+        1115,
+        878,
+        629,
+        398,
+        149,
+        0
+      ]
+    },
+    {
+      "style": "rogue-feminine",
+      "yaw": 32,
+      "visiblePixels": [
+        1517,
+        1336,
+        1149,
+        947,
+        748,
+        548,
+        348,
+        144,
+        0
+      ]
+    },
+    {
+      "style": "sly-base",
+      "yaw": 0,
+      "visiblePixels": [
+        1515,
+        1325,
+        1121,
+        920,
+        737,
+        531,
+        340,
+        143,
+        0
+      ]
+    },
+    {
+      "style": "sly-base",
+      "yaw": 32,
+      "visiblePixels": [
+        1249,
+        1109,
+        946,
+        778,
+        621,
+        453,
+        291,
+        127,
+        0
+      ]
+    },
+    {
+      "style": "sly-feminine",
+      "yaw": 0,
+      "visiblePixels": [
+        1523,
+        1329,
+        1121,
+        924,
+        731,
+        532,
+        331,
+        127,
+        0
+      ]
+    },
+    {
+      "style": "sly-feminine",
+      "yaw": 32,
+      "visiblePixels": [
+        1263,
+        1115,
+        945,
+        781,
+        615,
+        456,
+        286,
+        119,
+        0
+      ]
+    },
+    {
+      "style": "sleepy-base",
+      "yaw": 0,
+      "visiblePixels": [
+        1317,
+        1161,
+        993,
+        829,
+        666,
+        497,
+        320,
+        153,
+        0
+      ]
+    },
+    {
+      "style": "sleepy-base",
+      "yaw": 32,
+      "visiblePixels": [
+        1086,
+        960,
+        827,
+        693,
+        555,
+        414,
+        267,
+        121,
+        0
+      ]
+    },
+    {
+      "style": "sleepy-feminine",
+      "yaw": 0,
+      "visiblePixels": [
+        1325,
+        1171,
+        1000,
+        823,
+        669,
+        495,
+        319,
+        146,
+        0
+      ]
+    },
+    {
+      "style": "sleepy-feminine",
+      "yaw": 32,
+      "visiblePixels": [
+        1089,
+        964,
+        829,
+        690,
+        555,
+        411,
+        263,
+        111,
+        0
+      ]
+    },
+    {
+      "style": "determined-base",
+      "yaw": 0,
+      "visiblePixels": [
+        1641,
+        1450,
+        1238,
+        1025,
+        818,
+        610,
+        403,
+        204,
+        0
+      ]
+    },
+    {
+      "style": "determined-base",
+      "yaw": 32,
+      "visiblePixels": [
+        1347,
+        1191,
+        1025,
+        853,
+        685,
+        510,
+        334,
+        164,
+        0
+      ]
+    },
+    {
+      "style": "determined-feminine",
+      "yaw": 0,
+      "visiblePixels": [
+        1646,
+        1451,
+        1240,
+        1024,
+        820,
+        608,
+        402,
+        186,
+        0
+      ]
+    },
+    {
+      "style": "determined-feminine",
+      "yaw": 32,
+      "visiblePixels": [
+        1356,
+        1201,
+        1034,
+        853,
+        686,
+        510,
+        332,
+        150,
+        0
+      ]
+    }
+  ]
+}
