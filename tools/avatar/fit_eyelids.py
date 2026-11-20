@@ -1,4 +1,4 @@
-"""Fit the modular eyes and their moving lids to the prepared face (pack 10 -> 11)."""
+"""Fit the modular eyes and their moving lids to the prepared face (pack 10 -> 12)."""
 
 import argparse
 import copy
@@ -105,36 +105,132 @@ class Aperture:
         stations = np.linspace(0, 1, 15)
         u = (w[:, 0] - self.left) / (self.right - self.left)
         tops = np.array([w[abs(u - v) < 0.025, 1].max() for v in stations])
-        tips = np.array([np.median(w[abs(u - v) < 0.008, 1]) for v in [0, 1]])
-        tips = np.maximum(tips, [0.782, 0.786])
-        tops[[0, -1]] = tips
-        self.upper = PchipInterpolator(stations, tops)
-        self.tips = tips
-        self.floor = self.low.min() + 0.006
+        # Preserve the authored lid attitude of each variant. Grade the arch
+        # against the outer and inner corners, rather than stretching the iris
+        # to fill its white. The profile comes from the approved neutral drawing.
+        self.openness = np.clip((tops.max() - 0.795) / 0.017, 0, 1)
+        self.tilt = np.clip((tops[-3] - tops[2]) / 0.011, -0.7, 0.7)
+        self.shape_x = np.array([0, 0.1, 0.25, 0.43, 0.62, 0.8, 0.92, 1])
+        self.top = PchipInterpolator(
+            self.shape_x, [0, 0.13, 0.28, 0.365, 0.395, 0.34, 0.27, 0.18]
+        )
+        self.bottom = PchipInterpolator(
+            self.shape_x, [0, -0.115, -0.184, -0.205, -0.172, -0.085, 0.048, 0.18]
+        )
+
+    def eye_x(self, x):
+        return 0.022 + (x - self.left) * (0.054 / (self.right - self.left))
 
     def edges(self, x):
         u = np.clip((x - self.left) / (self.right - self.left), 0, 1)
-        lift = 0.011 + 0.003 * u
-        lo = self.floor + (self.tips[0] - self.floor) * np.maximum(1 - u / 0.30, 0) ** 2
-        lo += (self.tips[1] - self.floor) * np.maximum((u - 0.68) / 0.32, 0) ** 2
-        hi = np.maximum(self.upper(u), lo)
-        return lo + lift, hi + lift
+        chord = 0.791 + 0.004 * self.tilt * (u - 0.5)
+        bow = np.sin(np.pi * u)
+        top = chord + 0.057 * self.top(u) - (0.013 * (1 - self.openness)) * bow
+        bottom = chord + 0.057 * self.bottom(u) + 0.002 * (1 - self.openness) * bow
+        return bottom, top
 
     def fit(self, p, part):
         q = p.copy()
         x = abs(p[:, 0])
-        q[:, 0] *= 0.80
+        q[:, 0] = np.sign(p[:, 0]) * self.eye_x(x)
         lo, hi = self.edges(x)
         old_lo = np.interp(x, self.x, self.low)
         old_hi = np.interp(x, self.x, self.high)
         if part == "iris":
             # Keep the round pupil and painted glints rigid through every blink.
-            q[:, 1] = p[:, 1] + 0.016
+            q[:, 0] = np.sign(p[:, 0]) * (0.045 + 0.85 * (x - 0.053))
+            q[:, 1] = 0.7975 + 0.90 * (p[:, 1] - 0.786)
         else:
             height = old_hi - old_lo
             t = np.clip((p[:, 1] - old_lo) / np.maximum(height, 0.00001), 0, 1)
             q[:, 1] = lo + (hi - lo) * t + p[:, 1] - np.clip(p[:, 1], old_lo, old_hi)
         return q
+
+
+def fit_lash(builder, mesh, aperture, surface, material, joint, wing):
+    """Draw both contour strokes along the opening, tapering down to each corner."""
+    u = np.linspace(0, 1, 65)
+    x = aperture.left + u * (aperture.right - aperture.left)
+    lo, hi = aperture.edges(x)
+    seam = lo + 0.28 * (hi - lo)
+    taper = np.sin(np.pi * u) ** 0.65
+    upper_width = (0.0020 + 0.0065 * u) * taper + 0.0024 * smooth((u - 0.65) / 0.30)
+    lower_width = (0.00027 + 0.00025 * u) * taper
+    faces = []
+
+    def pose(control):
+        vertices = []
+        for side in [-1, 1]:
+            for upper in [True, False]:
+                edge = hi if upper else lo
+                width = upper_width if upper else lower_width
+                edge = edge.copy()
+                width = width.copy()
+                xx = aperture.eye_x(x)
+                if control == "eyes_closed":
+                    edge = seam.copy()
+                    width *= 0.48 if upper else 0.06
+                if control in ("eyes_soft", "eyes_wide"):
+                    edge += (edge - 0.797) * (-0.18 if control == "eyes_soft" else 0.12)
+                if upper:
+                    # A single brush-like flick inherits each style's original lash length.
+                    xx = np.r_[xx, xx[-1] + 0.0017 + wing]
+                    edge = np.r_[edge, edge[-1] + 0.0008 + wing * 0.50]
+                    width = np.r_[width, 0.0]
+                low = edge - width * (0.48 if upper else 0.85)
+                high = low + width
+                points = np.c_[
+                    np.repeat(side * xx, 2),
+                    np.stack([low, high], axis=1).ravel(),
+                    np.zeros(len(xx) * 2),
+                ].astype("<f4")
+                if control in ("eyes_hearts", "eyes_squeezed", "eyes_shocked"):
+                    points[:, 0] = side * 0.044
+                    points[:, 1] = 0.797
+                if control is None:
+                    start = sum(len(p) for p in vertices)
+                    for i in range(0, len(points) - 2, 2):
+                        a = start + i
+                        pair = [[a, a + 2, a + 1], [a + 2, a + 3, a + 1]]
+                        if side < 0:
+                            pair = [tri[::-1] for tri in pair]
+                        faces.extend(pair)
+                vertices.append(points)
+        return surface.fit(np.concatenate(vertices), 0.0049)
+
+    p, n = pose(None)
+    closed_p, closed_n = pose("eyes_closed")
+    zeros = np.zeros((len(p), 4), dtype="<u2")
+    zeros[:, 0] = joint
+    weights = np.zeros((len(p), 4), dtype="<f4")
+    weights[:, 0] = 1
+    prim = {
+        "material": material,
+        "indices": builder.acc(np.array(faces, dtype="<u4").ravel()),
+        "attributes": {
+            "POSITION": builder.acc(p),
+            "NORMAL": builder.acc(n),
+            "JOINTS_0": builder.acc(zeros),
+            "WEIGHTS_0": builder.acc(weights),
+        },
+        "targets": [],
+    }
+    for name in mesh["extras"]["targetNames"]:
+        if name.startswith("brow"):
+            q, nn = p, n
+        elif name == "eyes_half":
+            q, nn = p + 0.53 * (closed_p - p), n + 0.53 * (closed_n - n)
+        elif name == "eyes_closed":
+            q, nn = closed_p, closed_n
+        else:
+            q, nn = pose(name)
+        prim["targets"].append(
+            {
+                "POSITION": builder.acc(q - p, sparse=True),
+                "NORMAL": builder.acc(nn - n, sparse=True),
+            }
+        )
+    mesh["primitives"] = [prim]
 
 
 def add_lids(builder, mesh, aperture, surface, colours, material, joint, manifest):
@@ -160,7 +256,7 @@ def add_lids(builder, mesh, aperture, surface, colours, material, joint, manifes
         retracted = []
         for side in [-1, 1]:
             # Slight overlap around the perimeter prevents a white fringe in profile.
-            x = 0.8 * xx
+            x = aperture.eye_x(xx)
             opened = hi + 0.0001 if upper else lo - 0.0002
             edge = opened + (0.012 if upper else -0.009)
             depth = -0.0004 + 0.0042 * smooth(t / 0.06)
@@ -230,6 +326,9 @@ def build(source, destination):
     b = Builder.__new__(Builder)
     b.g = copy.deepcopy(model.g)
     b.b = bytearray(model.b)
+    for material in b.g["materials"]:
+        if material.get("name") == "Eye white":
+            material["pbrMetallicRoughness"]["baseColorFactor"] = [0.79, 0.75, 0.70, 1]
     body = b.g["meshes"][manifest["preparedBodyMesh"]]["primitives"]
     a = body[0]["attributes"]
     p, n = (model.acc(a[k]) for k in ["POSITION", "NORMAL"])
@@ -258,8 +357,8 @@ def build(source, destination):
     def relocate(pts, part, aperture):
         if part in ("brow", "reactions"):
             out = pts.copy()
-            out[:, 0] *= 0.80
-            out[:, 1] += 0.012
+            out[:, 0] = np.sign(pts[:, 0]) * aperture.eye_x(abs(pts[:, 0]))
+            out[:, 1] += -0.004 if part == "brow" else 0.009
         else:
             out = aperture.fit(pts, part)
         if part == "reactions":
@@ -291,6 +390,34 @@ def build(source, destination):
                 continue
             done.add(mesh_id)
             mesh = b.g["meshes"][mesh_id]
+            if part == "rim":
+                original_rim = mesh["primitives"][0]
+                joint = int(model.acc(original_rim["attributes"]["JOINTS_0"])[0, 0])
+                wing = max(
+                    0.0,
+                    abs(model.acc(original_rim["attributes"]["POSITION"])[:, 0]).max()
+                    - aperture.right,
+                )
+                fit_lash(
+                    b,
+                    mesh,
+                    aperture,
+                    surface,
+                    original_rim["material"],
+                    joint,
+                    wing * 0.75,
+                )
+                add_lids(
+                    b,
+                    mesh,
+                    aperture,
+                    surface,
+                    colours,
+                    skin["material"],
+                    joint,
+                    manifest,
+                )
+                continue
             for prim in mesh["primitives"]:
                 orig = model.acc(prim["attributes"]["POSITION"])
 
@@ -299,13 +426,6 @@ def build(source, destination):
                 for name, target in zip(mesh["extras"]["targetNames"], prim["targets"]):
                     if name in ("eyes_closed", "eyes_half") and part != "brow":
                         posed, pn = moved.copy(), norm
-                        if part == "rim":
-                            x = abs(orig[:, 0])
-                            lo, hi = aperture.edges(x)
-                            upper = moved[:, 1] > (lo + hi) / 2
-                            edge = np.where(upper, hi, lo)
-                            posed[:, 1] += lo + 0.28 * (hi - lo) - edge
-                            posed, pn = surface.fit(posed, 0.0047)
                         amount = 0.53 if name == "eyes_half" else 1.0
                         delta = (posed - moved) * amount
                         dn = (pn - norm) * amount
@@ -318,29 +438,15 @@ def build(source, destination):
                         POSITION=b.acc(delta, sparse=True),
                         NORMAL=b.acc(dn, sparse=True),
                     )
-            if part == "rim":
-                joint = int(
-                    model.acc(mesh["primitives"][0]["attributes"]["JOINTS_0"])[0, 0]
-                )
-                add_lids(
-                    b,
-                    mesh,
-                    aperture,
-                    surface,
-                    colours,
-                    skin["material"],
-                    joint,
-                    manifest,
-                )
     with tempfile.TemporaryDirectory(dir=destination.parent) as scratch:
         folder = Path(scratch)
         shutil.copytree(source, folder / "pack")
         b.save(folder / "working.glb")
         template = folder / "pack/template.glb"
         compact(GLB(folder / "working.glb"), manifest, template)
-        manifest["revision"] = 11
+        manifest["revision"] = 12
         manifest["eyeHeight"] += 0.012
-        manifest["faceSurface"]["eyePlacement"] = "fitted-aperture-1"
+        manifest["faceSurface"]["eyePlacement"] = "tapered-anime-aperture-2"
         manifest["files"]["template.glb"] = hashlib.sha256(
             template.read_bytes()
         ).hexdigest()

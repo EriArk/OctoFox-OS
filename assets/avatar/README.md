@@ -1,10 +1,10 @@
 # Shared Trainer avatar pack
 
-## Eye fitting in pack revision 11
+## Eye fitting in pack revision 12
 
 The prepared face blends the former painted eye relief into the cheek and
 forehead. Both lids follow one aperture per style and use the existing skin
-palette. The original head reference, eye choices, iris artwork and animation
+palette. Its tapered lash and iris placement follow the neutral anime reference. The original head reference, eye choices, iris artwork and animation
 controls remain available. To rebuild from a revision 10 pack, run
 `python tools/avatar/fit_eyelids.py SOURCE_PACK NEW_OUTPUT_DIRECTORY`.
 [Render comparison](../../docs/evidence/2026-11-20-avatar-eyelids/README.md).

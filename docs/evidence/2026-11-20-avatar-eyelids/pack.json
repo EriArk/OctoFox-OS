@@ -1,7 +1,7 @@
 {
   "passed": true,
-  "revision": 11,
-  "templateBytes": 54851516,
+  "revision": 12,
+  "templateBytes": 53129624,
   "files": 51,
   "wearables": 22,
   "eyeSets": 14,
@@ -9,7 +9,7 @@
   "hairFitSourcesPreserved": true,
   "rigBones": 54,
   "clips": 8,
-  "manifestSha256": "dad011deb09d03693347b024c8e40836a751adaef916542ecf7450c122539426",
+  "manifestSha256": "faaf477de66d3b142b3373711941ffb0141bcda2f86c3725532a17d8aa631d5e",
   "approvedFace": {
     "passed": true,
     "reference": "painted-face-2026-10-29",

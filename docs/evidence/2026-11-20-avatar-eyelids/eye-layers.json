@@ -2,11 +2,11 @@
   "passed": true,
   "eyeStyles": 14,
   "posesAndWeights": 182,
-  "minimumIrisWhiteClearanceMetres": 0.0011976733803749084,
+  "minimumIrisWhiteClearanceMetres": 0.0012826025485992432,
   "worstCase": {
-    "style": "innocent-base",
+    "style": "determined-base",
     "control": "eyes_wide",
     "weight": 1,
-    "clearance": 0.0011976733803749084
+    "clearance": 0.0012826025485992432
   }
 }
