@@ -20,7 +20,11 @@ QString BackendAccount::commercePath() const {
 }
 bool BackendAccount::saveCommerce() {
     if(key_.isEmpty())return false;
-    const auto data=QJsonDocument(QJsonObject{{"profile",profileSnapshot_},{"prizes",prizeSnapshot_},{"snapshot",shopSnapshot_},{"pending",shopPending_},{"wardrobe",wardrobeState_},{"outfitWrites",outfitWrites_}}).toJson(QJsonDocument::Compact);
+    if(!player_.isEmpty()){
+        if(marketPending_.isEmpty())marketOperations_.remove(player_);
+        else marketOperations_[player_]=marketPending_;
+    }
+    const auto data=QJsonDocument(QJsonObject{{"profile",profileSnapshot_},{"prizes",prizeSnapshot_},{"snapshot",shopSnapshot_},{"pending",shopPending_},{"marketOperations",marketOperations_},{"wardrobe",wardrobeState_},{"outfitWrites",outfitWrites_}}).toJson(QJsonDocument::Compact);
     if(services_.writeCommerce)return services_.writeCommerce(key_,data);
     const auto path=commercePath(),directory=QFileInfo(path).absolutePath();
     if(QFileInfo(directory).isSymLink()||QFileInfo(path).isSymLink()||!QDir().mkpath(directory))return false;
@@ -40,6 +44,7 @@ void BackendAccount::loadCommerce() {
     adoptPrizes(data["prizes"].toObject(),true);
     wardrobeState_=data["wardrobe"].toObject();
     outfitWrites_=data["outfitWrites"].toObject();
+    marketOperations_=data["marketOperations"].toObject();
     const auto pending=data["pending"].toObject();
     if(pending["kind"]=="bazaar.rent"&&identity(pending["player_id"].toString())&&identity(pending["operation_id"].toString())
         &&identity(pending["bazaar_id"].toString())&&identity(pending["place_id"].toString())

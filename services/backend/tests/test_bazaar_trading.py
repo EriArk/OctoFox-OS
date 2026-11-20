@@ -188,3 +188,40 @@ def test_costumes_have_server_alpha_prices_but_cannot_charge_without_assets(acco
     for key in ('traveller','mage','merchant'):
         with pytest.raises(AuthError,match='costume_assets_unavailable'):shop.purchase(token,uuid4(),'costume.'+key,1,50)
     assert shop.progression.snapshot(token)['balance']==1000
+
+
+def test_staffed_checkout_rolls_back_and_showcase_tracks_sale(account,postgres,monkeypatch):
+    shop,s,owner,seller,bid,pid=setup(account,postgres,950)
+    with psycopg.connect(postgres[0]) as conn:
+        conn.execute("INSERT INTO trainer_backend.bazaar_worlds VALUES('festival',%s)",(bid,))
+        conn.execute("INSERT INTO trainer_backend.bazaar_world_places VALUES('festival',2,%s)",(pid,))
+    buyer_subject='881173';account.provider.subject=buyer_subject;buyer=login(account)
+    grant_test_sparks(postgres[0],buyer['player_id'],buyer_subject,1000,'Disposable buyer',uuid4())
+    token=seller['access_token'];before=shop.progression.snapshot(owner['access_token'])['balance']
+    auth={'Authorization':'Bearer '+token}
+    path=f'/v1/bazaars/{bid}/places/{pid}/staffed-rental'
+    body={'operation_id':str(uuid4()),'revision':'1','expected_price':950,'species':'Frog','seller_price':100}
+    with TestClient(create_app(Settings(postgres[1],'test',oauth=CONFIG),provider=Provider())) as client:
+        assert client.post(path,headers=auth,json=body).json()['code']=='insufficient_sparks'
+        assert shop.progression.snapshot(token)['balance']==1000
+        assert shop.progression.snapshot(owner['access_token'])['balance']==before
+        assert trading.world(s,token,'festival')['places'][0]['rental_id'] is None
+        rentals.price(s,owner['access_token'],bid,pid,1,150)
+        body.update(revision='2',expected_price=150)
+        first=client.post(path,headers=auth,json=body)
+        assert first.status_code==200,first.text
+        replay=client.post(path,headers=auth,json=body).json()
+        assert replay==first.json()
+        assert shop.progression.snapshot(token)['balance']==750
+        item=UUID(seed(postgres,seller['player_id'])[0])
+        listing=trading.create_listing(s,token,UUID(replay['receipt']['id']),item,uuid4(),65)['listing']
+        shelf=trading.world(s,buyer['access_token'],'festival')['places'][0]['showcase']
+        assert shelf==[{'title':'Item 0','icon':'gamepad','game':'Fixture game','price':65}]
+        op=uuid4()
+        result=trading.buy(s,buyer['access_token'],listing['id'],op,1,65)
+        monkeypatch.setattr(policy,'PAYMENTS_AVAILABLE',False)
+        assert trading.buy(s,buyer['access_token'],listing['id'],op,1,65)==result
+        assert read_inventory(account,buyer['access_token'])['items'][0]['id']==item
+        assert trading.world(s,token,'festival')['places'][0]['showcase']==[]
+        assert shop.progression.snapshot(token)['balance']==815
+        assert shop.progression.snapshot(buyer['access_token'])['balance']==935

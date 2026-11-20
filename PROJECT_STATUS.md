@@ -1,5 +1,19 @@
 # OctoFox OS — Project status
 
+## 20 November 2026 — Bazaar 0.0.18
+
+The native Bazaar test host on Odin 2 presented the current offer and returned to the
+counter on cancellation. The reviewed asking price survives a lost reply and replay.
+Both device labs remain separate from production. [SDK contract](sdk/BAZAAR.md).
+
+## 20 November 2026 — trade on two handhelds
+
+Mika on Flip 2 and Ren on Odin 2 completed a profile-item sale through the
+separate native test hosts and an isolated Backend. Both handhelds run Bazaar
+0.0.16. The installed system shells still use the production configuration.
+Game-save custody and production checkout delivery remain open. [Acceptance](docs/BAZAAR.md).
+
+
 ## 20 ноября 2026 — игровые модули Godot SDK
 
 На Odin 2 и Flip 2 во временном автономном проекте прошли проверки расчёта урона, расхода ресурсов, смены предметов и крепления к кисти. Проверены слайд, слайд с переходом в буллетджамп, тяга джетпака, возврат к обычному движению и воспроизведение всех трёх клипов на скелете SDK. На каждом устройстве также прошли 20 прежних проверок мотора. Ввод и воспроизведение проверены без вывода на дисплей. На рабочей станции дополнительно прошёл полный тест семи прежних анимаций. Модули подключаются в коде игры. [Руководство](sdk/GAMEPLAY.md) · [Кадры с рабочей станции](docs/evidence/2026-11-20-sdk-gameplay/mobility.jpg).

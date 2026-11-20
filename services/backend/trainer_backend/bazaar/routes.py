@@ -151,8 +151,8 @@ def own_listings(request: Request, after: UUID | None = None):
 
 
 @router.get('/v1/bazaar-places/{place_id}/listings')
-def place_listings(place_id: UUID, request: Request, after: UUID | None = None):
-    return wire(trading.listings(service(request),bearer(request),place_id,after))
+def place_listings(place_id: UUID, request: Request, after: UUID | None = None, listing_id: UUID | None = None):
+    return wire(trading.listings(service(request),bearer(request),place_id,after,listing_id))
 
 
 @router.post('/v1/me/bazaar-listings/{listing_id}/withdraw')
@@ -183,3 +183,19 @@ def costume_catalogue(request: Request):
         actor=s.progression.account(conn,bearer(request))
         rows=conn.execute("SELECT id,title,description,price,revision FROM trainer_backend.shop_offers WHERE purpose='avatar_costume' ORDER BY id LIMIT 24").fetchall()
         return wire({'player_id':actor.player_id,'items':rows,'payments_available':False,'reason':'costume_assets_unavailable'})
+
+
+class StaffedRental(HireSeller):
+    seller_price: int = Field(ge=1, le=2147483647)
+
+
+@router.post('/v1/bazaars/{bazaar_id}/places/{place_id}/staffed-rental')
+def staffed_rental(bazaar_id: UUID, place_id: UUID, body: StaffedRental, request: Request):
+    s = service(request)
+    op = UUID(body.operation_id)
+    with s.db.transaction() as conn:
+        actor = s.progression.account(conn, bearer(request))
+        rental = rentals.rent_locked(conn, actor, op, bazaar_id, place_id, int(body.revision), body.expected_price)
+        seller = trading.hire_locked(conn, actor, rental['receipt']['id'], op, body.species, 1, body.seller_price)
+        rental['receipt'].pop('bazaar_id', None)  # Joined only on receipt replay.
+        return wire({**rental, 'seller_receipt': seller['receipt']})

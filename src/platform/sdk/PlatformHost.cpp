@@ -185,7 +185,7 @@ void PlatformHost::send(QTcpSocket* socket, const QJsonObject& packet) {
 void PlatformHost::release(QTcpSocket* socket) {
     if (!peers_.contains(socket)) return;
     const auto peer=peers_.take(socket);
-    if(backend_&&!peer.playChannel.isEmpty())backend_->closePlay(peer.playChannel);
+    if(backend_&&!peer.playChannel.isEmpty()){backend_->closePlay(peer.playChannel);backend_->closeMarketReview(peer.playChannel);}
     if(network_&&peer.authenticated)network_->disconnected(peer.app);
     disconnect(socket, nullptr, this, nullptr);
     publishWidgets();
@@ -219,7 +219,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}
-        if(backend_){caps["play.scorecards"]=1;caps["bazaar.read"]=1;}
+        if(backend_){caps["play.scorecards"]=1;caps["bazaar.read"]=1;caps["bazaar.checkout"]=1;}
         if(selectHomeWidget)caps["ui.home.widget"]=1;
         ok({{"protocol", 1}, {"capabilities", caps}, {"context", snapshot()}});
         return;
@@ -267,6 +267,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
             else send(target,{{"id",id},{"error",QJsonObject{{"code",result["code"].toString("backend_unavailable")}}}});
         };
         if(workshop)backend_->workshopRequest(method,args,std::move(reply));
+        else if(method=="bazaar.checkout")backend_->marketCheckout(channel,args,std::move(reply));
         else backend_->bazaarRead(method,args,std::move(reply));
         return;
     }

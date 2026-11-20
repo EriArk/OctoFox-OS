@@ -64,7 +64,7 @@ QVariantMap BackendAccount::progression() const {
     result["known"]=!progression_.isEmpty();result["stale"]=progressionStale_;result["busy"]=rewardBusy_;
     // A pending debit can already have settled on the server. Do not advertise
     // a prospective balance until its receipt and the wallet are reconciled.
-    if(progressionStale_ || rewardBusy_ || !shopPending_.isEmpty())result["support_preview"]=QVariantMap{};
+    if(progressionStale_ || rewardBusy_ || !shopPending_.isEmpty() || !marketPending_.isEmpty())result["support_preview"]=QVariantMap{};
     return result;
 }
 QString BackendAccount::rewardActionLabel() const {
@@ -241,6 +241,7 @@ void BackendAccount::publishProfileFavorites(QJsonArray games,QString revision,R
 void BackendAccount::reset() {
     socialRetry_.stop();profileRetry_.stop();socialLogin_=false;socialClaimBusy_=false;profileReady_=false;profileBusy_=false;
     needsName_=false;needsAvatar_=false;profileRevision_.clear();nicknameEditor_.clear();avatarIntent_=false;
+    endMarket(401,{{"code","context_revoked"}});marketPending_={};marketSending_=false;
     ++supportGeneration_;support_={};supportClaim_={};supportMessage_.clear();supportBusy_=false;supportPending_=false;supportReview_=false;
     prizeBusy_=false;prizeStale_=true;celebrationIds_={};celebrationGroups_={};
     shopBusy_=false;shopReview_={};shopStale_=true;outfitFlushing_=false;
@@ -255,7 +256,7 @@ void BackendAccount::reset() {
 void BackendAccount::configure(const QString& owner) {
     if(owner_==owner)return;
     autoPaused_=false;socialConnected_=false;socialFailures_=0;
-    reset();cachedIdentity_={};profileSnapshot_={};lock_.reset();shopSnapshot_={};shopPending_={};prizeSnapshot_={};celebrationIds_={};prizeIndex_=0;wardrobeState_={};outfitWrites_={};outfitFlushing_=false;shopStatus_.clear();shopIndex_=0;owner_=owner;socialSubject_.clear();
+    reset();marketOperations_={};cachedIdentity_={};profileSnapshot_={};lock_.reset();shopSnapshot_={};shopPending_={};prizeSnapshot_={};celebrationIds_={};prizeIndex_=0;wardrobeState_={};outfitWrites_={};outfitFlushing_=false;shopStatus_.clear();shopIndex_=0;owner_=owner;socialSubject_.clear();
     if(owner.isEmpty()){state("disabled","Open your Trainer to sign in");return;}
     key_=QString::fromLatin1(QCryptographicHash::hash(("traineros-backend-v1\n"+Origin+"\n"+owner).toUtf8(),QCryptographicHash::Sha256).toHex());
     const auto directory=QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/credentials";
@@ -486,7 +487,10 @@ void BackendAccount::tokens(const QJsonObject& result) {
         cachedIdentity_=identity;
         subject_=subject;session_=result["session_id"].toString();access_=result["access_token"].toString().toLatin1();refresh_=result["refresh_token"].toString().toLatin1();accessExpiry_=expires;
         refreshProof_.clear();refreshInFlight_=false;refreshFailures_=0;
-        player_=player;if(!supportPending_){attempt_.clear();verifier_.clear();}
+        player_=player;
+        marketPending_=marketOperations_.value(player_).toObject();
+        if(!marketPending_.contains("operation_id"))marketPending_={};
+        if(!supportPending_){attempt_.clear();verifier_.clear();}
         if(!prizeSnapshot_.isEmpty()&&prizeSnapshot_["player_id"].toString()!=player_){prizeSnapshot_={};saveCommerce();}
         if(!shopSnapshot_.isEmpty()&&shopSnapshot_["player_id"].toString()!=player_){shopSnapshot_={};shopIndex_=0;saveCommerce();}
         if(logoutPending_){logoutPending_=false;logout();return;}

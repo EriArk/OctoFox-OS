@@ -95,15 +95,36 @@ Exact replay was verified. [Deployment evidence](../../docs/evidence/2026-11-14-
 
 ## Integration and remaining work
 
-The host exposes [read-only SDK methods](../../sdk/BAZAAR.md), not financial writes.
+The host exposes [SDK reads and host-reviewed checkout](../../sdk/BAZAAR.md).
 The game has the office, seller previews, goods and tailor surfaces, and applies
-server-assigned NPCs. Payment buttons are disabled with a visible explanation.
+server-assigned NPCs and projects active listings onto counter signs. Payment controls require host checkout support and an open server policy.
 A self-declared SDK application ID cannot authorize spending.
 
-Still needed for a usable paid journey: host-owned confirmation + durable recovery
-for hire/buy/withdraw/listing operations, world admission/launch/return, protected
+Still needed for a usable paid journey: in-world withdrawal of unsold items, world admission/launch/return, protected
 save-to-inventory custody, real costume assets + ownership/equip, and a reviewed
 production registration/deployment. These are unfinished parts of the requested
 scope, not tests passed or implemented by the preview menus.
 
 [Verification: 201 Backend tests and native SDK/account/Bazaar suites](../../docs/evidence/2026-11-14-bazaar-services/README.md).
+
+### Staffed checkout in the test market
+
+`POST /v1/bazaars/{bazaar_id}/places/{place_id}/staffed-rental` accepts the rent
+operation body plus species and seller_price. Both receipts share the operation ID
+and commit in one transaction. A failed keeper hire rolls back rent and owner income.
+`listing_id` optionally filters a public counter's listing read for host review.
+
+The optional CMake target `bazaar_trade_lab` uses the same PlatformHost, account
+checkout and QML window as TrainerOS with a disposable loopback Backend.
+Build with `-DTRAINER_BUILD_BAZAAR_TEST_HOST=ON`. In the backend test image,
+`PYTHONPATH=. python tests/market_lab.py /tmp/market-wallets` starts a new private
+PostgreSQL cluster, seeds 1,000 test Sparks per visitor, and sets stall 02 to 150.
+Give each test host only its own generated wallet as a private `session.json` in
+its lab directory. Forward the loopback port 18641 to that device, then run
+`bazaar_trade_lab Mika /absolute/lab/directory 18641` (Ren on the other device).
+The game's field menu detects the host at
+`$XDG_RUNTIME_DIR/traineros-bazaar-lab/sdk/endpoint.json`. For automated runs the
+game accepts `--test-market` and a separate `TRAINEROS_TEST_MARKET_ENDPOINT`.
+The rehearsal drives the displayed window through its controller actions. The
+buyer host can drop a committed reply with `--drop-buy-response`. After host
+and game restart, Resolve uses the saved operation and the same receipt.

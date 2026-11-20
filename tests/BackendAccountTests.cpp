@@ -127,6 +127,49 @@ private slots:
         QVERIFY(bool(h.pendingLoot));account.configure("loot-other-owner");h.pendingLoot(200,{{"player_id",Player}});
         QVERIFY(!called);QVERIFY(!account.inventoryConnected());
     }
+    void marketListingUsesTheReviewedPriceOnSubmitAndReplay() {
+        Harness h;
+        const QString slot="10000000-0000-4000-8000-000000000002";
+        const QString venue="10000000-0000-4000-8000-000000000003";
+        const QString lease="10000000-0000-4000-8000-000000000004";
+        const QString item="10000000-0000-4000-8000-000000000005";
+        auto services=h.services();
+        const auto fallback=services.request;
+        QList<QJsonObject> writes;
+        services.request=[&](QByteArray method,QString path,QJsonObject body,QByteArray auth,BackendAccount::Reply reply) {
+            if(path=="/v1/bazaar-worlds/festival") {
+                QJsonObject counter{{"id",slot},{"slot",2},{"tenant_id",Player},{"rental_id",lease},{"species","Frog"}};
+                reply(200,{{"player_id",Player},{"payments_available",true},{"bazaar_id",venue},{"places",QJsonArray{counter}}});
+            } else if(path=="/v1/me/loot") {
+                QJsonObject record{{"id",item},{"state","stored"},{"presentation",QJsonObject{{"title","Rope"},{"game","Fixture"}}}};
+                reply(200,{{"player_id",Player},{"items",QJsonArray{record}}});
+            } else if(path=="/v1/me/bazaar-rentals/"+lease+"/listings") {
+                writes.append(body);
+                reply(503,{});
+            } else fallback(method,path,body,auth,reply);
+        };
+        BackendAccount account;
+        account.setServices(services);
+        account.configure("market-price-review");account.activate();h.callback();
+        int status=0;
+        auto received=[&](int code,QJsonObject){status=code;};
+        account.marketCheckout("counter",{{"action","list"},{"slot",2},{"price",25}},received);
+        account.confirmMarketListing(99);
+        QVERIFY(writes.isEmpty());
+        account.chooseMarketItem(0);
+        QCOMPARE(account.marketReview()["subject"].toString(),"Rope");
+        account.confirmMarketListing(0);
+        QVERIFY(writes.isEmpty());
+        account.confirmMarketListing(65);
+        QCOMPARE(status,503);
+        QCOMPARE(writes.size(),1);QCOMPARE(writes.first()["price"].toInt(),65);
+        account.marketCheckout("counter",{{"action","resolve"}},received);
+        QCOMPARE(account.marketReview()["price"].toInt(),65);
+        account.confirmMarketListing(999);
+        QCOMPARE(writes.size(),1);
+        account.answerMarketReview(true);
+        QCOMPARE(writes.size(),2);QCOMPARE(writes.first(),writes.last());
+    }
     void bazaarCreationUsesDurableExactPurchaseAndRestoresLostResponse() {
         auto fixture=std::make_shared<BazaarCommerceFixture>();
         const QJsonObject details{{"name","Nym market"},{"description","Meet here"},{"listed",true},{"access","open"}};

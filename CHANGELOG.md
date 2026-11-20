@@ -1,5 +1,17 @@
 # OctoFox OS — Changelog
 
+## 20 November 2026 — Festival market interface
+
+The native trade window shows the item and the Sparks on opposite sides. Owners can select a profile item, adjust the asking price with the pad or touch, and confirm. Pending trades keep their signed-off price when recovered.
+
+## 20 November 2026 — Festival Park checkout
+
+The SDK can request a native purchase review or private inventory picker. The
+Backend handles weekly rent and the selected keeper in one transaction. A
+persisted checkout can recover the original receipt after a lost response.
+[Trading protocol](sdk/BAZAAR.md).
+
+
 ## 20 ноября 2026 — игровые параметры и движения аватара
 
 Игры на Godot могут подключать здоровье, броню, щит, энергию и ману отдельно для каждого персонажа. SDK умеет прикреплять предмет к кисти и передавать игре действие выбранного оружия, устройства или удочки. Для джетпака, слайда и буллетджампа добавлены физическое движение и скелетные анимации. [Примеры подключения](sdk/GAMEPLAY.md) · [Движения на аватаре](docs/evidence/2026-11-20-sdk-gameplay/mobility.gif).

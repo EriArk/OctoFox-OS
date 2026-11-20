@@ -24,7 +24,7 @@ endif()
 
 add_library(trainer_core STATIC
     src/integrations/adventure/CartridgeContent.cpp
-    src/features/accounts/BackendAccount.cpp src/features/accounts/BackendAutomatic.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp
+    src/features/accounts/BackendAccount.cpp src/features/accounts/BackendAutomatic.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/accounts/MarketCheckout.cpp
     src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/features/trainer/OutfitController.cpp src/features/trainer/VisitorProfile.cpp src/features/trainer/ProfileInventory.cpp
     src/platform/sdk/PlatformHost.cpp
     src/platform/sdk/SdkNetwork.cpp
@@ -393,7 +393,18 @@ else()
     target_compile_options(trainer_core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+option(TRAINER_BUILD_BAZAAR_TEST_HOST "Build the isolated two-wallet Bazaar test host" OFF)
+if(TRAINER_BUILD_BAZAAR_TEST_HOST)
+    qt_add_executable(bazaar_trade_lab tests/market/Host.cpp)
+    target_link_libraries(bazaar_trade_lab PRIVATE trainer_core Qt6::Quick)
+    qt_add_resources(bazaar_trade_lab market_review PREFIX "/market-lab" FILES src/qml/MarketCheckoutWindow.qml)
+endif()
 qt_add_executable(traineros src/app/Main.cpp)
+set(market_item_art assets/bazaar/items/item-art.json assets/bazaar/items/blue-berry.png assets/bazaar/items/peach-berry.png)
+qt_add_resources(traineros market_items PREFIX "/market-items" BASE assets/bazaar/items FILES ${market_item_art})
+if(TARGET bazaar_trade_lab)
+    qt_add_resources(bazaar_trade_lab market_items_lab PREFIX "/market-items" BASE assets/bazaar/items FILES ${market_item_art})
+endif()
 qt_add_resources(traineros series_art BIG_RESOURCES PREFIX "/series" BASE assets/series
     FILES assets/series/pokemon.png assets/series/mario.png assets/series/zelda.png assets/series/sonic.png assets/series/final-fantasy.png assets/series/metroid.png assets/series/castlevania.png assets/series/kirby.png assets/series/metal-slug.png assets/series/multiverse.png)
 file(GLOB platform_photos CONFIGURE_DEPENDS assets/platforms/*.png)
@@ -541,6 +552,7 @@ qt_add_qml_module(traineros
     src/qml/BazaarPage.qml
     src/qml/BazaarCard.qml
     src/qml/BazaarPreview.qml
+    src/qml/MarketCheckoutWindow.qml
     src/qml/BazaarDialog.qml
         src/qml/AlbumPhoto.qml
         src/qml/ScreensAlbum.qml
@@ -701,12 +713,12 @@ if(BUILD_TESTING)
     add_test(NAME software_update COMMAND trainer_software_update_tests -o -,txt)
     qt_add_executable(trainer_platform_tests tests/PlatformHostTests.cpp)
     qt_add_executable(trainer_account_tests tests/BackendAccountTests.cpp
-        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendAutomatic.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
+        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendAutomatic.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/accounts/MarketCheckout.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
     target_include_directories(trainer_account_tests PRIVATE src)
     target_link_libraries(trainer_account_tests PRIVATE Qt6::Test Qt6::Gui Qt6::Network Qt6Keychain::Qt6Keychain OpenSSL::Crypto)
     add_test(NAME backend_account COMMAND trainer_account_tests)
     qt_add_executable(trainer_backend_login_probe tools/BackendLoginProbe.cpp
-        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendAutomatic.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
+        src/features/accounts/BackendAccount.cpp src/features/accounts/BackendAutomatic.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/accounts/MarketCheckout.cpp src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/platform/storage/EncryptedCredentials.cpp src/platform/storage/KeychainRequest.cpp)
     target_include_directories(trainer_backend_login_probe PRIVATE src)
     target_link_libraries(trainer_backend_login_probe PRIVATE Qt6::Core Qt6::Gui Qt6::Network Qt6Keychain::Qt6Keychain OpenSSL::Crypto)
     qt_add_executable(trainer_avatar_tests tests/AvatarTests.cpp)
