@@ -6,6 +6,7 @@ const Store=preload("res://scripts/layout_store.gd")
 const AvatarClient=preload("res://addons/avatar/avatar_client.gd")
 var art=Art.new()
 var studio=preload("res://scripts/studio.gd").new()
+var fabricator=preload("res://scripts/fabricator.gd").new()
 var fitting=preload("res://scripts/fitting_station.gd").new()
 var riding=false
 var lift_start=0.0
@@ -65,6 +66,7 @@ func _load_profile(id:String) -> void:
  if is_instance_valid(walker) and walker.seated:
   # Profile changes return to the reserved central approach before replacing furniture.
   walker.stand(Vector3(0,0.08,-2.1))
+ if fabricator.is_inside_tree():fabricator.close()
  profile=id;rows=store.load_home(id);undo_rows=[];has_undo=false;moving_index=-1
  _draw_furniture()
  if not store.error.is_empty():notify(store.error)
@@ -79,6 +81,7 @@ func _appearance(descriptor:Dictionary) -> void:
  if not walker.install_avatar(descriptor):notify("Your character could not be loaded.")
 
 func _identity_lost(reason:String) -> void:
+ fabricator.close()
  fitting.finish()
  walker.anonymous()
  if not profile.is_empty():
@@ -100,11 +103,18 @@ func _ui() -> void:
  for entry in [["Return",func():_pause(false)],["Decorate",func():_pause(false);_edit(true)],["Undo last arrangement",func():_undo()],["Remove selected furniture",func():_remove()],["Save and exit",func():_quit()]]:
   var b=Button.new();b.text=entry[0];b.custom_minimum_size.y=44;b.pressed.connect(entry[1]);column.add_child(b)
  menu.visible=false
+ layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
 
 func _pause(value:bool) -> void:
+ if value:fabricator.close()
  paused=value;walker.walking=not value;menu.visible=value
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value else Input.MOUSE_MODE_CAPTURED
  if value:menu.get_child(0).get_child(1).grab_focus()
+
+func _close_fabricator() -> void:
+ get_viewport().disable_3d=false
+ walker.walking=not paused
+ Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if paused else Input.MOUSE_MODE_CAPTURED
 
 func _unhandled_input(event:InputEvent) -> void:
  if event.is_action_pressed("pause_ship"):
@@ -137,6 +147,7 @@ func _unhandled_input(event:InputEvent) -> void:
  elif event.is_action_pressed("interact"):_interact()
 
 func _process(delta:float) -> void:
+ if fabricator.visible and fabricator.is_inside_tree():return
  if not paused:
   studio.animate(delta)
   fitting.update(delta)
@@ -317,7 +328,9 @@ func _interact() -> void:
    if editing:_edit(false)
    walker.sit();notify("Pilot seat · look around with RS / mouse. B / F to stand up.")
   "workbench":
-   studio.scan=2.4;notify("Fabricator ready · No blueprints loaded")
+   studio.scan=2.4;walker.walking=false;fabricator.open()
+   get_viewport().disable_3d=true
+   Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
   "wardrobe":fitting.enter()
   "cabin":notify("Display shelves · Figurines and awards")
   "lift":

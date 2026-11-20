@@ -9,10 +9,18 @@ A berth is recessed into the aft liner between two illuminated display shelves.
 A galley with an induction hob and sink, a dinette and a planted aquarium share
 the open deck. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
 
-Approach the fabricator and press **A / F** to run its empty-bed scan. The gantry
-and nozzle move over the circular print bed. Blueprint inventory and production
-will use the future crafting service. The display shelves currently hold no
-profile rewards.
+Approach the fabricator and press **A / F** to open its catalogue. Up/down selects
+a reusable set blueprint. Left/right selects an individual piece. Each blueprint
+covers all four pieces; the table shows the requirements for the selected piece.
+**LB / RB** or **[ / ]** switches to cartridges and the sets that use them.
+Buttons also support pointer selection. **B / Esc** returns to the ship.
+
+The catalogue uses provisional unit costs for cotton, plastic, aluminium and steel.
+The dash in **Held / Needed** means that the profile's stock is unavailable.
+Printing and inventory writes require a future crafting service. The layout draws
+on the [Warframe Foundry](https://support.warframe.com/hc/en-us/articles/38385820873741-Foundry-and-Crafting-FAQ).
+The garment plates are rendered from the ship's THREAD models.
+[Fabricator screenshots](../../docs/evidence/2026-11-20-ship-fabricator/README.md).
 
 At the circular fitting platform press **A / F**, then **LB / RB** or **[ / ]**
 to preview Traveller, Mage and Merchant. The two pleated screens meet at the front

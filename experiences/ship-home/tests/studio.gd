@@ -18,7 +18,39 @@ func run() -> void:
   check(home.walker.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(desc))),"SDK avatar loads")
  home.walker.position=Vector3(-2.55,0.1,2.45)
  press(JOY_BUTTON_A)
- check(home.studio.scan>0 and "blueprints" in home.message,"Fabricator accepts interaction")
+ var fab=home.fabricator
+ check(home.studio.scan>0 and fab.visible and root.disable_3d and not home.walker.walking,"Station opens blueprint console")
+ check(fab.heading.text=="Trail cloak" and fab.amounts[0].text=="— / 6","Inspect part without inventing a balance")
+ for set_index in 3:
+  if set_index>0:press(JOY_BUTTON_DPAD_DOWN)
+  check(fab.blueprint==set_index,"Select a set with D-pad")
+  press(JOY_BUTTON_A)
+  for i in 4:
+   if i>0:press(JOY_BUTTON_DPAD_RIGHT)
+   check(fab.part==i and fab.heading.text==fab.Garment.NAMES[fab.Garment.STYLES[set_index]][i],"Inspect all four part recipes")
+   check(fab.print_button.disabled,"Preview cannot authorize printing")
+ press(JOY_BUTTON_RIGHT_SHOULDER)
+ check(fab.page==1 and fab.heading.text=="Cotton","Open cartridge inventory")
+ for i in 3:press(JOY_BUTTON_DPAD_DOWN)
+ check(fab.heading.text=="Steel" and fab.rows[0].text=="Traveller","Inspect cartridge usage")
+ press(JOY_BUTTON_LEFT_SHOULDER)
+ check(fab.blueprint==2 and fab.part==3,"Returning from materials keeps the selected part")
+ var motion:=InputEventJoypadMotion.new()
+ motion.axis=JOY_AXIS_LEFT_X;motion.axis_value=0.9;root.push_input(motion,true)
+ check(fab.part==0,"Stick wraps to the first piece")
+ motion.axis_value=0.8;root.push_input(motion,true)
+ check(fab.part==0,"Holding the stick does not skip multiple pieces")
+ # Pointer and touch-emulated clicks follow the same Button route.
+ for down in [true,false]:
+  var click:=InputEventMouseButton.new()
+  click.position=fab.parts[2].get_global_rect().get_center()
+  click.button_index=MOUSE_BUTTON_LEFT;click.pressed=down
+  root.push_input(click,true)
+ check(fab.part==2,"Pointer selects a single piece")
+ press(JOY_BUTTON_B);check(not fab.visible and not root.disable_3d and home.walker.walking and not home.paused,"Back restores ship input")
+ press(JOY_BUTTON_A);press(JOY_BUTTON_START)
+ check(home.paused and not fab.visible and not home.walker.walking,"Pause takes precedence over the fabricator")
+ home._pause(false)
  home.walker.position=ShipInterior.BOOTH+Vector3(-0.65,0.08,-0.65)
  var approach:Vector3=home.walker.position
  var original_meshes=home.walker.visual.find_children("*","MeshInstance3D",true,false).filter(func(m):return m.visible)
