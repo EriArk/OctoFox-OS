@@ -178,6 +178,12 @@ private slots:
         Client c(f.endpoint);QCOMPARE(c.hello("org.traineros.bazaar.services")["result"].toObject()["capabilities"].toObject()["bazaar.read"].toInt(),1);
         c.send("bazaar.world");auto result=c.receive();QCOMPARE(result["result"].toObject()["player_id"].toString(),player);
         QVERIFY(!QJsonDocument(result).toJson().contains("token"));QCOMPARE(paths.last(),"/v1/bazaar-worlds/festival");
+        QVERIFY(!result["result"].toObject()["checkout_pending"].toBool());
+        c.send("bazaar.checkout",{{"action","resolve"}});
+        QCOMPARE(c.receive()["error"].toObject()["code"].toString(),"no_pending_checkout");
+        c.send("bazaar.checkout",{{"action","rent"},{"slot",2},{"price",150},{"species","Frog"},{"seller_price",100},{"revision","2"}});
+        QCOMPARE(c.receive()["error"].toObject()["code"].toString(),"market_closed");
+        QVERIFY(backend.marketReview().isEmpty());
         c.send("bazaar.own_listings",{{"after",player}});QVERIFY(c.receive().contains("result"));
         QCOMPARE(paths.last(),"/v1/me/bazaar-listings?after="+player);
         const auto count=paths.size();

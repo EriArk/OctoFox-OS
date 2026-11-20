@@ -75,23 +75,27 @@ def hire(service, token, rental_id, operation, species, revision, expected_price
     if species not in SPECIES:raise AuthError('invalid_seller',422)
     with service.db.transaction() as conn:
         actor=service.progression.account(conn,token)
-        payer=accounts(conn,[actor.player_id])[0]
-        identity={'kind':'seller','rental_id':rental_id,'species':species,'offer_revision':revision,'price':expected_price}
-        old=prior(conn,actor,operation,identity)
-        if old:return {'player_id':actor.player_id,'receipt':old}
-        enabled()
-        if revision!=1 or expected_price!=SELLER_PRICE:raise AuthError('offer_changed',409)
-        lease(conn,actor,rental_id)
-        if conn.execute('SELECT 1 FROM trainer_backend.bazaar_sellers WHERE rental_id=%s',(rental_id,)).fetchone():
-            raise AuthError('seller_already_hired',409)
-        if payer['balance']<expected_price:raise AuthError('insufficient_sparks',409)
-        conn.execute('INSERT INTO trainer_backend.bazaar_sellers(rental_id,species) VALUES(%s,%s)',(rental_id,species))
-        trade=conn.execute('''INSERT INTO trainer_backend.bazaar_trades
-            (id,buyer_id,operation_id,kind,rental_id,species,offer_revision,price)
-            VALUES(%s,%s,%s,'seller',%s,%s,%s,%s) RETURNING *''',
-            (uuid4(),actor.player_id,operation,rental_id,species,revision,expected_price)).fetchone()
-        ledger(conn,trade,'NPC seller · current rental')
-        return {'player_id':actor.player_id,'receipt':trade}
+        return hire_locked(conn, actor, rental_id, operation, species, revision, expected_price)
+
+
+def hire_locked(conn, actor, rental_id, operation, species, revision, expected_price):
+    payer=accounts(conn,[actor.player_id])[0]
+    identity={'kind':'seller','rental_id':rental_id,'species':species,'offer_revision':revision,'price':expected_price}
+    old=prior(conn,actor,operation,identity)
+    if old:return {'player_id':actor.player_id,'receipt':old}
+    enabled()
+    if revision!=1 or expected_price!=SELLER_PRICE:raise AuthError('offer_changed',409)
+    lease(conn,actor,rental_id)
+    if conn.execute('SELECT 1 FROM trainer_backend.bazaar_sellers WHERE rental_id=%s',(rental_id,)).fetchone():
+        raise AuthError('seller_already_hired',409)
+    if payer['balance']<expected_price:raise AuthError('insufficient_sparks',409)
+    conn.execute('INSERT INTO trainer_backend.bazaar_sellers(rental_id,species) VALUES(%s,%s)',(rental_id,species))
+    trade=conn.execute('''INSERT INTO trainer_backend.bazaar_trades
+        (id,buyer_id,operation_id,kind,rental_id,species,offer_revision,price)
+        VALUES(%s,%s,%s,'seller',%s,%s,%s,%s) RETURNING *''',
+        (uuid4(),actor.player_id,operation,rental_id,species,revision,expected_price)).fetchone()
+    ledger(conn,trade,'NPC seller · current rental')
+    return {'player_id':actor.player_id,'receipt':trade}
 
 
 def create_listing(service, token, rental_id, item_id, operation, price):
@@ -130,7 +134,7 @@ def withdraw(service, token, listing_id, revision):
         return {'player_id':actor.player_id,'listing':row}
 
 
-def listings(service, token, place_id=None, after=None):
+def listings(service, token, place_id=None, after=None, listing_id=None):
     with service.db.transaction() as conn:
         actor=service.progression.account(conn,token)
         if place_id:
@@ -141,7 +145,7 @@ def listings(service, token, place_id=None, after=None):
             FROM trainer_backend.bazaar_listings l JOIN trainer_backend.bazaar_rentals r ON r.id=l.rental_id
             JOIN trainer_backend.loot_items i ON i.id=l.item_id
             WHERE (%s::uuid IS NULL AND l.seller_id=%s OR r.place_id=%s AND l.state='listed' AND r.expires_at>clock_timestamp())
-            AND (%s::uuid IS NULL OR l.id>%s) ORDER BY l.id LIMIT 25''',(place_id,actor.player_id,place_id,after,after)).fetchall()
+            AND (%s::uuid IS NULL OR l.id>%s) AND (%s::uuid IS NULL OR l.id=%s) ORDER BY l.id LIMIT 25''',(place_id,actor.player_id,place_id,after,after,listing_id,listing_id)).fetchall()
         items=[]
         for row in rows[:24]:
             # Never expose payload or the seller's private operation identity.
@@ -196,11 +200,21 @@ def world(service, token, key):
         if not bound:raise AuthError('world_not_configured',409)
         venue=rentals.visible(conn,actor,bound['bazaar_id'])
         if venue['owner_id']!=actor.player_id:access(conn,actor,bound['bazaar_id'])
-        rows=conn.execute('''SELECT w.slot,p.id,p.name,p.weekly_price,p.revision,r.id AS rental_id,r.tenant_id,r.expires_at,s.species
+        rows=conn.execute('''SELECT w.slot,p.id,p.name,p.weekly_price,p.revision,r.id AS rental_id,r.tenant_id,r.expires_at,s.species,
+                profile.display_name AS tenant_name,COALESCE(shelf.items,'[]'::jsonb) AS showcase
             FROM trainer_backend.bazaar_world_places w JOIN trainer_backend.bazaar_places p ON p.id=w.place_id
             LEFT JOIN LATERAL (SELECT * FROM trainer_backend.bazaar_rentals WHERE place_id=p.id AND expires_at>clock_timestamp()
                 ORDER BY expires_at DESC LIMIT 1) r ON true
             LEFT JOIN trainer_backend.bazaar_sellers s ON s.rental_id=r.id
+            LEFT JOIN trainer_backend.public_profiles profile ON profile.player_id=r.tenant_id
+            LEFT JOIN LATERAL (
+                SELECT jsonb_agg(sample.face ORDER BY sample.id) AS items FROM (
+                    SELECT l.id,jsonb_build_object('title',left(i.presentation->>'title',96),
+                        'icon',i.presentation->>'icon','price',l.price) AS face
+                    FROM trainer_backend.bazaar_listings l JOIN trainer_backend.loot_items i ON i.id=l.item_id
+                    WHERE l.rental_id=r.id AND l.state='listed' AND NOT EXISTS (
+                        SELECT 1 FROM trainer_backend.bazaar_blocks b WHERE b.bazaar_id=p.bazaar_id AND b.player_id=r.tenant_id)
+                    ORDER BY l.id LIMIT 3) sample) shelf ON true
             WHERE w.world_key=%s AND p.bazaar_id=%s ORDER BY w.slot''',(key,bound['bazaar_id'])).fetchall()
         owner=venue['owner_id']
         return {'player_id':actor.player_id,'bazaar_id':bound['bazaar_id'],'owner_id':owner,'places':rows,

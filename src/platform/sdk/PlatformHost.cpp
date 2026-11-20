@@ -185,7 +185,7 @@ void PlatformHost::send(QTcpSocket* socket, const QJsonObject& packet) {
 void PlatformHost::release(QTcpSocket* socket) {
     if (!peers_.contains(socket)) return;
     const auto peer=peers_.take(socket);
-    if(backend_&&!peer.playChannel.isEmpty())backend_->closePlay(peer.playChannel);
+    if(backend_&&!peer.playChannel.isEmpty()){backend_->closePlay(peer.playChannel);backend_->closeMarketReview(peer.playChannel);}
     if(network_&&peer.authenticated)network_->disconnected(peer.app);
     disconnect(socket, nullptr, this, nullptr);
     publishWidgets();
@@ -215,7 +215,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}
-        if(backend_){caps["play.scorecards"]=1;caps["bazaar.read"]=1;}
+        if(backend_){caps["play.scorecards"]=1;caps["bazaar.read"]=1;caps["bazaar.checkout"]=1;}
         if(selectHomeWidget)caps["ui.home.widget"]=1;
         ok({{"protocol", 1}, {"capabilities", caps}, {"context", snapshot()}});
         return;
@@ -228,12 +228,15 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
     if(method.startsWith("bazaar.")&&backend_) {
         if(peer.playBusy){fail("service_busy");return;}
         peer.playBusy=true;const QPointer<QTcpSocket> target(socket);const auto channel=peer.playChannel;const QPointer<PlatformHost> guard(this);
-        backend_->bazaarRead(method,args,[this,guard,target,channel,id](int status,QJsonObject result){
+        auto reply=[this,guard,target,channel,id](int status,QJsonObject result){
             if(!guard||!target||!peers_.contains(target)||peers_[target].playChannel!=channel)return;
             peers_[target].playBusy=false;
             if(status>=200&&status<300)send(target,{{"id",id},{"result",result}});
             else send(target,{{"id",id},{"error",QJsonObject{{"code",result["code"].toString("backend_unavailable")}}}});
-        });return;
+        };
+        if(method=="bazaar.checkout")backend_->marketCheckout(channel,args,std::move(reply));
+        else backend_->bazaarRead(method,args,std::move(reply));
+        return;
     }
     if(method.startsWith("play.")&&backend_) {
         if(peer.playBusy){fail("play_busy");return;}

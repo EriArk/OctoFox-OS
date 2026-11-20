@@ -84,11 +84,12 @@ void BackendAccount::bazaarRead(const QString& method,QJsonObject args,Reply don
     }
     else {done(422,{{"code","unsupported_bazaar_read"}});return;}
     const auto player=player_;
-    request("GET",path,{},[this,player,done=std::move(done)](int status,QJsonObject result){
+    request("GET",path,{},[this,player,method,done=std::move(done)](int status,QJsonObject result){
         if(player!=player_||state_!="connected")return;
         if(status==200&&(result["player_id"]!=player||QJsonDocument(result).toJson(QJsonDocument::Compact).size()>60000)) {
             done(502,{{"code","invalid_bazaar_snapshot"}});return;
         }
+        if(status==200 && method=="bazaar.world")result["checkout_pending"]=marketPending_.value("player_id")==player;
         done(status,std::move(result));
     },access_);
 }

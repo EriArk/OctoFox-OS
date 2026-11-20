@@ -1215,6 +1215,11 @@ int main(int argc, char* argv[]) {
             else keyboard->shortcut(command);
         });
         bindings.connect(&input,&ControllerInput::textSubmitted,&shell,[&]{shell.keyboard()->dispatch(Action::LocalAction);});
+        bool marketOpen=false;
+        bindings.connect(shell.backendAccount(),&BackendAccount::changed,&input,[&]{
+            const bool open=!shell.backendAccount()->marketReview().isEmpty();
+            if(open!=marketOpen){marketOpen=open;input.requireNeutral();}
+        });
         bool homeMenuWasOpen = false;
         bindings.connect(&shell, &ShellController::changed, &input, [&] {
             if (homeMenuWasOpen == shell.homeMenuOpen()) return;
@@ -1233,6 +1238,13 @@ int main(int argc, char* argv[]) {
                                                          : QDir(reportBase).filePath("diagnostics"));
         shell.diagnostics()->configure(&input, &deviceReports);
         bindings.connect(&input, &ControllerInput::action, &session, [&](Action action) {
+            if(marketOpen) {
+                if(action==Action::Confirm)emit shell.backendAccount()->marketControl("confirm");
+                else if(action==Action::Back)emit shell.backendAccount()->marketControl("back");
+                else if(action==Action::Up||action==Action::Left)emit shell.backendAccount()->marketControl("up");
+                else if(action==Action::Down||action==Action::Right)emit shell.backendAccount()->marketControl("down");
+                return;
+            }
             // An exit prompt must never navigate the hidden shell. The platform
             // input provider feeds its own isolated snapshots to the presenter.
             if (adventureLaunch.exitController().phase() != AdventureExitController::Phase::Idle) return;

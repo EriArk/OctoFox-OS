@@ -14,6 +14,7 @@ namespace trainer {
 // Owns backend credentials. QML and SDK receive presentation/identity only.
 class BackendAccount final : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QVariantMap marketReview READ marketReview NOTIFY changed)
     Q_PROPERTY(QString actionLabel READ actionLabel NOTIFY changed)
     Q_PROPERTY(QString detail READ detail NOTIFY changed)
     Q_PROPERTY(QVariantMap progression READ progression NOTIFY changed)
@@ -76,6 +77,12 @@ public:
     void finishRental(int status,QJsonObject result);
     void reviewBazaarPurchase(bool stall=false);
     void resolveBazaarPurchase();
+    QVariantMap marketReview() const { return marketView_.toVariantMap(); }
+    void marketCheckout(QString channel, QJsonObject args, Reply done);
+    void closeMarketReview(const QString& channel);
+    Q_INVOKABLE void chooseMarketItem(int index);
+    Q_INVOKABLE void moreMarketItems();
+    Q_INVOKABLE void answerMarketReview(bool confirm);
     void bazaarRead(const QString& method,QJsonObject args,Reply done);
     void bazaarRequest(const QString& action,QJsonObject args,Reply done);
     QString profileAppearance() const;
@@ -102,6 +109,7 @@ public:
     void activateSupport(int action);
 signals:
     void rewardsEarned(qint64 xp,qint64 sparks);
+    void marketControl(QString action);
     void changed();
     void returnRequested();
 private:
@@ -130,6 +138,13 @@ private:
     bool saveCommerce();
     void recoverPurchase(bool retry=false);
     void finishPurchase(int,QJsonObject);
+    void endMarket(int status, QJsonObject response);
+    void submitMarket();
+    QString marketChannel_;
+    quint64 marketGeneration_=0;
+    QJsonObject marketIntent_,marketView_,marketPending_,marketOperations_;
+    Reply marketReply_;
+    bool marketSending_=false;
     QString commercePath() const;
     void logout();
     void fail(const QString& message);

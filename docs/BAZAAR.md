@@ -1,5 +1,19 @@
 # Bazaar — Online, экономика и границы интеграции
 
+## 20 November 2026 — Festival Park test trade
+
+Mika paid 150 test Sparks for a week at counter 02 and 100 for the Frog keeper.
+Ren bought Mika’s Oran Berry for 65. After the server committed, the test dropped
+its reply and restarted the game and the native host. Resolving the checkout
+returned the original receipt. Ren held the berry and 935 Sparks. Mika had 815
+and restocked with Pecha Berry for 65. Both accounts started with 1000 test Sparks.
+The test seeded both berries directly into Mika’s profile inventory.
+
+Odin 2 and Flip 2 run game 0.0.16 with a separate native checkout host. The field
+menu offers **Enter test market** while the private fixture is available.
+Production payments remain closed. [SDK contract](../sdk/BAZAAR.md) ·
+[Fixture and Backend](../services/backend/bazaar-trading.md).
+
 ## 14 November 2026 — Bazaar launches from its own tab
 
 Corrected the Apps-only delivery: **Online → Bazaar → Official Bazaar** now opens

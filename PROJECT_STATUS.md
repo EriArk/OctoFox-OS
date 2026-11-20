@@ -1,5 +1,12 @@
 # TrainerOS — состояние проекта
 
+## 20 November 2026 — trade on two handhelds
+
+Mika on Flip 2 and Ren on Odin 2 completed a profile-item sale through the
+separate native test hosts and an isolated Backend. Both handhelds run Bazaar
+0.0.16. The installed system shells still use the production configuration.
+Game-save custody and production checkout delivery remain open. [Acceptance](docs/BAZAAR.md).
+
 ## 14 November 2026 — live Bazaar read services
 
 The existing Backend now runs the Bazaar world/offer and private profile-loot

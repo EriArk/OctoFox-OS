@@ -1,5 +1,12 @@
 # TrainerOS — история изменений
 
+## 20 November 2026 — Festival Park checkout
+
+The SDK can request a native purchase review or private inventory picker. The
+Backend handles weekly rent and the selected keeper in one transaction. A
+persisted checkout can recover the original receipt after a lost response.
+[Trading protocol](sdk/BAZAAR.md).
+
 ## 14 November 2026 — live Bazaar read services
 
 The existing Backend now runs the Bazaar world/offer and private profile-loot
