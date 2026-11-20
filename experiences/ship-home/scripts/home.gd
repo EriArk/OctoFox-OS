@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends Node3D
 const Art=preload("res://scripts/interior.gd")
+const Exterior=preload("res://scripts/ship_exterior.gd")
+const ExteriorScene=preload("res://exterior.tscn")
+var cabin:=Node3D.new()
+var exterior:=ExteriorScene.instantiate() as Exterior
+var viewing_exterior:=false
+var lift_shutter:=ColorRect.new()
 const Walker=preload("res://scripts/walker.gd")
 const Store=preload("res://scripts/layout_store.gd")
 const AvatarClient=preload("res://scripts/workshop_client.gd")
@@ -44,11 +50,19 @@ var profile=""
 
 func _ready() -> void:
  Engine.max_fps=60
- _inputs();art.build(self);add_child(studio);studio.build_fixed(art);art.batch_static(self);studio.build_moving();art.moving_controls()
- add_child(flight);flight.build(art);studio.build_landing_gear(flight.GROUND_Y,flight.WALK_LAYER)
- furnishings=Node3D.new();add_child(furnishings)
+ _inputs()
+ cabin.name="Cabin";add_child(cabin)
+ for camera:Camera3D in get_tree().root.find_children("*","Camera3D",true,false):
+  if camera.get_world_3d()==get_world_3d():Exterior.configure_camera(camera,false)
+ get_tree().node_added.connect(_ship_visual_added)
+ art.build(cabin,self);cabin.add_child(studio);studio.build_fixed(art);art.batch_static(cabin)
+ studio.build_moving(self);art.moving_controls()
+ exterior.local_ship=true;add_child(exterior)
+ add_child(flight);flight.build(art)
+ furnishings=Node3D.new();cabin.add_child(furnishings)
  walker=Walker.new();walker.helm=art;walker.position=Vector3(0,0.1,-0.55);add_child(walker)
  add_child(fitting);fitting.configure(walker,studio)
+ Exterior.configure_camera(walker.pilot_camera,true);Exterior.configure_camera(fitting.camera,true)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
  parts.client=avatar_client;parts.fitting=fitting
@@ -75,6 +89,24 @@ func _ready() -> void:
  get_tree().auto_accept_quit=false
  if DisplayServer.get_name()!="headless":Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
 
+func _ship_visual_added(node:Node) -> void:
+ if node is Camera3D and node.get_world_3d()==get_world_3d():
+  # A second camera in the same world (including a spectator viewport) sees the hull.
+  Exterior.configure_camera(node,false)
+ elif node is VisualInstance3D and cabin.is_ancestor_of(node):
+  node.layers=Exterior.CABIN_LAYER
+  if node is Light3D:node.light_cull_mask=Exterior.CABIN_LAYER
+ elif is_instance_valid(walker) and node is GeometryInstance3D and walker.is_ancestor_of(node):
+  node.layers=1 if viewing_exterior else Exterior.CABIN_LAYER
+
+func _set_ship_view(at_dock:bool) -> void:
+ Exterior.configure_camera(walker.camera,not at_dock)
+ if viewing_exterior!=at_dock:
+  viewing_exterior=at_dock
+  for mesh:GeometryInstance3D in walker.find_children("*","GeometryInstance3D",true,false):
+   mesh.layers=1 if at_dock else Exterior.CABIN_LAYER
+ walker.arm.collision_mask=(flight.WALK_LAYER|Exterior.HULL_COLLISION) if at_dock else 3
+
 func _inputs() -> void:
  for action in ["walk_left","walk_right","walk_forward","walk_back","look_left","look_right","look_up","look_down","fly_up","fly_down","fly_left","fly_right","walk_run","decorate","confirm_place","cancel_ship","next_item","previous_item","rotate_left","rotate_right","pick_item","undo_place","interact","pause_ship"]:
   if not InputMap.has_action(action):InputMap.add_action(action,0.18)
@@ -96,7 +128,7 @@ func _load_profile(id:String) -> void:
   walker.position=Vector3(0,0.08,-0.55);walker.velocity=Vector3.ZERO
  walker.stationary=false;riding=false;ride_platform=null
  _outside(false)
- studio.lift.position.y=0;studio.set_exit_height(Art.LOWER_Y);studio.undercarriage.scale.y=1
+ studio.lift.position.y=0;studio.set_exit_height(Art.LOWER_Y);exterior.set_gear_deployment(1)
  if parts.is_inside_tree():parts.close()
  if dye.is_inside_tree() and dye.visible:dye.close()
  if fabricator.is_inside_tree():fabricator.close()
@@ -136,6 +168,8 @@ func _identity_lost(reason:String) -> void:
 
 func _ui() -> void:
  var layer=CanvasLayer.new();add_child(layer)
+ lift_shutter.color=Color("101c22");lift_shutter.mouse_filter=Control.MOUSE_FILTER_IGNORE
+ layer.add_child(lift_shutter);lift_shutter.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);lift_shutter.hide()
  var overlay=Control.new();overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);overlay.mouse_filter=Control.MOUSE_FILTER_IGNORE;layer.add_child(overlay)
  status=Label.new();status.hide();status.position=Vector2(24,20);status.add_theme_constant_override("outline_size",4);status.add_theme_color_override("font_outline_color",Color("#13292c"));status.add_theme_font_size_override("font_size",18);overlay.add_child(status)
  dot.hide();dot.text="·";dot.add_theme_font_size_override("font_size",28);dot.set_anchors_and_offsets_preset(Control.PRESET_CENTER);overlay.add_child(dot)
@@ -217,7 +251,7 @@ func _process(delta:float) -> void:
  if fabricator.visible:
   prompts.clear_world();prompts.actions(fabricator.action_hints());status.hide();dot.hide();return
  if not paused:
-  studio.animate(delta)
+  if not viewing_exterior:studio.animate(delta)
   fitting.update(delta)
  var station = _station()
  var target=STATION_TARGETS.get(station)
@@ -281,13 +315,13 @@ func _edit(value:bool) -> void:
  if value and walker.seated:notify("Stand up to decorate your ship.");return
  if value and not store.writable:notify(store.error);return
  editing=value;moving_index=-1
- if is_instance_valid(ghost):remove_child(ghost);ghost.queue_free()
+ if is_instance_valid(ghost):cabin.remove_child(ghost);ghost.queue_free()
  ghost=null
  if value:prompts.clear_world();_ghost()
 
 func _ghost() -> void:
- if is_instance_valid(ghost):remove_child(ghost);ghost.queue_free()
- ghost=art.furniture(Art.ITEMS[item_index],false);add_child(ghost)
+ if is_instance_valid(ghost):cabin.remove_child(ghost);ghost.queue_free()
+ ghost=art.furniture(Art.ITEMS[item_index],false);cabin.add_child(ghost)
  for mesh in ghost.get_children():
   if mesh is MeshInstance3D:
    var m=StandardMaterial3D.new();m.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA;m.albedo_color=Color(0.4,0.9,0.7,0.55);mesh.material_override=m
@@ -414,10 +448,10 @@ func _physics_process(delta:float) -> void:
   var stick:=Input.get_vector("walk_left","walk_right","walk_forward","walk_back",0.18)
   flight.tick(delta,stick,Input.get_axis("rotate_left","rotate_right"),Input.get_axis("previous_item","next_item"),Vector2(Input.get_axis("fly_left","fly_right"),Input.get_axis("fly_down","fly_up")),Input.is_action_pressed("decorate"))
   match flight.mode:
-   flight.Mode.DEPARTING:studio.undercarriage.scale.y=lerpf(1.0,0.1,flight.transition)
-   flight.Mode.LANDING:studio.undercarriage.scale.y=lerpf(0.1,1.0,flight.transition)
-   flight.Mode.BERTH:studio.undercarriage.scale.y=1.0
-   flight.Mode.FLYING:studio.undercarriage.scale.y=0.1
+   flight.Mode.DEPARTING:exterior.set_gear_deployment(1.0-flight.transition)
+   flight.Mode.LANDING:exterior.set_gear_deployment(flight.transition)
+   flight.Mode.BERTH:exterior.set_gear_deployment(1)
+   flight.Mode.FLYING:exterior.set_gear_deployment(0)
   walker.steer(stick if flight.mode==flight.Mode.BERTH else flight.stick,flight.throttle)
   if mode_before==flight.Mode.LANDING and flight.mode==flight.Mode.BERTH:
    store.berth=flight.berth
@@ -428,7 +462,12 @@ func _physics_process(delta:float) -> void:
  if not riding:return
  ride_time=minf(1,ride_time+delta/1.75)
  var height:=lerpf(lift_start,lift_end,smoothstep(0,1,ride_time))
- if ride_platform==studio.exit_lift:studio.set_exit_height(height)
+ if ride_platform==studio.exit_lift:
+  studio.set_exit_height(height)
+  var descent:=inverse_lerp(Art.LOWER_Y,flight.GROUND_Y,height)
+  if viewing_exterior!=(descent>=0.5):_set_ship_view(descent>=0.5)
+  var opacity:=1.0-smoothstep(0.05,0.29,absf(descent-0.5))
+  lift_shutter.modulate.a=opacity;lift_shutter.visible=opacity>0
  else:ride_platform.position.y=height
  walker.position=ride_platform.position+Vector3.UP*0.045
  if ride_time>=1:
@@ -438,8 +477,8 @@ func _physics_process(delta:float) -> void:
 
 func _outside(value:bool) -> void:
  outside=value
- walker.collision_mask=(flight.WALK_LAYER|1) if value else 3
- walker.arm.collision_mask=walker.collision_mask
+ walker.collision_mask=(flight.WALK_LAYER|Exterior.HULL_COLLISION) if value else 3
+ _set_ship_view(value);lift_shutter.hide()
  walker.reset_physics_interpolation()
 
 func _ride(platform:AnimatableBody3D,stop:float) -> void:

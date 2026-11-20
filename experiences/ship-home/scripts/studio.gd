@@ -16,7 +16,6 @@ const EXIT_RADIUS:=0.73
 const AMBER:=Color("efb868")
 var exit_lift:AnimatableBody3D
 var suspension:=Node3D.new()
-var undercarriage:=Node3D.new()
 var lift: AnimatableBody3D
 var drape: ShaderMaterial
 var time := 0.0
@@ -212,32 +211,11 @@ func lower_deck() -> void:
  light.position.y=1.92;light.light_color=Color("b6dcda");light.light_energy=0.9;light.omni_range=4
  ring(self,Vector3(Art.LIFT.x,0.015,Art.LIFT.y),Art.SHAFT_RADIUS+0.035,0.029,Art.BRASS)
 
-func build_landing_gear(ground:float,walk_layer:int) -> void:
- undercarriage.position=Vector3(-0.52,Art.LOWER_Y-0.14,2.22);add_child(undercarriage)
- var drop:=undercarriage.position.y-ground
- for index in 3:
-  var angle:=index*TAU/3.0
-  var radial:=Vector3(sin(angle),0,-cos(angle))
-  var mount:=radial*1.92
-  var knee:=radial*2.54+Vector3.DOWN*drop*0.49
-  var foot:=radial*2.95+Vector3.DOWN*(drop-0.12)
-  art.beam(undercarriage,mount,knee,0.17,INK)
-  art.beam(undercarriage,knee,foot,0.105,Art.BRASS)
-  art.beam(undercarriage,mount-radial*0.48,knee,0.077,CERAMIC)
-  art.cylinder(undercarriage,foot,0.40,0.24,INK,0.29)
-  # The walker senses this layer only when ashore, with the struts fully lowered.
-  var body:=StaticBody3D.new();body.collision_layer=walk_layer;body.collision_mask=0
-  add_child(body);body.position=undercarriage.position
-  var capsule:=CapsuleShape3D.new();capsule.radius=0.16;capsule.height=mount.distance_to(foot)+0.17
-  var collider:=CollisionShape3D.new();collider.shape=capsule;body.add_child(collider)
-  collider.position=(mount+foot)*0.5;collider.quaternion=Quaternion(Vector3.UP,(mount-foot).normalized())
- art.batch_static(undercarriage)
-
 func set_exit_height(height:float) -> void:
  exit_lift.position.y=height
  suspension.scale.y=maxf(0.005,Art.LOWER_Y-height)
 
-func build_moving() -> void:
+func build_moving(dock:Node3D) -> void:
  lift=AnimatableBody3D.new();lift.sync_to_physics=false;add_child(lift)
  lift.position=Vector3(Art.LIFT.x,0,Art.LIFT.y)
  art.cylinder(lift,Vector3.DOWN*0.077,0.836,0.15,INK)
@@ -249,8 +227,8 @@ func build_moving() -> void:
  ring(lift,Vector3.UP*0.004,0.74,0.012,MINT,true)
  var collision:=CollisionShape3D.new();var disk:=CylinderShape3D.new()
  disk.radius=0.838;disk.height=0.15;collision.shape=disk;collision.position.y=-0.075;lift.add_child(collision)
- exit_lift=AnimatableBody3D.new();exit_lift.sync_to_physics=false
- exit_lift.position=Vector3(EXIT_CENTER.x,Art.LOWER_Y,EXIT_CENTER.y);add_child(exit_lift)
+ exit_lift=AnimatableBody3D.new();exit_lift.sync_to_physics=false;exit_lift.collision_layer=1|preload("res://scripts/ship_exterior.gd").HULL_COLLISION
+ exit_lift.position=Vector3(EXIT_CENTER.x,Art.LOWER_Y,EXIT_CENTER.y);dock.add_child(exit_lift)
  art.cylinder(exit_lift,Vector3.DOWN*0.069,EXIT_RADIUS-0.009,0.14,INK)
  ring(exit_lift,Vector3.UP*0.006,0.61,0.018,AMBER,true)
  for z in [-0.21,0.08]:
@@ -259,7 +237,7 @@ func build_moving() -> void:
   var post=art.box(exit_lift,Vector3(side*0.56,0.41,0.20),Vector3(0.06,0.82,0.07),INK)
   art.box(post,Vector3(0,0.38,0),Vector3(0.077,0.055,0.085),AMBER,false,true)
   art.beam(exit_lift,Vector3(side*0.56,0.78,0.2),Vector3(side*0.56,0.78,-0.20),0.030,Art.BRASS)
- suspension.position=exit_lift.position;add_child(suspension)
+ suspension.position=exit_lift.position;dock.add_child(suspension)
  for side in [-1,1]:
   art.cylinder(suspension,Vector3(side*0.56,-0.5,0.20),0.042,1.0,Art.BRASS)
   art.cylinder(suspension,Vector3(side*0.56,-0.18,0.20),0.060,0.36,INK)

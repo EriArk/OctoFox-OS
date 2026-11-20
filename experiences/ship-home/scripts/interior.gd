@@ -527,7 +527,7 @@ func fittings(parent:Node3D) -> void:
  box(galley,Vector3(-0.41,0.944,0.10),Vector3(0.41,0.018,0.30),TRIM)
  tube(galley,[Vector3(-0.58,0.94,-0.08),Vector3(-0.58,1.18,-0.08),Vector3(-0.55,1.22,0.07),Vector3(-0.52,1.18,0.10)],0.018,BRASS)
 
-func build(parent:Node3D) -> void:
+func build(parent:Node3D,space:Node3D) -> void:
  var env=WorldEnvironment.new();env.environment=Environment.new()
  env.environment.background_mode=Environment.BG_SKY
  var sky=Sky.new();var sky_mat=ShaderMaterial.new();sky_mat.shader=load("res://shaders/space.gdshader");sky.sky_material=sky_mat
@@ -540,12 +540,12 @@ func build(parent:Node3D) -> void:
   var point=Vector3(cos(angle)*radial,y,sin(angle)*radial)*260
   field.set_instance_transform(i,Transform3D(Basis.IDENTITY.scaled(Vector3.ONE*rng.randf_range(0.6,2.4)),point))
   field.set_instance_color(i,Color("d4dfff") if i%3 else Color("ffe6c5"))
- stars.multimesh=field;parent.add_child(stars);field_stars=stars;sky_environment=env.environment
+ stars.multimesh=field;space.add_child(stars);field_stars=stars;sky_environment=env.environment
  env.environment.sky=sky;env.environment.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
  env.environment.ambient_light_color=Color("eee5d6");env.environment.ambient_light_energy=0.40
- env.environment.tonemap_mode=Environment.TONE_MAPPER_FILMIC;parent.add_child(env)
+ env.environment.tonemap_mode=Environment.TONE_MAPPER_FILMIC;space.add_child(env)
  var sun=DirectionalLight3D.new();sun.rotation_degrees=Vector3(-25,-28,0);sun.light_color=Color("c1d4e8");sun.light_energy=0.22
- sun.shadow_enabled=false;sun.directional_shadow_max_distance=38;parent.add_child(sun)
+ sun.shadow_enabled=false;sun.directional_shadow_max_distance=38;space.add_child(sun)
  var bridge_light=SpotLight3D.new();bridge_light.position=Vector3(0,2.75,-1.8);bridge_light.rotation_degrees.x=-90
  bridge_light.light_color=Color("ffe1b8");bridge_light.light_energy=0.70;bridge_light.spot_range=6;bridge_light.spot_angle=65
  bridge_light.shadow_enabled=true;bridge_light.shadow_bias=0.08;bridge_light.shadow_normal_bias=1.5;parent.add_child(bridge_light)

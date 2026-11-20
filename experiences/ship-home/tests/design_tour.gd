@@ -8,7 +8,7 @@ func run() -> void:
   if child is CanvasLayer:
    for control in child.get_children():
     if control is Control:control.hide()
- var camera=Camera3D.new();camera.fov=72;camera.near=0.06;camera.far=600;home.add_child(camera);camera.current=true
+ var camera=Camera3D.new();camera.fov=72;camera.near=0.06;camera.far=600;home.add_child(camera);home.Exterior.configure_camera(camera,true);camera.current=true
  var out=OS.get_environment("SHIP_CAPTURE_DIR")
  if out.is_empty():out="/tmp/ship-design"
  DirAccess.make_dir_recursive_absolute(out)
@@ -34,14 +34,14 @@ func run() -> void:
   await create_timer(0.6).timeout;await RenderingServer.frame_post_draw
   assert(root.get_texture().get_image().save_png(out+"/"+name+".png")==OK)
  # Inspection-only roof cutaway documents the real footprint, not another scene.
- home.get_node("HullRoof").hide()
+ home.cabin.get_node("HullRoof").hide()
  camera.projection=Camera3D.PROJECTION_ORTHOGONAL;camera.size=15.5
  camera.position=Vector3(0,18,0.6);camera.look_at(Vector3(0,0,0.6),Vector3.FORWARD)
  await create_timer(0.6).timeout;await RenderingServer.frame_post_draw
  assert(root.get_texture().get_image().save_png(out+"/deck-plan.png")==OK)
  var fixture=OS.get_environment("SHIP_TEST_DESCRIPTOR")
  if not fixture.is_empty():
-  home.get_node("HullRoof").show()
+  home.cabin.get_node("HullRoof").show()
   var descriptor=JSON.parse_string(FileAccess.get_file_as_string(fixture))
   assert(home.walker.install_avatar(descriptor))
   home.walker.show();home._pause(false)
