@@ -4,17 +4,26 @@
 on both Odin and Flip, retaining their current Bazaar shell. Enter directly from
 that icon; Apps remains an alternative. [Device checks](../../docs/evidence/2026-11-15-ship-header/README.md).
 
-A separate third-person home for the OctoFox character. Rooms fit inside one
-10.6 × 12.4 metre oval pressure hull. A single-seat cockpit sits at the bow,
-a small galley/dinette occupies the middle, and four compact bays share a short
-central passage. The curved ceiling lowers toward the rim; small portholes serve the living bays, while a panoramic bow canopy opens the
-pilot view. Technical space is reserved beneath the deck, with flush service
-hatches above. Warm ivory panels, sage upholstery, restrained wood and brass
-retain the Orbit profile background's visual language. Smooth hull surfaces,
-rounded console shells and oval portholes replace the earlier faceted treatment.
-Warm ceiling halos, bulkhead lenses, task lights and recessed strips make the
-lighting fixtures part of the ship itself. The warm interior is installed on
-both handhelds as preview `34aa5da8b7518ad3`.
+The bow cockpit opens directly into a studio inside the 10.6 × 12.4 metre saucer.
+A berth is recessed into the aft liner between two illuminated display shelves.
+A galley with an induction hob and sink, a dinette and a planted aquarium share
+the open deck. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
+
+Approach the fabricator and press **A / F** to run its empty-bed scan. The gantry
+and nozzle move over the circular print bed. Blueprint inventory and production
+will use the future crafting service. The display shelves currently hold no
+profile rewards.
+
+At the circular fitting platform press **A / F**, then **LB / RB** or **[ / ]**
+to preview Traveller, Mage and Merchant. The two pleated screens meet at the front
+before the outfit changes and retract to reveal the character. **B / Esc**
+restores the original outfit and walking camera. These standing previews reuse
+the [original THREAD meshes and garment attachment](https://github.com/EriArk/crates/tree/06c010d711d294f72dbd9c877fb3c22f3f5bb6c2/games/bazaar);
+profile ownership and saved appearance remain with the platform.
+
+Stand on the illuminated floor lift and press **A / F** to descend through
+the shaft. The smaller circular service room has walking space around the lift.
+The same control takes the character back up. [Studio views](../../docs/evidence/2026-11-20-ship-studio/README.md).
 
 The pilot seat is surrounded by curved side consoles, a stick, throttle and
 low instruments. Approach from behind and press **A / F** to sit: the camera
@@ -23,12 +32,6 @@ stands up in a collision-checked free space and restores the chase camera.
 Start/P opens the menu while seated. Flight controls remain unimplemented.
 The transition is immediate with a simple shared-rig seated pose; there is no
 authored boarding animation or separate first-person hand model yet.
-This is the **first playable layout**, not the finished art or a public release.
-Walking, a collision-aware camera, per-profile furnishing saves and the shared
-avatar are implemented. The workbench, wardrobe and gallery have physical spaces
-and explanatory interactions; crafting, equipping clothes here and displaying
-owned rewards still need their real providers. There is no new economy or shop.
-
 ## Run on a development computer
 
 Use the tested Godot **4.7.x** Linux runtime with Vulkan. The project defaults
@@ -88,20 +91,20 @@ presentation is hidden until the camera clears it, avoiding an inside-head view.
 
 ## Identity, saves and resources
 
-The game consumes `sdk/godot/avatar_client.gd` and `avatar_presenter.gd`, plus `avatar_locomotion.gd` and its animation dependency; run
+The three preview garments are bundled in `assets/outfits`. The game consumes `sdk/godot/avatar_client.gd` and `avatar_presenter.gd`, plus `avatar_locomotion.gd` and its animation dependency; run
 `sync_sdk.py` after SDK updates. The host provides the active profile's checked
-model descriptor. No character models or private profiles are bundled. Same-owner
+model descriptor. The character body comes from the host. Same-owner
 appearance refreshes preserve furniture; a revoked/disconnected identity clears
 the character and returns to a separate guest home. A basic guest figure is
 available when the host is absent.
 
 Layouts live under Godot's custom user folder, normally
-`$XDG_DATA_HOME/octofox-ship-home/homes/saucer-v2/<profile-hash>.json` (or
-`~/.local/share/octofox-ship-home/homes/saucer-v2`). Saves use a bounded schema, temporary
+`$XDG_DATA_HOME/octofox-ship-home/homes/studio-v1/<profile-hash>.json` (or
+`~/.local/share/octofox-ship-home/homes/studio-v1`). Saves use a bounded schema, temporary
 file and atomic replacement. Invalid files remain untouched/read-only.
-The compact deck uses a separate `saucer-v2` layout namespace because the original
-coordinates no longer fit. Earlier preview layouts remain unchanged in `homes/`;
-they are not automatically migrated or deleted. Each profile starts a new compact
+The studio uses a separate `studio-v1` layout namespace because the earlier
+coordinates no longer fit. Earlier arrangements are retained in `homes/saucer-v2/` and `homes/`;
+they are not automatically migrated or deleted. Each profile starts a new studio
 arrangement. This is a development-preview boundary, not a production migration. The Linux
 launcher keeps a single-instance lock through `exec`, retaining the process ID
 tracked by Apps. Start failures are logged under
@@ -127,8 +130,7 @@ SHIP_CAPTURE_DIR=/tmp/ship-tour /path/to/godot --path experiences/ship-home --sc
 ```
 
 `checks.gd` covers replacement/reload, profile isolation, corrupt-save protection,
-placement and undo, all starter furniture footprints, walking through all four
-hatches, curved-hull/seat collisions, camera retraction/close-avatar hiding and
+placement and undo, all starter furniture footprints, walking across the open studio, curved-hull/seat collisions, camera retraction/close-avatar hiding and
 triangle preservation when batching indexed and unindexed meshes, including
 ceiling-fixture ownership under the hideable roof.
 `pilot_checks.gd` exercises keyboard/controller entry and exit, eye-camera
@@ -136,7 +138,7 @@ selection, fixed seated position, bounded look, pause/focus loss, blocked exit
 and identity loss. The headless display cannot capture a pointer; `pilot_tour.gd`
 checks SDK idle/walk/run selection, captured mouse input and same-profile appearance refresh in a graphical
 session and captures first-person views.
-`design_tour.gd` captures eleven architecture views and a roof cutaway of the
+`design_tour.gd` captures architecture views and a roof cutaway of the
 actual deck, with the avatar and HUD hidden. `tour.gd` retains the gameplay camera
 and character for a separate visual check.
 `live_avatar.gd` is driven by the native `shipConsumesLiveHostAvatar` test against

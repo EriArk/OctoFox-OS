@@ -5,6 +5,12 @@ const Walker=preload("res://scripts/walker.gd")
 const Store=preload("res://scripts/layout_store.gd")
 const AvatarClient=preload("res://addons/avatar/avatar_client.gd")
 var art=Art.new()
+var studio=preload("res://scripts/studio.gd").new()
+var fitting=preload("res://scripts/fitting_station.gd").new()
+var riding=false
+var lift_start=0.0
+var lift_end=0.0
+var ride_time=0.0
 var walker:ShipWalker
 var store=Store.new()
 var avatar_client:Node
@@ -30,9 +36,10 @@ var profile=""
 
 func _ready() -> void:
  Engine.max_fps=60
- _inputs();art.build(self);art.batch_static(self)
+ _inputs();art.build(self);add_child(studio);studio.build_fixed(art);art.batch_static(self);studio.build_moving()
  furnishings=Node3D.new();add_child(furnishings)
  walker=Walker.new();walker.position=Vector3(0,0.1,-0.55);add_child(walker)
+ add_child(fitting);fitting.configure(walker,studio)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
  avatar_client.appearance_changed.connect(_appearance)
@@ -68,9 +75,11 @@ func _appearance(descriptor:Dictionary) -> void:
  if id!=profile:
   if editing:_edit(false)
   _load_profile(id)
+ fitting.finish()
  if not walker.install_avatar(descriptor):notify("Your character could not be loaded.")
 
 func _identity_lost(reason:String) -> void:
+ fitting.finish()
  walker.anonymous()
  if not profile.is_empty():
   if editing:_edit(false)
@@ -102,11 +111,16 @@ func _unhandled_input(event:InputEvent) -> void:
   _pause(not paused);get_viewport().set_input_as_handled();return
  if event.is_action_pressed("cancel_ship"):
   if paused:_pause(false)
+  elif fitting.active:fitting.leave()
   elif walker.seated:_leave_pilot()
   elif editing:_edit(false)
   else:_pause(true)
   get_viewport().set_input_as_handled();return
- if paused:return
+ if paused or riding:return
+ if fitting.active:
+  if event.is_action_pressed("next_item") or event.is_action_pressed("interact"):fitting.cycle(1)
+  elif event.is_action_pressed("previous_item"):fitting.cycle(-1)
+  get_viewport().set_input_as_handled();return
  if walker.seated:
   if event.is_action_pressed("interact"):_leave_pilot();get_viewport().set_input_as_handled()
   return
@@ -123,22 +137,34 @@ func _unhandled_input(event:InputEvent) -> void:
  elif event.is_action_pressed("interact"):_interact()
 
 func _process(delta:float) -> void:
+ if not paused:
+  studio.animate(delta)
+  fitting.update(delta)
  var station = _station()
- walker.attend(null if paused or editing or walker.seated else STATION_TARGETS.get(station))
+ var target=STATION_TARGETS.get(station)
+ if station=="lift":target=studio.lift.position+Vector3.UP*0.12
+ walker.attend(null if paused or editing or fitting.active or riding or walker.seated else target)
  message_time=max(0.0,message_time-delta)
- var room="Passage"
+ var room="Studio"
  for key in Art.ROOMS:
   if Art.ROOMS[key].has_point(Vector2(walker.position.x,walker.position.z)):room=key;break
+ if walker.position.y< -0.7:room="Service deck"
  title.text=room+"  /  "+("Guest home" if profile.is_empty() else "Your ship")
- if walker.seated:
+ if fitting.active:
+  title.text="Fitting station"
+  status.text=fitting.LOOKS[fitting.requested]+"  ·  Preview"
+  hints.text="LB / RB or [ / ]   Change outfit      B / Esc   Leave"
+ elif riding:
+  status.text="Deck lift";hints.text=""
+ elif walker.seated:
   status.text=message if message_time>0 else "Pilot seat · flight controls not connected"
   hints.text="RS / Mouse Look    B / A / F / Esc Stand up    Start / P Menu"
  elif editing:
   _aim();status.text=("Move " if moving_index>=0 else "Place ")+Art.ITEMS[item_index].replace("-"," ")+"  ·  "+("Ready" if placement_valid else "Keep doors and walkways clear")
   hints.text="LS / WASD Move   RS / Mouse Look   A / Enter Place   LB/RB / [ ] Item   D-pad / Q E Rotate   Y Move nearby   B Cancel"
  else:
-  status.text=message if message_time>0 else ("A / F  Sit in pilot seat" if _near_pilot() else "A / F  Interact nearby")
-  hints.text="LS / WASD Move    RS / Mouse Look    X / Tab Decorate    Start / Esc Menu"
+  status.text=message if message_time>0 else str(PROMPTS.get(station,""))
+  hints.text="LS / WASD Move    RS / Mouse Look    Start / Esc Menu" if walker.position.y< -0.7 else "LS / WASD Move    RS / Mouse Look    X / Tab Decorate    Start / Esc Menu"
 
 func notify(text:String) -> void:message=text;message_time=6
 
@@ -148,6 +174,7 @@ func _draw_furniture() -> void:
   var r=rows[i];var node=art.furniture(r.item);node.position=Vector3(r.x,0,r.z);node.rotation.y=r.angle;node.set_meta("row",i);furnishings.add_child(node)
 
 func _edit(value:bool) -> void:
+ if value and (fitting.active or riding or walker.position.y < -0.4):notify("Decorate on the studio deck.");return
  if value and walker.seated:notify("Stand up to decorate your ship.");return
  if value and not store.writable:notify(store.error);return
  editing=value;moving_index=-1
@@ -192,8 +219,8 @@ func can_place(id:String,pos:Vector3,rotation_y:float,ignored:int=-1) -> bool:
   if not Art.inside_hull(corner,0.45):return false
  # Keep the spine and both ends of the compact hatches clear.
  if area.intersects(Rect2(-0.72,-2.1,1.44,8.7)):return false
- for door in Art.DOORS:
-  if area.intersects(Rect2(door-Vector2(0.72,0.83),Vector2(1.44,1.66))):return false
+ for keep_clear in [Rect2(Art.LIFT-Vector2(1,1),Vector2(2,2)),Rect2(Art.BOOTH.x-1.0,Art.BOOTH.z-1.0,2,2),Rect2(-1.95,5.10,3.9,1.18),Rect2(-3.65,0.96,1.60,1.00)]:
+  if area.intersects(keep_clear):return false
  if id=="rug":return true
  if area.grow(0.3).has_point(Vector2(walker.position.x,walker.position.z)):return false
  var query=PhysicsShapeQueryParameters3D.new();var shape=BoxShape3D.new();shape.size=Vector3(f.x-0.04,1.8,f.y-0.04)
@@ -230,6 +257,7 @@ func _pick() -> void:
  moving_index=i;item_index=Art.ITEMS.find(rows[i].item);angle=rows[i].angle;_ghost()
 
 func _remove() -> void:
+ if fitting.active or riding or walker.position.y < -0.4:return
  if walker.seated:notify("Stand up to move furniture.");return
  var i=moving_index if moving_index>=0 else _nearest()
  if i<0:notify("Move closer to a piece of furniture.");_pause(false);return
@@ -238,6 +266,7 @@ func _remove() -> void:
  _pause(false)
 
 func _undo() -> void:
+ if fitting.active or riding or walker.position.y < -0.4:return
  if walker.seated:notify("Stand up to change the arrangement.");return
  if not has_undo:notify("Nothing to undo yet.");return
  var previous=undo_rows.duplicate(true)
@@ -256,18 +285,28 @@ func _leave_pilot() -> bool:
 
 const STATION_TARGETS = {
  "pilot": Vector3(0,0.9,-3.4), "workbench": Vector3(-2.85,0.9,1.48),
- "wardrobe": Vector3(3.05,1.4,4.9), "gallery": Vector3(2.65,1.25,1.3),
- "cabin": Vector3(-2.7,0.76,4.5)
+ "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
+ "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
+const PROMPTS={"pilot":"A / F   Sit in pilot seat","workbench":"A / F   Fabricator","wardrobe":"A / F   Try on outfits","lift":"A / F   Change deck","cabin":"A / F   Display shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
+ if p.distance_to(Art.LIFT)<0.89 and abs(walker.position.y-studio.lift.position.y)<0.4:return "lift"
+ if walker.position.y< -0.4:return ""
  if _near_pilot():return "pilot"
- if p.distance_to(Vector2(-2.85,1.5))<1.5:return "workbench"
- if p.distance_to(Vector2(3.05,4.9))<1.8:return "wardrobe"
- if Art.ROOMS.Gallery.has_point(p):return "gallery"
- if p.distance_to(Vector2(-2.7,4.5))<1.5:return "cabin"
+ if p.distance_to(Vector2(-2.85,1.48))<1.5:return "workbench"
+ if p.distance_to(Vector2(Art.BOOTH.x,Art.BOOTH.z))<1.32:return "wardrobe"
+ if p.distance_to(Vector2(0,5.67))<1.56:return "cabin"
  return ""
+
+func _physics_process(delta:float) -> void:
+ if not riding or paused:return
+ ride_time=minf(1,ride_time+delta/1.75)
+ studio.lift.position.y=lerpf(lift_start,lift_end,smoothstep(0,1,ride_time))
+ walker.position=studio.lift.position+Vector3.UP*0.045
+ if ride_time>=1:
+  walker.stationary=false;riding=false
 
 func _interact() -> void:
  if walker.seated:
@@ -277,10 +316,13 @@ func _interact() -> void:
   "pilot":
    if editing:_edit(false)
    walker.sit();notify("Pilot seat · look around with RS / mouse. B / F to stand up.")
-  "workbench":notify("Workbench · crafting recipes will be connected here.")
-  "wardrobe":notify("Wardrobe · your saved OctoFox appearance is shared with this home.")
-  "gallery":notify("Your gallery · reserved for cards and trophies you actually own.")
-  "cabin":notify("Your cabin · make room for your favourite things.")
+  "workbench":
+   studio.scan=2.4;notify("Fabricator ready · No blueprints loaded")
+  "wardrobe":fitting.enter()
+  "cabin":notify("Display shelves · Figurines and awards")
+  "lift":
+   lift_start=studio.lift.position.y;lift_end=Art.LOWER_Y if lift_start>-1 else 0.0
+   ride_time=0;riding=true;walker.stationary=true;walker.velocity=Vector3.ZERO;message_time=0
   _:notify("X / Tab opens your furniture collection.")
 
 func _quit() -> void:

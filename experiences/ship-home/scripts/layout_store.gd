@@ -3,7 +3,7 @@ class_name ShipLayoutStore
 extends RefCounted
 const MAX_ITEMS=48
 # Different deck coordinates: preserve all earlier preview layouts in homes/.
-var directory="user://homes/saucer-v2"
+var directory="user://homes/studio-v1"
 var owner="guest"
 var error=""
 var writable=true
@@ -51,7 +51,7 @@ static func defaults() -> Array:
   {"item":"armchair","x":-1.95,"z":-0.90,"angle":PI},
   {"item":"low-table","x":-1.9,"z":0.30,"angle":0.0},
   {"item":"plant","x":-4.35,"z":0.35,"angle":0.0},
-  {"item":"plant","x":4.3,"z":0.50,"angle":0.0},
+  {"item":"plant","x":2.05,"z":0.98,"angle":0.0},
   {"item":"lamp","x":-3.7,"z":0.60,"angle":0.0},
   {"item":"rug","x":-2.2,"z":-0.65,"angle":0.0},
-  {"item":"stool","x":-2.8,"z":2.65,"angle":0.0}]
+  {"item":"stool","x":-3.60,"z":2.65,"angle":0.0}]

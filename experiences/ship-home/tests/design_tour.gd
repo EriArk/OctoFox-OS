@@ -19,12 +19,15 @@ func run() -> void:
   "galley":[Vector3(-0.9,1.65,-0.2),Vector3(-3.65,1.25,-0.85)],
   "living":[Vector3(1.0,1.55,-2.65),Vector3(-1.3,1.5,0.55)],
   "lights":[Vector3(0.8,1.45,-0.5),Vector3(0,2.5,1.3)],
-  "spine":[Vector3(0,1.6,0.4),Vector3(0,1.45,6.0)],
-  "cabin":[Vector3(-1.15,1.65,5.5),Vector3(-2.7,1.1,4.5)],
-  "workshop":[Vector3(-1.3,1.65,3.0),Vector3(-3.05,1.4,1.5)],
-  "gallery":[Vector3(1.3,1.65,3.0),Vector3(3.05,1.4,1.5)],
-  "wardrobe":[Vector3(1.25,1.65,4.0),Vector3(3.05,1.2,4.9)]}
+  "studio":[Vector3(-1.75,1.56,-1.25),Vector3(0.62,1.14,4.92)],
+  "berth":[Vector3(-0.42,1.52,3.11),Vector3(0.06,1.11,5.78)],
+  "fabricator":[Vector3(-1.37,1.48,3.12),Vector3(-2.85,1.14,1.48)],
+  "aquarium":[Vector3(2.10,1.28,1.07),Vector3(4.15,1.20,1.82)],
+  "fitting":[Vector3(0.90,1.55,2.10),Vector3(2.45,1.14,3.95)],
+  "service":[Vector3(-1.64,-1.35,3.86),Vector3(0.52,-1.59,1.15)]}
+ var selected=OS.get_environment("SHIP_VIEWS").split(",",false)
  for name in points:
+  if not selected.is_empty() and name not in selected:continue
   camera.position=points[name][0];camera.look_at(points[name][1])
   await create_timer(0.6).timeout;await RenderingServer.frame_post_draw
   assert(root.get_texture().get_image().save_png(out+"/"+name+".png")==OK)
@@ -34,4 +37,19 @@ func run() -> void:
  camera.position=Vector3(0,18,0.6);camera.look_at(Vector3(0,0,0.6),Vector3.FORWARD)
  await create_timer(0.6).timeout;await RenderingServer.frame_post_draw
  assert(root.get_texture().get_image().save_png(out+"/deck-plan.png")==OK)
+ var fixture=OS.get_environment("SHIP_TEST_DESCRIPTOR")
+ if not fixture.is_empty():
+  home.get_node("HullRoof").show()
+  var descriptor=JSON.parse_string(FileAccess.get_file_as_string(fixture))
+  assert(home.walker.install_avatar(descriptor))
+  home.walker.show();home._pause(false)
+  home.walker.position=ShipInterior.BOOTH+Vector3(-0.65,0.08,-0.65)
+  home._interact();home.fitting.cycle(1)
+  for stage in ["closed","traveller"]:
+   for i in 240:
+    await process_frame
+    if (stage=="closed" and home.fitting.closure>=0.999) or (stage=="traveller" and home.fitting.current==1 and home.fitting.closure==0):break
+   assert(home.fitting.closure>=0.999 if stage=="closed" else (home.fitting.current==1 and home.fitting.closure==0))
+   await RenderingServer.frame_post_draw
+   assert(root.get_texture().get_image().save_png(out+"/fitting-"+stage+".png")==OK)
  print("SHIP DESIGN TOUR PASSED");quit()

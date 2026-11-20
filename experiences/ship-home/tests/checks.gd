@@ -47,27 +47,27 @@ func run() -> void:
  for i in home.rows.size():
   var r=home.rows[i]
   check(home.can_place(r.item,Vector3(r.x,0,r.z),r.angle,i),"Starter furnishing fits: "+r.item+" "+str(i))
- check(home.can_place("plant",Vector3(3.4,0,2.8),0),"Open floor accepts furniture")
+ check(home.can_place("plant",Vector3(2.25,0,2.2),0),"Open floor accepts furniture")
  check(not home.can_place("armchair",Vector3(0.85,0,2.3),0),"Door remains clear")
  check(not home.can_place("plant",Vector3(0,0,5),0),"Passage remains clear")
  check(not home.can_place("plant",Vector3(0,0,-12),0),"Outside hull rejected")
  check(not home.can_place("armchair",Vector3(-2.85,0,1.48),0),"Workbench overlap rejected")
  check(not home.can_place("plant",Vector3(0,0,-4.6),0),"Cockpit console overlap rejected")
- home._edit(true);home.item_index=2;home.placement=Vector3(3.4,0,2.8);home.placement_valid=true
+ home._edit(true);home.item_index=2;home.placement=Vector3(2.25,0,2.2);home.placement_valid=true
  home._place();check(home.rows.size()==8,"Place furniture through game operation")
  check(home.store.load_home("test-walker").size()==8,"Placement saved")
  home._undo();check(home.rows.size()==7,"Undo restores arrangement")
  home._edit(false)
  check(not home.can_place("plant",Vector3(4.8,0,3),0),"Curved hull clips rectangular room bounds")
  check(not home.can_place("rug",Vector3(4.4,0,3),0),"All rug corners must fit inside hull")
- # Walk through each actual compact hatch in both directions of the spine.
- for door in ShipInterior.DOORS:
+ # Walk through the former dividing walls in both directions of the spine.
+ for door in [Vector2(-0.85,2.3),Vector2(0.85,2.3),Vector2(-0.85,4.65),Vector2(0.85,4.65)]:
   home.walker.position=Vector3(0,0.1,door.y);home.walker.velocity=Vector3.ZERO
   home.walker.yaw=PI/2 if door.x<0 else -PI/2
   Input.action_press("walk_forward")
   for i in 42:await physics_frame
   Input.action_release("walk_forward")
-  check(abs(home.walker.position.x)>1.6 and abs(home.walker.position.z-door.y)<0.15,"Traversable hatch "+str(door))
+  check(abs(home.walker.position.x)>1.6 and abs(home.walker.position.z-door.y)<0.15,"Open studio crossing "+str(door))
  home.walker.position=Vector3(-4.3,0.1,2.6);home.walker.velocity=Vector3.ZERO;home.walker.yaw=PI/2
  Input.action_press("walk_forward")
  for i in 90:await physics_frame

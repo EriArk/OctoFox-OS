@@ -13,6 +13,8 @@ var motion:Node
 var skeleton:Skeleton3D
 var joints:Dictionary={}
 var camera_occludes_avatar=false
+var stationary=false
+var worn_items:Array=[]
 var seated=false
 var pilot_pivot:Node3D
 var pilot_camera:Camera3D
@@ -35,6 +37,7 @@ func _ready() -> void:
  anonymous()
 
 func anonymous() -> void:
+ worn_items.clear()
  if is_instance_valid(motion):motion.free()
  motion=null;skeleton=null;joints.clear()
  if is_instance_valid(visual):visual.queue_free()
@@ -51,6 +54,10 @@ func anonymous() -> void:
 func install_avatar(descriptor:Dictionary) -> bool:
  var presenter=load("res://addons/avatar/avatar_presenter.gd").from_descriptor(descriptor)
  if presenter==null:return false
+ worn_items.clear()
+ var appearance=descriptor.get("appearance",descriptor.get("recipe",{}).get("appearance",{}))
+ for slot in ["top","bottom","socks","shoes","gloves","headwear"]:
+  worn_items.append(str(appearance.get(slot,"")))
  var facing=visual.rotation.y if is_instance_valid(visual) else PI
  if is_instance_valid(motion):motion.free()
  motion=null
@@ -123,13 +130,15 @@ func _process(_delta:float) -> void:
  var distance=arm.get_hit_length()
  if distance<0.85:camera_occludes_avatar=true
  elif distance>1.05:camera_occludes_avatar=false
- if is_instance_valid(visual):visual.visible=not seated and not camera_occludes_avatar
+ if is_instance_valid(visual):visual.visible=not seated and (stationary or not camera_occludes_avatar)
 
 func _unhandled_input(event:InputEvent) -> void:
- if walking and event is InputEventMouseMotion and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
+ if walking and not stationary and event is InputEventMouseMotion and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
   yaw-=event.relative.x*0.003;pitch=clamp(pitch-event.relative.y*0.0025,-0.75,0.45)
 
 func _physics_process(delta:float) -> void:
+ if stationary:
+  velocity=Vector3.ZERO;is_moving=false;return
  var direction=Vector3.ZERO
  if walking:
   var look=Input.get_vector("look_left","look_right","look_up","look_down",0.20)

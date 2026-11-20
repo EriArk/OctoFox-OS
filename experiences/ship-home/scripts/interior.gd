@@ -10,11 +10,11 @@ const BRASS = Color("d0ac72")
 const HULL_RADII = Vector2(5.3,6.2)
 const HULL_CENTER = Vector2(0,0.6)
 const ROOMS = {
- "Cockpit": Rect2(-1.85,-5.6,3.7,3.6), "Lounge": Rect2(-5.3,-2.0,10.6,3.1),
- "Workshop": Rect2(-5.3,1.1,4.45,2.5), "Gallery": Rect2(0.85,1.1,4.45,2.5),
- "Bedroom": Rect2(-4.7,3.6,3.85,3.2), "Wardrobe": Rect2(0.85,3.6,3.85,3.2),
- "Passage": Rect2(-0.85,1.1,1.7,5.7)}
-const DOORS = [Vector2(-0.85,2.3),Vector2(0.85,2.3),Vector2(-0.85,4.8),Vector2(0.85,4.8)]
+ "Cockpit": Rect2(-1.85,-5.6,3.7,3.6), "Studio": Rect2(-5.3,-2.0,10.6,8.8)}
+const LIFT = Vector2(-1.6,3.65)
+const SHAFT_RADIUS = 0.84
+const LOWER_Y = -2.65
+const BOOTH = Vector3(2.45,0,3.95)
 
 static func inside_hull(point:Vector2,margin:float=0.0) -> bool:
  var normalized=(point-HULL_CENTER)/(HULL_RADII-Vector2.ONE*margin)
@@ -115,12 +115,6 @@ func tube(parent:Node3D, points:Array[Vector3], radius:float, color:Color, glow:
    for k in [0,2,1,0,3,2]:st.set_normal(normals[k]);st.add_vertex(vertices[k])
  var mesh=MeshInstance3D.new();mesh.mesh=st.commit();mesh.material_override=material(color,glow);parent.add_child(mesh)
 
-func arch(parent:Node3D, x:float, z:float, width:float, spring:float, rise:float, radius:float, color:Color, glow:bool=false) -> void:
- var path:Array[Vector3]=[]
- for i in 49:
-  var a=PI*i/48;path.append(Vector3(x-width*0.5*cos(a),spring+rise*sin(a),z))
- tube(parent,path,radius,color,glow)
-
 func panel(parent:Node3D, vertices:Array[Vector3], color:Color, solid:bool=false) -> MeshInstance3D:
  var st=SurfaceTool.new();st.begin(Mesh.PRIMITIVE_TRIANGLES)
  # Facing is explicit in the vertex ordering; collision uses the same surface.
@@ -130,25 +124,6 @@ func panel(parent:Node3D, vertices:Array[Vector3], color:Color, solid:bool=false
  var mesh=MeshInstance3D.new();mesh.mesh=st.commit();mesh.material_override=material(color);parent.add_child(mesh)
  if solid:mesh.create_trimesh_collision()
  return mesh
-
-func bulkhead(parent:Node3D,a:Vector2,b:Vector2,height:float=2.65) -> void:
- var middle=(a+b)*0.5;var length=a.distance_to(b)
- var root=Node3D.new();root.position=Vector3(middle.x,0,middle.y)
- root.rotation.y=-atan2(b.y-a.y,b.x-a.x);parent.add_child(root)
- box(root,Vector3(0,height/2,0),Vector3(length,height,0.14),PAPER,true)
- for side in [-1,1]:
-  box(root,Vector3(0,0.30,side*0.085),Vector3(length,0.60,0.04),WOOD)
-  box(root,Vector3(0,0.64,side*0.11),Vector3(length,0.025,0.025),BRASS)
-
-func hatch(parent:Node3D,x:float,z:float,title:String,facing:float) -> void:
- var root=Node3D.new();root.position=Vector3(x,0,z);root.rotation.y=facing;parent.add_child(root)
- for side in [-1,1]:
-  box(root,Vector3(side*0.72,0.92,0),Vector3(0.16,1.84,0.28),TRIM,true)
-  box(root,Vector3(side*0.64,0.95,0.16),Vector3(0.025,1.65,0.025),Color("e6bd80"),false,true)
- arch(root,0,0,1.44,1.84,0.34,0.10,PAPER)
- arch(root,0,0.12,1.29,1.84,0.28,0.018,Color("e6bd80"),true)
- box(root,Vector3(0,2.47,0),Vector3(1.62,0.65,0.20),PAPER,true)
- label(root,title,Vector3(0,2.31,0.13),0,23)
 
 # A pressure-wall bay follows the outer ellipse between its structural joints.
 # Render curvature sits outside the original chord collision, never in the aisle.
@@ -218,14 +193,23 @@ func hull_segment(parent:Node3D,a:Vector2,b:Vector2,glazed:bool, panoramic:bool=
 
 func saucer(parent:Node3D) -> void:
  var floor_mesh=SurfaceTool.new();floor_mesh.begin(Mesh.PRIMITIVE_TRIANGLES)
+ var underside=SurfaceTool.new();underside.begin(Mesh.PRIMITIVE_TRIANGLES)
  var roof_mesh=SurfaceTool.new();roof_mesh.begin(Mesh.PRIMITIVE_TRIANGLES)
  var roof=Node3D.new();roof.name="HullRoof";parent.add_child(roof)
  for i in 144:
   var a=i*TAU/144;var b=(i+1)*TAU/144
   var pa=HULL_CENTER+Vector2(sin(a),-cos(a))*HULL_RADII
   var pb=HULL_CENTER+Vector2(sin(b),-cos(b))*HULL_RADII
-  for point in [Vector3(HULL_CENTER.x,0,HULL_CENTER.y),Vector3(pa.x,0,pa.y),Vector3(pb.x,0,pb.y)]:
-   floor_mesh.set_normal(Vector3.UP);floor_mesh.add_vertex(point)
+  # An annulus around the lift leaves a real shaft through the pressure deck.
+  var ia=LIFT+(pa-LIFT).normalized()*SHAFT_RADIUS
+  var ib=LIFT+(pb-LIFT).normalized()*SHAFT_RADIUS
+  for point in [ia,pa,pb,ia,pb,ib]:
+   floor_mesh.set_normal(Vector3.UP);floor_mesh.add_vertex(Vector3(point.x,0,point.y))
+  for point in [ib,pb,pa,ib,pa,ia]:
+   underside.set_normal(Vector3.DOWN);underside.add_vertex(Vector3(point.x,-0.14,point.y))
+  var shaft_normal=Vector3(LIFT.x-ia.x,0,LIFT.y-ia.y).normalized()
+  for vertex in [Vector3(ia.x,0,ia.y),Vector3(ib.x,0,ib.y),Vector3(ib.x,-0.14,ib.y),Vector3(ia.x,0,ia.y),Vector3(ib.x,-0.14,ib.y),Vector3(ia.x,-0.14,ia.y)]:
+   underside.set_normal(shaft_normal);underside.add_vertex(vertex)
   for ring in 16:
    var vertices:Array[Vector3]=[]
    for spec in [[a,ring],[b,ring],[b,ring+1],[a,ring+1]]:
@@ -238,7 +222,10 @@ func saucer(parent:Node3D) -> void:
   if i%6==0:
    var end=HULL_CENTER+Vector2(sin(a+TAU/24),-cos(a+TAU/24))*HULL_RADII
    hull_segment(parent,pa,end,i in [30,72,108],i in [0,6,12,126,132,138],i in [12,126,132])
- var deck=MeshInstance3D.new();deck.mesh=floor_mesh.commit();deck.material_override=material(Color("897c69"));parent.add_child(deck);deck.create_trimesh_collision()
+ var deck=MeshInstance3D.new();deck.mesh=floor_mesh.commit();deck.material_override=material(Color("897c69")).duplicate();deck.material_override.cull_mode=BaseMaterial3D.CULL_DISABLED;parent.add_child(deck);deck.create_trimesh_collision()
+ for collider in deck.find_children("*","CollisionShape3D",true,false):
+  collider.shape.backface_collision=true
+ var liner=MeshInstance3D.new();liner.mesh=underside.commit();liner.material_override=material(Color("59666a")).duplicate();liner.material_override.cull_mode=BaseMaterial3D.CULL_DISABLED;parent.add_child(liner)
  var ceiling=MeshInstance3D.new();ceiling.mesh=roof_mesh.commit();ceiling.material_override=material(PAPER);roof.add_child(ceiling);ceiling.create_trimesh_collision()
  for r in [0.40,0.74,0.96]:
   var path:Array[Vector3]=[];var light:Array[Vector3]=[]
@@ -379,19 +366,6 @@ func lighting_details(parent:Node3D) -> void:
  halo(roof,Vector3(0,2.82,0.15),0.54)
  for x in [-2.65,2.65]:halo(roof,Vector3(x,2.55,2.5),0.30)
  for x in [-2.1,2.1]:halo(roof,Vector3(x,2.40,4.6),0.24)
- # Bulkhead luminaires: frosted discs in a ribbed housing, facing the lounge.
- for side in [-1,1]:
-  var root=Node3D.new();root.position=Vector3(side*2.5,1.82,0.99);root.rotation.x=-PI/2;parent.add_child(root)
-  cylinder(root,Vector3.ZERO,0.22,0.07,TRIM)
-  cylinder(root,Vector3(0,0.045,0),0.18,0.025,BRASS)
-  var lens=cylinder(root,Vector3(0,0.065,0),0.15,0.025,Color("ffe4b6"))
-  lens.material_override=material(Color("ffe4b6"),true)
-  for i in 3:
-   var a=i*TAU/3
-   box(root,Vector3(cos(a)*0.19,0.07,sin(a)*0.19),Vector3(0.025,0.04,0.025),TRIM)
-  # Slim panel joints and a fitted colour insert identify the living shoulder.
-  box(parent,Vector3(side*2.5,1.14,1.011),Vector3(1.7,0.19,0.025),Color("74917b"))
-  for x in [-0.65,-0.56,-0.47]:box(parent,Vector3(side*2.5+x,1.14,0.99),Vector3(0.018,0.11,0.015),BRASS)
  # Bow eyebrow: small amber optics, recessed into the pilot overhead panel.
  for x in [-0.35,0,0.35]:
   cylinder(parent,Vector3(x,2.535,-3.40),0.065,0.025,BRASS)
@@ -414,18 +388,6 @@ func fittings(parent:Node3D) -> void:
   for x in [-0.44,0.44]:
    for z in [-0.27,0.27]:cylinder(hatch_plate,Vector3(x,0.014,z),0.018,0.006,Color("89979a"))
   box(hatch_plate,Vector3(0,0.014,0),Vector3(0.18,0.008,0.025),TRIM)
- # Short central access spine; all four rooms share it, not separate corridors.
- for x in [-0.85,0.85]:
-  for segment in [[1.1,1.58],[3.02,4.08],[5.52,6.6]]:bulkhead(parent,Vector2(x,segment[0]),Vector2(x,segment[1]))
- for side in [-1,1]:
-  bulkhead(parent,Vector2(side*0.85,1.1),Vector2(side*5.1,1.1))
-  bulkhead(parent,Vector2(side*0.85,3.6),Vector2(side*4.6,3.6))
- hatch(parent,-0.85,2.3,"WORKSHOP",PI/2);hatch(parent,0.85,2.3,"ARCHIVE",-PI/2)
- hatch(parent,-0.85,4.8,"CABIN",PI/2);hatch(parent,0.85,4.8,"WARDROBE",-PI/2)
- for x in [-0.52,0.52]:box(parent,Vector3(x,0.015,3.55),Vector3(0.02,0.02,5),Color("b9d8c9"),false,true)
- # Aft floor access also serves the under-deck plant, with no machinery cabinet.
- box(parent,Vector3(0,0.012,6.0),Vector3(1.15,0.02,0.65),Color("8d795e"))
- box(parent,Vector3(0,0.026,6.0),Vector3(0.20,0.008,0.025),TRIM)
  # Two-person dinette fitted into the forward starboard shoulder.
  var booth=Node3D.new();booth.position=Vector3(3.35,0,-0.62);booth.rotation.y=-0.50;parent.add_child(booth)
  box(booth,Vector3(0,0.26,0),Vector3(1.75,0.52,0.72),TRIM,true)
@@ -447,43 +409,13 @@ func fittings(parent:Node3D) -> void:
   box(galley,Vector3(x,0.44,0.329),Vector3(0.52,0.70,0.025),Color("7f9c85"))
   box(galley,Vector3(x,1.90,-0.068),Vector3(0.52,0.44,0.025),Color("e2cdae"))
  for x in [-0.52,0,0.52]:box(galley,Vector3(x,0.5,0.33),Vector3(0.42,0.035,0.025),BRASS)
- cylinder(galley,Vector3(-0.5,0.98,0),0.08,0.17,PAPER)
  box(galley,Vector3(0.3,0.93,0),Vector3(0.5,0.025,0.40),Color("243b43"))
- # Workshop bench along the short transverse bulkhead.
- box(parent,Vector3(-2.85,0.82,1.48),Vector3(2.65,0.12,0.62),PAPER,true)
- for x in [-3.8,-1.9]:box(parent,Vector3(x,0.4,1.48),Vector3(0.57,0.8,0.6),TRIM,true)
- box(parent,Vector3(-2.85,1.65,1.23),Vector3(2.65,0.97,0.12),TRIM)
- for i in 5:
-  var x=-3.75+i*0.43
-  box(parent,Vector3(x,1.60,1.32),Vector3(0.05,0.30,0.04),BRASS)
-  box(parent,Vector3(x,1.76,1.32),Vector3(0.16,0.06,0.04),BRASS)
- strip_lamp(parent,Vector3(-2.85,2.18,1.41),2.4)
- # Display storage shares a compact bay; empty until real owned rewards connect.
- for x in [1.65,2.65,3.65]:
-  box(parent,Vector3(x,1.25,1.30),Vector3(0.87,2.1,0.25),TRIM)
-  box(parent,Vector3(x,0.4,1.48),Vector3(0.87,0.8,0.53),Color("7f9c85"),true)
-  box(parent,Vector3(x,0.83,1.48),Vector3(0.90,0.04,0.55),BRASS)
-  box(parent,Vector3(x,2.22,1.47),Vector3(0.70,0.025,0.025),Color("9dc6c8"),false,true)
- # Single berth follows the tapering aft hull; storage occupies its plinth.
- var berth=Node3D.new();berth.position=Vector3(-2.7,0,4.5);berth.rotation.y=1.10;parent.add_child(berth)
- box(berth,Vector3(0,0.28,0),Vector3(1.0,0.56,1.72),TRIM,true)
- box(berth,Vector3(0,0.61,0),Vector3(0.94,0.16,1.65),Color("c8b99a"))
- box(berth,Vector3(0,0.73,-0.18),Vector3(0.95,0.09,1.25),Color("b36549"))
- box(berth,Vector3(0,0.76,0.55),Vector3(0.78,0.18,0.36),Color("dfd0b1"))
- for z in [-0.88,0.88]:
-  arch(berth,0,z,1.10,0.74,0.90,0.075,PAPER)
-  arch(berth,0,z-0.06,0.96,0.74,0.80,0.012,Color("d5b58b"),true)
- # Woven cover seams and a small head-end reading light.
- for z in [-0.70,-0.55,-0.40]:box(berth,Vector3(0,0.778,z),Vector3(0.90,0.004,0.022),Color("dba975"))
- strip_lamp(berth,Vector3(0,1.47,0.83),0.65)
- for z in [-0.55,0.18]:box(berth,Vector3(0.51,0.30,z),Vector3(0.025,0.035,0.45),BRASS)
- # Outfitting lockers follow the other aft shoulder, leaving a standing alcove.
- var wardrobe=Node3D.new();wardrobe.position=Vector3(3.05,0,4.9);wardrobe.rotation.y=0.80;parent.add_child(wardrobe)
- for x in [-0.68,0.68]:
-  box(wardrobe,Vector3(x,1.02,0),Vector3(0.61,2.04,0.48),TRIM,true)
-  for y in [0.45,1.12,1.78]:box(wardrobe,Vector3(x,y,-0.26),Vector3(0.53,0.04,0.25),Color("78908e"))
- box(wardrobe,Vector3(0,1.04,0.12),Vector3(0.64,1.98,0.10),Color("4d707f"),true)
- strip_lamp(wardrobe,Vector3(0,2.10,-0.10),1.95)
+ # Induction rings, sink and a curved tap share the compact galley surface.
+ for x in [0.15,0.43]:
+  var hob=cylinder(galley,Vector3(x,0.949,0),0.105,0.009,Color("679da2"))
+  cylinder(hob,Vector3(0,0.006,0),0.081,0.008,TRIM)
+ box(galley,Vector3(-0.41,0.944,0.10),Vector3(0.41,0.018,0.30),TRIM)
+ tube(galley,[Vector3(-0.58,0.94,-0.08),Vector3(-0.58,1.18,-0.08),Vector3(-0.55,1.22,0.07),Vector3(-0.52,1.18,0.10)],0.018,BRASS)
 
 func build(parent:Node3D) -> void:
  var env=WorldEnvironment.new();env.environment=Environment.new()
