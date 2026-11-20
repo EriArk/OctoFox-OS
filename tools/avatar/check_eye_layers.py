@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import numpy as np
 from build_pack import GLB
+from check_face_reference import REFERENCE
 from restore_painted_face import Surface
 
 
@@ -41,13 +42,46 @@ def check_lid_motion(model, meshes):
     assert counts[0] > 100 and .30 < counts[2]/counts[0] < .68 and counts[-1] == 0, counts
 
 
+def check_socket_depth(model, meshes, skin):
+    """Measure the exported layers, including diagonal gaze, against the actual head."""
+    for part, ceiling in [('white', .0010), ('iris', .0020), ('rim', .0036)]:
+        mesh = meshes[part]
+        for primitive in mesh['primitives']:
+            p = model.acc(primitive['attributes']['POSITION'])
+            f = model.acc(primitive['indices']).reshape(-1, 3)
+            poses = [p]
+            if part == 'iris':
+                deltas = {name: model.acc(target['POSITION']) for name, target in
+                          zip(mesh['extras']['targetNames'], primitive['targets']) if name.startswith('gaze_')}
+                for theta in np.arange(0, 360, 45):
+                    dx, dy = np.cos(np.radians(theta)), np.sin(np.radians(theta))
+                    poses.append(p + abs(dx)*deltas['gaze_right' if dx >= 0 else 'gaze_left']
+                                 + abs(dy)*deltas['gaze_up' if dy >= 0 else 'gaze_down'])
+            for pose in poses:
+                rays = np.concatenate((pose, pose[f].mean(1)))
+                relief = rays[:, 2] - skin.sample(rays)[0]
+                assert relief.max() < ceiling, (mesh['name'], 'raised surface', relief.max())
+                if part in ('white', 'iris'):
+                    assert relief.min() > 0, (mesh['name'], 'embedded artwork')
+                    if part == 'iris':
+                        assert relief.min() > .00155, (mesh['name'], 'insufficient iris clearance')
+                    elif part == 'white':
+                        assert relief.min() > .00072, (mesh['name'], 'insufficient skin clearance')
+
+
 def check(pack):
     manifest = json.loads((pack/'manifest.json').read_text())
     model = GLB(pack/'template.glb')
+    if manifest['revision'] >= 14:
+        body = model.g['meshes'][manifest['preparedBodyMesh']]['primitives'][0]['attributes']
+        with np.load(REFERENCE/'source-surface.npz') as reference:
+            skin = Surface(model.acc(body['POSITION']), model.acc(body['NORMAL']), reference['indices'].reshape(-1, 3))
     cases = []
     for style, nodes in manifest['eyeNodes'].items():
         meshes = {model.g['nodes'][i]['name'].rsplit('-', 1)[-1]:
                   model.g['meshes'][model.g['nodes'][i]['mesh']] for i in nodes}
+        if manifest['revision'] >= 14:
+            check_socket_depth(model, meshes, skin)
         if manifest['revision'] >= 11:
             check_lid_motion(model, meshes)
         white, iris = meshes['white'], meshes['iris']

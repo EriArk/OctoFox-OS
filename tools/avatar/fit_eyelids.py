@@ -1,4 +1,4 @@
-"""Fit the modular eyes and their moving lids to the prepared face (pack 10 -> 13)."""
+"""Fit the modular eyes and their moving lids to the prepared face (pack 10 -> 14)."""
 
 import argparse
 import copy
@@ -24,6 +24,14 @@ REFERENCE = (
 def smooth(t):
     t = np.clip(t, 0, 1)
     return t * t * (3 - 2 * t)
+
+
+# Distances along the model's +Z axis, in metres. The lids need to travel
+# over the painted iris even at half blink; keep the whole stack close to skin.
+WHITE_DEPTH = 0.00085
+IRIS_DEPTH = 0.00175
+LID_DEPTH = 0.00255
+LASH_DEPTH = 0.00330
 
 
 def fair_sockets(p, n, triangles):
@@ -54,6 +62,15 @@ def fair_sockets(p, n, triangles):
     depth = lower(xx) * (1 - t) + upper(xx) * t
     dx = (lower(xx, 1) * (1 - t) + upper(xx, 1) * t) * np.sign(x[selected])
     dy = (upper(xx) - lower(xx)) / (0.826 - 0.757)
+    # Scoop a shallow orbit into the face itself. The compact profile has
+    # zero slope at its boundary, blending into the bridge, cheek and temple.
+    rx, ry = 0.043, 0.034
+    u, v = (xx - 0.046) / rx, (yy - 0.798) / ry
+    bowl = np.maximum(0.0, 1.0 - u*u - v*v)
+    inset = 0.0065
+    depth -= inset * bowl**2
+    dx += (4 * inset / rx) * bowl * u * np.sign(x[selected])
+    dy += (4 * inset / ry) * bowl * v
     normal = np.stack([-dx, -dy, np.ones_like(dx)], axis=1)
     normal /= np.linalg.norm(normal, axis=1)[:, None]
     q, nn = p.copy(), n.copy()
@@ -199,7 +216,7 @@ def fit_lash(builder, mesh, aperture, surface, material, joint, wing):
                             pair = [tri[::-1] for tri in pair]
                         faces.extend(pair)
                 vertices.append(points)
-        return surface.fit(np.concatenate(vertices), 0.0049)
+        return surface.fit(np.concatenate(vertices), LASH_DEPTH)
 
     p, n = pose(None)
     closed_p, closed_n = pose("eyes_closed")
@@ -239,7 +256,7 @@ def fit_lash(builder, mesh, aperture, surface, material, joint, wing):
 def add_lids(builder, mesh, aperture, surface, colours, material, joint, manifest):
     # Roll the fixed edge into the surrounding skin. Keep this transition
     # narrow even at full closure so the iris cannot poke through the fold.
-    t = np.array([0.0, 0.06, 0.18, 0.35, 0.55, 0.78, 1.0])
+    t = np.linspace(0.0, 1.0, 17)
     rows = len(t)
     xx = np.r_[
         aperture.left - 0.005,
@@ -262,7 +279,7 @@ def add_lids(builder, mesh, aperture, surface, colours, material, joint, manifes
             x = aperture.eye_x(xx)
             opened = hi + 0.0001 if upper else lo - 0.0002
             edge = opened + (0.012 if upper else -0.009)
-            depth = -0.0004 + 0.0042 * smooth(t / 0.06)
+            depth = -0.00025 + (LID_DEPTH + 0.00025) * smooth(t / 0.20)
             end = seam - 0.00035 if upper else seam + 0.00035
 
             p, n = strip(edge, opened, side * x, depth)
@@ -285,7 +302,7 @@ def add_lids(builder, mesh, aperture, surface, colours, material, joint, manifes
         joints[:, 0] = joint
         weights = np.zeros((len(p), 4), dtype="<f4")
         weights[:, 0] = 1
-        color = builder.acc(colours(q))
+        color = builder.acc(colours(p))
         manifest["vertexPalette"].append(
             dict(manifest["vertexPalette"][0], accessor=color)
         )
@@ -369,9 +386,9 @@ def build(source, destination):
             offset = pts[:, 2] - old_depth
         else:
             offset = {
-                "white": 0.0012,
-                "iris": 0.0025,
-                "rim": 0.0043,
+                "white": WHITE_DEPTH,
+                "iris": IRIS_DEPTH,
+                "rim": LASH_DEPTH,
                 "brow": 0.003,
             }[part]
         return surface.fit(out, offset)
@@ -450,7 +467,7 @@ def build(source, destination):
                         shifted = moved.copy()
                         shifted[:, 0] += dx
                         shifted[:, 1] += dy
-                        posed, pn = surface.fit(shifted, 0.0025)
+                        posed, pn = surface.fit(shifted, IRIS_DEPTH)
                         prim["targets"].append({
                             "POSITION": b.acc(posed - moved, sparse=True),
                             "NORMAL": b.acc(pn - norm, sparse=True),
@@ -464,9 +481,9 @@ def build(source, destination):
         b.save(folder / "working.glb")
         template = folder / "pack/template.glb"
         compact(GLB(folder / "working.glb"), manifest, template)
-        manifest["revision"] = 13
+        manifest["revision"] = 14
         manifest["eyeHeight"] += 0.012
-        manifest["faceSurface"]["eyePlacement"] = "tapered-anime-aperture-2"
+        manifest["faceSurface"]["eyePlacement"] = "recessed-orbit-1"
         manifest["files"]["template.glb"] = hashlib.sha256(
             template.read_bytes()
         ).hexdigest()

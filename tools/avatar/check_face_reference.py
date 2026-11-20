@@ -30,6 +30,9 @@ def check(pack, reference=REFERENCE):
     # independently pinned relief correction where the painted eye used to sit.
     fitted_hash = {'POSITION':'e8b0cb162a0b3c48a4fa0db25782d20ffd19a51db63540fe5a15cacea61c2161',
                    'NORMAL':'b98fa7915c4967f313b38eaeb4ab4cea3fb50065e84c46b23a6e88976f231670'}
+    if m['revision'] >= 14:
+        fitted_hash = {'POSITION':'9dddc339037acf3b162ab35a3d18a22590d865a542b409744eaa7df326082e08',
+                       'NORMAL':'ec447c230b80d76da48957fe482de08b43cee71a572bb267b6e3df08d1ebdd5c'}
     mesh = model.g['meshes'][m['preparedBodyMesh']]
     for prim in mesh['primitives']:
         for attr, expected in [('POSITION', p), ('NORMAL', source['NORMAL'])]:

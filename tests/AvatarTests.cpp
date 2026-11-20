@@ -260,7 +260,7 @@ private slots:
         if(!AvatarAssets::available())QSKIP("External avatar pack not installed");
         QTemporaryDir cache;QSet<QString> hashes;int index=0;
         QFile manifest(AvatarAssets::packRoot()+"/manifest.json");QVERIFY(manifest.open(QIODevice::ReadOnly));
-        const auto pack=QJsonDocument::fromJson(manifest.readAll()).object();QCOMPARE(pack["revision"].toInt(),13);
+        const auto pack=QJsonDocument::fromJson(manifest.readAll()).object();QCOMPARE(pack["revision"].toInt(),14);
         const auto templateBytes=AvatarResource::read(AvatarAssets::packRoot()+"/template.glb");QVERIFY(!templateBytes.isEmpty());
         const auto templateJson=QJsonDocument::fromJson(templateBytes.mid(20,qFromLittleEndian<quint32>(templateBytes.constData()+12))).object();
         const auto face=templateJson["extras"].toObject()["trainerFace"].toObject();
