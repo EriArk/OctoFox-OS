@@ -70,6 +70,18 @@ func install_avatar(descriptor:Dictionary) -> bool:
  if seated:_seat_pose();visual.hide()
  return true
 
+func attend(world_target: Variant) -> void:
+ if not is_instance_valid(visual) or not visual.has_method("set_attention"):return
+ var aim:=Vector2.ZERO
+ if world_target is Vector3:
+  var ray:Vector3=visual.to_local(world_target)-Vector3.UP*visual.eye_height
+  # Let a station behind the shoulders go instead of snapping between sides.
+  var horizontal:=Vector2(ray.x,ray.z).length()
+  if horizontal>0.001 and ray.z>0:
+   aim=Vector2(atan2(ray.x,ray.z)/0.85,atan2(ray.y,horizontal)/0.6)
+   aim=aim.limit_length(1.0)*smoothstep(0.0,0.3,ray.z/horizontal)
+ visual.set_attention(aim)
+
 func sit() -> void:
  if seated:return
  standing_position=position;standing_yaw=yaw;standing_pitch=pitch

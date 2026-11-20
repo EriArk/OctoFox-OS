@@ -88,6 +88,7 @@ struct AvatarScene::Data {
     QVector<Node> nodes,animated,transition,presented;float transitionTime=0;
     QVector<Skin> skins;QVector<Part> parts;QMap<QString,Clip> clips;
     QJsonObject expressions;QSet<QString> controls;QMap<QString,float> face;
+    QPointF gaze,headTurn;
     QMap<QString,QVector3D> pose;int vertices=0;
     QVariantList materials;
     QString error;
@@ -117,6 +118,14 @@ void AvatarScene::setClip(const QString& value){
     clip_=value;clipSeconds_=0;dirty_=true;emit changed();if(!running_)frame();
 }
 void AvatarScene::setClipPosition(qreal value){if(!std::isfinite(value)||clipPosition_==value)return;clipPosition_=std::clamp(value,-1.,1.);dirty_=true;emit changed();if(!running_)frame();}
+void AvatarScene::setAttention(QPointF target){
+    if(!std::isfinite(target.x())||!std::isfinite(target.y()))return;
+    target/=std::max(1.,std::hypot(target.x(),target.y()));
+    if(attention_==target)return;
+    attention_=target;
+    if(d_&&!timer_.isActive()){clock_.restart();timer_.start();}
+    emit changed();
+}
 void AvatarScene::setPose(const QVariantMap& value){
     for(auto i=value.begin();i!=value.end();++i){if(!i.value().canConvert<QVector3D>())return;const auto v=i.value().value<QVector3D>();if(!std::isfinite(v.x())||!std::isfinite(v.y())||!std::isfinite(v.z()))return;}
     if(pose_==value)return;pose_=value;dirty_=true;emit changed();if(!running_)frame();
@@ -234,9 +243,29 @@ void AvatarScene::frame(){
     auto expression=d_->expressions[expression_].toObject();
     for(auto i=face_.begin();i!=face_.end();++i)if(d_->controls.contains(i.key()))expression[i.key()]=std::clamp(i.value().toDouble(),0.,1.);
     QSet<QString> faceKeys;for(auto i=d_->face.begin();i!=d_->face.end();++i)faceKeys.insert(i.key());for(auto i=expression.begin();i!=expression.end();++i)faceKeys.insert(i.key());
-    for(const auto& key:faceKeys){const float target=expression[key].toDouble();float& v=d_->face[key];if(v!=target){v+=(target-v)*smoothing;if(std::abs(target-v)<.001)v=target;updateNeeded=true;}}
+    for(const auto& key:faceKeys){if(key.startsWith("gaze_"))continue;const float target=expression[key].toDouble();float& v=d_->face[key];if(v!=target){v+=(target-v)*smoothing;if(std::abs(target-v)<.001)v=target;updateNeeded=true;}}
     QSet<QString> poseKeys;for(auto i=d_->pose.begin();i!=d_->pose.end();++i)poseKeys.insert(i.key());for(auto i=pose_.begin();i!=pose_.end();++i)poseKeys.insert(i.key());
     for(const auto& key:poseKeys){const auto target=pose_.value(key).value<QVector3D>();auto& v=d_->pose[key];if(v!=target){v+=(target-v)*smoothing;if((target-v).lengthSquared()<.0001)v=target;updateNeeded=true;}}
+    const auto follow=[&](QPointF& current,double seconds){
+        if(current==attention_)return;
+        current+=(attention_-current)*(1.-std::exp(-dt/seconds));
+        if((attention_-current).manhattanLength()<.002)current=attention_;
+        updateNeeded=true;
+    };
+    follow(d_->gaze,.075);
+    follow(d_->headTurn,.21);
+    if(!running_){
+        if(d_->gaze==attention_&&d_->headTurn==attention_)timer_.stop();
+        else if(!timer_.isActive())timer_.start();
+    }
+    if(d_->controls.contains("gaze_right")){
+        const auto visible=1.f-std::max({d_->face.value("eyes_closed"),d_->face.value("eyes_hearts"),
+                                        d_->face.value("eyes_shocked"),d_->face.value("eyes_squeezed")});
+        d_->face["gaze_left"]=std::max(0.,-d_->gaze.x())*visible;
+        d_->face["gaze_right"]=std::max(0.,d_->gaze.x())*visible;
+        d_->face["gaze_down"]=std::max(0.,-d_->gaze.y())*visible;
+        d_->face["gaze_up"]=std::max(0.,d_->gaze.y())*visible;
+    }
     if(!updateNeeded)return;
     auto nodes=d_->nodes;const float seconds=clipSeconds_;
     const auto found=d_->clips.constFind(clip_);if(found!=d_->clips.cend()){
@@ -258,6 +287,7 @@ void AvatarScene::frame(){
     }
     d_->animated=nodes;
     for(auto& node:nodes)if(d_->pose.contains(node.name))node.r*=QQuaternion::fromEulerAngles(d_->pose[node.name]);
+    for(auto& node:nodes)if(node.name=="head")node.r*=QQuaternion::fromEulerAngles(-10*d_->headTurn.y(),18*d_->headTurn.x(),0);
     QVector<QMatrix4x4> world(nodes.size());QVector<int> state(nodes.size(),0);
     std::function<void(int)> update=[&](int i){if(state[i]==2)return;require(state[i]!=1);state[i]=1;const auto& n=nodes[i];QMatrix4x4 local=n.matrix;if(!n.matrixSet){local.setToIdentity();local.translate(n.p);local.rotate(n.r);local.scale(n.s);}if(n.parent>=0){update(n.parent);world[i]=world[n.parent]*local;}else world[i]=local;state[i]=2;};
     for(int i=0;i<nodes.size();++i)update(i);

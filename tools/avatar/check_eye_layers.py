@@ -52,6 +52,16 @@ def check(pack):
             check_lid_motion(model, meshes)
         white, iris = meshes['white'], meshes['iris']
         names = iris['extras']['targetNames']
+        if manifest['revision'] >= 13:
+            for control, axis, step in [('gaze_right',0,.004), ('gaze_left',0,-.004),
+                                        ('gaze_up',1,.0025), ('gaze_down',1,-.0025)]:
+                for prim in iris['primitives']:
+                    delta = model.acc(prim['targets'][names.index(control)]['POSITION'])
+                    assert np.allclose(delta[:,axis], step, atol=1e-6), (style, control)
+                    assert np.allclose(delta[:,1-axis], 0), (style, control)
+                    assert np.isfinite(delta).all()
+                assert all(control not in mesh['extras']['targetNames']
+                           for part,mesh in meshes.items() if part != 'iris')
         # Symbolic reactions replace the eye. Physical lids slide over the fixed iris.
         for mesh in [white, iris]:
             for prim in mesh['primitives']:

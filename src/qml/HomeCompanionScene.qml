@@ -6,6 +6,7 @@ import TrainerOS
 View3D {
     id: root
     objectName: "home-companion-scene"
+    property point attention: Qt.point(0,0)
     property url modelSource
     property string assetBase: "qrc:/home-pet/"
     property var pet
@@ -55,6 +56,7 @@ View3D {
     DirectionalLight { eulerRotation: Qt.vector3d(-10,145,0); brightness:.45 }
     AvatarView3D {
         id: presenter
+        attention:root.attention
         source: root.modelSource
         running: root.animate
         expression: idle.expression || (root.pet ? root.pet.expression : "neutral")

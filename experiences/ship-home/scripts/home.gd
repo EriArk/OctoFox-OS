@@ -123,6 +123,8 @@ func _unhandled_input(event:InputEvent) -> void:
  elif event.is_action_pressed("interact"):_interact()
 
 func _process(delta:float) -> void:
+ var station = _station()
+ walker.attend(null if paused or editing or walker.seated else STATION_TARGETS.get(station))
  message_time=max(0.0,message_time-delta)
  var room="Passage"
  for key in Art.ROOMS:
@@ -252,17 +254,34 @@ func _leave_pilot() -> bool:
   if walker.can_stand(at):walker.stand(at);notify("Back on deck");return true
  notify("There is no clear space to stand up.");return false
 
-func _interact() -> void:
+const STATION_TARGETS = {
+ "pilot": Vector3(0,0.9,-3.4), "workbench": Vector3(-2.85,0.9,1.48),
+ "wardrobe": Vector3(3.05,1.4,4.9), "gallery": Vector3(2.65,1.25,1.3),
+ "cabin": Vector3(-2.7,0.76,4.5)
+}
+
+func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
- if walker.seated:_leave_pilot()
- elif _near_pilot():
-  if editing:_edit(false)
-  walker.sit();notify("Pilot seat · look around with RS / mouse. B / F to stand up.")
- elif p.distance_to(Vector2(-2.85,1.5))<1.5:notify("Workbench · crafting recipes will be connected here.")
- elif p.distance_to(Vector2(3.05,4.9))<1.8:notify("Wardrobe · your saved OctoFox appearance is shared with this home.")
- elif Art.ROOMS.Gallery.has_point(p):notify("Your gallery · reserved for cards and trophies you actually own.")
- elif p.distance_to(Vector2(-2.7,4.5))<1.5:notify("Your cabin · make room for your favourite things.")
- else:notify("X / Tab opens your furniture collection.")
+ if _near_pilot():return "pilot"
+ if p.distance_to(Vector2(-2.85,1.5))<1.5:return "workbench"
+ if p.distance_to(Vector2(3.05,4.9))<1.8:return "wardrobe"
+ if Art.ROOMS.Gallery.has_point(p):return "gallery"
+ if p.distance_to(Vector2(-2.7,4.5))<1.5:return "cabin"
+ return ""
+
+func _interact() -> void:
+ if walker.seated:
+  _leave_pilot()
+  return
+ match _station():
+  "pilot":
+   if editing:_edit(false)
+   walker.sit();notify("Pilot seat · look around with RS / mouse. B / F to stand up.")
+  "workbench":notify("Workbench · crafting recipes will be connected here.")
+  "wardrobe":notify("Wardrobe · your saved OctoFox appearance is shared with this home.")
+  "gallery":notify("Your gallery · reserved for cards and trophies you actually own.")
+  "cabin":notify("Your cabin · make room for your favourite things.")
+  _:notify("X / Tab opens your furniture collection.")
 
 func _quit() -> void:
  if store.writable and not store.save(rows):notify(store.error);return

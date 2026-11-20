@@ -1,4 +1,4 @@
-"""Fit the modular eyes and their moving lids to the prepared face (pack 10 -> 12)."""
+"""Fit the modular eyes and their moving lids to the prepared face (pack 10 -> 13)."""
 
 import argparse
 import copy
@@ -67,7 +67,8 @@ def fair_sockets(p, n, triangles):
 class Aperture:
     """One upper and lower edge shared by the white, lash and both lids."""
 
-    def __init__(self, white, faces):
+    def __init__(self, white, faces, style):
+        self.style = style
         w = white[white[:, 0] > 0]
         self.left, self.right = w[:, 0].min(), w[:, 0].max()
         # Sample the actual triangle edges. A vertex at a given X can belong
@@ -126,6 +127,8 @@ class Aperture:
         chord = 0.791 + 0.004 * self.tilt * (u - 0.5)
         bow = np.sin(np.pi * u)
         top = chord + 0.057 * self.top(u) - (0.013 * (1 - self.openness)) * bow
+        if self.style == "round":
+            top += 0.0012 * bow**2
         bottom = chord + 0.057 * self.bottom(u) + 0.002 * (1 - self.openness) * bow
         return bottom, top
 
@@ -374,7 +377,11 @@ def build(source, destination):
         return surface.fit(out, offset)
 
     done = set()
-    for nodes in manifest["eyeNodes"].values():
+    # +Z is forward and +X points right in the frontal camera.
+    gaze = {"gaze_left": (-0.004, 0), "gaze_right": (0.004, 0),
+            "gaze_up": (0, 0.0025), "gaze_down": (0, -0.0025)}
+    b.g["extras"]["trainerFace"]["controls"].extend(gaze)
+    for style, nodes in manifest["eyeNodes"].items():
         parts = {
             b.g["nodes"][i]["name"].rsplit("-", 1)[-1]: b.g["nodes"][i]["mesh"]
             for i in nodes
@@ -384,7 +391,7 @@ def build(source, destination):
             start = sum(len(points) for points in white_points)
             white_faces.append(start + model.acc(prim["indices"]).reshape(-1, 3))
             white_points.append(model.acc(prim["attributes"]["POSITION"]))
-        aperture = Aperture(np.concatenate(white_points), np.concatenate(white_faces))
+        aperture = Aperture(np.concatenate(white_points), np.concatenate(white_faces), style)
         for part, mesh_id in parts.items():
             if mesh_id in done:
                 continue
@@ -405,7 +412,7 @@ def build(source, destination):
                     surface,
                     original_rim["material"],
                     joint,
-                    wing * 0.75,
+                    wing * 0.75 if style != "almond" else wing * 0.30 - 0.0007,
                 )
                 add_lids(
                     b,
@@ -438,13 +445,26 @@ def build(source, destination):
                         POSITION=b.acc(delta, sparse=True),
                         NORMAL=b.acc(dn, sparse=True),
                     )
+                if part == "iris":
+                    for dx, dy in gaze.values():
+                        shifted = moved.copy()
+                        shifted[:, 0] += dx
+                        shifted[:, 1] += dy
+                        posed, pn = surface.fit(shifted, 0.0025)
+                        prim["targets"].append({
+                            "POSITION": b.acc(posed - moved, sparse=True),
+                            "NORMAL": b.acc(pn - norm, sparse=True),
+                        })
+            if part == "iris":
+                mesh["extras"]["targetNames"].extend(gaze)
+                mesh["weights"].extend([0.0] * len(gaze))
     with tempfile.TemporaryDirectory(dir=destination.parent) as scratch:
         folder = Path(scratch)
         shutil.copytree(source, folder / "pack")
         b.save(folder / "working.glb")
         template = folder / "pack/template.glb"
         compact(GLB(folder / "working.glb"), manifest, template)
-        manifest["revision"] = 12
+        manifest["revision"] = 13
         manifest["eyeHeight"] += 0.012
         manifest["faceSurface"]["eyePlacement"] = "tapered-anime-aperture-2"
         manifest["files"]["template.glb"] = hashlib.sha256(

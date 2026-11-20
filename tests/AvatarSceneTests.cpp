@@ -177,6 +177,23 @@ private slots:
         QVERIFY(scene.sockets().contains("hand.R"));
         scene.setSource({});QVERIFY(!scene.ready());QCOMPARE(scene.vertexCount(),0);QVERIFY(scene.sockets().isEmpty());
     }
+    void attentionMovesIrisAndHeadThenSleeps(){
+        QTemporaryDir cache;
+        const auto avatar=AvatarAssets::resolve(AvatarAssets::defaults(),{},cache.path());
+        AvatarScene scene;
+        scene.setGpuSkinning(true);
+        scene.setSource(QUrl::fromLocalFile(avatar["glb"].toString()));
+        QTRY_VERIFY_WITH_TIMEOUT(scene.ready(),10000);
+        const auto rest=scene.nodePoses();
+        const int uploads=scene.geometryUploads();
+        scene.setAttention(QPointF(1,0));
+        QTRY_VERIFY(scene.nodePoses()!=rest && scene.geometryUploads()>uploads);
+        scene.setAttention(QPointF(0,0));
+        QTRY_VERIFY_WITH_TIMEOUT(scene.nodePoses()==rest,3000);
+        QSignalSpy frames(&scene,&AvatarScene::frameChanged);
+        QTest::qWait(180);
+        QCOMPARE(frames.count(),0);
+    }
     void rejectInvalidSource(){AvatarScene scene;scene.setSource(QUrl("https://example.com/avatar.glb"));QVERIFY(!scene.ready());QTRY_VERIFY(!scene.error().isEmpty());}
     void revokeWhileLoading(){
         QTemporaryDir cache;const auto avatar=AvatarAssets::resolve(AvatarAssets::defaults(),{},cache.path());

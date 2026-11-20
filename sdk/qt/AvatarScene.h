@@ -2,6 +2,7 @@
 #pragma once
 #include <QObject>
 #include <QUrl>
+#include <QPointF>
 #include <QVariantList>
 #include <QVector3D>
 #include <QTimer>
@@ -23,6 +24,7 @@ class AvatarScene : public QObject {
     Q_PROPERTY(QString expression READ expression WRITE setExpression NOTIFY changed)
     Q_PROPERTY(QString clip READ clip WRITE setClip NOTIFY changed)
     Q_PROPERTY(qreal clipPosition READ clipPosition WRITE setClipPosition NOTIFY changed)
+    Q_PROPERTY(QPointF attention READ attention WRITE setAttention NOTIFY changed)
     Q_PROPERTY(QVariantMap pose READ pose WRITE setPose NOTIFY changed)
     Q_PROPERTY(QVector3D rightHand READ rightHand NOTIFY frameChanged)
     Q_PROPERTY(QVariantMap sockets READ sockets NOTIFY frameChanged)
@@ -44,6 +46,7 @@ public:
     QString expression() const{return expression_;} void setExpression(const QString&);
     QString clip() const{return clip_;} void setClip(const QString&);
     qreal clipPosition() const{return clipPosition_;} void setClipPosition(qreal);
+    QPointF attention() const{return attention_;} void setAttention(QPointF);
     QVariantMap pose() const{return pose_;} void setPose(const QVariantMap&);
     QVector3D rightHand() const{return rightHand_;}
     QVariantMap sockets() const{return sockets_;}
@@ -73,6 +76,7 @@ private:
     int geometryUploads_=0;
     QString expression_="neutral",clip_,error_;
     qreal clipPosition_=-1;
+    QPointF attention_;
     QVariantMap pose_;
     QVariantMap sockets_,face_;
     QVector3D rightHand_;

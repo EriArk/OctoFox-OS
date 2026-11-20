@@ -17,6 +17,18 @@ Panel {
     radius: 28
     MouseArea { anchors.fill: parent }
 
+    property Item pointerTarget
+    property Item controllerTarget
+    function track(item, active, pointer) {
+        const key = pointer ? "pointerTarget" : "controllerTarget"
+        if (active) root[key] = item
+        else if (root[key] === item) root[key] = null
+    }
+    component ProfileIcon: SocialIconButton {
+        id: icon
+        onHighlightedChanged: root.track(icon, highlighted, false)
+        HoverHandler { onHoveredChanged: root.track(icon, hovered, true) }
+    }
     component ProfileAction: Item {
         id: action
         required property int actionIndex
@@ -27,6 +39,8 @@ Panel {
         property int textSize: 12
         property color ink: root.accent
         readonly property bool focused: root.shell.profileContentActive && root.shell.profileFocus === actionIndex
+        onFocusedChanged: root.track(action, focused, false)
+        Component.onCompleted: if (focused) root.track(action, true, false)
         height: 30
         opacity: available ? 1 : .5
         Rectangle { anchors.fill: parent; radius: action.glyph ? width/2 : 5; color: action.focused ? Theme.selection : pointer.containsMouse ? Theme.surface : action.background; border.width: action.focused ? 2 : 0; border.color: Theme.focus }
@@ -35,7 +49,7 @@ Panel {
         ToolTip.visible: !!glyph && available && root.shell.profileContentActive && (focused || pointer.containsMouse)
         ToolTip.text: label
         ToolTip.delay: 650
-        MouseArea { id: pointer; anchors.fill: parent; hoverEnabled: true; enabled: action.available && root.shell.profileContentActive; onClicked: root.shell.activate(action.actionIndex,"profile") }
+        MouseArea { id: pointer; onContainsMouseChanged: root.track(action, containsMouse, true); anchors.fill: parent; hoverEnabled: true; enabled: action.available && root.shell.profileContentActive; onClicked: root.shell.activate(action.actionIndex,"profile") }
         Accessible.role: Accessible.Button; Accessible.name: label; Accessible.onPressAction: if(available)root.shell.activate(actionIndex,"profile")
     }
     Item {
@@ -52,6 +66,16 @@ Panel {
             id: showcase; y: 0; width: parent.width; height: parent.height; visible: root.browsing
             ProfileScene {
                 id:portrait;width:parent.width*.35;height:parent.height
+                attention: {
+                    const target = root.pointerTarget || root.controllerTarget
+                    if (!root.browsing || !root.shell.profileContentActive || !target ||
+                        !target.enabled || !target.visible || target.available === false) return Qt.point(0,0)
+                    // Mapping also depends on the scroll offset when a focused row is revealed.
+                    const scroll = factsScroll.contentY
+                    const pos = target.mapToItem(portrait, target.width/2, target.height/2)
+                    return Qt.point((pos.x-width*.5)/Math.max(1,width*.55),
+                                    (height*.31-pos.y)/Math.max(1,height*.35))
+                }
                 profile:root.profile;appearance:root.shell.backendAccount.profileAppearance;showAvatar:root.browsing
                 Rectangle { x:10;y:10;width:116;height:30;radius:15;color:"#c5122229" }
                 ProfileAction { x:16;y:10;width:108;actionIndex:9;label:"Change scenery  ›";textSize:11;ink:"#fff0cd" }
@@ -77,9 +101,9 @@ Panel {
             }
             Row {
                 id:profileTools;anchors.right:parent.right;spacing:4;z:2
-                SocialIconButton { objectName:"profile-edit";glyph:"pencil";label:root.profile.exists?"Edit profile":"Create profile";highlighted:root.shell.profileContentActive&&root.shell.profileFocus===0;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(0,"profile") }
-                SocialIconButton { objectName:"profile-sharing";glyph:"privacy";label:"Profile privacy";highlighted:root.shell.profileContentActive&&root.shell.profileFocus===13;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(13,"profile") }
-                SocialIconButton { objectName:"profile-close";glyph:"close";label:"Close profile";onClicked:root.shell.pressButton("B") }
+                ProfileIcon { objectName:"profile-edit";glyph:"pencil";label:root.profile.exists?"Edit profile":"Create profile";highlighted:root.shell.profileContentActive&&root.shell.profileFocus===0;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(0,"profile") }
+                ProfileIcon { objectName:"profile-sharing";glyph:"privacy";label:"Profile privacy";highlighted:root.shell.profileContentActive&&root.shell.profileFocus===13;enabled:root.shell.profileContentActive;onClicked:root.shell.activate(13,"profile") }
+                ProfileIcon { objectName:"profile-close";glyph:"close";label:"Close profile";onClicked:root.shell.pressButton("B") }
             }
             Flickable {
                 id: factsScroll; x: identity.x; y:identity.height+8; width: parent.width-x; height: parent.height-y

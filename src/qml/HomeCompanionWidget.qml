@@ -15,6 +15,30 @@ Item {
         (!!actor.item && (actor.item.ready || !!actor.item.error)) || (!shell.trainer.avatarBusy && !shell.trainer.avatarModel.toString())
     readonly property bool compact: height < 170
     readonly property var labels: ["Feed", "Playtime · 60 min = 100%", pet.activity === "rest" ? "Wake up" : "Rest"]
+    property Item pointedAction
+    component ActionHover: HoverHandler {
+        onHoveredChanged: {
+            if (hovered) root.pointedAction = parent
+            else if (root.pointedAction === parent) root.pointedAction = null
+        }
+    }
+    readonly property Item attentionTarget: {
+        if (pointedAction && pointedAction.visible && pointedAction.enabled) return pointedAction
+        if (!selected || !pet.interacting) return null
+        if (pet.menuOpen) {
+            for (let i=0;i<menuRows.count;i++) {
+                const row = menuRows.itemAt(i)
+                if (row && row.modelData.id === pet.focus) return row
+            }
+        } else if (pet.focus === 0 || pet.focus === 2) return dials.itemAt(pet.focus)
+        return pet.focus === 6 ? menuButton : null
+    }
+    readonly property point attention: {
+        if (!live || !attentionTarget) return Qt.point(0,0)
+        const pos = attentionTarget.mapToItem(root,attentionTarget.width/2,attentionTarget.height/2)
+        return Qt.point((pos.x-width*.5)/Math.max(1,width*.46),
+                        (height*.38-pos.y)/Math.max(1,height*.4))
+    }
     objectName: "home-companion"
     clip: true
     // One bounded surface for the background, 3D render and overlays. The static
@@ -54,6 +78,7 @@ Item {
         active:root.live && root.shell.trainer.avatarRendererAvailable && !!root.shell.trainer.avatarModel.toString()
         source:"HomeCompanionScene.qml"
         onLoaded: {
+            item.attention=Qt.binding(function(){return root.attention})
             item.pet=root.pet
             item.assetBase=Qt.binding(function(){return root.assetBase})
             item.modelSource=Qt.binding(function(){return root.shell.trainer.avatarModel})
@@ -70,6 +95,7 @@ Item {
     Row {
         x:8; y:7; spacing:root.compact?6:8
         Repeater {
+            id:dials
             model:[{icon:"food",value:root.pet.needs.food,color:"#ffc65a"},{icon:"game",value:root.pet.needs.mood,color:"#ff91b1"},{icon:"rest",value:root.pet.needs.energy,color:"#7ce0ed"}]
             delegate:Item {
                 id:dial
@@ -90,6 +116,7 @@ Item {
                     Connections { target:dial; function onModelDataChanged(){ring.requestPaint()} function onFocusedChanged(){ring.requestPaint()} }
                     onWidthChanged:requestPaint()
                 }
+                ActionHover { enabled:dial.index!==1 && !root.pet.menuOpen }
                 Image { anchors.centerIn:parent; width:parent.width*.47; height:width; sourceSize:Qt.size(48,48); source:"qrc:/home-pet/ui/"+dial.modelData.icon+".svg" }
                 MouseArea { anchors.fill:parent; onClicked:if(dial.index!==1)root.use(dial.index) }
                 Accessible.role:index===1?Accessible.ProgressBar:Accessible.Button
@@ -100,6 +127,8 @@ Item {
     }
     Rectangle {
         anchors.right:parent.right; anchors.top:parent.top; anchors.margins:7
+        id:menuButton
+        ActionHover {}
         width:root.compact?27:31; height:width; radius:width/2
         color:root.pet.menuOpen?"#cc314137":"#49304436"
         border.width:root.selected && root.pet.interacting && root.pet.focus===6?1:0; border.color:"#fff1b9"
@@ -118,6 +147,7 @@ Item {
         width:Math.min(parent.width-16,190); height:message.implicitHeight+10; radius:8
         visible:!!root.pet.bubble && root.pet.bubbleKind!=="notifications" && !root.pet.menuOpen; color:"#eafff6dc"
         Text { id:message; x:6; y:5; width:parent.width-12; text:root.pet.bubble; textFormat:Text.PlainText; wrapMode:Text.WordWrap; font.pixelSize:root.compact?10:12; color:"#3d473a" }
+        ActionHover {}
         MouseArea { anchors.fill:parent; onClicked:root.pet.openHint() }
         Accessible.role:Accessible.Button; Accessible.name:root.pet.bubble; Accessible.onPressAction:root.pet.openHint()
     }
@@ -136,6 +166,7 @@ Item {
         Rectangle {width:10;height:10;x:4;y:parent.height-7;rotation:30;color:"#fff8e5"}
         Rectangle {anchors.fill:parent;radius:width*.43;color:"#fff8e5";border.color:"#e0a72b";border.width:1.5}
         Text {anchors.centerIn:parent;text:"!";font.bold:true;font.pixelSize:root.compact?23:29;color:"#674724"}
+        ActionHover {}
         MouseArea {anchors.fill:parent;onClicked:root.pet.openHint()}
         Accessible.role:Accessible.Button;Accessible.name:root.pet.bubble;Accessible.onPressAction:root.pet.openHint()
     }
@@ -174,12 +205,14 @@ Item {
             Column {
                 id:options; x:6; y:6; width:parent.width-12; spacing:2
                 Repeater {
+                    id:menuRows
                     model:[{id:3,label:"Change scenery"},{id:4,label:root.pet.quiet?"Hints: quiet":"Hints: on"},{id:5,label:"Notifications"},{id:7,label:"Change widget"}]
                     delegate:Rectangle {
                         required property var modelData
                         width:options.width; height:root.compact?22:27; radius:6
                         color:root.selected && root.pet.focus===modelData.id?"#566b4c":"transparent"
                         Text { x:9; anchors.verticalCenter:parent.verticalCenter; text:modelData.label; color:"#fff4d9"; font.pixelSize:11 }
+                        ActionHover {}
                         MouseArea { anchors.fill:parent; onClicked:root.use(modelData.id) }
                         Accessible.role:Accessible.Button; Accessible.name:modelData.label; Accessible.onPressAction:root.use(modelData.id)
                     }

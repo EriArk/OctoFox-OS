@@ -10,6 +10,7 @@ Node {
     property alias running: renderer.running
     property alias expression: renderer.expression
     property alias face: renderer.face
+    property alias attention: renderer.attention
     property alias pose: renderer.pose
     property alias clipPosition: renderer.clipPosition
     property var actions: ({})
@@ -53,7 +54,7 @@ Node {
     }
     function supportsExpression(name){return renderer.supportsExpression(name)}
     function supportsAction(name){return renderer.supportsClip(actions[name] || name)}
-    function clearIdentity(){source="";action="";expression="neutral";face=({});pose=({})}
+    function clearIdentity(){attention=Qt.point(0,0);source="";action="";expression="neutral";face=({});pose=({})}
     AvatarScene { id:renderer;gpuSkinning:true;clip:root.actions[root.action] || root.action }
     Component { id:jointFactory; Node {} }
     Component { id:skinFactory; Skin {} }

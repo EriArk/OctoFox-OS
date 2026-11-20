@@ -6,6 +6,7 @@ Rectangle {
     id:root
     required property var profile
     property string appearance:""
+    property point attention: Qt.point(0,0)
     property bool showAvatar:true
     property bool thumbnail:false
     property real footerInset:0
@@ -46,7 +47,10 @@ Rectangle {
         id:avatar;x:0;y:root.appearance?parent.height*.03:22;width:parent.width;height:(root.appearance?parent.height*.90:parent.height-37)-root.footerInset
         active:root.visible&&(!root.Window.window||root.Window.window.visible)&&root.showAvatar&&!root.thumbnail&&!!root.profile.avatarPreview&&root.profile.avatarRendererAvailable
         source:active?"AvatarPreview3D.qml":""
-        onLoaded:item.modelSource=Qt.binding(function(){return root.profile.avatarPreview})
+        onLoaded: {
+            item.modelSource=Qt.binding(function(){return root.profile.avatarPreview})
+            item.attention=Qt.binding(function(){return root.attention})
+        }
     }
     TrainerEmblem { anchors.centerIn:parent;width:Math.min(110,parent.width*.55);height:width;visible:root.showAvatar&&!avatar.active&&!root.thumbnail;emblem:root.profile.profile.emblem||"compass" }
     // Cover only the square corner wedges; keep image, avatar and pointer input intact.
