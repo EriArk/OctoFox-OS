@@ -698,12 +698,30 @@ private slots:
         catalog.reply(1);QCOMPARE(picker.path(),QString("/new"));
         picker.cancel();catalog.reply(0);QVERIFY(picker.places().isEmpty());QVERIFY(!picker.isOpen());
     }
+    void colorAppearancePersistsAndCyclesBothWays() {
+        QTemporaryDir dir;
+        {
+            LocalStateStore store(dir.path());store.open();QTRY_VERIFY(store.ready());
+            SettingsController settings;settings.setRepository(&store);
+            for(const QString expected:QStringList{"red","green","blue","orange","dark","turquoise"}) {
+                settings.activate(0);QTRY_VERIFY(!settings.saving());
+                QCOMPARE(settings.theme(),expected);QCOMPARE(store.preferences().theme,expected);
+            }
+            settings.cycleAppearance(-1);QTRY_VERIFY(!settings.saving());QCOMPARE(settings.theme(),"dark");
+            settings.cycleAppearance(-1);QTRY_VERIFY(!settings.saving());QCOMPARE(settings.theme(),"orange");
+        }
+        LocalStateStore restored(dir.path());restored.open();QTRY_VERIFY(restored.ready());
+        SettingsController settings;settings.setRepository(&restored);
+        QCOMPARE(settings.theme(),"orange");
+        settings.cycleTheme();QTRY_VERIFY(!settings.saving());QCOMPARE(settings.theme(),"dark");
+        settings.cycleTheme();QTRY_VERIFY(!settings.saving());QCOMPARE(settings.theme(),"light");
+    }
     void settingsAreCommittedAndRetryable() {
         QTemporaryDir dir;
         {
             LocalStateStore store(dir.path()); store.open(); QTRY_VERIFY(store.ready());
             SettingsController settings; settings.setRepository(&store);
-            settings.activate(0); QVERIFY(settings.saving()); QCOMPARE(settings.theme(), "light");
+            settings.cycleTheme(); QVERIFY(settings.saving()); QCOMPARE(settings.theme(), "light");
             QTRY_VERIFY(!settings.saving()); QCOMPARE(settings.theme(), "dark");
             Connection connection(dir.path()); QSqlQuery q(connection.db); QVERIFY(q.exec("BEGIN IMMEDIATE"));
             settings.activate(1); QTRY_VERIFY(!settings.saving()); QVERIFY(!settings.error().isEmpty()); QVERIFY(!settings.reducedMotion());

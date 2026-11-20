@@ -968,6 +968,18 @@ private slots:
         f.runtime.action("multiplayer-accept:"+request);QVERIFY(f.runtime.exitingInvitation_.isEmpty());
         QVERIFY(!f.runtime.party_.active());finishOrdinary(f);
     }
+    void generatedSessionNicknameFitsEmulatorProtocol() {
+        Fixture f;GameParty host;
+        const auto game=inviteWhilePlaying(f,host);
+        f.runtime.party_.configure("test-trainer",{game},game,true);
+        f.runtime.party_.invite("new-guest");
+        QCOMPARE(f.runtime.party_.game(),game);
+        f.runtime.startParty(true,{});
+        // The public product name may contain spaces; wire nicknames cannot.
+        const auto nickname=f.runtime.request_.nickname;
+        QVERIFY(!nickname.isEmpty());QVERIFY(nickname.size()<=32);
+        QVERIFY2(QRegularExpression("^[A-Za-z0-9_-]+$").match(nickname).hasMatch(),qPrintable(nickname));
+    }
     void locallySupportedNativeJoinRetainsTheRunningGame() {
         Fixture f;GameParty host;QVERIFY(f.start());QTRY_COMPARE(f.lifecycle.state(),"running");
         const auto game=inviteWhilePlaying(f,host);const auto pid=f.process.processId();int joined=0;

@@ -24,7 +24,7 @@ SessionState::SessionState(ShellController& shell, LocalStateStore* store, QObje
         auto* settings=shell_.settings();if(settings->saving())return;
         if(index==0) {
             const auto wanted=direction<0?"light":"dark";
-            if(!direction || settings->theme()!=wanted)settings->cycleTheme();
+            if(!direction || (settings->theme()=="dark")!=(QString(wanted)=="dark"))settings->cycleTheme();
         } else if(index==1)settings->setInterfaceScale(direction<0?100:direction>0?120:settings->interfaceScale()==100?120:100);
     });
     connect(&firstRun_, &FirstRunController::serviceRequested, this, [this](const QString& service) {

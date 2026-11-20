@@ -97,8 +97,9 @@ public:
     Q_INVOKABLE void selectCategory(int index, bool enter = true);
     Q_INVOKABLE void activateRow(int index);
     Q_INVOKABLE void cycleTheme(int direction = 1);
+    Q_INVOKABLE void cycleAppearance(int direction = 1);
     bool creditsOpen() const { return category_==6 && pane_; }
-    QString theme() const { return value_.theme=="dark"?"dark":"light"; }
+    QString theme() const { return value_.theme; }
     QString displayProfile() const;
     int interfaceScale() const;
     Q_INVOKABLE void adjustDisplay(int row, int direction);
