@@ -1,5 +1,11 @@
 # TrainerOS — состояние проекта
 
+## 20 November 2026 — Bazaar 0.0.18
+
+The native Bazaar test host on Odin 2 presented the current offer and returned to the
+counter on cancellation. The reviewed asking price survives a lost reply and replay.
+Both device labs remain separate from production. [SDK contract](sdk/BAZAAR.md).
+
 ## 20 November 2026 — trade on two handhelds
 
 Mika on Flip 2 and Ren on Odin 2 completed a profile-item sale through the

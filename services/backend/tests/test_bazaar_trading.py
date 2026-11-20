@@ -216,7 +216,7 @@ def test_staffed_checkout_rolls_back_and_showcase_tracks_sale(account,postgres,m
         item=UUID(seed(postgres,seller['player_id'])[0])
         listing=trading.create_listing(s,token,UUID(replay['receipt']['id']),item,uuid4(),65)['listing']
         shelf=trading.world(s,buyer['access_token'],'festival')['places'][0]['showcase']
-        assert shelf==[{'title':'Item 0','icon':'gamepad','price':65}]
+        assert shelf==[{'title':'Item 0','icon':'gamepad','game':'Fixture game','price':65}]
         op=uuid4()
         result=trading.buy(s,buyer['access_token'],listing['id'],op,1,65)
         monkeypatch.setattr(policy,'PAYMENTS_AVAILABLE',False)

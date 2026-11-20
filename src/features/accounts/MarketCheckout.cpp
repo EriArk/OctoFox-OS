@@ -1,9 +1,20 @@
 #include "BackendAccount.h"
 #include <QUuid>
+#include <QFile>
+#include <QJsonDocument>
 #include <cmath>
 
 namespace trainer {
 namespace {
+QString itemArt(const QJsonObject& subject) {
+    static const QJsonObject catalogue = [] {
+        QFile file(":/market-items/item-art.json");
+        if (!file.open(QIODevice::ReadOnly)) return QJsonObject{};
+        return QJsonDocument::fromJson(file.readAll()).object();
+    }();
+    const auto key = catalogue[subject["game"].toString()].toObject()[subject["title"].toString()].toString();
+    return key.isEmpty() ? QString() : "qrc:/market-items/" + key + ".png";
+}
 bool uuid(QJsonValue v) { return v.isString() && v.toString().size()==36 && !QUuid(v.toString()).isNull(); }
 bool money(QJsonValue v) { return v.isDouble() && v.toInteger()>0 && v.toDouble()==double(v.toInteger()) && v.toInteger()<=2147483647; }
 QJsonObject error(QString code) { return {{"code",code}}; }
@@ -22,6 +33,16 @@ bool matchesReceipt(const QJsonObject& intent,const QJsonObject& result) {
     return r["place_id"]==intent["place_id"] && r["tenant_id"]==player && seller["rental_id"]==r["id"] && seller["buyer_id"]==player
         && seller["kind"]=="seller" && seller["operation_id"]==op && seller["species"]==intent["species"] && seller["price"]==intent["seller_price"];
 }
+}
+
+QVariantMap BackendAccount::marketReview() const {
+    if (marketView_.isEmpty()) return {};
+    auto view = marketView_.toVariantMap();
+    for (const auto key : {"action", "slot", "price", "seller_price", "subject", "origin", "keeper"}) {
+        if (marketIntent_.contains(key)) view.insert(key, marketIntent_.value(key).toVariant());
+    }
+    view.insert("art", itemArt({{"title", marketIntent_["subject"]}, {"game", marketIntent_["origin"]}}));
+    return view;
 }
 
 void BackendAccount::endMarket(int status,QJsonObject result) {
@@ -79,6 +100,7 @@ void BackendAccount::marketCheckout(QString channel,const QJsonObject args,Reply
                 if(status!=200 || !found){endMarket(409,error("offer_changed"));return;}
                 static const QHash<QString,QString> names={{"Casual_Female","Traveller"},{"Casual_Male","Wayfarer"},{"Chef_Female","Chef"},{"Kimono_Female","Tailor"},{"OldClassy_Male","Gentleman"}};
                 const auto species=marketIntent_["species"].toString();
+                marketIntent_["keeper"]=names.value(species,species);
                 const auto summary=QString("Stall %1 for 7 days: %2 Sparks. %3 for this rental: %4 Sparks. Total: %5 Sparks.")
                     .arg(slot,price,names.value(species,species)).arg(marketIntent_["seller_price"].toInteger()).arg(marketIntent_["price"].toInteger()+marketIntent_["seller_price"].toInteger());
                 marketIntent_["summary"]=summary;marketView_={{"text",summary},{"ready",true}};emit changed();
@@ -98,6 +120,8 @@ void BackendAccount::marketCheckout(QString channel,const QJsonObject args,Reply
                     endMarket(409,error("listing_changed"));return;
                 }
                 marketIntent_["item_id"]=item["item_id"];
+                marketIntent_["subject"]=item["presentation"].toObject()["title"];
+                marketIntent_["origin"]=item["presentation"].toObject()["game"];
                 const auto summary=QString("Buy %1 from stall %2 for %3 Sparks?").arg(item["presentation"].toObject()["title"].toString(),slot,price);
                 marketIntent_["summary"]=summary;marketView_={{"text",summary},{"ready",true}};emit changed();
             },access_);
@@ -118,7 +142,7 @@ void BackendAccount::moreMarketItems() {
             const auto row=v.toObject();
             const auto info=row["presentation"].toObject();
             if((marketIntent_["action"]=="inventory" || row["state"]=="stored") && uuid(row["id"]))
-                items.append(QJsonObject{{"id",row["id"]},{"title",info["title"]},{"game",info["game"]},{"state",row["state"]}});
+                items.append(QJsonObject{{"id",row["id"]},{"title",info["title"]},{"game",info["game"]},{"state",row["state"]},{"art",itemArt(info)}});
         }
         marketView_["items"]=items;marketView_["next"]=data["next"];marketView_["revision"]=data["revision"];marketView_["loading"]=false;emit changed();
     });
@@ -128,13 +152,24 @@ void BackendAccount::chooseMarketItem(int index) {
     const auto items=marketView_["items"].toArray();
     if(marketView_["picker"]!=true || marketView_["loading"]==true || index<0 || index>=items.size())return;
     const auto item=items[index].toObject();
+    marketIntent_["subject"]=item["title"];
+    marketIntent_["origin"]=item["game"];
     if(marketIntent_["action"]=="inventory"){
-        marketView_={{"text",QString("%1 · %2 · %3").arg(item["title"].toString(),item["game"].toString(),item["state"].toString())},{"inventory",true}};
+        marketView_={{"text",QString("%1 · %2 · %3").arg(item["title"].toString(),item["game"].toString(),item["state"].toString())},{"inventory",true},{"state",item["state"]}};
         emit changed();return;
     }
     const auto summary=QString("List %1 at stall %2 for %3 Sparks?").arg(item["title"].toString()).arg(marketIntent_["slot"].toInt()).arg(marketIntent_["price"].toInteger());
     marketIntent_["item_id"]=item["id"];marketIntent_["summary"]=summary;
     marketView_={{"text",summary},{"ready",true}};emit changed();
+}
+
+void BackendAccount::confirmMarketListing(int askingPrice) {
+    if (askingPrice < 1 || !marketReply_ || marketSending_ || !marketPending_.isEmpty()
+        || marketIntent_["action"] != "list" || marketView_["ready"] != true) return;
+    marketIntent_["price"] = askingPrice;
+    marketIntent_["summary"] = QString("List %1 at stall %2 for %3 Sparks?")
+        .arg(marketIntent_["subject"].toString()).arg(marketIntent_["slot"].toInt()).arg(askingPrice);
+    answerMarketReview(true);
 }
 
 void BackendAccount::answerMarketReview(bool confirm) {

@@ -1241,8 +1241,10 @@ int main(int argc, char* argv[]) {
             if(marketOpen) {
                 if(action==Action::Confirm)emit shell.backendAccount()->marketControl("confirm");
                 else if(action==Action::Back)emit shell.backendAccount()->marketControl("back");
-                else if(action==Action::Up||action==Action::Left)emit shell.backendAccount()->marketControl("up");
-                else if(action==Action::Down||action==Action::Right)emit shell.backendAccount()->marketControl("down");
+                else if(action==Action::Up)emit shell.backendAccount()->marketControl("up");
+                else if(action==Action::Left)emit shell.backendAccount()->marketControl("left");
+                else if(action==Action::Down)emit shell.backendAccount()->marketControl("down");
+                else if(action==Action::Right)emit shell.backendAccount()->marketControl("right");
                 return;
             }
             // An exit prompt must never navigate the hidden shell. The platform

@@ -210,7 +210,7 @@ def world(service, token, key):
             LEFT JOIN LATERAL (
                 SELECT jsonb_agg(sample.face ORDER BY sample.id) AS items FROM (
                     SELECT l.id,jsonb_build_object('title',left(i.presentation->>'title',96),
-                        'icon',i.presentation->>'icon','price',l.price) AS face
+                        'icon',i.presentation->>'icon','game',i.presentation->>'game','price',l.price) AS face
                     FROM trainer_backend.bazaar_listings l JOIN trainer_backend.loot_items i ON i.id=l.item_id
                     WHERE l.rental_id=r.id AND l.state='listed' AND NOT EXISTS (
                         SELECT 1 FROM trainer_backend.bazaar_blocks b WHERE b.bazaar_id=p.bazaar_id AND b.player_id=r.tenant_id)

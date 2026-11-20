@@ -77,9 +77,23 @@ int main(int argc,char** argv) {
         if(!open)return;
         if(action==Action::Confirm)emit account.marketControl("confirm");
         else if(action==Action::Back)emit account.marketControl("back");
-        else if(action==Action::Up||action==Action::Left)emit account.marketControl("up");
-        else if(action==Action::Down||action==Action::Right)emit account.marketControl("down");
+        else if(action==Action::Up)emit account.marketControl("up");
+        else if(action==Action::Left)emit account.marketControl("left");
+        else if(action==Action::Down)emit account.marketControl("down");
+        else if(action==Action::Right)emit account.marketControl("right");
     });
+    if (args.contains("--inspect-offer")) {
+        QObject::connect(&account,&BackendAccount::changed,&app,[&] {
+            const auto offer=account.marketReview();
+            if (offer["action"]!="buy" || !offer["ready"].toBool()) return;
+            QTimer::singleShot(350,&app,[&,offer] {
+                if (account.marketReview()!=offer) return;
+                auto* window=qobject_cast<QQuickWindow*>(engine.rootObjects().first());
+                if (window) window->grabWindow().save(directory.filePath("counter-offer.png"));
+                emit account.marketControl("back");
+            });
+        });
+    }
     // Drive the real window's pad actions only in the explicitly requested QA run.
     QString lastView;bool refusedRental=false;
     if(args.contains("--rehearse"))QObject::connect(&account,&BackendAccount::changed,&app,[&]{
@@ -105,9 +119,12 @@ int main(int argc,char** argv) {
             }
             int down=1;
             if(review["picker"].toBool()) {
-                const auto items=review["items"].toList();down=0;
-                for(int i=0;i<items.size();++i)if(items[i].toMap()["title"]==(args.contains("--stock-pecha")?"Pecha Berry":"Oran Berry"))down=i+1;
-                if(!down)return;
+                const auto items=review["items"].toList();down=-1;
+                const QString target=args.contains("--stock-pecha")?"Pecha Berry":"Oran Berry";
+                for(int i=0;i<items.size();++i)if(items[i].toMap()["title"]==target)down=i;
+                if(down<0)return;
+            } else if(review["action"]=="list" && review["ready"].toBool() && !review["retry"].toBool()) {
+                for(int price=review["price"].toInt();price<65;++price)emit account.marketControl("right");
             } else if(!(text.contains("250 Sparks") && text.contains("Frog")) && !text.contains("65 Sparks"))return;
             for(int i=0;i<down;++i)emit account.marketControl("down");
             emit account.marketControl("confirm");

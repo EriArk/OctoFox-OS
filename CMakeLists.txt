@@ -399,6 +399,11 @@ if(TRAINER_BUILD_BAZAAR_TEST_HOST)
     qt_add_resources(bazaar_trade_lab market_review PREFIX "/market-lab" FILES src/qml/MarketCheckoutWindow.qml)
 endif()
 qt_add_executable(traineros src/app/Main.cpp)
+set(market_item_art assets/bazaar/items/item-art.json assets/bazaar/items/blue-berry.png assets/bazaar/items/peach-berry.png)
+qt_add_resources(traineros market_items PREFIX "/market-items" BASE assets/bazaar/items FILES ${market_item_art})
+if(TARGET bazaar_trade_lab)
+    qt_add_resources(bazaar_trade_lab market_items_lab PREFIX "/market-items" BASE assets/bazaar/items FILES ${market_item_art})
+endif()
 qt_add_resources(traineros series_art BIG_RESOURCES PREFIX "/series" BASE assets/series
     FILES assets/series/pokemon.png assets/series/mario.png assets/series/zelda.png assets/series/sonic.png assets/series/final-fantasy.png assets/series/metroid.png assets/series/castlevania.png assets/series/kirby.png assets/series/metal-slug.png assets/series/multiverse.png)
 qt_add_resources(traineros genre_art PREFIX "/genres" BASE assets/genres

@@ -36,7 +36,7 @@ an unconfirmed review.
 | Action | Other arguments | Host action |
 | --- | --- | --- |
 | rent | slot, price, revision, species, seller_price | Shows the weekly price, keeper fee and total. One transaction creates both. |
-| list | slot, price | Owner picks one stored item from their paged profile inventory and confirms its price. |
+| list | slot, price | Owner picks one stored item from their paged profile inventory and can change the proposed price before confirming. |
 | buy | slot, listing_id, revision, price | Reviews the current item and price. The backend transfers the existing item. |
 | inventory | — | Opens the private profile inventory. The requesting game gets only a viewed acknowledgement. |
 | resolve | — | Reviews and resends the exact approved operation from the durable journal. |
@@ -44,4 +44,4 @@ an unconfirmed review.
 Slots are integers 1–12, prices are positive integers, revisions are decimal strings.
 The world response includes the current account's `checkout_pending` flag. Each
 occupied place can carry a public `tenant_name` and up to three `showcase` entries
-with title, icon and price. The production Backend's payment policy stays closed.
+with title, game, icon and price. Older hosts may omit the game name. The production Backend's payment policy stays closed.

@@ -77,11 +77,12 @@ public:
     void finishRental(int status,QJsonObject result);
     void reviewBazaarPurchase(bool stall=false);
     void resolveBazaarPurchase();
-    QVariantMap marketReview() const { return marketView_.toVariantMap(); }
+    QVariantMap marketReview() const;
     void marketCheckout(QString channel, QJsonObject args, Reply done);
     void closeMarketReview(const QString& channel);
     Q_INVOKABLE void chooseMarketItem(int index);
     Q_INVOKABLE void moreMarketItems();
+    Q_INVOKABLE void confirmMarketListing(int askingPrice);
     Q_INVOKABLE void answerMarketReview(bool confirm);
     void bazaarRead(const QString& method,QJsonObject args,Reply done);
     void bazaarRequest(const QString& action,QJsonObject args,Reply done);

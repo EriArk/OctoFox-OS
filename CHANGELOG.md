@@ -1,5 +1,9 @@
 # TrainerOS — история изменений
 
+## 20 November 2026 — Festival market interface
+
+The native trade window shows the item and the Sparks on opposite sides. Owners can select a profile item, adjust the asking price with the pad or touch, and confirm. Pending trades keep their signed-off price when recovered.
+
 ## 20 November 2026 — Festival Park checkout
 
 The SDK can request a native purchase review or private inventory picker. The
