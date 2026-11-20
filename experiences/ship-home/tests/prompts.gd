@@ -61,7 +61,7 @@ func run() -> void:
  home._pause(false);home.walker.position=Vector3(0,0.08,-2.35);home.walker.yaw=0;await settle()
  check(hud.station=="pilot","Seat prompt")
  pad(JOY_BUTTON_A);await settle()
- check(home.walker.seated and not hud.bubble.visible and ["cancel_ship","Stand up"] in hud.last_actions,"Seat shows only the exit action")
+ check(home.walker.seated and not hud.bubble.visible and ["cancel_ship","Stand up"] in hud.last_actions and ["interact","Launch"] in hud.last_actions,"Docked pilot can launch or stand")
  pad(JOY_BUTTON_B);await settle()
  home.walker.position=ShipInterior.BOOTH+Vector3(-0.65,0.08,-0.65);await settle()
  check(hud.station=="wardrobe","Wardrobe prompt from any camera heading")

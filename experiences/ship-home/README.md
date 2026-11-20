@@ -57,18 +57,24 @@ Stand on the illuminated floor lift and press **A / F** to descend through
 the shaft. The smaller circular service room has walking space around the lift.
 The same control takes the character back up. [Studio views](../../docs/evidence/2026-11-20-ship-studio/README.md).
 
-The reclined pilot chair has shoulder bolsters, harness straps and a shock pedestal.
-A split throttle sits on the left and a thumb-operated stick on the right.
-The low dash groups the attitude ladder, circular scanner and saucer outline
-below the canopy. [Pilot view](../../docs/evidence/2026-11-20-ship-cockpit/pilot.jpg)
-· [Seat](../../docs/evidence/2026-11-20-ship-cockpit/seat.jpg)
-· [Lounge](../../docs/evidence/2026-11-20-ship-cockpit/salon.jpg).
-Approach from behind and press **A / F** to sit: the camera
-switches to the pilot's eyes. Mouse/right stick turns the view; **B / Esc / A / F**
-stands up in a collision-checked free space and restores the chase camera.
-Start/P opens the menu while seated. Flight controls remain unimplemented.
-The transition is immediate with a simple shared-rig seated pose; there is no
-authored boarding animation or separate first-person hand model yet.
+### Flying the first Egregore route
+
+Walk up behind the seat and press **A / F** to board. Press it again to launch. The pilot sits forward and above the chair rails, with both feet on the pedals. The left hand follows the throttle and the right follows the stick. Turn your head with the right stick or mouse to see the controls.
+
+| In flight | Gamepad | Keyboard |
+| --- | --- | --- |
+| Pitch and roll | Left stick | W/S and A/D |
+| Yaw and lift | D-pad left/right and up/down | Q/E and R/C |
+| Lateral thrust | Left/right triggers | Z/X |
+| Decrease / increase throttle | LB / RB | [ / ] |
+| Brake to a stop | Hold X | Hold Tab |
+| Change destination | Y | Y |
+| Land on the selected pad | A | F |
+
+The first route connects Lantern Station to the floating island Echo Orchard. Launch clearance lifts the saucer off the pad. Flight assist damps rotation and accelerates toward the selected velocity. The radar contact and the bearing/elevation readout track the destination. Centre the ship within 8 m of the pad, approach from above within 9 m, level the deck and slow below 2.5 m/s. **Land** appears when the approach is valid. Docking assist handles the last few metres. Press **B / Esc** to stand after landing. The last berth is saved with the owner's furniture. A mid-flight exit reloads the last landed berth.
+
+The Egregore's informational field and islands of pseudo-matter follow the project's [cosmology](https://github.com/EriArk/AbyssWorldGame/blob/main/docs/COSMOLOGY.md). The test route and its two named berths are original to Ship Home. Pitch, roll, independent thrust and assisted flight take their cue from [Frontier's pilot manual](https://hosting.zaonce.net/elite/website/assets/ELITE-DANGEROUS-GAME-MANUAL.pdf). [Seating](../../docs/evidence/2026-11-21-ship-flight/seat.jpg) · [Pilot view](../../docs/evidence/2026-11-21-ship-flight/forward.jpg) · [Hand controls](../../docs/evidence/2026-11-21-ship-flight/controls.jpg).
+
 ## Run on a development computer
 
 Use the tested Godot **4.7.x** Linux runtime with Vulkan. The project defaults
@@ -149,11 +155,11 @@ tracked by Apps. Start failures are logged under
 KDialog or Zenity is available.
 
 Idle, walking and running use the shared [Godot SDK locomotion](../../sdk/LOCOMOTION.md)
-module and its attributed CC0 animation pack, synced unchanged from `c45675a5`.
+module and its attributed CC0 animation pack.
 Cadence follows actual travel after collisions. The ship owns its compact-deck
-controller, camera and temporary seated pose; it no longer poses a private walk.
+controller, pilot camera and seated inverse kinematics; it no longer poses a private walk.
 The animator is replaced along with the avatar and stops while seated. Fixed room meshes are batched by shared material; movable furniture stays separate.
-Geometry, materials, planet and sky are original code. Two small procedural
+Geometry, materials, islands and sky are original code. Two small procedural
 noise textures add subtle wood grain and textile variation; no downloaded
 texture sheets or third-party room models are bundled. Ceiling meshes batch
 separately so the inspection cutaway still hides the complete roof and fixtures. All project code is GPL-3.0-or-later; the host's avatar assets keep their
@@ -170,6 +176,7 @@ SHIP_CAPTURE_DIR=/tmp/ship-tour /path/to/godot --path experiences/ship-home --sc
 placement and undo, all starter furniture footprints, walking across the open studio, curved-hull/seat collisions, camera retraction/close-avatar hiding and
 triangle preservation when batching indexed and unindexed meshes, including
 ceiling-fixture ownership under the hideable roof.
+`tests/flight.gd` flies both legs using gameplay input, saves each berth, checks docking limits and verifies the hand contacts at full deflection when `SHIP_TEST_DESCRIPTOR` is supplied.
 `pilot_checks.gd` exercises keyboard/controller entry and exit, eye-camera
 selection, fixed seated position, bounded look, pause/focus loss, blocked exit
 and identity loss. The headless display cannot capture a pointer; `pilot_tour.gd`

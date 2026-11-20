@@ -296,6 +296,19 @@ func formed_shell(parent:Node3D,rows:Array[Vector4],color:Color) -> void:
   previous=ring
  previous.reverse();panel(parent,previous,color)
 
+const SEAT_RAIL=Vector3(0,0.10,-0.37)
+var helm_root:Node3D
+var stick:Node3D
+var throttle:Node3D
+var left_grip:Marker3D
+var right_grip:Marker3D
+var horizon_dial:Node3D
+var ladder:Node3D
+var radar:Node3D
+var contact:MeshInstance3D
+var field_stars:MultiMeshInstance3D
+var sky_environment:Environment
+
 func pilot_seat(root:Node3D) -> void:
  var frame:=Color("364854");var leather:=Color("784e3a");var pad:=Color("b5734d")
  # Twin slide rails and a shock pedestal below the single-piece seat pan.
@@ -303,11 +316,11 @@ func pilot_seat(root:Node3D) -> void:
   box(root,Vector3(side*0.25,0.055,0.30),Vector3(0.09,0.085,0.84),frame)
   strut(root,Vector3(side*0.24,0.10,0.55),Vector3(side*0.18,0.37,0.16),0.066,0.075,BRASS)
  cylinder(root,Vector3(0,0.23,0.34),0.23,0.28,frame,0.16)
- formed_shell(root,[Vector4(0.35,0.27,0.03,0.69),Vector4(0.43,0.38,-0.02,0.76),Vector4(0.48,0.36,-0.02,0.74)],frame)
- box(root,Vector3(0,0.45,0.35),Vector3(0.63,0.12,0.66),leather,true)
- box(root,Vector3(0,0.50,0.32),Vector3(0.49,0.086,0.54),pad)
+ formed_shell(root,[Vector4(0.35,0.27,0.03,0.69),Vector4(0.43,0.34,0.15,0.76),Vector4(0.48,0.32,0.15,0.74)],frame)
+ box(root,Vector3(0,0.45,0.44),Vector3(0.58,0.12,0.50),leather,true)
+ box(root,Vector3(0,0.50,0.41),Vector3(0.49,0.086,0.40),pad)
  # The reclined back, scapular wings and neck cushion follow the same rake.
- var back:=Node3D.new();back.position=Vector3(0,0.47,0.58);back.rotation.x=0.16;root.add_child(back)
+ var back:=Node3D.new();back.position=Vector3(0,0.47,0.50);back.rotation.x=0.16;root.add_child(back)
  formed_shell(back,[Vector4(0,0.27,0,0.15),Vector4(0.22,0.29,0,0.18),Vector4(0.53,0.39,0,0.20),Vector4(0.68,0.36,0.02,0.20),Vector4(0.79,0.20,0.045,0.17)],frame)
  box(back,Vector3(0,0.36,0.08),Vector3(0.55,0.74,0.15),frame,true)
  for i in 4:
@@ -348,6 +361,7 @@ func flight_deck(root:Node3D) -> void:
  formed_shell(dash,[Vector4(0.38,0.49,-0.09,0.13),Vector4(0.72,0.94,-0.22,0.19),Vector4(0.80,1.02,-0.24,0.20),Vector4(0.84,0.96,-0.21,0.18)],graphite)
  box(dash,Vector3(0,0.67,0),Vector3(1.72,0.26,0.34),graphite,true)
  var scope:=Node3D.new();scope.position=Vector3(0,0.895,0.018);scope.rotation.x=0.22;dash.add_child(scope)
+ radar=scope
  cylinder(scope,Vector3.ZERO,0.265,0.045,graphite)
  cylinder(scope,Vector3.UP*0.024,0.252,0.012,inset)
  var center:=Vector3.UP*0.042
@@ -377,44 +391,54 @@ func flight_deck(root:Node3D) -> void:
      dome.append(Vector3(axis.x*cos(a),0.056+0.042*sin(a),axis.y*cos(a)))
     tube(dial,dome,0.0028,amber,true)
   else:
-   # Attitude ladder with a fixed centre index, distinct from the sensor disc.
-   for i in range(-2,3):
-    var span:=0.135 if i==0 else (0.074 if absi(i)==1 else 0.043)
-    for edge in [-1,1]:
-     beam(dial,Vector3(edge*0.015,0.032,i*0.037),Vector3(edge*span,0.032,i*0.037),0.0028,amber,true)
+   horizon_dial=dial
    tube(dial,[Vector3(-0.038,0.041,0),Vector3(0,0.041,0.024),Vector3(0.038,0.041,0)],0.004,Color("8bb6b1"),true)
   # Recessed louvers under the tilted instrument castings.
   for j in 4:
    box(dash,Vector3(side*(0.43+j*0.083),0.757,0.193),Vector3(0.049,0.022,0.014),inset)
+ root=helm_root
  for side in [-1,1]:
-  var wing:=Node3D.new();wing.position=Vector3(side*0.55,0,-0.13);wing.rotation.y=-side*0.14;root.add_child(wing)
-  console_pod(wing,0.36,1.12)
+  var wing:=Node3D.new()
+  wing.position=Vector3(side*0.32,0.0,0.13);wing.scale=Vector3(0.66,0.88,0.63);root.add_child(wing)
+  console_pod(wing,0.32,0.94)
   for j in 3:
-   box(wing,Vector3(-0.093+0.09*j,0.798,-0.34),Vector3(0.062,0.027,0.082),graphite)
-   box(wing,Vector3(-0.093+0.09*j,0.814,-0.35),Vector3(0.035,0.005,0.012),amber,false,true)
-  var hand:=Node3D.new();hand.position=Vector3(0,0.058,-0.27);wing.add_child(hand)
-  cylinder(hand,Vector3(0,0.75,0.16),0.107,0.045,inset)
+   box(wing,Vector3(-0.08+0.08*j,0.798,-0.34),Vector3(0.055,0.027,0.075),graphite)
+  var pedal=box(root,Vector3(side*0.13,0.18,-0.045),Vector3(0.13,0.045,0.19),graphite);pedal.rotation.x=0.27
+  for i in 3:box(pedal,Vector3(0,0.027,-0.055+i*0.046),Vector3(0.10,0.008,0.012),BRASS)
+
+# Bearings are fixed to the consoles; these two moving assemblies are built after the cabin batch.
+func moving_controls() -> void:
+ stick=Node3D.new();throttle=Node3D.new();left_grip=Marker3D.new();right_grip=Marker3D.new()
+ ladder=Node3D.new();horizon_dial.add_child(ladder)
+ for i in range(-2,3):
+  var span:=0.125 if i==0 else (0.072 if absi(i)==1 else 0.043)
+  for edge in [-1,1]:
+   beam(ladder,Vector3(edge*0.015,0.032,i*0.032),Vector3(edge*span,0.032,i*0.032),0.0028,Color("d3833a"),true)
+ contact=box(radar,Vector3(0,0.052,-0.2),Vector3(0.018,0.012,0.018),Color("8dffe3"),false,true)
+ for side in [-1,1]:
+  var lever:=stick if side>0 else throttle
+  helm_root.add_child(lever);lever.position=Vector3(side*0.265,0.715,0.18)
+  cylinder(helm_root,lever.position,0.063,0.036,TRIM)
+  var top:=Vector3(-side*0.018,0.090,0)
+  strut(lever,Vector3.ZERO,top,0.034,0.036,TRIM)
   if side>0:
-   cylinder(hand,Vector3(0,0.80,0.16),0.072,0.065,graphite,0.045)
-   strut(hand,Vector3(0,0.83,0.16),Vector3(-0.035,0.98,0.11),0.056,0.069,graphite)
-   var grip:=Node3D.new();grip.position=Vector3(-0.032,0.95,0.114);grip.rotation.z=-0.10;hand.add_child(grip)
-   formed_shell(grip,[Vector4(0,0.045,-0.036,0.035),Vector4(0.057,0.036,-0.050,0.036),Vector4(0.124,0.045,-0.078,0.042),Vector4(0.153,0.058,-0.083,0.042),Vector4(0.174,0.054,-0.068,0.027)],inset)
-   var hat=cylinder(grip,Vector3(-0.019,0.164,0.030),0.022,0.014,Color("637580"));hat.rotation.x=0.73
-   box(grip,Vector3(0.028,0.150,0.044),Vector3(0.020,0.018,0.011),Color("c78244"))
-   box(grip,Vector3(0,0.10,-0.070),Vector3(0.050,0.040,0.030),BRASS)
-   for i in 3:box(grip,Vector3(0,0.038+i*0.020,0.037),Vector3(0.055,0.007,0.008),graphite)
+   var handle=cylinder(lever,top+Vector3.UP*0.018,0.025,0.105,Color("303e45"),0.031)
+   handle.rotation.x=-0.12
+   cylinder(lever,top+Vector3.UP*0.074,0.019,0.012,BRASS)
   else:
-   for x in [-0.068,0.068]:strut(hand,Vector3(x,0.77,0.21),Vector3(x,0.89,0.085),0.035,0.049,graphite)
-   for x in [-0.054,0.054]:
-    var lever:=Node3D.new();lever.position=Vector3(x,0.875,0.085);hand.add_child(lever)
-    formed_shell(lever,[Vector4(0,0.048,-0.045,0.060),Vector4(0.050,0.052,-0.065,0.075),Vector4(0.084,0.047,-0.050,0.055)],inset)
-    box(lever,Vector3(0,0.085,0),Vector3(0.020,0.005,0.071),Color("ab7544"))
-  var pedal=box(root,Vector3(side*0.16,0.16,-0.28),Vector3(0.19,0.065,0.26),graphite);pedal.rotation.x=0.37
-  for i in 3:box(pedal,Vector3(0,0.034,-0.08+i*0.064),Vector3(0.14,0.01,0.018),BRASS)
+   var bar=box(lever,top,Vector3(0.095,0.047,0.060),Color("303e45"))
+   for offset in [-0.027,0.027]:box(bar,Vector3(offset,0.025,0),Vector3(0.009,0.003,0.04),BRASS)
+  var marker:=right_grip if side>0 else left_grip
+  lever.add_child(marker);marker.position=top+Vector3(0,0.020,0)
+
+func deflect(axes:Vector2,power:float) -> void:
+ stick.rotation=Vector3(-axes.y*0.29,0,-axes.x*0.29)
+ throttle.rotation.x=-power*0.54
 
 func console(parent:Node3D) -> void:
  var root:=Node3D.new();root.position=Vector3(0,0,-3.75);parent.add_child(root)
- flight_deck(root);pilot_seat(root)
+ helm_root=Node3D.new();helm_root.position=SEAT_RAIL;root.add_child(helm_root)
+ flight_deck(root);pilot_seat(helm_root)
  # Two outer canopy spars carry a small overhead panel, leaving the centre open.
  for side in [-1,1]:
   strut(parent,Vector3(side*2.65,0.60,-4.65),Vector3(side*1.25,2.55,-3.5),0.065,0.10,TRIM)
@@ -516,7 +540,7 @@ func build(parent:Node3D) -> void:
   var point=Vector3(cos(angle)*radial,y,sin(angle)*radial)*260
   field.set_instance_transform(i,Transform3D(Basis.IDENTITY.scaled(Vector3.ONE*rng.randf_range(0.6,2.4)),point))
   field.set_instance_color(i,Color("d4dfff") if i%3 else Color("ffe6c5"))
- stars.multimesh=field;parent.add_child(stars)
+ stars.multimesh=field;parent.add_child(stars);field_stars=stars;sky_environment=env.environment
  env.environment.sky=sky;env.environment.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
  env.environment.ambient_light_color=Color("eee5d6");env.environment.ambient_light_energy=0.40
  env.environment.tonemap_mode=Environment.TONE_MAPPER_FILMIC;parent.add_child(env)
@@ -525,19 +549,6 @@ func build(parent:Node3D) -> void:
  var bridge_light=SpotLight3D.new();bridge_light.position=Vector3(0,2.75,-1.8);bridge_light.rotation_degrees.x=-90
  bridge_light.light_color=Color("ffe1b8");bridge_light.light_energy=0.70;bridge_light.spot_range=6;bridge_light.spot_angle=65
  bridge_light.shadow_enabled=true;bridge_light.shadow_bias=0.08;bridge_light.shadow_normal_bias=1.5;parent.add_child(bridge_light)
- var planet=MeshInstance3D.new();var sphere=SphereMesh.new();sphere.radius=48;sphere.height=96;sphere.radial_segments=96;sphere.rings=48
- planet.mesh=sphere;planet.position=Vector3(32,11,-165)
- var pm=ShaderMaterial.new();pm.shader=load("res://shaders/planet.gdshader");planet.material_override=pm;parent.add_child(planet)
- var rings=MeshInstance3D.new();var ring_mesh=SurfaceTool.new();ring_mesh.begin(Mesh.PRIMITIVE_TRIANGLES)
- for i in 192:
-  var a=i*TAU/192;var b=(i+1)*TAU/192
-  var points=[Vector3(cos(a)*54,0,sin(a)*54),Vector3(cos(a)*86,0,sin(a)*86),Vector3(cos(b)*86,0,sin(b)*86),Vector3(cos(b)*54,0,sin(b)*54)]
-  for k in [0,2,1,0,3,2]:ring_mesh.set_normal(Vector3.UP);ring_mesh.set_uv(Vector2(0 if k in [0,3] else 1,0));ring_mesh.add_vertex(points[k])
- rings.mesh=ring_mesh.commit();rings.position=planet.position;rings.rotation=Vector3(0.42,0,-0.18)
- var rm=ShaderMaterial.new();rm.shader=load("res://shaders/rings.gdshader");rings.material_override=rm;parent.add_child(rings)
- for position in [Vector3(-58,28,-170),Vector3(7,37,-125)]:
-  var moon=MeshInstance3D.new();var ball=SphereMesh.new();ball.radius=3.4;ball.height=6.8;ball.radial_segments=32
-  moon.mesh=ball;moon.position=position;moon.material_override=material(Color("a293bc"));parent.add_child(moon)
  saucer(parent);console(parent);fittings(parent);lighting_details(parent)
  # Warm local pools, with no wasteful full-height glazing or cavernous room lights.
  for p in [Vector3(0,2.35,-2.3),Vector3(0,2.5,0.2),Vector3(-2.8,2.2,2.5),Vector3(2.8,2.2,2.5),Vector3(-2.2,2.1,4.8),Vector3(2.2,2.1,4.8)]:

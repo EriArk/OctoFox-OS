@@ -28,8 +28,8 @@ func run() -> void:
  for i in 3:await physics_frame
  check(home.walker.seated,"Interact enters pilot seat")
  check(home.walker.pilot_camera.current and not home.walker.camera.current,"Seating selects first-person camera")
- check(home.walker.pilot_camera.global_position.distance_to(ShipWalker.PILOT_ORIGIN+ShipWalker.PILOT_EYE)<0.01,"View starts at pilot eye")
- check(not home.walker.visual.visible,"First person does not show inside avatar head")
+ check(home.walker.pilot_pivot.global_position.distance_to(ShipWalker.PILOT_ORIGIN+ShipWalker.PILOT_EYE)<0.01,"View starts at pilot eye")
+ check(home.walker.visual.visible,"First person retains the seated pilot and hands")
  var fixed=home.walker.position;Input.action_press("walk_forward");Input.action_press("look_right")
  for i in 25:await physics_frame
  Input.action_release("walk_forward");Input.action_release("look_right")

@@ -41,10 +41,11 @@ func run() -> void:
  await capture("pilot-forward")
  if not appearance.is_empty():
   home._appearance(appearance)
-  assert(home.walker.seated and home.walker.pilot_camera.current and not home.walker.visual.visible)
+  assert(home.walker.seated and home.walker.pilot_camera.current and home.walker.visual.visible)
   assert(is_instance_valid(home.walker.skeleton))
-  var thigh=home.walker.joints["thigh.L"]
-  assert(home.walker.skeleton.get_bone_pose_rotation(thigh[0]).angle_to(thigh[1])>1.0)
+  var rig:Skeleton3D=home.walker.skeleton
+  var thigh:=rig.find_bone("thigh.L")
+  assert(rig.get_bone_pose_rotation(thigh).angle_to(rig.get_bone_rest(thigh).basis.get_rotation_quaternion())>0.65)
  home.walker.yaw=0.85;home.walker.pitch=-0.15;await capture("pilot-left")
  home.walker.yaw=-0.85;home.walker.pitch=-0.15;await capture("pilot-right")
  assert(home._leave_pilot());home.message_time=0;await capture("back-on-deck")

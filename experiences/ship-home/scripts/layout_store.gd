@@ -7,6 +7,7 @@ var directory="user://homes/studio-v1"
 var owner="guest"
 var error=""
 var writable=true
+var berth:=0
 
 func path() -> String: return directory+"/"+owner.sha256_text()+".json"
 
@@ -22,7 +23,7 @@ static func valid(rows: Variant) -> bool:
  return true
 
 func load_home(profile: String) -> Array:
- owner=profile if not profile.is_empty() else "guest";error="";writable=true
+ owner=profile if not profile.is_empty() else "guest";error="";writable=true;berth=0
  if not FileAccess.file_exists(path()):return defaults()
  var f=FileAccess.open(path(),FileAccess.READ)
  if f==null or f.get_length()>65536:
@@ -32,6 +33,7 @@ func load_home(profile: String) -> Array:
  var value=parser.data if parsed==OK else null
  if not value is Dictionary or value.get("schema")!=1 or value.get("owner")!=owner or not valid(value.get("items")):
   error="This layout could not be loaded. Your saved file has been kept.";writable=false;return []
+ if value.get("berth","")=="orchard":berth=1
  # Homes are saved on exit even if the owner never moved a thing.
  if not value.has("layoutRevision") and _original_furnishings(value.items):return defaults()
  return value.items
@@ -42,7 +44,7 @@ func save(rows: Array) -> bool:
  if DirAccess.make_dir_recursive_absolute(directory)!=OK:error="Could not create the home save folder.";return false
  var temp=path()+".tmp";var f=FileAccess.open(temp,FileAccess.WRITE)
  if f==null:error="Could not write your home. Your previous layout is safe.";return false
- f.store_string(JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows},"\t"));f.flush()
+ f.store_string(JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":"orchard" if berth==1 else "station"},"\t"));f.flush()
  var result=f.get_error();f.close()
  if result!=OK:error="Saving failed. Your previous layout is safe.";return false
  if DirAccess.rename_absolute(temp,path())!=OK:error="Could not finish saving your home.";return false

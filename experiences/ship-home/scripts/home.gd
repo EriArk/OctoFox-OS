@@ -5,6 +5,7 @@ const Walker=preload("res://scripts/walker.gd")
 const Store=preload("res://scripts/layout_store.gd")
 const AvatarClient=preload("res://scripts/workshop_client.gd")
 var art=Art.new()
+var flight=preload("res://scripts/egregore_flight.gd").new()
 var studio=preload("res://scripts/studio.gd").new()
 var dye=preload("res://scripts/dye_console.gd").new()
 var parts=preload("res://scripts/look_parts.gd").new()
@@ -33,6 +34,7 @@ var paused=false
 var dot:=Label.new()
 var status:Label
 var prompts=preload("res://scripts/ship_prompts.gd").new()
+var helm_help:=Label.new()
 var menu:PanelContainer
 var message=""
 var message_time=0.0
@@ -40,9 +42,10 @@ var profile=""
 
 func _ready() -> void:
  Engine.max_fps=60
- _inputs();art.build(self);add_child(studio);studio.build_fixed(art);art.batch_static(self);studio.build_moving()
+ _inputs();art.build(self);add_child(studio);studio.build_fixed(art);art.batch_static(self);studio.build_moving();art.moving_controls()
+ add_child(flight);flight.build(art)
  furnishings=Node3D.new();add_child(furnishings)
- walker=Walker.new();walker.position=Vector3(0,0.1,-0.55);add_child(walker)
+ walker=Walker.new();walker.helm=art;walker.position=Vector3(0,0.1,-0.55);add_child(walker)
  add_child(fitting);fitting.configure(walker,studio)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
@@ -71,15 +74,15 @@ func _ready() -> void:
  if DisplayServer.get_name()!="headless":Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
 
 func _inputs() -> void:
- for action in ["walk_left","walk_right","walk_forward","walk_back","look_left","look_right","look_up","look_down","walk_run","decorate","confirm_place","cancel_ship","next_item","previous_item","rotate_left","rotate_right","pick_item","undo_place","interact","pause_ship"]:
+ for action in ["walk_left","walk_right","walk_forward","walk_back","look_left","look_right","look_up","look_down","fly_up","fly_down","fly_left","fly_right","walk_run","decorate","confirm_place","cancel_ship","next_item","previous_item","rotate_left","rotate_right","pick_item","undo_place","interact","pause_ship"]:
   if not InputMap.has_action(action):InputMap.add_action(action,0.18)
- var keys={"walk_left":KEY_A,"walk_right":KEY_D,"walk_forward":KEY_W,"walk_back":KEY_S,"walk_run":KEY_SHIFT,"decorate":KEY_TAB,"confirm_place":KEY_ENTER,"cancel_ship":KEY_ESCAPE,"next_item":KEY_BRACKETRIGHT,"previous_item":KEY_BRACKETLEFT,"rotate_left":KEY_Q,"rotate_right":KEY_E,"pick_item":KEY_Y,"undo_place":KEY_Z,"interact":KEY_F,"pause_ship":KEY_P}
+ var keys={"fly_up":KEY_R,"fly_down":KEY_C,"fly_left":KEY_Z,"fly_right":KEY_X,"walk_left":KEY_A,"walk_right":KEY_D,"walk_forward":KEY_W,"walk_back":KEY_S,"walk_run":KEY_SHIFT,"decorate":KEY_TAB,"confirm_place":KEY_ENTER,"cancel_ship":KEY_ESCAPE,"next_item":KEY_BRACKETRIGHT,"previous_item":KEY_BRACKETLEFT,"rotate_left":KEY_Q,"rotate_right":KEY_E,"pick_item":KEY_Y,"undo_place":KEY_Z,"interact":KEY_F,"pause_ship":KEY_P}
  for action in keys:
   var key=InputEventKey.new();key.physical_keycode=keys[action];InputMap.action_add_event(action,key)
- var pads={"decorate":JOY_BUTTON_X,"confirm_place":JOY_BUTTON_A,"cancel_ship":JOY_BUTTON_B,"next_item":JOY_BUTTON_RIGHT_SHOULDER,"previous_item":JOY_BUTTON_LEFT_SHOULDER,"rotate_left":JOY_BUTTON_DPAD_LEFT,"rotate_right":JOY_BUTTON_DPAD_RIGHT,"pick_item":JOY_BUTTON_Y,"interact":JOY_BUTTON_A,"pause_ship":JOY_BUTTON_START,"walk_run":JOY_BUTTON_LEFT_STICK}
+ var pads={"fly_up":JOY_BUTTON_DPAD_UP,"fly_down":JOY_BUTTON_DPAD_DOWN,"decorate":JOY_BUTTON_X,"confirm_place":JOY_BUTTON_A,"cancel_ship":JOY_BUTTON_B,"next_item":JOY_BUTTON_RIGHT_SHOULDER,"previous_item":JOY_BUTTON_LEFT_SHOULDER,"rotate_left":JOY_BUTTON_DPAD_LEFT,"rotate_right":JOY_BUTTON_DPAD_RIGHT,"pick_item":JOY_BUTTON_Y,"interact":JOY_BUTTON_A,"pause_ship":JOY_BUTTON_START,"walk_run":JOY_BUTTON_LEFT_STICK}
  for action in pads:
   var button=InputEventJoypadButton.new();button.button_index=pads[action];InputMap.action_add_event(action,button)
- var axes={"walk_left":[JOY_AXIS_LEFT_X,-1],"walk_right":[JOY_AXIS_LEFT_X,1],"walk_forward":[JOY_AXIS_LEFT_Y,-1],"walk_back":[JOY_AXIS_LEFT_Y,1],"look_left":[JOY_AXIS_RIGHT_X,-1],"look_right":[JOY_AXIS_RIGHT_X,1],"look_up":[JOY_AXIS_RIGHT_Y,-1],"look_down":[JOY_AXIS_RIGHT_Y,1]}
+ var axes={"fly_left":[JOY_AXIS_TRIGGER_LEFT,1],"fly_right":[JOY_AXIS_TRIGGER_RIGHT,1],"walk_left":[JOY_AXIS_LEFT_X,-1],"walk_right":[JOY_AXIS_LEFT_X,1],"walk_forward":[JOY_AXIS_LEFT_Y,-1],"walk_back":[JOY_AXIS_LEFT_Y,1],"look_left":[JOY_AXIS_RIGHT_X,-1],"look_right":[JOY_AXIS_RIGHT_X,1],"look_up":[JOY_AXIS_RIGHT_Y,-1],"look_down":[JOY_AXIS_RIGHT_Y,1]}
  for action in axes:
   var axis=InputEventJoypadMotion.new();axis.axis=axes[action][0];axis.axis_value=axes[action][1];InputMap.action_add_event(action,axis)
 
@@ -92,6 +95,7 @@ func _load_profile(id:String) -> void:
  if fabricator.is_inside_tree():fabricator.close()
  fitting.selected_pieces.clear()
  profile=id;rows=store.load_home(id);undo_rows=[];has_undo=false;moving_index=-1
+ flight.reset(store.berth)
  _draw_furniture()
  if not store.error.is_empty():notify(store.error)
 
@@ -134,6 +138,7 @@ func _ui() -> void:
  var heading=Label.new();heading.text="Your ship";heading.add_theme_font_size_override("font_size",28);column.add_child(heading)
  for entry in [["Return",func():_pause(false)],["Decorate",func():_pause(false);_edit(true)],["Undo last arrangement",func():_undo()],["Remove selected furniture",func():_remove()],["Save and exit",func():_quit()]]:
   var b=Button.new();b.text=entry[0];b.custom_minimum_size.y=44;b.pressed.connect(entry[1]);column.add_child(b)
+ helm_help.add_theme_font_size_override("font_size",17);column.add_child(helm_help);helm_help.hide()
  menu.visible=false
  layer.add_child(cards);layer.add_child(dye);layer.add_child(parts)
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
@@ -151,6 +156,9 @@ func _pause(value:bool) -> void:
  if value and dye.visible:dye.close()
  if value:fabricator.close()
  cards.visible=fitting.active and not value and not dye.visible
+ helm_help.visible=value and walker.seated
+ if helm_help.visible:
+  helm_help.text=("LS   Pitch / roll       RS   Look\nD-pad   Yaw / lift       Triggers   Strafe\nLB / RB   Throttle       X   Brake" if prompts.gamepad else "W S   Pitch       A D   Roll       Mouse   Look\nQ E   Yaw       R C   Lift       Z X   Strafe\n[ ]   Throttle       Tab   Brake")
  paused=value;walker.walking=not value;menu.visible=value
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value or fitting.active else Input.MOUSE_MODE_CAPTURED
  if value:menu.get_child(0).get_child(1).grab_focus()
@@ -181,7 +189,10 @@ func _unhandled_input(event:InputEvent) -> void:
   elif event.is_action_pressed("previous_item") or event.is_action_pressed("ui_up",true):cards.move(-1)
   get_viewport().set_input_as_handled();return
  if walker.seated:
-  if event.is_action_pressed("interact"):_leave_pilot();get_viewport().set_input_as_handled()
+  if event.is_action_pressed("interact"):
+   flight.interact();get_viewport().set_input_as_handled()
+  elif event.is_action_pressed("pick_item") and flight.mode==flight.Mode.FLYING:
+   flight.destination=1-flight.destination;get_viewport().set_input_as_handled()
   return
  if event.is_action_pressed("decorate"):_edit(not editing)
  elif event.is_action_pressed("undo_place"):_undo()
@@ -218,6 +229,7 @@ func _process(delta:float) -> void:
   _aim()
   if status.text.is_empty():
    status.text=("Move " if moving_index>=0 else "Place ")+Art.ITEMS[item_index].replace("-"," ")+("" if placement_valid else " · Keep the walkway clear")
+ if walker.seated and not paused and status.text.is_empty():status.text=flight.readout()
  status.visible=not status.text.is_empty()
  if fitting.active:cards.visible=not paused and not dye.visible and not parts.visible and not fitting.returning
  prompts.actions(_action_hints())
@@ -234,7 +246,12 @@ func _action_hints() -> Array:
   if cards.action.disabled or cards.action.text!="Preview colours":rows.append(["pick_item","Colours"])
   if prompts.gamepad:rows.append(["turn","Turn"])
   rows.append(["cancel_ship","Leave"]);return rows
- if walker.seated:return [["cancel_ship","Stand up"]]
+ if walker.seated:
+  if flight.mode==flight.Mode.BERTH:return [["interact","Launch"],["cancel_ship","Stand up"]]
+  if flight.mode!=flight.Mode.FLYING:return []
+  var commands:Array=[["tab_pair","Throttle"],["decorate","Brake"],["pick_item","Target"]]
+  if flight.clearance().is_empty():commands.append(["interact","Land"])
+  return commands
  if editing:
   var rows:Array=[["tab_pair","Furniture"],["rotation","Rotate"]]
   if placement_valid:rows.append(["confirm_place","Place"])
@@ -351,10 +368,12 @@ func _undo() -> void:
 
 func _near_pilot() -> bool:
  var p=Vector2(walker.position.x,walker.position.z)
- return p.y> -3.0 and p.distance_to(Vector2(0,-2.50))<1.0
+ return p.y>Walker.PILOT_ORIGIN.z+0.10 and p.distance_to(Vector2(0,Walker.PILOT_ORIGIN.z+0.80))<1.0
 
 func _leave_pilot() -> bool:
  if not walker.seated:return true
+ if flight.mode!=flight.Mode.BERTH:
+  notify("Land before leaving the helm.");return false
  var previous=walker.standing_position;previous.y=max(previous.y,0.08)
  for at in [previous,Vector3(0,0.08,-2.1),Vector3(-1.5,0.08,-2.5),Vector3(1.5,0.08,-2.5)]:
   if walker.can_stand(at):walker.stand(at);return true
@@ -378,7 +397,16 @@ func _station() -> String:
  return ""
 
 func _physics_process(delta:float) -> void:
- if not riding or paused:return
+ if paused:return
+ if walker.seated:
+  var mode_before=flight.mode
+  var stick:=Input.get_vector("walk_left","walk_right","walk_forward","walk_back",0.18)
+  flight.tick(delta,stick,Input.get_axis("rotate_left","rotate_right"),Input.get_axis("previous_item","next_item"),Vector2(Input.get_axis("fly_left","fly_right"),Input.get_axis("fly_down","fly_up")),Input.is_action_pressed("decorate"))
+  walker.steer(stick if flight.mode==flight.Mode.BERTH else flight.stick,flight.throttle)
+  if mode_before==flight.Mode.LANDING and flight.mode==flight.Mode.BERTH:
+   store.berth=flight.berth
+   if not store.save(rows):notify(store.error)
+ if not riding:return
  ride_time=minf(1,ride_time+delta/1.75)
  studio.lift.position.y=lerpf(lift_start,lift_end,smoothstep(0,1,ride_time))
  walker.position=studio.lift.position+Vector3.UP*0.045

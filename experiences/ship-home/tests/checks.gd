@@ -90,7 +90,7 @@ func run() -> void:
  Input.action_press("walk_forward")
  for i in 60:await physics_frame
  Input.action_release("walk_forward")
- check(home.walker.position.z> -3.1 and home.walker.position.z< -2.55,"Pilot seat blocks walking through cockpit")
+ check(home.walker.position.z>ShipWalker.PILOT_ORIGIN.z+0.30 and home.walker.position.z<ShipWalker.PILOT_ORIGIN.z+0.85 and home._near_pilot(),"Pilot seat blocks walking through cockpit")
  home._identity_lost("test revoke")
  check(home.profile.is_empty() and home.paused,"Profile revoke clears private layout and pauses")
  home.queue_free();await process_frame

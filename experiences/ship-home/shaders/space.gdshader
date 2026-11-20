@@ -7,6 +7,11 @@ void sky() {
  float cloud=0.5+0.5*sin(d.x*10.0+sin(d.z*12.0))*sin(d.y*18.0+d.z*8.0);
  vec3 base=mix(vec3(0.012,0.020,0.048),vec3(0.15,0.16,0.30),haze*cloud);
  base+=vec3(0.10,0.04,0.15)*haze*(1.0-cloud);
+ // Long, overlapping luminous streams trace the Egregore around the distant Source.
+ float band=d.y+0.25*d.x+0.09+0.055*sin(5.0*d.z+3.0*d.x);
+ float veil=exp(-14.0*abs(band))*(0.38+0.62*cloud);
+ float filament=exp(-95.0*abs(band+0.025*sin(14.0*d.x+8.0*d.z)));
+ base+=vec3(0.067,0.23,0.20)*veil+vec3(0.18,0.13,0.095)*filament*cloud;
  vec2 uv=vec2(atan(d.z,d.x)*0.15915494+0.5,asin(d.y)*0.31830989+0.5)*vec2(600.0,300.0);
  float h=hash(vec3(floor(uv),1.0));
  float star=step(0.991,h)*pow(max(0.0,1.0-length(fract(uv)-0.5)*2.0),2.0);
