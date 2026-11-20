@@ -9,6 +9,7 @@ var art: ShipInterior
 var printer: Node3D
 var toolhead: Node3D
 var aquarium: Node3D
+var water:=ShaderMaterial.new()
 var fish: Array[Node3D] = []
 var booth: Node3D
 const EXIT_CENTER:=Vector2(0.56,1.14)
@@ -65,11 +66,17 @@ func build_fixed(builder: ShipInterior) -> void:
  art.box(glass,Vector3(-0.12,0,0.023),Vector3(0.42,0.029,0.008),MINT,false,true)
  for x in [0.18,0.25,0.32]:
   art.box(glass,Vector3(x,0,0.024),Vector3(0.026,0.04,0.009),Art.BRASS)
+ art.bezel(printer,Vector3(0,0.49,0.391),Vector2(0.99,0.68),0.16,0.053,Art.COPPER)
+ art.faceplate(printer,Vector3(0.12,0.51,0.397),Vector2(0.41,0.30),0.065,Art.ENAMEL)
+ for i in 4:
+  art.faceplate(printer,Vector3(0.13,0.59-i*0.049,0.406),Vector2(0.27-i*0.033,0.014),0.006,MINT,i==0)
  tank()
  booth=module(Art.BOOTH,-2.6)
  art.cylinder(booth,Vector3(0,0.037,0),0.82,0.074,INK)
  ring(booth,Vector3(0,0.078,0),0.70,0.012,MINT,true)
- ring(booth,Vector3(0,2.08,0),0.79,0.038,Art.BRASS)
+ ring(booth,Vector3(0,2.08,0),0.79,0.051,Art.ENAMEL)
+ ring(booth,Vector3(0,2.109,0),0.79,0.015,Art.COPPER)
+ ring(booth,Vector3(0,2.052,0),0.775,0.012,MINT,true)
  for x in [-0.37,0.37]:
   art.beam(booth,Vector3(x,0,-0.67),Vector3(x,2.08,-0.67),0.035,Art.TRIM)
  lower_deck()
@@ -93,7 +100,10 @@ func berth() -> void:
   wing.position=Vector3(side*1.86,0,0.46);wing.rotation.y=-side*0.63
   art.box(wing,Vector3(side*0.56,1.11,0),Vector3(1.15,2.20,0.14),CERAMIC,true)
   art.box(wing,Vector3(side*0.56,0.24,0.085),Vector3(1.15,0.44,0.05),Art.WOOD)
-  art.box(wing,Vector3(side*0.56,1.60,0.082),Vector3(1.06,0.024,0.02),Art.BRASS)
+  art.faceplate(wing,Vector3(side*0.56,1.12,0.084),Vector2(0.92,1.03),0.16,Art.ENAMEL)
+  art.bezel(wing,Vector3(side*0.56,1.12,0.091),Vector2(0.92,1.03),0.16,0.028,Art.COPPER)
+  for k in 3:
+   art.faceplate(wing,Vector3(side*0.56,1.37-0.064*k,0.107),Vector2(0.51-0.06*k,0.022),0.01,Art.NIGHT)
   art.box(bay,Vector3(side*0.85,0.27,0.525),Vector3(1.61,0.41,0.036),Color("895e42"))
   art.box(bay,Vector3(side*0.85,0.42,0.552),Vector3(0.57,0.024,0.024),Art.BRASS)
  # A single fitted lintel meets the rising roof over the central recess.
@@ -103,7 +113,7 @@ func berth() -> void:
   fascia.append(Vector3(x,2.52-0.069*x*x,0.48))
  art.panel(bay,fascia,CERAMIC)
  art.box(bay,Vector3(0,0.64,0.04),Vector3(2.36,0.20,0.92),CERAMIC)
- var quilt_color:=Color("527d79")
+ var quilt_color:=Color("638f89")
  # One continuous quilt drapes over the front of the berth. Quilted channels
  # and a rolled hem give a soft silhouette at handheld resolutions.
  var quilt:=SurfaceTool.new();quilt.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -127,8 +137,22 @@ func berth() -> void:
  art.beam(bay,Vector3(1.13,1.33,-0.35),Vector3(1.04,1.48,-0.18),0.026,Art.BRASS)
  oval(bay,Vector3(1.04,1.47,-0.16),Vector3(0.17,0.11,0.15),CERAMIC)
  art.strip_lamp(bay,Vector3(0,1.82,-0.22),1.96)
- for y in [1.06,1.26,1.46]:
-  art.box(bay,Vector3(0,y,-0.415),Vector3(2.24,0.17,0.075),Color("698773"))
+ # The cast front lip surrounds a panoramic enamel landscape at the back of the alcove.
+ art.bezel(bay,Vector3(0,1.27,0.525),Vector2(2.65,1.53),0.30,0.14,Art.ENAMEL)
+ art.bezel(bay,Vector3(0,1.27,0.552),Vector2(2.43,1.31),0.205,0.021,Art.BRASS)
+ var landscape:=art.enamel_print(bay,preload("res://assets/cabin/echo-orchard.svg"),Vector2(2.31,0.81))
+ landscape.position=Vector3(0,1.34,-0.423)
+ art.faceplate(bay,Vector3(0,0.89,-0.386),Vector2(2.26,0.23),0.075,Art.ENAMEL)
+ for side in [-1,1]:
+  art.bezel(bay,Vector3(side*1.53,1.25,0.505),Vector2(0.59,1.44),0.15,0.045,Art.COPPER)
+ # A small ceramic fox inlay sits above the recess.
+ for side in [-1,1]:
+  var cheek:Array[Vector3]=[Vector3(0,2.16,0.50),Vector3(side*0.155,2.26,0.50),
+   Vector3(side*0.074,2.29,0.50),Vector3(0,2.275,0.50)]
+  var ear:Array[Vector3]=[Vector3(side*0.078,2.298,0.50),Vector3(side*0.155,2.267,0.50),Vector3(side*0.17,2.366,0.50)]
+  if side<0:cheek.reverse();ear.reverse()
+  art.panel(bay,cheek,Art.ENAMEL if side==1 else Art.COPPER);art.panel(bay,ear,Art.COPPER)
+
 
 func tank() -> void:
  aquarium=module(Vector3(4.15,0,1.82),-1.89)
@@ -137,7 +161,10 @@ func tank() -> void:
  art.box(aquarium,Vector3(0,1.20,-0.32),Vector3(width,1.14,0.09),Color("17545c"))
  art.box(aquarium,Vector3(0,1.79,0),Vector3(width,0.11,0.77),CERAMIC)
  art.box(aquarium,Vector3(0,0.70,0),Vector3(width,0.10,0.76),Art.BRASS)
+ art.bezel(aquarium,Vector3(0,1.23,0.378),Vector2(2.80,1.18),0.18,0.068,Art.ENAMEL)
+ art.bezel(aquarium,Vector3(0,1.23,0.385),Vector2(2.68,1.06),0.13,0.015,Art.BRASS)
  for side in [-1,1]:
+  art.faceplate(aquarium,Vector3(side*0.66,0.35,0.388),Vector2(1.20,0.44),0.09,Art.ENAMEL)
   art.box(aquarium,Vector3(side*1.34,1.23,0),Vector3(0.07,1.07,0.73),Art.TRIM)
  art.box(aquarium,Vector3(0,1.72,0),Vector3(2.52,0.027,0.48),MINT,false,true)
  art.box(aquarium,Vector3(0,0.78,0),Vector3(2.59,0.09,0.65),Color("ba9e70"))
@@ -156,6 +183,17 @@ func tank() -> void:
   var y:float=0.91+0.075*(i%4)
   var leaf=oval(aquarium,Vector3(x+0.10*sin(i),y,-0.08),Vector3(0.060,0.30+0.06*(i%3),0.038),Color("7eac74"))
   leaf.rotation.z=0.62*cos(i*2.1)
+ # An opaque underwater backdrop catches light behind the existing swimmers.
+ var backdrop:=MeshInstance3D.new();var water_panel:=QuadMesh.new();water_panel.size=Vector2(2.64,1.03)
+ water.shader=preload("res://shaders/aquarium_water.gdshader");backdrop.material_override=water
+ backdrop.mesh=water_panel;backdrop.position=Vector3(0,1.23,-0.263);aquarium.add_child(backdrop)
+ for i in 3:
+  for j in 5:
+   var x:float=[-1.03,0.49,1.04][i]+(j-2)*0.057
+   var tip:=Vector3(x+(j-2)*0.075,0.98+0.48*sin(0.4+j*0.66+i*0.2),-0.18)
+   var base:=Vector3(x,0.79,-0.15)
+   var middle:=base.lerp(tip,0.54)+Vector3(0.035,0,0.034)
+   art.panel(aquarium,[base,middle+Vector3.RIGHT*0.042,tip,middle-Vector3.RIGHT*0.039],Color("559a80") if j%2 else Color("376f63"))
  var pane=art.box(aquarium,Vector3(0,1.24,0.35),Vector3(2.62,1.04,0.018),MINT)
  var glass:=StandardMaterial3D.new()
  glass.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -186,7 +224,7 @@ func lower_deck() -> void:
   for point in [lip_a,lip_b,lip_b+Vector3.DOWN*0.14,lip_a,lip_b+Vector3.DOWN*0.14,lip_a+Vector3.DOWN*0.14]:
    floor_surface.set_normal((opening-Vector3(point.x,0,point.z)).normalized());floor_surface.add_vertex(point)
  var floor_mesh:=MeshInstance3D.new();floor_mesh.mesh=floor_surface.commit()
- floor_mesh.material_override=art.material(Color("525e61"));room.add_child(floor_mesh);floor_mesh.create_trimesh_collision()
+ floor_mesh.material_override=art.material(Art.NIGHT);room.add_child(floor_mesh);floor_mesh.create_trimesh_collision()
  ring(room,opening+Vector3.UP*0.014,EXIT_RADIUS+0.026,0.024,Art.BRASS)
  var signpost:=module(Vector3(EXIT_CENTER.x+0.48,Art.LOWER_Y,EXIT_CENTER.y-0.65),-0.58)
  art.box(signpost,Vector3(0,0.69,0),Vector3(0.075,1.38,0.075),Art.TRIM,true)
@@ -205,6 +243,31 @@ func lower_deck() -> void:
   var light_bar=art.box(room,radial*(radius-0.18)+Vector3.UP*1.73,Vector3(0.036,0.32,0.022),Color("e2b57d"),false,true)
   light_bar.rotation.y=angle
 
+ # Four recessed inspection covers correspond to the four gravity emitters.
+ for i in 4:
+  var angle:float=PI/8+i*PI/2
+  var radial:=Vector3(sin(angle),0,cos(angle))
+  var bay:=Node3D.new();room.add_child(bay);bay.position=radial*(radius-0.14);bay.rotation.y=angle+PI
+  art.faceplate(bay,Vector3(0,1.13,0),Vector2(1.35,1.43),0.22,Art.NIGHT)
+  art.bezel(bay,Vector3(0,1.13,0.009),Vector2(1.35,1.43),0.22,0.052,Art.COPPER)
+  art.faceplate(bay,Vector3(-0.16,1.22,0.024),Vector2(0.80,0.86),0.17,Art.ENAMEL)
+  var port:=Node3D.new();port.position=Vector3(-0.16,1.23,0.054);port.rotation.x=PI/2;bay.add_child(port)
+  art.cylinder(port,Vector3.ZERO,0.30,0.042,Art.NIGHT)
+  ring(port,Vector3.UP*0.028,0.256,0.016,Art.BRASS)
+  ring(port,Vector3.UP*0.030,0.173,0.009,MINT,true)
+  oval(port,Vector3.UP*0.032,Vector3(0.22,0.06,0.22),Color("418482"))
+  for k in 5:
+   art.faceplate(bay,Vector3(0.40,1.47-k*0.093,0.028),Vector2(0.18,0.037),0.015,Art.BRASS if k==0 else Color("556e70"))
+  art.faceplate(bay,Vector3(0,0.60,0.027),Vector2(0.76,0.047),0.020,Art.ENAMEL)
+ for i in 16:
+  var trim:Array[Vector3]=[]
+  for j in 9:
+   var a:float=TAU*(i+0.12+0.76*j/8.0)/16
+   trim.append(Vector3(sin(a)*2.17,0.010,cos(a)*2.17))
+  # Both lift thresholds remain clear.
+  var p:=Vector2(trim[4].x+room.position.x,trim[4].z+room.position.z)
+  if p.distance_to(EXIT_CENTER)>0.99 and p.distance_to(Art.LIFT)>1.08:
+   art.tube(room,trim,0.011,Art.BRASS)
  for y in [0.14,1.96,2.46]:
   ring(room,Vector3.UP*y,radius-0.09,0.022,MINT if y==1.96 else Art.BRASS,y==1.96)
  var light:=OmniLight3D.new();room.add_child(light)
@@ -269,6 +332,7 @@ func build_moving(dock:Node3D) -> void:
 
 func animate(delta: float) -> void:
  time+=delta
+ water.set_shader_parameter("phase",fmod(time*0.38,TAU))
  for i in fish.size():
   var phase:float=time*(0.38+0.025*i)+i*1.07
   fish[i].position=Vector3(sin(phase)*(0.73+0.06*(i%4)),1.09+0.09*(i%4)+0.034*sin(phase*2+i),0.05+0.092*cos(phase))

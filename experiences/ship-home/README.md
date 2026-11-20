@@ -5,7 +5,7 @@ on both Odin and Flip, retaining their current Bazaar shell. Enter directly from
 that icon; Apps remains an alternative. [Device checks](../../docs/evidence/2026-11-15-ship-header/README.md).
 
 The bow cockpit opens directly into a studio inside the 10.6 × 12.4 metre saucer.
-A berth is recessed into the aft liner between two illuminated display shelves.
+Curved ceiling panels surround an illuminated orbital dial. Portholes light the dinette, and an inlaid runner crosses the timber deck. An enamel landscape of Echo Orchard hangs above the quilt. A berth is recessed into the aft liner between two illuminated display shelves.
 Opposite the galley, a lounge chair and a curved-backed banquette share one movable
 table by the aquarium. The galley stool sits below the breakfast ledge. A clear
 central aisle connects the cockpit, lift and berth. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.

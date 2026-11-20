@@ -4,6 +4,11 @@ extends RefCounted
 # Original, editable geometry. Units are metres; +Z runs from lounge to cabins.
 const PAPER = Color("e7e0d3")
 const TRIM = Color("354a49")
+const ENAMEL = Color("225b60")
+const NIGHT = Color("273e48")
+const COPPER = Color("bd815d")
+const SEA_GLASS = Color("91dfd4")
+const LAMP = Color("ffd5a2")
 const WOOD = Color("a47c55")
 const BRASS = Color("d0ac72")
 # One shallow oval pressure hull; rooms are clipped by its actual footprint.
@@ -37,6 +42,8 @@ func material(color: Color, glow: bool=false) -> StandardMaterial3D:
  if materials.has(key): return materials[key]
  var m=StandardMaterial3D.new();m.albedo_color=color;m.roughness=0.62
  if color==BRASS:m.metallic=0.65;m.roughness=0.30
+ elif color==ENAMEL or color==COPPER or color==NIGHT:
+  m.metallic=0.45 if color==COPPER else 0.22;m.roughness=0.33 if color==ENAMEL else 0.46
  elif color==PAPER:m.metallic=0.08;m.roughness=0.55
  elif color==Color("637580"):m.metallic=0.30;m.roughness=0.48
  if color in [WOOD,Color("897c69"),Color("b5734d"),Color("c77f50"),Color("698773"),Color("b36549"),Color("b36343")]:
@@ -125,6 +132,44 @@ func panel(parent:Node3D, vertices:Array[Vector3], color:Color, solid:bool=false
  if solid:mesh.create_trimesh_collision()
  return mesh
 
+# Thin formed faceplates use a rounded outline and share the fixed cabin material batches.
+func face_outline(size:Vector2,radius:float) -> Array[Vector3]:
+ var contour:Array[Vector3]=[]
+ var r:=minf(radius,minf(size.x,size.y)*0.5)
+ for corner in 4:
+  var mid_angle:float=(corner+0.5)*PI/2
+  var center:=Vector2(signf(cos(mid_angle)),signf(sin(mid_angle)))*(size*0.5-Vector2.ONE*r)
+  for step in 7:
+   var angle:float=(corner+step/6.0)*PI/2
+   var point:=center+Vector2(cos(angle),sin(angle))*r
+   contour.append(Vector3(point.x,point.y,0))
+ return contour
+
+func faceplate(parent:Node3D,at:Vector3,size:Vector2,radius:float,color:Color,glow:=false) -> MeshInstance3D:
+ var plate:=panel(parent,face_outline(size,radius),color);plate.position=at
+ if glow:plate.material_override=material(color,true)
+ return plate
+
+func bezel(parent:Node3D,at:Vector3,size:Vector2,radius:float,lip:float,color:Color) -> void:
+ var outer:=face_outline(size,radius)
+ var inner:=face_outline(size-Vector2.ONE*2*lip,maxf(0.015,radius-lip))
+ var st:=SurfaceTool.new();st.begin(Mesh.PRIMITIVE_TRIANGLES)
+ for i in outer.size():
+  var j:=(i+1)%outer.size()
+  for v in [outer[i],inner[j],outer[j],outer[i],inner[i],inner[j]]:
+   st.set_normal(Vector3.BACK)
+   st.add_vertex(v + Vector3.BACK*(lip*0.17 if v==inner[i] or v==inner[j] else 0.0))
+ var frame:=MeshInstance3D.new();frame.mesh=st.commit();frame.position=at
+ frame.material_override=material(color);parent.add_child(frame)
+
+func enamel_print(parent:Node3D,texture:Texture2D,size:Vector2) -> MeshInstance3D:
+ var panel_mesh:=QuadMesh.new();panel_mesh.size=size
+ var finish:=StandardMaterial3D.new();finish.albedo_texture=texture;finish.roughness=0.8
+ finish.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+ finish.metallic_specular=0.12
+ var print_mesh:=MeshInstance3D.new();print_mesh.mesh=panel_mesh;print_mesh.material_override=finish
+ parent.add_child(print_mesh);return print_mesh
+
 # A pressure-wall bay follows the outer ellipse between its structural joints.
 # Render curvature sits outside the original chord collision, never in the aisle.
 func curved_wall(parent:Node3D,width:float,low:float,high:float,color:Color,offset:float=0.0) -> void:
@@ -146,7 +191,7 @@ func curved_rail(parent:Node3D,width:float,y:float,radius:float,color:Color,glow
   points.append(Vector3((t-0.5)*width,y,y/2.35*0.34-width*width/44.0*4*t*(1-t)+0.025))
  tube(parent,points,radius,color,glow)
 
-func hull_segment(parent:Node3D,a:Vector2,b:Vector2,glazed:bool, panoramic:bool=false, brace:bool=false) -> void:
+func hull_segment(parent:Node3D,a:Vector2,b:Vector2,glazed:bool, panoramic:bool=false, brace:bool=false, route_chart:=false) -> void:
  var root=Node3D.new();var center=(a+b)*0.5;var width=a.distance_to(b)
  root.position=Vector3(center.x,0,center.y);root.rotation.y=-atan2(b.y-a.y,b.x-a.x);parent.add_child(root)
  var h=2.35;var inset=0.34
@@ -189,7 +234,28 @@ func hull_segment(parent:Node3D,a:Vector2,b:Vector2,glazed:bool, panoramic:bool=
  boundary.visible=false;boundary.set_meta("collision_only",true)
  curved_wall(root,width,0.0,0.44,WOOD,0.015)
  curved_rail(root,width,0.48,0.022,Color("edc58b"),true)
- if not panoramic:beam(root,Vector3(-width/2,0,0.06),Vector3(-width/2,h,inset+0.03),0.025,TRIM)
+ # The raised valance and recessed teal waist connect the individual bays into one liner.
+ curved_wall(root,width,2.14 if not panoramic else 2.23,h,ENAMEL,0.046)
+ curved_rail(root,width,2.30,0.018,COPPER)
+ if not panoramic:
+  curved_wall(root,width,0.52,0.79,ENAMEL,0.032)
+  var rib:Array[Vector3]=[Vector3(-width/2,0.10,0.085),Vector3(-width/2,0.79,0.16),
+   Vector3(-width/2+0.075,0.98,0.21),Vector3(-width/2+0.075,2.00,0.34),Vector3(-width/2,2.24,0.41)]
+  tube(root,rib,0.047,NIGHT)
+  if not glazed:
+   var at:=Vector3(0,1.46,0.252)
+   faceplate(root,at,Vector2(width*0.77,1.06),0.16,Color("947e66")).rotation.x=0.144
+   faceplate(root,at+Vector3(0,0,0.009),Vector2(width*0.73,1.022),0.15,Color("d5cbb5")).rotation.x=0.144
+   if route_chart:
+    var chart:=enamel_print(root,preload("res://assets/cabin/route-inlay.svg"),Vector2(width*0.70,width*0.437))
+    chart.position=at+Vector3(0,0,0.025);chart.rotation.x=0.144
+ else:
+  curved_wall(root,width,0.18,0.50,ENAMEL,0.045)
+  # Position the segmented guide lights directly in the curved sill.
+  for i in 3:
+   var x:float=width*(i-1)*0.11
+   var inset_z:float=0.37*inset/h-width*width/44.0*(1.0-4*x*x/(width*width))+0.052
+   faceplate(root,Vector3(x,0.37,inset_z),Vector2(width*0.078,0.021),0.01,SEA_GLASS,true).rotation.x=0.144
 
 func saucer(parent:Node3D) -> void:
  var floor_mesh=SurfaceTool.new();floor_mesh.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -221,26 +287,42 @@ func saucer(parent:Node3D) -> void:
   # Six smooth deck segments share one structural porthole bay.
   if i%6==0:
    var end=HULL_CENTER+Vector2(sin(a+TAU/24),-cos(a+TAU/24))*HULL_RADII
-   hull_segment(parent,pa,end,i in [30,72,108],i in [0,6,12,126,132,138],i in [12,126,132])
- var deck=MeshInstance3D.new();deck.mesh=floor_mesh.commit();deck.material_override=material(Color("897c69")).duplicate();deck.material_override.cull_mode=BaseMaterial3D.CULL_DISABLED;parent.add_child(deck);deck.create_trimesh_collision()
+   hull_segment(parent,pa,end,i in [24,30,36,72,102,108,114],i in [0,6,12,126,132,138],i in [12,126,132],i in [18,120])
+ var deck=MeshInstance3D.new();deck.mesh=floor_mesh.commit();var finish:=ShaderMaterial.new()
+ finish.shader=preload("res://shaders/cabin_deck.gdshader");finish.set_shader_parameter("grain",grain_texture(true))
+ deck.material_override=finish;parent.add_child(deck);deck.create_trimesh_collision()
  for collider in deck.find_children("*","CollisionShape3D",true,false):
   collider.shape.backface_collision=true
  var liner=MeshInstance3D.new();liner.mesh=underside.commit();liner.material_override=material(Color("59666a")).duplicate();liner.material_override.cull_mode=BaseMaterial3D.CULL_DISABLED;parent.add_child(liner)
- var ceiling=MeshInstance3D.new();ceiling.mesh=roof_mesh.commit();ceiling.material_override=material(PAPER);roof.add_child(ceiling);ceiling.create_trimesh_collision()
- for r in [0.40,0.74,0.96]:
-  var path:Array[Vector3]=[];var light:Array[Vector3]=[]
-  for i in 97:
-   var a=i*TAU/96;var p=HULL_CENTER+Vector2(sin(a),-cos(a))*(HULL_RADII-Vector2.ONE*0.34)*r
-   path.append(Vector3(p.x,2.99-0.68*r*r,p.y));light.append(Vector3(p.x,2.93-0.68*r*r,p.y))
-  tube(roof,path,0.045,Color("b2a184"))
-  if r!=0.40:tube(roof,light,0.022,Color("f4cc94"),true)
- # Radial structural ribs make the curved plan readable from inside.
- for i in 8:
-  var a=i*TAU/8;var path:Array[Vector3]=[]
-  for k in 25:
-   var r=float(k)/24;var p=HULL_CENTER+Vector2(sin(a),-cos(a))*(HULL_RADII-Vector2.ONE*0.34)*r
-   path.append(Vector3(p.x,2.97-0.68*r*r,p.y))
-  tube(roof,path,0.032,Color("c9b898"))
+ var ceiling=MeshInstance3D.new();ceiling.mesh=roof_mesh.commit();ceiling.material_override=material(NIGHT);roof.add_child(ceiling);ceiling.create_trimesh_collision()
+ # Broad curved ceiling cassettes follow the pressure dome. Their exposed borders
+ # reveal the dark backing and the indirect perimeter light between the two tiers.
+ for bay in 12:
+  var a:=TAU*bay/12
+  ceiling_leaf(roof,a,0.24,0.70,PAPER if bay%3 else Color("c8bc9f"))
+  ceiling_leaf(roof,a,0.738,0.974,ENAMEL)
+  var cove:Array[Vector3]=[]
+  for i in 15:
+   cove.append(ceiling_point(a+0.028+(TAU/12-0.056)*i/14.0,0.72,0.040))
+  tube(roof,cove,0.021,LAMP if bay not in [0,1,10,11] else SEA_GLASS,true)
+
+func ceiling_point(angle:float,r:float,drop:float) -> Vector3:
+ var p:=HULL_CENTER+Vector2(sin(angle),-cos(angle))*(HULL_RADII-Vector2.ONE*0.34)*r
+ return Vector3(p.x,3.03-0.68*r*r-drop,p.y)
+
+func ceiling_leaf(parent:Node3D,angle:float,inner:float,outer:float,color:Color) -> void:
+ var st:=SurfaceTool.new();st.begin(Mesh.PRIMITIVE_TRIANGLES)
+ var rings:=[inner,inner+0.018,outer-0.018,outer]
+ for i in 12:
+  for k in 3:
+   for corner in [Vector2i(0,0),Vector2i(1,0),Vector2i(1,1),Vector2i(0,0),Vector2i(1,1),Vector2i(0,1)]:
+    var band:int=k+corner.y;var step:int=i+corner.x
+    var gap:=0.013 if band in [0,3] else 0.005
+    var a:float=angle+gap+(TAU/12-2*gap)*step/12.0
+    var depth:=0.034 if band in [0,3] or step in [0,12] else 0.078
+    var v:=ceiling_point(a,rings[band],depth)
+    st.set_normal(Vector3(-0.23*sin(a),-1,0.20*cos(a)).normalized());st.add_vertex(v)
+ var mesh:=MeshInstance3D.new();mesh.mesh=st.commit();mesh.material_override=material(color);parent.add_child(mesh)
 
 func strut(parent:Node3D,a:Vector3,b:Vector3,width:float,depth:float,color:Color) -> void:
  var member=box(parent,(a+b)*0.5,Vector3(width,a.distance_to(b),depth),color)
@@ -467,9 +549,21 @@ func strip_lamp(parent:Node3D,pos:Vector3,length:float) -> void:
 
 func lighting_details(parent:Node3D) -> void:
  var roof=parent.get_node("HullRoof")
- halo(roof,Vector3(0,2.82,0.15),0.54)
- for x in [-2.65,2.65]:halo(roof,Vector3(x,2.55,2.5),0.30)
- for x in [-2.1,2.1]:halo(roof,Vector3(x,2.40,4.6),0.24)
+ # Flush orbital lens at the centre of the saucer, held by a copper retaining ring.
+ var lens_center:=Vector3(0,2.88,HULL_CENTER.y)
+ cylinder(roof,lens_center+Vector3.UP*0.06,1.17,0.16,ENAMEL,1.25)
+ cylinder(roof,lens_center,1.07,0.065,COPPER,1.12)
+ cylinder(roof,lens_center-Vector3.UP*0.045,1.02,0.05,NIGHT)
+ for band in [0.91,0.66,0.26]:
+  var path:Array[Vector3]=[]
+  for i in 73:
+   var a:=TAU*i/72
+   path.append(lens_center+Vector3(cos(a)*band,-0.077,sin(a)*band))
+  tube(roof,path,0.019 if band==0.91 else 0.009,LAMP if band==0.91 else SEA_GLASS,true)
+ for i in 8:
+  var a:=i*TAU/8.0+0.28;var radius:float=[0.66,0.26,0.91][i%3]
+  cylinder(roof,lens_center+Vector3(cos(a)*radius,-0.078,sin(a)*radius),0.039 if i%3 else 0.068,0.02,COPPER)
+ for x in [-2.65,2.65]:halo(roof,Vector3(x,2.57,2.5),0.29)
  # Bow eyebrow: small amber optics, recessed into the pilot overhead panel.
  for x in [-0.35,0,0.35]:
   cylinder(parent,Vector3(x,2.535,-3.40),0.065,0.025,BRASS)
@@ -482,9 +576,6 @@ func lighting_details(parent:Node3D) -> void:
    var a=i*TAU/144;var p=HULL_CENTER+Vector2(sin(a),-cos(a))*HULL_RADII*r
    path.append(Vector3(p.x,0.008,p.y))
   tube(parent,path,0.008,Color("d6b57d"))
- # Recessed seams in a narrow central walking strip, not a radial room grid.
- for x in [-0.69,0.69]:beam(parent,Vector3(x,0.006,-1.1),Vector3(x,0.006,5.8),0.008,Color("725c45"))
-
 func fittings(parent:Node3D) -> void:
  # Owner: machinery is beneath the deck. Only flush service access remains above it.
  for side in [-1,1]:
@@ -496,14 +587,15 @@ func fittings(parent:Node3D) -> void:
  var booth=Node3D.new();booth.position=Vector3(3.35,0,-0.62);booth.rotation.y=-0.50;parent.add_child(booth)
  box(booth,Vector3(0,0.26,0),Vector3(1.75,0.52,0.72),TRIM,true)
  box(booth,Vector3(0,0.57,0),Vector3(1.74,0.14,0.73),Color("c77f50"))
- box(booth,Vector3(0,0.88,-0.29),Vector3(1.78,0.65,0.18),Color("698773"))
+ box(booth,Vector3(0,0.88,-0.29),Vector3(1.78,0.65,0.18),ENAMEL)
+ for side in [-1,1]:
+  faceplate(booth,Vector3(side*0.425,0.88,-0.188),Vector2(0.80,0.48),0.11,Color("698773"))
+  bezel(booth,Vector3(side*0.425,0.88,-0.18),Vector2(0.80,0.48),0.11,0.018,Color("acb49a"))
  # The portable table serves both this banquette and the facing lounge chair.
  for side in [-1,1]:
   box(booth,Vector3(side*0.83,0.69,-0.01),Vector3(0.13,0.19,0.59),WOOD)
   box(booth,Vector3(side*0.83,0.76,-0.01),Vector3(0.14,0.055,0.58),Color("b5734d"))
  # Upholstery seams and a practical reading strip finish the fitted dinette.
- for x in [-0.55,0,0.55]:
-  box(booth,Vector3(x,0.94,-0.185),Vector3(0.012,0.42,0.008),Color("9cad8b"))
  for x in [-0.56,0.56]:
   tube(booth,[Vector3(x,1.12,-0.33),Vector3(x,1.84,-0.33),Vector3(x,1.91,-0.24)],0.022,TRIM)
  strip_lamp(booth,Vector3(0,1.91,-0.24),1.22)
@@ -511,13 +603,21 @@ func fittings(parent:Node3D) -> void:
  var galley=Node3D.new();galley.position=Vector3(-3.65,0,-0.85);galley.rotation.y=0.5;parent.add_child(galley)
  box(galley,Vector3(0,0.42,0),Vector3(1.7,0.84,0.64),Color("74917b"),true)
  box(galley,Vector3(0,0.88,0.085),Vector3(1.74,0.08,0.87),WOOD)
+ # Lidded ceramic cups nest in a brass rack at the end of the breakfast ledge.
+ for i in 2:
+  var at:=Vector3(0.57+i*0.15,0.976,0.33)
+  cylinder(galley,at,0.052,0.11,PAPER,0.063)
+  cylinder(galley,at+Vector3.UP*0.059,0.061,0.012,ENAMEL)
  # Clear counter edge and a footrail make a perch without another table.
  tube(galley,[Vector3(-0.63,0.24,0.32),Vector3(-0.63,0.24,0.48),Vector3(0.63,0.24,0.48),Vector3(0.63,0.24,0.32)],0.019,BRASS)
- box(galley,Vector3(0,1.91,-0.23),Vector3(1.7,0.52,0.3),PAPER)
+ box(galley,Vector3(0,1.91,-0.23),Vector3(1.7,0.52,0.3),ENAMEL)
+ faceplate(galley,Vector3(0,1.28,-0.26),Vector2(1.67,0.70),0.11,NIGHT)
+ bezel(galley,Vector3(0,1.28,-0.244),Vector2(1.67,0.70),0.11,0.035,COPPER)
  strip_lamp(galley,Vector3(0,1.62,-0.14),1.47)
  for x in [-0.56,0,0.56]:
   box(galley,Vector3(x,0.44,0.329),Vector3(0.52,0.70,0.025),Color("7f9c85"))
-  box(galley,Vector3(x,1.90,-0.068),Vector3(0.52,0.44,0.025),Color("e2cdae"))
+  faceplate(galley,Vector3(x,1.91,-0.065),Vector2(0.51,0.43),0.080,PAPER)
+  faceplate(galley,Vector3(x,1.79,-0.060),Vector2(0.27,0.033),0.014,BRASS)
  for x in [-0.52,0,0.52]:box(galley,Vector3(x,0.5,0.33),Vector3(0.42,0.035,0.025),BRASS)
  box(galley,Vector3(0.3,0.93,0),Vector3(0.5,0.025,0.40),Color("243b43"))
  # Induction rings, sink and a curved tap share the compact galley surface.
@@ -552,7 +652,7 @@ func build(parent:Node3D,space:Node3D) -> void:
  saucer(parent);console(parent);fittings(parent);lighting_details(parent)
  # Warm local pools, with no wasteful full-height glazing or cavernous room lights.
  for p in [Vector3(0,2.35,-2.3),Vector3(0,2.5,0.2),Vector3(-2.8,2.2,2.5),Vector3(2.8,2.2,2.5),Vector3(-2.2,2.1,4.8),Vector3(2.2,2.1,4.8)]:
-  var light=OmniLight3D.new();light.position=p;light.light_color=Color("ffe1b8");light.light_energy=0.80;light.omni_range=4.0;parent.add_child(light)
+  var light=OmniLight3D.new();light.position=p;light.light_color=Color("acdcd7") if p.x>2 and p.z<4 else Color("ffe3bf");light.light_energy=0.68;light.omni_range=4.0;parent.add_child(light)
 
 func footprint(id: String) -> Vector2:
  return {"armchair":Vector2(1.25,1.25),"low-table":Vector2(1.6,1.0),"plant":Vector2(0.7,0.7),"lamp":Vector2(0.5,0.5),"stool":Vector2(0.65,0.65),"books":Vector2(0.5,0.38),"rug":Vector2(2.8,2.0)}.get(id,Vector2.ONE)

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="412" viewBox="0 0 660 412">
+ <defs>
+  <linearGradient id="nav" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1b424c"/><stop offset="1" stop-color="#103039"/></linearGradient>
+  <pattern id="plot" width="25" height="25" patternUnits="userSpaceOnUse"><circle cx="12" cy="12" r="1.2" fill="#668984"/></pattern>
+ </defs>
+ <rect width="660" height="412" rx="38" fill="url(#nav)"/>
+ <rect x="12" y="12" width="636" height="388" rx="30" fill="url(#plot)" stroke="#557b78"/>
+ <g fill="none" stroke="#719e95" stroke-width="1.5">
+  <path d="M36 285Q172 24 441 36M36 324Q233 6 572 39M77 375Q348 17 627 95M248 376q174-211 375-235"/>
+  <circle cx="154" cy="257" r="72"/><circle cx="497" cy="143" r="83"/>
+  <path stroke-dasharray="3 11" d="M154 156v203M52 257h203M497 34v216M389 143h218"/>
+ </g>
+ <path d="M181 243C252 222 238 157 320 170S406 158 443 151" fill="none" stroke="#ffe0a3" stroke-width="3" stroke-dasharray="11 7"/>
+ <g fill="#f6c58b"><circle cx="181" cy="243" r="5"/><circle cx="443" cy="151" r="5"/><path d="M309 162l19 7-19 6 4-7z"/></g>
+ <g transform="translate(153 255)" fill="none" stroke="#a0ded0" stroke-width="3" stroke-linejoin="round">
+  <ellipse rx="39" ry="10"/><path d="M-35-3l10-13h50L36-3M-16-15v-11h33v11M-9-26v-16H9v16M-31 8l17 20h26L31 8M-13 27v12m25-12v12"/><ellipse cy="-2" rx="23" ry="4"/>
+ </g>
+ <g transform="translate(497 142)" fill="none" stroke="#c1d8b5" stroke-width="3" stroke-linejoin="round">
+  <path d="M-48 1l31-13 23 4 22-9 22 14-18 10-28 5-18-4zM-45 3l17 14 12 0 13 19 12-15 16-6 22-17M-17 6l12 17 7-12"/>
+  <path d="M-17-8v-11m0 2l-6-6m6 1l6-7M20-11v-16m0 7l8-9"/>
+ </g>
+ <g stroke="#d7ad79" stroke-width="2" fill="none"><path d="M37 73V44h27M623 336v28h-28"/><path d="M326 61h9m-4-4v8M393 274h10m-5-5v10M72 174h8m-4-4v8"/></g>
+ <g fill="#86cfc0"><circle cx="263" cy="99" r="3"/><circle cx="87" cy="125" r="2"/><circle cx="342" cy="322" r="2.5"/><circle cx="567" cy="269" r="2.5"/><path d="M42 357h53v3H42zm0 9h33v2H42z"/></g>
+</svg>
