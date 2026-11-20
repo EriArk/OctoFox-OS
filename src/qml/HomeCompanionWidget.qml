@@ -16,7 +16,10 @@ Item {
     readonly property bool compact: height < 170
     readonly property var labels: ["Feed", "Playtime · 60 min = 100%", pet.activity === "rest" ? "Wake up" : "Rest"]
     property Item pointedAction
+    readonly property int navigationIndex: selected && pet.interacting ? pet.focus : -1
+    onNavigationIndexChanged: pointedAction = null
     component ActionHover: HoverHandler {
+        onPointChanged: if (hovered) root.pointedAction = parent
         onHoveredChanged: {
             if (hovered) root.pointedAction = parent
             else if (root.pointedAction === parent) root.pointedAction = null

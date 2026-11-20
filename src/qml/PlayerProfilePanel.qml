@@ -18,6 +18,8 @@ Panel {
     MouseArea { anchors.fill: parent }
 
     property Item pointerTarget
+    readonly property int navigationIndex: shell.profileContentActive ? shell.profileFocus : -1
+    onNavigationIndexChanged: pointerTarget = null
     property Item controllerTarget
     function track(item, active, pointer) {
         const key = pointer ? "pointerTarget" : "controllerTarget"
@@ -27,7 +29,10 @@ Panel {
     component ProfileIcon: SocialIconButton {
         id: icon
         onHighlightedChanged: root.track(icon, highlighted, false)
-        HoverHandler { onHoveredChanged: root.track(icon, hovered, true) }
+        HoverHandler {
+            onHoveredChanged: root.track(icon, hovered, true)
+            onPointChanged: if (hovered) root.track(icon, true, true)
+        }
     }
     component ProfileAction: Item {
         id: action
@@ -49,7 +54,7 @@ Panel {
         ToolTip.visible: !!glyph && available && root.shell.profileContentActive && (focused || pointer.containsMouse)
         ToolTip.text: label
         ToolTip.delay: 650
-        MouseArea { id: pointer; onContainsMouseChanged: root.track(action, containsMouse, true); anchors.fill: parent; hoverEnabled: true; enabled: action.available && root.shell.profileContentActive; onClicked: root.shell.activate(action.actionIndex,"profile") }
+        MouseArea { id: pointer; onPositionChanged: if (containsMouse) root.track(action, true, true); onContainsMouseChanged: root.track(action, containsMouse, true); anchors.fill: parent; hoverEnabled: true; enabled: action.available && root.shell.profileContentActive; onClicked: root.shell.activate(action.actionIndex,"profile") }
         Accessible.role: Accessible.Button; Accessible.name: label; Accessible.onPressAction: if(available)root.shell.activate(actionIndex,"profile")
     }
     Item {
