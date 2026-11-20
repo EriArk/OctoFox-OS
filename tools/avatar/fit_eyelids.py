@@ -1,4 +1,4 @@
-"""Fit the modular eyes and their moving lids to the prepared face (pack 10 -> 14)."""
+"""Fit the modular eyes and their moving lids to the prepared face (pack 10 -> 15)."""
 
 import argparse
 import copy
@@ -12,7 +12,7 @@ import numpy as np
 from build_pack import GLB, Builder
 from package_face_bridge import compact
 from restore_painted_face import Surface
-from scipy.interpolate import CubicSpline, PchipInterpolator
+from scipy.interpolate import PchipInterpolator
 from scipy.spatial import cKDTree
 
 REFERENCE = (
@@ -35,49 +35,66 @@ LASH_DEPTH = 0.00330
 
 
 def fair_sockets(p, n, triangles):
-    """Blend cheek to brow where the old painted eye had a raised oval."""
+    """Resurface the painted eye inside its orbit, preserving the surrounding head."""
     original = Surface(p, n, triangles)
-    x, y, z = p.T
-    w = (
-        smooth((abs(x) - 0.007) / 0.013)
-        * smooth((0.097 - abs(x)) / 0.013)
-        * smooth((y - 0.748) / 0.016)
-        * smooth((0.833 - y) / 0.014)
-        * (z > 0.036)
-    )
-    # Sample the approved cheek and forehead either side of the obsolete relief.
-    # Use the same mirrored sweep on both sides and ease into untouched skin.
-    xs = np.linspace(0.002, 0.087, 18)
-    curves = []
-    for level in [0.757, 0.826]:
-        depths = [
-            original.sample(np.c_[side * xs, np.full_like(xs, level)])[0]
-            for side in [-1, 1]
-        ]
-        curves.append(CubicSpline(xs, np.mean(depths, axis=0), bc_type="natural"))
-    selected = w > 0
-    xx, yy = abs(x[selected]), y[selected]
-    t = (yy - 0.757) / (0.826 - 0.757)
-    lower, upper = curves
-    depth = lower(xx) * (1 - t) + upper(xx) * t
-    dx = (lower(xx, 1) * (1 - t) + upper(xx, 1) * t) * np.sign(x[selected])
-    dy = (upper(xx) - lower(xx)) / (0.826 - 0.757)
-    # Scoop a shallow orbit into the face itself. The compact profile has
-    # zero slope at its boundary, blending into the bridge, cheek and temple.
-    rx, ry = 0.043, 0.034
-    u, v = (xx - 0.046) / rx, (yy - 0.798) / ry
-    bowl = np.maximum(0.0, 1.0 - u*u - v*v)
-    inset = 0.0065
-    depth -= inset * bowl**2
-    dx += (4 * inset / rx) * bowl * u * np.sign(x[selected])
-    dy += (4 * inset / ry) * bowl * v
-    normal = np.stack([-dx, -dy, np.ones_like(dx)], axis=1)
-    normal /= np.linalg.norm(normal, axis=1)[:, None]
+    # Fill a local elliptical hole using its perimeter depth and radial slope.
+    # The biharmonic disk solution interpolates both without copying the old
+    # painted-eye relief into the transition at the cheek or temple.
+    rx, ry = 0.037, 0.0345
+    cx, cy = 0.0525, 0.7945
+    tilt = 0.11
+    samples = 128
+    angle = 2 * np.pi * np.arange(samples) / samples
+    ring = np.column_stack([rx * np.cos(angle), ry * np.sin(angle)])
+    ring[:, 1] += tilt * ring[:, 0]
+
+    modes = np.arange(9)
+
+    def harmonics(values):
+        coefficients = np.fft.rfft(values)[modes] / samples
+        coefficients[1:] *= 2
+        return coefficients
+
     q, nn = p.copy(), n.copy()
-    weight = w[selected]
-    q[selected, 2] += weight * (depth - z[selected])
-    nn[selected] += weight[:, None] * (normal - n[selected])
-    nn[selected] /= np.linalg.norm(nn[selected], axis=1)[:, None]
+    for side in (-1, 1):
+        boundary = (ring + [cx, cy]) * [side, 1]
+        depth, normal = original.sample(boundary)
+        radial_slope = -np.sum(normal[:, :2] * ring * [side, 1], axis=1) / normal[:, 2]
+        # For each harmonic k the regular radial solution is (a + b*r²)*r^k.
+        # Retain the broad cranial shape while filtering individual facets.
+        g = harmonics(depth)
+        b = (harmonics(radial_slope) - modes * g) / 2
+        a = g - b
+        # Preserve the established eye-seat depth at the centre. The correction
+        # and its first derivative vanish at the junction with the original skin.
+        centre_offset = 0.0908 - a[0].real
+
+        def patch(x, y):
+            z = (x + 1j * y)[:, None]
+            r2 = x*x + y*y
+            interpolated = np.real(np.sum(z**modes * (a + r2[:, None]*b), axis=1))
+            return interpolated + centre_offset * (1-r2)**2
+
+        x = (side*p[:, 0] - cx) / rx
+        y = (p[:, 1] - cy - tilt*(side*p[:, 0]-cx)) / ry
+        r = np.hypot(x, y)
+        selected = (r < 1) & (p[:, 2] > 0.036)
+        x, y, r = x[selected], y[selected], r[selected]
+        t = np.clip((1-r) / 0.18, 0, 1)
+        w = t*t*t*(10 - 15*t + 6*t*t)
+        dw = -30*t*t*(1-t)**2 / (0.18*np.maximum(r, 1e-8))
+        dz = patch(x, y) - p[selected, 2]
+        q[selected, 2] += w*dz
+        # Include the falloff derivative so grazing light follows the surface.
+        eps = 0.0001
+        dx = (patch(x + eps, y) - patch(x - eps, y)) / (2 * eps)
+        dy = (patch(x, y + eps) - patch(x, y - eps)) / (2 * eps)
+        dx = (w*dx + dz*dw*x) / rx
+        dy = 1/ry * (w*dy + dz*dw*y)
+        dx = side * (dx - tilt*dy)
+        normal = n[selected].copy()
+        normal[:, :2] = (1-w[:, None])*normal[:, :2] - normal[:, 2:] * np.column_stack([dx, dy])
+        nn[selected] = normal / np.linalg.norm(normal, axis=1)[:, None]
     return q, nn
 
 
@@ -481,9 +498,9 @@ def build(source, destination):
         b.save(folder / "working.glb")
         template = folder / "pack/template.glb"
         compact(GLB(folder / "working.glb"), manifest, template)
-        manifest["revision"] = 14
+        manifest["revision"] = 15
         manifest["eyeHeight"] += 0.012
-        manifest["faceSurface"]["eyePlacement"] = "recessed-orbit-1"
+        manifest["faceSurface"]["eyePlacement"] = "bounded-orbit-2"
         manifest["files"]["template.glb"] = hashlib.sha256(
             template.read_bytes()
         ).hexdigest()

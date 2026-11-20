@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "pack": "trainer-avatar-1",
-  "revision": 14,
+  "revision": 15,
   "template": "template.glb",
   "bodyImage": 1,
   "almondPatches": [
@@ -61,7 +61,7 @@
   },
   "atlasVersion": 2,
   "files": {
-    "template.glb": "29c4048e6477560bd7f437205083bcb4ef6ce273f9c2e4d14ea74cb1ef837a0a",
+    "template.glb": "13aef28579209c0cee3814cd010c81b76f16121056cd9f8e83fe0a23a46b44ee",
     "face-round.png": "ab8d363c7a0fafe920f38d6636f9e7163dc5b8f27e0990f9a2e9e6fc673abc5e",
     "face-almond.png": "374ff3067e9a7b9622fb80bdcdb39f0b172ab1384b2186dac477f784ff6b0d99",
     "mask-round.png": "c10d8575189afcf21654acddcb97d01b28658e295398bd10cca43c260a71cd00",
@@ -1066,7 +1066,7 @@
       0
     ],
     "method": "restore-source-and-project-eye-layers",
-    "eyePlacement": "recessed-orbit-1"
+    "eyePlacement": "bounded-orbit-2"
   },
   "faceContrast": {
     "version": 1,
