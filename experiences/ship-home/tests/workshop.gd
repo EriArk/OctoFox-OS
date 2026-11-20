@@ -16,7 +16,7 @@ func run() -> void:
  if not descriptor.is_empty():
   home.fitting.live_descriptor=JSON.parse_string(FileAccess.get_file_as_string(descriptor))
   check(home.walker.install_avatar(home.fitting.live_descriptor),"SDK character loads")
- home._pause(false)
+ home._pause(false);home.message_time=0
  var colors={"sea-glass":{"name":"Sea glass","finish":"satin","hex":"#479b91"},"rose-gold":{"name":"Rose gold","finish":"metallic","hex":"#c78d75"},"aurora":{"name":"Aurora violet","finish":"iridescent","hex":"#7966c2"}}
  colors["oxide"]={"name":"Oxidised copper","finish":"metallic","hex":"#50867c"}
  colors["saffron"]={"name":"Saffron","finish":"matte","hex":"#dfae43"}
@@ -36,7 +36,9 @@ func run() -> void:
  home.walker.position=Vector3(-2.55,0.1,2.45);press(JOY_BUTTON_A)
  receive.call(data);receive.call({"items":[item],"next":null})
  check(fab.amounts[0].text=="6 / 6" and not fab.print_button.disabled,"Actual stock enables print")
- press(JOY_BUTTON_A);press(JOY_BUTTON_A)
+ press(JOY_BUTTON_A)
+ check(["interact",fab.print_button.text] in fab.action_hints(),"Selected printable part offers the print command")
+ press(JOY_BUTTON_A)
  check(client.last_action=="print" and client.busy,"Controller prints once")
  for lot in data.stock:
   if lot.kind=="material":lot.units=0
@@ -51,7 +53,9 @@ func run() -> void:
  data.prints["traveller.top"].remaining_seconds=0
  receive.call(data);receive.call({"items":[],"next":null})
  check(fab.print_button.text=="Collect part","Completed print survives reopening")
- press(JOY_BUTTON_A);press(JOY_BUTTON_A)
+ press(JOY_BUTTON_A)
+ check(["interact","Collect part"] in fab.action_hints(),"Ready job offers collection")
+ press(JOY_BUTTON_A)
  check(client.last_action=="collect","Controller collects the finished part")
  data.prints={}
  receive.call({"item_id":item.id});receive.call(data);receive.call({"items":[item],"next":null})
@@ -73,9 +77,12 @@ func run() -> void:
  check(home.dye.color_index==6 and home.dye.cursor==2,"Down reaches the second palette row")
  press(JOY_BUTTON_DPAD_UP)
  check(home.dye.color_index==2,"Up returns to the same swatch column")
- press(JOY_BUTTON_A);press(JOY_BUTTON_A)
+ press(JOY_BUTTON_A)
+ check(["interact",home.dye.buttons[3].text] in home.dye.action_hints(),"Locked swatch offers cartridge activation")
+ press(JOY_BUTTON_A)
  check(client.last_action=="activate","Locked colour consumes a cartridge only on confirmation")
  receive.call({});data.palette.append("rose-gold");receive.call(data);receive.call({"items":[item],"next":null})
+ check(["interact","Apply finish"] in home.dye.action_hints(),"Owned colour offers application")
  press(JOY_BUTTON_A);check(client.last_action=="paint","Unlocked colour applies separately")
  receive.call({});receive.call(data);receive.call({"items":[item],"next":null})
  press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_DPAD_RIGHT)

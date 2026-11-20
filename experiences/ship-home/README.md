@@ -22,6 +22,8 @@ pigment cartridges. Ordinary dyes retain the garment surface's authored metal re
 
 ### Using the fabricator and fitting booth
 
+When you walk within reach of a station, a small bubble shows its action and button. Inside the station the lower-right legend follows the selected item, available actions and last input device. The fabricator, for example, offers collection when the selected print is ready.
+
 Approach the fabricator and press **A / F** to open its catalogue. Up/down selects
 a reusable set blueprint. Left/right selects an individual piece. Each blueprint
 covers all four pieces; the table shows the requirements for the selected piece.

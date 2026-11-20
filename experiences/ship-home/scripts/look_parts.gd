@@ -33,7 +33,7 @@ func _ready() -> void:
  status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;column.add_child(status)
  var back:=Button.new();back.text="Back";back.focus_mode=Control.FOCUS_NONE
  back.custom_minimum_size.y=40;back.pressed.connect(close);column.add_child(back)
- var hints:=Label.new();hints.text="↑ ↓   Select     ← →   Change     B   Back";column.add_child(hints);hide()
+ hide()
 
 func open(row:Dictionary) -> void:
  if row.is_empty() or fitting.returning:return
@@ -88,6 +88,14 @@ func refresh() -> void:
  apply.text="Save and wear"
  apply.disabled=saving or client.wearing or client.looks_loading or wanted=="" or displayed!=wanted or options.is_empty() or options[item].id==look.recipe.appearance.get(FIELDS[field])
  for i in 3:[slot_button,garment_button,apply][i].modulate=Color("#ffe39d") if i==cursor else Color.WHITE
+
+func action_hints() -> Array:
+ var actions:Array=[["vertical","Navigate"]]
+ if cursor==0 and not saving:actions.append(["horizontal","Slot"])
+ elif cursor==1 and not saving and options.size()>1:actions.append(["horizontal","Piece"])
+ elif cursor==2 and not apply.disabled:actions.append(["interact",apply.text])
+ actions.append(["cancel_ship","Back"])
+ return actions
 
 func save() -> void:
  if apply.disabled:return

@@ -32,8 +32,7 @@ var moving_index=-1
 var paused=false
 var dot:=Label.new()
 var status:Label
-var title:Label
-var hints:Label
+var prompts=preload("res://scripts/ship_prompts.gd").new()
 var menu:PanelContainer
 var message=""
 var message_time=0.0
@@ -127,10 +126,8 @@ func _identity_lost(reason:String) -> void:
 func _ui() -> void:
  var layer=CanvasLayer.new();add_child(layer)
  var overlay=Control.new();overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);overlay.mouse_filter=Control.MOUSE_FILTER_IGNORE;layer.add_child(overlay)
- title=Label.new();title.position=Vector2(28,22);title.add_theme_font_size_override("font_size",26);title.add_theme_color_override("font_color",Color("f4e4bd"));overlay.add_child(title)
- status=Label.new();status.position=Vector2(28,58);status.add_theme_font_size_override("font_size",18);overlay.add_child(status)
- hints=Label.new();hints.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE);hints.offset_left=28;hints.offset_top=-42;hints.offset_bottom=-12;hints.add_theme_font_size_override("font_size",17);hints.add_theme_color_override("font_shadow_color",Color("#10272c"));hints.add_theme_constant_override("shadow_offset_y",2);hints.add_theme_constant_override("shadow_outline_size",3);overlay.add_child(hints)
- dot.text="·";dot.add_theme_font_size_override("font_size",28);dot.set_anchors_and_offsets_preset(Control.PRESET_CENTER);overlay.add_child(dot)
+ status=Label.new();status.hide();status.position=Vector2(24,20);status.add_theme_constant_override("outline_size",4);status.add_theme_color_override("font_outline_color",Color("#13292c"));status.add_theme_font_size_override("font_size",18);overlay.add_child(status)
+ dot.hide();dot.text="·";dot.add_theme_font_size_override("font_size",28);dot.set_anchors_and_offsets_preset(Control.PRESET_CENTER);overlay.add_child(dot)
  menu=PanelContainer.new();menu.set_anchors_and_offsets_preset(Control.PRESET_CENTER);menu.offset_left=-240;menu.offset_right=240;menu.offset_top=-200;menu.offset_bottom=200;overlay.add_child(menu)
  var style=StyleBoxFlat.new();style.bg_color=Color("203e42");style.set_corner_radius_all(20);style.content_margin_left=28;style.content_margin_right=28;style.content_margin_top=24;style.content_margin_bottom=24;menu.add_theme_stylebox_override("panel",style)
  var column=VBoxContainer.new();column.add_theme_constant_override("separation",12);menu.add_child(column)
@@ -140,13 +137,17 @@ func _ui() -> void:
  menu.visible=false
  layer.add_child(cards);layer.add_child(dye);layer.add_child(parts)
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
+ layer.add_child(prompts)
+ prompts.used.connect(func(id:String):
+  if not paused and not riding and not editing and not fitting.active and not fabricator.visible and not walker.seated and id==_station():_interact())
 
 func _open_colours() -> void:
  if not fitting.returning:
   dye.open();Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 
 func _pause(value:bool) -> void:
- if value:parts.close()
+ if value:
+  parts.close();prompts.clear_world();prompts.actions([])
  if value and dye.visible:dye.close()
  if value:fabricator.close()
  cards.visible=fitting.active and not value and not dye.visible
@@ -195,7 +196,8 @@ func _unhandled_input(event:InputEvent) -> void:
  elif event.is_action_pressed("interact"):_interact()
 
 func _process(delta:float) -> void:
- if fabricator.visible and fabricator.is_inside_tree():return
+ if fabricator.visible:
+  prompts.clear_world();prompts.actions(fabricator.action_hints());status.hide();dot.hide();return
  if not paused:
   studio.animate(delta)
   fitting.update(delta)
@@ -204,28 +206,42 @@ func _process(delta:float) -> void:
  if station=="lift":target=studio.lift.position+Vector3.UP*0.12
  walker.attend(null if paused or editing or fitting.active or riding or walker.seated else target)
  message_time=max(0.0,message_time-delta)
- var room="Studio"
- for key in Art.ROOMS:
-  if Art.ROOMS[key].has_point(Vector2(walker.position.x,walker.position.z)):room=key;break
- if walker.position.y< -0.7:room="Service deck"
- title.text=room+"  /  "+("Guest home" if profile.is_empty() else "Your ship")
- title.visible=not fitting.active;dot.visible=not fitting.active
+ var exploring:bool=not (paused or editing or fitting.active or riding or walker.seated)
+ if exploring and target!=null:
+  var caption:String=STATION_ACTIONS[station]
+  if station=="lift":caption="Go below" if lift_destination_is_below() else "Go upstairs"
+  prompts.show_world(station,caption,walker.camera,target+Vector3.UP*0.44,walker.position+Vector3.UP*1.48)
+ else:prompts.clear_world()
+ dot.visible=editing and not paused
+ status.text=message if message_time>0 else ""
+ if editing and not paused:
+  _aim()
+  if status.text.is_empty():
+   status.text=("Move " if moving_index>=0 else "Place ")+Art.ITEMS[item_index].replace("-"," ")+("" if placement_valid else " · Keep the walkway clear")
+ status.visible=not status.text.is_empty()
+ if fitting.active:cards.visible=not paused and not dye.visible and not parts.visible and not fitting.returning
+ prompts.actions(_action_hints())
+
+func _action_hints() -> Array:
+ if paused or riding:return []
  if fitting.active:
-  title.text=""
-  status.text=""
-  cards.visible=not paused and not dye.visible and not parts.visible and not fitting.returning
-  hints.text="RS   Turn" if dye.visible or parts.visible else "↑ ↓   Outfit     A   Select     "+("X   Change piece     " if cards.parts.visible else "")+"Y   Colours     RS   Turn     B   Leave"
- elif riding:
-  status.text="Deck lift";hints.text=""
- elif walker.seated:
-  status.text=message if message_time>0 else "Pilot seat · flight controls not connected"
-  hints.text="RS / Mouse Look    B / A / F / Esc Stand up    Start / P Menu"
- elif editing:
-  _aim();status.text=("Move " if moving_index>=0 else "Place ")+Art.ITEMS[item_index].replace("-"," ")+"  ·  "+("Ready" if placement_valid else "Keep doors and walkways clear")
-  hints.text="LS / WASD Move   RS / Mouse Look   A / Enter Place   LB/RB / [ ] Item   D-pad / Q E Rotate   Y Move nearby   B Cancel"
- else:
-  status.text=message if message_time>0 else str(PROMPTS.get(station,""))
-  hints.text="LS / WASD Move    RS / Mouse Look    Start / Esc Menu" if walker.position.y< -0.7 else "LS / WASD Move    RS / Mouse Look    X / Tab Decorate    Start / Esc Menu"
+  if fitting.returning:return []
+  if parts.visible:return parts.action_hints()
+  if dye.visible:return dye.action_hints()
+  var rows:Array=[["vertical","Outfit"]]
+  if not cards.action.disabled:rows.append(["interact",cards.action.text])
+  if cards.parts.visible and not cards.parts.disabled:rows.append(["decorate","Change piece"])
+  if cards.action.disabled or cards.action.text!="Preview colours":rows.append(["pick_item","Colours"])
+  if prompts.gamepad:rows.append(["turn","Turn"])
+  rows.append(["cancel_ship","Leave"]);return rows
+ if walker.seated:return [["cancel_ship","Stand up"]]
+ if editing:
+  var rows:Array=[["tab_pair","Furniture"],["rotation","Rotate"]]
+  if placement_valid:rows.append(["confirm_place","Place"])
+  rows.append(["pick_item","Move nearby"]);rows.append(["cancel_ship","Done"]);return rows
+ return []
+
+func lift_destination_is_below() -> bool:return studio.lift.position.y>-1
 
 func notify(text:String) -> void:message=text;message_time=6
 
@@ -241,7 +257,7 @@ func _edit(value:bool) -> void:
  editing=value;moving_index=-1
  if is_instance_valid(ghost):remove_child(ghost);ghost.queue_free()
  ghost=null
- if value:_ghost()
+ if value:prompts.clear_world();_ghost()
 
 func _ghost() -> void:
  if is_instance_valid(ghost):remove_child(ghost);ghost.queue_free()
@@ -341,7 +357,7 @@ func _leave_pilot() -> bool:
  if not walker.seated:return true
  var previous=walker.standing_position;previous.y=max(previous.y,0.08)
  for at in [previous,Vector3(0,0.08,-2.1),Vector3(-1.5,0.08,-2.5),Vector3(1.5,0.08,-2.5)]:
-  if walker.can_stand(at):walker.stand(at);notify("Back on deck");return true
+  if walker.can_stand(at):walker.stand(at);return true
  notify("There is no clear space to stand up.");return false
 
 const STATION_TARGETS = {
@@ -349,7 +365,7 @@ const STATION_TARGETS = {
  "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
-const PROMPTS={"pilot":"A / F   Sit in pilot seat","workbench":"A / F   Fabricator","wardrobe":"A / F   Try on outfits","lift":"A / F   Change deck","cabin":"A / F   Display shelves"}
+const STATION_ACTIONS={"pilot":"Sit at helm","workbench":"Use fabricator","wardrobe":"Open wardrobe","lift":"Use lift","cabin":"Inspect shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
@@ -373,20 +389,22 @@ func _interact() -> void:
  if walker.seated:
   _leave_pilot()
   return
+ prompts.clear_world()
  match _station():
   "pilot":
    if editing:_edit(false)
-   walker.sit();notify("Pilot seat · look around with RS / mouse. B / F to stand up.")
+   walker.sit()
   "workbench":
-   studio.scan=2.4;walker.walking=false;fabricator.open()
+   studio.scan=2.4;walker.walking=false;walker.attend(null);fabricator.open()
+   status.hide();prompts.actions(fabricator.action_hints())
    get_viewport().disable_3d=true
    Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
   "wardrobe":fitting.enter()
   "cabin":notify("Display shelves · Figurines and awards")
   "lift":
-   lift_start=studio.lift.position.y;lift_end=Art.LOWER_Y if lift_start>-1 else 0.0
+   lift_start=studio.lift.position.y;lift_end=Art.LOWER_Y if lift_destination_is_below() else 0.0
    ride_time=0;riding=true;walker.stationary=true;walker.velocity=Vector3.ZERO;message_time=0
-  _:notify("X / Tab opens your furniture collection.")
+
 
 func _quit() -> void:
  if store.writable and not store.save(rows):notify(store.error);return

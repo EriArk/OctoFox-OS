@@ -39,7 +39,6 @@ func _ready() -> void:
    var button:=Button.new();button.custom_minimum_size.y=42;button.focus_mode=Control.FOCUS_NONE;buttons.append(button)
    column.add_child(button);button.pressed.connect(choose.bind(i))
  note.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;column.add_child(note)
- var hints:=Label.new();hints.text="D-pad   Select     A   Confirm     B   Back";column.add_child(hints)
  hide()
 
 func open() -> void:
@@ -174,6 +173,18 @@ func step(row:int, amount:int) -> void:
  elif row==1 and not channel_names.is_empty():channel_index=posmod(channel_index+amount,channel_names.size())
  elif row==2 and not colors.is_empty():color_index=clampi(color_index+amount,0,colors.size()-1)
  refresh()
+
+func action_hints() -> Array:
+ var actions:Array=[["vertical","Navigate"]]
+ if not workshop.busy:
+  if cursor==0 and (pieces().size()>1 or not workshop.next_page.is_empty()):actions.append(["horizontal","Garment"])
+  elif cursor==1 and channel_names.size()>1:actions.append(["horizontal","Channel"])
+  elif cursor==2:
+   if colors.size()>1:actions.append(["horizontal","Swatch"])
+   actions.append(["interact","Choose swatch"])
+  elif cursor==3 and not buttons[3].disabled:actions.append(["interact",buttons[3].text])
+ actions.append(["cancel_ship","Back"])
+ return actions
 
 func choose(row:int) -> void:
  cursor=row

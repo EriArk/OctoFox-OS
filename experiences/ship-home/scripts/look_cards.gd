@@ -67,7 +67,7 @@ func refresh() -> void:
  var can_edit:=not editable().is_empty()
  parts.visible=can_edit and not selected.is_empty()
  parts.disabled=not parts.visible or not is_instance_valid(fitting.workshop) or fitting.workshop.wearing or fitting.current!=fitting.requested or (not selected.is_empty() and fitting.resolved_key!=selected.id)
- action.text="Wear outfit" if not selected.is_empty() else ("Change a piece" if can_edit else "Edit printed parts")
+ action.text="Wear outfit" if not selected.is_empty() else ("Change a piece" if can_edit else "Preview colours")
  action.disabled=can_edit and (fitting.current!=fitting.requested or fitting.workshop.wearing or fitting.workshop.looks_loading or (not selected.is_empty() and fitting.resolved_key!=selected.id))
 
 func selected_card() -> int:

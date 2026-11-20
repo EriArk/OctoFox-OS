@@ -48,7 +48,6 @@ var columns:Label
 var quantity_heading:Label
 var caption:Label
 var note:Label
-var footer:Label
 var print_button:Button
 var bold_font:=FontVariation.new()
 
@@ -128,7 +127,6 @@ func _ready() -> void:
  print_button.add_theme_stylebox_override("disabled",style(Color("#223739"),LINE))
  print_button.add_theme_color_override("font_disabled_color",Color("#a1aaa1"))
  block(Rect2(44,671,1192,1),LINE)
- footer=label(sheet,"",Rect2(44,674,1192,44),19,MUTED)
  hide()
 
 func fit_screen() -> void:
@@ -260,9 +258,7 @@ func refresh() -> void:
   note.text=""
   if not connected:note.text="Connect to your inventory to print."
   elif not workshop.timed_prints or not workshop.inventory.has("print_hours"):note.text="Update the workshop to start timed prints."
-  elif not print_button.disabled:note.text="A   "+print_button.text
-  elif not workshop.inventory.prints.has(style_id+"."+Garment.SLOTS[part].to_lower()):note.text="Blueprint or cartridges required"
-  footer.text="← →   Parts      ↑ ↓   Sets      LB / RB   Tabs      B / Esc   Close"
+  elif print_button.disabled and not workshop.inventory.prints.has(style_id+"."+Garment.SLOTS[part].to_lower()):note.text="Blueprint or cartridges required"
  else:
   var selected:String=MATERIALS[material_index]
   caption.text="Printer cartridge";heading.text=selected;art.present(material_index,0,true)
@@ -275,11 +271,19 @@ func refresh() -> void:
    if uses:
     rows[i].text=outfit.capitalize();amounts[i].text=str(uses);i+=1
   note.text=("Held   %d"%workshop.units("material",selected)) if connected else "Cartridge balance unavailable."
-  footer.text="↑ ↓   Cartridges      LB / RB   Tabs      B / Esc   Close"
 
  if is_instance_valid(workshop):
   if workshop.busy:note.text="Updating inventory…"
   elif not workshop.notice.is_empty():note.text=workshop.notice
+
+func action_hints() -> Array:
+ var actions:Array=[["vertical","Blueprint" if page==0 else "Cartridge"],["tab_pair","Tabs"]]
+ if page==0:
+  actions.append(["horizontal","Part"])
+  if not on_parts:actions.append(["interact","Choose part"])
+  elif not print_button.disabled:actions.append(["interact",print_button.text])
+ actions.append(["cancel_ship","Close"])
+ return actions
 
 func navigate(direction:Vector2i) -> void:
  if direction.y!=0:
