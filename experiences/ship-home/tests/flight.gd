@@ -37,12 +37,15 @@ func run() -> void:
  for leg in 2:
   press(JOY_BUTTON_A);await frames(100)
   check(f.mode==f.Mode.FLYING and not home._leave_pilot(),"Clear the berth with seated pilot")
-  press(JOY_BUTTON_START);var stopped:Vector3=f.location
+  check(home.exterior.hover_amount==0,"Hover field shortens after departure")
+  press(JOY_BUTTON_START);var stopped:Vector3=f.location;var field_phase:float=home.exterior.cycle
   Input.action_press("next_item");await frames(12);Input.action_release("next_item")
   check(f.location==stopped and f.throttle==0,"Pause freezes throttle and travel")
+  check(home.exterior.cycle==field_phase,"Suspended ring animation while paused")
   press(JOY_BUTTON_B)
   # Fly toward the other berth using exactly the normal throttle and brake actions.
   Input.action_press("next_item");await frames(85);Input.action_release("next_item")
+  check(home.exterior.drive_power>0.9,"Aft exhaust responds to forward throttle")
   for i in 360:
    if f.location.distance_to(f.BERTHS[f.destination])<18:break
    await physics_frame
@@ -52,6 +55,7 @@ func run() -> void:
   check(f.clearance().is_empty(),"Stopped level over destination: "+str(f.location))
   press(JOY_BUTTON_A);await frames(100)
   check(f.mode==f.Mode.BERTH and f.berth==(1-leg),"Arrive and settle at destination")
+  check(home.exterior.hover_amount==1 and home.exterior.drive_power==0,"Landing restores full hover and idle exhaust")
   var store:=ShipLayoutStore.new();store.directory=home.store.directory;store.load_home("test")
   check(store.berth==f.berth,"Restore most recently landed berth")
  press(JOY_BUTTON_B);check(not w.seated and w.camera.current,"Leave chair after arrival")

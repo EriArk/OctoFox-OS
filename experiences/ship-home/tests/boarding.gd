@@ -54,7 +54,20 @@ func run() -> void:
  check(sees(spectator,hull,true) and sees(spectator,cabin,false),"Independent outside camera sees the owner ship")
  var other=home.ExteriorScene.instantiate();home.add_child(other)
  var other_meshes=other.find_children("*","MeshInstance3D",true,false)
- check(other_meshes.size()==2 and sees(w.pilot_camera,other_meshes,true),"Other ship loads only the shared hull and landing gear")
+ check(other_meshes.size()==1 and sees(w.pilot_camera,other_meshes,true),"Other ship loads the shared hull")
+ check(other.gravity.multimesh.instance_count==16 and other.exhaust.multimesh.instance_count==2,"Four ring streams and two drives")
+ for body in home.exterior.find_children("*","PhysicsBody3D",true,false):
+  check((body.collision_layer & f.WALK_LAYER)==0,"No landing feet block the pad")
+ var mounts:Array[Vector3]=[]
+ for i in 4:
+  var mount:Vector3=other.to_local(other.get_node("Hull").find_child(other.EMITTERS[i],true,false).global_position)
+  check(Vector2(mount.x,mount.z-0.26).length()>5.4,"Emitter at the rim")
+  for previous in mounts:check(previous.distance_to(mount)>7,"Independent corner mounts")
+  mounts.append(mount)
+ check(sees(spectator,[home.exterior.gravity,home.exterior.exhaust],true) and sees(w.camera,[home.exterior.gravity,home.exterior.exhaust],false),"Exterior effects follow the hull visibility")
+ other.set_propulsion(0,1)
+ check(other.ring_material.get_shader_parameter("travel")<1.1 and other.plume_material.get_shader_parameter("power")==1.0,"Cruise field and full thrust")
+ check(home.exterior.ring_material.get_shader_parameter("travel")>3.7 and home.exterior.drive_power==0,"Independent berth effects")
  check(other.find_children("*","PhysicsBody3D",true,false).is_empty(),"Observer representation requires no cabin physics")
  other.queue_free()
  for site in 2:

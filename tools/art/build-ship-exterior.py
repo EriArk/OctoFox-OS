@@ -190,36 +190,6 @@ def dorsal_markings():
         triangle("Copper" if i in (1, 2, 5, 6) else "Deep enamel", center, a, b)
 
 
-def exhaust(x):
-    # Nested open bells face aft, below the paired fairings.
-    profile = [
-        (0.008, 0.008, 5.48),
-        (0.30, 0.18, 5.49),
-        (0.39, 0.24, 5.56),
-        (0.48, 0.30, 5.77),
-        (0.62, 0.38, 5.79),
-        (0.66, 0.42, 5.65),
-        (0.78, 0.46, 5.25),
-        (0.60, 0.28, 3.92),
-    ]
-    colors = ["Ion ceramic", "Copper", "Deep enamel", "Heat shield", "Copper", "Sea green", "Deep enamel"]
-    for i, paint in enumerate(colors):
-
-        def rim(k, j):
-            rx, ry, z = profile[k]
-            a = tau * j / 48
-            return (
-                x + rx * cos(a),
-                -0.52 + ry * sin(a) + (5.8 - z) * 0.22,
-                z + 0.63 + max(0, min(1, (z - 4.72) / 0.5)) * 0.32,
-            )
-
-        for j in range(48):
-            a, b, c, d = rim(i, j), rim(i + 1, j), rim(i + 1, j + 1), rim(i, j + 1)
-            triangle(paint, a, b, c)
-            triangle(paint, a, c, d)
-
-
 def bridge():
     def canopy(rx, rz, y):
         return ring(rx, rz, y, -1.55)
@@ -260,68 +230,42 @@ def bridge():
             2,
         )
         patch([canopy(2.69, 2.11, 0.865), canopy(2.64, 2.06, 0.923)], "Glass reflection", a + 0.066, 0.32, 7)
-    # Low swept engine fairings along either side of the aft deck.
-    for side in (-1, 1):
 
-        def pod(rx, rz, y, side=side):
-            return ring(rx, rz, y, 2.50, side * 2.47)
 
-        exhaust(side * 2.47)
-        loft(
-            [
-                pod(0.95, 2.26, -0.14),
-                pod(0.94, 2.22, 0.20),
-                pod(0.83, 1.97, 0.38),
-                pod(0.63, 1.68, 0.53),
-                pod(0.001, 0.001, 0.60),
-            ],
-            ["Deep enamel", "Copper", "Sea green", "Sea green"],
-            steps=48,
-        )
-        for j in range(5):
-            z = 2.68 + 0.24 * j
-            width = 0.53 - 0.035 * j
+def gravity_emitters():
+    # Four diagonals near the rim leave the boarding shaft and its approach clear.
+    anchors = {}
+    for side, side_name in ((-1, "Port"), (1, "Starboard")):
+        for direction, end in ((-1, "Fore"), (1, "Aft")):
+            x, z = side * 3.92, 0.26 + direction * 3.98
+            y = -1.49
+            anchors["Gravity" + end + side_name] = (x, y, z)
+            rows = [
+                ring(r, r, y + dy, z, x)
+                for r, dy in (
+                    (0.001, 0.10),
+                    (0.28, 0.10),
+                    (0.38, 0.018),
+                    (0.49, 0),
+                    (0.55, 0.035),
+                    (0.67, 0.15),
+                    (0.72, 0.29),
+                    (0.60, 0.53),
+                )
+            ]
             loft(
+                rows,
                 [
-                    ring(width, 0.068, 0.535, z, side * 2.47),
-                    ring(width, 0.068, 0.586, z, side * 2.47),
-                    ring(0.001, 0.001, 0.59, z, side * 2.47),
+                    "Ion ceramic",
+                    "Deep enamel",
+                    "Ion ceramic",
+                    "Copper",
+                    "Heat shield",
+                    "Sea green",
+                    "Champagne",
                 ],
-                ["Deep enamel", "Champagne"],
-                steps=20,
+                steps=48,
             )
-
-
-def engines():
-    for i in range(3):
-        angle = pi + i * tau / 3
-        x, z = 3.70 * sin(angle), 0.26 - 3.70 * cos(angle)
-
-        def hub(r, y, z=z, x=x):
-            return ring(r, r, y, z, x)
-
-        loft(
-            [
-                hub(0.001, -1.98),
-                hub(0.26, -1.99),
-                hub(0.34, -2.10),
-                hub(0.47, -2.13),
-                hub(0.53, -2.06),
-                hub(0.60, -1.93),
-                hub(0.70, -1.73),
-                hub(0.67, -1.49),
-            ],
-            [
-                "Ion ceramic",
-                "Deep enamel",
-                "Ion ceramic",
-                "Copper",
-                "Deep enamel",
-                "Heat shield",
-                "Champagne",
-            ],
-            steps=48,
-        )
     for i in range(8):
         angle = i * tau / 8
         patch(
@@ -332,44 +276,166 @@ def engines():
             6,
         )
 
-
-def strut(start, end, base, tip, paint):
-    axis = unit(minus(end, start))
-    u = unit(cross(axis, (1, 0, 0)))
-    v = cross(axis, u)
-
-    def circle(center, radius, j):
-        a = j * tau / 20
-        return tuple(center[k] + radius * (u[k] * cos(a) + v[k] * sin(a)) for k in range(3))
-
-    for j in range(20):
-        a, b = circle(start, base, j), circle(start, base, j + 1)
-        c, d = circle(end, tip, j), circle(end, tip, j + 1)
-        triangle(paint, a, b, d)
-        triangle(paint, a, d, c)
-        triangle(paint, start, b, a)
-        triangle(paint, end, c, d)
+    return anchors
 
 
-def landing_gear():
-    # Local origin is the deployment hinge at y = -2.79. Shoes meet the pad at -5.35.
-    for i in range(3):
-        angle = tau * i / 3
+def foil(sections, paints):
+    """Solid swept spar. Each section specifies an x, y, z, chord and thickness."""
+    profile = [
+        (-0.57, 0),
+        (-0.43, 0.37),
+        (-0.11, 0.57),
+        (0.48, 0.21),
+        (0.55, -0.1),
+        (-0.05, -0.51),
+        (-0.43, -0.33),
+    ]
+    contours = [
+        [(x, y + v * thickness, z + u * chord) for u, v in profile] for x, y, z, chord, thickness in sections
+    ]
+    for left, right in itertools.pairwise(contours):
+        for i, paint in enumerate(paints):
+            j = (i + 1) % len(profile)
+            triangle(paint, left[i], right[j], right[i])
+            triangle(paint, left[i], left[j], right[j])
+    for k in range(1, len(profile) - 1):
+        triangle("Heat shield", contours[0][0], contours[0][k + 1], contours[0][k])
+        triangle("Heat shield", contours[-1][0], contours[-1][k], contours[-1][k + 1])
 
-        def leg(radius, y, angle=angle):
-            return (radius * sin(angle), y, -radius * cos(angle))
 
-        mount, knee, foot = leg(1.92, 0), leg(2.54, -1.255), leg(2.95, -2.44)
-        strut(leg(1.92, -0.08), leg(1.92, 1.20), 0.24, 0.38, "Heat shield")
-        strut(mount, knee, 0.24, 0.18, "Deep enamel")
-        strut(knee, foot, 0.145, 0.12, "Champagne")
-        strut(leg(1.44, 0), knee, 0.09, 0.075, "Ceramic")
-        strut(leg(2.47, -1.12), leg(2.59, -1.40), 0.21, 0.19, "Copper")
-        strut(leg(2.95, -2.56), leg(2.95, -2.43), 0.43, 0.40, "Deep enamel")
-        strut(leg(2.95, -2.43), leg(2.95, -2.31), 0.40, 0.24, "Heat shield")
+def engine_pod(x):
+    # Front intake lip, ceramic fairing, insulated collar and recessed exhaust bell.
+    profile = [
+        (0.01, 0.01, 3.78),
+        (0.36, 0.26, 3.76),
+        (0.52, 0.41, 3.52),
+        (0.63, 0.49, 3.49),
+        (0.72, 0.59, 3.76),
+        (0.83, 0.68, 4.37),
+        (0.87, 0.69, 5.55),
+        (0.80, 0.65, 6.18),
+        (0.83, 0.68, 6.24),
+        (0.82, 0.68, 6.35),
+        (0.70, 0.58, 6.55),
+        (0.68, 0.56, 6.86),
+        (0.72, 0.60, 7.05),
+        (0.69, 0.56, 7.12),
+        (0.53, 0.43, 7.12),
+        (0.46, 0.37, 6.91),
+        (0.36, 0.29, 6.87),
+        (0.24, 0.19, 6.87),
+        (0.16, 0.13, 6.95),
+        (0.01, 0.01, 7.01),
+    ]
+    colors = [
+        "Deep enamel",
+        "Heat shield",
+        "Copper",
+        "Sea green",
+        "Ceramic",
+        "Sea green",
+        "Sea green",
+        "Heat shield",
+        "Copper",
+        "Heat shield",
+        "Deep enamel",
+        "Champagne",
+        "Copper",
+        "Heat shield",
+        "Deep enamel",
+        "Ion ceramic",
+        "Champagne",
+        "Heat shield",
+        "Deep enamel",
+    ]
+
+    def rim(index, angle):
+        rx, ry, z = profile[index]
+        return (x + rx * cos(angle), 1.42 + ry * sin(angle), z)
+
+    for i, paint in enumerate(colors):
+        for j in range(48):
+            a0, a1 = tau * j / 48, tau * (j + 1) / 48
+            verts = [rim(i, a0), rim(i, a1), rim(i + 1, a1), rim(i + 1, a0)]
+            # Smooth the fairing across both circumferential and longitudinal seams.
+            normals = []
+            for k, a in ((i, a0), (i, a1), (i + 1, a1), (i + 1, a0)):
+                rx, ry, _ = profile[k]
+                axis = minus(rim(min(k + 1, len(profile) - 1), a), rim(max(k - 1, 0), a))
+                normals.append(unit(cross((-rx * sin(a), ry * cos(a), 0), axis)))
+            finish = paint
+            if i == 10 and j % 8 == 0:
+                finish = "Copper"
+            elif i == 1 and j % 6 == 0:
+                finish = "Champagne"
+            elif i == 5 and 25 <= j <= 45:
+                finish = "Deep enamel"
+            for n in (0, 1, 2, 0, 2, 3):
+                surfaces[finish].append((verts[n], normals[n]))
+
+    # Thin formed cowl on the crown and recessed cooling slots down either flank.
+    def shell(z, angle, lift):
+        for near, far in itertools.pairwise(profile[4:8]):
+            if near[2] <= z <= far[2]:
+                t = (z - near[2]) / (far[2] - near[2])
+                rx = near[0] * (1 - t) + far[0] * t + lift
+                ry = near[1] * (1 - t) + far[1] * t + lift
+                return (x + rx * cos(angle), 1.42 + ry * sin(angle), z)
+        raise ValueError(f"Outside the cowling at {z}")
+
+    def shell_panel(stations, angle, lift, paint):
+        arcs = [
+            [shell(z, angle + width * (j / 4 - 1) + skew, lift) for j in range(9)]
+            for z, width, skew in stations
+        ]
+        for front, rear in itertools.pairwise(arcs):
+            for j in range(8):
+                triangle(paint, front[j], front[j + 1], rear[j + 1])
+                triangle(paint, front[j], rear[j + 1], rear[j])
+
+    crown = [(4.10, 0.27, 0), (4.52, 0.77, 0), (5.34, 0.65, 0), (6.04, 0.20, 0)]
+    shell_panel(crown, pi / 2, 0.042, "Champagne")
+    shell_panel([(z, width * 0.92, skew) for z, width, skew in crown], pi / 2, 0.050, "Ceramic")
+    for facing in (0, pi):
+        for j in range(5):
+            z = 4.56 + 0.21 * j
+            shell_panel(
+                [(z, 0.26, -0.10), (z + 0.084, 0.28, 0), (z + 0.105, 0.24, 0.055)],
+                facing,
+                0.024,
+                "Deep enamel",
+            )
+            shell_panel([(z + 0.082, 0.23, 0.02), (z + 0.107, 0.20, 0.06)], facing, 0.03, "Copper")
+    return x, 1.42, 6.99
 
 
-def write_glb(output, mesh_name):
+def spoiler_drive():
+    finishes_foil = ["Copper", "Ceramic", "Sea green", "Copper", "Deep enamel", "Heat shield", "Sea green"]
+    # Two swept pylons lift one continuous wing and its outboard nacelles clear of the disc.
+    for side in (-1, 1):
+        foot = [
+            (side * 1.68, 0.11, 2.94, 1.48, 0.54),
+            (side * 2.02, 0.27, 3.10, 1.55, 0.56),
+            (side * 2.52, 0.98, 4.37, 1.20, 0.50),
+            (side * 2.83, 1.34, 4.85, 1.14, 0.42),
+        ]
+        foil(sorted(foot), finishes_foil)
+    foil(
+        [
+            (-3.80, 1.41, 5.14, 1.23, 0.40),
+            (-2.72, 1.37, 4.89, 1.15, 0.40),
+            (-1.17, 1.29, 4.63, 0.92, 0.30),
+            (0, 1.28, 4.57, 0.88, 0.29),
+            (1.17, 1.29, 4.63, 0.92, 0.30),
+            (2.72, 1.37, 4.89, 1.15, 0.40),
+            (3.80, 1.41, 5.14, 1.23, 0.40),
+        ],
+        finishes_foil,
+    )
+    return {"ExhaustPort": engine_pod(-3.79), "ExhaustStarboard": engine_pod(3.79)}
+
+
+def write_glb(output, mesh_name, anchors):
     binary = bytearray()
     views, accessors, primitives, materials = [], [], [], []
 
@@ -421,7 +487,10 @@ def write_glb(output, mesh_name):
         "asset": {"version": "2.0", "generator": "OctoFox Ship Home"},
         "scene": 0,
         "scenes": [{"nodes": [0]}],
-        "nodes": [{"name": mesh_name, "mesh": 0}],
+        "nodes": [
+            {"name": mesh_name, "mesh": 0, "children": list(range(1, len(anchors) + 1))},
+            *({"name": name, "translation": pos} for name, pos in anchors.items()),
+        ],
         "meshes": [{"name": mesh_name, "primitives": primitives}],
         "materials": materials,
         "bufferViews": views,
@@ -442,8 +511,5 @@ if __name__ == "__main__":
     hull()
     dorsal_markings()
     bridge()
-    engines()
-    write_glb(OUTPUT, "Saucer")
-    surfaces.clear()
-    landing_gear()
-    write_glb(OUTPUT.with_name("landing-gear.glb"), "LandingGear")
+    anchors = gravity_emitters() | spoiler_drive()
+    write_glb(OUTPUT, "Saucer", anchors)

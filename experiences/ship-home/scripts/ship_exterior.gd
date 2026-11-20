@@ -6,33 +6,72 @@ const CABIN_LAYER:=1 << 17
 const OWNER_HULL_LAYER:=1 << 18
 const HULL_COLLISION:=16
 var local_ship:=false
-@onready var undercarriage:Node3D=$LandingGear
+const EMITTERS = ["GravityForePort", "GravityForeStarboard", "GravityAftPort", "GravityAftStarboard"]
+const EXHAUSTS = ["ExhaustPort", "ExhaustStarboard"]
+const RINGS_PER_EMITTER := 4
+var gravity := MultiMeshInstance3D.new()
+var exhaust := MultiMeshInstance3D.new()
+var ring_material := ShaderMaterial.new()
+var plume_material := ShaderMaterial.new()
+var cycle := 0.0
+var hover_amount := -1.0
+var drive_power := -1.0
 
 static func configure_camera(camera:Camera3D,aboard:bool) -> void:
  camera.set_cull_mask_value(18,aboard)
  camera.set_cull_mask_value(19,not aboard)
 
 func _ready() -> void:
- if not local_ship:return
- _local_hull()
- var drop:=undercarriage.position.y-Flight.GROUND_Y
- for index in 3:
-  var angle:=index*TAU/3.0
-  var radial:=Vector3(sin(angle),0,-cos(angle))
-  var mount:=radial*1.92
-  var foot:=radial*2.95+Vector3.DOWN*(drop-0.12)
-  # Walkers sense this layer only ashore, with the gear fully deployed.
-  var body:=StaticBody3D.new();body.collision_layer=Flight.WALK_LAYER;body.collision_mask=0
-  add_child(body);body.position=undercarriage.position
-  var capsule:=CapsuleShape3D.new();capsule.radius=0.16;capsule.height=mount.distance_to(foot)+0.17
-  var collider:=CollisionShape3D.new();collider.shape=capsule;body.add_child(collider)
-  collider.position=(mount+foot)*0.5;collider.quaternion=Quaternion(Vector3.UP,(mount-foot).normalized())
+ var ring := TorusMesh.new()
+ ring.inner_radius=0.45;ring.outer_radius=0.55;ring.rings=40;ring.ring_segments=8
+ ring_material.shader=preload("res://shaders/gravity_rings.gdshader")
+ var pulses:=MultiMesh.new()
+ pulses.transform_format=MultiMesh.TRANSFORM_3D;pulses.use_custom_data=true;pulses.mesh=ring
+ pulses.instance_count=EMITTERS.size()*RINGS_PER_EMITTER
+ for e in EMITTERS.size():
+  var port:Node3D=$Hull.find_child(EMITTERS[e],true,false)
+  var origin:=to_local(port.global_position)
+  for r in RINGS_PER_EMITTER:
+   var index:=e*RINGS_PER_EMITTER+r
+   pulses.set_instance_transform(index,Transform3D(Basis.IDENTITY,origin))
+   pulses.set_instance_custom_data(index,Color((r+e*0.18)/RINGS_PER_EMITTER,0,0,1))
+ # Include the shader-displaced rings and plumes in frustum culling.
+ pulses.custom_aabb=AABB(Vector3(-5,Flight.GROUND_Y,-5),Vector3(10,4.1,10.4))
+ gravity.multimesh=pulses;gravity.material_override=ring_material
+ gravity.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF;add_child(gravity)
 
+ var jet:=CylinderMesh.new()
+ jet.bottom_radius=0.36;jet.top_radius=0.055;jet.height=1;jet.radial_segments=28;jet.rings=1
+ jet.cap_top=false;jet.cap_bottom=false
+ plume_material.shader=preload("res://shaders/drive_exhaust.gdshader")
+ var jets:=MultiMesh.new();jets.transform_format=MultiMesh.TRANSFORM_3D;jets.mesh=jet
+ jets.instance_count=EXHAUSTS.size()
+ for i in EXHAUSTS.size():
+  var nozzle:Node3D=$Hull.find_child(EXHAUSTS[i],true,false)
+  jets.set_instance_transform(i,Transform3D(Basis(Vector3.RIGHT,PI/2),to_local(nozzle.global_position)))
+ jets.custom_aabb=AABB(Vector3(-4.3,0.9,6.8),Vector3(8.6,1.1,2.4))
+ exhaust.multimesh=jets;exhaust.material_override=plume_material
+ exhaust.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF;add_child(exhaust)
+ set_propulsion(1.0,0.0)
+ if local_ship:_local_hull()
+
+func set_propulsion(hover:float,forward_thrust:float) -> void:
+ var strength:=clampf(hover,0,1)
+ if hover_amount!=strength:
+  hover_amount=strength
+  ring_material.set_shader_parameter("travel",lerpf(1.08,-1.49-Flight.GROUND_Y-0.06,strength))
+ var power:=clampf(forward_thrust,0,1)
+ if drive_power!=power:
+  drive_power=power
+  plume_material.set_shader_parameter("power",power)
+
+# Older exterior callers supply only a landing fraction.
 func set_gear_deployment(amount:float) -> void:
- var deployed:=clampf(amount,0.0,1.0)
- undercarriage.visible=deployed>0.01
- undercarriage.scale.y=lerpf(0.2,1.0,deployed)
- undercarriage.position.y=lerpf(-1.65,-2.79,deployed)
+ set_propulsion(amount,maxf(0.0,drive_power))
+
+func _process(delta:float) -> void:
+ cycle=fmod(cycle+delta*0.46,1.0)
+ ring_material.set_shader_parameter("cycle",cycle)
 
 func _local_hull() -> void:
  for mesh:GeometryInstance3D in find_children("*","GeometryInstance3D",true,false):

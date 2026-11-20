@@ -128,7 +128,7 @@ func _load_profile(id:String) -> void:
   walker.position=Vector3(0,0.08,-0.55);walker.velocity=Vector3.ZERO
  walker.stationary=false;riding=false;ride_platform=null
  _outside(false)
- studio.lift.position.y=0;studio.set_exit_height(Art.LOWER_Y);exterior.set_gear_deployment(1)
+ studio.lift.position.y=0;studio.set_exit_height(Art.LOWER_Y);exterior.set_propulsion(1.0,0.0)
  if parts.is_inside_tree():parts.close()
  if dye.is_inside_tree() and dye.visible:dye.close()
  if fabricator.is_inside_tree():fabricator.close()
@@ -200,6 +200,7 @@ func _pause(value:bool) -> void:
  helm_help.visible=value and walker.seated
  if helm_help.visible:
   helm_help.text=("LS   Pitch / roll       RS   Look\nD-pad   Yaw / lift       Triggers   Strafe\nLB / RB   Throttle       X   Brake" if prompts.gamepad else "W S   Pitch       A D   Roll       Mouse   Look\nQ E   Yaw       R C   Lift       Z X   Strafe\n[ ]   Throttle       Tab   Brake")
+ exterior.set_process(not value)
  paused=value;walker.walking=not value;menu.visible=value
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value or fitting.active else Input.MOUSE_MODE_CAPTURED
  if value:menu.get_child(0).get_child(1).grab_focus()
@@ -448,10 +449,10 @@ func _physics_process(delta:float) -> void:
   var stick:=Input.get_vector("walk_left","walk_right","walk_forward","walk_back",0.18)
   flight.tick(delta,stick,Input.get_axis("rotate_left","rotate_right"),Input.get_axis("previous_item","next_item"),Vector2(Input.get_axis("fly_left","fly_right"),Input.get_axis("fly_down","fly_up")),Input.is_action_pressed("decorate"))
   match flight.mode:
-   flight.Mode.DEPARTING:exterior.set_gear_deployment(1.0-flight.transition)
-   flight.Mode.LANDING:exterior.set_gear_deployment(flight.transition)
-   flight.Mode.BERTH:exterior.set_gear_deployment(1)
-   flight.Mode.FLYING:exterior.set_gear_deployment(0)
+   flight.Mode.DEPARTING:exterior.set_propulsion(1.0-flight.transition,flight.transition*0.30)
+   flight.Mode.LANDING:exterior.set_propulsion(flight.transition,(1.0-flight.transition)*0.30)
+   flight.Mode.BERTH:exterior.set_propulsion(1.0,0.0)
+   flight.Mode.FLYING:exterior.set_propulsion(0.0,flight.throttle)
   walker.steer(stick if flight.mode==flight.Mode.BERTH else flight.stick,flight.throttle)
   if mode_before==flight.Mode.LANDING and flight.mode==flight.Mode.BERTH:
    store.berth=flight.berth
