@@ -2,6 +2,8 @@
 extends Node3D
 ## Navigation is in sector metres. Keep the furnished, walkable cabin in its local physics frame.
 enum Mode { BERTH, DEPARTING, FLYING, LANDING }
+const GROUND_Y:=-5.35
+const WALK_LAYER:=8
 const BERTHS=[Vector3.ZERO,Vector3(0,0,-96)]
 const NAMES=["Lantern Station","Echo Orchard"]
 var mode:=Mode.BERTH
@@ -21,9 +23,10 @@ var art:ShipInterior
 func build(interior:ShipInterior) -> void:
  art=interior
  for i in BERTHS.size():
-  var site:=Node3D.new();add_child(site);site.position=BERTHS[i]
+  var site:=Node3D.new();add_child(site);site.position=BERTHS[i]+Vector3.UP*(GROUND_Y+3.9)
   var surface:=Vector3.DOWN*4.1
-  art.cylinder(site,surface,9.0,0.4,Color("535e68"))
+  var deck=art.cylinder(site,surface,9.0,0.4,Color("535e68"))
+  walk_surface(deck)
   for j in 20:
    var a:=TAU*j/20.0;var b:=TAU*(j+0.72)/20.0
    art.beam(site,surface+Vector3(cos(a)*7.7,0.23,sin(a)*7.7),surface+Vector3(cos(b)*7.7,0.23,sin(b)*7.7),0.085,Color("ffca71"),true)
@@ -31,18 +34,25 @@ func build(interior:ShipInterior) -> void:
   if i==0:
    for side in [-1,1]:
     var p:=Vector3(side*14,-6,2)
-    art.cylinder(site,p,3.4,13,Color("45596a"),2.8)
+    var tower=art.cylinder(site,p,3.4,13,Color("45596a"),2.8)
+    walk_surface(tower)
+    var bridge=art.box(site,Vector3(side*10.0,-4.05,2),Vector3(7.0,0.30,2.3),Color("637580"))
+    walk_surface(bridge)
+    for edge in [-1,1]:
+     var rail=art.box(site,Vector3(side*10.6,-3.5,2+edge*1.08),Vector3(6.3,0.8,0.09),Color("a87953"))
+     walk_surface(rail)
     art.cylinder(site,p+Vector3.UP*5.6,4.1,2.5,Color("a87953"))
     art.cylinder(site,p+Vector3.UP*7.0,3.7,0.5,Color("90dcca"))
     art.beam(site,p+Vector3.DOWN*3,surface,0.85,Color("56536b"))
     solid(site.position+p,Vector3(8,16,8))
   else:
-   island(site,Vector3(2,-4.6,-3),18,11)
+   island(site,Vector3(2,-3.902,-3),18,11,true)
    for j in 5:
     var angle:=PI+0.53*j
     var p:=Vector3(cos(angle)*12, -3.9, sin(angle)*12-4)
     var crown:=p+Vector3(j%2,5.0+j%3,-0.6)
-    art.beam(site,p,crown,0.34,Color("815b64"))
+    var trunk=art.cylinder(site,(p+crown)*0.5,0.34,p.distance_to(crown),Color("815b64"),0.24)
+    trunk.quaternion=Quaternion(Vector3.UP,(crown-p).normalized());walk_surface(trunk)
     for side in [-1,1]:
      var tip:=crown+Vector3(side*1.8,1.3,0.5)
      art.beam(site,crown-Vector3.UP*1.5,tip,0.2,Color("815b64"))
@@ -66,7 +76,12 @@ func solid(center:Vector3,size_m:Vector3) -> void:
  # Conservative hull clearance, including the service deck beneath the ship.
  obstacles.append(AABB(center-size_m*0.5,size_m).grow(3.1))
 
-func island(parent:Node3D,center:Vector3,radius:float,depth:float) -> void:
+func walk_surface(mesh:MeshInstance3D) -> void:
+ mesh.create_trimesh_collision()
+ var body:=mesh.get_child(mesh.get_child_count()-1) as StaticBody3D
+ body.collision_layer=WALK_LAYER;body.collision_mask=0
+
+func island(parent:Node3D,center:Vector3,radius:float,depth:float,walkable:=false) -> void:
  var strata=[Color("4a535f"),Color("725e76"),Color("9c7a87"),Color("749e91")]
  var previous:Array[Vector3]=[]
  for ring in 5:
@@ -80,7 +95,9 @@ func island(parent:Node3D,center:Vector3,radius:float,depth:float) -> void:
     var k:=(j+1)%16
     art.panel(parent,[previous[j],points[j],points[k],previous[k]],strata[ring-1])
   previous=points
- previous.reverse();art.panel(parent,previous,strata.back())
+ previous.reverse()
+ var crown:=art.panel(parent,previous,strata.back())
+ if walkable:walk_surface(crown)
  solid(parent.position+center-Vector3.UP*depth*0.5,Vector3(radius*1.6,depth,radius*1.4))
 
 func reset(site:int) -> void:

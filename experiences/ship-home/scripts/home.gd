@@ -13,6 +13,8 @@ var cards=preload("res://scripts/look_cards.gd").new()
 var fabricator=preload("res://scripts/fabricator.gd").new()
 var fitting=preload("res://scripts/fitting_station.gd").new()
 var riding=false
+var outside:=false
+var ride_platform:AnimatableBody3D
 var lift_start=0.0
 var lift_end=0.0
 var ride_time=0.0
@@ -43,7 +45,7 @@ var profile=""
 func _ready() -> void:
  Engine.max_fps=60
  _inputs();art.build(self);add_child(studio);studio.build_fixed(art);art.batch_static(self);studio.build_moving();art.moving_controls()
- add_child(flight);flight.build(art)
+ add_child(flight);flight.build(art);studio.build_landing_gear(flight.GROUND_Y,flight.WALK_LAYER)
  furnishings=Node3D.new();add_child(furnishings)
  walker=Walker.new();walker.helm=art;walker.position=Vector3(0,0.1,-0.55);add_child(walker)
  add_child(fitting);fitting.configure(walker,studio)
@@ -90,6 +92,11 @@ func _load_profile(id:String) -> void:
  if is_instance_valid(walker) and walker.seated:
   # Profile changes return to the reserved central approach before replacing furniture.
   walker.stand(Vector3(0,0.08,-2.1))
+ if outside or riding or walker.position.y< -0.4:
+  walker.position=Vector3(0,0.08,-0.55);walker.velocity=Vector3.ZERO
+ walker.stationary=false;riding=false;ride_platform=null
+ _outside(false)
+ studio.lift.position.y=0;studio.set_exit_height(Art.LOWER_Y);studio.undercarriage.scale.y=1
  if parts.is_inside_tree():parts.close()
  if dye.is_inside_tree() and dye.visible:dye.close()
  if fabricator.is_inside_tree():fabricator.close()
@@ -215,12 +222,14 @@ func _process(delta:float) -> void:
  var station = _station()
  var target=STATION_TARGETS.get(station)
  if station=="lift":target=studio.lift.position+Vector3.UP*0.12
+ elif station=="dock_lift":target=studio.exit_lift.position+Vector3.UP*0.18
  walker.attend(null if paused or editing or fitting.active or riding or walker.seated else target)
  message_time=max(0.0,message_time-delta)
  var exploring:bool=not (paused or editing or fitting.active or riding or walker.seated)
  if exploring and target!=null:
   var caption:String=STATION_ACTIONS[station]
-  if station=="lift":caption="Go below" if lift_destination_is_below() else "Go upstairs"
+  if station=="dock_lift":caption="Board ship" if outside else "Exit to "+flight.NAMES[flight.berth]
+  elif station=="lift":caption="Go below" if lift_destination_is_below() else "Go upstairs"
   prompts.show_world(station,caption,walker.camera,target+Vector3.UP*0.44,walker.position+Vector3.UP*1.48)
  else:prompts.clear_world()
  dot.visible=editing and not paused
@@ -384,10 +393,12 @@ const STATION_TARGETS = {
  "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
-const STATION_ACTIONS={"pilot":"Sit at helm","workbench":"Use fabricator","wardrobe":"Open wardrobe","lift":"Use lift","cabin":"Inspect shelves"}
+const STATION_ACTIONS={"pilot":"Sit at helm","workbench":"Use fabricator","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
+ if flight.mode==flight.Mode.BERTH and p.distance_to(studio.EXIT_CENTER)<studio.EXIT_RADIUS+0.09 and absf(walker.position.y-studio.exit_lift.position.y)<0.3:return "dock_lift"
+ if outside:return ""
  if p.distance_to(Art.LIFT)<0.89 and abs(walker.position.y-studio.lift.position.y)<0.4:return "lift"
  if walker.position.y< -0.4:return ""
  if _near_pilot():return "pilot"
@@ -402,16 +413,38 @@ func _physics_process(delta:float) -> void:
   var mode_before=flight.mode
   var stick:=Input.get_vector("walk_left","walk_right","walk_forward","walk_back",0.18)
   flight.tick(delta,stick,Input.get_axis("rotate_left","rotate_right"),Input.get_axis("previous_item","next_item"),Vector2(Input.get_axis("fly_left","fly_right"),Input.get_axis("fly_down","fly_up")),Input.is_action_pressed("decorate"))
+  match flight.mode:
+   flight.Mode.DEPARTING:studio.undercarriage.scale.y=lerpf(1.0,0.1,flight.transition)
+   flight.Mode.LANDING:studio.undercarriage.scale.y=lerpf(0.1,1.0,flight.transition)
+   flight.Mode.BERTH:studio.undercarriage.scale.y=1.0
+   flight.Mode.FLYING:studio.undercarriage.scale.y=0.1
   walker.steer(stick if flight.mode==flight.Mode.BERTH else flight.stick,flight.throttle)
   if mode_before==flight.Mode.LANDING and flight.mode==flight.Mode.BERTH:
    store.berth=flight.berth
    if not store.save(rows):notify(store.error)
+ if outside and not riding and walker.position.y<flight.GROUND_Y-1.6:
+  walker.position=studio.exit_lift.position+Vector3.UP*0.06;walker.velocity=Vector3.ZERO
+  notify("Back at the boarding lift.")
  if not riding:return
  ride_time=minf(1,ride_time+delta/1.75)
- studio.lift.position.y=lerpf(lift_start,lift_end,smoothstep(0,1,ride_time))
- walker.position=studio.lift.position+Vector3.UP*0.045
+ var height:=lerpf(lift_start,lift_end,smoothstep(0,1,ride_time))
+ if ride_platform==studio.exit_lift:studio.set_exit_height(height)
+ else:ride_platform.position.y=height
+ walker.position=ride_platform.position+Vector3.UP*0.045
  if ride_time>=1:
-  walker.stationary=false;riding=false
+  if ride_platform==studio.exit_lift:
+   _outside(is_equal_approx(lift_end,flight.GROUND_Y))
+  walker.stationary=false;riding=false;ride_platform=null
+
+func _outside(value:bool) -> void:
+ outside=value
+ walker.collision_mask=(flight.WALK_LAYER|1) if value else 3
+ walker.arm.collision_mask=walker.collision_mask
+ walker.reset_physics_interpolation()
+
+func _ride(platform:AnimatableBody3D,stop:float) -> void:
+ ride_platform=platform;lift_start=platform.position.y;lift_end=stop
+ ride_time=0;riding=true;walker.stationary=true;walker.velocity=Vector3.ZERO;message_time=0
 
 func _interact() -> void:
  if walker.seated:
@@ -430,8 +463,9 @@ func _interact() -> void:
   "wardrobe":fitting.enter()
   "cabin":notify("Display shelves · Figurines and awards")
   "lift":
-   lift_start=studio.lift.position.y;lift_end=Art.LOWER_Y if lift_destination_is_below() else 0.0
-   ride_time=0;riding=true;walker.stationary=true;walker.velocity=Vector3.ZERO;message_time=0
+   _ride(studio.lift,Art.LOWER_Y if lift_destination_is_below() else 0.0)
+  "dock_lift":
+   _ride(studio.exit_lift,Art.LOWER_Y if outside else flight.GROUND_Y)
 
 
 func _quit() -> void:

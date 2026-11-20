@@ -11,6 +11,12 @@ var toolhead: Node3D
 var aquarium: Node3D
 var fish: Array[Node3D] = []
 var booth: Node3D
+const EXIT_CENTER:=Vector2(0.56,1.14)
+const EXIT_RADIUS:=0.73
+const AMBER:=Color("efb868")
+var exit_lift:AnimatableBody3D
+var suspension:=Node3D.new()
+var undercarriage:=Node3D.new()
 var lift: AnimatableBody3D
 var drape: ShaderMaterial
 var time := 0.0
@@ -165,8 +171,28 @@ func tank() -> void:
 func lower_deck() -> void:
  var room:=module(Vector3(-0.52,Art.LOWER_Y,2.22),0)
  var radius:=2.53
- var disk=art.cylinder(room,Vector3(0,-0.08,0),radius,0.16,Color("525e61"))
- disk.create_trimesh_collision()
+ # Cut the second shaft through the service floor. The original lift still
+ # comes to rest on the opposite side of this room.
+ var opening:=Vector3(EXIT_CENTER.x-room.position.x,0,EXIT_CENTER.y-room.position.z)
+ var floor_surface:=SurfaceTool.new();floor_surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+ for i in 64:
+  var a:=TAU*i/64;var b:=TAU*(i+1)/64
+  var edge_a:=Vector3(cos(a),0,sin(a))*radius;var edge_b:=Vector3(cos(b),0,sin(b))*radius
+  var lip_a:=opening+(edge_a-opening).normalized()*EXIT_RADIUS
+  var lip_b:=opening+(edge_b-opening).normalized()*EXIT_RADIUS
+  for point in [lip_a,edge_b,lip_b,lip_a,edge_a,edge_b]:
+   floor_surface.set_normal(Vector3.UP);floor_surface.add_vertex(point)
+  for point in [lip_b,edge_b,lip_a,edge_b,edge_a,lip_a]:
+   floor_surface.set_normal(Vector3.DOWN);floor_surface.add_vertex(point+Vector3.DOWN*0.14)
+  for point in [lip_a,lip_b,lip_b+Vector3.DOWN*0.14,lip_a,lip_b+Vector3.DOWN*0.14,lip_a+Vector3.DOWN*0.14]:
+   floor_surface.set_normal((opening-Vector3(point.x,0,point.z)).normalized());floor_surface.add_vertex(point)
+ var floor_mesh:=MeshInstance3D.new();floor_mesh.mesh=floor_surface.commit()
+ floor_mesh.material_override=art.material(Color("525e61"));room.add_child(floor_mesh);floor_mesh.create_trimesh_collision()
+ ring(room,opening+Vector3.UP*0.014,EXIT_RADIUS+0.026,0.024,Art.BRASS)
+ var signpost:=module(Vector3(EXIT_CENTER.x+0.48,Art.LOWER_Y,EXIT_CENTER.y-0.65),-0.58)
+ art.box(signpost,Vector3(0,0.69,0),Vector3(0.075,1.38,0.075),Art.TRIM,true)
+ art.box(signpost,Vector3(0,1.35,0),Vector3(0.67,0.24,0.075),INK)
+ art.label(signpost,"DOCK LIFT",Vector3(0,1.35,0.043),0,25,AMBER)
  for i in 40:
   var a:=TAU*(i+0.5)/40
   var radial:=Vector3(sin(a),0,cos(a))
@@ -179,13 +205,37 @@ func lower_deck() -> void:
   rib.rotation.y=angle
   var light_bar=art.box(room,radial*(radius-0.18)+Vector3.UP*1.73,Vector3(0.036,0.32,0.022),Color("e2b57d"),false,true)
   light_bar.rotation.y=angle
- for radius_mark in [1.30,1.38]:
-  ring(room,Vector3.UP*0.008,radius_mark,0.009,Art.TRIM)
+
  for y in [0.14,1.96,2.46]:
   ring(room,Vector3.UP*y,radius-0.09,0.022,MINT if y==1.96 else Art.BRASS,y==1.96)
  var light:=OmniLight3D.new();room.add_child(light)
  light.position.y=1.92;light.light_color=Color("b6dcda");light.light_energy=0.9;light.omni_range=4
  ring(self,Vector3(Art.LIFT.x,0.015,Art.LIFT.y),Art.SHAFT_RADIUS+0.035,0.029,Art.BRASS)
+
+func build_landing_gear(ground:float,walk_layer:int) -> void:
+ undercarriage.position=Vector3(-0.52,Art.LOWER_Y-0.14,2.22);add_child(undercarriage)
+ var drop:=undercarriage.position.y-ground
+ for index in 3:
+  var angle:=index*TAU/3.0
+  var radial:=Vector3(sin(angle),0,-cos(angle))
+  var mount:=radial*1.92
+  var knee:=radial*2.54+Vector3.DOWN*drop*0.49
+  var foot:=radial*2.95+Vector3.DOWN*(drop-0.12)
+  art.beam(undercarriage,mount,knee,0.17,INK)
+  art.beam(undercarriage,knee,foot,0.105,Art.BRASS)
+  art.beam(undercarriage,mount-radial*0.48,knee,0.077,CERAMIC)
+  art.cylinder(undercarriage,foot,0.40,0.24,INK,0.29)
+  # The walker senses this layer only when ashore, with the struts fully lowered.
+  var body:=StaticBody3D.new();body.collision_layer=walk_layer;body.collision_mask=0
+  add_child(body);body.position=undercarriage.position
+  var capsule:=CapsuleShape3D.new();capsule.radius=0.16;capsule.height=mount.distance_to(foot)+0.17
+  var collider:=CollisionShape3D.new();collider.shape=capsule;body.add_child(collider)
+  collider.position=(mount+foot)*0.5;collider.quaternion=Quaternion(Vector3.UP,(mount-foot).normalized())
+ art.batch_static(undercarriage)
+
+func set_exit_height(height:float) -> void:
+ exit_lift.position.y=height
+ suspension.scale.y=maxf(0.005,Art.LOWER_Y-height)
 
 func build_moving() -> void:
  lift=AnimatableBody3D.new();lift.sync_to_physics=false;add_child(lift)
@@ -199,6 +249,25 @@ func build_moving() -> void:
  ring(lift,Vector3.UP*0.004,0.74,0.012,MINT,true)
  var collision:=CollisionShape3D.new();var disk:=CylinderShape3D.new()
  disk.radius=0.838;disk.height=0.15;collision.shape=disk;collision.position.y=-0.075;lift.add_child(collision)
+ exit_lift=AnimatableBody3D.new();exit_lift.sync_to_physics=false
+ exit_lift.position=Vector3(EXIT_CENTER.x,Art.LOWER_Y,EXIT_CENTER.y);add_child(exit_lift)
+ art.cylinder(exit_lift,Vector3.DOWN*0.069,EXIT_RADIUS-0.009,0.14,INK)
+ ring(exit_lift,Vector3.UP*0.006,0.61,0.018,AMBER,true)
+ for z in [-0.21,0.08]:
+  art.tube(exit_lift,[Vector3(-0.21,0.012,z+0.095),Vector3(0,0.012,z-0.04),Vector3(0.21,0.012,z+0.095)],0.021,AMBER,true)
+ for side in [-1,1]:
+  var post=art.box(exit_lift,Vector3(side*0.56,0.41,0.20),Vector3(0.06,0.82,0.07),INK)
+  art.box(post,Vector3(0,0.38,0),Vector3(0.077,0.055,0.085),AMBER,false,true)
+  art.beam(exit_lift,Vector3(side*0.56,0.78,0.2),Vector3(side*0.56,0.78,-0.20),0.030,Art.BRASS)
+ suspension.position=exit_lift.position;add_child(suspension)
+ for side in [-1,1]:
+  art.cylinder(suspension,Vector3(side*0.56,-0.5,0.20),0.042,1.0,Art.BRASS)
+  art.cylinder(suspension,Vector3(side*0.56,-0.18,0.20),0.060,0.36,INK)
+ set_exit_height(Art.LOWER_Y)
+ var lamp:=OmniLight3D.new();exit_lift.add_child(lamp);lamp.position.y=1.7
+ lamp.light_color=AMBER;lamp.light_energy=0.65;lamp.omni_range=3.4
+ var pad:=CylinderShape3D.new();pad.radius=EXIT_RADIUS-0.009;pad.height=0.14
+ var shape:=CollisionShape3D.new();shape.shape=pad;shape.position.y=-0.07;exit_lift.add_child(shape)
  toolhead=Node3D.new();printer.add_child(toolhead)
  art.box(toolhead,Vector3(0,1.49,0.01),Vector3(0.20,0.15,0.17),Art.TRIM)
  art.cylinder(toolhead,Vector3(0,1.36,0.01),0.022,0.12,Art.BRASS,0.065)

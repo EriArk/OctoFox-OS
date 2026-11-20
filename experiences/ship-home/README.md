@@ -55,7 +55,7 @@ each item's own finish. [Fitting station screenshots](../../docs/evidence/2026-1
 
 Stand on the illuminated floor lift and press **A / F** to descend through
 the shaft. The smaller circular service room has walking space around the lift.
-The same control takes the character back up. [Studio views](../../docs/evidence/2026-11-20-ship-studio/README.md).
+The same control takes the character back up. After landing, cross the service room to the amber platform marked **DOCK LIFT**. Press **A / F** to descend to Lantern Station or Echo Orchard. Walk back to that platform and press **A / F** on **Board ship** to return to the service deck. [Studio views](../../docs/evidence/2026-11-20-ship-studio/README.md).
 
 ### Flying the first Egregore route
 
@@ -177,6 +177,7 @@ placement and undo, all starter furniture footprints, walking across the open st
 triangle preservation when batching indexed and unindexed meshes, including
 ceiling-fixture ownership under the hideable roof.
 `tests/flight.gd` flies both legs using gameplay input, saves each berth, checks docking limits and verifies the hand contacts at full deflection when `SHIP_TEST_DESCRIPTOR` is supplied.
+`tests/boarding.gd` walks between both lifts, disembarks at each berth, walks on the station and island, reboards, and checks the flight interlock and profile reset.
 `pilot_checks.gd` exercises keyboard/controller entry and exit, eye-camera
 selection, fixed seated position, bounded look, pause/focus loss, blocked exit
 and identity loss. The headless display cannot capture a pointer; `pilot_tour.gd`

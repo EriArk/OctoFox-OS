@@ -60,5 +60,5 @@ func run() -> void:
  check(not f.attitude.is_equal_approx(Basis.IDENTITY) and f.velocity.length()>0.5,"Attitude and translations respond")
  f.reset(0);f.interact();f.tick(2,Vector2.ZERO,0,0,Vector2.ZERO,false)
  for i in 200:f.tick(1.0/60,Vector2.ZERO,0,0,Vector2.DOWN,false)
- check(f.location.y>=-1.2,"Hull cannot pass through landing platform")
+ check(f.location.y>=f.GROUND_Y+2.7-0.001,"Hull cannot pass through landing platform")
  print("SHIP FLIGHT: ","PASSED" if failures.is_empty() else failures);quit(0 if failures.is_empty() else 1)
