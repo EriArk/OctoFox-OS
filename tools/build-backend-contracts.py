@@ -725,7 +725,7 @@ define('AvatarAppearanceV2', {
     **DEFS['AvatarAppearanceV1']['properties'], 'schema': {'const': 2},
     'top': {'enum': ['tank', 'polo-short-sleeve', 'polo-sleeveless', 'everyday-tee',
                      'sundress', 'racing-suit', 'rose-racing-suit']},
-    'bottom': {'enum': ['base-shorts', 'golf-shorts', 'pleated-skirt', 'denim-breeches']},
+    'bottom': {'enum': ['base-shorts', 'golf-shorts', 'pleated-skirt', 'denim-breeches', 'denim-breeches-womens']},
     'socks': {'enum': ['none', 'ankle-socks', 'crew-socks']},
     'shoes': {'enum': ['sandals', 'golf-shoes-classic', 'golf-shoes-sport',
                        'canvas-shoes', 'racing-boots', 'rose-racing-boots']},

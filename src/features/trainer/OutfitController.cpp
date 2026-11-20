@@ -26,7 +26,7 @@ QString title(const QString& id) {
         {"polo-short-sleeve","Polo"},{"polo-sleeveless","Sleeveless polo"},{"golf-shorts","Golf shorts"},{"pleated-skirt","Pleated skirt"},
         {"ankle-socks","Ankle socks"},{"crew-socks","Long socks"},{"golf-shoes-classic","Classic shoes"},{"golf-shoes-sport","Sport shoes"},
         {"golf-cap","Cap"},{"golf-visor","Visor"},{"swept","Side swept"},{"ponytail","Ponytail"},{"crop","Short crop"},{"bob","Bob"},
-        {"sundress","Pleated sundress"},{"everyday-tee","Everyday T-shirt"},{"denim-breeches","Denim breeches"},{"canvas-shoes","Canvas shoes"},
+        {"sundress","Pleated sundress"},{"everyday-tee","Everyday T-shirt"},{"denim-breeches","Men’s denim breeches"},{"denim-breeches-womens","Women’s denim breeches"},{"canvas-shoes","Canvas shoes"},
         {"racing-suit","Racing suit"},{"rose-racing-suit","Rose racing suit"},{"racing-helmet","Racing helmet"},{"rose-racing-helmet","Rose helmet"},
         {"racing-boots","Racing boots"},{"rose-racing-boots","Rose racing boots"}};
     if(names.contains(id))return names[id];

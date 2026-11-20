@@ -1,8 +1,8 @@
 # Wardrobe catalogue renders
 
-The 32 transparent PNGs are rendered from the existing TrainerOS avatar and
-approved golf collection, using `tools/avatar/render_wardrobe_icons.py` and
-Blender 5.2. They inherit the asset/licensing boundaries of their source models
+The transparent PNGs show the shared avatar and its wardrobe. The revision-16
+wearable icons were rendered from the finished SDK meshes with Blender 4.3.2
+and `tools/avatar/render_wardrobe_icons.py -- --items ITEM ...`. They inherit the asset/licensing boundaries of their source models
 in `assets/avatar/README.md` and `LICENSING.md`.
 
 Clothes, footwear, headwear, hair and eye styles use separate framing and viewing

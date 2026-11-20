@@ -27,7 +27,7 @@ QJsonObject AvatarAssets::defaults() {
 QStringList AvatarAssets::keys(){return {"hair","eyes","top","bottom","socks","shoes","headwear","hairColor","eyeColor","skinColor","shirtColor","shortsColor","socksColor","shoesColor","headwearColor"};}
 QStringList AvatarAssets::choices(const QString& key) {
     if(key=="top")return {"tank","polo-short-sleeve","polo-sleeveless","everyday-tee","sundress","racing-suit","rose-racing-suit"};
-    if(key=="bottom")return {"base-shorts","golf-shorts","pleated-skirt","denim-breeches"};
+    if(key=="bottom")return {"base-shorts","golf-shorts","pleated-skirt","denim-breeches","denim-breeches-womens"};
     if(key=="socks")return {"none","ankle-socks","crew-socks"};
     if(key=="shoes")return {"sandals","golf-shoes-classic","golf-shoes-sport","canvas-shoes","racing-boots","rose-racing-boots"};
     if(key=="headwear")return {"none","golf-cap","golf-visor","racing-helmet","rose-racing-helmet"};

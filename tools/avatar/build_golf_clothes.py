@@ -316,7 +316,7 @@ class Author:
             weights[:,1]=1-t;weights[:,46]=t*left;weights[:,50]=t*(1-left)
         joints=np.argsort(weights,axis=1)[:,-4:];values=np.take_along_axis(weights,joints,1);values/=values.sum(1)[:,None]
         return joints.astype('<u2'),values.astype('<f4'),ids,factor
-    def export(self,items,path):
+    def export(self,items,path,palette=None):
         src=self.src;old=src.g
         # Keep original joint node indices/transforms and animations, remove body.
         g=copy.deepcopy(old);g['meshes']=[];g['materials']=[];g.pop('images',None);g.pop('textures',None);g.pop('samplers',None)
@@ -330,13 +330,13 @@ class Author:
                 for field in ['input','output']:sampler[field]=b.acc(src.acc(original[field]),old['accessors'][original[field]]['type'])
             anim['channels']=[c for c in anim['channels'] if c['target']['path']!='weights']
         materials={}
-        for color,h in COLORS.items():
+        for color,h in (COLORS if palette is None else palette).items():
             materials[color]=len(g['materials']);g['materials'].append({'name':color,'doubleSided':True,'pbrMetallicRoughness':{'baseColorFactor':rgb(h)+[1],'metallicFactor':.55 if color=='metal' else 0,'roughnessFactor':.48 if color=='metal' else .84}})
         mesh_nodes=[]
         for item in items:
             primitives=[]
             # Merge parts of a material, keeping each wearable a separate node.
-            for color in COLORS:
+            for color in materials:
                 parts=[p for p in self.parts[item] if p['color']==color]
                 if not parts:continue
                 vv=[];ff=[];jj=[];ww=[];dd=[[] for _ in self.delta];offset=0

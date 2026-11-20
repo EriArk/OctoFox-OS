@@ -127,7 +127,7 @@ private slots:
                 a=AvatarAssets::equipped(a,item.first,prefix+"racing-"+item.second);
             g=inspect(a,prefix+"race-"+hair);QVERIFY(!g.isEmpty());names=visible(g);
             for(const auto& part:{"suit","gloves","boots","helmet"})QVERIFY(names.contains(prefix+"racing-"+part));
-            QVERIFY(!names.contains("golf-shorts"));for(const auto& name:names)QVERIFY(!name.startsWith("hair-"));
+            QVERIFY(!names.contains("golf-shorts"));QVERIFY(names.contains("hair-"+hair));
             QCOMPARE(g["skins"].toArray().size(),1);QCOMPARE(g["animations"].toArray().size(),8);
             const auto bare=AvatarAssets::equipped(a,"headwear","none");QCOMPARE(bare["hair"],a["hair"]);
             g=inspect(bare,prefix+"bare-"+hair);QVERIFY(!g.isEmpty());QVERIFY(visible(g).contains("hair-"+hair));
@@ -144,7 +144,11 @@ private slots:
         QCOMPARE(trainer.appearance()["top"],QJsonValue("sundress"));
         wardrobe.selectCategory(2);QVERIFY(wardrobe.view()["colours"].toStringList().isEmpty());
         wardrobe.selectItem(3);wardrobe.equip();QCOMPARE(trainer.appearance()["top"],QJsonValue("tank"));
-        QCOMPARE(trainer.appearance()["bottom"],QJsonValue("denim-breeches"));wardrobe.close();
+        QCOMPARE(trainer.appearance()["bottom"],QJsonValue("denim-breeches"));
+        wardrobe.selectItem(4);wardrobe.equip();
+        QCOMPARE(trainer.appearance()["bottom"],QJsonValue("denim-breeches-womens"));
+        QVERIFY(visible(inspect(trainer.appearance(),"women-denim")).contains("denim-breeches-womens"));
+        wardrobe.close();
     }
     void shoePalettePreservesLegacyAndAppliesIvory() {
         auto legacy=AvatarAssets::defaults();legacy["schema"]=2;
@@ -287,7 +291,7 @@ private slots:
         if(!AvatarAssets::available())QSKIP("External avatar pack not installed");
         QTemporaryDir cache;QSet<QString> hashes;int index=0;
         QFile manifest(AvatarAssets::packRoot()+"/manifest.json");QVERIFY(manifest.open(QIODevice::ReadOnly));
-        const auto pack=QJsonDocument::fromJson(manifest.readAll()).object();QCOMPARE(pack["revision"].toInt(),15);
+        const auto pack=QJsonDocument::fromJson(manifest.readAll()).object();QCOMPARE(pack["revision"].toInt(),16);
         const auto templateBytes=AvatarResource::read(AvatarAssets::packRoot()+"/template.glb");QVERIFY(!templateBytes.isEmpty());
         const auto templateJson=QJsonDocument::fromJson(templateBytes.mid(20,qFromLittleEndian<quint32>(templateBytes.constData()+12))).object();
         const auto face=templateJson["extras"].toObject()["trainerFace"].toObject();

@@ -152,23 +152,7 @@ class Collection(base.Author):
         rim = np.unique(edges[counts==1]); neck = v[rim][v[rim,1] > .658]
         neck = neck[np.argsort(np.arctan2(neck[:,0], neck[:,2]-.004))]
         self.tube('everyday-tee', 'round rib neck', neck, .0026, 'forest', closed=True)
-        self.pants('denim-breeches', .177, 'denim', .011)
-        self.surface('denim-breeches', 'waistband',
-                     [lambda p: p[:,1]-.464, lambda p: .485-p[:,1], lambda p: .112-abs(p[:,0])],
-                     'denim', .014, 10, False)
-        for side in [-1, 1]:
-            self.front_line('denim-breeches', 'scoop pocket stitch',
-                            [[side*(.034+.046*t), .458-.025*np.sin(t*np.pi/2)] for t in np.linspace(0,1,28)],
-                            .0009, 'stitch')
-        self.front_line('denim-breeches', 'fly stitch', [[.004,y] for y in np.linspace(.419,.469,18)], .0008, 'stitch')
-        # Folded cuffs have their own designed edge, below the original baked hem.
-        self.surface('denim-breeches','rolled denim cuffs',
-                     [lambda p:p[:,1]-.177,lambda p:.196-p[:,1]],
-                     'denim-light',.014,10,False)
-        v=self.parts['denim-breeches'][-1]['v']
-        center=np.sign(v[:,0])*np.interp(v[:,1],[.07,.18,.30,.405],[.084,.073,.061,.061])
-        v[:,0]=center+(v[:,0]-center)*1.14
-        v[:,2]=.009+(v[:,2]-.009)*1.12
+        self.denim('denim-breeches', .177, .019)
         self.shoes('canvas-shoes', 'forest', False)
         for rose in [False, True]:
             prefix='rose-' if rose else ''
@@ -213,6 +197,25 @@ class Collection(base.Author):
                          contrast,.0035,6,False)
             self.shoes(prefix+'racing-boots',color,True)
             self.helmet(prefix+'racing-helmet',rose)
+
+    def denim(self,item,hem,cuff_height):
+        self.pants(item, hem, 'denim', .011)
+        self.surface(item, 'waistband',
+                     [lambda p: p[:,1]-.464, lambda p: .485-p[:,1], lambda p: .112-abs(p[:,0])],
+                     'denim', .014, 10, False)
+        for side in [-1, 1]:
+            self.front_line(item, 'scoop pocket stitch',
+                            [[side*(.034+.046*t), .458-.025*np.sin(t*np.pi/2)] for t in np.linspace(0,1,28)],
+                            .0009, 'stitch')
+        self.front_line(item, 'fly stitch', [[.004,y] for y in np.linspace(.419,.469,18)], .0008, 'stitch')
+        # Folded cuffs have their own designed edge, below the original baked hem.
+        self.surface(item,'rolled denim cuffs',
+                     [lambda p:p[:,1]-hem,lambda p:hem+cuff_height-p[:,1]],
+                     'denim-light',.014,10,False)
+        v=self.parts[item][-1]['v']
+        center=np.sign(v[:,0])*np.interp(v[:,1],[.07,.18,.30,.405],[.084,.073,.061,.061])
+        v[:,0]=center+(v[:,0]-center)*1.14
+        v[:,2]=.009+(v[:,2]-.009)*1.12
 
     def pants(self,item,hem,color,offset):
         self.surface(item,'smooth leg fabric',
@@ -301,7 +304,7 @@ class Collection(base.Author):
                 self.tube(item,'chin vent',q,.0018,'dark','head')
 
     def export(self,items,path):
-        super().export(items,path)
+        super().export(items,path,PALETTE)
         model=GLB(path)
         for m in model.g['materials']:
             if m['name']=='visor':
@@ -356,7 +359,6 @@ def main():
     parser.add_argument('--only-set',choices=list(SETS))
     args=parser.parse_args()
     out=args.output;out.mkdir(parents=True,exist_ok=True)
-    base.COLORS.clear();base.COLORS.update(PALETTE)
     author=Collection();author.create(args.only_set)
     for item in author.parts:
         if args.only_set and item not in SETS[args.only_set]:continue

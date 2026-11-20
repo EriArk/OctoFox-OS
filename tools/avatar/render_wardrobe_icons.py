@@ -15,6 +15,7 @@ PACK = ROOT / 'assets/avatar/packs/trainer-avatar-1'
 OUT = ROOT / 'assets/avatar/wardrobe-icons'
 OUT.mkdir(parents=True, exist_ok=True)
 parser=argparse.ArgumentParser();parser.add_argument('--collection-only',action='store_true')
+parser.add_argument('--items',nargs='+',help='Render these finished wearables directly from the SDK pack')
 args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
@@ -71,6 +72,14 @@ def render(name, objects, angle=25, target=None, size=None):
     bpy.ops.render.render(write_still=True)
     for obj in objects:obj.hide_render=True
 
+if args.items:
+    for name in args.items:
+        objects=imported(PACK/('wear-'+name+'.glb'))
+        render(name,[obj for obj in objects if obj.type=='MESH' and obj.name==name],
+               30 if 'shoes' in name or 'boots' in name else 18)
+        for obj in objects:bpy.data.objects.remove(obj,do_unlink=True)
+        bpy.data.orphans_purge(do_recursive=True)
+    sys.exit(0)
 if args.collection_only:
     import json
     collection=ROOT/'assets/avatar/collections/starter-racing-v1'

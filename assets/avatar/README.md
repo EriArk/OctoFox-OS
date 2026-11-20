@@ -1,5 +1,22 @@
 # Shared Trainer avatar pack
 
+## Wardrobe revision 16
+
+The original denim breeches keep their profile ID and tint. The higher-cuffed
+women’s cut is a separate bottom with the same dye channel. Both are available
+to every character. Both racing helmets now carry fitted versions of the four
+existing hairstyles.
+
+To rebuild the shipped wearables, run `tools/avatar/fit_racing_helmets.py PACK`
+and then `tools/avatar/finish_wardrobe.py PACK` on the revision-15 or revision-16
+pack. The finishing step reads the retained collection masters. The new denim
+cut uses the shared jeans pattern with its own hem and cuff heights. Render the
+changed catalogue icons from the finished pack with the Blender script
+`tools/avatar/render_wardrobe_icons.py -- --items ITEM ...`.
+
+[Denim in motion](../../docs/evidence/wardrobe-20261120/breeches.jpg) ·
+[Helmets and clothing details](../../docs/evidence/wardrobe-20261120/wardrobe.jpg)
+
 ## Eye fitting in pack revision 12
 
 The prepared face blends the former painted eye relief into the cheek and

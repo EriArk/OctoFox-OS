@@ -20,6 +20,7 @@ RECIPE={'schema':1,'packRevision':'a'*64,'appearance':{
 @pytest.mark.parametrize('top,bottom,shoes,hat',[
     ('sundress','base-shorts','sandals','none'),
     ('everyday-tee','denim-breeches','canvas-shoes','none'),
+    ('everyday-tee','denim-breeches-womens','canvas-shoes','none'),
     ('racing-suit','base-shorts','racing-boots','racing-helmet'),
     ('rose-racing-suit','base-shorts','rose-racing-boots','rose-racing-helmet'),
 ])

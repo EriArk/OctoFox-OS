@@ -44,13 +44,34 @@ def check(pack, output):
     assert len(g['skins'][0]['joints'])==54 and len(g['animations'])==8
     assert len(m['eyeNodes'])==14 and len(g['extras']['trainerFace']['expressions'])==14
     assert m['starterSets']==['starter-sundress','starter-denim'] and len(m['outfitSets'])==4
-    assert len(m['wearables'])==22
+    assert len(m['wearables'])==(23 if m['revision']>=16 else 22)
+    if m['revision']>=16:
+        hems=[]
+        heights=np.linspace(.221,.283,9)
+        for name in ('denim-breeches','denim-breeches-womens'):
+            garment=GLB(pack/m['wearables'][name]['file'])
+            mesh=garment.g['meshes'][0]
+            assert mesh['name']==name
+            panel=next(t for t in mesh['primitives'] if garment.g['materials'][t['material']]['name']=='denim')
+            v=garment.acc(panel['attributes']['POSITION'])
+            f=garment.acc(panel['indices']).reshape(-1,3)
+            hems.append(v[:,1].min())
+            # Both sides of each knee must remain inside the finished leg panel.
+            for x in (-.09,-.075,-.055,.055,.075,.09):
+                skin=depth_profile(p,faces,x,heights)
+                cloth=depth_profile(v,f,x,heights)
+                assert (skin[:,0]>cloth[:,0]).all() and (skin[:,1]<cloth[:,1]).all(),(name,x)
+        assert .02<hems[1]-hems[0]<.04
     for item in ('sundress','racing-suit','rose-racing-suit'):assert m['wearables'][item]['covers']==['bottom']
     for prefix in ('','rose-'):
         assert m['wearables'][prefix+'racing-suit']['companions']==[prefix+'racing-gloves']
-        assert m['wearables'][prefix+'racing-helmet']['hidesHair']
+        helmet=prefix+'racing-helmet'
+        if m['revision']>=16:
+            assert not m['wearables'][helmet].get('hidesHair')
+            for hair in m['hairNodes']:assert m['headwearFits'][helmet+'/'+hair]
+        else:assert m['wearables'][helmet]['hidesHair']
     report=dict(passed=True,revision=m['revision'],templateBytes=(pack/'template.glb').stat().st_size,
-                files=len(m['files']),wearables=22,eyeSets=14,
+                files=len(m['files']),wearables=len(m['wearables']),eyeSets=14,
                 paletteAccessors=len(palette),hairFitSourcesPreserved=True,rigBones=54,clips=8,
                 manifestSha256=hashlib.sha256((pack/'manifest.json').read_bytes()).hexdigest())
     if reference:report['approvedFace']=reference

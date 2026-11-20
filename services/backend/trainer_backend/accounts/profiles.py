@@ -29,7 +29,7 @@ def avatar_recipe(value):
     a = value.get('appearance') if valid else None
     colors = {'skinColor', 'hairColor', 'eyeColor', 'shirtColor', 'shortsColor'}
     wardrobe = {'top': ('tank', 'polo-short-sleeve', 'polo-sleeveless', 'everyday-tee', 'sundress', 'racing-suit', 'rose-racing-suit'),
-                'bottom': ('base-shorts', 'golf-shorts', 'pleated-skirt', 'denim-breeches'),
+                'bottom': ('base-shorts', 'golf-shorts', 'pleated-skirt', 'denim-breeches', 'denim-breeches-womens'),
                 'socks': ('none', 'ankle-socks', 'crew-socks'),
                 'shoes': ('sandals', 'golf-shoes-classic', 'golf-shoes-sport', 'canvas-shoes', 'racing-boots', 'rose-racing-boots'),
                 'headwear': ('none', 'golf-cap', 'golf-visor', 'racing-helmet', 'rose-racing-helmet')}
