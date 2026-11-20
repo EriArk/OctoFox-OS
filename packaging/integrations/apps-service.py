@@ -407,6 +407,8 @@ class Service:
             pids = []
             before = self.windows.all()
             context = self.Gio.AppLaunchContext()
+            if op == 'launch' and app_id == 'art.abysstail.octofox.ship-home.desktop' and message.get('ship_key'):
+                context.setenv('OCTOFOX_SHIP_LAUNCH', message['ship_key'])
             # Use the session's Xwayland so the existing compositor/window path
             # can manage these apps. No inherited shell rendering overrides.
             context.setenv('QT_QPA_PLATFORM', 'xcb')

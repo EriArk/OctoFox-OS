@@ -34,6 +34,7 @@ public:
     QJsonObject context() const { return context_; }
     // Returns an SDK error code, or empty on selection. Unbound hosts omit capability.
     std::function<QString(const QString& app,const QString& widget)> selectHomeWidget;
+    std::function<bool(const QString&)> takeShipLaunchKey;
     std::function<bool(const QString& app)> permitsStartWidgets;
     void refreshWidgetPolicy();
 private:
@@ -45,6 +46,7 @@ private:
         bool avatarResource = false;
         std::shared_ptr<LegacyAvatarCache> legacyAvatarCache, legacyRecipeCache;
         bool avatarResolving = false;
+        bool shipWorkshop = false;
         bool playBusy = false;
         QString playChannel;
         std::shared_ptr<QTemporaryDir> avatarCache;

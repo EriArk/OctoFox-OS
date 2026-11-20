@@ -95,10 +95,12 @@ bool ProfileInventory::adopt(const QJsonObject& result,bool more) {
             ||(row["state"]!="stored"&&row["state"]!="listed")||!text(p["title"],1,96)||!text(p["game"],1,128)
             ||!text(p["subtitle"],0,32)||!QStringList{"inventory","star","shield","shop","gamepad","map"}.contains(p["icon"].toString())
             ||(!p["level"].isUndefined()&&!integer(p["level"],0,999999))||!p["facts"].isArray()||p["facts"].toArray().size()>16)return false;
+        static const QRegularExpression hexColor("^#[0-9a-fA-F]{6}$");
+        if(p.contains("swatch")&&!hexColor.match(p["swatch"].toString()).hasMatch())return false;
         for(const auto& fact:p["facts"].toArray())if(!fact.isObject()||!text(fact.toObject()["label"],1,32)||!text(fact.toObject()["value"],0,128))return false;
         ids.insert(id);
-        incoming.append(QVariantMap{{"id",id},{"title",p["title"].toString()},{"game",p["game"].toString()},
-            {"subtitle",p["subtitle"].toString()},{"icon",p["icon"].toString()},{"level",p["level"].toInt()},
+        incoming.append(QVariantMap{{"id",id},{"kind",row["kind"].toString()},{"title",p["title"].toString()},{"game",p["game"].toString()},
+            {"swatch",p["swatch"].toString()},{"subtitle",p["subtitle"].toString()},{"icon",p["icon"].toString()},{"level",p["level"].toInt()},
             {"facts",p["facts"].toArray().toVariantList()},{"state",row["state"].toString()}});
     }
     const auto loaded=(more?items_.size():0)+incoming.size();const auto total=result["total"].toInt();

@@ -56,6 +56,7 @@ public:
     int controlIndex() const{return controlFocus_;}
     void openFile(const QString& url);
     bool openWebUrl(const QUrl& url);
+    bool takeShipLaunchKey(const QString& key);
     void openDesktopId(const QString& id);
     void watchInstaller(qint64 pid,const QString& title);
     void finishInstaller();
@@ -88,6 +89,7 @@ private:
     bool persist(const QSet<QString>& favorites,const QSet<QString>& hidden);
     QVariantMap decorated(const QVariantMap&) const;
     QString selected() const;
+    QString shipLaunchKey_;
     QProcess process_;
     QTimer heartbeat_,webStartTimeout_;
     QUrl queuedWebUrl_;

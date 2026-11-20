@@ -69,6 +69,19 @@ class PlatformHostTests final: public QObject {
     Q_OBJECT
     QTemporaryDir settings_;
 private slots:
+    void workshopRequiresShipLaunchKey() {
+        Fixture f;BackendAccount backend;f.host.setBackend(&backend);QVERIFY(f.start());
+        f.host.takeShipLaunchKey=[](const QString& key){return key=="fixture-launch";};
+        Client other(f.endpoint);
+        const QString app="art.abysstail.octofox.ship-home";
+        other.send("hello",{{"protocol",1},{"token",other.discovery["token"]},{"app","org.example.game"},{"ship_key","fixture-launch"}});
+        QVERIFY(!other.receive()["result"].toObject()["capabilities"].toObject().contains("ship.workshop"));
+        other.send("workshop.print");QCOMPARE(other.receive()["error"].toObject()["code"].toString(),QString("workshop_unavailable"));
+        Client ship(f.endpoint);
+        ship.send("hello",{{"protocol",1},{"token",ship.discovery["token"]},{"app",app},{"ship_key","fixture-launch"}});
+        QCOMPARE(ship.receive()["result"].toObject()["capabilities"].toObject()["ship.workshop"].toInt(),1);
+        ship.send("workshop.play");QCOMPARE(ship.receive()["error"].toObject()["code"].toString(),QString("sign_in_required"));
+    }
     void legacyAvatarIsTransientAndRemovedOnRevocation() {
 #ifdef Q_OS_LINUX
         Fixture f;const QByteArray bytes("glTF SDK compatibility fixture");

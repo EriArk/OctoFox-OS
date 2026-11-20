@@ -1,5 +1,9 @@
-# Private profile loot — 14 November 2026
+# Private profile inventory
 
+The ship workshop issues materials, pigments, reusable blueprints and printed pieces into
+this inventory. The runtime can update stored ship goods through the scoped workshop
+function. Existing Bazaar sales preserve the same item ID and appearance across owners.
+The November 14 entry below records the earlier release.
 
 **14 November update:** the read projection remains private and payload-free.
 [Prepared Bazaar trading](bazaar-trading.md) now changes owner/state of existing
@@ -78,3 +82,17 @@ remain a separate trust limitation. No distributed-atomic-write claim is made.
 
 [Native inventory contract](../../docs/PROFILE_INVENTORY.md) ·
 [Evidence](../../docs/evidence/2026-11-14-inventory-server/README.md)
+
+## Ship workshop
+
+Authenticated clients can read `GET /v1/me/workshop` for stock, recipe prices,
+colour definitions and unlocked colours. Stored garments are individually paged
+at `GET /v1/me/workshop/garments`. The shell passes only typed workshop requests
+from the launched Ship Home process. Credentials stay in the shell.
+
+Print, activate and paint commands require the observed inventory revision and
+an operation UUID. A successful retry returns its original receipt. The server
+locks the account before checking the current owner, listing state and recipe.
+An exhausted lot stays in storage as a consumed historical identity so previous
+Bazaar sale receipts remain valid. Inventory, printer and market projections
+exclude consumed goods. See the [workshop walkthrough](../../docs/evidence/2026-11-20-ship-workshop/README.md).

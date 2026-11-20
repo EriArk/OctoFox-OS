@@ -15,9 +15,10 @@ covers all four pieces; the table shows the requirements for the selected piece.
 **LB / RB** or **[ / ]** switches to cartridges and the sets that use them.
 Buttons also support pointer selection. **B / Esc** returns to the ship.
 
-The catalogue uses provisional unit costs for cotton, plastic, aluminium and steel.
-The dash in **Held / Needed** means that the profile's stock is unavailable.
-Printing and inventory writes require a future crafting service. The layout draws
+On a connected shell the fabricator displays the profile's stored inventory lots
+and the current server recipe. Select a piece and press **A** again to print it.
+Listed lots are reserved for sale. An offline station shows a dash for unknown balances.
+The layout draws
 on the [Warframe Foundry](https://support.warframe.com/hc/en-us/articles/38385820873741-Foundry-and-Crafting-FAQ).
 The garment plates are rendered from the ship's THREAD models.
 [Fabricator screenshots](../../docs/evidence/2026-11-20-ship-fabricator/README.md).
@@ -28,6 +29,12 @@ before the outfit changes and retract to reveal the character. **B / Esc**
 restores the original outfit and walking camera. These standing previews reuse
 the [original THREAD meshes and garment attachment](https://github.com/EriArk/crates/tree/06c010d711d294f72dbd9c877fb3c22f3f5bb6c2/games/bazaar);
 profile ownership and saved appearance remain with the platform.
+
+**Y** in the fitting booth opens Colour studio. Choose a printed piece, its material
+channel and a finish. Preview any finish, activate a pigment cartridge to unlock
+that colour permanently, then apply it to as many owned pieces as desired.
+Switching back to Original finish restores the authored surface. See the
+[reward rules, trading checks and in-engine capture](../../docs/evidence/2026-11-20-ship-workshop/README.md).
 
 Stand on the illuminated floor lift and press **A / F** to descend through
 the shaft. The smaller circular service room has walking space around the lift.

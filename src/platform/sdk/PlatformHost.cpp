@@ -212,6 +212,9 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         peer.avatarResource=args["avatarFormats"].toArray().contains("tav1");
         peer.authenticated = true; peer.app = app;peer.playChannel=QUuid::createUuid().toString(QUuid::WithoutBraces);
         auto caps=capabilities();
+        peer.shipWorkshop=backend_ && app=="art.abysstail.octofox.ship-home" && takeShipLaunchKey
+            && takeShipLaunchKey(args["ship_key"].toString());
+        if(peer.shipWorkshop)caps["ship.workshop"]=1;
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}
@@ -225,15 +228,20 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         const auto account=context_["account"].toObject();
         ok({{"account",QJsonObject{{"state",account["state"].toString("signed_out")},{"player_id",account["player_id"].toString()}}}});return;
     }
-    if(method.startsWith("bazaar.")&&backend_) {
+    if((method.startsWith("bazaar.")||method.startsWith("workshop."))&&backend_) {
+        const bool workshop=method.startsWith("workshop.");
+        if(workshop&&!peer.shipWorkshop){fail("workshop_unavailable");return;}
         if(peer.playBusy){fail("service_busy");return;}
         peer.playBusy=true;const QPointer<QTcpSocket> target(socket);const auto channel=peer.playChannel;const QPointer<PlatformHost> guard(this);
-        backend_->bazaarRead(method,args,[this,guard,target,channel,id](int status,QJsonObject result){
+        auto reply=[this,guard,target,channel,id](int status,QJsonObject result){
             if(!guard||!target||!peers_.contains(target)||peers_[target].playChannel!=channel)return;
             peers_[target].playBusy=false;
             if(status>=200&&status<300)send(target,{{"id",id},{"result",result}});
             else send(target,{{"id",id},{"error",QJsonObject{{"code",result["code"].toString("backend_unavailable")}}}});
-        });return;
+        };
+        if(workshop)backend_->workshopRequest(method,args,std::move(reply));
+        else backend_->bazaarRead(method,args,std::move(reply));
+        return;
     }
     if(method.startsWith("play.")&&backend_) {
         if(peer.playBusy){fail("play_busy");return;}

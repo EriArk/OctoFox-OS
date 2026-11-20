@@ -3,9 +3,10 @@ extends Node3D
 const Art=preload("res://scripts/interior.gd")
 const Walker=preload("res://scripts/walker.gd")
 const Store=preload("res://scripts/layout_store.gd")
-const AvatarClient=preload("res://addons/avatar/avatar_client.gd")
+const AvatarClient=preload("res://scripts/workshop_client.gd")
 var art=Art.new()
 var studio=preload("res://scripts/studio.gd").new()
+var dye=preload("res://scripts/dye_console.gd").new()
 var fabricator=preload("res://scripts/fabricator.gd").new()
 var fitting=preload("res://scripts/fitting_station.gd").new()
 var riding=false
@@ -43,6 +44,12 @@ func _ready() -> void:
  add_child(fitting);fitting.configure(walker,studio)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
+ fitting.workshop=avatar_client
+ avatar_client.workshop_changed.connect(fitting.restore_colors)
+ fabricator.workshop=avatar_client;dye.workshop=avatar_client;dye.fitting=fitting
+ avatar_client.workshop_changed.connect(fabricator.refresh)
+ avatar_client.workshop_changed.connect(dye.refresh)
+ fitting.changed.connect(dye.paint_preview)
  avatar_client.appearance_changed.connect(_appearance)
  avatar_client.unavailable.connect(_identity_lost)
  add_child(avatar_client);avatar_client.connect_host()
@@ -66,7 +73,9 @@ func _load_profile(id:String) -> void:
  if is_instance_valid(walker) and walker.seated:
   # Profile changes return to the reserved central approach before replacing furniture.
   walker.stand(Vector3(0,0.08,-2.1))
+ if dye.is_inside_tree() and dye.visible:dye.close()
  if fabricator.is_inside_tree():fabricator.close()
+ fitting.selected_pieces.clear()
  profile=id;rows=store.load_home(id);undo_rows=[];has_undo=false;moving_index=-1
  _draw_furniture()
  if not store.error.is_empty():notify(store.error)
@@ -77,10 +86,12 @@ func _appearance(descriptor:Dictionary) -> void:
  if id!=profile:
   if editing:_edit(false)
   _load_profile(id)
+ if dye.visible:dye.close()
  fitting.finish()
  if not walker.install_avatar(descriptor):notify("Your character could not be loaded.")
 
 func _identity_lost(reason:String) -> void:
+ if dye.visible:dye.close()
  fabricator.close()
  fitting.finish()
  walker.anonymous()
@@ -103,9 +114,11 @@ func _ui() -> void:
  for entry in [["Return",func():_pause(false)],["Decorate",func():_pause(false);_edit(true)],["Undo last arrangement",func():_undo()],["Remove selected furniture",func():_remove()],["Save and exit",func():_quit()]]:
   var b=Button.new();b.text=entry[0];b.custom_minimum_size.y=44;b.pressed.connect(entry[1]);column.add_child(b)
  menu.visible=false
+ layer.add_child(dye)
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
 
 func _pause(value:bool) -> void:
+ if value and dye.visible:dye.close()
  if value:fabricator.close()
  paused=value;walker.walking=not value;menu.visible=value
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value else Input.MOUSE_MODE_CAPTURED
@@ -128,7 +141,10 @@ func _unhandled_input(event:InputEvent) -> void:
   get_viewport().set_input_as_handled();return
  if paused or riding:return
  if fitting.active:
-  if event.is_action_pressed("next_item") or event.is_action_pressed("interact"):fitting.cycle(1)
+  if dye.visible:return
+  if event.is_action_pressed("pick_item"):
+   dye.open();Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+  elif event.is_action_pressed("next_item") or event.is_action_pressed("interact"):fitting.cycle(1)
   elif event.is_action_pressed("previous_item"):fitting.cycle(-1)
   get_viewport().set_input_as_handled();return
  if walker.seated:
@@ -164,7 +180,7 @@ func _process(delta:float) -> void:
  if fitting.active:
   title.text="Fitting station"
   status.text=fitting.LOOKS[fitting.requested]+"  ·  Preview"
-  hints.text="LB / RB or [ / ]   Change outfit      B / Esc   Leave"
+  hints.text="" if dye.visible else "LB / RB or [ / ]   Change outfit      Y   Colour studio      B / Esc   Leave"
  elif riding:
   status.text="Deck lift";hints.text=""
  elif walker.seated:

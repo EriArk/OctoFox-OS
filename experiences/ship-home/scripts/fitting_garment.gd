@@ -48,3 +48,55 @@ func release() -> void:
 		head_attachment.hide()
 		head_attachment.queue_free()
 		head_attachment=null
+
+static func surface_channel(slot:String, material_name:String) -> String:
+	if slot=="Bottom":return "primary"
+	if material_name in ["brass","silver","gem","saffron","lilac"]:return "accent"
+	if material_name in ["sole","hide","ink","wine"]:return "trim"
+	if slot=="Boots" and material_name in ["umber","indigo"]:return "primary"
+	if material_name in ["tan","umber","fern","teal","oat","plum"]:return "secondary"
+	return "primary"
+
+static var channels_by_piece:Dictionary={}
+
+static func channels(style:String,slot:String) -> Array:
+	var key:=style+"."+slot
+	if channels_by_piece.has(key):return channels_by_piece[key]
+	var model:Node3D=MODELS[style].instantiate()
+	var piece:MeshInstance3D=model.get_node(NodePath(slot))
+	var found:Array=[]
+	for i in piece.mesh.get_surface_count():
+		var channel:=surface_channel(slot,piece.mesh.surface_get_material(i).resource_name)
+		if channel not in found:found.append(channel)
+	model.free()
+	var ordered:Array=[]
+	for channel in ["primary","secondary","trim","accent"]:
+		if channel in found:ordered.append(channel)
+	channels_by_piece[key]=ordered
+	return ordered
+
+func tint(slot:String, choices:Dictionary, palette:Dictionary) -> void:
+	var piece:=get_node_or_null(NodePath(slot)) as MeshInstance3D
+	if not piece and is_instance_valid(head_attachment):piece=head_attachment.get_node_or_null(NodePath(slot))
+	if not piece:return
+	for i in piece.mesh.get_surface_count():
+		var original:=piece.mesh.surface_get_material(i) as StandardMaterial3D
+		if not original:continue
+		var key:String=choices.get(surface_channel(slot,original.resource_name),"")
+		var color:Dictionary=palette.get(key,{})
+		if color.is_empty():
+			piece.set_surface_override_material(i,null);continue
+		var finish:String=color.finish
+		var shade:=lerpf(0.72,1.0,original.albedo_color.v)
+		var pigment:=Color.from_string(color.hex,Color.WHITE).darkened(1.0-shade)
+		if finish in ["iridescent","pearlescent"]:
+			var coated:=ShaderMaterial.new();coated.shader=preload("res://shaders/pearlescent.gdshader")
+			coated.set_shader_parameter("pigment",pigment)
+			coated.set_shader_parameter("edge",Color("#76e6bf") if finish=="iridescent" else Color("#f2d5ec"))
+			coated.set_shader_parameter("sheen",0.95 if finish=="iridescent" else 0.65)
+			piece.set_surface_override_material(i,coated)
+		else:
+			var dyed:=original.duplicate() as StandardMaterial3D
+			dyed.albedo_color=pigment;dyed.metallic=0.87 if finish=="metallic" else 0.05
+			dyed.roughness=0.3 if finish=="metallic" else (0.47 if finish=="satin" else 0.85)
+			piece.set_surface_override_material(i,dyed)

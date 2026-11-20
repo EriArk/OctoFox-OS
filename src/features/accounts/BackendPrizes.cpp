@@ -27,7 +27,7 @@ QJsonObject describe(QJsonObject group) {
         const int level=row["level"].toInt();if(level>0){lowest=lowest?qMin(lowest,level):level;highest=qMax(highest,level);}
         if(kind=="beaten"||kind=="completed"||kind=="hardcore") {
             trophy=true;
-            if(result["kind"]=="clothing"||kind=="hardcore"||(kind=="completed"&&result["kind"]!="hardcore"))result=row;
+            if(result["kind"]=="clothing"||result["kind"]=="workshop"||kind=="hardcore"||(kind=="completed"&&result["kind"]!="hardcore"))result=row;
         }
     }
     if(lowest)result["title"]=lowest==highest?"Level "+QString::number(lowest):QString("Levels %1–%2").arg(lowest).arg(highest);
@@ -53,7 +53,7 @@ bool BackendAccount::adoptPrizes(const QJsonObject& value,bool cached) {
         for(const auto v:value[key].toArray()) {
             const auto row=v.toObject();const auto id=row["id"].toString();
             if(QUuid(id).isNull()||ids.contains(id)||row["player_id"]!=player||row["title"].toString().isEmpty()
-                ||row["title"].toString().size()>256||!QStringList{"clothing","outfit_slot","beaten","completed","hardcore"}.contains(row["kind"].toString())
+                ||row["title"].toString().size()>256||!QStringList{"clothing","workshop","outfit_slot","beaten","completed","hardcore"}.contains(row["kind"].toString())
                 ||!QDateTime::fromString(row["earned_at"].toString(),Qt::ISODateWithMs).isValid())return false;
             ids.insert(id);
         }
@@ -93,11 +93,11 @@ void BackendAccount::selectPrize(int index) {
 }
 void BackendAccount::refreshPrizes(bool earlier) {
     if(prizeBusy_||state_!="connected"||player_.isEmpty())return;
-    auto path=QString("/v1/me/prizes");
+    auto path=QString("/v1/me/prizes?format=2");
     if(earlier) {
         const bool groups=prizeSnapshot_.contains("collection");
         bool ok=false;const auto cursor=prizeSnapshot_[groups?"collection_before":"next_before"].toString();cursor.toULongLong(&ok);
-        if(!ok)return;path+=(groups?"?group_before=":"?before=")+cursor;
+        if(!ok)return;path+=(groups?"&group_before=":"&before=")+cursor;
     }
     prizeBusy_=true;emit changed();
     request("GET",path,{},[this](int status,QJsonObject value){
@@ -120,7 +120,7 @@ void BackendAccount::closeCelebration(bool acknowledge) {
     QJsonArray ids;for(const auto v:celebrationGroups_.first().toObject()["grants"].toArray())ids.append(v.toObject()["id"]);
     if(state_!="connected"||prizeBusy_){prizeStatus_="Rewards are kept. Reconnect to mark the presentation as seen.";emit changed();return;}
     prizeBusy_=true;emit changed();
-    request("POST","/v1/me/prizes/seen",{{"ids",ids}},[this,ids](int status,QJsonObject value){
+    request("POST","/v1/me/prizes/seen?format=2",{{"ids",ids}},[this,ids](int status,QJsonObject value){
         prizeBusy_=false;
         if(status==200&&adoptPrizes(value)){
             // A delayed reply must not advance a newly opened presentation.
@@ -148,7 +148,7 @@ void BackendAccount::togglePrizeShelf(bool celebration) {
         games.append(game);
     }
     prizeBusy_=true;emit changed();
-    request("PUT","/v1/me/prizes/shelf",{{"games",games}},[this](int status,QJsonObject value){
+    request("PUT","/v1/me/prizes/shelf?format=2",{{"games",games}},[this](int status,QJsonObject value){
         prizeBusy_=false;
         if(status==200&&adoptPrizes(value)){prizeStatus_.clear();saveCommerce();}
         else {prizeStale_=true;prizeStatus_="Could not change your shelf. Refresh and try again.";}

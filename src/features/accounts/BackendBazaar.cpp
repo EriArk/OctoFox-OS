@@ -63,6 +63,35 @@ void BackendAccount::reviewBazaarPurchase(bool stall) {
     shopReview_=offer;emit changed();
 }
 void BackendAccount::resolveBazaarPurchase(){if(shopPending_.value("offer_id")=="bazaar.personal"||shopPending_.value("offer_id")=="bazaar.stall"||shopPending_.value("kind")=="bazaar.rent")recoverPurchase(true);}
+void BackendAccount::workshopPulse(const QString& session) {
+    if(inventoryConnected())request("POST","/v1/me/workshop/play",{{"session",session}},[](int,QJsonObject){},access_);
+}
+
+void BackendAccount::workshopRequest(const QString& method,QJsonObject args,Reply done) {
+    if(!inventoryConnected()){done(401,{{"code","sign_in_required"}});return;}
+    QString path="/v1/me/workshop";
+    QByteArray verb="GET";
+    if(method=="workshop.garments"){
+        path+="/garments";
+        if(args.contains("after")){
+            const auto cursor=args.take("after");
+            if(!id(cursor)){done(422,{{"code","invalid_cursor"}});return;}
+            path+="?after="+cursor.toString();
+        }
+    }else if(method=="workshop.print"||method=="workshop.activate"||method=="workshop.paint"){
+        verb="POST";path+="/"+method.section('.',1);
+    }else if(method!="workshop.get"){done(422,{{"code","unsupported_method"}});return;}
+    if(verb=="GET"&&!args.isEmpty()){done(422,{{"code","invalid_request"}});return;}
+    const auto player=player_;
+    request(verb,path,args,[this,player,done=std::move(done)](int status,QJsonObject value){
+        if(player_!=player||!inventoryConnected()){done(401,{{"code","identity_changed"}});return;}
+        if(status==200&&(value["player_id"]!=player||QJsonDocument(value).toJson(QJsonDocument::Compact).size()>60000)){
+            done(502,{{"code","invalid_workshop_reply"}});return;
+        }
+        done(status,std::move(value));
+    },access_);
+}
+
 // Read-only SDK projection. No access/refresh token, arbitrary path or spending
 // method crosses this boundary; a self-declared app ID is not publisher trust.
 void BackendAccount::bazaarRead(const QString& method,QJsonObject args,Reply done) {

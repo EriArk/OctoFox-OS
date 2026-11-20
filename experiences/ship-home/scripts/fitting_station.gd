@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends Node3D
+signal changed
 const Garment = preload("res://scripts/fitting_garment.gd")
 const LOOKS = ["Profile outfit", "Traveller", "Mage", "Merchant"]
+var workshop
+var selected_pieces:Dictionary={}
 var active := false
 var current := 0
 var requested := 0
@@ -29,6 +32,7 @@ func enter() -> void:
  walker.visual.rotation.y=atan2(camera.position.x-walker.position.x,camera.position.z-walker.position.z)
  walker.visual.show();camera.current=true
  if is_instance_valid(walker.skeleton):walker.skeleton.reset_bone_poses()
+ if is_instance_valid(workshop):workshop.refresh_workshop()
 
 func cycle(step: int) -> void:
  if not returning:requested=posmod(requested+step,LOOKS.size())
@@ -57,6 +61,19 @@ func change() -> void:
  if not is_instance_valid(walker.skeleton):garment.scale=Vector3.ONE*1.43
  var style:String=LOOKS[current].to_lower()
  garment.build(Garment.full_set(style),walker.skeleton)
+ restore_colors()
+ changed.emit()
+
+func restore_colors() -> void:
+ if not is_instance_valid(garment) or not is_instance_valid(workshop) or current==0:return
+ var style:String=LOOKS[current].to_lower()
+ var pieces:Dictionary={}
+ for item in workshop.garments:
+  if not str(item.sku).begins_with(style+"."):continue
+  if not pieces.has(item.sku) or selected_pieces.get(item.sku)==item.id:pieces[item.sku]=item
+ for slot in Garment.SLOTS:
+  var sku:String=style+"."+slot.to_lower()
+  garment.tint(slot,pieces.get(sku,{}).get("colors",{}),workshop.inventory.get("colors",{}))
 
 func update(delta: float) -> void:
  if not active:return

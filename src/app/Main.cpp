@@ -1,3 +1,4 @@
+#include <QUuid>
 #include "adapters/pokemon/PokemonExperience.h"
 #include "PlatformBinding.h"
 #include "SessionConnections.h"
@@ -617,7 +618,23 @@ int main(int argc, char* argv[]) {
         bindings.connect(&shell,&ShellController::changed,&session,updateServiceActivity);
         ProcessService adventureProcess;
         quint64 experienceSession=0;
-        bindings.connect(&adventureProcess,&ProcessService::started,&shell,[&]{++experienceSession;});
+        QTimer workshopTimer;
+        workshopTimer.setInterval(60000);
+        QString workshopSession,workshopPlayer;
+        const auto workshopPulse=[&]{
+            if(workshopPlayer.isEmpty()||shell.backendAccount()->snapshot()["player_id"].toString()!=workshopPlayer){
+                workshopTimer.stop();return;
+            }
+            shell.backendAccount()->workshopPulse(workshopSession);
+        };
+        bindings.connect(&workshopTimer,&QTimer::timeout,&shell,workshopPulse);
+        bindings.connect(&adventureProcess,&ProcessService::started,&shell,[&]{
+            ++experienceSession;
+            workshopSession=QUuid::createUuid().toString(QUuid::WithoutBraces);
+            workshopPlayer=shell.backendAccount()->snapshot()["player_id"].toString();
+            workshopTimer.start();workshopPulse();
+        });
+        bindings.connect(&adventureProcess,&ProcessService::finished,&shell,[&]{workshopTimer.stop();});
         const auto liveExperienceSession=[&]{return adventureProcess.active()?QString::number(adventureProcess.processId())+":"+QString::number(experienceSession):QString();};
         AdventureLaunchController adventureLaunch(adventureProcess);
         adventureLaunch.configureGame=[&](ProcessCommand command,const QString& game){return shell.gamePerformance()->prepare(std::move(command),game);};

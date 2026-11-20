@@ -1,5 +1,6 @@
 #include "AppsController.h"
 #include <QDir>
+#include <QUuid>
 #include <QFile>
 #include <QFileInfo>
 #include <QSaveFile>
@@ -59,7 +60,7 @@ AppsController::~AppsController(){
     if(process_.state()!=QProcess::NotRunning&&!process_.waitForFinished(500)){process_.kill();process_.waitForFinished(500);}
 }
 void AppsController::configure(const QString& directory,const QString& owner) {
-    preferences_.clear();favorites_.clear();hiddenIds_.clear();leave();
+    shipLaunchKey_.clear();preferences_.clear();favorites_.clear();hiddenIds_.clear();leave();
     if(!owner.isEmpty()&&!directory.isEmpty()) {
         const auto key=QString::fromLatin1(QCryptographicHash::hash(owner.toUtf8(),QCryptographicHash::Sha256).toHex());
         preferences_=QDir(directory).filePath("apps/"+key+".json");
@@ -87,10 +88,20 @@ void AppsController::start(const QString& python,const QString& helper) {
 void AppsController::failLaunch(const QString& message) {
     status_=message;emit launchFailed(message);emit changed();
 }
+bool AppsController::takeShipLaunchKey(const QString& key) {
+    if(key.isEmpty() || key!=shipLaunchKey_)return false;
+    shipLaunchKey_.clear();
+    return true;
+}
 void AppsController::send(const QJsonObject& packet) {
     if(process_.state()!=QProcess::Running)return;
     if(process_.bytesToWrite()>65536){process_.kill();return;}
-    process_.write(QJsonDocument(packet).toJson(QJsonDocument::Compact)+'\n');
+    auto message=packet;
+    if(message["command"]=="launch" && message["id"]=="art.abysstail.octofox.ship-home.desktop"){
+        shipLaunchKey_=QUuid::createUuid().toString(QUuid::WithoutBraces);
+        message["ship_key"]=shipLaunchKey_;
+    }
+    process_.write(QJsonDocument(message).toJson(QJsonDocument::Compact)+'\n');
 }
 void AppsController::accept(const QJsonObject& packet) {
     const auto previous=railFocused_?selected():QString{};

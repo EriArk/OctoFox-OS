@@ -33,6 +33,7 @@ public:
             qEnvironmentVariable("TRAINEROS_RECORD_HELPER",root+"/secure-channel.py"));
         host_.setNetwork(network_.get());
         host_.setBackend(shell_.backendAccount());
+        host_.takeShipLaunchKey=[this](const QString& key){return shell_.apps()->takeShipLaunchKey(key);};
         host_.permitsStartWidgets=[this](const QString& app){return shell_.dashboard()->allowsStartWidgets(app);};
         connect(shell_.crates()->installer(),&CratesInstaller::inventoryChanged,this,[this]{
             // Refresh from committed receipts before changing live SDK contributions.

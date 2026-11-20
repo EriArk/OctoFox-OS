@@ -8,7 +8,7 @@ from .policy import VERSION, achievement, completion, mastery
 from .provider import RetroAchievements
 from .support import preview as support_preview
 from .membership import status as support_status, grant_topups
-from . import prizes
+from . import prizes, workshop
 
 
 class Progression:
@@ -125,3 +125,4 @@ class Progression:
             conn.execute('INSERT INTO trainer_backend.audit_events(id,actor_id,action,resource_id) VALUES(%s,%s,%s,%s)',
                          (uuid4(), player, 'rewards.verified_ra', inserted['id']))
             grant_topups(conn, player, inserted['id'])
+            workshop.reward(conn, player, f'{source}:{ra}:{event}')

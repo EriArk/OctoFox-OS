@@ -19,6 +19,7 @@ const LINE = Color("#395451")
 const IVORY = Color("#f4eddc")
 const MUTED = Color("#b3c3bb")
 const GOLD = Color("#e6c684")
+var workshop
 var sheet:=Control.new()
 var page:=0
 var blueprint:=0
@@ -119,7 +120,7 @@ func _ready() -> void:
  for i in 4:
   parts.append(button(PARTS[i],Rect2(437+i*201,560,190,48),select_part.bind(i)))
  note=label(sheet,"",Rect2(44,616,900,44),20,MUTED)
- print_button=button("Print part",Rect2(1022,617,211,42),Callable())
+ print_button=button("Print part",Rect2(1022,617,211,42),print_selected)
  print_button.disabled=true
  print_button.add_theme_stylebox_override("disabled",style(Color("#223739"),LINE))
  print_button.add_theme_color_override("font_disabled_color",Color("#a1aaa1"))
@@ -134,6 +135,11 @@ func fit_screen() -> void:
 func open() -> void:
  page=0;blueprint=0;part=0;material_index=0;on_parts=false;stick=Vector2i.ZERO
  show();refresh()
+ if is_instance_valid(workshop):workshop.refresh_workshop()
+
+func print_selected() -> void:
+ if not print_button.disabled and is_instance_valid(workshop):
+  workshop.commit("print",{"style":Garment.STYLES[blueprint],"part":Garment.SLOTS[part].to_lower()})
 
 func close() -> void:
  if visible:hide();dismissed.emit()
@@ -153,6 +159,8 @@ func select_part(index:int) -> void:
  on_parts=true;part=index;refresh()
 
 func refresh() -> void:
+ if not is_node_ready():return
+ var connected:bool=is_instance_valid(workshop) and not workshop.inventory.is_empty()
  var browsing_sets:=page==0
  var index:int=blueprint if browsing_sets else material_index
  var style_id:String=Garment.STYLES[blueprint]
@@ -163,7 +171,9 @@ func refresh() -> void:
   if not list[i].visible:continue
   var title:String=Garment.STYLES[i].capitalize() if browsing_sets else MATERIALS[i]
   names[i].text=title
-  subtitles[i].text="4 parts" if browsing_sets else "Held   —"
+  if browsing_sets:
+   subtitles[i].text=("Owned" if workshop.units("blueprint",Garment.STYLES[i])>0 else "Blueprint needed") if connected else "4 parts"
+  else:subtitles[i].text=("Held   %d"%workshop.units("material",MATERIALS[i])) if connected else "Held   —"
   list[i].tooltip_text=title
   thumbs[i].present(i,0,not browsing_sets)
   highlight(list[i],i==index,i==index and not on_parts)
@@ -180,11 +190,17 @@ func refresh() -> void:
   art.present(blueprint,part+1,false)
   section.text="Required cartridges";columns.text="Material";quantity_heading.text="Held / Needed"
   var costs:Dictionary=REQUIREMENTS[style_id][part]
+  if connected:costs=workshop.inventory.recipes[style_id][Garment.SLOTS[part].to_lower()]
+  var printable:bool=connected and not workshop.busy and workshop.units("blueprint",style_id)>0
   var i:=0
   for material_name in costs:
    ingredients[i].present(MATERIALS.find(material_name),0,true);ingredients[i].show()
-   rows[i].text=material_name;amounts[i].text="— / %d"%costs[material_name];i+=1
-  note.text="Catalogue preview · Inventory and printing are offline."
+   rows[i].text=material_name
+   var held:int=workshop.units("material",material_name) if connected else 0
+   amounts[i].text=("%d / %d"%[held,costs[material_name]]) if connected else "— / %d"%costs[material_name]
+   printable=printable and held>=int(costs[material_name]);i+=1
+  print_button.disabled=not printable
+  note.text="A   Print selected part" if printable else ("Blueprint or cartridges required" if connected else "Connect to your inventory to print.")
   footer.text="← →   Parts      ↑ ↓   Sets      LB / RB   Tabs      B / Esc   Close"
  else:
   var selected:String=MATERIALS[material_index]
@@ -197,8 +213,12 @@ func refresh() -> void:
     if costs.has(selected):uses+=1
    if uses:
     rows[i].text=outfit.capitalize();amounts[i].text=str(uses);i+=1
-  note.text="Cartridge balance unavailable."
+  note.text=("Held   %d"%workshop.units("material",selected)) if connected else "Cartridge balance unavailable."
   footer.text="↑ ↓   Cartridges      LB / RB   Tabs      B / Esc   Close"
+
+ if is_instance_valid(workshop):
+  if workshop.busy:note.text="Updating inventory…"
+  elif not workshop.notice.is_empty():note.text=workshop.notice
 
 func navigate(direction:Vector2i) -> void:
  if direction.y!=0:
@@ -224,5 +244,7 @@ func _input(event:InputEvent) -> void:
  elif event.is_action_pressed("ui_down",true):navigate(Vector2i.DOWN)
  elif event.is_action_pressed("ui_left",true):navigate(Vector2i.LEFT)
  elif event.is_action_pressed("ui_right",true):navigate(Vector2i.RIGHT)
- elif page==0 and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):select_part(part)
+ elif page==0 and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):
+  if on_parts and not print_button.disabled:print_selected()
+  else:select_part(part)
  get_viewport().set_input_as_handled()

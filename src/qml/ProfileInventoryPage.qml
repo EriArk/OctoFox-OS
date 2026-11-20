@@ -66,7 +66,7 @@ Item {
             color: chosen ? Theme.selection : Theme.surface
             border.width: chosen ? 2 : 1; border.color: chosen ? Theme.focus : Theme.divider
             Image { anchors.centerIn: parent; width: Math.min(parent.width - 8, parent.height - 4); height: width; source: slot.record.image || ""; fillMode: Image.PreserveAspectFit }
-            MenuGlyph { anchors.centerIn: parent; width: Math.min(parent.width - 18, parent.height - 16); height: width; visible: slot.occupied && !slot.record.image; glyph: slot.record.icon === "inventory" ? "boxes" : slot.record.icon === "gamepad" ? "game-controller" : slot.record.icon === "map" ? "journey" : slot.record.icon || "boxes"; ink: root.accent }
+            MenuGlyph { anchors.centerIn: parent; width: Math.min(parent.width - 18, parent.height - 16); height: width; visible: slot.occupied && !slot.record.image; glyph: slot.record.kind === "garment" ? "shirt" : slot.record.icon === "inventory" ? "boxes" : slot.record.icon === "gamepad" ? "game-controller" : slot.record.icon === "map" ? "journey" : slot.record.icon || "boxes"; ink: slot.record.swatch || root.accent }
             Text { anchors.right: parent.right; anchors.bottom: parent.bottom; anchors.margins: 4; text: slot.record.subtitle || ""; textFormat: Text.PlainText; font.pixelSize: 10; color: Theme.ink; style: Text.Outline; styleColor: slot.color }
             Rectangle {
                 visible: slot.record.state === "listed"; x: 4; y: 4; width: 16; height: 16; radius: 4; color: Theme.yellow

@@ -45,9 +45,9 @@ def test_levels_restore_free_slots_and_do_not_replace_purchases(account):
     service.sync(user['access_token'], 'k'*32, [1])  # level 5
     token = user['access_token']; prizes = Prizes(service); shop = Shop(service)
     result = prizes.snapshot(token)
-    assert [r['level'] for r in result['items'] if r['kind'] == 'clothing'] == [5, 4, 3, 2]
+    assert [r['level'] for r in result['items'] if r['kind'] == 'workshop'] == [5, 4, 3, 2]
     assert result['pending'] == 5
-    assert result['upcoming'][0] == {'level': 6, 'slot': True, 'clothing': True}
+    assert result['upcoming'][0] == {'level': 6, 'slot': True, 'workshop': True}
     slots = shop.snapshot(token)['outfit_items']
     assert len(slots) == 1 and slots[0]['id'] == 'outfit.level.3' and slots[0]['price'] == 0
     bought = shop.purchase(token, uuid4(), 'outfit.slot.1', 1, 100)

@@ -22,6 +22,7 @@ class Presentation(StrictBody):
     game: str = Field(min_length=1, max_length=128)
     subtitle: str = Field(default='', max_length=32)
     icon: Literal['inventory', 'star', 'shield', 'shop', 'gamepad', 'map'] = 'inventory'
+    swatch: str | None = Field(default=None, pattern=r'^#[0-9a-fA-F]{6}$')
     level: int | None = Field(default=None, ge=0, le=999999)
     facts: list[Fact] = Field(default_factory=list, max_length=16)
 
@@ -37,9 +38,9 @@ def read_inventory(accounts, access, *, before=None, revision=None):
         current = str(version['revision']) if version else '0'
         if revision is not None and revision != current:
             raise AuthError('inventory_changed', 409)
-        total = conn.execute('SELECT count(*) AS n FROM trainer_backend.loot_items WHERE player_id=%s', (player,)).fetchone()['n']
+        total = conn.execute("SELECT count(*) AS n FROM trainer_backend.loot_items WHERE player_id=%s AND state<>'consumed'", (player,)).fetchone()['n']
         rows = conn.execute('''SELECT sequence,id,game_id,adapter_id,payload_version,kind,presentation,state,received_at
-            FROM trainer_backend.loot_items WHERE player_id=%s AND (%s::bigint IS NULL OR sequence<%s)
+            FROM trainer_backend.loot_items WHERE player_id=%s AND state<>'consumed' AND (%s::bigint IS NULL OR sequence<%s)
             ORDER BY sequence DESC LIMIT %s''', (player, before, before, PAGE_SIZE+1)).fetchall()
         items = []
         for row in rows[:PAGE_SIZE]:

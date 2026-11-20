@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 from ..accounts.provider import AuthError
 from .policy import mastery
+from . import workshop
 
 
 def grant(conn, player, event, kind, title, earned, *, level=None, game=None, item=None):
@@ -22,10 +23,12 @@ def levels(conn, player):
     # Same account lock as purchases/reward ledger; safe for first upgrade/login.
     row = conn.execute('SELECT xp FROM trainer_backend.progression_accounts WHERE player_id=%s FOR UPDATE', (player,)).fetchone()
     level = mastery(row['xp'])['level']
-    previous = conn.execute("SELECT coalesce(max(level),1) n FROM trainer_backend.prize_grants WHERE player_id=%s AND kind='clothing' AND level IS NOT NULL", (player,)).fetchone()['n']
+    previous = conn.execute("SELECT coalesce(max(level),1) n FROM trainer_backend.prize_grants WHERE player_id=%s AND kind IN ('clothing','workshop') AND level IS NOT NULL", (player,)).fetchone()['n']
     now = datetime.now(timezone.utc)
     for n in range(previous + 1, level + 1):
-        grant(conn, player, f'level:{n}:clothing', 'clothing', f'Level {n} wardrobe reward', now, level=n, item=f'level.{n}')
+        event = f'level:{n}:workshop'
+        if grant(conn, player, event, 'workshop', f'Level {n} fabrication supplies', now, level=n):
+            workshop.reward(conn, player, event)
         if n % 3 == 0:
             award = grant(conn, player, f'level:{n}:slot', 'outfit_slot', f'Level {n} look slot', now, level=n)
             if award:
@@ -45,8 +48,9 @@ def games(conn, player, ra, awards):
         FROM trainer_backend.prize_catalogue c JOIN trainer_backend.prize_grants p ON p.game_id=c.game_id
         WHERE p.player_id=%s AND p.kind='beaten' GROUP BY c.id,c.title,p.game_id''', (player,)).fetchall()
     for row in rows:
-        grant(conn, player, f'game:{row["game_id"]}:clothing', 'clothing', row['title'], row['earned'],
-              game=row['game_id'], item=row['id'])
+        event = f'game:{row["game_id"]}:clothing'
+        if grant(conn, player, event, 'workshop', row['title'], row['earned'], game=row['game_id']):
+            workshop.reward(conn, player, event)
 
 
 class Prizes:
@@ -99,7 +103,7 @@ class Prizes:
                     'waiting': waiting, 'trophies': trophies, 'shelf': shelf,
                     'collection': collection, 'collection_before': collection_before,
                     'next_before': str(rows[-1]['sequence']) if len(rows) == 100 else None,
-                    'upcoming': [{'level': i, 'clothing': True, 'slot': i % 3 == 0} for i in range(n + 1, n + 4)],
+                    'upcoming': [{'level': i, 'workshop': True, 'slot': i % 3 == 0} for i in range(n + 1, n + 4)],
                     'checked_at': datetime.now(timezone.utc)}
 
     def acknowledge(self, access, ids):

@@ -12,7 +12,7 @@ Item {
     readonly property var ceremony:view.ceremony||({})
     readonly property bool active:visible&&shell.profileContentActive
     readonly property bool compact:height<420
-    function label(kind){return kind==="clothing"?"Wardrobe reward":kind==="outfit_slot"?"Permanent look slot":kind==="completed"?"All achievements":kind==="hardcore"?"Hardcore distinction":"Game beaten"}
+    function label(kind){return kind==="workshop"?"Fabrication supplies":kind==="clothing"?"Wardrobe reward":kind==="outfit_slot"?"Permanent look slot":kind==="completed"?"All achievements":kind==="hardcore"?"Hardcore distinction":"Game beaten"}
     function summary(group){return (group.kinds||[]).map(k=>{const n=(group.grants||[]).filter(r=>r.kind===k).length;return (!group.game_id&&n>1?n+" × ":"")+label(k)}).join(" · ")}
     function ceremonyPinned(){for(const row of view.shelf||[])if(row.game_id===ceremony.game_id)return true;return false}
     function pinned(){for(const row of view.shelf||[])if(row.game_id===selected.game_id)return true;return false}
@@ -47,11 +47,11 @@ Item {
         x:list.width+34;y:61;width:parent.width-x;height:parent.height-y-76
         PrizeEmblem {id:emblem;anchors.horizontalCenter:parent.horizontalCenter;width:Math.min(parent.width*.48,root.compact?130:185);height:width;kind:root.selected.kind||"beaten"}
         Text {id:name;y:emblem.height+4;width:parent.width;text:root.selected.title||"A place for your victories";textFormat:Text.PlainText;color:Theme.ink;font.pixelSize:root.compact?17:21;horizontalAlignment:Text.AlignHCenter;wrapMode:Text.WordWrap;maximumLineCount:2;elide:Text.ElideRight}
-        Text {y:name.y+name.height+9;width:parent.width;text:root.selected.id?root.summary(root.selected)+"\n"+(root.selected.slot?"Your permanent look slot is ready.\n":"")+((root.selected.kinds||[]).indexOf("clothing")>=0?"Clothing earned · prize item being prepared":String(root.selected.earned_at).slice(0,10)):"Level up, finish games and choose\nfive trophies for your profile shelf.";color:Theme.muted;font.pixelSize:12;horizontalAlignment:Text.AlignHCenter;wrapMode:Text.WordWrap}
+        Text {y:name.y+name.height+9;width:parent.width;text:root.selected.id?root.summary(root.selected)+"\n"+(root.selected.slot?"Your permanent look slot is ready.\n":"")+((root.selected.kinds||[]).indexOf("workshop")>=0?"Supplies added to your inventory":(root.selected.kinds||[]).indexOf("clothing")>=0?"Clothing earned · prize item being prepared":String(root.selected.earned_at).slice(0,10)):"Level up, finish games and choose\nfive trophies for your profile shelf.";color:Theme.muted;font.pixelSize:12;horizontalAlignment:Text.AlignHCenter;wrapMode:Text.WordWrap}
     }
     Row {
         y:parent.height-70;spacing:12
-        Repeater {model:root.view.upcoming||[];delegate:Text {required property var modelData;text:"Lv "+modelData.level+" · Clothing"+(modelData.slot?" + look slot":"");font.pixelSize:10;color:Theme.muted}}
+        Repeater {model:root.view.upcoming||[];delegate:Text {required property var modelData;text:"Lv "+modelData.level+(modelData.workshop?" · Fabrication supplies":" · Clothing")+(modelData.slot?" + look slot":"");font.pixelSize:10;color:Theme.muted}}
     }
     Row {
         anchors.bottom:parent.bottom;anchors.bottomMargin:22;spacing:6
@@ -92,7 +92,7 @@ Item {
             Text {width:parent.width;text:root.ceremony.title||"Rewards earned";textFormat:Text.PlainText;wrapMode:Text.WordWrap;maximumLineCount:2;elide:Text.ElideRight;horizontalAlignment:Text.AlignHCenter;font.family:Theme.displayFamily;font.pixelSize:root.compact?24:32;color:"#fff2d5"}
             PrizeEmblem {anchors.horizontalCenter:parent.horizontalCenter;width:root.compact?90:150;height:width;kind:root.ceremony.kind||"beaten";bright:true;scale:.75+.25*celebration.reveal}
             Text {width:parent.width;text:root.summary(root.ceremony);color:"#ead7ad";font.pixelSize:root.compact?12:15;wrapMode:Text.WordWrap;horizontalAlignment:Text.AlignHCenter}
-            Text {width:parent.width;text:((root.ceremony.kinds||[]).indexOf("clothing")>=0?"Clothing earned and kept · the prize item is being prepared\n":"")+(root.view.ceremonyRemaining>1?(root.view.ceremonyRemaining-1)+" more moments to celebrate":"Your progress is yours to keep.");color:"#afc2c2";font.pixelSize:11;wrapMode:Text.WordWrap;horizontalAlignment:Text.AlignHCenter}
+            Text {width:parent.width;text:((root.ceremony.kinds||[]).indexOf("workshop")>=0?"Fabrication supplies added to Inventory\n":(root.ceremony.kinds||[]).indexOf("clothing")>=0?"Clothing earned and kept · the prize item is being prepared\n":"")+(root.view.ceremonyRemaining>1?(root.view.ceremonyRemaining-1)+" more moments to celebrate":"Your progress is yours to keep.");color:"#afc2c2";font.pixelSize:11;wrapMode:Text.WordWrap;horizontalAlignment:Text.AlignHCenter}
         }
         Row {
             anchors.bottom:parent.bottom;anchors.bottomMargin:32;anchors.horizontalCenter:parent.horizontalCenter;spacing:30
