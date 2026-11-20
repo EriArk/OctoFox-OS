@@ -5,6 +5,7 @@ extends Node
 ## Match arm/hand reference silhouettes before transferring world-space motion.
 ## Keep the SDK bind pose, skin weights, body shape and joint lengths unchanged.
 const PACK = preload("animations/UAL1_Standard.glb")
+const MOBILITY = preload("animations/mobility.tres")
 const LOOP_CLIPS := ["Idle", "Walk", "Jog_Fwd", "Sprint", "Crouch_Idle", "Crouch_Fwd", "Jump"]
 var stride_speed: Dictionary = {}
 var grounded := true
@@ -37,6 +38,7 @@ func bind(presenter: Node3D) -> bool:
 	donor=PACK.instantiate();add_child(donor);donor.hide()
 	source=skeleton(donor);player=donor.find_child("AnimationPlayer",true,false)
 	if source==null or player==null:return false
+	player.add_animation_library(&"mobility", MOBILITY)
 	var pairs := {"pelvis":"pelvis","spine":"spine_01","chest":"spine_03","neck":"neck_01","head":"Head"}
 	var limbs := {"clavicle":"clavicle","upper_arm":"upperarm","forearm":"lowerarm","hand":"hand","thigh":"thigh","shin":"calf","foot":"foot","toes":"ball"}
 	for side in ["L","R"]:
@@ -95,7 +97,8 @@ func advance(delta: float, speed: float, enabled: bool, crouched := false, on_gr
 	if not ready_to_animate or not is_instance_valid(target):return
 	grounded=on_ground
 	var clip := "Idle"
-	if not on_ground:clip="Jump"
+	if enabled and gait in ["slide","jetpack","bullet_jump"]:clip="mobility/"+gait
+	elif not on_ground:clip="Jump"
 	elif crouched:clip="Crouch_Fwd" if speed>0.08 and enabled else "Crouch_Idle"
 	elif speed>0.08 and enabled:
 		clip="Sprint" if gait=="sprint" else "Jog_Fwd" if gait=="run" or (gait.is_empty() and speed>3.2) else "Walk"

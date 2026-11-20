@@ -10,3 +10,6 @@ Consider supporting me on Patreon!
 
 https://www.patreon.com/quaternius
 
+
+The Quaternius dedication above covers UAL1_Standard.glb.
+The OctoFox-authored clips in mobility.tres are GPL-3.0-or-later.

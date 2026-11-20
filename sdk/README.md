@@ -12,7 +12,7 @@
 Для лицевой анимации есть [эмоции, реакции и независимый рот](AVATAR_EXPRESSIONS.md)
 в пакете revision 6 и общем Godot presenter: обычные и карикатурные формы глаз.
 
-Shared Godot movement and animation: [integration guide](LOCOMOTION.md).
+Для Godot есть [движение и анимации](LOCOMOTION.md) и [здоровье, экипировка и расширенные движения](GAMEPLAY.md).
 В отдельной Bazaar-ветке подготовлены [чтения сервисов игрового базара](BAZAAR.md).
 Оплата через SDK пока недоступна.
 

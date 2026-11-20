@@ -15,6 +15,15 @@ extends Node
 @export var standing_height := 1.8
 @export var crouch_height := 1.4
 @export var radius := 0.27
+@export var slide_speed := 7.5
+@export var slide_duration := 0.65
+@export var bullet_speed := 9.0
+@export var bullet_lift := 7.2
+@export var jet_acceleration := 15.0
+@export var jet_climb_speed := 4.5
+var _mobility: StringName
+var _remaining := 0.0
+var _heading := Vector3.ZERO
 var body: CharacterBody3D
 var collider: CollisionShape3D
 var crouched := false
@@ -50,20 +59,39 @@ func can_stand() -> bool:
 	return body.get_world_3d().direct_space_state.intersect_shape(query,1).is_empty()
 
 func reset() -> void:
+	_mobility = &""
+	_remaining = 0.0
 	body.velocity=Vector3.ZERO;actual_speed=0.0;gait="idle";coyote=0.0;jump_buffer=0.0
 
-func step(delta: float, direction: Vector3, wants_sprint := false, wants_crouch := false, jump_pressed := false, enabled := true, wants_walk := false) -> void:
+func step(delta: float, direction: Vector3, wants_sprint := false, wants_crouch := false, jump_pressed := false, enabled := true, wants_walk := false, mobility: StringName = &"") -> void:
 	if not is_instance_valid(body) or delta<=0:return
 	var on_floor := body.is_on_floor()
 	landed=false
+	direction.y=0;direction=direction.limit_length()
 	if not enabled:
 		direction=Vector3.ZERO;jump_pressed=false;wants_sprint=false
 		jump_buffer=0.0
-	if wants_crouch:crouched=true
+		_mobility = &""
+	elif mobility == &"bullet_jump" and on_floor and not direction.is_zero_approx() and (not crouched or can_stand()):
+		_mobility = &"bullet_jump"
+		_remaining = 0.64
+		_heading = direction.normalized()
+		body.velocity.y = bullet_lift
+	elif mobility == &"slide" and on_floor and actual_speed > walk_speed:
+		_mobility = &"slide"
+		_remaining = slide_duration
+		_heading = Vector3(body.velocity.x, 0, body.velocity.z).normalized()
+	elif mobility == &"jetpack" and (not crouched or can_stand()):
+		_mobility = &"jetpack"
+	elif _mobility == &"jetpack" or _remaining <= 0.0 or (_mobility == &"slide" and not on_floor):
+		_mobility = &""
+	if _mobility == &"slide" or (wants_crouch and _mobility == &""):crouched=true
 	elif crouched and can_stand():crouched=false
 	var height := crouch_height if crouched else standing_height
 	(collider.shape as CapsuleShape3D).height=height;collider.position.y=height*0.5
-	direction.y=0;direction=direction.limit_length()
+	if _mobility != &"":
+		_step_mobility(delta, direction, on_floor)
+		return
 	gait="crouch" if crouched else "sprint" if wants_sprint else "walk" if wants_walk or direction.length()*run_speed<=walk_speed else "run"
 	var speed := crouch_speed if crouched else sprint_speed if wants_sprint else walk_speed if wants_walk else run_speed
 	# Gentle stick travel is a walk; full stick is the usual game jog.
@@ -77,11 +105,7 @@ func step(delta: float, direction: Vector3, wants_sprint := false, wants_crouch 
 		body.velocity.y=jump_speed;coyote=0;jump_buffer=0
 	elif on_floor:body.velocity.y=-0.1
 	else:body.velocity.y-=gravity*delta
-	body.move_and_slide()
-	landed=not on_floor and body.is_on_floor()
-	# Collision-resolved velocity prevents running in place against a wall.
-	var real := body.get_real_velocity()-body.get_platform_velocity()
-	actual_speed=Vector2(real.x,real.z).length()
+	_move_and_measure(on_floor)
 	if actual_speed<0.08:gait="idle"
 	elif crouched:gait="crouch"
 	# Do not slow a running clip almost to a stop for partial stick travel or
@@ -89,3 +113,33 @@ func step(delta: float, direction: Vector3, wants_sprint := false, wants_crouch 
 	elif actual_speed<=run_threshold:gait="walk"
 	elif wants_sprint and actual_speed>run_speed+0.2:gait="sprint"
 	else:gait="run"
+
+## Slide and bullet_jump are edge requests. Jetpack is held while thrust is available.
+func _step_mobility(delta: float, direction: Vector3, was_on_floor: bool) -> void:
+	var horizontal := Vector3(body.velocity.x, 0, body.velocity.z)
+	match _mobility:
+		&"slide":
+			var progress := clampf(_remaining / maxf(slide_duration, 0.001), 0.0, 1.0)
+			horizontal = _heading * lerpf(walk_speed, slide_speed, progress)
+			body.velocity.y = -0.1
+		&"bullet_jump":
+			horizontal = _heading * bullet_speed
+			body.velocity.y -= gravity * delta
+		&"jetpack":
+			horizontal = horizontal.move_toward(direction * run_speed, acceleration * delta)
+			body.velocity.y = minf(jet_climb_speed, body.velocity.y + jet_acceleration * delta)
+	body.velocity.x = horizontal.x
+	body.velocity.z = horizontal.z
+	_move_and_measure(was_on_floor)
+	coyote = 0.0
+	jump_buffer = 0.0
+	gait = _mobility
+	if _mobility != &"jetpack": _remaining -= delta
+	if (_mobility == &"slide" and actual_speed < 0.08) or (_mobility == &"bullet_jump" and (landed or body.is_on_wall() or body.is_on_ceiling())):
+		_remaining = 0.0
+
+func _move_and_measure(was_on_floor: bool) -> void:
+	body.move_and_slide()
+	var real := body.get_real_velocity() - body.get_platform_velocity()
+	actual_speed = Vector2(real.x, real.z).length()
+	landed = not was_on_floor and body.is_on_floor()

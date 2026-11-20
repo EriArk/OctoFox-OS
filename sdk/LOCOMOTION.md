@@ -46,7 +46,7 @@ change a world's scale. Retargeting validates required joints and preserves the
 approved arms-down bind silhouette, fingers and shoulder helpers.
 
 Supported states: idle, walk, run, sprint, crouch idle, crouch walk and airborne
-jump. AnimationPlayer blends transitions once; an additional pose filter is not
+jump. Games can also request [jetpack thrust, a grounded slide or a bullet jump](GAMEPLAY.md), each with its own skeletal clip. AnimationPlayer blends transitions once; an additional pose filter is not
 applied. At bind time, stance foot travel calibrates cadence for the actual
 skeleton. At runtime cadence includes uniform world scale and resolved travel
 speed. Pelvis translation preserves crouch depth and walking support height. Jog/sprint
