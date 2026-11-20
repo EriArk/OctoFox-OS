@@ -19,7 +19,12 @@ class Operation(StrictBody):
     revision: str = Field(pattern=r'^(0|[1-9][0-9]{0,18})$')
 
 
+class Collect(Operation):
+    job: Id
+
+
 class Print(Operation):
+    hours: int | None = Field(default=None, ge=1, le=24)
     style: Literal['traveller', 'mage', 'merchant']
     part: Literal['top', 'bottom', 'boots', 'hat']
 
@@ -72,15 +77,21 @@ def mutate(request, name, body, apply):
 
         try:
             receipt = run_command(BoundDatabase(conn), Principal(player, 'player'), 'inventory.' + name,
-                                  body.operation_id, body.model_dump(mode='json', exclude={'operation_id'}), execute)
+                                  body.operation_id, body.model_dump(mode='json', exclude={'operation_id'}, exclude_none=True), execute)
         except Conflict:
             raise AuthError('operation_payload_conflict', 409) from None
-        return wire({'player_id': player, 'item_id': receipt['resource_id'], 'revision': revision(conn, player)})
+        key = 'job_id' if name == 'print' and body.hours is not None else 'item_id'
+        return wire({'player_id': player, key: receipt['resource_id'], 'revision': revision(conn, player)})
 
 
 @router.post('/v1/me/workshop/print')
 def print_part(request: Request, body: Print):
-    return mutate(request, 'print', body, lambda c, p: workshop.print_piece(c, p, body.style, body.part))
+    return mutate(request, 'print', body, lambda c, p: workshop.print_piece(c, p, body.style, body.part, body.hours))
+
+
+@router.post('/v1/me/workshop/collect')
+def collect(request: Request, body: Collect):
+    return mutate(request, 'collect', body, lambda c, p: workshop.collect(c, p, body.job))
 
 
 @router.post('/v1/me/workshop/activate')

@@ -20,6 +20,9 @@ const IVORY = Color("#f4eddc")
 const MUTED = Color("#b3c3bb")
 const GOLD = Color("#e6c684")
 var workshop
+var next_tick:=0
+var last_ready:Dictionary={}
+var has_materials:=false
 var sheet:=Control.new()
 var page:=0
 var blueprint:=0
@@ -116,7 +119,7 @@ func _ready() -> void:
   rows.append(label(sheet,"",Rect2(928,313+i*48,177,40),22))
   var amount:=label(sheet,"",Rect2(1106,313+i*48,115,40),22,GOLD,true)
   amount.horizontal_alignment=HORIZONTAL_ALIGNMENT_RIGHT;amounts.append(amount)
- part_label=label(sheet,"Choose a part",Rect2(436,511,550,38),22,IVORY,true)
+ part_label=label(sheet,"Choose a part",Rect2(436,511,790,38),22,IVORY,true)
  for i in 4:
   parts.append(button(PARTS[i],Rect2(437+i*201,560,190,48),select_part.bind(i)))
  note=label(sheet,"",Rect2(44,616,900,44),20,MUTED)
@@ -134,12 +137,59 @@ func fit_screen() -> void:
 
 func open() -> void:
  page=0;blueprint=0;part=0;material_index=0;on_parts=false;stick=Vector2i.ZERO
- show();refresh()
+ if is_instance_valid(workshop):workshop.notice=""
+ last_ready.clear();show();refresh()
  if is_instance_valid(workshop):workshop.refresh_workshop()
 
 func print_selected() -> void:
  if not print_button.disabled and is_instance_valid(workshop):
-  workshop.commit("print",{"style":Garment.STYLES[blueprint],"part":Garment.SLOTS[part].to_lower()})
+  var style_id:String=Garment.STYLES[blueprint]
+  var slot:String=Garment.SLOTS[part].to_lower()
+  var job:Dictionary=workshop.inventory.get("prints",{}).get(style_id+"."+slot,{})
+  if not job.is_empty() and seconds_left(job)==0:
+   workshop.commit("collect",{"job":job.id})
+  else:
+   workshop.commit("print",{"style":style_id,"part":slot,"hours":int(workshop.inventory.print_hours[style_id][slot])})
+
+func seconds_left(job:Dictionary) -> int:
+ var elapsed:=int((Time.get_ticks_msec()-int(workshop.stock_received_ms))/1000.0)
+ return maxi(0,int(job.remaining_seconds)-elapsed)
+
+func time_text(seconds:int) -> String:
+ return "%02d:%02d:%02d"%[int(seconds/3600.0),int(seconds/60.0)%60,seconds%60]
+
+func update_print_status() -> void:
+ if not is_instance_valid(workshop) or not workshop.timed_prints or not workshop.inventory.has("print_hours"):
+  for i in parts.size():parts[i].text=PARTS[i]
+  part_label.text="Choose a part";print_button.text="Print part";print_button.disabled=true
+  return
+ var style_id:String=Garment.STYLES[blueprint]
+ var jobs:Dictionary=workshop.inventory.get("prints",{})
+ var slot:String=Garment.SLOTS[part].to_lower()
+ var hours:int=int(workshop.inventory.print_hours[style_id][slot])
+ var job:Dictionary=jobs.get(style_id+"."+slot,{})
+ var ready:=not job.is_empty() and seconds_left(job)==0
+ for i in parts.size():
+  var other:Dictionary=jobs.get(style_id+"."+Garment.SLOTS[i].to_lower(),{})
+  parts[i].text=PARTS[i] if other.is_empty() else PARTS[i]+(" · Ready" if seconds_left(other)==0 else " · Printing")
+ part_label.text="Print time · %d h"%hours
+ if not job.is_empty():
+  part_label.text+=("     Ready to collect" if ready else "     Remaining · "+time_text(seconds_left(job)))
+  if int(job.quantity)>1:part_label.text+="     ×%d"%int(job.quantity)
+ print_button.text="Collect part" if ready else ("Print another" if not job.is_empty() else "Print part")
+ print_button.disabled=workshop.busy or (not ready and not has_materials)
+
+func _process(_delta:float) -> void:
+ if visible and page==0 and Time.get_ticks_msec()>=next_tick:
+  next_tick=Time.get_ticks_msec()+1000
+  var ready:Dictionary={}
+  if is_instance_valid(workshop):
+   var jobs:Dictionary=workshop.inventory.get("prints",{})
+   for sku in jobs:
+    if seconds_left(jobs[sku])==0:ready[sku]=true
+  if ready!=last_ready:
+   last_ready=ready;refresh()
+  else:update_print_status()
 
 func close() -> void:
  if visible:hide();dismissed.emit()
@@ -173,6 +223,12 @@ func refresh() -> void:
   names[i].text=title
   if browsing_sets:
    subtitles[i].text=("Owned" if workshop.units("blueprint",Garment.STYLES[i])>0 else "Blueprint needed") if connected else "4 parts"
+   if connected:
+    for slot in Garment.SLOTS:
+     var job:Dictionary=workshop.inventory.get("prints",{}).get(Garment.STYLES[i]+"."+slot.to_lower(),{})
+     if not job.is_empty():
+      subtitles[i].text="Ready to collect" if seconds_left(job)==0 else "Printing"
+      if seconds_left(job)==0:break
   else:subtitles[i].text=("Held   %d"%workshop.units("material",MATERIALS[i])) if connected else "Held   —"
   list[i].tooltip_text=title
   thumbs[i].present(i,0,not browsing_sets)
@@ -199,8 +255,13 @@ func refresh() -> void:
    var held:int=workshop.units("material",material_name) if connected else 0
    amounts[i].text=("%d / %d"%[held,costs[material_name]]) if connected else "— / %d"%costs[material_name]
    printable=printable and held>=int(costs[material_name]);i+=1
-  print_button.disabled=not printable
-  note.text="A   Print selected part" if printable else ("Blueprint or cartridges required" if connected else "Connect to your inventory to print.")
+  has_materials=printable
+  update_print_status()
+  note.text=""
+  if not connected:note.text="Connect to your inventory to print."
+  elif not workshop.timed_prints or not workshop.inventory.has("print_hours"):note.text="Update the workshop to start timed prints."
+  elif not print_button.disabled:note.text="A   "+print_button.text
+  elif not workshop.inventory.prints.has(style_id+"."+Garment.SLOTS[part].to_lower()):note.text="Blueprint or cartridges required"
   footer.text="← →   Parts      ↑ ↓   Sets      LB / RB   Tabs      B / Esc   Close"
  else:
   var selected:String=MATERIALS[material_index]

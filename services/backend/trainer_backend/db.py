@@ -72,7 +72,7 @@ def grant_runtime(database_url, role):
         'public_profiles': 'SELECT,INSERT,UPDATE',
         'profile_sharing': 'SELECT,INSERT,UPDATE',
         'workshop_rewards': 'SELECT,INSERT', 'workshop_palette': 'SELECT,INSERT',
-        'workshop_play': 'SELECT,INSERT,UPDATE', 'loot_items': 'SELECT', 'loot_revisions': 'SELECT',
+        'workshop_prints': 'SELECT,INSERT,UPDATE(item_id)', 'workshop_play': 'SELECT,INSERT,UPDATE', 'loot_items': 'SELECT', 'loot_revisions': 'SELECT',
         'bazaar_sellers': 'SELECT,INSERT', 'bazaar_listings': 'SELECT,INSERT,UPDATE',
         'bazaar_trades': 'SELECT,INSERT',
         'bazaar_worlds': 'SELECT', 'bazaar_world_places': 'SELECT',

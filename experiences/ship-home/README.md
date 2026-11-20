@@ -9,6 +9,23 @@ A berth is recessed into the aft liner between two illuminated display shelves.
 A galley with an induction hob and sink, a dinette and a planted aquarium share
 the open deck. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
 
+### Ship station references
+
+Warframe’s Orbiter and Arsenal guide the interaction design for Ship Home. At the fitting
+platform the character should stay in view as a player browses outfit cards, picks a part,
+and previews a colour. The proposed wardrobe uses the player's existing saved looks;
+selecting a look and editing its appearance are distinct actions. On the handheld,
+show large colour swatches arranged by palette and only the channels available on the
+selected garment. Preserve the authored cloth and metal response for ordinary pigments.
+Special cartridges can additionally unlock metallic or pearlescent finishes.
+These are design references for the next wardrobe pass.
+[Arsenal and frame selection](https://www.warframe.com/en/patch-notes/pc/37-0-0) ·
+[Official colour picker screenshot](https://www-static.warframe.com/uploads/a370a469ad2348e9f83db978934e27ca.PNG) ·
+[Artist guide to tint masks and materials](https://www.warframe.com/en/steamworkshop/texturing-guide) ·
+[Voidshell materials](https://www.warframe.com/en/patch-notes/pc/31-5-0).
+
+### Using the fabricator and fitting booth
+
 Approach the fabricator and press **A / F** to open its catalogue. Up/down selects
 a reusable set blueprint. Left/right selects an individual piece. Each blueprint
 covers all four pieces; the table shows the requirements for the selected piece.
@@ -16,7 +33,7 @@ covers all four pieces; the table shows the requirements for the selected piece.
 Buttons also support pointer selection. **B / Esc** returns to the ship.
 
 On a connected shell the fabricator displays the profile's stored inventory lots
-and the current server recipe. Select a piece and press **A** again to print it.
+and the current server recipe. Select a piece to see its print time, then press **A** to start. Materials are charged at start. The server records the deadline, including time spent offline. Return to the part and select **Collect part** to put the finished item in your profile inventory. Different parts and additional copies can print in parallel.
 Listed lots are reserved for sale. An offline station shows a dash for unknown balances.
 The layout draws
 on the [Warframe Foundry](https://support.warframe.com/hc/en-us/articles/38385820873741-Foundry-and-Crafting-FAQ).

@@ -214,7 +214,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         auto caps=capabilities();
         peer.shipWorkshop=backend_ && app=="art.abysstail.octofox.ship-home" && takeShipLaunchKey
             && takeShipLaunchKey(args["ship_key"].toString());
-        if(peer.shipWorkshop)caps["ship.workshop"]=1;
+        if(peer.shipWorkshop){caps["ship.workshop"]=1;caps["ship.timed_prints"]=1;}
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}

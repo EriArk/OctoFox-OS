@@ -2,6 +2,8 @@
 extends "res://addons/avatar/avatar_client.gd"
 signal workshop_changed
 var supported := false
+var timed_prints := false
+var stock_received_ms := 0
 var busy := false
 var stock: Dictionary = {}
 var inventory: Dictionary = {}
@@ -21,7 +23,7 @@ func _request(method: String, params: Dictionary={}) -> void:
 
 func disconnect_host() -> void:
  super.disconnect_host()
- expired.clear();supported=false;busy=false;inventory.clear();stock.clear();garments.clear();next_page="";notice=""
+ expired.clear();supported=false;timed_prints=false;busy=false;inventory.clear();stock.clear();garments.clear();next_page="";notice=""
  workshop_changed.emit()
 
 func refresh_workshop() -> void:
@@ -60,6 +62,7 @@ func _packet(packet:Dictionary) -> void:
  if expired.erase(str(packet.get("id",""))):return
  var method:String=pending.get(str(packet.get("id","")),{}).get("method","")
  if method=="hello":
+  timed_prints=packet.get("result",{}).get("capabilities",{}).get("ship.timed_prints")==1
   supported=packet.get("result",{}).get("capabilities",{}).get("ship.workshop")==1
  if not method.begins_with("workshop."):
   super._packet(packet)
@@ -75,7 +78,7 @@ func _packet(packet:Dictionary) -> void:
   workshop_changed.emit()
   return
  if method=="workshop.get":
-  inventory=data;stock.clear()
+  stock_received_ms=Time.get_ticks_msec();inventory=data;stock.clear()
   for entry in data.get("stock",[]):stock[entry.kind+"/"+entry.sku]=int(entry.units)
   replace_garments=true
   _request("workshop.garments")
@@ -85,6 +88,6 @@ func _packet(packet:Dictionary) -> void:
   next_page=str(data.next) if data.get("next") else ""
   busy=false
  else:
-  notice={"print":"Part added to inventory","paint":"Finish saved","activate":"Colour added to your palette"}.get(last_action,"Saved")
+  notice={"print":"Print started","collect":"Part added to inventory","paint":"Finish saved","activate":"Colour added to your palette"}.get(last_action,"Saved")
   _request("workshop.get")
  workshop_changed.emit()

@@ -17,7 +17,7 @@ func run() -> void:
   check(home.walker.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(descriptor))),"SDK character loads")
  home._pause(false)
  var colors={"sea-glass":{"name":"Sea glass","finish":"satin","hex":"#479b91"},"rose-gold":{"name":"Rose gold","finish":"metallic","hex":"#c78d75"},"aurora":{"name":"Aurora violet","finish":"iridescent","hex":"#7966c2"}}
- client.supported=true
+ client.supported=true;client.timed_prints=true
  var fab=home.fabricator
  var recipes:Dictionary={}
  for style in fab.REQUIREMENTS:
@@ -25,6 +25,8 @@ func run() -> void:
   for i in 4:recipes[style][Garment.SLOTS[i].to_lower()]=fab.REQUIREMENTS[style][i]
  var data={"revision":"7","colors":colors,"recipes":recipes,"palette":["sea-glass"],"stock":[{"kind":"blueprint","sku":"traveller","units":1},{"kind":"material","sku":"Cotton","units":6},{"kind":"material","sku":"Aluminium","units":1},{"kind":"pigment","sku":"rose-gold","units":1}]}
  var item={"id":"9bdb9bc5-5ad0-435b-97ee-c178f849adfc","sku":"traveller.top","colors":{"trim":"sea-glass"}}
+ data["print_hours"]={"traveller":{"top":6,"bottom":2,"boots":4,"hat":2}}
+ data["prints"]={}
  var receive=func(payload):
   client._packet({"id":str(client.serial),"result":payload})
  home.walker.position=Vector3(-2.55,0.1,2.45);press(JOY_BUTTON_A)
@@ -32,6 +34,22 @@ func run() -> void:
  check(fab.amounts[0].text=="6 / 6" and not fab.print_button.disabled,"Actual stock enables print")
  press(JOY_BUTTON_A);press(JOY_BUTTON_A)
  check(client.last_action=="print" and client.busy,"Controller prints once")
+ for lot in data.stock:
+  if lot.kind=="material":lot.units=0
+ data.prints={"traveller.top":{"id":item.id,"remaining_seconds":21600,"quantity":1}}
+ receive.call({"job_id":item.id});receive.call(data);receive.call({"items":[],"next":null})
+ check(fab.part_label.text.contains("06:00:00"),"Server duration appears for running print")
+ var print_capture:=OS.get_environment("SHIP_PRINT_CAPTURE")
+ if not print_capture.is_empty() and DisplayServer.get_name()!="headless":
+  await process_frame;await RenderingServer.frame_post_draw
+  check(root.get_texture().get_image().save_png(print_capture)==OK,"Write running print capture")
+ press(JOY_BUTTON_B);press(JOY_BUTTON_A)
+ data.prints["traveller.top"].remaining_seconds=0
+ receive.call(data);receive.call({"items":[],"next":null})
+ check(fab.print_button.text=="Collect part","Completed print survives reopening")
+ press(JOY_BUTTON_A);press(JOY_BUTTON_A)
+ check(client.last_action=="collect","Controller collects the finished part")
+ data.prints={}
  receive.call({"item_id":item.id});receive.call(data);receive.call({"items":[item],"next":null})
  press(JOY_BUTTON_B);home.walker.position=ShipInterior.BOOTH+Vector3(-0.65,0.08,-0.65)
  press(JOY_BUTTON_A);press(JOY_BUTTON_Y)

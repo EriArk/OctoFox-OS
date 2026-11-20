@@ -90,9 +90,11 @@ colour definitions and unlocked colours. Stored garments are individually paged
 at `GET /v1/me/workshop/garments`. The shell passes only typed workshop requests
 from the launched Ship Home process. Credentials stay in the shell.
 
-Print, activate and paint commands require the observed inventory revision and
+Print, collect, activate and paint commands require the observed inventory revision and
 an operation UUID. A successful retry returns its original receipt. The server
 locks the account before checking the current owner, listing state and recipe.
 An exhausted lot stays in storage as a consumed historical identity so previous
 Bazaar sale receipts remain valid. Inventory, printer and market projections
 exclude consumed goods. See the [workshop walkthrough](../../docs/evidence/2026-11-20-ship-workshop/README.md).
+
+Timed print requests include the displayed recipe duration in hours. Starting a job reserves its server deadline and consumes materials atomically. Workshop reads include the earliest uncollected job and count per recipe. Collection validates the owner and deadline and records the minted item in the same transaction.

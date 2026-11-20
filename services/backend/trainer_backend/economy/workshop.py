@@ -14,6 +14,8 @@ RECIPES = {
     'merchant': [('Apron & vest', {'Cotton': 5, 'Steel': 1}), ('Market breeches', {'Cotton': 4}),
                  ('Guild shoes', {'Plastic': 3, 'Steel': 1}), ('Market beret', {'Cotton': 2})],
 }
+# Hours per part in PARTS order, frozen into the job at start.
+PRINT_HOURS = {'traveller': (6, 2, 4, 2), 'mage': (24, 4, 8, 6), 'merchant': (8, 2, 4, 1)}
 COLORS = {
     'sea-glass': ('Sea glass', '#479b91', 'satin'),
     'rose-gold': ('Rose gold', '#c78d75', 'metallic'),
@@ -93,7 +95,14 @@ def snapshot(conn, player):
     counts = conn.execute("SELECT kind,payload->>'sku' sku,sum(coalesce((payload->>'units')::int,1)) units "
                           + STOCK + ' GROUP BY 1,2 ORDER BY 1,2', (player,)).fetchall()
     palette = conn.execute('SELECT color FROM trainer_backend.workshop_palette WHERE player_id=%s ORDER BY color', (player,)).fetchall()
-    return {'player_id': player, 'stock': [{**r, 'units': int(r['units'])} for r in counts],
+    orders = conn.execute("""SELECT DISTINCT ON (sku) sku,id,
+            greatest(0,ceil(extract(epoch FROM ready_at - statement_timestamp())))::int remaining_seconds,
+            count(*) OVER (PARTITION BY sku) quantity
+        FROM trainer_backend.workshop_prints WHERE player_id=%s AND item_id IS NULL
+        ORDER BY sku,ready_at,id""", (player,)).fetchall()
+    return {'print_hours': {style: dict(zip(PARTS, hours)) for style, hours in PRINT_HOURS.items()},
+            'prints': {r['sku']: {k: r[k] for k in ('id', 'remaining_seconds', 'quantity')} for r in orders},
+            'player_id': player, 'stock': [{**r, 'units': int(r['units'])} for r in counts],
             'palette': [r['color'] for r in palette],
             'colors': {key: {'name': name, 'hex': rgb, 'finish': finish} for key, (name, rgb, finish) in COLORS.items()},
             'recipes': {style: {part: costs for part, (_, costs) in zip(PARTS, pieces)} for style, pieces in RECIPES.items()}}
@@ -105,9 +114,12 @@ def stored(conn, player, kind, sku):
                         (player, kind, sku)).fetchone()
 
 
-def print_piece(conn, player, style, part):
+def print_piece(conn, player, style, part, expected_hours):
     if style not in RECIPES or part not in PARTS:
         raise AuthError('unknown_part', 422)
+    hours = PRINT_HOURS[style][PARTS.index(part)]
+    if expected_hours != hours:
+        raise AuthError('review_print_duration', 409)
     if not stored(conn, player, 'blueprint', style):
         raise AuthError('blueprint_required', 409)
     for material, needed in RECIPES[style][PARTS.index(part)][1].items():
@@ -120,7 +132,24 @@ def print_piece(conn, player, style, part):
             data['units'] -= used
             needed -= used
             write(conn, player, 'material', data, lot['id'])
-    return write(conn, player, 'garment', {'sku': style + '.' + part, 'colors': {}})
+    job = uuid4()
+    conn.execute("""INSERT INTO trainer_backend.workshop_prints(id,player_id,sku,ready_at)
+        VALUES(%s,%s,%s,statement_timestamp()+make_interval(hours => %s))""", (job, player, style + '.' + part, hours))
+    return job
+
+
+def collect(conn, player, job):
+    row = conn.execute("""SELECT sku,item_id,ready_at<=clock_timestamp() ready FROM trainer_backend.workshop_prints
+        WHERE player_id=%s AND id=%s FOR UPDATE""", (player, job)).fetchone()
+    if not row:
+        raise AuthError('print_not_found', 404)
+    if row['item_id']:
+        return row['item_id']
+    if not row['ready']:
+        raise AuthError('print_in_progress', 409)
+    item = write(conn, player, 'garment', {'sku': row['sku'], 'colors': {}})
+    conn.execute('UPDATE trainer_backend.workshop_prints SET item_id=%s WHERE id=%s', (item, job))
+    return item
 
 
 def activate(conn, player, color):

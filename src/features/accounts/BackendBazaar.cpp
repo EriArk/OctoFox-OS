@@ -78,7 +78,7 @@ void BackendAccount::workshopRequest(const QString& method,QJsonObject args,Repl
             if(!id(cursor)){done(422,{{"code","invalid_cursor"}});return;}
             path+="?after="+cursor.toString();
         }
-    }else if(method=="workshop.print"||method=="workshop.activate"||method=="workshop.paint"){
+    }else if(method=="workshop.print"||method=="workshop.collect"||method=="workshop.activate"||method=="workshop.paint"){
         verb="POST";path+="/"+method.section('.',1);
     }else if(method!="workshop.get"){done(422,{{"code","unsupported_method"}});return;}
     if(verb=="GET"&&!args.isEmpty()){done(422,{{"code","invalid_request"}});return;}
