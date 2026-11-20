@@ -6,8 +6,9 @@ that icon; Apps remains an alternative. [Device checks](../../docs/evidence/2026
 
 The bow cockpit opens directly into a studio inside the 10.6 × 12.4 metre saucer.
 A berth is recessed into the aft liner between two illuminated display shelves.
-A galley with an induction hob and sink, a dinette and a planted aquarium share
-the open deck. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
+Opposite the galley, a lounge chair and a curved-backed banquette share one movable
+table by the aquarium. The galley stool sits below the breakfast ledge. A clear
+central aisle connects the cockpit, lift and berth. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
 
 ### Ship station references
 
@@ -54,8 +55,13 @@ Stand on the illuminated floor lift and press **A / F** to descend through
 the shaft. The smaller circular service room has walking space around the lift.
 The same control takes the character back up. [Studio views](../../docs/evidence/2026-11-20-ship-studio/README.md).
 
-The pilot seat is surrounded by curved side consoles, a stick, throttle and
-low instruments. Approach from behind and press **A / F** to sit: the camera
+The reclined pilot chair has shoulder bolsters, harness straps and a shock pedestal.
+A split throttle sits on the left and a thumb-operated stick on the right.
+The low dash groups the attitude ladder, circular scanner and saucer outline
+below the canopy. [Pilot view](../../docs/evidence/2026-11-20-ship-cockpit/pilot.jpg)
+· [Seat](../../docs/evidence/2026-11-20-ship-cockpit/seat.jpg)
+· [Lounge](../../docs/evidence/2026-11-20-ship-cockpit/salon.jpg).
+Approach from behind and press **A / F** to sit: the camera
 switches to the pilot's eyes. Mouse/right stick turns the view; **B / Esc / A / F**
 stands up in a collision-checked free space and restores the chase camera.
 Start/P opens the menu while seated. Flight controls remain unimplemented.
@@ -112,7 +118,7 @@ Native Home/minimize/return acceptance with the handheld compositor is still pen
 
 Seven starter furniture types can be placed, moved, rotated and removed. A
 translucent green preview means placement is valid; red means it overlaps a
-solid object or blocks a protected route. Changes save immediately. Undo restores
+solid object or blocks a protected route. An older save that still matches the original starter arrangement opens with the new furniture layout. Custom arrangements retain their saved coordinates. Changes save immediately. Undo restores
 the previous arrangement. The menu releases the mouse; losing focus pauses
 movement and caps rendering at 10 fps. Foreground rendering is capped at 60 fps.
 The chase camera retracts against walls. At very short distances, the character

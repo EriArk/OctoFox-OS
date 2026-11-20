@@ -13,6 +13,8 @@ func run() -> void:
  if out.is_empty():out="/tmp/ship-design"
  DirAccess.make_dir_recursive_absolute(out)
  var points={
+  "seat":[Vector3(1.53,1.52,-4.62),Vector3(0,0.78,-3.48)],
+  "salon":[Vector3(-0.20,1.56,2.92),Vector3(2.88,0.82,0.30)],
   "bridge":[Vector3(1.15,1.70,-0.7),Vector3(0,1.25,-4.4)],
   "cockpit":[Vector3(0.45,1.52,-2.4),Vector3(0,1.2,-4.8)],
   "lounge":[Vector3(-0.3,1.65,-2.05),Vector3(3.2,1.1,-0.25)],

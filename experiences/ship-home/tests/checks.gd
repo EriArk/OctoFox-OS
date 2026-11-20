@@ -28,7 +28,14 @@ func run() -> void:
  var moved=original.duplicate(true);moved[0].x=-3.0
  check(store.save(moved),"Atomic replacement")
  check(store.load_home("alpha")[0].x==-3.0,"Saved arrangement survives reload")
- check(store.load_home("beta")[0].x==-1.95,"Profiles have independent layouts")
+ check(store.load_home("beta")[0].x==original[0].x,"Profiles have independent layouts")
+ var legacy=ShipLayoutStore.ORIGINAL_FURNISHINGS.duplicate(true)
+ for customized in [false,true]:
+  if customized:legacy[0].angle+=0.25
+  var old=FileAccess.open(store.path(),FileAccess.WRITE)
+  old.store_string(JSON.stringify({"schema":1,"owner":"beta","items":legacy}));old.close()
+  var restored=store.load_home("beta")
+  check(is_equal_approx(restored[0].angle,legacy[0].angle if customized else original[0].angle),"Keep player edits when upgrading starter layout")
  var bad=original.duplicate(true);bad[0].x=NAN;check(not ShipLayoutStore.valid(bad),"Reject non-finite positions")
  bad=original.duplicate(true);bad[0].item="../../foreign";check(not store.save(bad),"Reject unknown items")
  store.load_home("alpha");var file=FileAccess.open(store.path(),FileAccess.WRITE);file.store_string("broken");file.close()

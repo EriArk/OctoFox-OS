@@ -268,7 +268,7 @@ func console_pod(parent:Node3D,width:float,depth:float) -> void:
    for k in [0,1,2,0,2,3]:st.add_vertex(vertices[k])
  # Top faces upward, with a separate normal from the rounded side wall.
  st.generate_normals()
- var mesh=MeshInstance3D.new();mesh.mesh=st.commit();mesh.material_override=material(PAPER);parent.add_child(mesh)
+ var mesh=MeshInstance3D.new();mesh.mesh=st.commit();mesh.material_override=material(Color("45515a"));parent.add_child(mesh)
  var cap:Array[Vector3]=[]
  for point in rings[-1]:cap.append(point)
  cap.reverse();panel(parent,cap,TRIM)
@@ -278,63 +278,143 @@ func console_pod(parent:Node3D,width:float,depth:float) -> void:
  var body=StaticBody3D.new();var collider=CollisionShape3D.new();var bounds=BoxShape3D.new()
  bounds.size=Vector3(width,0.82,depth);collider.shape=bounds;collider.position.y=0.41;body.add_child(collider);parent.add_child(body)
 
-func instrument(parent:Node3D,pos:Vector3,angle:float,radar:bool=false) -> void:
- var root=Node3D.new();root.position=pos;root.rotation=Vector3(-0.45,angle,0);parent.add_child(root)
- box(root,Vector3.ZERO,Vector3(0.58,0.30,0.025),Color("15232d"))
- box(root,Vector3(0,0,0.016),Vector3(0.53,0.25,0.003),Color("15232d"))
- var ink=Color("bf7937")
- if radar:
-  for radius in [0.04,0.075,0.108]:
-   var points:Array[Vector3]=[]
-   for k in 65:points.append(Vector3(cos(k*TAU/64)*radius,sin(k*TAU/64)*radius,0.022))
-   tube(root,points,0.0015,ink,true)
-  for side in [-1,1]:box(root,Vector3(side*0.19,0,0.022),Vector3(0.065,0.003,0.002),ink,false,true)
- else:
-  # Idle linework only: no invented fuel, destination, ownership or flight state.
-  for y in [-0.075,0.01,0.09]:
-   box(root,Vector3(-0.11,y,0.022),Vector3(0.20,0.003,0.002),ink,false,true)
-   box(root,Vector3(0.15,y,0.022),Vector3(0.10,0.003,0.002),Color("557f8b"),false,true)
- for x in [-0.26,0.26]:box(root,Vector3(x,-0.11,0.023),Vector3(0.008,0.015,0.002),ink,false,true)
+# Rounded octagonal sections describe the castings and upholstery. Each row is
+# (height, half-width, front Z, back Z), so the chair narrows through the waist.
+func formed_shell(parent:Node3D,rows:Array[Vector4],color:Color) -> void:
+ var previous: Array[Vector3]=[]
+ for row in rows:
+  var x:=row.y;var f:=row.z;var b:=row.w
+  var bevel:=minf(x*0.42,(b-f)*0.30)
+  var ring:Array[Vector3]=[]
+  for point:Vector2 in [Vector2(-x+bevel,f),Vector2(x-bevel,f),Vector2(x,f+bevel),Vector2(x,b-bevel),Vector2(x-bevel,b),Vector2(-x+bevel,b),Vector2(-x,b-bevel),Vector2(-x,f+bevel)]:
+   ring.append(Vector3(point.x,row.x,point.y))
+  if previous.is_empty():panel(parent,ring,color)
+  else:
+   for j in ring.size():
+    var k:=(j+1)%ring.size()
+    panel(parent,[previous[j],ring[j],ring[k],previous[k]],color)
+  previous=ring
+ previous.reverse();panel(parent,previous,color)
+
+func pilot_seat(root:Node3D) -> void:
+ var frame:=Color("364854");var leather:=Color("784e3a");var pad:=Color("b5734d")
+ # Twin slide rails and a shock pedestal below the single-piece seat pan.
+ for side in [-1,1]:
+  box(root,Vector3(side*0.25,0.055,0.30),Vector3(0.09,0.085,0.84),frame)
+  strut(root,Vector3(side*0.24,0.10,0.55),Vector3(side*0.18,0.37,0.16),0.066,0.075,BRASS)
+ cylinder(root,Vector3(0,0.23,0.34),0.23,0.28,frame,0.16)
+ formed_shell(root,[Vector4(0.35,0.27,0.03,0.69),Vector4(0.43,0.38,-0.02,0.76),Vector4(0.48,0.36,-0.02,0.74)],frame)
+ box(root,Vector3(0,0.45,0.35),Vector3(0.63,0.12,0.66),leather,true)
+ box(root,Vector3(0,0.50,0.32),Vector3(0.49,0.086,0.54),pad)
+ # The reclined back, scapular wings and neck cushion follow the same rake.
+ var back:=Node3D.new();back.position=Vector3(0,0.47,0.58);back.rotation.x=0.16;root.add_child(back)
+ formed_shell(back,[Vector4(0,0.27,0,0.15),Vector4(0.22,0.29,0,0.18),Vector4(0.53,0.39,0,0.20),Vector4(0.68,0.36,0.02,0.20),Vector4(0.79,0.20,0.045,0.17)],frame)
+ box(back,Vector3(0,0.36,0.08),Vector3(0.55,0.74,0.15),frame,true)
+ for i in 4:
+  box(back,Vector3(0,0.10+i*0.145,-0.017),Vector3(0.40+0.032*i,0.136,0.11),pad)
+ box(back,Vector3(0,0.81,0.065),Vector3(0.40,0.23,0.15),leather)
+ # An inset rear service panel and the shoulder handle are visible on boarding.
+ box(back,Vector3(0,0.42,0.197),Vector3(0.37,0.39,0.028),Color("24343c"))
+ for i in 4:
+  box(back,Vector3(0,0.32+i*0.064,0.217),Vector3(0.24-i*0.014,0.018,0.021),Color("637580"))
+ tube(back,[Vector3(-0.16,0.68,0.17),Vector3(-0.13,0.71,0.226),Vector3(0.13,0.71,0.226),Vector3(0.16,0.68,0.17)],0.022,BRASS)
+ for side in [-1,1]:
+  var cheek=box(back,Vector3(side*0.274,0.43,-0.022),Vector3(0.12,0.41,0.15),leather)
+  cheek.rotation.z=-side*0.19
+  var bolster=box(root,Vector3(side*0.29,0.53,0.35),Vector3(0.12,0.13,0.51),leather)
+  bolster.rotation.z=side*0.15
+  strut(back,Vector3(side*0.18,0.63,-0.085),Vector3(side*0.115,0.10,-0.087),0.043,0.016,Color("333a3a"))
+  box(back,Vector3(side*0.12,0.15,-0.099),Vector3(0.055,0.062,0.018),BRASS)
+  strut(back,Vector3(side*0.23,0.09,0.18),Vector3(side*0.29,0.56,0.21),0.052,0.045,Color("637580"))
+  box(back,Vector3(side*0.22,0.61,0.204),Vector3(0.14,0.040,0.018),BRASS)
+  strut(root,Vector3(side*0.32,0.42,0.57),Vector3(side*0.38,0.70,0.38),0.06,0.075,frame)
+  box(root,Vector3(side*0.38,0.71,0.30),Vector3(0.13,0.075,0.41),leather)
+
+func scope_arc(parent:Node3D,origin:Vector3,radius:float,start:float,end:float,color:Color,wire:float) -> void:
+ var path:Array[Vector3]=[]
+ for i in 49:
+  var a:=lerpf(start,end,i/48.0)
+  path.append(origin+Vector3(sin(a)*radius,0,cos(a)*radius))
+ tube(parent,path,wire,color,true)
+
+func flight_deck(root:Node3D) -> void:
+ var graphite:=Color("283945");var inset:=Color("18262e");var amber:=Color("d3833a")
+ # A single recessed island ties chair rails, side consoles and dash to the deck.
+ formed_shell(root,[Vector4(0.006,0.86,-1.14,0.94),Vector4(0.029,0.83,-1.12,0.92)],Color("475453"))
+ for side in [-1,1]:
+  strut(root,Vector3(side*0.81,0.53,-0.98),Vector3(side*1.28,0.51,-1.45),0.12,0.14,graphite)
+ # A low wraparound coaming with an inclined, open-faced navigation scope.
+ var dash:=Node3D.new();dash.position=Vector3(0,0,-0.84);root.add_child(dash)
+ formed_shell(dash,[Vector4(0.38,0.49,-0.09,0.13),Vector4(0.72,0.94,-0.22,0.19),Vector4(0.80,1.02,-0.24,0.20),Vector4(0.84,0.96,-0.21,0.18)],graphite)
+ box(dash,Vector3(0,0.67,0),Vector3(1.72,0.26,0.34),graphite,true)
+ var scope:=Node3D.new();scope.position=Vector3(0,0.895,0.018);scope.rotation.x=0.22;dash.add_child(scope)
+ cylinder(scope,Vector3.ZERO,0.265,0.045,graphite)
+ cylinder(scope,Vector3.UP*0.024,0.252,0.012,inset)
+ var center:=Vector3.UP*0.042
+ for radius in [0.08,0.155,0.235]:scope_arc(scope,center,radius,0,TAU,amber if radius>0.20 else Color("805733"),0.0024)
+ for i in 12:
+  var direction:=Vector3(sin(i*TAU/12),0,cos(i*TAU/12))
+  beam(scope,center+direction*0.205,center+direction*0.233,0.003,amber,true)
+ for i in 4:
+  var d:=Vector3(sin(i*PI/2),0,cos(i*PI/2))
+  beam(scope,center+d*0.078,center+d*0.205,0.002,Color("795d3a"),true)
+ for x in [-0.042,0.042]:beam(scope,center+Vector3(x,0.001,0.036),center+Vector3(0,0.002,-0.045),0.004,amber,true)
+ # Idle instruments use engraved scales and our own saucer's wire silhouette.
+ for side in [-1,1]:
+  var dial:=Node3D.new();dial.position=Vector3(side*0.56,0.916,0.015)
+  dial.rotation=Vector3(0.38,-side*0.24,0);dash.add_child(dial)
+  var bezel=box(dial,Vector3.ZERO,Vector3(0.43,0.045,0.32),inset)
+  if side>0:
+   scope_arc(bezel,Vector3.UP*0.032,0.13,PI*0.72,PI*2.28,Color("996837"),0.003)
+   var outline:Array[Vector3]=[]
+   for i in 41:
+    var a:=i*TAU/40;outline.append(Vector3(0.096*cos(a),0.056,0.056*sin(a)))
+   tube(dial,outline,0.004,amber,true)
+   for axis in [Vector2(0.093,0),Vector2(0,0.053)]:
+    var dome:Array[Vector3]=[]
+    for i in 17:
+     var a:=i*PI/16
+     dome.append(Vector3(axis.x*cos(a),0.056+0.042*sin(a),axis.y*cos(a)))
+    tube(dial,dome,0.0028,amber,true)
+  else:
+   # Attitude ladder with a fixed centre index, distinct from the sensor disc.
+   for i in range(-2,3):
+    var span:=0.135 if i==0 else (0.074 if absi(i)==1 else 0.043)
+    for edge in [-1,1]:
+     beam(dial,Vector3(edge*0.015,0.032,i*0.037),Vector3(edge*span,0.032,i*0.037),0.0028,amber,true)
+   tube(dial,[Vector3(-0.038,0.041,0),Vector3(0,0.041,0.024),Vector3(0.038,0.041,0)],0.004,Color("8bb6b1"),true)
+  # Recessed louvers under the tilted instrument castings.
+  for j in 4:
+   box(dash,Vector3(side*(0.43+j*0.083),0.757,0.193),Vector3(0.049,0.022,0.014),inset)
+ for side in [-1,1]:
+  var wing:=Node3D.new();wing.position=Vector3(side*0.55,0,-0.13);wing.rotation.y=-side*0.14;root.add_child(wing)
+  console_pod(wing,0.36,1.12)
+  for j in 3:
+   box(wing,Vector3(-0.093+0.09*j,0.798,-0.34),Vector3(0.062,0.027,0.082),graphite)
+   box(wing,Vector3(-0.093+0.09*j,0.814,-0.35),Vector3(0.035,0.005,0.012),amber,false,true)
+  var hand:=Node3D.new();hand.position=Vector3(0,0.058,-0.27);wing.add_child(hand)
+  cylinder(hand,Vector3(0,0.75,0.16),0.107,0.045,inset)
+  if side>0:
+   cylinder(hand,Vector3(0,0.80,0.16),0.072,0.065,graphite,0.045)
+   strut(hand,Vector3(0,0.83,0.16),Vector3(-0.035,0.98,0.11),0.056,0.069,graphite)
+   var grip:=Node3D.new();grip.position=Vector3(-0.032,0.95,0.114);grip.rotation.z=-0.10;hand.add_child(grip)
+   formed_shell(grip,[Vector4(0,0.045,-0.036,0.035),Vector4(0.057,0.036,-0.050,0.036),Vector4(0.124,0.045,-0.078,0.042),Vector4(0.153,0.058,-0.083,0.042),Vector4(0.174,0.054,-0.068,0.027)],inset)
+   var hat=cylinder(grip,Vector3(-0.019,0.164,0.030),0.022,0.014,Color("637580"));hat.rotation.x=0.73
+   box(grip,Vector3(0.028,0.150,0.044),Vector3(0.020,0.018,0.011),Color("c78244"))
+   box(grip,Vector3(0,0.10,-0.070),Vector3(0.050,0.040,0.030),BRASS)
+   for i in 3:box(grip,Vector3(0,0.038+i*0.020,0.037),Vector3(0.055,0.007,0.008),graphite)
+  else:
+   for x in [-0.068,0.068]:strut(hand,Vector3(x,0.77,0.21),Vector3(x,0.89,0.085),0.035,0.049,graphite)
+   for x in [-0.054,0.054]:
+    var lever:=Node3D.new();lever.position=Vector3(x,0.875,0.085);hand.add_child(lever)
+    formed_shell(lever,[Vector4(0,0.048,-0.045,0.060),Vector4(0.050,0.052,-0.065,0.075),Vector4(0.084,0.047,-0.050,0.055)],inset)
+    box(lever,Vector3(0,0.085,0),Vector3(0.020,0.005,0.071),Color("ab7544"))
+  var pedal=box(root,Vector3(side*0.16,0.16,-0.28),Vector3(0.19,0.065,0.26),graphite);pedal.rotation.x=0.37
+  for i in 3:box(pedal,Vector3(0,0.034,-0.08+i*0.064),Vector3(0.14,0.01,0.018),BRASS)
 
 func console(parent:Node3D) -> void:
- var root=Node3D.new();root.position=Vector3(0,0,-3.75);parent.add_child(root)
- # HOTAS-like controls and angled side panels surround one low pilot seat.
- for side in [-1,1]:
-  var wing=Node3D.new();wing.position=Vector3(side*0.76,0,0.02);wing.rotation.y=side*0.27;root.add_child(wing)
-  console_pod(wing,0.50,1.35)
-  instrument(wing,Vector3(0,1.00,-0.44),side*0.40)
-  for j in 4:
-   box(wing,Vector3(-0.14+j*0.095,0.78,-0.10),Vector3(0.06,0.015,0.08),Color("778b91"))
-   box(wing,Vector3(-0.14+j*0.095,0.795,-0.10),Vector3(0.025,0.003,0.008),Color("bd8146"),false,true)
-  box(wing,Vector3(0,0.76,0.28),Vector3(0.23,0.035,0.23),Color("17232c"))
-  if side>0:
-   strut(wing,Vector3(0,0.80,0.28),Vector3(-0.025,1.01,0.24),0.04,0.04,TRIM)
-   var grip=box(wing,Vector3(-0.025,1.05,0.24),Vector3(0.085,0.13,0.075),Color("1a242d"));grip.rotation.x=-0.20
-   cylinder(wing,Vector3(-0.025,1.12,0.24),0.018,0.008,Color("c0894c"))
-  else:
-   for x in [-0.07,0.07]:strut(wing,Vector3(x,0.80,0.26),Vector3(x,0.92,0.16),0.02,0.025,TRIM)
-   box(wing,Vector3(0,0.94,0.16),Vector3(0.20,0.065,0.09),Color("17232c"))
- # Low brow leaves the panorama clear; its centre display sits beneath eye level.
- var brow=box(root,Vector3(0,0.77,-0.86),Vector3(1.65,0.065,0.40),TRIM,true);brow.rotation.x=-0.14
- instrument(root,Vector3(0,0.94,-0.87),0,true)
- for x in [-0.56,0.56]:instrument(root,Vector3(x,0.94,-0.79),-x*0.5)
- label(root,"STANDBY",Vector3(0,0.68,-0.63),0,17,BRASS)
- # Formed seat shell: separate fabric pads, exposed frame and harness.
- for x in [-0.20,0.20]:box(root,Vector3(x,0.15,0.35),Vector3(0.075,0.30,0.65),TRIM)
- box(root,Vector3(0,0.43,0.35),Vector3(0.64,0.065,0.66),PAPER,true)
- box(root,Vector3(0,0.49,0.35),Vector3(0.50,0.055,0.53),Color("b5734d"))
- var back=Node3D.new();back.position=Vector3(0,0.86,0.65);back.rotation.x=0.10;root.add_child(back)
- box(back,Vector3.ZERO,Vector3(0.64,0.82,0.12),PAPER,true)
- for y in [-0.20,0.12]:box(back,Vector3(0,y,-0.045),Vector3(0.49,0.27,0.04),Color("b5734d"))
- box(back,Vector3(0,0.47,0),Vector3(0.39,0.18,0.12),Color("b5734d"))
- for side in [-1,1]:
-  strut(back,Vector3(side*0.17,0.37,-0.075),Vector3(side*0.08,-0.29,-0.075),0.035,0.012,Color("25323c"))
-  strut(root,Vector3(side*0.34,0.40,0.62),Vector3(side*0.34,0.69,0.47),0.035,0.04,TRIM)
-  box(root,Vector3(side*0.34,0.70,0.36),Vector3(0.075,0.035,0.37),TRIM)
- # Foot pedals and deck rails remain low; no freestanding walls around the cockpit.
- for side in [-1,1]:
-  var foot=box(root,Vector3(side*0.17,0.13,-0.22),Vector3(0.19,0.035,0.25),Color("6b7b7e"));foot.rotation.x=0.30
-  box(root,Vector3(side*0.42,0.025,0.27),Vector3(0.04,0.03,1.1),TRIM)
+ var root:=Node3D.new();root.position=Vector3(0,0,-3.75);parent.add_child(root)
+ flight_deck(root);pilot_seat(root)
  # Two outer canopy spars carry a small overhead panel, leaving the centre open.
  for side in [-1,1]:
   strut(parent,Vector3(side*2.65,0.60,-4.65),Vector3(side*1.25,2.55,-3.5),0.065,0.10,TRIM)
@@ -393,16 +473,22 @@ func fittings(parent:Node3D) -> void:
  box(booth,Vector3(0,0.26,0),Vector3(1.75,0.52,0.72),TRIM,true)
  box(booth,Vector3(0,0.57,0),Vector3(1.74,0.14,0.73),Color("c77f50"))
  box(booth,Vector3(0,0.88,-0.29),Vector3(1.78,0.65,0.18),Color("698773"))
- var top=cylinder(booth,Vector3(0,0.74,0.68),0.48,0.07,WOOD);top.scale.x=1.35
- cylinder(booth,Vector3(0,0.36,0.68),0.08,0.72,TRIM)
+ # The portable table serves both this banquette and the facing lounge chair.
+ for side in [-1,1]:
+  box(booth,Vector3(side*0.83,0.69,-0.01),Vector3(0.13,0.19,0.59),WOOD)
+  box(booth,Vector3(side*0.83,0.76,-0.01),Vector3(0.14,0.055,0.58),Color("b5734d"))
  # Upholstery seams and a practical reading strip finish the fitted dinette.
  for x in [-0.55,0,0.55]:
   box(booth,Vector3(x,0.94,-0.185),Vector3(0.012,0.42,0.008),Color("9cad8b"))
+ for x in [-0.56,0.56]:
+  tube(booth,[Vector3(x,1.12,-0.33),Vector3(x,1.84,-0.33),Vector3(x,1.91,-0.24)],0.022,TRIM)
  strip_lamp(booth,Vector3(0,1.91,-0.24),1.22)
  # Small galley integrated into the opposite shoulder, with overhead storage.
  var galley=Node3D.new();galley.position=Vector3(-3.65,0,-0.85);galley.rotation.y=0.5;parent.add_child(galley)
  box(galley,Vector3(0,0.42,0),Vector3(1.7,0.84,0.64),Color("74917b"),true)
- box(galley,Vector3(0,0.88,0),Vector3(1.74,0.08,0.70),WOOD)
+ box(galley,Vector3(0,0.88,0.085),Vector3(1.74,0.08,0.87),WOOD)
+ # Clear counter edge and a footrail make a perch without another table.
+ tube(galley,[Vector3(-0.63,0.24,0.32),Vector3(-0.63,0.24,0.48),Vector3(0.63,0.24,0.48),Vector3(0.63,0.24,0.32)],0.019,BRASS)
  box(galley,Vector3(0,1.91,-0.23),Vector3(1.7,0.52,0.3),PAPER)
  strip_lamp(galley,Vector3(0,1.62,-0.14),1.47)
  for x in [-0.56,0,0.56]:
@@ -498,9 +584,12 @@ func furniture(id: String, solid: bool=true) -> Node3D:
   "lamp":
    cylinder(root,Vector3(0,0.04,0),0.23,0.08,TRIM)
    cylinder(root,Vector3(0,0.8,0),0.035,1.6,BRASS)
-   var light=MeshInstance3D.new();var capsule=CapsuleMesh.new();capsule.radius=0.14;capsule.height=0.5
-   light.mesh=capsule;light.position=Vector3(0,1.6,0);light.material_override=material(Color("f3d6a4"),true);root.add_child(light)
-   for y in [1.34,1.86]:cylinder(root,Vector3(0,y,0),0.16,0.06,PAPER)
+   # Shield the light at eye level; aim the reading head toward the seating.
+   var head:=Node3D.new();head.position=Vector3(0,1.56,-0.09);head.rotation.x=0.57;root.add_child(head)
+   cylinder(head,Vector3(0,0.049,0),0.205,0.17,Color("698773"),0.092)
+   cylinder(head,Vector3(0,-0.036,0),0.209,0.025,BRASS)
+   var lens=cylinder(head,Vector3(0,-0.050,0),0.184,0.008,Color("e4c294"))
+   lens.material_override=material(Color("e4c294"),true)
   "stool":
    cylinder(root,Vector3(0,0.6,0),0.32,0.16,Color("8eaa92"))
    for i in 3:
@@ -508,7 +597,11 @@ func furniture(id: String, solid: bool=true) -> Node3D:
   "books":
    for i in 4:box(root,Vector3(0,0.045+i*0.075,0),Vector3(0.42,0.07,0.3),[Color("a55e48"),Color("d4b978"),TRIM,Color("6e8d80")][i])
   "rug":
-   var pad=cylinder(root,Vector3(0,0.015,0),1.4,0.025,Color("b36343"));pad.scale.z=0.7
+   var pad=cylinder(root,Vector3(0,0.015,0),1.4,0.025,Color("a8634a"));pad.scale.z=0.7
+   for r in [1.27,1.32]:
+    var edge:Array[Vector3]=[]
+    for i in 65:edge.append(Vector3(cos(i*TAU/64)*r,0.029,sin(i*TAU/64)*r*0.7))
+    tube(root,edge,0.006,Color("cea27d"))
  if solid and id!="rug":
   var body=StaticBody3D.new();body.collision_layer=2;body.collision_mask=0
   var c=CollisionShape3D.new();var b=BoxShape3D.new();var f=footprint(id)

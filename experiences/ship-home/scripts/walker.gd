@@ -22,7 +22,7 @@ var standing_position=Vector3.ZERO
 var standing_yaw=0.0
 var standing_pitch=0.0
 const PILOT_ORIGIN=Vector3(0,0.02,-3.40)
-const PILOT_EYE=Vector3(0,1.23,-0.08)
+const PILOT_EYE=Vector3(0,1.24,0.09)
 
 func _ready() -> void:
  collision_layer=4;collision_mask=3;floor_snap_length=0.3
