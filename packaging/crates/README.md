@@ -1,5 +1,9 @@
 # Crates package recipes and host installer
 
+## Catalogue generations
+
+New shells carry the v2 verification key and fetch `/v2/catalogue`. The server keeps the independently signed v1 snapshot at `/v1/catalogue` for existing installations. Publish v2 revisions in `traineros-crates/data/v2`. Only the public key belongs in that directory. Keep the signing key in the maintainer’s protected storage. An old client cache is verified before reuse. A changed key triggers a full fetch.
+
 Each `recipes/<id>.json` pins an upstream revision and the entry point prepared
 by `build.py`. Run the build inside the reviewed Armada Fedora 44 ARM64 builder,
 never on the player's device. Required build packages are CMake, GCC, Git,

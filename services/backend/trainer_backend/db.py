@@ -38,7 +38,14 @@ def migrations():
 def _history_matches(rows, expected, *, complete):
     actual = [(r['version'], r['checksum']) for r in rows]
     wanted = [(version, digest) for version, digest, _ in expected]
-    if actual != wanted[:len(actual)] or (complete and len(actual) != len(wanted)):
+    if actual == wanted[:len(actual)] and (not complete or len(actual) == len(wanted)):
+        return
+    # Before the merge, each published branch had its own signed-off history.
+    # Accept exact prefixes of either legacy chain, including the original hashes.
+    festival = {'0024_festival_tickets.sql', '0025_island_counter.sql'}
+    main_chain = [row for row in wanted if row[0] not in festival and row[0] <= '0031_ship_supplies.sql']
+    festival_chain = [row for row in wanted if row[0] < '0024' or row[0] in festival]
+    if complete or all(actual != chain[:len(actual)] for chain in (main_chain, festival_chain)):
         raise MigrationError('schema_history_mismatch')
 
 
@@ -54,7 +61,10 @@ def migrate(database_url):
             applied_at timestamptz NOT NULL DEFAULT clock_timestamp())''')
         rows = conn.execute('SELECT version,checksum FROM trainer_backend.schema_migrations ORDER BY version').fetchall()
         _history_matches(rows, expected, complete=False)
-        for version, digest, sql in expected[len(rows):]:
+        applied = {row['version'] for row in rows}
+        for version, digest, sql in expected:
+            if version in applied:
+                continue
             conn.execute(sql, prepare=False)
             conn.execute('INSERT INTO trainer_backend.schema_migrations(version,checksum) VALUES (%s,%s)', (version, digest))
     return len(expected)

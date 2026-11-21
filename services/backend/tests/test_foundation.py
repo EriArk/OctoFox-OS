@@ -260,3 +260,18 @@ def test_server_settings_load_secret_file(tmp_path, monkeypatch):
     assert settings.environment == 'server' and settings.host == '0.0.0.0'
     assert settings.database_url == secret.read_text()
     assert 'not-in-repr' not in repr(settings)
+
+
+@pytest.mark.parametrize('festival', [False, True])
+def test_merge_existing_schema_history(festival):
+    from trainer_backend.db import _history_matches
+    schema = migrations()
+    branch_files = {'0024_festival_tickets.sql', '0025_island_counter.sql'}
+    rows = [dict(version=name, checksum=checksum) for name, checksum, _ in schema
+            if name < '0024' or (name in branch_files) == festival]
+    _history_matches(rows, schema, complete=False)
+    with pytest.raises(MigrationError):
+        _history_matches(rows, schema, complete=True)
+    rows[-1]['checksum'] = '0' * 64
+    with pytest.raises(MigrationError):
+        _history_matches(rows, schema, complete=False)

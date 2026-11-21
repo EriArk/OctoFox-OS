@@ -12,6 +12,7 @@ from test_bazaar import prepared, development_payments
 def test_paid_gallery_and_collectible(account, postgres, monkeypatch):
     shop, user, service = prepared(account, postgres)
     token = user['access_token']
+    initial_items = read_inventory(account,token)['total']
     balance = shop.progression.snapshot(token)['balance']
     op = uuid4()
     def enter(_):
@@ -22,7 +23,7 @@ def test_paid_gallery_and_collectible(account, postgres, monkeypatch):
     with pytest.raises(AuthError, match='ticket_already_open'):
         festival.enter(service, token, 'gallery', uuid4(), 10)
     assert shop.progression.snapshot(token)['balance'] == balance-10
-    assert read_inventory(account,token)['total']==0
+    assert read_inventory(account,token)['total']==initial_items
     monkeypatch.setattr(policy, 'PAYMENTS_AVAILABLE', False)
     coords = [(-142,94),(-142,94),(0,94),(142,94),(200,250)]
     for index,(x,y) in enumerate(coords):
@@ -31,7 +32,9 @@ def test_paid_gallery_and_collectible(account, postgres, monkeypatch):
         assert festival.status(service,token,'gallery')['round']==result['round']
     assert [s['points'] for s in result['round']['attempts']]==[1,0,1,1,0]
     assert result['round']['complete'] and result['round']['prize']=='Honey Bear'
-    items=read_inventory(account,token)['items']
+    inventory=read_inventory(account,token)
+    assert inventory['total']==initial_items+1
+    items=[item for item in inventory['items'] if item['id']==one]
     assert len(items)==1 and items[0]['presentation']['title']=='Honey Bear'
     assert items[0]['id']==one and items[0]['state']=='stored'
     with pytest.raises(AuthError,match='market_closed'):
@@ -41,6 +44,7 @@ def test_paid_gallery_and_collectible(account, postgres, monkeypatch):
 def test_ring_score_and_cup_ticket(account,postgres):
     shop,user,s=prepared(account,postgres)
     token=user['access_token']
+    initial_items = read_inventory(account,token)['total']
     ticket=festival.enter(s,token,'rings',uuid4(),10)['round']['id']
     with pytest.raises(AuthError,match='round_changed'):
         festival.attempt(s,token,'rings',ticket,2,0,0)
@@ -49,7 +53,7 @@ def test_ring_score_and_cup_ticket(account,postgres):
     for game in ['golf_local','golf_online']:
         cup=festival.enter(s,token,game,uuid4(),festival.PRICES[game])['round']
         assert festival.attempt(s,token,game,cup['id'],0,0,0)['round']['complete']
-    assert read_inventory(account,token)['total']==0
+    assert read_inventory(account,token)['total']==initial_items
 
 
 def test_ticket_requires_quoted_price_and_belongs_to_buyer(account, postgres):

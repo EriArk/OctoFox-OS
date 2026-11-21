@@ -16,7 +16,7 @@ import urllib.request
 
 MAX_BYTES = 12 * 1024 * 1024
 PUBLIC_KEY = Path(__file__).with_name('catalogue-key.pem')
-ENDPOINT = 'https://crates.abysstail.art/v1/catalogue'
+ENDPOINT = 'https://crates.abysstail.art/v2/catalogue'
 ID = re.compile(r'[a-z0-9][a-z0-9._-]{0,79}\Z')
 HASH = re.compile(r'[0-9a-f]{64}\Z')
 

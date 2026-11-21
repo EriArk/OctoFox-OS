@@ -409,7 +409,8 @@ int main(int argc, char* argv[]) {
         PcAdventureAdapter pcRuntime;
         SteamAdventureAdapter steamRuntime;
         cratesRuntime.root=QDir(stateDirectory).filePath("crates");
-        cratesRuntime.helper="/var/opt/traineros/crates/launch.py";
+        const auto crateHelpers = QCoreApplication::applicationDirPath()+"/../share/traineros/crates/";
+        cratesRuntime.helper=crateHelpers+"launch.py";
         AdapterRouter adapters({&steamRuntime,&pcRuntime,&cratesRuntime,&ppsspp, &armsx2, &cemu, &duckstation, &rpcs3, &eden, &odamex, &supermodel, &xemu, &melonDs, &dolphin, &azahar, &vita3k, &retroarch});
         SteamLibrary steamLibrary(activeLibrary);
         if (personalLibrary && !smoke) selectedAdapter = &adapters;
@@ -1580,8 +1581,8 @@ int main(int argc, char* argv[]) {
                 bindings.connect(&adventureLaunch,&AdventureLaunchController::changed,&shell,[syncCrateGames]{syncCrateGames();});
                 bindings.connect(packages,&CratesInstaller::inventoryChanged,&shell,syncCrateGames);
                 bindings.connect(store.get(),&LocalStateStore::opened,&shell,[syncCrateGames](bool ready){if(ready)syncCrateGames();});
-                packages->configure("/var/opt/traineros/crates/installer.py","/var/opt/traineros/crates/packages.json",cratesRuntime.root);
-                shell.crates()->configureCatalogue("/var/opt/traineros/crates/catalogue.py",cratesRuntime.root+"/catalogue");
+                packages->configure(crateHelpers+"installer.py",crateHelpers+"packages.json",cratesRuntime.root);
+                shell.crates()->configureCatalogue(crateHelpers+"catalogue.py",cratesRuntime.root+"/catalogue");
                 bindings.connect(shell.crates(),&CratesController::launchRequested,&shell,[&](QString id,QString kind){
                     if(!adventureLaunch.active() && !shell.runtimeChangeBlocked() && shell.dashboard()->selectPackageWidget(id)){
                         shell.goToPage(ShellController::HomePage);return;

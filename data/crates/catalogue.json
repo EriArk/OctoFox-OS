@@ -247,10 +247,40 @@
         "qrc:/crates/projects/home-companion-rest.png"
       ],
       "releases": []
+    },
+    {
+      "creator": "AbyssTail",
+      "description": "Alpha Preview: an early preview in TrainerOS. Features, balance and performance are still being developed.\n\nАльфа-версия Micro Rally: до 16 машин, грязь, заносы, ускорения, оружие и щиты. Одиночный кубок Woodland Challenge — четыре этапа с полным кольцом Nordschleife в финале. Арена Rust Pit и Battle Royale на карте Deadwater 900×700 м: холмы, улицы, мосты, нижние проезды и грозовой фронт. Независимая подвеска, разные поверхности, прыжки и перевороты; обычные попадания больше не отрывают колёса. Три жизни во всех режимах, взрывы при гибели и защита после возрождения. Машины ускорены, бесконечный базовый пулемёт получил длиннее очередь и меньший урон. Настраиваемые боты, ручное переключение передач и вибрация. Пять видов камеры, включая вид от стекла; R3/V переключает вид. В низких камерах экранный прицел учитывает высоту и препятствия. Оптимизирована постепенная подгрузка окружения Nord. Персонаж, одежда и эмоции берутся из общего SDK-профиля TrainerOS. Интерфейс на английском. Сеть через Lobby: гонка в Долине, арена и Battle Royale; сетевой кубок ещё не включён. Всем участникам нужна одинаковая версия. Баланс, производительность и полная игровая приёмка портативок ещё проверяются.",
+      "hero": "qrc:/crates/projects/micro-rally-3ff1f7d3ef02.png",
+      "id": "micro-rally",
+      "kind": "game",
+      "license": "GPL-3.0-or-later",
+      "releases": [],
+      "sample": false,
+      "screenshots": [
+        "qrc:/crates/projects/micro-rally-3ff1f7d3ef02.png"
+      ],
+      "summary": "Боевые гонки на мини-машинах: грязь, заносы, ускорение, оружие и щиты. До 16 участников.",
+      "title": "Micro Rally (Alpha Preview)"
+    },
+    {
+      "id": "bazaar",
+      "title": "Bazaar (Alpha Preview)",
+      "kind": "game",
+      "creator": "AbyssTail",
+      "license": "GPL-3.0-or-later",
+      "sample": false,
+      "summary": "Visit Festival Park and play at the fair.",
+      "description": "Alpha Preview. Explore Festival Park with your character, try Wanage and the Toy Gallery, and visit the island counter. Ticket purchases depend on the host’s market settings.",
+      "hero": "qrc:/crates/projects/bazaar.png",
+      "screenshots": [],
+      "releases": []
     }
   ],
   "contents": {
     "whats-new": [
+      "bazaar",
+      "micro-rally",
       "home-companion",
       "pocket-golf",
       "falling-blocks",
@@ -270,6 +300,8 @@
       "qalculate"
     ],
     "workshop": [
+      "bazaar",
+      "micro-rally",
       "home-companion",
       "pocket-golf",
       "falling-blocks",
@@ -284,6 +316,8 @@
       "pocket-artillery"
     ],
     "games": [
+      "bazaar",
+      "micro-rally",
       "pocket-golf",
       "falling-blocks",
       "minesweeper-race",

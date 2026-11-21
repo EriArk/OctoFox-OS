@@ -29,11 +29,12 @@ def serve(directory,port):
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
             u=urlsplit(self.path)
-            if u.path!='/v1/catalogue' or len(self.path)>512:
+            directories = {'/v1/catalogue': directory, '/v2/catalogue': directory/'v2'}
+            if u.path not in directories or len(self.path)>512:
                 self.send_error(404);return
             try:
                 q=parse_qs(u.query,keep_blank_values=True,max_num_fields=4)
-                body=canonical(response(directory,q.get('revision',['0'])[0],q.get('digest',[''])[0]))
+                body=canonical(response(directories[u.path],q.get('revision',['0'])[0],q.get('digest',[''])[0]))
                 if len(body)>MAX_BYTES: raise ValueError('Catalogue limit exceeded')
                 self.send_response(200); self.send_header('Content-Type','application/json')
                 self.send_header('Cache-Control','no-store');self.send_header('Content-Length',str(len(body)))

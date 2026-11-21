@@ -447,7 +447,8 @@ qt_add_resources(traineros crates_art PREFIX "/crates" BASE assets/crates
         assets/crates/low-poly/tools.png assets/crates/low-poly/tools-opening.png
     ${crates_example_images} ${crates_example_notices} assets/crates/examples/sources.json)
 qt_add_resources(traineros crates_projects PREFIX "/crates" BASE assets/crates
-    FILES assets/crates/projects/session-timer.png assets/crates/projects/pocket-artillery.png assets/crates/projects/pocket-golf.png
+    FILES assets/crates/projects/bazaar.png assets/crates/projects/micro-rally-3ff1f7d3ef02.png
+          assets/crates/projects/session-timer.png assets/crates/projects/pocket-artillery.png assets/crates/projects/pocket-golf.png
           assets/crates/projects/pong.png assets/crates/projects/snake-arena.png
           assets/crates/projects/light-cycles.png
           assets/crates/projects/falling-blocks.png
@@ -1143,6 +1144,8 @@ else()
     message(STATUS "Building without separately licensed avatar assets")
 endif()
 install(FILES assets/avatar/README.md DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/avatar)
+install(FILES packaging/crates/catalogue.py packaging/crates/catalogue-key.pem packaging/crates/installer.py
+    packaging/crates/launch.py packaging/crates/packages.json DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/crates)
 install(FILES packaging/integrations/apps-service.py DESTINATION ${CMAKE_INSTALL_DATADIR}/traineros/integrations)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     find_package(PkgConfig QUIET)

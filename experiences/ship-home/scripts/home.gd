@@ -55,6 +55,7 @@ var menu:PanelContainer
 var message=""
 var message_time=0.0
 var profile=""
+var arrival_identity_resolved := false
 
 func _ready() -> void:
  Engine.max_fps=60
@@ -187,7 +188,17 @@ func _sync_service_deck() -> void:
  studio.service.sync(store,flight.avionics.installed)
  for species in studio.species_plates:studio.species_plates[species].visible=store.observations.has(species)
 
+func transit_session() -> Node:
+ return null
+
+func set_transit_controls(locked:bool) -> void:
+ walker.walking=not locked and not paused
+
+func transit_avatar_ready() -> bool:
+ return arrival_identity_resolved
+
 func _appearance(descriptor:Dictionary) -> void:
+ arrival_identity_resolved=true
  var id=str(descriptor.get("profile",""))
  if id.is_empty():_identity_lost("No active profile");return
  if id!=profile:
@@ -204,6 +215,7 @@ func _appearance(descriptor:Dictionary) -> void:
  if not walker.install_avatar(descriptor):notify("Your character could not be loaded.")
 
 func _identity_lost(reason:String) -> void:
+ arrival_identity_resolved=true
  parts.close()
  if dye.visible:dye.close()
  computer.close();fabricator.close()

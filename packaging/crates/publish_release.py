@@ -62,8 +62,9 @@ def main():
     p.add_argument('--repository', choices=('EriArk/OctoFox-OS','EriArk/TrainerOS','EriArk/crates'), default='EriArk/OctoFox-OS')
     p.add_argument('tag');p.add_argument('--record',type=Path,action='append',required=True)
     p.add_argument('--asset',type=Path,action='append',required=True)
+    p.add_argument('--notes-file',type=Path);p.add_argument('--title')
     p.add_argument('--key',type=Path,required=True);p.add_argument('--ssh-target',required=True)
-    p.add_argument('--remote-dir',default='traineros-crates/data')
+    p.add_argument('--remote-dir',default='traineros-crates/data/v2')
     a=p.parse_args()
     if not re.fullmatch('[a-zA-Z0-9._-]+',a.tag) or not re.fullmatch('[a-zA-Z0-9._/-]+',a.remote_dir) or '..' in a.remote_dir:
         raise SystemExit('Invalid publication destination')
@@ -93,7 +94,7 @@ def main():
         exists=subprocess.run(['gh','release','view',a.tag,'--repo',a.repository],capture_output=True).returncode==0
         if not exists:
             notes=d/'notes.txt';notes.write_text('Experimental Crates packages. See individual package records for architecture and compatibility. Sources, package recipes and SHA-256 checksums are included. This is not an OctoFox OS release.\n')
-            run('gh','release','create',a.tag,'--repo',a.repository,'--prerelease','--latest=false','--title','Crates · '+a.tag,'--notes-file',str(notes),*[str(f) for f in a.asset])
+            run('gh','release','create',a.tag,'--repo',a.repository,'--target',added[0]['revision'],'--prerelease','--latest=false','--title',a.title or 'Crates · '+a.tag,'--notes-file',str(a.notes_file or notes),*[str(f) for f in a.asset])
         else:
             inventory=json.loads(run('gh','release','view',a.tag,'--repo',a.repository,'--json','assets',capture_output=True).stdout)
             existing={item['name'] for item in inventory['assets']}
@@ -111,11 +112,12 @@ def main():
         script='''from pathlib import Path
 import fcntl,json,os,sys
 p=Path(sys.argv[1]);expected=int(sys.argv[2]);incoming=p/sys.argv[3]
-sys.path.insert(0,str(p.parent))
+sys.path.insert(0,str(p.parent.parent if p.name=='v2' else p.parent))
 from catalogue import load
 with (p/'publish.lock').open('a') as lock:
  fcntl.flock(lock,fcntl.LOCK_EX)
- old=load(p/'current.json');new=load(incoming)
+ public=p/'public-key.pem' if p.name=='v2' else p.parent/'catalogue-key.pem'
+ old=load(p/'current.json',public);new=load(incoming,public)
  if old['signed']['revision']!=expected or new['signed']['revision']!=expected+1:raise SystemExit('Concurrent publication; retry from the current revision')
  target=p/(str(expected+1)+'.json')
  if target.exists():raise SystemExit('Revision already exists')
