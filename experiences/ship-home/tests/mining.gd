@@ -40,8 +40,8 @@ func run() -> void:
  var descriptor:=OS.get_environment("SHIP_TEST_DESCRIPTOR")
  if descriptor!="":w.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(descriptor)))
  if out!="":await frames(50)
- for site in Mine.SITES:
-  var index:=Mine.SITES.find(site)
+ for site in [3,5]:
+  var index:int=Mine.SITES[site]
   home.flight.reset(site);home._outside(true)
   var dest:Vector3=mine.global_position
   var route:=Vector3(dest.x,0,dest.z).normalized()

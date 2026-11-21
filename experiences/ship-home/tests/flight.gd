@@ -22,10 +22,10 @@ func run() -> void:
  if not desc.is_empty():check(w.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(desc))),"Bind SDK pilot")
  home._pause(false);w.position=Vector3(0,0.08,-2.4);press(JOY_BUTTON_A)
  check(w.seated and f.mode==f.Mode.BERTH,"Board at station")
- check(f.air_zones.size()==7 and f.find_children("Waterfalls","MeshInstance3D",true,false).size()==7,"Running water on each open island")
- check(f.find_children("RisingSpray","MultiMeshInstance3D",true,false).size()==7,"Spray at all island rims")
+ check(f.air_zones.size()==10 and f.find_children("Waterfalls","MeshInstance3D",true,false).size()==10,"Running water on each open island")
+ check(f.find_children("RisingSpray","MultiMeshInstance3D",true,false).size()==10,"Spray at all island rims")
  check(f.local_air==0.0 and home.art.field_stars.visible,"Station opens onto the Egregore")
- check(f.find_children("AtmosphereClouds*","MultiMeshInstance3D",true,false).size()==7,"Each open sea has spatial cloud banks")
+ check(f.find_children("AtmosphereClouds*","MultiMeshInstance3D",true,false).size()==10,"Each open sea has spatial cloud banks")
  for zone in f.air_zones:
   var center:=Vector3(zone.x,zone.y,zone.z)
   for heading in [Vector3.BACK,Vector3.UP*f.coast.CLOUD_HEIGHT]:
@@ -38,7 +38,7 @@ func run() -> void:
    check(f.local_air==1.0 and f.cloud_cover==0.0 and not home.art.field_stars.visible,"Clear air inside the bank")
   var water_area:=0.0;var land_area:=0.0
   for j in f.coast.SEGMENTS:
-   var a:float=TAU*j/f.coast.SEGMENTS;var seed_angle:float=f.air_zones.find(zone)*1.7
+   var a:float=TAU*j/f.coast.SEGMENTS;var seed_angle:float=f.Regions.ISLANDS[f.island_ids[f.air_zones.find(zone)]][1]
    land_area+=pow(f.coast.headland(a,seed_angle),2)
    water_area+=pow(f.coast.rim(a,seed_angle),2)-pow(f.coast.headland(a,seed_angle),2)
   check(water_area>land_area*5.0,"Surrounding water dominates each island footprint")

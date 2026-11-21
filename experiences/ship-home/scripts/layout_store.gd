@@ -2,7 +2,7 @@
 class_name ShipLayoutStore
 extends RefCounted
 signal saved
-const BERTH_KEYS:=["station","orchard","prism","table","cinder-port","cinder-garden","lantern-biolab"]
+const BERTH_KEYS:=["station","orchard","prism","table","cinder-port","cinder-garden","lantern-biolab","wayfarer-house","cinder-exchange","reedwater-delta","meridian-rift","kiln-caldera","crown-isle","twin-spurs","ember-isle","glass-atoll"]
 const MAX_ITEMS=48
 # Different deck coordinates: preserve all earlier preview layouts in homes/.
 var directory="user://homes/studio-v1"

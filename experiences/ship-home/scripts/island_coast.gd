@@ -43,8 +43,7 @@ func polar(a: float, distance: float) -> Vector2:
 func mound(p: Vector2, center: Vector2, widths: Vector2) -> float:
  return exp(-((p-center)/widths).length_squared())
 
-func relief(pos: Vector2, radius: float, seed_angle: float, fraction: float) -> float:
- var p := (pos/radius).rotated(seed_angle)
+func ridge_relief(p:Vector2,radius:float,fraction:float,form:String) -> float:
  # A broken backbone, a saddle through it, and a second headland across the bay.
  var ridge := mound(p,Vector2(-0.18,-0.23+0.12*sin(p.x*4.0)),Vector2(0.54,0.25))
  var crag := mound(p,Vector2(0.20,-0.22),Vector2(0.19,0.24))
@@ -53,23 +52,42 @@ func relief(pos: Vector2, radius: float, seed_angle: float, fraction: float) -> 
  var h := radius*(0.31*ridge*folds+0.21*crag+0.21*bluff+0.035*(1+sin(9*p.x+2*sin(p.y*5))))
  # The smaller islands have their own skyline: a broad mesa, a hollow summit,
  # and two long parallel spurs. The orchard keeps the broken ridge.
- if seed_angle>4.0:
+ if form=="spurs":
   h=radius*(0.23*mound(p,Vector2(-0.23,0),Vector2(0.15,0.52))+0.19*mound(p,Vector2(0.19,-0.09),Vector2(0.19,0.55)))*folds
- elif seed_angle>3.0:
+ elif form=="summit":
   var summit:=(p/Vector2(0.68,0.56)).length()
   h=radius*0.29*exp(-pow((summit-0.66)*3.4,2))*folds
- elif seed_angle>1.0:
+ elif form=="mesa":
   h=radius*0.27*smoothstep(0.12,0.60,ridge+0.37*crag)*(0.94+0.06*folds)
  h *= 1.0-smoothstep(0.74,1.0,fraction)
  var river_x:=0.32+0.16*sin(4.0*p.y)+0.085*p.y
  var valley:float=1.0-smoothstep(0.035,0.135,absf(p.x-river_x))
  valley*=smoothstep(-0.33,-0.12,p.y)
  var lake:=mound(p,Vector2(0.19,-0.153),Vector2(0.205,0.152))
- h=lerpf(h,SEA_Y-1.8,maxf(valley,smoothstep(0.24,0.69,lake)))
- if is_zero_approx(seed_angle) or is_equal_approx(seed_angle,1.7) or is_equal_approx(seed_angle,3.4):
-  # A level approach along the valley floor leads to the existing pad and lift.
-  var corridor := Vector2(PAD_FROM_CENTER.x,maxf(pos.y,PAD_FROM_CENTER.y))
-  h *= smoothstep(17.0,34.0,pos.distance_to(corridor))
+ return lerpf(h,SEA_Y-1.8,maxf(valley,smoothstep(0.24,0.69,lake)))
+
+func relief(pos: Vector2, radius: float, seed_angle: float, fraction: float, form: String) -> float:
+ var p := (pos/radius).rotated(seed_angle)
+ var h:float
+ var edge_fade:=1.0-smoothstep(0.70,1.0,fraction)
+ if form=="delta":
+  # Two tidal channels fork around long alluvial bars and open into the sea.
+  var fork:=0.10+0.27*smoothstep(-0.45,0.72,p.y)
+  var channels:=absf(absf(p.x-0.11*sin(4.0*p.y))-fork)
+  var bar:=smoothstep(0.035,0.135,channels)
+  h=lerpf(SEA_Y-2.8,edge_fade*(2.0+6.0*mound(p,Vector2(-0.48,-0.2),Vector2(0.26,0.58))),bar)
+ elif form=="rift":
+  var bank:=absf(p.x-0.13*sin(p.y*3.0))
+  var cliffs:=smoothstep(0.10,0.23,bank)*(1.0-smoothstep(0.33,0.70,bank))
+  h=lerpf(SEA_Y-3.0,radius*cliffs*(0.28+0.055*cos(6*p.y))*edge_fade,smoothstep(0.065,0.16,bank))
+ elif form=="caldera":
+  var rim_distance:=(p/Vector2(0.77,0.64)).length()
+  var rim_height:=exp(-pow((rim_distance-0.72)*4.1,2))
+  var terrace:=smoothstep(0.18,0.29,rim_height)+smoothstep(0.46,0.59,rim_height)+smoothstep(0.76,0.90,rim_height)
+  h=lerpf(SEA_Y-3.3,radius*0.083*terrace*edge_fade,smoothstep(0.27,0.53,rim_distance))
+ else:h=ridge_relief(p,radius,fraction,form)
+ var corridor := Vector2(PAD_FROM_CENTER.x,maxf(pos.y,PAD_FROM_CENTER.y))
+ h *= smoothstep(17.0,34.0,pos.distance_to(corridor))
  return h
 
 func seabed(pos: Vector2, radius: float, seed_angle: float) -> float:
@@ -105,7 +123,7 @@ func vertex(surface: SurfaceTool, pos: Vector3, uv: Vector2, color: Color, norma
  surface.set_uv(uv)
  surface.add_vertex(pos)
 
-func build(parent: Node3D, center: Vector3, radius: float, depth: float, seed_angle: float) -> MeshInstance3D:
+func build(parent: Node3D, center: Vector3, radius: float, depth: float, seed_angle: float, form: String) -> MeshInstance3D:
  var root := Node3D.new()
  root.name = "OpenIsland"
  parent.add_child(root, true)
@@ -130,8 +148,10 @@ func build(parent: Node3D, center: Vector3, radius: float, depth: float, seed_an
    if row<=MEADOW:
     var fraction := float(row)/MEADOW
     distance=shore*fraction
-    height=relief(polar(a,distance),radius,seed_angle,fraction)
+    height=relief(polar(a,distance),radius,seed_angle,fraction,form)
     tint=Color("7ca06d").lerp(Color("b9c688"),0.5+0.5*sin(a*6+fraction*9)*fraction)
+    if form=="caldera":tint=Color("976d55").lerp(Color("d1a077"),0.5+0.5*sin(height*0.55))
+    elif form=="rift":tint=Color("7e9992").lerp(Color("b4a7bb"),smoothstep(2,32,height))
     var strata := 0.5+0.5*sin(height*0.33+a*2.0)
     var rock := Color("97878a").lerp(Color("c1ab92"),strata*0.29)
     tint=tint.lerp(rock,smoothstep(0.12,0.29,height/radius))
@@ -140,7 +160,7 @@ func build(parent: Node3D, center: Vector3, radius: float, depth: float, seed_an
    elif row<=MEADOW+SHELF:
     var fraction := pow(float(row-MEADOW)/SHELF,1.3)
     distance=lerpf(shore,edge,fraction)
-    var estuary:=relief(polar(a,shore),radius,seed_angle,1.0)
+    var estuary:=relief(polar(a,shore),radius,seed_angle,1.0,form)
     height=lerpf(estuary,seabed(polar(a,distance),radius,seed_angle),smoothstep(0.0,0.095,fraction))
     height=lerpf(height,SEA_Y-0.25,smoothstep(0.90,1.0,fraction))
     tint=Color("d9c598").lerp(Color("ab9989"),smoothstep(0.02,0.13,fraction))
@@ -219,7 +239,7 @@ func build(parent: Node3D, center: Vector3, radius: float, depth: float, seed_an
 
 # Cluster small plants in the meadow and leave the landing pad and its lifts clear.
 # Each species draws in one batch per island, including on the mobile renderer.
-func plant_shore(ground: MeshInstance3D, radius: float, seed_angle: float) -> void:
+func plant_shore(ground: MeshInstance3D, radius: float, seed_angle: float, form: String) -> void:
  var root := ground.get_parent() as Node3D
  var rng := RandomNumberGenerator.new()
  rng.seed = 15103+roundi(seed_angle*100)
@@ -237,7 +257,7 @@ func plant_shore(ground: MeshInstance3D, radius: float, seed_angle: float) -> vo
     var flat := Vector2(pos.x,pos.z)
     if is_zero_approx(seed_angle) and flat.distance_to(PAD_FROM_CENTER)<10:continue
     var planar := flat/Vector2(1,0.90)
-    pos.y=relief(flat,radius,seed_angle,planar.length()/(radius*headland(planar.angle(),seed_angle)))
+    pos.y=relief(flat,radius,seed_angle,planar.length()/(radius*headland(planar.angle(),seed_angle)),form)
     if pos.y<0.02:continue
     var size_m := rng.randf_range(0.9,2.6)
     if model=="plant_bushLarge":

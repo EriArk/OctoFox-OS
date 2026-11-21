@@ -59,7 +59,7 @@ func walk_to(point:Vector3) -> void:
   Input.action_press("walk_run");await physics_frame
  for key in keys:Input.action_release(key)
  Input.action_release("walk_run");await frames(8)
- check(Vector2(point.x-w.position.x,point.z-w.position.z).length()<0.6 and w.is_on_floor(),"Reach "+str(point)+" at "+str(w.position))
+ check(Vector2(point.x-w.position.x,point.z-w.position.z).length()<0.6 and w.is_on_floor(),"Reach "+str(point)+" at "+str(w.position)+" in "+home.flight.NAMES[home.flight.berth])
 
 func exit_lifts() -> void:
  var w=home.walker

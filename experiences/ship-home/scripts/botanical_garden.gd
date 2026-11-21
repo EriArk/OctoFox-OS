@@ -5,8 +5,8 @@ const PLANTS = ["sunbell","tideflower","starbloom"]
 const NAMES = ["Sunbell","Tideflower","Starbloom"]
 const COLORS = ["saffron","sea-glass","aurora"]
 const SWATCHES = [Color("#dfae43"),Color("#479b91"),Color("#7966c2")]
-const SHORES = ["Echo Orchard","Table Isle","Cinder Garden"]
-const SITES = [1,3,5]
+const SHORES = ["Echo Orchard", "Table Isle or Reedwater Delta", "Cinder Garden or Glass Atoll"]
+const SITES = {1:0, 3:1, 5:2, 9:1, 15:2}
 const PATCH_OFFSET = Vector3(-3.1,-5.35,12.0)
 const BLOOMS = 5
 
@@ -59,7 +59,7 @@ func configure(scene:Node,layer:CanvasLayer) -> void:
 
 func set_site(site:int) -> void:
  close()
- plant=SITES.find(site)
+ plant=SITES.get(site,-1)
  visible=plant>=0
  if not visible:return
  var flight=home.flight

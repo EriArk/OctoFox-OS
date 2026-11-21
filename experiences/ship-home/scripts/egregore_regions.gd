@@ -7,7 +7,7 @@ const TINTS:=[Color("65e0cf"),Color("ae9dfd"),Color("ffb578")]
 const JUMP_RANGE:=42.0
 const ORIGINS:=[Vector3.ZERO,Vector3(64000,800,-68000),Vector3(127000,1800,9000)]
 const GATE_CONTACT:=[0,2,11]
-const BERTH_CONTACT:=[0,1,2,8,11,12,15]
+const BERTH_CONTACT:=[0,1,2,8,11,12,15,16,17,18,19,20,9,10,13,14]
 const FLIGHT_RADIUS:=39000.0
 const CRUISE_SPEED:=155.0
 const CONTACTS:=[
@@ -20,13 +20,25 @@ const CONTACTS:=[
  {"name":"Ring surveyor","kind":"ship","sector":1,"p":Vector3(-30,28,150),"orbit":Vector2(90,55)},
  {"name":"Prism relay","kind":"signal","sector":1,"p":Vector3(-87,26,490)},
  {"name":"Table Isle","kind":"island","site":3,"sector":0,"p":Vector3(-24000,68,-13000)},
- {"name":"Crown Isle","kind":"island","sector":0,"p":Vector3(11000,90,-23000)},
- {"name":"Twin Spurs","kind":"island","sector":0,"p":Vector3(23000,122,13000)},
+ {"name":"Crown Isle","kind":"island","site":12,"sector":0,"p":Vector3(11000,90,-23000)},
+ {"name":"Twin Spurs","kind":"island","site":13,"sector":0,"p":Vector3(23000,122,13000)},
  {"name":"Cinder Anchorage","kind":"station","site":4,"sector":2,"p":Vector3.ZERO},
  {"name":"Cinder Garden","kind":"island","site":5,"sector":2,"p":Vector3(0,0,-1600)},
- {"name":"Ember Isle","kind":"island","sector":2,"p":Vector3(-22000,180,12000)},
- {"name":"Glass Atoll","kind":"island","sector":1,"p":Vector3(23000,120,-11500)},
- {"name":"Lantern Biostation","kind":"station","site":6,"sector":0,"p":Vector3(0,0,6200)}]
+ {"name":"Ember Isle","kind":"island","site":14,"sector":2,"p":Vector3(-22000,180,12000)},
+ {"name":"Glass Atoll","kind":"island","site":15,"sector":1,"p":Vector3(23000,120,-11500)},
+ {"name":"Lantern Biostation","kind":"station","site":6,"sector":0,"p":Vector3(0,0,6200)},
+ {"name":"Wayfarer House","kind":"station","site":7,"sector":1,"p":Vector3(23000,120,-4900)},
+ {"name":"Cinder Exchange","kind":"station","site":8,"sector":2,"p":Vector3(-19000,110,-8500)},
+ {"name":"Reedwater Delta","kind":"island","site":9,"sector":0,"p":Vector3(-1400,35,22100)},
+ {"name":"Meridian Rift","kind":"island","site":10,"sector":1,"p":Vector3(0,0,-6700)},
+ {"name":"Kiln Caldera","kind":"island","site":11,"sector":2,"p":Vector3(-19000,110,-15000)}]
+
+# Shore orientation belongs to the place. Adding berths must not rotate an existing coast.
+const ISLANDS={
+ 1:[94.0,0.0,"ridge"], 8:[94.0,1.7,"mesa"], 12:[94.0,3.4,"summit"],
+ 9:[106.0,5.1,"spurs"], 10:[86.0,6.8,"spurs"], 13:[92.0,8.5,"spurs"], 14:[132.0,10.2,"spurs"],
+ 18:[136.0,11.9,"delta"], 19:[148.0,13.6,"rift"], 20:[143.0,15.3,"caldera"]
+}
 
 static func linked(from:int,to:int) -> bool:
  return from>=0 and to>=0 and from<CENTRES.size() and to<CENTRES.size() and from!=to and CENTRES[from].distance_to(CENTRES[to])<=JUMP_RANGE

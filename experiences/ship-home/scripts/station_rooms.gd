@@ -12,7 +12,11 @@ const PORTS={
  0:["LANTERN STATION","ARRIVALS","DISPATCH",Color("50918b")],
  2:["PRISM ANCHORAGE","CHART ROOM","SIGNAL OFFICE",Color("827b9f")],
  4:["CINDER ANCHORAGE","CREW HALL","SERVICE SHOP",Color("a76a4d")],
- 6:["LANTERN BIOSTATION","LIVE COLLECTION","SAMPLE LAB",Color("468d80")]}
+ 6:["LANTERN BIOSTATION","LIVE COLLECTION","SAMPLE LAB",Color("468d80")],
+ 7:["WAYFARER HOUSE","WAYFINDERS’ HALL","CHART LOFT",Color("637d9d")],
+ 8:["CINDER EXCHANGE","FREIGHT RECEIVING","ASSAY ROOM",Color("b4764b")]}
+const ROUTES={7:14,8:20}
+const ROUTE_DESK:=Vector3(0,1.15,24.65)
 var art:ShipInterior
 var port:int
 var doors:Array=[]
@@ -104,7 +108,11 @@ func build(flight,index:int) -> void:
  art.label(self,PORTS[port][0],Vector3(0,3.53,12.62),PI,62,Art.PAPER)
  flight.solid(position+Vector3(0,1.9,19.8),Vector3(8.42,4.4,13.8))
  flight.solid(position+Vector3(0,1.9,11.15),Vector3(3.68,4.0,3.7))
- if port!=6:fit_port(accent)
+ match port:
+  6:pass # Biostation mounts its own live collection and sample lab.
+  7:wayfinder_hall(flight)
+  8:freight_exchange(flight)
+  _:fit_port(accent)
 
 func fit_port(accent:Color) -> void:
  # An arrivals bench, plotting table or repair bench gives each port a different workspace.
@@ -122,6 +130,95 @@ func fit_port(accent:Color) -> void:
  else:
   for i in 4:block(Vector3(-1.1+i*0.72,1.43,24.94),Vector3(0.52,0.48,0.50),Art.WALNUT)
  art.label(self,PORTS[port][2],Vector3(0,2.42,26.27),PI,51,FRAME)
+
+func wayfinder_hall(flight) -> void:
+ # The sextant above the loft can be recognised from the pad.
+ var gimbal:=Node3D.new();add_child(gimbal);gimbal.position=Vector3(0,7.1,21.5)
+ gimbal.rotation.z=0.48
+ for angle in [0,PI/2]:
+  var yoke:=Node3D.new();gimbal.add_child(yoke);yoke.rotation.x=PI/2;yoke.rotation.y=angle
+  art.scope_arc(yoke,Vector3.ZERO,3.2,0,TAU,Art.BRASS,0.12)
+ art.beam(gimbal,Vector3(0,-1.2,-2.9),Vector3(0,1.2,2.9),0.58,FRAME)
+ art.cylinder(self,Vector3(0,4.48,21.5),1.45,0.72,FRAME,0.9)
+ flight.solid(position+gimbal.position,Vector3(6.6,6.6,6.6))
+ for side in [-1,1]:
+  var x:float=side*2.65
+  block(Vector3(x,0.42,18.05),Vector3(1.55,0.84,1.55),FRAME,true)
+  art.cylinder(self,Vector3(x,0.92,18.05),0.48,0.14,Art.BRASS)
+  for foot in [-1,1]:
+   art.beam(self,Vector3(x+foot*0.37,0.94,18.05),Vector3(x+foot*0.22,1.67,18.08),0.080,Art.BRASS)
+  art.beam(self,Vector3(x-0.31,1.67,18.08),Vector3(x+0.31,1.67,18.08),0.13,Art.COPPER)
+  art.beam(self,Vector3(x-0.68*side,1.21,17.24),Vector3(x-0.43*side,1.40,17.52),0.11,Art.BRASS)
+  art.beam(self,Vector3(x-0.48*side,1.37,17.48),Vector3(x+0.50*side,2.06,18.68),0.24,FRAME)
+  art.beam(self,Vector3(x,1.72,18.08),Vector3(x+0.55*side,2.10,18.74),0.29,Art.COPPER)
+  art.beam(self,Vector3(x+0.53*side,2.08,18.72),Vector3(x+0.58*side,2.13,18.78),0.25,Art.SEA_GLASS,true)
+ # A physical orrery sits on a brass rim above the plotting desk.
+ block(Vector3(0,0.55,24.9),Vector3(3.6,1.1,1.36),FRAME,true)
+ block(ROUTE_DESK+Vector3.BACK*0.25,Vector3(3.75,0.11,1.50),Art.WALNUT)
+ for i in 3:
+  var radius:=0.28+i*0.24
+  art.scope_arc(self,Vector3(0,1.32+i*0.10,24.9),radius,0,TAU,Art.BRASS,0.018)
+  art.cylinder(self,Vector3(cos(i*1.9)*radius,1.37+i*0.10,24.9+sin(i*1.9)*radius),0.07,0.13,Art.SEA_GLASS)
+ # Plot real regional positions on the wall behind the desk, viewed towards +Z.
+ var frame:=Vector3(0,2.16,26.18)
+ block(frame,Vector3(4.8,1.76,0.14),Art.BRASS)
+ block(frame+Vector3.FORWARD*0.08,Vector3(4.64,1.61,0.04),Color("16353e"))
+ var stations:Dictionary={}
+ for contact:int in flight.Regions.BERTH_CONTACT:
+  var entry:Dictionary=flight.Regions.CONTACTS[contact]
+  if entry.sector!=1:continue
+  var p:Vector3=entry.p
+  var mark:=frame+Vector3(1.68-p.x*0.000141,0.05+p.z*0.000073,-0.12)
+  stations[contact]=mark
+  block(mark,Vector3(0.09,0.09,0.04),Art.SEA_GLASS,false,true).rotation.z=PI/4 if entry.kind=="station" else 0.0
+ art.beam(self,stations[16],stations[14],0.017,GLOW,true)
+ art.label(self,"PRISM SHOAL",frame+Vector3(0,0.55,-0.12),PI,31,Art.PAPER)
+ var distance:String=flight.Regions.range_text(flight.BERTHS[port].distance_to(flight.BERTHS[flight.Regions.CONTACTS[ROUTES[port]].site]))
+ art.label(self,"GLASS ATOLL   /   "+distance,Vector3(0,0.72,24.20),PI,27,Art.PAPER)
+
+func freight_exchange(flight) -> void:
+ # The loading gantry straddles the aft hull. Its boom stays clear of arrivals.
+ for side in [-1,1]:
+  var x:float=side*5.65
+  block(Vector3(x,2.8,21.3),Vector3(0.56,10.2,0.68),FRAME)
+  art.beam(self,Vector3(x,-1,16.8),Vector3(x,6.6,21.3),0.28,Art.COPPER)
+  flight.solid(position+Vector3(x,2.8,20.4),Vector3(0.8,10.2,3.2))
+ block(Vector3(0,7.88,21.3),Vector3(12.1,0.71,0.76),Art.COPPER)
+ flight.solid(position+Vector3(0,7.88,21.3),Vector3(12.1,0.71,0.76))
+ for side in [-1,1]:
+  var x:float=side*2.96
+  for y in [0.16,1.44,2.73]:
+   block(Vector3(x,y,17.4),Vector3(1.23,0.13,3.68),FRAME)
+  # One simple solid for the full rack leaves the middle aisle open.
+  for z in [15.63,19.17]:
+   block(Vector3(x,1.4,z),Vector3(1.27,2.8,0.11),Art.BRASS)
+  block(Vector3(x,0.21,17.4),Vector3(1.25,0.42,3.68),FRAME,true)
+  for row in 2:
+   for bay in 3:
+    var at:=Vector3(x,0.74+row*1.28,16.3+bay*1.10)
+    block(at,Vector3(1.05,0.96,0.94),Color("ac805e") if row==0 else Color("687d7c"),true)
+    block(at+Vector3(-side*0.54,0,0),Vector3(0.035,0.26,0.51),Art.PAPER)
+ block(Vector3(0,0.54,24.9),Vector3(3.5,1.08,1.38),FRAME,true)
+ block(ROUTE_DESK+Vector3.BACK*0.25,Vector3(3.67,0.12,1.49),Art.BRASS)
+ art.cylinder(self,Vector3(-0.65,1.29,24.9),0.48,0.15,FRAME)
+ art.cylinder(self,Vector3(-0.65,1.49,24.9),0.24,0.35,Art.COPPER,0.13)
+ for x in [0.03,0.99]:block(Vector3(x,1.66,24.91),Vector3(0.11,0.90,0.58),FRAME)
+ block(Vector3(0.51,2.09,24.91),Vector3(1.1,0.12,0.58),FRAME)
+ block(Vector3(0.51,2.01,24.90),Vector3(0.81,0.04,0.35),Art.SEA_GLASS,false,true)
+ # Core library. The cut ends reveal metal bands in samples under the strip lamps.
+ for row in 2:
+  var y:=1.66+row*0.57
+  block(Vector3(-1.72,y-0.13,25.95),Vector3(2.10,0.09,0.65),FRAME)
+  for i in 5:
+   var core:=Vector3(-2.46+i*0.36,y,25.91)
+   art.beam(self,core+Vector3.BACK*0.24,core+Vector3.FORWARD*0.29,0.13,Art.COPPER if row==0 else FRAME)
+   art.beam(self,core+Vector3.FORWARD*0.25,core+Vector3.FORWARD*0.28,0.137,Art.BRASS)
+ block(Vector3(1.55,2.08,26.12),Vector3(1.72,1.06,0.16),FRAME)
+ art.label(self,"CORE SAMPLES",Vector3(1.55,2.37,26.02),PI,27,Art.PAPER)
+ for row in 2:
+  art.label(self,["FE  /  MAGNETITE","AL  /  BAUXITE"][row],Vector3(1.55,2.09-row*0.25,26.02),PI,21,Art.SEA_GLASS)
+ art.label(self,"KILN CALDERA  /  ORE RECEIVING",Vector3(0,2.99,26.25),PI,42,FRAME)
+ art.label(self,"CORE SCANNER",Vector3(0.68,0.71,24.20),PI,26,Art.PAPER)
 
 func mount_doors() -> void:
  for z in LOCKS:

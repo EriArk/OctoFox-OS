@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends Node3D
 
-const SITES = [3, 5]
+const SITES = {3:0, 5:1, 10:0, 11:1, 14:0}
 const ORES = ["bauxite", "magnetite"]
 const METALS = ["Aluminium", "Steel"]
-const SHORES = ["Table Isle", "Cinder Garden"]
+const SHORES = ["Table Isle, Meridian Rift or Ember Isle", "Cinder Garden or Kiln Caldera"]
 const FACE = [Vector2(-1.23,0.06), Vector2(-1.33,0.52), Vector2(-0.90,0.93),
  Vector2(-0.34,1.09), Vector2(0.31,1.01), Vector2(0.86,0.89),
  Vector2(1.28,0.46), Vector2(1.08,0.05)]
@@ -83,7 +83,7 @@ func rock(parent:Node3D, at:Vector3, dimensions:Vector3, tint:Color) -> void:
 
 func set_site(site:int) -> void:
  close()
- var next:=SITES.find(site)
+ var next:int=SITES.get(site,-1)
  visible=next>=0
  obstacle.collision_layer=home.flight.WALK_LAYER if visible else 0
  if not visible:return

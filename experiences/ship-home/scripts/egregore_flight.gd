@@ -18,13 +18,16 @@ var stick:=Vector2.ZERO
 var turn_rate:=Vector3.ZERO
 var transition:=0.0
 var from:=Transform3D.IDENTITY
-var obstacles:Array[AABB]=[]
+var obstacles_by_berth:Array[Array]=[]
+var obstacle_bounds:Array[AABB]=[]
+var building_berth:=0
 var coast := preload("res://scripts/island_coast.gd").new()
 var air_zones: Array[Vector4] = []
 var cloud_materials: Array[ShaderMaterial] = []
 var cloud_densities: Array[float] = []
 var fishing_spots:Dictionary[int,Vector3]={}
 var chart_islands:Dictionary[int,Array]={}
+var island_ids:Array[int]=[]
 var island_depths: Array[float] = []
 var cloud_cover := -1.0
 var local_air := -1.0
@@ -41,6 +44,7 @@ func build(interior:ShipInterior) -> void:
   var item:Dictionary=Regions.CONTACTS[id]
   BERTHS.append(Regions.ORIGINS[item.sector]+item.p);NAMES.append(item.name)
  for i in BERTHS.size():
+  building_berth=i;obstacles_by_berth.append([]);obstacle_bounds.append(AABB(BERTHS[i],Vector3.ZERO))
   var site:=Node3D.new();add_child(site);site.position=BERTHS[i]+Vector3.UP*(GROUND_Y+3.9)
   var surface:=Vector3.DOWN*4.1
   var deck=art.cylinder(site,surface,9.0,0.4,Color("535e68"))
@@ -53,7 +57,8 @@ func build(interior:ShipInterior) -> void:
    var pad_number:=Label3D.new();pad_number.text="01";pad_number.font_size=72;pad_number.pixel_size=0.016
    pad_number.modulate=Color("f1d49d");pad_number.outline_size=0;pad_number.rotation.x=-PI/2
    pad_number.position=surface+Vector3(0,0.22,-6.3);site.add_child(pad_number)
-   if i==lab.SITE:continue
+   if i in [lab.SITE,7,8]:
+    art.batch_static(site);continue
    if i==2:
     # An inclined navigation hoop marks the inner-ring anchorage from cruise range.
     var hoop:=Node3D.new();site.add_child(hoop);hoop.position=Vector3(0,3,-22);hoop.rotation.x=1.28
@@ -76,15 +81,14 @@ func build(interior:ShipInterior) -> void:
     art.beam(site,p+Vector3.DOWN*3,surface,0.85,Color("56536b"))
     solid(site.position+p,Vector3(8,16,8))
   else:
-   island(site,Vector3(30,-3.902,-48),94.0,64.0,Regions.BERTH_CONTACT[i],true)
+   var contact:int=Regions.BERTH_CONTACT[i]
+   var terrain:Array=Regions.ISLANDS[contact]
+   island(site,Vector3(30,-3.902,-48),terrain[0],64,contact,true)
    if i in [1,3]:build_fishing_pier(site,i)
- # Each sea has space for its own basin and atmosphere.
- for id in [9,10,13,14]:
-  var item:Dictionary=Regions.CONTACTS[id]
-  island(self,Regions.ORIGINS[item.sector]+item.p,55+(id%3)*5,64,id)
- art.batch_static(self)
+  art.batch_static(site)
  # Keep each station in its own render bounds, including its dockside equipment.
  for i in preload("res://scripts/station_rooms.gd").PORTS:
+  building_berth=i
   var rooms:=preload("res://scripts/station_rooms.gd").new()
   add_child(rooms);rooms.position=BERTHS[i]+Vector3.UP*GROUND_Y
   rooms.build(self,i)
@@ -135,7 +139,16 @@ func build_fishing_pier(site:Node3D, index:int) -> void:
 
 func solid(center:Vector3,size_m:Vector3) -> void:
  # Conservative hull clearance, including the service deck beneath the ship.
- obstacles.append(AABB(center-size_m*0.5,size_m).grow(3.1))
+ var box:=AABB(center-size_m*0.5,size_m).grow(3.1)
+ obstacles_by_berth[building_berth].append(box)
+ obstacle_bounds[building_berth]=obstacle_bounds[building_berth].merge(box)
+
+func hits_structure(start:Vector3,end:Vector3) -> bool:
+ for i in obstacle_bounds.size():
+  if not obstacle_bounds[i].has_point(start) and obstacle_bounds[i].intersects_segment(start,end)==null:continue
+  for box:AABB in obstacles_by_berth[i]:
+   if box.has_point(end) or box.intersects_segment(start,end)!=null:return true
+ return false
 
 func walk_surface(mesh:MeshInstance3D) -> void:
  mesh.create_trimesh_collision()
@@ -144,18 +157,21 @@ func walk_surface(mesh:MeshInstance3D) -> void:
 
 func island(parent:Node3D,center:Vector3,radius:float,depth:float,contact:int,walkable:=false) -> void:
  var sector_center := center if parent==self else parent.position+center
- var seed_angle := float(air_zones.size())*1.7
- var crown := coast.build(parent,center,radius,depth,seed_angle)
+ var terrain:Array=Regions.ISLANDS[contact]
+ var seed_angle:float=terrain[1]
+ var form:String=terrain[2]
+ island_ids.append(contact)
+ var crown := coast.build(parent,center,radius,depth,seed_angle,form)
  chart_islands[contact]=[crown.mesh,crown.get_node("../Water").mesh,crown.get_node("../Waterfalls").mesh]
- coast.plant_shore(crown,radius,seed_angle)
- plant_groves(parent,center,radius,seed_angle,walkable)
+ coast.plant_shore(crown,radius,seed_angle,form)
+ plant_groves(parent,center,radius,seed_angle,walkable,form)
  air_zones.append(Vector4(sector_center.x,sector_center.y,sector_center.z,radius))
  island_depths.append(depth)
  cloud_densities.append(-1.0)
  cloud_materials.append(coast.cloud_boundary(parent,center,shell_radius(radius),seed_angle))
  if walkable:walk_surface(crown)
 
-func plant_groves(parent:Node3D,center:Vector3,radius:float,seed_angle:float,walkable:bool) -> void:
+func plant_groves(parent:Node3D,center:Vector3,radius:float,seed_angle:float,walkable:bool,form:String) -> void:
  var trees: Array[Transform3D] = []
  var rng:=RandomNumberGenerator.new();rng.seed=3412+roundi(seed_angle*100)
  for i in (96 if walkable else 44):
@@ -163,7 +179,7 @@ func plant_groves(parent:Node3D,center:Vector3,radius:float,seed_angle:float,wal
   var fraction:=rng.randf_range(0.37,0.80)
   var flat:=coast.polar(a,radius*coast.headland(a,seed_angle)*fraction)
   if walkable and absf(flat.x-coast.PAD_FROM_CENTER.x)<13 and flat.y>coast.PAD_FROM_CENTER.y-14:continue
-  var ground:=coast.relief(flat,radius,seed_angle,fraction)
+  var ground:=coast.relief(flat,radius,seed_angle,fraction,form)
   if ground<0.10 or ground>radius*0.22:continue
   var p:=center+Vector3(flat.x,ground-0.10,flat.y)
   var height:=rng.randf_range(3.1,6.8)
@@ -223,7 +239,8 @@ func hits_island(pos:Vector3) -> bool:
   if local.y > zone.w*0.70+4 or local.y < -island_depths[i]*1.1-4:continue
   var flat:=Vector2(local.x,local.z)
   var planar:=flat/Vector2(1,0.90)
-  var a:=planar.angle();var seed_angle:=i*1.7
+  var terrain:Array=Regions.ISLANDS[island_ids[i]]
+  var a:=planar.angle();var seed_angle:float=terrain[1];var form:String=terrain[2]
   var edge:=zone.w*coast.rim(a,seed_angle)
   var r:=maxf(0,planar.length()-2.5)/edge
   if r>1.0:continue
@@ -231,7 +248,7 @@ func hits_island(pos:Vector3) -> bool:
   var underside:=coast.SEA_Y-island_depths[i]*pow(maxf(0,1-r*r),0.72)
   if local.y<underside-3.1:continue
   var fraction:=planar.length()/(zone.w*coast.headland(a,seed_angle))
-  var surface:=coast.relief(flat,zone.w,seed_angle,fraction) if fraction<1.0 else maxf(coast.SEA_Y,coast.seabed(flat,zone.w,seed_angle))
+  var surface:=coast.relief(flat,zone.w,seed_angle,fraction,form) if fraction<1.0 else maxf(coast.SEA_Y,coast.seabed(flat,zone.w,seed_angle))
   if local.y<surface+3.1:return true
  return false
 
@@ -294,13 +311,9 @@ func tick(dt:float,axes:Vector2,yaw:float,power:float,strafe:Vector2,brake:bool)
   var next:=location+velocity*dt
   if next.distance_to(avionics.ORIGINS[avionics.sector])>Regions.FLIGHT_RADIUS and next.distance_squared_to(avionics.ORIGINS[avionics.sector])>location.distance_squared_to(avionics.ORIGINS[avionics.sector]):
    next=location;throttle=0;velocity=Vector3.ZERO;avionics.say("Sector boundary · Use the shift drive")
-  if hits_island(next):
+  if hits_island(next) or hits_structure(location,next):
    avionics.impact(velocity.length());avionics.cruise=false
    velocity=Vector3.ZERO;throttle=0;next=location
-  for box in obstacles:
-   if box.has_point(next) or box.intersects_segment(location,next)!=null:
-    avionics.impact(velocity.length());avionics.cruise=false
-    velocity=Vector3.ZERO;throttle=0;next=location;break
   location=next
  sync_view()
 

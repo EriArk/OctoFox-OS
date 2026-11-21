@@ -31,8 +31,8 @@ func run() -> void:
  var w=home.walker
  var descriptor:=OS.get_environment("SHIP_TEST_DESCRIPTOR")
  if descriptor!="":w.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(descriptor)))
- for site in Garden.SITES:
-  var i:int=Garden.SITES.find(site)
+ for site in [1,3,5]:
+  var i:int=Garden.SITES[site]
   home.flight.reset(site);home._outside(true)
   var dest:Vector3=garden.global_position
   var route:Vector3=Vector3(dest.x,0,dest.z).normalized()

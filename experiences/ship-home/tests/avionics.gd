@@ -137,7 +137,7 @@ func run() -> void:
  check(a.target==8 and a.route==-1 and hud.page=="","Tracking a local island replaces the jump vector and stows the drawer")
  panel(JOY_BUTTON_DPAD_UP);choose(2)
  press(JOY_BUTTON_RIGHT_SHOULDER);press(JOY_BUTTON_DPAD_RIGHT)
- check(hud.chart.focus==7 and a.chart_contacts(1)==[2,7,14] and a.target==8,"Remote chart lists charted sites without exposing live traffic")
+ check(hud.chart.focus==7 and a.chart_contacts(1)==[2,7,14,16,19] and a.target==8,"Remote chart lists charted sites without exposing live traffic")
  await frames(33);await shot("arrival-chart")
  if not out.is_empty():
   press(JOY_BUTTON_LEFT_SHOULDER);check(hud.chart.region==0,"Browse back to home cluster")
@@ -242,7 +242,7 @@ func run() -> void:
  check(a.group==a.Group.MISSILES and a.missiles==2,"Weapon group and rack count survive docking and reloading")
  home.walker.position=Vector3(0,0.08,-2.4);press(JOY_BUTTON_A)
  panel(JOY_BUTTON_DPAD_RIGHT);choose(4);check(a.fuel==100 and a.missiles==3,"Station refuels and replenishes the rack")
- panel(JOY_BUTTON_DPAD_RIGHT);choose(0);choose(2);check(not a.enabled[2] and a.contacts()==[2],"Sensor power changes contact list")
+ panel(JOY_BUTTON_DPAD_RIGHT);choose(0);choose(2);check(not a.enabled[2] and a.contacts()==[2,14,16,19],"Sensor power changes contact list")
  await shot("modules")
  if not out.is_empty():
   await frames(24)
