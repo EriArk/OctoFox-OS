@@ -87,6 +87,21 @@ QString configDirectory(const Route& route, bool flatpak, const EmulatorEnvironm
     const auto base = flatpak ? QDir(env.home).filePath(".var/app/" + route.app + "/config") : env.configHome;
     return QDir(base).filePath(route.id == "dolphin" ? "dolphin-emu" : route.id == "azahar" ? "azahar-emu" : route.id == "melonds" ? "melonDS" : route.id == "vita3k" ? "Vita3K" : route.id);
 }
+// The managed Flatpak starts with an empty user autoconfig directory. udev
+// needs a mapping for the virtual Xbox pads exported by Armada's InputPlumber.
+void seedRetroArchPads(const EmulatorEnvironment& env, const QString& configDir, QStringList& notices) {
+    const auto deployment = env.flatpaks.value("org.libretro.RetroArch");
+    if (!env.managed || deployment.isEmpty()) return;
+    const QDir source(deployment + "/files/share/libretro/autoconfig/udev");
+    const QDir destination(configDir + "/autoconfig/udev");
+    for (const auto& name : QStringList{"Microsoft_X-Box_Series_XS_pad.cfg", "Microsoft_X-Box_Elite_Series_2_pad.cfg"}) {
+        const auto target = destination.filePath(name);
+        if (exists(target)) continue;
+        QFile profile(source.filePath(name));
+        if (!profile.open(QIODevice::ReadOnly) || !seed(target, profile.readAll()))
+            notices << "retroarch: could not prepare controller profile " + name;
+    }
+}
 QByteArray dsDefaults(const EmulatorEnvironment& env) {
     QByteArray bytes = "# OctoFox OS initial controller defaults; future user edits are preserved.\n"
         "[Emu]\nDirectBoot = true\nExternalBIOSEnable = false\n"
@@ -108,6 +123,7 @@ QByteArray dolphinDefaults(const EmulatorEnvironment& env) {
         "D-Pad/Up = `Pad N`\nD-Pad/Down = `Pad S`\nD-Pad/Left = `Pad W`\nD-Pad/Right = `Pad E`\n";
 }
 void controllerDefaults(const Route& route, const QString& configDir, const EmulatorEnvironment& env, QStringList& notices) {
+    if (route.id == "retroarch") seedRetroArchPads(env, configDir, notices);
     if (route.id == "rpcs3") {
         // OctoFox OS already confirms Exit; leave existing desktop preferences alone.
         if (!seed(QDir(configDir).filePath("GuiConfigs/CurrentSettings.ini"),
@@ -368,6 +384,7 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
             const bool fresh = !exists(config);
             if (fresh && !QDir().mkpath(saves)) { result.notices << "retroarch: could not prepare save directory"; continue; }
             if (!seed(config, bytes)) { result.notices << "retroarch: could not prepare initial settings"; continue; }
+            if (flatpak) seedRetroArchPads(env, configDir, result.notices);
             const auto settings = retroarch::readSettings(config);
             auto cores = retroarch::configuredPath(settings,"libretro_directory",QDir(configDir).filePath("cores"));
             if (!flatpak && QDir(cores).entryList({"*_libretro.so"},QDir::Files).isEmpty()) {

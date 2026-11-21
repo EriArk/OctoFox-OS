@@ -103,11 +103,14 @@ def run(config, state_path):
     credentials = json.loads((config/'credentials.json').read_text())
     directory_config = json.loads((config/'directory.json').read_text())
     api = API(credentials)
+    endpoints = api.call('GET', '/.well-known/fluxer')['endpoints']
+    base, gateway = endpoints.get('api_public'), endpoints.get('gateway')
+    if (base, gateway) not in {
+            ('https://api.fluxer.app', 'wss://gateway.fluxer.app'),
+            ('https://fluxer.com/api', 'wss://gateway.fluxer.com')}:
+        raise ValueError('Unreviewed Fluxer endpoints')
+    api.base = base
     assert api.call('GET', '/v1/users/@me')['id'] == api.bot
-    discovery = api.call('GET', '/.well-known/fluxer')
-    gateway = discovery['endpoints']['gateway']
-    if gateway != 'wss://gateway.fluxer.app':
-        raise ValueError('Unreviewed Gateway endpoint')
     directory = Directory(state_path, directory_config['channels'])
     session = None
     sequence = None

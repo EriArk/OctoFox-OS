@@ -83,6 +83,27 @@ private slots:
         c.receive(0,next);QCOMPARE(c.rows().first().toMap()["name"].toString(),QString("Renamed"));
         c.receive(0,{{"state","signed-out"}});QVERIFY(c.rows().isEmpty());
     }
+    void onlineLobbyExplainsSignInAndKeepsLanAvailable() {
+        SocialController c;
+        c.owner_="trainer";
+        c.setFace("lobby");
+        c.receive(0,{{"state","signed-out"}});
+        QVERIFY(c.lobbyNeedsSignIn());
+        QSignalSpy commands(&c,&SocialController::commandRequested);
+        c.dispatch(Action::Confirm);
+        QCOMPARE(commands.takeLast().first().toString(),QString("login"));
+        QVERIFY(!c.lobbyCreateOpen());
+        c.receive(0,{{"state","authorizing"}});
+        c.dispatch(Action::Back);
+        QCOMPARE(commands.takeLast().first().toString(),QString("cancel-login"));
+        c.receive(0,{{"state","signed-out"}});
+        c.dispatch(Action::LocalAction);
+        QCOMPARE(c.lobbyScope(),QString("local"));
+        QVERIFY(!c.lobbyNeedsSignIn());
+        c.setLobbyScope("online");
+        c.receive(0,{{"state","connected"},{"userId","123"}});
+        QVERIFY(!c.lobbyNeedsSignIn());
+    }
     void hiddenLobbyDoesNotRefreshDirectory() {
         SocialController c;c.face_="lobby";c.lobbyScope_="online";
         QSignalSpy commands(&c,&SocialController::commandRequested);

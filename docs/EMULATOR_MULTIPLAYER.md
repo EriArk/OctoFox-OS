@@ -133,6 +133,20 @@ button checks remain owner-deferred. Do not repeat the already-proven invitation
 as a substitute. Both ordinary installed shells keep the experiment disabled meanwhile.
 Native saved-Pokemon Link, background calls and all earlier acceptance remain.
 
+## Flip 2 guest controls on managed Armada — 2026-11-21
+
+On Metal Slug X (PCSX-ReARMed), the Flip's SDL2 solo session delivered Start,
+both face buttons tested and D-pad Right to P1. A paired LAN run assigned the
+Flip P2, but udev logged an unconfigured 045e:0b12 controller and neither core
+received the presses. Its managed RetroArch user autoconfig directory was empty.
+
+Emulator discovery now seeds the two Armada virtual pad profiles from the
+installed RetroArch Flatpak on initial setup and refresh. With the Series X/S
+profile in the Flip's user autoconfig/udev directory, Metal Slug X and Metal
+Slug 3 (FBNeo) on both peers observed the guest's input on P2. The diagnostic
+recorded libretro input callbacks from the actual cores using kernel gamepad
+events. The paired run used direct LAN and isolated saves.
+
 ## Independent controller gameplay - 2026-10-03
 
 A paired LAN run reached Contra's two-player level using remote evdev controller

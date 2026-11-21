@@ -739,6 +739,15 @@ QVariantList SocialController::hints() const {
         return result;
     }
     if(face_=="lobby") {
+        if(lobbyNeedsSignIn()) {
+            const auto state=snapshot_.value("state").toString();
+            if(state=="authorizing")h("B","Cancel sign-in");
+            else {
+                if(!owner_.isEmpty() && state!="restoring" && state!="connecting")h("A","Sign in");
+                h("Select","Local lobbies");
+            }
+            return result;
+        }
         if(lobbyChatFocused_&&lobbySpectatorChat_)h("↑↓","Read");else h("A",lobbyChatFocused_?"Message":lobbyDetailFocused_||lobbyRailFocused_?"Choose":"Open");
         h("B",lobbyChatFocused_?"Room":lobbyDetailFocused_?"Catalogue":!lobbyRailFocused_?"Categories":"Back");
         if(!lobbyDetailFocused_) {if(lobbyRailFocused_)h("\u2191\u2193","Choose");else {h("\u2190\u2192","Room / Page");h("\u2191\u2193","Room");}}

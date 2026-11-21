@@ -11,6 +11,8 @@ FocusScope {
     readonly property var social: shell.social
     readonly property var account: social.account
     readonly property bool connected: account.state === "connected" || account.state === "connecting"
+    readonly property bool lobbySignIn: faceIndex === 3 && social.lobbyNeedsSignIn
+    readonly property bool signingIn: account.state === "restoring" || account.state === "connecting"
     readonly property bool takesFocus: visible && !shell.chatNavigationFocused && !shell.serviceOpen && !shell.menuOpen && !shell.drawerOpen && !shell.quickAppsOpen && !shell.notificationsOpen && !shell.keyboard.open && shell.notice.length === 0
     property point menuAnchor: Qt.point(width - 310, 44)
     function anchorMenu(item) { menuAnchor = item.mapToItem(root, 0, item.height) }
@@ -39,7 +41,7 @@ FocusScope {
     }
     LobbyPane {
         anchors { top: heading.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
-        visible: root.faceIndex === 3
+        visible: root.faceIndex === 3 && !root.lobbySignIn
         social: root.social; takesFocus: root.takesFocus && visible
         onMenuAnchored: item => root.anchorMenu(item)
     }
@@ -63,7 +65,7 @@ FocusScope {
     }
     Item {
         anchors { top: heading.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
-        visible: !root.connected && root.faceIndex !== 3 && root.faceIndex !== 4
+        visible: root.lobbySignIn || (!root.connected && root.faceIndex !== 3 && root.faceIndex !== 4)
         Rectangle { anchors.fill: parent; color: Theme.surfaceColor("#edf2e4") }
         Rectangle { width: parent.width * 0.36; height: parent.height; color: Theme.surfaceColor("#d3e5dd"); border.color: Theme.surfaceColor("#b0c6b9") }
         Item {
@@ -93,12 +95,13 @@ FocusScope {
         Column {
             x: parent.width * 0.36 + 32; width: parent.width * 0.64 - 64
             anchors.verticalCenter: parent.verticalCenter; spacing: 14
-            Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; text: root.account.state === "authorizing" ? "Let's get you connected" : "Your friends, along for the ride"; wrapMode: Text.WordWrap; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 26 }
-            Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; text: root.account.state === "authorizing" ? (root.account.status || "Connecting...") : "Sign in to chat, call friends and send multiplayer invitations."; wrapMode: Text.WordWrap; color: Theme.muted; font.pixelSize: 16; textFormat: Text.PlainText }
+            Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; text: root.account.state === "authorizing" ? "Let's get you connected" : root.lobbySignIn ? (root.signingIn ? "Connecting to Fluxer" : "Sign in to online lobbies") : "Your friends, along for the ride"; wrapMode: Text.WordWrap; color: Theme.ink; font.family: Theme.displayFamily; font.pixelSize: 26 }
+            Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; text: root.account.state === "authorizing" ? (root.account.status || "Connecting...") : root.lobbySignIn ? "Use your Fluxer account to find online rooms and exchange invitations." : "Sign in to chat, call friends and send multiplayer invitations."; wrapMode: Text.WordWrap; color: Theme.muted; font.pixelSize: 16; textFormat: Text.PlainText }
             Rectangle { visible: (root.account.code || "").length > 0; width: parent.width; height: 60; radius: 10; color: Theme.surfaceColor("#fff4c6"); border.color: Theme.surfaceColor("#c5af66"); border.width: 2
                 Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; anchors.centerIn: parent; text: root.account.code || ""; font.family: Theme.brandFamily; font.pixelSize: 27; color: Theme.ink; textFormat: Text.PlainText }
             }
-            CapButton { visible: root.account.state !== "authorizing"; width: parent.width; height: 54; label: root.account.state === "restoring" ? "Signing in..." : "Sign in"; tint: Theme.yellow; selected: root.takesFocus; enabled: !!root.account.available && root.account.state !== "restoring"; claimsFocus: false; onActivated: root.social.login() }
+            CapButton { visible: root.account.state !== "authorizing"; width: parent.width; height: 54; label: root.signingIn ? "Signing in..." : "Sign in"; tint: Theme.yellow; selected: root.takesFocus; enabled: !!root.account.available && !root.signingIn; claimsFocus: false; onActivated: root.social.login() }
+            CapButton { visible: root.lobbySignIn && root.account.state !== "authorizing"; width: parent.width; height: 40; label: "Local lobbies · same network"; tint: Theme.blue; claimsFocus: false; onActivated: root.social.setLobbyScope("local") }
             Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; visible: root.account.state !== "authorizing" && !!root.account.status && root.account.status !== "Sign in"; text: root.account.status || ""; color: Theme.muted; font.pixelSize: 13; wrapMode: Text.WordWrap; textFormat: Text.PlainText }
         }
     }

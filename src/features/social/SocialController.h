@@ -96,6 +96,7 @@ class SocialController final : public QObject {
     Q_PROPERTY(QVariantMap homeLobby READ homeLobby NOTIFY changed)
     Q_PROPERTY(QVariantMap lobbyState READ lobbyState NOTIFY changed)
     Q_PROPERTY(QVariantMap lobbyDirectory READ lobbyDirectory NOTIFY changed)
+    Q_PROPERTY(bool lobbyNeedsSignIn READ lobbyNeedsSignIn NOTIFY changed)
     Q_PROPERTY(QString lobbyScope READ lobbyScope WRITE setLobbyScope NOTIFY changed)
     Q_PROPERTY(QVariantList lobbyRows READ lobbyRows NOTIFY changed)
     Q_PROPERTY(QVariantList lobbyActions READ lobbyActions NOTIFY changed)
@@ -174,6 +175,7 @@ public:
     void leaveViewedLobby(bool close=false);
     QVariantMap lobbyState() const {auto state=viewedLobby().state().toVariantMap();if(!state.isEmpty())state["leaving"]=lobbyLeaving_.contains(state["id"].toString());return state;}
     QVariantMap lobbyDirectory() const;
+    bool lobbyNeedsSignIn() const {return lobbyScope_=="online" && snapshot_.value("state")!="connected";}
     QString lobbyScope() const {return lobbyScope_;}
     Q_INVOKABLE void setLobbyScope(QString scope);
     void configureLocalLobby(QString directory,QString name);

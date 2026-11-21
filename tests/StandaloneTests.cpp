@@ -423,6 +423,29 @@ private slots:
         QCOMPARE(multiplayerPresentation(profile)["label"].toString(),QString("LAN (in-game)"));QVERIFY(localLobbyRuntime(profile));
     }
 
+    void managedRetroArchRestoresMissingBundledPadProfiles() {
+        QTemporaryDir dir;
+        EmulatorEnvironment env;
+        env.home=dir.path();env.stateDirectory=dir.filePath("state");env.libraryRoot=dir.filePath("roms");
+        env.managed=true;env.executables["flatpak"]=probe();
+        env.flatpaks["org.libretro.RetroArch"]=dir.filePath("deployment");
+        const auto binaries=dir.filePath("deployment/files/bin");
+        QVERIFY(QDir().mkpath(binaries));QVERIFY(QFile::link(probe(),binaries+"/retroarch"));
+        const auto source=dir.filePath("deployment/files/share/libretro/autoconfig/udev");
+        QVERIFY(QDir().mkpath(source));
+        const QString flip="Microsoft_X-Box_Series_XS_pad.cfg", odin="Microsoft_X-Box_Elite_Series_2_pad.cfg";
+        write(source+"/"+flip,"flip");write(source+"/"+odin,"odin");
+        const auto profile=prepareEmulators(env).profiles.value("retroarch");
+        const auto installed=profile["initialConfigDirectory"].toString()+"/autoconfig/udev/";
+        QVERIFY(QFileInfo::exists(installed+flip));QVERIFY(QFileInfo::exists(installed+odin));
+        write(installed+odin,"custom");QVERIFY(QFile::remove(installed+flip));
+        const auto previous=env.stateDirectory+"/integrations/managed/discovered";
+        QVERIFY(QDir().mkpath(previous));write(previous+"/retroarch.json",QJsonDocument(profile).toJson());
+        prepareEmulators(env);
+        QFile restored(installed+flip), custom(installed+odin);
+        QVERIFY(restored.open(QIODevice::ReadOnly));QCOMPARE(restored.readAll(),QByteArray("flip"));
+        QVERIFY(custom.open(QIODevice::ReadOnly));QCOMPARE(custom.readAll(),QByteArray("custom"));
+    }
     void modernDiscoverySeedsControlsWithoutReplacingUserSettings() {
         QTemporaryDir dir; EmulatorEnvironment env;
         env.home=dir.path(); env.configHome=dir.filePath("config"); env.stateDirectory=dir.filePath("state");

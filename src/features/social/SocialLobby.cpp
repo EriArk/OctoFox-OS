@@ -462,6 +462,14 @@ void SocialController::lobbyAction(QString action) {
     emit changed();
 }
 void SocialController::dispatchLobby(Action action) {
+    if(lobbyNeedsSignIn()) {
+        const auto state=snapshot_.value("state").toString();
+        if(state=="authorizing") {
+            if(action==Action::Back)emit commandRequested("cancel-login",{});
+        } else if(action==Action::ContextMenu||action==Action::LocalAction)setLobbyScope("local");
+        else if(action==Action::Confirm && state!="restoring" && state!="connecting")login();
+        return;
+    }
     if(!lobbyDetailFocused_||lobbyRows().value(lobbyFocus()).toMap()["kind"]!="own") {
         lobbyDetailFocused_=false;dispatchLobbyCatalogue(action);return;
     }
