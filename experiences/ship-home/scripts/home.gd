@@ -249,6 +249,7 @@ func _unhandled_input(event:InputEvent) -> void:
  elif event.is_action_pressed("interact"):_interact()
 
 func _process(delta:float) -> void:
+ if not paused:flight.coast.animate(delta)
  if fabricator.visible:
   prompts.clear_world();prompts.actions(fabricator.action_hints());status.hide();dot.hide();return
  if not paused:

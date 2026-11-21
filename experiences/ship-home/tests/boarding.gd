@@ -87,6 +87,7 @@ func run() -> void:
   check(home.riding and home.viewing_exterior and sees(w.camera,hull,true) and sees(w.camera,cabin,false),"Owner switches while descending")
   check(sees(spectator,hull,true) and sees(spectator,cabin,false),"Observer stays outside during a transfer")
   await frames(84)
+  check(is_equal_approx(f.local_air,float(site)),"Disembarkation retains the local sky")
   check(home.outside and w.is_on_floor() and absf(w.position.y-f.GROUND_Y)<0.12,"Lands on "+f.NAMES[site])
   check(home._station()=="dock_lift" and not home.riding,"Exterior reboarding prompt")
   var away:=Vector2(9.75,2) if site==0 else Vector2(-10.5,0)

@@ -18,6 +18,9 @@ var turn_rate:=Vector3.ZERO
 var transition:=0.0
 var from:=Transform3D.IDENTITY
 var obstacles:Array[AABB]=[]
+var coast := preload("res://scripts/island_coast.gd").new()
+var air_zones: Array[Vector4] = []
+var local_air := -1.0
 var art:ShipInterior
 
 func build(interior:ShipInterior) -> void:
@@ -47,30 +50,25 @@ func build(interior:ShipInterior) -> void:
     solid(site.position+p,Vector3(8,16,8))
   else:
    island(site,Vector3(2,-3.902,-3),18,11,true)
+   var trees: Array[Transform3D] = []
    for j in 5:
     var angle:=PI+0.53*j
-    var p:=Vector3(cos(angle)*12, -3.9, sin(angle)*12-4)
-    var crown:=p+Vector3(j%2,5.0+j%3,-0.6)
-    var trunk=art.cylinder(site,(p+crown)*0.5,0.34,p.distance_to(crown),Color("815b64"),0.24)
-    trunk.quaternion=Quaternion(Vector3.UP,(crown-p).normalized());walk_surface(trunk)
-    for side in [-1,1]:
-     var tip:=crown+Vector3(side*1.8,1.3,0.5)
-     art.beam(site,crown-Vector3.UP*1.5,tip,0.2,Color("815b64"))
-     var tint:=Color("b486b3") if j%2 else Color("77aea5")
-     foliage(site,tip,Vector3(2.9,1.4,2.2),tint)
-     foliage(site,tip+Vector3(side*0.65,0.85,0.35),Vector3(1.75,1.05,1.65),tint.lightened(0.12))
+    var p:=Vector3(cos(angle)*12,-3.9,sin(angle)*12-4)
+    var height:=5.0+j%3
+    trees.append(Transform3D(Basis(Vector3.UP,angle).scaled(Vector3.ONE*height),p))
+    var trunk:=StaticBody3D.new()
+    trunk.position=p+Vector3.UP*height*0.28
+    trunk.collision_layer=WALK_LAYER;trunk.collision_mask=0
+    var shape:=CollisionShape3D.new()
+    var cylinder:=CylinderShape3D.new();cylinder.radius=height*0.047;cylinder.height=height*0.56
+    shape.shape=cylinder;trunk.add_child(shape);site.add_child(trunk)
     solid(site.position+p+Vector3.UP*4,Vector3(7,9,5))
+   coast.plant_batch(site,"tree_detailed",trees)
  # Disconnected strata mark the outskirts of the orchard.
  for p in [Vector3(38,-4,-114),Vector3(-47,15,-149),Vector3(53,25,-186)]:
   island(self,p,8.5,7.5)
  art.batch_static(self)
  reset(0)
-
-func foliage(parent:Node3D,at:Vector3,radii:Vector3,tint:Color) -> void:
- var crown:=MeshInstance3D.new();var sphere:=SphereMesh.new()
- sphere.radius=1;sphere.height=2;sphere.radial_segments=16;sphere.rings=8
- crown.mesh=sphere;crown.position=at;crown.scale=radii
- crown.material_override=art.material(tint);parent.add_child(crown)
 
 func solid(center:Vector3,size_m:Vector3) -> void:
  # Conservative hull clearance, including the service deck beneath the ship.
@@ -82,23 +80,26 @@ func walk_surface(mesh:MeshInstance3D) -> void:
  body.collision_layer=WALK_LAYER;body.collision_mask=0
 
 func island(parent:Node3D,center:Vector3,radius:float,depth:float,walkable:=false) -> void:
- var strata=[Color("4a535f"),Color("725e76"),Color("9c7a87"),Color("749e91")]
- var previous:Array[Vector3]=[]
- for ring in 5:
-  var points:Array[Vector3]=[]
-  for j in 16:
-   var angle:=TAU*j/16
-   var r:float=radius*[0.08,0.56,0.90,1.0,0.93][ring]*(1.0+0.12*sin(3*angle)+0.08*cos(5*angle))
-   points.append(center+Vector3(cos(angle)*r,depth*[-1.0,-0.76,-0.32,-0.12,0.0][ring],sin(angle)*r*0.90))
-  if ring>0:
-   for j in 16:
-    var k:=(j+1)%16
-    art.panel(parent,[previous[j],points[j],points[k],previous[k]],strata[ring-1])
-  previous=points
- previous.reverse()
- var crown:=art.panel(parent,previous,strata.back())
+ var sector_center := center if parent==self else parent.position+center
+ var crown := coast.build(parent,center,radius,depth,float(air_zones.size())*1.7)
+ coast.plant_shore(crown,radius,float(air_zones.size())*1.7)
+ air_zones.append(Vector4(sector_center.x,sector_center.y,sector_center.z,radius))
  if walkable:walk_surface(crown)
- solid(parent.position+center-Vector3.UP*depth*0.5,Vector3(radius*1.6,depth,radius*1.4))
+ solid(sector_center-Vector3.UP*depth*0.5,Vector3(radius*1.6,depth,radius*1.4))
+
+func update_air() -> void:
+ var air := 0.0
+ for zone in air_zones:
+  var distance := location.distance_to(Vector3(zone.x,zone.y,zone.z))
+  air=maxf(air,1.0-smoothstep(zone.w+8.0,zone.w*2.45+18.0,distance))
+ if is_equal_approx(air,local_air):return
+ local_air=air
+ var sky_material := art.sky_environment.sky.sky_material as ShaderMaterial
+ sky_material.set_shader_parameter("local_air",air)
+ var stars := art.field_stars.multimesh.mesh.material as StandardMaterial3D
+ stars.albedo_color=Color(1,1,1,1.0-air)
+ art.field_stars.visible=air<1.0
+ art.sky_environment.ambient_light_energy=lerpf(0.40,0.88,air)
 
 func reset(site:int) -> void:
  berth=clampi(site,0,BERTHS.size()-1);destination=1-berth
@@ -159,6 +160,7 @@ func sync_view() -> void:
  art.contact.position=Vector3(disc.x,0.052,disc.y)
  art.field_stars.basis=attitude.transposed()
  art.sky_environment.sky_rotation=attitude.transposed().get_euler()
+ update_air()
 
 func readout() -> String:
  if mode==Mode.BERTH:return NAMES[berth]+"   ·   Docked"
