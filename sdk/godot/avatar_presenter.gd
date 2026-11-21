@@ -69,7 +69,10 @@ static func _resource_bytes(resource: PackedByteArray) -> PackedByteArray:
 	if length==0 or length>67108864 or resource.size()!=24+((length >> 4)+1)*16+32: return PackedByteArray()
 	var mac := HMACContext.new()
 	if mac.start(HashingContext.HASH_SHA256,"TrainerOS/avatar-resource/v1/authentication".sha256_buffer())!=OK: return PackedByteArray()
-	if mac.update(resource.slice(0,resource.size()-32))!=OK: return PackedByteArray()
+	# PackedByteArray.slice copies. Authenticate large models a block at a time.
+	var end := resource.size()-32
+	for offset in range(0,end,1024*1024):
+		if mac.update(resource.slice(offset,mini(offset+1024*1024,end)))!=OK: return PackedByteArray()
 	var tag := mac.finish()
 	var mismatch := 0
 	for i in 32: mismatch |= tag[i]^resource[resource.size()-32+i]
@@ -82,7 +85,8 @@ static func _resource_bytes(resource: PackedByteArray) -> PackedByteArray:
 	if padding<1 or padding>16: return PackedByteArray()
 	for i in range(length,plain.size()):
 		if plain[i]!=padding: return PackedByteArray()
-	return plain.slice(0,length)
+	plain.resize(length)
+	return plain
 
 static func from_descriptor(descriptor: Dictionary) -> TrainerAvatarPresenter:
 	if descriptor.get("schema") != 1 or descriptor.get("rig") != "trainer-humanoid-54-v1": return null
@@ -102,7 +106,11 @@ static func from_descriptor(descriptor: Dictionary) -> TrainerAvatarPresenter:
 	var document := GLTFDocument.new()
 	var state := GLTFState.new()
 	if document.append_from_buffer(bytes, "", state) != OK: return null
+	bytes.clear()
 	var scene := document.generate_scene(state)
+	var metadata: Dictionary = state.json.get("extras", {}).get("trainerFace", {})
+	state=null
+	document=null
 	if not scene is Node3D:
 		if scene != null: scene.free()
 		return null
@@ -116,7 +124,6 @@ static func from_descriptor(descriptor: Dictionary) -> TrainerAvatarPresenter:
 	presenter.actions = descriptor.get("actions", {})
 	presenter.add_child(scene)
 	presenter.animation_player = scene.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	var metadata: Dictionary = state.json.get("extras", {}).get("trainerFace", {})
 	presenter._prepare_cpu_correctives(metadata.get("controls",[]))
 	presenter._bind_face(metadata)
 	var rigs := scene.find_children("*", "Skeleton3D", true, false)
@@ -184,10 +191,11 @@ func _bind_face(metadata: Dictionary) -> void:
 	var controls = metadata.get("controls", [])
 	if not controls is Array or controls.size() > 32: return
 	_prepare_cpu_faces(controls)
+	var meshes:=find_children("*", "MeshInstance3D", true, false)
 	for control in controls:
 		if not control is String: return
 		var bindings: Array = []
-		for node in find_children("*", "MeshInstance3D", true, false):
+		for node in meshes:
 			var mesh := node as MeshInstance3D
 			var index: int = _cpu_faces[mesh.get_instance_id()].names.find(control) if _cpu_faces.has(mesh.get_instance_id()) else mesh.find_blend_shape_by_name(control)
 			if index >= 0: bindings.append([mesh, index])

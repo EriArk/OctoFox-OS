@@ -339,7 +339,7 @@ func _process(delta:float) -> void:
   flight.coast.animate(delta)
   var sky:=art.sky_environment.sky.sky_material as ShaderMaterial
   if int(flight.coast.clock*8)!=int((flight.coast.clock-delta)*8):sky.set_shader_parameter("field_time",flight.coast.clock)
-  if not walker.seated:flight.avionics.update_traffic(delta)
+  if not walker.seated and flight.mode==flight.Mode.BERTH:flight.avionics.update_traffic(delta)
  if survey.visible:
   prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
  if computer.visible:
@@ -355,6 +355,10 @@ func _process(delta:float) -> void:
   prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
  if fishing.phase!=fishing.Phase.AWAY:
   fishing.tick(delta);prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
+ if walker.seated and not paused:
+  walker.attend(null);message_time=maxf(0.0,message_time-delta)
+  prompts.clear_world();prompts.actions(_action_hints());prompts.strip.hide();dot.hide();status.hide()
+  return
  var station = _station()
  var target=STATION_TARGETS.get(station)
  if studio.service.targets.has(station):target=studio.service.targets[station]

@@ -6,6 +6,9 @@
 #include <QColor>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QDateTime>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QFile>
 #include <QImage>
 #include <QJsonArray>
@@ -109,6 +112,37 @@ QByteArray glb(QJsonObject g,QByteArray binary){
 }
 float linear(float c){return c<=.04045f?c/12.92f:std::pow((c+.055f)/1.055f,2.4f);}
 int srgb(float c){c=std::clamp(c,0.f,1.f);return qRound(255*(c<=.0031308f?12.92f*c:1.055f*std::pow(c,1.f/2.4f)-.055f));}
+// The default directory contains derived resources. A revision owns both its
+// game model and its neutral preview; callers with private caches manage those.
+void trimAvatarCache(const QDir& cache,const QString& current) {
+    static const QRegularExpression generated("^([0-9a-f]{64})(?:-preview)?\\.tav$");
+    struct Entry { QString revision; QStringList paths; QDateTime used; };
+    QMap<QString,Entry> entries;
+    qint64 bytes=0;
+    for(const auto& file:cache.entryInfoList({"*.tav"},QDir::Files|QDir::NoSymLinks)) {
+        const auto match=generated.match(file.fileName());
+        if(!match.hasMatch())continue;
+        const auto revision=match.captured(1);
+        auto& entry=entries[revision];
+        entry.revision=revision;
+        entry.paths.append(file.absoluteFilePath());
+        entry.used=std::max(entry.used,file.lastModified());
+        bytes+=file.size();
+    }
+    constexpr qint64 budget=384LL*1024*1024;
+    if(bytes<=budget)return;
+    auto oldest=entries.values();
+    std::sort(oldest.begin(),oldest.end(),[](const Entry& a,const Entry& b){return a.used<b.used;});
+    for(const auto& entry:oldest) {
+        if(bytes<=budget)break;
+        if(entry.revision==current)continue;
+        for(const auto& path:entry.paths) {
+            const auto size=QFileInfo(path).size();
+            if(QFile::remove(path))bytes-=size;
+        }
+    }
+}
+
 }
 QJsonObject AvatarAssets::resolve(const QJsonObject& input,const QString& explicitRoot,const QString& explicitCache) {
     auto fail=[](const QString& s){return QJsonObject{{"error",s}};};
@@ -118,12 +152,18 @@ QJsonObject AvatarAssets::resolve(const QJsonObject& input,const QString& explic
     const auto manifestBytes=read(root+"/manifest.json",65536);
     auto m=QJsonDocument::fromJson(manifestBytes).object();
     if(m["schema"]!=1 || m["pack"]!=a["pack"])return fail("avatar_pack_unavailable");
-    auto revision=QString::fromLatin1(QCryptographicHash::hash(manifestBytes+"wardrobe-face-contrast-v5"+QJsonDocument(a).toJson(QJsonDocument::Compact),QCryptographicHash::Sha256).toHex());
+    auto revision=QString::fromLatin1(QCryptographicHash::hash(manifestBytes+"wardrobe-compact-preview-v6"+QJsonDocument(a).toJson(QJsonDocument::Compact),QCryptographicHash::Sha256).toHex());
     const auto cache=explicitCache.isEmpty()?QStandardPaths::writableLocation(QStandardPaths::CacheLocation)+"/avatars":explicitCache;
     if(!QDir().mkpath(cache))return fail("avatar_cache_unavailable");
     const auto path=QDir(cache).absoluteFilePath(revision+".tav"),preview=QDir(cache).absoluteFilePath(revision+"-preview.tav");
-    QByteArray output=read(path);
-    if(output.isEmpty()||read(preview).isEmpty()) {
+    static QMutex sharedCacheMutex;
+    QMutexLocker lock(explicitCache.isEmpty()?&sharedCacheMutex:nullptr);
+    QByteArray digest;
+    {
+        const auto model=read(path);
+        if(!model.isEmpty())digest=QCryptographicHash::hash(model,QCryptographicHash::Sha256);
+    }
+    if(digest.isEmpty()||read(preview).isEmpty()) {
         const auto data=read(root+"/template.glb");
         if(data.size()<28||qFromLittleEndian<quint32>(data.constData())!=0x46546c67)return fail("invalid_avatar_pack");
         const auto size=qFromLittleEndian<quint32>(data.constData()+12);
@@ -226,13 +266,22 @@ QJsonObject AvatarAssets::resolve(const QJsonObject& input,const QString& explic
         for(const auto& n:sc["nodes"].toArray()){bool keep=true;for(auto i=hairs.begin();i!=hairs.end();++i)if(n==i.value()&&i.key()!=a["hair"].toString())keep=false;if(keep)roots.append(n);}sc["nodes"]=roots;scenes[scene]=sc;g["scenes"]=scenes;
         if(!applyAvatarWearables(g,binary,m,a,root))return fail("invalid_avatar_wearable");
         if(!compactAvatar(g,binary))return fail("invalid_avatar_buffer");
-        output=glb(g,binary);if(output.size()>64*1024*1024)return fail("avatar_too_large");if(!write(path,output))return fail("avatar_cache_write_failed");
+        {
+            const auto model=glb(g,binary);
+            if(model.size()>64*1024*1024)return fail("avatar_too_large");
+            if(!write(path,model))return fail("avatar_cache_write_failed");
+            digest=QCryptographicHash::hash(model,QCryptographicHash::Sha256);
+        }
         // Qt profile preview needs the neutral surface only; full game GLB retains all clips.
         g.remove("animations");auto meshes=g["meshes"].toArray();for(int i=0;i<meshes.size();++i){auto mesh=meshes[i].toObject();mesh.remove("weights");auto ps=mesh["primitives"].toArray();for(int j=0;j<ps.size();++j){auto p=ps[j].toObject();p.remove("targets");ps[j]=p;}mesh["primitives"]=ps;meshes[i]=mesh;}g["meshes"]=meshes;
+        if(!compactAvatar(g,binary))return fail("invalid_avatar_buffer");
+        g.remove("animations");
         if(!write(preview,glb(g,binary)))return fail("avatar_cache_write_failed");
     }
-    if(output.isEmpty())return fail("avatar_cache_invalid");
     if(explicitCache.isEmpty()) {
+        QFile model(path);
+        if(model.open(QIODevice::ReadOnly))model.setFileTime(QDateTime::currentDateTimeUtc(),QFileDevice::FileModificationTime);
+        trimAvatarCache(QDir(cache),revision);
         // Only disposable, host-generated cache entries. Never touch source/user packs.
         static const QRegularExpression legacy("^[0-9a-f]{64}(-preview)?\\.glb$");
         for(const auto& file:QDir(cache).entryInfoList({"*.glb"},QDir::Files))
@@ -240,7 +289,7 @@ QJsonObject AvatarAssets::resolve(const QJsonObject& input,const QString& explic
     }
     const QJsonObject recipe{{"schema",1},{"packRevision",QString::fromLatin1(QCryptographicHash::hash(manifestBytes,QCryptographicHash::Sha256).toHex())},{"appearance",a}};
     return {{"schema",1},{"format","tav1"},{"recipe",recipe},{"pack",m["pack"]},{"revision",revision},{"appearance",a},{"glb",path},{"preview",preview},
-        {"sha256",QString::fromLatin1(QCryptographicHash::hash(output,QCryptographicHash::Sha256).toHex())},{"rig",m["rig"]},{"units","metres"},{"forward","+Z"},{"eyeHeight",m["eyeHeight"]},{"actions",m["actions"]}};
+        {"sha256",QString::fromLatin1(digest.toHex())},{"rig",m["rig"]},{"units","metres"},{"forward","+Z"},{"eyeHeight",m["eyeHeight"]},{"actions",m["actions"]}};
 }
 QJsonObject AvatarAssets::resolveRecipe(const QJsonObject& recipe,const QString& cache) {
     if(recipe.size()!=3||recipe["schema"]!=1||!valid(recipe["appearance"].toObject()))

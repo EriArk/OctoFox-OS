@@ -13,8 +13,7 @@ float cloud_noise(vec2 p) {
  return mix(mix(hash(vec3(i,5.0)),hash(vec3(i+vec2(1,0),5.0)),f.x),
             mix(hash(vec3(i+vec2(0,1),5.0)),hash(vec3(i+vec2(1),5.0)),f.x),f.y);
 }
-void sky() {
- vec3 d=normalize(EYEDIR);
+vec3 space_color(vec3 d) {
  float haze=pow(max(0.0,1.0-abs(d.y*0.85+d.x*0.33+0.18)),10.0);
  float cloud=0.5+0.5*sin(d.x*10.0+sin(d.z*12.0))*sin(d.y*18.0+d.z*8.0);
  vec3 base=mix(vec3(0.012,0.020,0.048),vec3(0.15,0.16,0.30),haze*cloud);
@@ -29,7 +28,7 @@ void sky() {
  vec3 across=normalize(cross(source,vec3(0,1,0))), up=cross(across,source);
  float u=dot(d,across),v=dot(d,up);
  float belt=length(vec2(u+v*0.4,(v-u*0.24)*4.4));
- base+=sector_shift*step(0.94,towards)*(vec3(1.0,0.59,0.22)*exp(-abs(belt-0.082)*155.0)+vec3(1.0,0.75,0.41)*exp(-span*67.0));
+ if (sector_shift>0.0 && towards>=0.94) base+=sector_shift*(vec3(1.0,0.59,0.22)*exp(-abs(belt-0.082)*155.0)+vec3(1.0,0.75,0.41)*exp(-span*67.0));
 
  base+=vec3(0.95,0.31,0.055)*pow(towards,24.0)*(0.14+0.86*exp(-abs(band)*7.0));
  for(int i=0;i<5;i++){
@@ -47,11 +46,14 @@ void sky() {
  float h=hash(vec3(floor(uv),1.0));
  float star=step(0.991,h)*pow(max(0.0,1.0-length(fract(uv)-0.5)*2.0),2.0);
  vec3 space=base+vec3(0.85,0.91,1.0)*star*3.0;
+ if (jump_glow>0.0) {
  float axis=atan(d.y,d.x);
  float strands=pow(0.5+0.5*cos(72.0*axis+3.0*sin(axis*9.0)),13.0);
  space+=jump_glow*(0.78+0.22*sin(27.0*acos(clamp(abs(d.z),0.0,1.0))-field_time*8.0+5.0*strands))*(vec3(0.27,0.13,0.48)+vec3(1.2,0.60,0.24)*strands)*(0.5+0.5*abs(d.z));
- COLOR=space;
- if (local_air>0.0) {
+ }
+ return space;
+}
+vec3 daylight(vec3 d) {
   float elevation=asin(clamp(d.y,-1.0,1.0));
   float u=abs(fract(atan(d.z,d.x)/TAU+0.21)*2.0-1.0);
   // Sample only sky above the painted sea. Below the floating land is an airy abyss.
@@ -67,6 +69,11 @@ void sky() {
    vec3 cloud_light=mix(vec3(0.21,0.37,0.47),vec3(0.65,0.67,0.60),smoothstep(0.41,0.72,field));
    day=mix(day,cloud_light,bank*0.74);
   }
-  COLOR=mix(space,day,local_air);
- }
+  return day;
+}
+void sky() {
+ vec3 d=normalize(EYEDIR);
+ if (local_air>=1.0) COLOR=daylight(d);
+ else if (local_air<=0.0) COLOR=space_color(d);
+ else COLOR=mix(space_color(d),daylight(d),local_air);
 }

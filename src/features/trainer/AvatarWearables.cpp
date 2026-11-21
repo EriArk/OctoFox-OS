@@ -181,7 +181,7 @@ bool compactAvatar(QJsonObject& g,QByteArray& binary) {
         auto v=sourceViews[index].toObject();const qint64 start=v["byteOffset"].toInt(),length=v["byteLength"].toInt();
         if(start<0||length<=0||start+length>binary.size())return false;
         while(compact.size()%4)compact.append('\0');
-        v["byteOffset"]=compact.size();v["buffer"]=0;viewMap[index]=views.size();views.append(v);compact+=binary.mid(start,length);
+        v["byteOffset"]=compact.size();v["buffer"]=0;viewMap[index]=views.size();views.append(v);compact.append(binary.constData()+start,length);
     }
     for(int i=0;i<accessors.size();++i){auto a=accessors[i].toObject();
         if(a.contains("bufferView"))a["bufferView"]=viewMap[a["bufferView"].toInt()];

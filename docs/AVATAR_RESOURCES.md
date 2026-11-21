@@ -62,6 +62,10 @@ This preserves already released native Godot games on the supported Armada route
 without modifying their gameplay packages. It does not certify every external app,
 sandbox, platform or renderer; those consumers retain their own integration checks.
 
+## Derived model cache
+
+The shell keeps up to 384 MiB of generated model and preview pairs in its avatar cache. Resolving an appearance refreshes its place in the cache. The current revision stays available while older pairs are evicted together. Private fitting and visitor directories have their own lifetime. The full game model carries the rig and animation data. The neutral portrait omits unused animation and morph buffers.
+
 ## Distribution boundary
 
 Original models remain under their separate terms in `assets/avatar/README.md`.

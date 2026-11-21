@@ -1,6 +1,8 @@
 #include <QtTest>
 #include "../sdk/qt/AvatarResource.h"
 #include <QFile>
+#include <QScopeGuard>
+#include <QStandardPaths>
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QTemporaryDir>
@@ -14,6 +16,28 @@ using namespace trainer;
 class AvatarTests:public QObject {
     Q_OBJECT
 private slots:
+    void boundedDefaultCacheKeepsCurrentPair() {
+        if(!AvatarAssets::available())QSKIP("Avatar pack unavailable");
+        QTemporaryDir temporary;
+        const auto old=qgetenv("XDG_CACHE_HOME");
+        qputenv("XDG_CACHE_HOME",temporary.path().toUtf8());
+        const auto restore=qScopeGuard([&]{if(old.isNull())qunsetenv("XDG_CACHE_HOME");else qputenv("XDG_CACHE_HOME",old);});
+        QDir cache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)+"/avatars");
+        QVERIFY(cache.mkpath("."));
+        const QString oldRevision(64,'a');
+        for(const auto& suffix:{".tav","-preview.tav"}) {
+            QFile file(cache.filePath(oldRevision+suffix));
+            QVERIFY(file.open(QIODevice::WriteOnly));QVERIFY(file.resize(200LL*1024*1024));
+        }
+        QFile other(cache.filePath("custom.tav"));QVERIFY(other.open(QIODevice::WriteOnly));other.close();
+        const auto result=AvatarAssets::resolve(AvatarAssets::defaults());
+        const auto model=result["glb"].toString(),preview=result["preview"].toString();
+        QVERIFY(QFileInfo::exists(model));QVERIFY(QFileInfo::exists(preview));
+        QVERIFY(QFileInfo(preview).size()<QFileInfo(model).size());
+        QVERIFY(!cache.exists(oldRevision+".tav"));QVERIFY(!cache.exists(oldRevision+"-preview.tav"));
+        QVERIFY(cache.exists("custom.tav"));
+        QCOMPARE(AvatarAssets::resolve(AvatarAssets::defaults())["sha256"],result["sha256"]);
+    }
     void incorporatedResourceRejectsDamageAndBounds() {
         for(const int length:{1,15,16,17,4096}) {
             const QByteArray plain(length,'x');const auto packed=AvatarResource::encode(plain);

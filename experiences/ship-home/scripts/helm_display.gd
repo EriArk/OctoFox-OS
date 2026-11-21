@@ -171,8 +171,10 @@ func tick(dt:float,active:bool) -> void:
  for i in surfaces.size():
   var mount:=surfaces[i].get_parent() as Node3D
   var goal:=1.0 if i==selected and not retract_first else 0.0
-  extensions[i]=move_toward(extensions[i],goal,dt*5.5) if active else 0.0
-  mount.position.y=STOWED_Y+TRAVEL*smoothstep(0.0,1.0,extensions[i])
+  var extension:=move_toward(extensions[i],goal,dt*5.5) if active else 0.0
+  if extensions[i]!=extension:
+   extensions[i]=extension
+   mount.position.y=STOWED_Y+TRAVEL*smoothstep(0.0,1.0,extension)
   mount.visible=extensions[i]>0.0
   gauges[i].visible=active
  var glass_live:bool=active and page=="" and f.mode==f.Mode.FLYING and a.transit==0
@@ -193,13 +195,11 @@ func tick(dt:float,active:bool) -> void:
   pilot.yaw=lerp_angle(pilot.yaw,atan2(-ray.x,-ray.z),blend)
   pilot.pitch=lerpf(pilot.pitch,asin(ray.y),blend)
   pilot.pilot_camera.fov=lerpf(pilot.pilot_camera.fov,23.0 if page=="Scope" else 32.0,blend)
- var course:bool=a.route>=0
- var ray:Vector3=f.attitude.inverse()*(a.jump_axis() if course else a.position_of(a.target)-f.location)
- var behind:=ray.z>=0
- update_keys(behind)
  sweep+=dt
- if sweep>=0.10:
-  sweep=0;scan();refresh()
+ if sweep>=0.10 or gauges[0].text.is_empty():
+  sweep=0
+  var ray:Vector3=f.attitude.transposed()*(a.jump_axis() if a.route>=0 else a.position_of(a.target)-f.location)
+  update_keys(ray.z>=0);scan();refresh()
 
 func update_keys(aft:bool) -> void:
  var nav:String=a.CATALOG[a.target].name+"\n"+a.Regions.range_text(a.range_to(a.target))+("  AFT" if aft else "")

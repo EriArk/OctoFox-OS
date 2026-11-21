@@ -657,7 +657,10 @@ func fittings(parent:Node3D) -> void:
 func build(parent:Node3D,space:Node3D) -> void:
  var env=WorldEnvironment.new();env.environment=Environment.new()
  env.environment.background_mode=Environment.BG_SKY
- var sky=Sky.new();var sky_mat=ShaderMaterial.new();sky_mat.shader=load("res://shaders/space.gdshader");sky.sky_material=sky_mat
+ var sky=Sky.new()
+ # Rough cabin materials only need a low-resolution reflection cubemap.
+ sky.radiance_size=Sky.RADIANCE_SIZE_64
+ var sky_mat=ShaderMaterial.new();sky_mat.shader=load("res://shaders/space.gdshader");sky.sky_material=sky_mat
  sky_mat.set_shader_parameter("coast",preload("res://assets/islands/archipelago.jpg"))
  var stars=MultiMeshInstance3D.new();var star_mesh=SphereMesh.new();star_mesh.radius=0.18;star_mesh.height=0.36;star_mesh.radial_segments=6;star_mesh.rings=3
  var star_mat=StandardMaterial3D.new();star_mat.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED;star_mat.vertex_color_use_as_albedo=true

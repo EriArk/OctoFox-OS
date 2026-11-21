@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 #include <QFile>
+#include <QByteArrayView>
 #include <QSaveFile>
 #include <QCryptographicHash>
 #include <QMessageAuthenticationCode>
@@ -16,7 +17,7 @@ inline constexpr qsizetype Limit=64*1024*1024;
 inline QByteArray key(const char* purpose) {
     return QCryptographicHash::hash(QByteArray("TrainerOS/avatar-resource/v1/")+purpose,QCryptographicHash::Sha256);
 }
-inline QByteArray crypt(const QByteArray& bytes,const QByteArray& iv,bool encrypt) {
+inline QByteArray crypt(QByteArrayView bytes,QByteArrayView iv,bool encrypt) {
     std::unique_ptr<EVP_CIPHER_CTX,decltype(&EVP_CIPHER_CTX_free)> ctx(EVP_CIPHER_CTX_new(),EVP_CIPHER_CTX_free);
     const auto k=key("encryption");
     if(!ctx||EVP_CipherInit_ex(ctx.get(),EVP_aes_256_cbc(),nullptr,
@@ -38,10 +39,11 @@ inline QByteArray decode(const QByteArray& resource,qsizetype limit=Limit) {
     if(resource.size()<72||resource.size()>Limit+72||resource.first(4)!="TAV1")return {};
     const auto size=qFromLittleEndian<quint32>(resource.constData()+4);
     if(!size||size>quint64(qMax(qsizetype(0),qMin(limit,Limit)))||resource.size()!=24+(size/16+1)*16+32)return {};
-    const auto tag=QMessageAuthenticationCode::hash(resource.first(resource.size()-32),key("authentication"),QCryptographicHash::Sha256);
+    const QByteArrayView frame(resource);
+    const auto tag=QMessageAuthenticationCode::hash(frame.first(frame.size()-32),key("authentication"),QCryptographicHash::Sha256);
     unsigned mismatch=0;for(int i=0;i<32;++i)mismatch|=quint8(tag[i])^quint8(resource[resource.size()-32+i]);
     if(mismatch)return {};
-    const auto plain=crypt(resource.mid(24,resource.size()-56),resource.mid(8,16),false);
+    const auto plain=crypt(frame.sliced(24,frame.size()-56),frame.sliced(8,16),false);
     return plain.size()==size?plain:QByteArray();
 }
 inline QByteArray read(const QString& path,qsizetype limit=Limit) {

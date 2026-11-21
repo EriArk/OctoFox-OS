@@ -33,6 +33,8 @@ var island_ids:Array[int]=[]
 var island_depths: Array[float] = []
 var cloud_cover := -1.0
 var local_air := -1.0
+var last_location:=Vector3.INF
+var last_attitude:=Basis.IDENTITY
 var sky_sector:=-1
 var sky_jump:=-1.0
 var avionics:=preload("res://scripts/ship_avionics.gd").new()
@@ -364,10 +366,17 @@ func tick(dt:float,axes:Vector2,roll:float,power:float,strafe:Vector2,brake:bool
  sync_view()
 
 func sync_view() -> void:
- transform=Transform3D(attitude,location).inverse()
- art.field_stars.basis=attitude.transposed()
- art.sky_environment.sky_rotation=attitude.transposed().get_euler()
- update_air()
+ var moved:=location!=last_location
+ var turned:=attitude!=last_attitude
+ if moved or turned:
+  transform=Transform3D(attitude,location).inverse()
+ if turned:
+  last_attitude=attitude
+  art.field_stars.basis=attitude.transposed()
+  art.sky_environment.sky_rotation=attitude.transposed().get_euler()
+ if moved:
+  last_location=location
+  update_air()
  var sky:=art.sky_environment.sky.sky_material as ShaderMaterial
  if sky_sector!=avionics.sector:
   sky_sector=avionics.sector

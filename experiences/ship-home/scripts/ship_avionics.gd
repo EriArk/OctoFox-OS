@@ -450,9 +450,11 @@ func update_traffic(dt:float) -> void:
   var node:Node3D=bodies[id];node.visible=CATALOG[id].sector==sector
   if not node.visible:continue
   if traffic_plumes.has(id):traffic_plumes[id].set_power(0.0 if id==hostile_id and disabled_time>0 else 0.62)
-  node.position=position_of(id)
+  var pos:=position_of(id)
+  if node.position!=pos:node.position=pos
   if Regions.moving(CATALOG[id]):
-   node.rotation.y=atan2(node.position.x-position_of(id,orbit_time+0.1).x,node.position.z-position_of(id,orbit_time+0.1).z)
+   var ahead:=position_of(id,orbit_time+0.1)
+   node.rotation.y=atan2(pos.x-ahead.x,pos.z-ahead.z)
  if target!=line_target:
   line_target=target;path_line.mesh=null
   if Regions.moving(CATALOG[target]):
