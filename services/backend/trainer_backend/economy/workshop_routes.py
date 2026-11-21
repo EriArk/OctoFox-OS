@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import Annotated, Literal
 from uuid import UUID
+from psycopg.types.json import Jsonb
 from fastapi import APIRouter, Request
 from pydantic import Field
 from ..accounts.provider import AuthError
@@ -102,6 +103,99 @@ def unlock(request: Request, body: Activate):
 @router.post('/v1/me/workshop/paint')
 def paint(request: Request, body: Paint):
     return mutate(request, 'paint', body, lambda c, p: workshop.paint(c, p, body.item, body.channel, body.color))
+
+
+class ShoreFish(StrictBody):
+    id: Id
+    species: Literal['glassfin', 'loach', 'ribbon']
+    site: Literal[1, 3]
+
+
+FISH = {
+    'glassfin': ('Glassfin', 9, 19, ('#9adcca', '#83badb')),
+    'loach': ('Copper loach', 18, 34, ('#c99366', '#d5b57b')),
+    'ribbon': ('Ribbon ray', 32, 56, ('#a293d9', '#e39dad')),
+}
+
+
+@router.post('/v1/me/workshop/fish')
+def land_fish(request: Request, body: ShoreFish):
+    identity = UUID(body.id)
+    if identity.version != 4 or (body.species, body.site) in [('loach', 3), ('ribbon', 1)]:
+        raise AuthError('invalid_catch', 422)
+    api = service(request)
+    with api.db.transaction() as conn:
+        player = api.account(conn, bearer(request)).player_id
+        workshop.lock_account(conn, player)
+        payload = {'angler': str(player), 'species': body.species, 'site': body.site}
+
+        def issue(c, _receipt):
+            # Offline catches are client-reported. Bound admission per original angler,
+            # including fish already sold; only the fixed catalogue crosses this boundary.
+            count = c.execute("""SELECT count(*) n FROM trainer_backend.loot_items
+                WHERE adapter_id='octofox.fishing' AND payload->>'angler'=%s
+                AND received_at>clock_timestamp()-interval '24 hours'""", (str(player),)).fetchone()['n']
+            if count >= 24:
+                raise AuthError('daily_landing_limit', 429)
+            title, low, high, colors = FISH[body.species]
+            length = low + int(identity.hex[:4], 16) % (high-low+1)
+            shore = {1: 'Echo Orchard', 3: 'Table Isle'}[body.site]
+            card = {'title': title, 'game': 'OctoFox Ship', 'subtitle': f'{length} cm',
+                    'swatch': colors[identity.bytes[2] % 2], 'icon': 'inventory',
+                    'facts': [{'label': 'Caught at', 'value': shore}, {'label': 'Length', 'value': f'{length} cm'}]}
+            stored = c.execute('SELECT trainer_backend.store_shore_fish(%s,%s,%s,%s) AS ok',
+                               (body.id, player, Jsonb(payload), Jsonb(card))).fetchone()
+            if not stored['ok']:
+                raise AuthError('catch_identity_conflict', 409)
+            return Outcome('completed', identity)
+
+        try:
+            receipt = run_command(BoundDatabase(conn), Principal(player, 'player'), 'inventory.landfish',
+                                  str(body.id), payload, issue)
+        except Conflict:
+            raise AuthError('catch_identity_conflict', 409) from None
+        return wire({'player_id': player, 'item_id': receipt['resource_id']})
+
+
+class FishDisplay(StrictBody):
+    id: Id
+    display: bool
+
+
+@router.post('/v1/me/workshop/fishdisplay')
+def arrange_fish(request: Request, body: FishDisplay):
+    api = service(request)
+    with api.db.transaction() as conn:
+        player = api.account(conn, bearer(request)).player_id
+        workshop.lock_account(conn, player)
+        row = conn.execute("""SELECT id FROM trainer_backend.loot_items WHERE id=%s AND player_id=%s
+            AND adapter_id='octofox.fishing' AND state='stored' FOR UPDATE""", (body.id, player)).fetchone()
+        if not row:
+            raise AuthError('fish_unavailable', 409)
+        if body.display:
+            current = conn.execute('SELECT item_id FROM trainer_backend.fish_display WHERE player_id=%s', (player,)).fetchall()
+            if len(current) >= 8 and not any(str(r['item_id']) == body.id for r in current):
+                raise AuthError('aquarium_full', 409)
+            conn.execute('INSERT INTO trainer_backend.fish_display VALUES(%s,%s) ON CONFLICT DO NOTHING', (body.id, player))
+        else:
+            conn.execute('DELETE FROM trainer_backend.fish_display WHERE player_id=%s AND item_id=%s', (player, body.id))
+        return wire({'player_id': player})
+
+
+@router.get('/v1/me/workshop/fishstock')
+def fishstock(request: Request, after: UUID | None = None):
+    api = service(request)
+    with api.db.transaction() as conn:
+        conn.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ')
+        player = api.accounts.authenticate(conn, bearer(request)).player_id
+        owned = """ FROM trainer_backend.loot_items i LEFT JOIN trainer_backend.fish_display d
+                    ON d.item_id=i.id WHERE i.adapter_id='octofox.fishing' AND i.state='stored' AND i.player_id=%s"""
+        fields = "SELECT i.id, i.payload->>'species' species, (i.payload->>'site')::int site"
+        tank = conn.execute(fields + owned + ' AND d.item_id IS NOT NULL ORDER BY i.id', (player,)).fetchall()
+        bag = conn.execute(fields + owned + ' AND d.item_id IS NULL AND (%s::uuid IS NULL OR i.id>%s) ORDER BY i.id LIMIT 25',
+                           (player, after, after)).fetchall()
+        return wire({'player_id': player, 'tank': tank, 'items': bag[:24],
+                     'next': str(bag[23]['id']) if len(bag) > 24 else None})
 
 
 class PlayPulse(StrictBody):

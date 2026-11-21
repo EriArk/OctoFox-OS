@@ -7,6 +7,7 @@ remain in force. Distribution/image obligations need a separate review before re
 
 | Material | Existing record / terms |
 | --- | --- |
+| Ship Home fishing fight | Adapted from DRG Software Solutions LLC’s [Tidewater CatchMinigame](https://github.com/dgreenheck/tidewater/blob/4811ba48d795197de5621985f404e765c0b7c0ef/src/game/CatchMinigame.js). The game includes the [MIT notice](experiences/ship-home/licenses/Tidewater.txt). |
 | Shared Trainer avatar pack | [Per-part sources, CC BY attribution and owner-supplied inputs](assets/avatar/README.md); art is separate from the code licence; remaining public redistribution records are explicit |
 | Avatar crop / bob hairstyles | Anime hair style 20 and 14 by only3dstock, CGTrader Royalty Free License (no AI); [exact sources and packaging boundary](assets/avatar/README.md) |
 | Crates example project screenshots | [Attribution, upstream sources and included notices](assets/crates/examples/README.md); MIT, GPL-3.0 and GPL-2.0-or-later as recorded per project; no project binaries included |

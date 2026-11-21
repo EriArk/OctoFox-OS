@@ -33,8 +33,10 @@ def main():
         shutil.copytree(source, stage, ignore=shutil.ignore_patterns('.godot', 'addons', '__pycache__', '*.tmp', 'tests'))
         sdk = source.parents[1] / 'sdk' / 'godot'
         (stage/'addons'/'avatar').mkdir(parents=True)
-        for name in ('avatar_client.gd', 'avatar_presenter.gd', 'avatar_locomotion.gd'):
+        for name in ('avatar_client.gd', 'avatar_presenter.gd', 'avatar_locomotion.gd', 'character_equipment.gd', 'held_item.gd'):
             shutil.copy2(sdk/name, stage/'addons'/'avatar'/name)
+        (stage/'addons/avatar/items').mkdir()
+        shutil.copy2(sdk/'items/fishing_rod.tres', stage/'addons/avatar/items')
         shutil.copytree(sdk/'animations', stage/'addons'/'avatar'/'animations')
         (stage/'runtime.json').write_text(json.dumps({'engine': str(engine)}))
         digest = hashlib.sha256()

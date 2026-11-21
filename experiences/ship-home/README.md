@@ -11,6 +11,25 @@ Opposite the galley, a lounge chair and a curved-backed banquette share one mova
 table by the aquarium. The galley stool sits below the breakfast ledge. A clear
 central aisle connects the cockpit, lift and berth. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
 
+### Shore fishing and the ship aquarium
+
+Land at Echo Orchard or Table Isle, leave by the lower lift and follow the fishing pier sign from the landing circle. Press **A / F** at the end of the pier to take out the SDK rod.
+
+| Action | Handheld | Keyboard |
+| --- | --- | --- |
+| Charge and release a cast | Hold and release RT | Hold and release Space |
+| Set the hook when the float dips | LT | R |
+| Reel and ease off | Squeeze or release RT | Hold or release Space |
+| Angle the rod against a run | Right stick | Q / E |
+| Keep or release the catch | A / Y | F / Y |
+| Put the rod away | B | Esc |
+
+A short cast finds glassfins. Casting farther reaches copper loaches at Echo Orchard and ribbon rays at Table Isle. A running fish takes line. Sustained overload snaps it, and slack lets the hook slip. The model adapts the MIT-licensed [Tidewater fight](https://github.com/dgreenheck/tidewater/blob/4811ba48d795197de5621985f404e765c0b7c0ef/src/game/CatchMinigame.js).
+
+The livewell holds 24 fish. At the cabin aquarium, browse with the shoulders and press **A** to move one of your catches into or out of the eight-fish display. **X** offers to release a livewell specimen. The ship saves its ID, species and shore with the current local profile. Length and colour follow the same ID.
+
+A shell and backend with the fishing inventory extension also offer **Y** to transfer a livewell fish to Profile Inventory. An interrupted transfer can be retried with the original ID. Profile inventory fish, including purchased specimens, can be selected for display at the same tank. Listing a server fish for sale clears its display placement. The development backend admits up to 24 offline-reported specimens per account per rolling 24 hours. Catching and the local aquarium work offline.
+
 ### Ship station references
 
 Warframe’s Arsenal inspired the standing character preview, the outfit list and the

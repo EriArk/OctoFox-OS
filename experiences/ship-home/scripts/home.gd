@@ -18,6 +18,8 @@ var parts=preload("res://scripts/look_parts.gd").new()
 var cards=preload("res://scripts/look_cards.gd").new()
 var fabricator=preload("res://scripts/fabricator.gd").new()
 var fitting=preload("res://scripts/fitting_station.gd").new()
+var fishing=preload("res://scripts/shore_fishing.gd").new()
+const Catch=preload("res://scripts/shore_catch.gd")
 var riding=false
 var outside:=false
 var ride_platform:AnimatableBody3D
@@ -64,6 +66,7 @@ func _ready() -> void:
  walker=Walker.new();walker.helm=art;walker.position=Vector3(0,0.1,-0.55);add_child(walker)
  add_child(fitting);fitting.configure(walker,studio)
  Exterior.configure_camera(walker.pilot_camera,true);Exterior.configure_camera(fitting.camera,true)
+ add_child(fishing)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
  parts.client=avatar_client;parts.fitting=fitting
@@ -81,6 +84,8 @@ func _ready() -> void:
  fitting.workshop=avatar_client
  avatar_client.workshop_changed.connect(fitting.restore_colors)
  fabricator.workshop=avatar_client;dye.workshop=avatar_client;dye.fitting=fitting
+ avatar_client.fish_stock_changed.connect(update_fish)
+ avatar_client.fish_transferred.connect(fish_sent)
  avatar_client.workshop_changed.connect(fabricator.refresh)
  avatar_client.workshop_changed.connect(dye.refresh)
  fitting.changed.connect(dye.paint_preview)
@@ -121,10 +126,19 @@ func _inputs() -> void:
  for action in axes:
   var axis=InputEventJoypadMotion.new();axis.axis=axes[action][0];axis.axis_value=axes[action][1];InputMap.action_add_event(action,axis)
 
+ for action in ["fish_reel","fish_hook"]:
+  var reeling:bool=action=="fish_reel"
+  if InputMap.has_action(action):continue
+  InputMap.add_action(action,0.12)
+  var axis:=InputEventJoypadMotion.new();axis.axis=JOY_AXIS_TRIGGER_RIGHT if reeling else JOY_AXIS_TRIGGER_LEFT
+  axis.axis_value=1;InputMap.action_add_event(action,axis)
+  var key:=InputEventKey.new();key.physical_keycode=KEY_SPACE if reeling else KEY_R;InputMap.action_add_event(action,key)
+
 func _load_profile(id:String) -> void:
  if is_instance_valid(walker) and walker.seated:
   # Profile changes return to the reserved central approach before replacing furniture.
   walker.stand(Vector3(0,0.08,-2.1))
+ if fishing.walker!=null:fishing.close()
  if outside or riding or walker.position.y< -0.4:
   walker.position=Vector3(0,0.08,-0.55);walker.velocity=Vector3.ZERO
  walker.stationary=false;riding=false;ride_platform=null
@@ -138,6 +152,10 @@ func _load_profile(id:String) -> void:
  if instruments.is_inside_tree():instruments.clear()
  flight.avionics.fresh(store.systems)
  flight.reset(store.berth)
+ if is_instance_valid(avatar_client):
+  avatar_client.reset_fish()
+  if profile!="":avatar_client.read_fish()
+ update_fish()
  _draw_furniture()
  if not store.error.is_empty():notify(store.error)
 
@@ -188,6 +206,7 @@ func _ui() -> void:
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
  layer.add_child(instruments);instruments.bind(flight,walker)
  layer.add_child(prompts)
+ fishing.configure(self,layer)
  prompts.used.connect(func(id:String):
   if not paused and not riding and not editing and not fitting.active and not fabricator.visible and not walker.seated and id==_station():_interact())
 
@@ -197,6 +216,7 @@ func _open_colours() -> void:
 
 func _pause(value:bool) -> void:
  if value:
+  if fishing.phase!=fishing.Phase.AWAY:fishing.close()
   instruments.clear()
   parts.close();prompts.clear_world();prompts.actions([])
  if value and dye.visible:dye.close()
@@ -218,6 +238,8 @@ func _close_fabricator() -> void:
 func _unhandled_input(event:InputEvent) -> void:
  if event.is_action_pressed("pause_ship"):
   _pause(not paused);get_viewport().set_input_as_handled();return
+ if not paused and fishing.phase!=fishing.Phase.AWAY:
+  fishing.control(event);get_viewport().set_input_as_handled();return
  if walker.seated and not paused and instruments.event(event):
   get_viewport().set_input_as_handled();return
  if event.is_action_pressed("cancel_ship"):
@@ -272,9 +294,13 @@ func _process(delta:float) -> void:
  if not paused:
   if not viewing_exterior:studio.animate(delta)
   fitting.update(delta)
+ if fishing.phase!=fishing.Phase.AWAY:
+  fishing.tick(delta);prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
  var station = _station()
  var target=STATION_TARGETS.get(station)
- if station=="lift":target=studio.lift.position+Vector3.UP*0.12
+ if station=="fish":target=flight.to_global(flight.fishing_spots[flight.berth])
+ elif station=="tank":target=studio.aquarium.to_global(Vector3(0,1.05,0.42))
+ elif station=="lift":target=studio.lift.position+Vector3.UP*0.12
  elif station=="dock_lift":target=studio.exit_lift.position+Vector3.UP*0.18
  walker.attend(null if paused or editing or fitting.active or riding or walker.seated else target)
  message_time=max(0.0,message_time-delta)
@@ -450,14 +476,18 @@ const STATION_TARGETS = {
  "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
-const STATION_ACTIONS={"pilot":"Sit at helm","workbench":"Use fabricator","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
+const STATION_ACTIONS={"fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
  if flight.mode==flight.Mode.BERTH and p.distance_to(studio.EXIT_CENTER)<studio.EXIT_RADIUS+0.09 and absf(walker.position.y-studio.exit_lift.position.y)<0.3:return "dock_lift"
- if outside:return ""
+ if outside:
+  if flight.mode==flight.Mode.BERTH and flight.fishing_spots.has(flight.berth):
+   if walker.global_position.distance_to(flight.to_global(flight.fishing_spots[flight.berth]))<2.6:return "fish"
+  return ""
  if p.distance_to(Art.LIFT)<0.89 and abs(walker.position.y-studio.lift.position.y)<0.4:return "lift"
  if walker.position.y< -0.4:return ""
+ if studio.aquarium.to_local(walker.position).distance_to(Vector3(0,0,0.95))<1.42:return "tank"
  if _near_pilot():return "pilot"
  if p.distance_to(Vector2(-2.85,1.48))<1.5:return "workbench"
  if p.distance_to(Vector2(Art.BOOTH.x,Art.BOOTH.z))<1.32:return "wardrobe"
@@ -517,6 +547,8 @@ func _interact() -> void:
   return
  prompts.clear_world()
  match _station():
+  "fish":fishing.open_shore()
+  "tank":fishing.open_tank()
   "pilot":
    if editing:_edit(false)
    walker.sit()
@@ -532,6 +564,82 @@ func _interact() -> void:
   "dock_lift":
    _ride(studio.exit_lift,Art.LOWER_Y if outside else flight.GROUND_Y)
 
+
+func fish_stock() -> Array:
+ if not can_export():return store.fish
+ # After a lost transfer reply the server may already own the same instance.
+ var stock:Array=store.fish.duplicate()
+ var local_ids:Dictionary={}
+ for row in stock:local_ids[row.id]=true
+ for row in avatar_client.fish_tank+avatar_client.fish_bag:
+  if not local_ids.has(row.id):stock.append(row)
+ return stock
+
+func update_fish() -> void:
+ studio.set_fish(fish_stock())
+ if fishing.phase==fishing.Phase.AQUARIUM:fishing.refresh()
+
+func tank_full() -> bool:return studio.fish.size()>=Catch.TANK_LIMIT
+
+func save_fish(next:Array) -> String:
+ if not Catch.valid_stock(next):return "No space · move a fish first"
+ var previous:Array=store.fish
+ store.fish=next
+ if not store.save(rows):
+  store.fish=previous;return store.error if not store.error.is_empty() else "Could not save the livewell"
+ update_fish()
+ return ""
+
+func keep_fish(item:Dictionary) -> String:
+ var next:Array=store.fish.duplicate(true)
+ next.append(item.duplicate())
+ return save_fish(next)
+
+func release_fish(id:String) -> String:
+ var next:Array=store.fish.filter(func(row):return row.id!=id or row.place!="bag")
+ if next.size()==store.fish.size():return "Fish unavailable"
+ return save_fish(next)
+
+func move_fish(id:String,place:String) -> String:
+ if place=="tank" and tank_full():return "Aquarium full"
+ var next:Array=store.fish.duplicate(true)
+ for item in next:
+  if item.id==id and item.place!="sending" and place in ["tank","bag"]:
+   item.place=place;return save_fish(next)
+ return "Fish unavailable"
+
+func can_export() -> bool:
+ return can_query_fish() and avatar_client.fish_ready
+
+func can_query_fish() -> bool:
+ return not profile.is_empty() and is_instance_valid(avatar_client) and avatar_client.fish_supported
+
+func export_fish(item:Dictionary) -> void:
+ if not can_export() or avatar_client.busy or item.place=="tank":return
+ var next:Array=store.fish.duplicate(true)
+ for row in next:
+  if row.id==item.id:
+   row.place="sending"
+   var problem:=save_fish(next)
+   if problem!="":fishing.outcome=problem;return
+   avatar_client.send_fish(row,profile)
+   fishing.outcome="Transferring to inventory…"
+   return
+
+func fish_sent(owner:String,id:String,problem:String) -> void:
+ if owner!=profile:return
+ if problem=="Daily Landing Limit":
+  var retry:Array=store.fish.duplicate(true)
+  for item in retry:
+   if item.id==id:item.place="bag"
+  var error:=save_fish(retry)
+  problem="Inventory transfer limit reached · still in livewell" if error=="" else error
+ elif problem.is_empty():
+  var next:Array=store.fish.filter(func(row):return row.id!=id)
+  problem=save_fish(next)
+ fishing.outcome="In profile inventory" if problem.is_empty() else problem
+ fishing.refresh()
+ if problem.is_empty():avatar_client.read_fish()
 
 func _quit() -> void:
  if flight.mode==flight.Mode.BERTH:store.systems=flight.avionics.snapshot()

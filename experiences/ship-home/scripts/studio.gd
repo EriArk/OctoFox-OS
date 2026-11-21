@@ -328,21 +328,46 @@ func build_moving(dock:Node3D) -> void:
  art.cylinder(toolhead,Vector3(0,1.36,0.01),0.022,0.12,Art.BRASS,0.065)
  var probe=art.cylinder(toolhead,Vector3(0,1.13,0.01),0.006,0.30,MINT)
  probe.name="ScanBeam";probe.material_override=art.material(MINT,true);probe.hide()
- for i in 6:
-  var swimmer:=Node3D.new();aquarium.add_child(swimmer);fish.append(swimmer)
-  var color:Color=[Color("f3b763"),Color("f48878"),Color("bbded9")][i%3]
-  oval(swimmer,Vector3.ZERO,Vector3(0.23,0.11,0.065),color)
-  var tail=art.panel(swimmer,[Vector3(-0.08,0,0),Vector3(-0.19,0.076,0),Vector3(-0.17,-0.068,0)],color)
-  tail.material_override=art.material(color).duplicate();tail.material_override.cull_mode=BaseMaterial3D.CULL_DISABLED
-  oval(swimmer,Vector3(-0.018,0.052,0),Vector3(0.085,0.05,0.018),color)
-  for side in [-1,1]:
-   oval(swimmer,Vector3(0.070,0.018,0.027*side),Vector3.ONE*0.027,INK)
  drape=ShaderMaterial.new();drape.shader=preload("res://shaders/drape.gdshader")
  for side in [-1,1]:
   var surface:=PlaneMesh.new();surface.size=Vector2.ONE;surface.subdivide_width=63;surface.subdivide_depth=1
   var curtain:=MeshInstance3D.new();curtain.mesh=surface;curtain.material_override=drape
   curtain.custom_aabb=AABB(Vector3(-0.86,0,-0.86),Vector3(1.72,2.15,1.72))
   curtain.scale.x=side;booth.add_child(curtain)
+
+func set_fish(stock:Array) -> void:
+ for node in fish:
+  aquarium.remove_child(node);node.queue_free()
+ fish.clear()
+ for record in stock:
+  if record.place!="tank":continue
+  fish.append(make_fish(aquarium,record))
+
+func make_fish(parent:Node3D,record:Dictionary) -> Node3D:
+ var swimmer:=Node3D.new();parent.add_child(swimmer)
+ var catch_data=preload("res://scripts/shore_catch.gd")
+ var color:Color=catch_data.tint(record)
+ swimmer.name="Fish_"+str(record.id)
+ swimmer.scale=Vector3.ONE*(0.55+0.018*catch_data.length_cm(record))
+ if record.species=="ribbon":swimmer.scale*=Vector3(1.1,0.65,1.65)
+ elif record.species=="loach":swimmer.scale*=Vector3(1.28,0.84,0.9)
+ oval(swimmer,Vector3.ZERO,Vector3(0.23,0.11,0.065),color)
+ var tail=art.panel(swimmer,[Vector3(-0.08,0,0),Vector3(-0.19,0.076,0),Vector3(-0.17,-0.068,0)],color)
+ tail.material_override=art.material(color).duplicate();tail.material_override.cull_mode=BaseMaterial3D.CULL_DISABLED
+ oval(swimmer,Vector3(-0.018,0.052,0),Vector3(0.085,0.05,0.018),color)
+ if record.species=="ribbon":
+  for side in [-1,1]:
+   var fin=art.panel(swimmer,[Vector3(0.084,0,0),Vector3(-0.075,0.004,0.135*side),Vector3(-0.060,-0.01,0)],color.lightened(0.16))
+   fin.material_override=tail.material_override
+  art.beam(swimmer,Vector3(-0.09,0,0),Vector3(-0.29,-0.025,0),0.008,color)
+ elif record.species=="loach":
+  for i in 4:
+   oval(swimmer,Vector3(-0.065+i*0.033,0.008,0),Vector3(0.016,0.099,0.068),color.darkened(0.34))
+ else:
+  oval(swimmer,Vector3(0,0,0),Vector3(0.19,0.018,0.070),color.lightened(0.6))
+ for side in [-1,1]:
+  oval(swimmer,Vector3(0.070,0.018,0.027*side),Vector3.ONE*0.027,INK)
+ return swimmer
 
 func animate(delta: float) -> void:
  time+=delta

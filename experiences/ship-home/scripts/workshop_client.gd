@@ -1,5 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends "res://addons/avatar/avatar_client.gd"
+signal fish_transferred(owner:String,id:String,problem:String)
+signal fish_stock_changed
+var fish_ready:=false
+var fish_supported:=false
+var fish_tank:Array=[]
+var fish_bag:Array=[]
+var fish_next:=""
+var fish_epoch:=0
+var fish_error:=""
+
 signal workshop_changed
 var supported := false
 signal looks_changed
@@ -30,11 +40,32 @@ func _request(method: String, params: Dictionary={}) -> void:
  if method.begins_with("workshop."):pending[str(serial)].deadline=Time.get_ticks_msec()+25000
 
 func disconnect_host() -> void:
+ fish_supported=false;fish_ready=false;fish_tank=[];fish_bag=[];fish_next="";fish_error=""
+ fish_stock_changed.emit()
  super.disconnect_host()
  looks_supported=false;looks_loading=false;wearing=false;saved_looks.clear();pending_looks.clear();look_notice=""
  looks_changed.emit()
  expired.clear();supported=false;timed_prints=false;busy=false;inventory.clear();stock.clear();garments.clear();next_page="";notice=""
  workshop_changed.emit()
+
+func send_fish(fish:Dictionary,owner:String) -> void:
+ busy=true
+ _request("workshop.fish",{"id":fish.id,"species":fish.species,"site":int(fish.site)})
+ pending[str(serial)].owner=owner;pending[str(serial)].fish=fish.id
+
+func reset_fish() -> void:
+ fish_epoch+=1;fish_ready=false;fish_tank=[];fish_bag=[];fish_next="";fish_error=""
+
+func read_fish(more:=false) -> void:
+ if busy or not fish_supported or (more and fish_next==""):return
+ busy=true
+ _request("workshop.fishstock",{"after":fish_next} if more else {})
+ pending[str(serial)].append_page=more;pending[str(serial)].epoch=fish_epoch
+
+func display_fish(id:String,display:bool) -> void:
+ if busy or not fish_supported:return
+ busy=true;_request("workshop.fishdisplay",{"id":id,"display":display})
+ pending[str(serial)].epoch=fish_epoch
 
 func refresh_looks() -> void:
  if not looks_supported or looks_loading or wearing:return
@@ -79,6 +110,10 @@ func _process(delta:float) -> void:
  for id in pending.keys():
   var entry:Dictionary=pending[id]
   if str(entry.method).begins_with("workshop.") and Time.get_ticks_msec()>int(entry.deadline):
+   if entry.method=="workshop.fish":
+    fish_transferred.emit(entry.owner,entry.fish,"Transfer not confirmed · select Retry transfer")
+   if entry.method in ["workshop.fishstock","workshop.fishdisplay"]:
+    fish_ready=false;fish_tank=[];fish_bag=[];fish_next="";fish_error="Inventory connection timed out";fish_stock_changed.emit()
    pending.erase(id);expired[id]=true;busy=false;inventory.clear();stock.clear();garments.clear();next_page=""
    if expired.size()>32:expired.erase(expired.keys()[0])
    notice="Connection timed out. Reopen the station to check your inventory."
@@ -88,7 +123,34 @@ func _process(delta:float) -> void:
 func _packet(packet:Dictionary) -> void:
  if expired.erase(str(packet.get("id",""))):return
  var method:String=pending.get(str(packet.get("id","")),{}).get("method","")
+ if method in ["workshop.fishstock","workshop.fishdisplay"]:
+  var entry:Dictionary=pending[str(packet.id)]
+  pending.erase(str(packet.id));busy=false
+  if entry.epoch!=fish_epoch:
+   read_fish();return
+  fish_error=str(packet.get("error",{}).get("code","")).replace("_"," ").capitalize()
+  if fish_error!="":
+   fish_ready=false;fish_tank=[];fish_bag=[];fish_next=""
+  elif method=="workshop.fishdisplay":
+   read_fish();return
+  else:
+   var stock:Dictionary=packet.result
+   fish_ready=true;fish_tank=stock.tank
+   for item in fish_tank:item.merge({"place":"tank","account":true})
+   if not entry.append_page:fish_bag=[]
+   for item in stock.items:
+    item.merge({"place":"inventory","account":true});fish_bag.append(item)
+   fish_next=str(stock.next) if stock.next else ""
+  fish_stock_changed.emit();return
+ if method=="workshop.fish":
+  var entry:Dictionary=pending[str(packet.id)]
+  pending.erase(str(packet.id));busy=false
+  var issue:String=str(packet.get("error",{}).get("code","")).replace("_"," ").capitalize()
+  if issue=="" and str(packet.get("result",{}).get("item_id",""))!=entry.fish:issue="Transfer not confirmed"
+  fish_transferred.emit(entry.owner,entry.fish,issue)
+  return
  if method=="hello":
+  fish_supported=packet.get("result",{}).get("capabilities",{}).get("ship.fishing")==1
   looks_supported=packet.get("result",{}).get("capabilities",{}).get("ship.looks")==1
   timed_prints=packet.get("result",{}).get("capabilities",{}).get("ship.timed_prints")==1
   supported=packet.get("result",{}).get("capabilities",{}).get("ship.workshop")==1

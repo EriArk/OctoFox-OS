@@ -71,14 +71,14 @@ void BackendAccount::workshopRequest(const QString& method,QJsonObject args,Repl
     if(!inventoryConnected()){done(401,{{"code","sign_in_required"}});return;}
     QString path="/v1/me/workshop";
     QByteArray verb="GET";
-    if(method=="workshop.garments"){
-        path+="/garments";
+    if(method=="workshop.garments"||method=="workshop.fishstock"){
+        path+="/"+method.section('.',1);
         if(args.contains("after")){
             const auto cursor=args.take("after");
             if(!id(cursor)){done(422,{{"code","invalid_cursor"}});return;}
             path+="?after="+cursor.toString();
         }
-    }else if(method=="workshop.print"||method=="workshop.collect"||method=="workshop.activate"||method=="workshop.paint"){
+    }else if(method=="workshop.fish"||method=="workshop.fishdisplay"||method=="workshop.print"||method=="workshop.collect"||method=="workshop.activate"||method=="workshop.paint"){
         verb="POST";path+="/"+method.section('.',1);
     }else if(method!="workshop.get"){done(422,{{"code","unsupported_method"}});return;}
     if(verb=="GET"&&!args.isEmpty()){done(422,{{"code","invalid_request"}});return;}

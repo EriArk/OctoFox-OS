@@ -23,6 +23,7 @@ var coast := preload("res://scripts/island_coast.gd").new()
 var air_zones: Array[Vector4] = []
 var cloud_materials: Array[ShaderMaterial] = []
 var cloud_densities: Array[float] = []
+var fishing_spots:Dictionary[int,Vector3]={}
 var chart_islands:Dictionary[int,Array]={}
 var island_depths: Array[float] = []
 var cloud_cover := -1.0
@@ -73,6 +74,7 @@ func build(interior:ShipInterior) -> void:
     solid(site.position+p,Vector3(8,16,8))
   else:
    island(site,Vector3(30,-3.902,-48),94.0,64.0,Regions.BERTH_CONTACT[i],true)
+   if i in [1,3]:build_fishing_pier(site,i)
  # Each sea has space for its own basin and atmosphere.
  for id in [9,10,13,14]:
   var item:Dictionary=Regions.CONTACTS[id]
@@ -80,6 +82,45 @@ func build(interior:ShipInterior) -> void:
  art.batch_static(self)
  avionics.configure(self)
  reset(0)
+
+func build_fishing_pier(site:Node3D, index:int) -> void:
+ # Follow the flat path out from the lift (+Z). Find the real beach at its end.
+ var z:=48.0
+ var seed_angle:=0.0 if index==1 else 1.7
+ while z<155:
+  var p:=Vector2(-30,z/0.90)
+  if p.length()>=94*coast.headland(p.angle(),seed_angle):break
+  z+=0.5
+ var beach:=z-48
+ var point:=Vector3(0,-3.90,beach+3.6)
+ var deck:=art.box(site,Vector3(0,-3.87,beach),Vector3(2.35,0.16,10.4),Color("a98662"))
+ walk_surface(deck)
+ var ramp:=art.box(site,Vector3(0,-3.944,beach-6.15),Vector3(2.35,0.11,2.2),Color("a98662"))
+ ramp.rotation.x=-0.10
+ walk_surface(ramp)
+ for side in [-1,1]:
+  for offset in [-4,0,4]:
+   var pos:=Vector3(side*1.1,-4.37,beach+offset)
+   art.cylinder(site,pos,0.09,1.85,Color("4a635d"))
+   art.cylinder(site,pos+Vector3.UP*0.96,0.10,0.10,Color("c1e8ca"))
+ art.label(site,"FISHING PIER",Vector3(1.5,-2.65,7.2),PI,40,Color("f7dda6"))
+ art.beam(site,Vector3(1.5,-3.9,7.2),Vector3(1.5,-2.8,7.2),0.045,Color("885e42"))
+ # Reed beds mark orchard shallows; basalt stacks mark the deeper Table Isle inlet.
+ var water_level:float=-3.902+coast.SEA_Y
+ if index==1:
+  for j in 5:
+   for k in 7:
+    var base:=Vector3(-3.2-j*1.08+0.42*sin(k*3.1),water_level,beach+1.4+j*1.7+0.48*cos(k*4.2))
+    var tip:=base+Vector3(0.12*sin(k),0.52+0.27*cos(j+k),0.08)
+    art.beam(site,base-Vector3.UP*0.10,tip,0.016,Color("729975"))
+    art.beam(site,tip,tip+Vector3.UP*0.13,0.026,Color("91693d"))
+ else:
+  for j in 8:
+   var h:=0.52+0.22*(j%4)
+   var rock:=art.cylinder(site,Vector3(4.9+1.23*(j%3),water_level,beach+6+j*0.80),0.72,h,Color("526d79"),0.49)
+   rock.rotation.z=0.14*sin(j)
+   art.cylinder(site,rock.position+Vector3.UP*(h*0.49),0.49,0.08,Color("96a6a0"),0.46).rotation.z=rock.rotation.z
+ fishing_spots[index]=site.position+point
 
 func solid(center:Vector3,size_m:Vector3) -> void:
  # Conservative hull clearance, including the service deck beneath the ship.

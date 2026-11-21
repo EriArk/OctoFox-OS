@@ -89,7 +89,7 @@ def db(postgres):
             trainer_backend.bazaar_world_places,trainer_backend.bazaar_worlds,
             trainer_backend.bazaar_trades,trainer_backend.bazaar_listings,trainer_backend.bazaar_sellers,
             trainer_backend.workshop_prints,trainer_backend.workshop_palette,trainer_backend.workshop_rewards,trainer_backend.workshop_play,
-            trainer_backend.loot_items,trainer_backend.loot_revisions,public.fixture_effects''')
+            trainer_backend.fish_display,trainer_backend.loot_items,trainer_backend.loot_revisions,public.fixture_effects''')
     database = Database(runtime_url, 8)
     yield database
     database.close()

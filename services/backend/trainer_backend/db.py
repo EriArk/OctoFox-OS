@@ -87,6 +87,7 @@ def grant_runtime(database_url, role):
         'outfits': 'SELECT,INSERT,UPDATE',
         'bazaar_places': 'SELECT', 'bazaar_rentals': 'SELECT,INSERT',
         'bazaars': 'SELECT', 'bazaar_blocks': 'SELECT,INSERT,DELETE',
+        'fish_display': 'SELECT,INSERT,DELETE',
         'outfit_slots': 'SELECT,INSERT', 'prize_grants': 'SELECT,INSERT',
         'prize_catalogue': 'SELECT', 'prize_receipts': 'SELECT,INSERT',
         'prize_shelf': 'SELECT,INSERT,DELETE',
@@ -100,6 +101,7 @@ def grant_runtime(database_url, role):
     with psycopg.connect(database_url, connect_timeout=3) as conn:
         conn.execute(sql_builder.SQL('GRANT USAGE ON SCHEMA trainer_backend TO {}').format(sql_builder.Identifier(role)))
         conn.execute(sql_builder.SQL('GRANT EXECUTE ON FUNCTION trainer_backend.write_workshop_item(uuid,uuid,text,jsonb,jsonb,boolean,boolean) TO {}').format(sql_builder.Identifier(role)))
+        conn.execute(sql_builder.SQL('GRANT EXECUTE ON FUNCTION trainer_backend.store_shore_fish(uuid,uuid,jsonb,jsonb) TO {}').format(sql_builder.Identifier(role)))
         for table, privileges in rights.items():
             conn.execute(sql_builder.SQL('GRANT {} ON TABLE trainer_backend.{} TO {}').format(
                 sql_builder.SQL(privileges), sql_builder.Identifier(table), sql_builder.Identifier(role)))
