@@ -76,6 +76,9 @@ func run() -> void:
   check(not f.clearance().is_empty(),"A fast approach cannot start docking")
   press(JOY_BUTTON_A);check(f.mode==f.Mode.FLYING,"Reject fast docking")
   Input.action_press("decorate");await frames(100);Input.action_release("decorate")
+  if leg==1:
+   check(f.clearance()=="Request docking clearance","Station needs local permission")
+   f.avionics.hail()
   check(f.clearance().is_empty(),"Stopped level over destination: "+str(f.location))
   press(JOY_BUTTON_A);await frames(100)
   check(f.mode==f.Mode.BERTH and f.berth==(1-leg),"Arrive and settle at destination")

@@ -6,6 +6,9 @@ const CABIN_LAYER:=1 << 17
 const OWNER_HULL_LAYER:=1 << 18
 const HULL_COLLISION:=16
 var local_ship:=false
+var emitters:=MultiMeshInstance3D.new()
+var hardpoint_travel:=0.0
+var hardpoints_out:=false
 const EMITTERS = ["GravityForePort", "GravityForeStarboard", "GravityAftPort", "GravityAftStarboard"]
 const EXHAUSTS = ["ExhaustPort", "ExhaustStarboard"]
 const RINGS_PER_EMITTER := 4
@@ -53,6 +56,11 @@ func _ready() -> void:
  exhaust.multimesh=jets;exhaust.material_override=plume_material
  exhaust.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF;add_child(exhaust)
  set_propulsion(1.0,0.0)
+ var pods:=MultiMesh.new();pods.transform_format=MultiMesh.TRANSFORM_3D
+ var emitter:=CylinderMesh.new();emitter.top_radius=0.16;emitter.bottom_radius=0.27;emitter.height=2.2
+ var brass:=StandardMaterial3D.new();brass.albedo_color=Color("ca9565");brass.metallic=0.64
+ emitter.material=brass;pods.mesh=emitter;pods.instance_count=2
+ emitters.multimesh=pods;emitters.visible=false;add_child(emitters)
  if local_ship:_local_hull()
 
 func set_propulsion(hover:float,forward_thrust:float) -> void:
@@ -70,6 +78,11 @@ func set_gear_deployment(amount:float) -> void:
  set_propulsion(amount,maxf(0.0,drive_power))
 
 func _process(delta:float) -> void:
+ var travel:=move_toward(hardpoint_travel,1.0 if hardpoints_out else 0.0,delta*1.4)
+ if travel!=hardpoint_travel:
+  hardpoint_travel=travel;emitters.visible=travel>0
+  for i in 2:
+   emitters.multimesh.set_instance_transform(i,Transform3D(Basis(Vector3.RIGHT,PI/2),Vector3((2*i-1)*3.85,-0.38,-2.75-travel*2.6)))
  cycle=fmod(cycle+delta*0.46,1.0)
  ring_material.set_shader_parameter("cycle",cycle)
 

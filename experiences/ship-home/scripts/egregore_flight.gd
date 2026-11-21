@@ -4,8 +4,8 @@ extends Node3D
 enum Mode { BERTH, DEPARTING, FLYING, LANDING }
 const GROUND_Y:=-5.35
 const WALK_LAYER:=8
-const BERTHS=[Vector3.ZERO,Vector3(0,0,-600)]
-const NAMES=["Lantern Station","Echo Orchard"]
+const BERTHS=[Vector3.ZERO,Vector3(0,0,-600),Vector3(42000,800,-36000)]
+const NAMES=["Lantern Station","Echo Orchard","Prism Anchorage"]
 var mode:=Mode.BERTH
 var berth:=0
 var destination:=1
@@ -25,6 +25,9 @@ var cloud_densities: Array[float] = []
 var island_depths: Array[float] = []
 var cloud_cover := -1.0
 var local_air := -1.0
+var sky_sector:=-1
+var sky_jump:=-1.0
+var avionics:=preload("res://scripts/ship_avionics.gd").new()
 var art:ShipInterior
 
 func build(interior:ShipInterior) -> void:
@@ -38,7 +41,18 @@ func build(interior:ShipInterior) -> void:
    var a:=TAU*j/20.0;var b:=TAU*(j+0.72)/20.0
    art.beam(site,surface+Vector3(cos(a)*7.7,0.23,sin(a)*7.7),surface+Vector3(cos(b)*7.7,0.23,sin(b)*7.7),0.085,Color("ffca71"),true)
   solid(site.position+Vector3(0,-6.3,0),Vector3(17,4,17))
-  if i==0:
+  if i!=1:
+   var pad_number:=Label3D.new();pad_number.text="01";pad_number.font_size=72;pad_number.pixel_size=0.016
+   pad_number.modulate=Color("f1d49d");pad_number.outline_size=0;pad_number.rotation.x=-PI/2
+   pad_number.position=surface+Vector3(0,0.22,-6.3);site.add_child(pad_number)
+   if i==2:
+    # An inclined navigation hoop marks the inner-ring anchorage from cruise range.
+    var hoop:=Node3D.new();site.add_child(hoop);hoop.position=Vector3(0,3,-22);hoop.rotation.x=1.28
+    art.scope_arc(hoop,Vector3.ZERO,16,0,TAU,Color("ab9cfc"),0.30)
+    for segment in 24:
+     var angle:=TAU*segment/24
+     var center:=site.position+hoop.transform*Vector3(sin(angle)*16,0,cos(angle)*16)
+     solid(center,Vector3(3.0,3.0,1.0))
    for side in [-1,1]:
     var p:=Vector3(side*14,-6,2)
     var tower=art.cylinder(site,p,3.4,13,Color("45596a"),2.8)
@@ -59,6 +73,7 @@ func build(interior:ShipInterior) -> void:
  island(self,Vector3(548,90,-887),57.0,62.0)
  island(self,Vector3(115,122,-1277),65.0,74.0)
  art.batch_static(self)
+ avionics.configure(self)
  reset(0)
 
 func solid(center:Vector3,size_m:Vector3) -> void:
@@ -163,7 +178,8 @@ func hits_island(pos:Vector3) -> bool:
  return false
 
 func reset(site:int) -> void:
- berth=clampi(site,0,BERTHS.size()-1);destination=1-berth
+ berth=clampi(site,0,BERTHS.size()-1);destination=1-berth if berth<2 else 2
+ avionics.docked(berth)
  mode=Mode.BERTH;location=BERTHS[berth];attitude=dock_basis(berth)
  velocity=Vector3.ZERO;turn_rate=Vector3.ZERO;stick=Vector2.ZERO;throttle=0
  sync_view()
@@ -171,6 +187,11 @@ func reset(site:int) -> void:
 func dock_basis(site:int) -> Basis:return Basis(Vector3.UP,PI if site==1 else 0.0)
 
 func clearance() -> String:
+ if avionics.transit>0 or avionics.charge>0:return "Shift drive active"
+ if avionics.cruise:return "Disengage cruise"
+ if avionics.deployed:return "Stow hardpoints"
+ if destination!=1 and avionics.permit!=destination:return "Request docking clearance"
+ if avionics.target!=destination:return "Select the landing site"
  var offset:Vector3=location-BERTHS[destination]
  if Vector2(offset.x,offset.z).length()>8 or offset.y>9 or offset.y< -0.3:return "Approach the pad"
  if velocity.length()>2.5:return "Slow below 2.5 m/s"
@@ -179,14 +200,17 @@ func clearance() -> String:
 
 func interact() -> void:
  if mode==Mode.BERTH:
-  mode=Mode.DEPARTING;destination=1-berth
+  mode=Mode.DEPARTING;destination=1-berth if berth<2 else 2
  elif mode==Mode.FLYING and clearance().is_empty():
   mode=Mode.LANDING
  else:return
  from=Transform3D(attitude,location);transition=0;throttle=0;velocity=Vector3.ZERO;turn_rate=Vector3.ZERO
 
 func tick(dt:float,axes:Vector2,yaw:float,power:float,strafe:Vector2,brake:bool) -> void:
+ avionics.advance(dt)
  if mode==Mode.BERTH:return
+ if avionics.transit>0 or avionics.charge>0:
+  sync_view();return
  if mode!=Mode.FLYING:
   transition=minf(1,transition+dt/1.5)
   var goal:Vector3=BERTHS[destination] if mode==Mode.LANDING else from.origin+Vector3.UP*6
@@ -202,28 +226,40 @@ func tick(dt:float,axes:Vector2,yaw:float,power:float,strafe:Vector2,brake:bool)
   var rates:=Vector3(stick.y*0.82,-yaw*0.85,-stick.x*1.4)
   turn_rate=turn_rate.move_toward(rates,dt*3.5)
   attitude=(attitude*Basis(Quaternion.from_euler(turn_rate*dt))).orthonormalized()
-  var command:=Vector3(strafe.x*8,strafe.y*8,-throttle*22)
-  velocity=velocity.move_toward(Vector3.ZERO if brake else attitude*command,dt*(15 if brake else 8))
+  var speed:=22.0
+  if avionics.cruise:speed=155.0
+  elif avionics.boost>0:speed=52.0
+  if brake:avionics.cruise=false;avionics.boost=0
+  var command:=Vector3(strafe.x*8,strafe.y*8,-throttle*speed) if avionics.enabled[0] else Vector3.ZERO
+  velocity=velocity.move_toward(Vector3.ZERO if brake else attitude*command,dt*(maxf(15,velocity.length()*1.5) if brake else (55 if avionics.cruise else 8)))
   var next:=location+velocity*dt
+  if next.distance_to(avionics.ORIGINS[avionics.sector])>3600 and next.distance_squared_to(avionics.ORIGINS[avionics.sector])>location.distance_squared_to(avionics.ORIGINS[avionics.sector]):
+   next=location;throttle=0;velocity=Vector3.ZERO;avionics.say("Sector boundary · Use the shift drive")
   if hits_island(next):
+   avionics.impact(velocity.length());avionics.cruise=false
    velocity=Vector3.ZERO;throttle=0;next=location
   for box in obstacles:
    if box.has_point(next) or box.intersects_segment(location,next)!=null:
+    avionics.impact(velocity.length());avionics.cruise=false
     velocity=Vector3.ZERO;throttle=0;next=location;break
   location=next
  sync_view()
 
 func sync_view() -> void:
  transform=Transform3D(attitude,location).inverse()
- var target:Vector3=attitude.inverse()*(BERTHS[destination]-location)
- var disc:=Vector2(target.x,target.z).limit_length(80)*0.0027
  var up:=attitude.transposed()*Vector3.UP
  art.ladder.rotation.y=atan2(up.x,up.y)
  art.ladder.position.z=clampf(up.z,-1,1)*0.046
- art.contact.position=Vector3(disc.x,0.052,disc.y)
+ art.contact.visible=false
  art.field_stars.basis=attitude.transposed()
  art.sky_environment.sky_rotation=attitude.transposed().get_euler()
  update_air()
+ var sky:=art.sky_environment.sky.sky_material as ShaderMaterial
+ if sky_sector!=avionics.sector:
+  sky_sector=avionics.sector;sky.set_shader_parameter("sector_shift",float(sky_sector))
+ var glow:=sin(PI*avionics.transit/2.0)
+ if not is_equal_approx(glow,sky_jump):
+  sky_jump=glow;sky.set_shader_parameter("jump_glow",glow)
 
 func readout() -> String:
  if mode==Mode.BERTH:return NAMES[berth]+"   ·   Docked"

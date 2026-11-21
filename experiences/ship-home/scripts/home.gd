@@ -42,6 +42,7 @@ var paused=false
 var dot:=Label.new()
 var status:Label
 var prompts=preload("res://scripts/ship_prompts.gd").new()
+var instruments:=preload("res://scripts/helm_display.gd").new()
 var helm_help:=Label.new()
 var menu:PanelContainer
 var message=""
@@ -134,6 +135,8 @@ func _load_profile(id:String) -> void:
  if fabricator.is_inside_tree():fabricator.close()
  fitting.selected_pieces.clear()
  profile=id;rows=store.load_home(id);undo_rows=[];has_undo=false;moving_index=-1
+ if instruments.is_inside_tree():instruments.clear()
+ flight.avionics.fresh(store.systems)
  flight.reset(store.berth)
  _draw_furniture()
  if not store.error.is_empty():notify(store.error)
@@ -183,6 +186,7 @@ func _ui() -> void:
  menu.visible=false
  layer.add_child(cards);layer.add_child(dye);layer.add_child(parts)
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
+ layer.add_child(instruments);instruments.bind(flight,walker)
  layer.add_child(prompts)
  prompts.used.connect(func(id:String):
   if not paused and not riding and not editing and not fitting.active and not fabricator.visible and not walker.seated and id==_station():_interact())
@@ -193,13 +197,14 @@ func _open_colours() -> void:
 
 func _pause(value:bool) -> void:
  if value:
+  instruments.clear()
   parts.close();prompts.clear_world();prompts.actions([])
  if value and dye.visible:dye.close()
  if value:fabricator.close()
  cards.visible=fitting.active and not value and not dye.visible
  helm_help.visible=value and walker.seated
  if helm_help.visible:
-  helm_help.text=("LS   Pitch / roll       RS   Look\nD-pad   Yaw / lift       Triggers   Strafe\nLB / RB   Throttle       X   Brake" if prompts.gamepad else "W S   Pitch       A D   Roll       Mouse   Look\nQ E   Yaw       R C   Lift       Z X   Strafe\n[ ]   Throttle       Tab   Brake")
+  helm_help.text=("LS   Pitch / roll       RS   Look\nD-pad   Yaw / lift       Triggers   Strafe\nLB / RB   Throttle       X   Brake\nY + D-pad   Contacts / ship / chart / distributor     R3   Scope" if prompts.gamepad else "W S   Pitch       A D   Roll       Mouse   Look\nQ E   Yaw       R C   Lift       Z X   Strafe\n[ ]   Throttle       Tab   Brake\nY + arrow   Bridge instruments     V   Scope")
  exterior.set_process(not value)
  paused=value;walker.walking=not value;menu.visible=value
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value or fitting.active else Input.MOUSE_MODE_CAPTURED
@@ -213,6 +218,8 @@ func _close_fabricator() -> void:
 func _unhandled_input(event:InputEvent) -> void:
  if event.is_action_pressed("pause_ship"):
   _pause(not paused);get_viewport().set_input_as_handled();return
+ if walker.seated and not paused and instruments.event(event):
+  get_viewport().set_input_as_handled();return
  if event.is_action_pressed("cancel_ship"):
   if paused:_pause(false)
   elif fitting.active:fitting.leave()
@@ -232,9 +239,14 @@ func _unhandled_input(event:InputEvent) -> void:
   get_viewport().set_input_as_handled();return
  if walker.seated:
   if event.is_action_pressed("interact"):
-   flight.interact();get_viewport().set_input_as_handled()
-  elif event.is_action_pressed("pick_item") and flight.mode==flight.Mode.FLYING:
-   flight.destination=1-flight.destination;get_viewport().set_input_as_handled()
+   if flight.mode==flight.Mode.FLYING and flight.avionics.lock_id>=0:flight.avionics.fire()
+   elif flight.mode==flight.Mode.FLYING and not flight.clearance().is_empty():flight.avionics.say(flight.clearance())
+   else:
+    if flight.mode==flight.Mode.BERTH:
+     store.systems=flight.avionics.snapshot()
+     if not store.save(rows):notify(store.error)
+    flight.interact()
+   get_viewport().set_input_as_handled()
   return
  if event.is_action_pressed("decorate"):_edit(not editing)
  elif event.is_action_pressed("undo_place"):_undo()
@@ -249,7 +261,12 @@ func _unhandled_input(event:InputEvent) -> void:
  elif event.is_action_pressed("interact"):_interact()
 
 func _process(delta:float) -> void:
- if not paused:flight.coast.animate(delta)
+ instruments.tick(delta,walker.seated and not paused)
+ if not paused:
+  flight.coast.animate(delta)
+  var sky:=art.sky_environment.sky.sky_material as ShaderMaterial
+  if int(flight.coast.clock*8)!=int((flight.coast.clock-delta)*8):sky.set_shader_parameter("field_time",flight.coast.clock)
+  if not walker.seated:flight.avionics.update_traffic(delta)
  if fabricator.visible:
   prompts.clear_world();prompts.actions(fabricator.action_hints());status.hide();dot.hide();return
  if not paused:
@@ -274,10 +291,11 @@ func _process(delta:float) -> void:
   _aim()
   if status.text.is_empty():
    status.text=("Move " if moving_index>=0 else "Place ")+Art.ITEMS[item_index].replace("-"," ")+("" if placement_valid else " · Keep the walkway clear")
- if walker.seated and not paused and status.text.is_empty():status.text=flight.readout()
+ if walker.seated and not paused:status.text=""
  status.visible=not status.text.is_empty()
  if fitting.active:cards.visible=not paused and not dye.visible and not parts.visible and not fitting.returning
  prompts.actions(_action_hints())
+ if walker.seated:prompts.strip.hide()
 
 func _action_hints() -> Array:
  if paused or riding:return []
@@ -292,9 +310,10 @@ func _action_hints() -> Array:
   if prompts.gamepad:rows.append(["turn","Turn"])
   rows.append(["cancel_ship","Leave"]);return rows
  if walker.seated:
-  if flight.mode==flight.Mode.BERTH:return [["interact","Launch"],["cancel_ship","Stand up"]]
+  if instruments.page!="":return []
+  if flight.mode==flight.Mode.BERTH:return [["interact","Launch"],["pick_item","Hold + D-pad · Panels"],["cancel_ship","Stand up"]]
   if flight.mode!=flight.Mode.FLYING:return []
-  var commands:Array=[["tab_pair","Throttle"],["decorate","Brake"],["pick_item","Target"]]
+  var commands:Array=[["tab_pair","Throttle"],["decorate","Brake"],["pick_item","Target / hold + D-pad"]]
   if flight.clearance().is_empty():commands.append(["interact","Land"])
   return commands
  if editing:
@@ -305,7 +324,9 @@ func _action_hints() -> Array:
 
 func lift_destination_is_below() -> bool:return studio.lift.position.y>-1
 
-func notify(text:String) -> void:message=text;message_time=6
+func notify(text:String) -> void:
+ if is_instance_valid(walker) and walker.seated:flight.avionics.say(text)
+ else:message=text;message_time=6
 
 func _draw_furniture() -> void:
  for node in furnishings.get_children():furnishings.remove_child(node);node.queue_free()
@@ -448,7 +469,10 @@ func _physics_process(delta:float) -> void:
  if walker.seated:
   var mode_before=flight.mode
   var stick:=Input.get_vector("walk_left","walk_right","walk_forward","walk_back",0.18)
-  flight.tick(delta,stick,Input.get_axis("rotate_left","rotate_right"),Input.get_axis("previous_item","next_item"),Vector2(Input.get_axis("fly_left","fly_right"),Input.get_axis("fly_down","fly_up")),Input.is_action_pressed("decorate"))
+  if instruments.y_down or instruments.page!="":
+   stick=Vector2.ZERO;flight.tick(delta,stick,0,0,Vector2.ZERO,false)
+  else:flight.tick(delta,stick,Input.get_axis("rotate_left","rotate_right"),Input.get_axis("previous_item","next_item"),Vector2(Input.get_axis("fly_left","fly_right"),Input.get_axis("fly_down","fly_up")),Input.is_action_pressed("decorate"))
+  exterior.hardpoints_out=flight.avionics.deployed
   match flight.mode:
    flight.Mode.DEPARTING:exterior.set_propulsion(1.0-flight.transition,flight.transition*0.30)
    flight.Mode.LANDING:exterior.set_propulsion(flight.transition,(1.0-flight.transition)*0.30)
@@ -456,7 +480,7 @@ func _physics_process(delta:float) -> void:
    flight.Mode.FLYING:exterior.set_propulsion(0.0,flight.throttle)
   walker.steer(stick if flight.mode==flight.Mode.BERTH else flight.stick,flight.throttle)
   if mode_before==flight.Mode.LANDING and flight.mode==flight.Mode.BERTH:
-   store.berth=flight.berth
+   store.berth=flight.berth;store.systems=flight.avionics.snapshot()
    if not store.save(rows):notify(store.error)
  if outside and not riding and walker.position.y<flight.GROUND_Y-1.6:
   walker.position=studio.exit_lift.position+Vector3.UP*0.06;walker.velocity=Vector3.ZERO
@@ -510,6 +534,7 @@ func _interact() -> void:
 
 
 func _quit() -> void:
+ if flight.mode==flight.Mode.BERTH:store.systems=flight.avionics.snapshot()
  if store.writable and not store.save(rows):notify(store.error);return
  get_tree().quit()
 

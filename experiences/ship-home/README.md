@@ -57,7 +57,7 @@ Stand on the illuminated floor lift and press **A / F** to descend through
 the shaft. The smaller circular service room has walking space around the lift.
 The same control takes the character back up. After landing, cross the service room to the amber platform marked **DOCK LIFT**. Press **A / F** to descend to Lantern Station or Echo Orchard. Walk back to that platform and press **A / F** on **Board ship** to return to the service deck. [Studio views](../../docs/evidence/2026-11-20-ship-studio/README.md).
 
-### Flying the first Egregore route
+### Flying the Egregore
 
 Walk up behind the seat and press **A / F** to board. Press it again to launch. The pilot sits forward and above the chair rails, with both feet on the pedals. The left hand follows the throttle and the right follows the stick. Turn your head with the right stick or mouse to see the controls.
 
@@ -68,16 +68,25 @@ Walk up behind the seat and press **A / F** to board. Press it again to launch. 
 | Lateral thrust | Left/right triggers | Z/X |
 | Decrease / increase throttle | LB / RB | [ / ] |
 | Brake to a stop | Hold X | Hold Tab |
-| Change destination | Y | Y |
+| Select the contact nearest the nose | Tap Y | Tap Y |
+| Look at contacts / ship systems / chart / power | Hold Y + D-pad left / right / up / down | Hold Y + corresponding arrow |
+| Inspect the centre scope | Click right stick | V |
+| Select a console entry / return | A / B | F / Esc |
 | Land on the selected pad | A | F |
 
-The first route connects Lantern Station to the floating island Echo Orchard. Launch clearance lifts the saucer off the pad. Flight assist damps rotation and accelerates toward the selected velocity. The radar contact and the bearing/elevation readout track the destination. Centre the ship within 8 m of the pad, approach from above within 9 m, level the deck and slow below 2.5 m/s. **Land** appears when the approach is valid. Docking assist handles the last few metres. Press **B / Esc** to stand after landing. The last berth is saved with the owner's furniture. A mid-flight exit reloads the last landed berth.
+The bridge instruments are mounted inside the cockpit. Turning to a console brings its display into focus. Touch either panel directly, or use the four helm chords above. The scope marks stations with diamonds, signals with dots, ships with rectangles and armed contacts with triangles. Stems show relative height and moving contacts carry a heading stroke. A selected vessel’s orbital track is also visible through the canopy.
+
+From Lantern Station, launch and fly at least 75 metres clear. Open the chart, plot Prism Shoal, point the nose at the course diamond and charge the shift drive with hardpoints stowed. Each crossing uses 22 units of fuel. The chart also shows the return cost. Cruise uses fuel within the sector. Normal flight remains available on reserve. The local chart shows traffic orbits.
+
+At Prism select the anchorage under Contacts and request pad 01 within 850 m. Leave cruise, level the ship within 8 m of the pad, slow below 2.5 m/s and press **A / F** to land. Echo Orchard accepts a direct approach. The ship console supplies fuel and repairs at either station. The latest safe berth, fuel, power allocation and enabled components belong to the active profile. A mid-flight exit restores the departure checkpoint.
+
+Six pips are shared between SYS, ENG and WEP. More SYS improves shield recovery and resistance. ENG recharges boost, and WEP recharges the pulse emitter. On the right console you can switch off individual systems or extend the two hull emitters. Select the Warden, acquire a separate lock and bring it into the forward arc before firing with **A / F**. In communications range a courier answers a hail. [Bridge instruments and flight captures](../../docs/evidence/2026-11-21-captains-bridge/README.md).
 
 Echo Orchard lies 600 metres from Lantern Station. A sea several times the area of the land surrounds its ridgeline, inlets and offshore stacks. Fly into the cloud banks at the edge of the sea’s atmosphere. Visibility drops briefly, then opens onto the daylight sky above the ocean. Departing through the bank returns you to the Egregore. [Flight through the clouds](../../docs/evidence/2026-11-21-island-seas/README.md) · [Art sources](assets/islands/SOURCE.md).
 
 Outside cameras see the saucer’s painted hull, smoked canopy and two engines carried on a raised aft wing. Four emitters around the underside rim send successive luminous rings towards the landing pad. The streams shorten in cruise, while the aft exhaust brightens with forward throttle. The owner's view switches as the boarding lift crosses the hatch in either direction. Furniture, fittings and the pilot camera stay aboard. To display another ship, instance [exterior.tscn](exterior.tscn) at its pose and call `set_propulsion(hover, forward_thrust)` with normalized values. Full hover extends the rings to the pad. The exterior uses a baked hull and two instanced effects and runs independently of the owner's cabin and profile. Ship Home currently runs a local flight session.
 
-The Egregore's informational field and islands of pseudo-matter follow the project's [cosmology](https://github.com/EriArk/AbyssWorldGame/blob/main/docs/COSMOLOGY.md). The test route and its two named berths are original to Ship Home. Pitch, roll, independent thrust and assisted flight take their cue from [Frontier's pilot manual](https://hosting.zaonce.net/elite/website/assets/ELITE-DANGEROUS-GAME-MANUAL.pdf). [Seating](../../docs/evidence/2026-11-21-ship-flight/seat.jpg) · [Pilot view](../../docs/evidence/2026-11-21-ship-flight/forward.jpg) · [Hand controls](../../docs/evidence/2026-11-21-ship-flight/controls.jpg).
+The Egregore's informational field and islands of pseudo-matter follow the project's [cosmology](https://github.com/EriArk/AbyssWorldGame/blob/main/docs/COSMOLOGY.md). The two sectors and their three berths are original to Ship Home. Pitch, roll, independent thrust and assisted flight take their cue from [Frontier's pilot manual](https://hosting.zaonce.net/elite/website/assets/ELITE-DANGEROUS-GAME-MANUAL.pdf). [Seating](../../docs/evidence/2026-11-21-ship-flight/seat.jpg) · [Pilot view](../../docs/evidence/2026-11-21-ship-flight/forward.jpg) · [Hand controls](../../docs/evidence/2026-11-21-ship-flight/controls.jpg).
 
 ## Run on a development computer
 
