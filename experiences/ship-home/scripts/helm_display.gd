@@ -46,8 +46,12 @@ func bind(flight,walker) -> void:
   var mount:=Node3D.new();f.art.helm_root.add_child(mount)
   mount.position=Vector3(side*1.08,0.785,-0.42)
   mount.rotation=Vector3(-1.14,side*-0.94,0)
-  f.art.box(mount,Vector3(0,0,-0.026),Vector3(0.636,0.393,0.048),Color("334749"))
-  f.art.box(mount,Vector3(0,-0.29,-0.025),Vector3(0.15,0.25,0.08),Color("34434a"))
+  # The glass sits flush in a radiused wood cabinet with a woven speaker below.
+  f.art.veneer_case(mount,Vector3(0,-0.021,-0.003),Vector2(0.666,0.463),0.068,0.041)
+  f.art.bezel(mount,Vector3(0,0,-0.001),Vector2(0.621,0.382),0.023,0.006,f.art.BRASS)
+  f.art.faceplate(mount,Vector3(0,-0.218,-0.001),Vector2(0.551,0.039),0.017,f.art.WEAVE)
+  f.art.bezel(mount,Vector3(0,-0.218,0),Vector2(0.558,0.045),0.019,0.003,f.art.BRASS)
+  f.art.box(mount,Vector3(0,-0.29,-0.079),Vector3(0.15,0.25,0.08),Color("34434a"))
   var screen:=SubViewport.new();screen.size=PIXELS;screen.disable_3d=true
   screen.render_target_update_mode=SubViewport.UPDATE_ONCE;screen.handle_input_locally=false;add_child(screen)
   var canvas:=Control.new();canvas.size=PIXELS;screen.add_child(canvas)

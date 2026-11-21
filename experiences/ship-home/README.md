@@ -6,6 +6,7 @@ that icon; Apps remains an alternative. [Device checks](../../docs/evidence/2026
 
 The bow cockpit opens directly into a studio inside the 10.6 × 12.4 metre saucer.
 Curved ceiling panels surround an illuminated orbital dial. Portholes light the dinette, and an inlaid runner crosses the timber deck. An enamel landscape of Echo Orchard hangs above the quilt. A berth is recessed into the aft liner between two illuminated display shelves.
+Bent walnut surrounds the two folding terminals. A narrow brass lip catches the light around each glass face. The same walnut and dark woven grille flank the sleeping alcove. A shielded wall lamp grazes the weave, a reading lamp lights the pillow, and the aquarium casts slow ripples on the deck.
 Opposite the galley, a lounge chair and a curved-backed banquette share one movable
 table by the aquarium. The galley stool sits below the breakfast ledge. A clear
 central aisle connects the cockpit, lift and berth. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.

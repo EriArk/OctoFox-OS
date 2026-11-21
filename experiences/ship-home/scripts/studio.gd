@@ -91,7 +91,7 @@ func berth() -> void:
   art.box(bay,Vector3(side*1.25,1.23,0),Vector3(0.10,1.40,1.0),CERAMIC,true)
   art.box(bay,Vector3(side*1.82,1.18,0),Vector3(0.09,1.53,1.0),CERAMIC,true)
   for y in [0.65,1.07,1.50]:
-   art.box(bay,Vector3(side*1.53,y,0.08),Vector3(0.47,0.045,0.80),Art.WOOD)
+   art.box(bay,Vector3(side*1.53,y,0.08),Vector3(0.47,0.045,0.80),Art.WALNUT)
    art.box(bay,Vector3(side*1.53,y-0.024,0.37),Vector3(0.39,0.012,0.016),Color("ffce81"),false,true)
  # Continue the aft liner up to the overhead and out into the curved hull.
  # In local space +Z faces the room; both cheek panels follow its taper.
@@ -100,11 +100,18 @@ func berth() -> void:
   wing.position=Vector3(side*1.86,0,0.46);wing.rotation.y=-side*0.63
   art.box(wing,Vector3(side*0.56,1.11,0),Vector3(1.15,2.20,0.14),CERAMIC,true)
   art.box(wing,Vector3(side*0.56,0.24,0.085),Vector3(1.15,0.44,0.05),Art.WOOD)
-  art.faceplate(wing,Vector3(side*0.56,1.12,0.084),Vector2(0.92,1.03),0.16,Art.ENAMEL)
-  art.bezel(wing,Vector3(side*0.56,1.12,0.091),Vector2(0.92,1.03),0.16,0.028,Art.COPPER)
-  for k in 3:
-   art.faceplate(wing,Vector3(side*0.56,1.37-0.064*k,0.107),Vector2(0.51-0.06*k,0.022),0.01,Art.NIGHT)
-  art.box(bay,Vector3(side*0.85,0.27,0.525),Vector3(1.61,0.41,0.036),Color("895e42"))
+  var grille:=Vector3(side*0.56,1.12,0.111)
+  art.veneer_case(wing,grille,Vector2(0.92,1.03),0.051,0.14)
+  art.faceplate(wing,grille+Vector3.BACK*0.003,Vector2(0.79,0.88),0.105,Art.WEAVE)
+  art.bezel(wing,grille+Vector3.BACK*0.005,Vector2(0.80,0.89),0.108,0.012,Art.BRASS)
+  if side<0:
+   # A single shielded wall sconce washes the textile next to the shelving.
+   var sconce:=Vector3(side*0.56,1.70,0.16)
+   art.faceplate(wing,sconce,Vector2(0.34,0.16),0.061,Art.BRASS)
+   art.box(wing,sconce+Vector3(0,0.007,0.059),Vector3(0.29,0.086,0.126),Art.ENAMEL)
+   art.box(wing,sconce+Vector3(0,-0.039,0.068),Vector3(0.234,0.015,0.088),Art.LAMP,false,true)
+   art.fixture_light(wing,sconce+Vector3(0,-0.052,0.135),grille+Vector3(0,0.09,0.0),Color("ffbd83"),1.30,1.55,62)
+  art.box(bay,Vector3(side*0.85,0.27,0.525),Vector3(1.61,0.41,0.036),Art.WALNUT)
   art.box(bay,Vector3(side*0.85,0.42,0.552),Vector3(0.57,0.024,0.024),Art.BRASS)
  # A single fitted lintel meets the rising roof over the central recess.
  var fascia: Array[Vector3]=[Vector3(-1.87,2.02,0.48),Vector3(1.87,2.02,0.48)]
@@ -136,6 +143,9 @@ func berth() -> void:
  pillow.rotation.z=-0.12
  art.beam(bay,Vector3(1.13,1.33,-0.35),Vector3(1.04,1.48,-0.18),0.026,Art.BRASS)
  oval(bay,Vector3(1.04,1.47,-0.16),Vector3(0.17,0.11,0.15),CERAMIC)
+ var diffuser:=oval(bay,Vector3(1.04,1.423,-0.16),Vector3(0.128,0.033,0.11),Art.LAMP)
+ diffuser.material_override=art.material(Art.LAMP,true)
+ art.fixture_light(bay,Vector3(1.03,1.40,-0.14),Vector3(0.32,0.71,0.23),Color("ffb96c"),1.55,2.15,53)
  art.strip_lamp(bay,Vector3(0,1.82,-0.22),1.96)
  # The cast front lip surrounds a panoramic enamel landscape at the back of the alcove.
  art.bezel(bay,Vector3(0,1.27,0.525),Vector2(2.65,1.53),0.30,0.14,Art.ENAMEL)
@@ -156,6 +166,9 @@ func berth() -> void:
 
 func tank() -> void:
  aquarium=module(Vector3(4.15,0,1.82),-1.89)
+ var spill:Vector3=aquarium.transform*Vector3(0,0,1.12)
+ var along:Vector3=aquarium.basis.x
+ art.deck_finish.set_shader_parameter("tank_spill",Vector4(spill.x,spill.z,along.x,along.z))
  var width:=2.75
  art.box(aquarium,Vector3(0,0.33,0),Vector3(width,0.66,0.76),Art.TRIM,true)
  art.box(aquarium,Vector3(0,1.20,-0.32),Vector3(width,1.14,0.09),Color("17545c"))
@@ -199,6 +212,7 @@ func tank() -> void:
  glass.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
  glass.albedo_color=Color(0.23,0.77,0.83,0.13);glass.roughness=0.13
  pane.material_override=glass
+ art.fixture_light(aquarium,Vector3(0,1.47,0.405),Vector3(0,0,1.12),Color("74d6d7"),1.55,2.9,60)
  # Include the front glazing in solid collision without an opaque front panel.
  var block:=CollisionShape3D.new()
  var bounds:=BoxShape3D.new();bounds.size=Vector3(width,1.78,0.77)

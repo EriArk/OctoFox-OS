@@ -10,6 +10,8 @@ const COPPER = Color("bd815d")
 const SEA_GLASS = Color("91dfd4")
 const LAMP = Color("ffd5a2")
 const WOOD = Color("a47c55")
+const WALNUT = Color("996344")
+const WEAVE = Color("59493c")
 const BRASS = Color("d0ac72")
 # One shallow oval pressure hull; rooms are clipped by its actual footprint.
 const HULL_RADII = Vector2(5.3,6.2)
@@ -29,6 +31,7 @@ const ITEMS = ["armchair","low-table","plant","lamp","stool","books","rug"]
 var materials: Dictionary = {}
 var meshes: Dictionary = {}
 var grain_textures:Dictionary={}
+var deck_finish:=ShaderMaterial.new()
 
 func grain_texture(wood:bool) -> NoiseTexture2D:
  if grain_textures.has(wood):return grain_textures[wood]
@@ -51,6 +54,15 @@ func material(color: Color, glow: bool=false) -> StandardMaterial3D:
   m.albedo_texture=grain_texture(wood);m.uv1_triplanar=true;m.uv1_world_triplanar=true
   m.uv1_scale=Vector3(0.45,9,9) if wood else Vector3.ONE*18
   m.roughness=0.70 if wood else 0.95
+ if color==WALNUT or color==WEAVE:
+  var veneer:=color==WALNUT
+  m.albedo_color=Color.WHITE
+  m.albedo_texture=preload("res://assets/cabin/walnut-veneer.png") if veneer else preload("res://assets/cabin/bronze-weave.png")
+  m.uv1_triplanar=true
+  m.uv1_scale=Vector3(0.90,1.45,1.45) if veneer else Vector3.ONE*19.0
+  m.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+  m.roughness=0.44 if veneer else 0.79
+  m.metallic=0.0 if veneer else 0.16
  if glow: m.emission_enabled=true;m.emission=color;m.emission_energy_multiplier=1.3
  materials[key]=m;return m
 
@@ -149,6 +161,27 @@ func faceplate(parent:Node3D,at:Vector3,size:Vector2,radius:float,color:Color,gl
  var plate:=panel(parent,face_outline(size,radius),color);plate.position=at
  if glow:plate.material_override=material(color,true)
  return plate
+
+# A bent veneer casing with rounded corners and a rolled front lip.
+# The supplied origin is the front face; the shell extends behind it.
+func veneer_case(parent:Node3D, at:Vector3, size:Vector2, depth:float, radius:float) -> void:
+ var lip:=minf(0.012,depth*0.18)
+ var front:=face_outline(size-Vector2.ONE*(2.0*lip),radius-lip)
+ var shoulder:=face_outline(size,radius)
+ var surface:=SurfaceTool.new()
+ surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+ for i in front.size():
+  var j:=(i+1)%front.size()
+  var sections: Array[Vector3]=[front[i],shoulder[i]+Vector3.FORWARD*lip,shoulder[i]+Vector3.FORWARD*(depth-lip),front[i]+Vector3.FORWARD*depth]
+  var next: Array[Vector3]=[front[j],shoulder[j]+Vector3.FORWARD*lip,shoulder[j]+Vector3.FORWARD*(depth-lip),front[j]+Vector3.FORWARD*depth]
+  for k in 3:
+   for point in [sections[k],next[k],next[k+1],sections[k],next[k+1],sections[k+1]]:surface.add_vertex(point)
+ surface.generate_normals()
+ var shell:=MeshInstance3D.new()
+ shell.mesh=surface.commit();shell.material_override=material(WALNUT);shell.position=at;parent.add_child(shell)
+ faceplate(parent,at,size-Vector2.ONE*(2.0*lip),radius-lip,WALNUT)
+ var back:=faceplate(parent,at+Vector3.FORWARD*depth,size-Vector2.ONE*(2.0*lip),radius-lip,WALNUT)
+ back.rotation.y=PI
 
 func bezel(parent:Node3D,at:Vector3,size:Vector2,radius:float,lip:float,color:Color) -> void:
  var outer:=face_outline(size,radius)
@@ -288,9 +321,9 @@ func saucer(parent:Node3D) -> void:
   if i%6==0:
    var end=HULL_CENTER+Vector2(sin(a+TAU/24),-cos(a+TAU/24))*HULL_RADII
    hull_segment(parent,pa,end,i in [24,30,36,72,102,108,114],i in [0,6,12,126,132,138],i in [12,126,132],i in [18,120])
- var deck=MeshInstance3D.new();deck.mesh=floor_mesh.commit();var finish:=ShaderMaterial.new()
- finish.shader=preload("res://shaders/cabin_deck.gdshader");finish.set_shader_parameter("grain",grain_texture(true))
- deck.material_override=finish;parent.add_child(deck);deck.create_trimesh_collision()
+ var deck=MeshInstance3D.new();deck.mesh=floor_mesh.commit()
+ deck_finish.shader=preload("res://shaders/cabin_deck.gdshader");deck_finish.set_shader_parameter("grain",grain_texture(true))
+ deck.material_override=deck_finish;parent.add_child(deck);deck.create_trimesh_collision()
  for collider in deck.find_children("*","CollisionShape3D",true,false):
   collider.shape.backface_collision=true
  var liner=MeshInstance3D.new();liner.mesh=underside.commit();liner.material_override=material(Color("59666a")).duplicate();liner.material_override.cull_mode=BaseMaterial3D.CULL_DISABLED;parent.add_child(liner)
@@ -350,7 +383,7 @@ func console_pod(parent:Node3D,width:float,depth:float) -> void:
    for k in [0,1,2,0,2,3]:st.add_vertex(vertices[k])
  # Top faces upward, with a separate normal from the rounded side wall.
  st.generate_normals()
- var mesh=MeshInstance3D.new();mesh.mesh=st.commit();mesh.material_override=material(Color("45515a"));parent.add_child(mesh)
+ var mesh=MeshInstance3D.new();mesh.mesh=st.commit();mesh.material_override=material(WALNUT);parent.add_child(mesh)
  var cap:Array[Vector3]=[]
  for point in rings[-1]:cap.append(point)
  cap.reverse();panel(parent,cap,TRIM)
@@ -459,6 +492,8 @@ func flight_deck(root:Node3D) -> void:
  for side in [-1,1]:
   var dial:=Node3D.new();dial.position=Vector3(side*0.56,0.916,0.015)
   dial.rotation=Vector3(0.38,-side*0.24,0);dash.add_child(dial)
+  var surround:=Node3D.new();dial.add_child(surround);surround.rotation.x=-PI/2
+  veneer_case(surround,Vector3.ZERO,Vector2(0.48,0.37),0.045,0.042)
   var bezel=box(dial,Vector3.ZERO,Vector3(0.43,0.045,0.32),inset)
   if side>0:
    scope_arc(bezel,Vector3.UP*0.032,0.13,PI*0.72,PI*2.28,Color("996837"),0.003)
@@ -475,9 +510,9 @@ func flight_deck(root:Node3D) -> void:
   else:
    horizon_dial=dial
    tube(dial,[Vector3(-0.038,0.041,0),Vector3(0,0.041,0.024),Vector3(0.038,0.041,0)],0.004,Color("8bb6b1"),true)
-  # Recessed louvers under the tilted instrument castings.
-  for j in 4:
-   box(dash,Vector3(side*(0.43+j*0.083),0.757,0.193),Vector3(0.049,0.022,0.014),inset)
+  # Woven transducer insets below the instrument castings.
+  faceplate(dash,Vector3(side*0.56,0.757,0.205),Vector2(0.47,0.091),0.036,WEAVE)
+  bezel(dash,Vector3(side*0.56,0.757,0.208),Vector2(0.47,0.091),0.036,0.007,BRASS)
  root=helm_root
  for side in [-1,1]:
   var wing:=Node3D.new()
@@ -528,7 +563,7 @@ func console(parent:Node3D) -> void:
  for x in [-0.35,0,0.35]:box(parent,Vector3(x,2.55,-3.40),Vector3(0.20,0.015,0.15),Color("6c777b"))
 
 # Low-profile luminous fixtures: a warm diffuser inside a machined housing.
-# These are static batched meshes; room lighting retains its existing six lights.
+# Fixed housings share the cabin mesh batches.
 func halo(parent:Node3D,pos:Vector3,radius:float) -> void:
  var root=Node3D.new();root.position=pos;parent.add_child(root)
  cylinder(root,Vector3(0,0.17,0),0.035,0.30,BRASS)
@@ -541,6 +576,20 @@ func halo(parent:Node3D,pos:Vector3,radius:float) -> void:
  for i in 3:
   var a=i*TAU/3
   beam(root,Vector3(cos(a)*radius*0.55,0.015,sin(a)*radius*0.55),Vector3(cos(a)*radius,-0.015,sin(a)*radius),0.014,BRASS)
+
+# A practical fixture aims in its parent's local space. The cockpit key is the
+# single shadow caster on the upper deck; the smaller fittings use short throws.
+func fixture_light(parent:Node3D, origin:Vector3, aim:Vector3, tint:Color, energy:float, reach:float, angle:float) -> SpotLight3D:
+ var lamp:=SpotLight3D.new()
+ lamp.position=origin
+ lamp.light_color=tint
+ lamp.light_energy=energy
+ lamp.spot_range=reach
+ lamp.spot_angle=angle
+ lamp.spot_angle_attenuation=0.85
+ parent.add_child(lamp)
+ lamp.look_at(parent.to_global(aim),parent.global_basis.z.normalized() if absf((aim-origin).normalized().y)>0.98 else Vector3.UP)
+ return lamp
 
 func strip_lamp(parent:Node3D,pos:Vector3,length:float) -> void:
  box(parent,pos,Vector3(length,0.085,0.14),TRIM)
@@ -599,10 +648,11 @@ func fittings(parent:Node3D) -> void:
  for x in [-0.56,0.56]:
   tube(booth,[Vector3(x,1.12,-0.33),Vector3(x,1.84,-0.33),Vector3(x,1.91,-0.24)],0.022,TRIM)
  strip_lamp(booth,Vector3(0,1.91,-0.24),1.22)
+ fixture_light(booth,Vector3(0.38,1.84,-0.20),Vector3(-0.15,0.66,0.12),Color("ffc489"),1.65,2.6,48)
  # Small galley integrated into the opposite shoulder, with overhead storage.
  var galley=Node3D.new();galley.position=Vector3(-3.65,0,-0.85);galley.rotation.y=0.5;parent.add_child(galley)
  box(galley,Vector3(0,0.42,0),Vector3(1.7,0.84,0.64),Color("74917b"),true)
- box(galley,Vector3(0,0.88,0.085),Vector3(1.74,0.08,0.87),WOOD)
+ box(galley,Vector3(0,0.88,0.085),Vector3(1.74,0.08,0.87),WALNUT)
  # Lidded ceramic cups nest in a brass rack at the end of the breakfast ledge.
  for i in 2:
   var at:=Vector3(0.57+i*0.15,0.976,0.33)
@@ -614,6 +664,7 @@ func fittings(parent:Node3D) -> void:
  faceplate(galley,Vector3(0,1.28,-0.26),Vector2(1.67,0.70),0.11,NIGHT)
  bezel(galley,Vector3(0,1.28,-0.244),Vector2(1.67,0.70),0.11,0.035,COPPER)
  strip_lamp(galley,Vector3(0,1.62,-0.14),1.47)
+ fixture_light(galley,Vector3(-0.30,1.55,-0.12),Vector3(0,0.81,0.21),Color("ffdda5"),1.3,2.4,59)
  for x in [-0.56,0,0.56]:
   box(galley,Vector3(x,0.44,0.329),Vector3(0.52,0.70,0.025),Color("7f9c85"))
   faceplate(galley,Vector3(x,1.91,-0.065),Vector2(0.51,0.43),0.080,PAPER)
@@ -648,13 +699,18 @@ func build(parent:Node3D,space:Node3D) -> void:
  env.environment.tonemap_mode=Environment.TONE_MAPPER_FILMIC;space.add_child(env)
  var sun=DirectionalLight3D.new();sun.rotation_degrees=Vector3(-25,-28,0);sun.light_color=Color("c1d4e8");sun.light_energy=0.22
  sun.shadow_enabled=false;sun.directional_shadow_max_distance=38;space.add_child(sun)
- var bridge_light=SpotLight3D.new();bridge_light.position=Vector3(0,2.75,-1.8);bridge_light.rotation_degrees.x=-90
- bridge_light.light_color=Color("ffe1b8");bridge_light.light_energy=0.70;bridge_light.spot_range=6;bridge_light.spot_angle=65
- bridge_light.shadow_enabled=true;bridge_light.shadow_bias=0.08;bridge_light.shadow_normal_bias=1.5;parent.add_child(bridge_light)
  saucer(parent);console(parent);fittings(parent);lighting_details(parent)
- # Warm local pools, with no wasteful full-height glazing or cavernous room lights.
- for p in [Vector3(0,2.35,-2.3),Vector3(0,2.5,0.2),Vector3(-2.8,2.2,2.5),Vector3(2.8,2.2,2.5),Vector3(-2.2,2.1,4.8),Vector3(2.2,2.1,4.8)]:
-  var light=OmniLight3D.new();light.position=p;light.light_color=Color("acdcd7") if p.x>2 and p.z<4 else Color("ffe3bf");light.light_energy=0.68;light.omni_range=4.0;parent.add_child(light)
+ # Rake the chair and brass from the overhead optics. A dim cyan return under
+ # the coaming separates the controls from the glass at night.
+ var key:=fixture_light(parent,Vector3(-0.34,2.48,-3.39),Vector3(0.16,0.79,-4.26),Color("ffd3a4"),1.36,3.7,48)
+ key.light_specular=0.48
+ key.shadow_enabled=true;key.shadow_bias=0.06;key.shadow_normal_bias=1.1
+ for side in [-1,1]:
+  box(helm_root,Vector3(side*0.44,0.59,-0.37),Vector3(0.23,0.012,0.023),SEA_GLASS,false,true)
+ fixture_light(helm_root,Vector3(0,0.62,-0.37),Vector3(0,0.27,0.18),Color("76c9cf"),0.68,1.6,64)
+ var ceiling:=OmniLight3D.new();parent.add_child(ceiling)
+ ceiling.position=Vector3(0,2.65,HULL_CENTER.y)
+ ceiling.light_color=Color("ffdcbb");ceiling.light_energy=0.43;ceiling.omni_range=3.8
 
 func footprint(id: String) -> Vector2:
  return {"armchair":Vector2(1.25,1.25),"low-table":Vector2(1.6,1.0),"plant":Vector2(0.7,0.7),"lamp":Vector2(0.5,0.5),"stool":Vector2(0.65,0.65),"books":Vector2(0.5,0.38),"rug":Vector2(2.8,2.0)}.get(id,Vector2.ONE)
