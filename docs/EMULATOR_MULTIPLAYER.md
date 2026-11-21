@@ -133,6 +133,35 @@ button checks remain owner-deferred. Do not repeat the already-proven invitation
 as a substitute. Both ordinary installed shells keep the experiment disabled meanwhile.
 Native saved-Pokemon Link, background calls and all earlier acceptance remain.
 
+## Controller setup on a managed Linux installation
+
+The shell loads the Linux entries in SDL_GameControllerDB before choosing a
+controller. A launched game receives the selected pad's SDL mapping. An
+existing SDL mapping environment override takes precedence. Controller
+discovery skips unmapped joysticks and remote guest devices. Connection changes
+refresh emulator setup at idle, including a first controller attached after boot.
+
+RetroArch receives the installed Flatpak's udev, SDL2, HID, linuxraw and X
+profiles in its private config directory. Discovery fills missing files.
+Netplay prefers the selected local pad and keeps the negotiated guest seat.
+With the managed SDL2 defaults, a controller known to SDL but missing from
+the udev catalogue uses SDL2 for that session. This fallback delivered Flip
+input to P2 on both peers in Metal Slug X with an empty profile directory.
+
+Dolphin receives GameCube and emulated Wii Remote/Nunchuk bindings. The
+right stick points the Wii Remote and stick clicks provide shake. Cemu receives
+a Wii U GamePad profile tied to the controller's full SDL GUID and instance.
+melonDS uses the actual joystick index. Eden and RPCS3 can prepare bindings
+on later attachment. These generated standalone configs can follow a new
+controller while they still match the last generated file. Edited configs
+stay under the owner's control.
+
+The managed DuckStation AppImage at `dd4a0eb77` generates keyboard-only
+Pad1 bindings on first start. The template in `data/emulators` is the stock
+settings file from a disposable home on that build. Discovery adds SDL
+bindings for faces, triggers, sticks, D-pad, Start and Select alongside the
+keyboard. Existing custom Pad1 bindings take precedence.
+
 ## Flip 2 guest controls on managed Armada — 2026-11-21
 
 On Metal Slug X (PCSX-ReARMed), the Flip's SDL2 solo session delivered Start,
@@ -140,8 +169,8 @@ both face buttons tested and D-pad Right to P1. A paired LAN run assigned the
 Flip P2, but udev logged an unconfigured 045e:0b12 controller and neither core
 received the presses. Its managed RetroArch user autoconfig directory was empty.
 
-Emulator discovery now seeds the two Armada virtual pad profiles from the
-installed RetroArch Flatpak on initial setup and refresh. With the Series X/S
+Emulator discovery seeds Linux controller profiles from the installed RetroArch
+Flatpak on initial setup and refresh. With the Series X/S
 profile in the Flip's user autoconfig/udev directory, Metal Slug X and Metal
 Slug 3 (FBNeo) on both peers observed the guest's input on P2. The diagnostic
 recorded libretro input callbacks from the actual cores using kernel gamepad

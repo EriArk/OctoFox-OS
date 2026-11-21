@@ -32,6 +32,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QScopeGuard>
+#include <SDL.h>
 #include <QCryptographicHash>
 #include <QtEndian>
 #include <QSettings>
@@ -435,9 +436,14 @@ private slots:
         QVERIFY(QDir().mkpath(source));
         const QString flip="Microsoft_X-Box_Series_XS_pad.cfg", odin="Microsoft_X-Box_Elite_Series_2_pad.cfg";
         write(source+"/"+flip,"flip");write(source+"/"+odin,"odin");
+        QVERIFY(QDir().mkpath(source+"/../sdl2"));
+        write(source+"/../sdl2/Arcade Stick.cfg","external");
+        write(source+"/Wireless.cfg","wireless");
         const auto profile=prepareEmulators(env).profiles.value("retroarch");
         const auto installed=profile["initialConfigDirectory"].toString()+"/autoconfig/udev/";
         QVERIFY(QFileInfo::exists(installed+flip));QVERIFY(QFileInfo::exists(installed+odin));
+        QVERIFY(QFileInfo::exists(installed+"Wireless.cfg"));
+        QVERIFY(QFileInfo::exists(installed+"../sdl2/Arcade Stick.cfg"));
         write(installed+odin,"custom");QVERIFY(QFile::remove(installed+flip));
         const auto previous=env.stateDirectory+"/integrations/managed/discovered";
         QVERIFY(QDir().mkpath(previous));write(previous+"/retroarch.json",QJsonDocument(profile).toJson());
@@ -445,6 +451,69 @@ private slots:
         QFile restored(installed+flip), custom(installed+odin);
         QVERIFY(restored.open(QIODevice::ReadOnly));QCOMPARE(restored.readAll(),QByteArray("flip"));
         QVERIFY(custom.open(QIODevice::ReadOnly));QCOMPARE(custom.readAll(),QByteArray("custom"));
+    }
+    void mappedControllerBehindAnotherJoystickCanBeSelected() {
+#ifdef Q_OS_LINUX
+        QVERIFY(SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER)==0);
+        auto finish=qScopeGuard([]{SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);});
+        const int raw=SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_UNKNOWN,2,2,0);
+        QVERIFY(raw>=0);
+        auto releaseRaw=qScopeGuard([&]{SDL_JoystickDetachVirtual(raw);});
+        const int index=SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_GAMECONTROLLER,6,SDL_CONTROLLER_BUTTON_MAX,1);
+        QVERIFY(index>raw);
+        auto releasePad=qScopeGuard([&]{SDL_JoystickDetachVirtual(index);});
+        EmulatorEnvironment env;
+        readEmulatorController(env,SDL_JoystickGetDeviceInstanceID(index));
+        QCOMPARE(env.controllerIndex,index);QVERIFY(!env.controllerName.isEmpty());
+        QVERIFY(env.switchBindings.contains("button_a"));QCOMPARE(env.controllerButtons.size(),12);
+        readEmulatorController(env,SDL_JoystickGetDeviceInstanceID(raw));
+        QVERIFY(env.controllerName.isEmpty());QVERIFY(env.switchBindings.isEmpty());
+#endif
+    }
+    void firstControllerAfterSetupAndReplacementPreservePersonalBindings() {
+        QTemporaryDir dir;EmulatorEnvironment env;
+        env.home=dir.path();env.configHome=dir.filePath("config");env.stateDirectory=dir.filePath("state");env.managed=true;
+        env.executables={{"dolphin-emu",probe()},{"melonDS",probe()},{"rpcs3",probe()},{"eden",probe()},{"Cemu",probe()}};
+        auto initial=prepareEmulators(env).profiles;
+        QVERIFY(!initial["rpcs3"]["prefixArguments"].toArray().contains("--input-config"));
+        env.controllerName="Wireless & Pad";env.controllerIndex=2;env.cemuControllerUuid="0_03000000000000000000000000000000";
+        for (const auto& key:QStringList{"A","B","X","Y","L","R","Start","Select","Up","Down","Left","Right"})env.controllerButtons[key]=1;
+        env.switchBindings={{"button_a","engine:sdl,port:0,button:1"}};
+        auto attached=prepareEmulators(env).profiles;
+        QVERIFY(attached["rpcs3"]["prefixArguments"].toArray().contains("--input-config"));
+        QCOMPARE(attached["melonds"]["backupProtocol"].toString(),QString("melonds-sav-v1"));
+        QFile remote(attached["dolphin"]["initialConfigDirectory"].toString()+"/WiimoteNew.ini");
+        QVERIFY(remote.open(QIODevice::ReadOnly));const auto wiimote=remote.readAll();
+        QVERIFY(wiimote.contains("Extension = Nunchuk"));QVERIFY(wiimote.contains("IR/Right"));
+        QFile wiiu(attached["cemu"]["initialConfigDirectory"].toString()+"/controllerProfiles/controller0.xml");
+        QVERIFY(wiiu.open(QIODevice::ReadOnly));const auto vpad=wiiu.readAll();
+        QVERIFY(vpad.contains("Wireless &amp; Pad"));QVERIFY(vpad.contains(env.cemuControllerUuid.toUtf8()));
+        QCOMPARE(vpad.count("<entry>"),24);
+        QFile ds(attached["melonds"]["configFile"].toString());
+        QVERIFY(ds.open(QIODevice::ReadOnly));QVERIFY(ds.readAll().contains("JoystickID = 2"));ds.close();
+        const auto dolphin=attached["dolphin"]["initialConfigDirectory"].toString()+"/GCPadNew.ini";
+        const auto eden=attached["eden"]["initialConfigDirectory"].toString()+"/qt-config.ini";
+        write(eden,"[Controls]\n# personal mapping\n");
+        env.controllerName="USB Pad";env.controllerIndex=1;env.switchBindings["button_a"]="engine:sdl,port:0,button:7";
+        prepareEmulators(env);
+        QFile changed(dolphin), personal(eden);
+        QVERIFY(changed.open(QIODevice::ReadOnly));QVERIFY(changed.readAll().contains("SDL/0/USB Pad"));
+        QVERIFY(personal.open(QIODevice::ReadOnly));QCOMPARE(personal.readAll(),QByteArray("[Controls]\n# personal mapping\n"));
+        QVERIFY(ds.open(QIODevice::ReadOnly));QVERIFY(ds.readAll().contains("JoystickID = 1"));
+    }
+    void duckStationKeepsFactoryKeyboardAndAddsGamepadOnFreshInstall() {
+        QTemporaryDir dir;EmulatorEnvironment env;
+        env.managed=true;env.home=dir.path();env.configHome=dir.filePath("config");env.stateDirectory=dir.filePath("state");
+        env.executables={{"duckstation-qt",probe()}};
+        const auto profile=prepareEmulators(env).profiles["duckstation"];
+        QFile settings(profile["initialConfigDirectory"].toString()+"/settings.ini");
+        QVERIFY(settings.open(QIODevice::ReadOnly));const auto fresh=settings.readAll();settings.close();
+        QVERIFY(fresh.contains("Cross = Keyboard/K"));QVERIFY(fresh.contains("Cross = SDL-0/A"));
+        QVERIFY(fresh.contains("RDown = SDL-0/+RightY"));QVERIFY(fresh.contains("[Hotkeys]"));
+        env.controllerName="USB";env.playerIndex=1;prepareEmulators(env);
+        QVERIFY(settings.open(QIODevice::ReadOnly));QVERIFY(settings.readAll().contains("Cross = SDL-1/A"));settings.close();
+        auto custom=fresh;custom.replace("Cross = SDL-0/A","Cross = USB/custom");write(settings.fileName(),custom);
+        prepareEmulators(env);QVERIFY(settings.open(QIODevice::ReadOnly));QCOMPARE(settings.readAll(),custom);
     }
     void modernDiscoverySeedsControlsWithoutReplacingUserSettings() {
         QTemporaryDir dir; EmulatorEnvironment env;

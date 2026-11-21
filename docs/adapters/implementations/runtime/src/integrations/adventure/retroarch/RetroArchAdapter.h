@@ -46,6 +46,7 @@ struct RetroArchInstallation {
     // Dedicated PS2 network bundle only; never changes ordinary ARMSX2 routing.
     QString ps2Bios;
     bool ps2Hotseat = false;
+    QJsonObject localPad; // SDL-recognized controller in the current managed session.
     bool operator==(const RetroArchInstallation&) const = default;
     static RetroArchInstallation load(const QString& filename);
     static RetroArchInstallation fromJson(const QJsonObject&);

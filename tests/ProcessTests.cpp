@@ -42,6 +42,24 @@ private slots:
         QCOMPARE(desktop["HOME"].toString(),qEnvironmentVariable("HOME"));
         QCOMPARE(desktop["FLATPAK_USER_DIR"].toString(),qEnvironmentVariable("FLATPAK_USER_DIR"));
     }
+    void activePadMappingReachesGameWithoutOverridingAnExplicitMapping() {
+        QTemporaryDir dir;
+        const auto previous=qgetenv("SDL_GAMECONTROLLERCONFIG");
+        const bool defined=qEnvironmentVariableIsSet("SDL_GAMECONTROLLERCONFIG");
+        const auto restore=qScopeGuard([&]{if(defined)qputenv("SDL_GAMECONTROLLERCONFIG",previous);else qunsetenv("SDL_GAMECONTROLLERCONFIG");});
+        qunsetenv("SDL_GAMECONTROLLERCONFIG");
+        ProcessService process;process.setControllerMapping("selected-pad");
+        QSignalSpy finished(&process,&ProcessService::finished);
+        const auto output=dir.filePath("env.json");
+        ProcessCommand command{probe(),{"environment",output},{}};command.emulatorRuntime=true;
+        for (int n=0;n<2;++n) {
+            if (n) qputenv("SDL_GAMECONTROLLERCONFIG","owner-mapping");
+            QVERIFY(process.start(command));QTRY_COMPARE(finished.size(),n+1);
+            QFile f(output);QVERIFY(f.open(QIODevice::ReadOnly));
+            QCOMPARE(QJsonDocument::fromJson(f.readAll()).object()["SDL_GAMECONTROLLERCONFIG"].toString(),
+                     n?QString("owner-mapping"):QString("selected-pad"));
+        }
+    }
     void supervisorReadinessIsSplitSafeAndNeverCountsLauncherOnlyRuns() {
         ProcessService process;QSignalSpy started(&process,&ProcessService::started),finished(&process,&ProcessService::finished);
         ProcessCommand command{probe(),{"delayed-ready"},{}};command.readyMarker="GAME_READY";

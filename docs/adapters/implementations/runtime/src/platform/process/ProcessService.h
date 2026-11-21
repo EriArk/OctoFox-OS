@@ -38,6 +38,7 @@ struct ProcessCommand {
 class ProcessService final : public QObject {
     Q_OBJECT
 public:
+    void setControllerMapping(const QString& mapping) { controllerMapping_=mapping; }
     explicit ProcessService(QObject* parent = nullptr);
     ~ProcessService() override;
     bool active() const { return active_; }
@@ -66,6 +67,7 @@ private:
     QThread thread_;
     QObject* worker_;
     std::shared_ptr<std::atomic_bool> cancelled_;
+    QString controllerMapping_;
     std::function<QString(const QByteArray&)> inspectOutput_;
     std::function<void(const ProcessOutcome&)> settled_;
     std::function<QString(const ProcessOutcome&)> finalize_;

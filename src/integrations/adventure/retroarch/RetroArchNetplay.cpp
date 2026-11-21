@@ -810,12 +810,13 @@ QString prepareNetplay(ProcessCommand& cmd,const AdventureRegistration& r,const 
     if(neoCd)bytes+="system_directory = \""+path.toUtf8()+"/system\"\ninitial_disk_change_enable = \"false\"\n";
     if(ps2)bytes+="system_directory = \""+path.toUtf8()+"/system\"\nvideo_driver = \"vulkan\"\nvideo_shader_enable = \"false\"\nstdin_cmd_enable = \"true\"\n";
 #ifdef Q_OS_LINUX
-    // The existing classic profiles use InputPlumber's virtual pad
-    // through udev on both Flip and Odin. Flip's inherited SDL2 driver handled
-    // the RetroArch menu but did not establish gameplay input in the paired run.
-    // Keep this override session-local: do not rewrite the user's ordinary
-    // driver, bindings or per-game configuration while joining a friend.
-    bytes+="input_joypad_driver = \"udev\"\n";
+    const auto driver=netplayJoypadDriver(i);
+    bytes+="input_joypad_driver = \""+driver+"\"\n";
+    // RetroArch forwards the first local pad to the negotiated network seat.
+    // Prefer the shell's active controller if other USB devices enumerate first.
+    const auto pad=i.localPad.value(driver=="sdl2"?"sdlName":"name").toString();
+    if (!pad.isEmpty() && pad.size()<=128 && !pad.contains(QRegularExpression("[\\x00-\\x1f\\x7f\"\\\\]")))
+        bytes+="input_player1_device_reservation_type = \"1\"\ninput_player1_reserved_device = \""+pad.toUtf8()+"\"\n";
 #endif
     bytes+="netplay_use_mitm_server = \""+QByteArray(request.host&&request.relay?"true":"false")+"\"\n";
     bytes+="netplay_public_announce = \""+QByteArray(request.host&&request.relay?"true":"false")+"\"\n";

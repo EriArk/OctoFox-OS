@@ -1128,14 +1128,10 @@ int main(int argc, char* argv[]) {
         LibraryMountWatcher libraryMounts;
         std::unique_ptr<EmulatorRefresh> emulatorRefresh;
         QTimer emulatorPoll;
+        SDL_JoystickID emulatorControllerId = -1;
         if (personalLibrary && !smoke) {
-            emulatorRefresh = std::make_unique<EmulatorRefresh>([stateDirectory, emulatorEnvironment](const QString& root) {
-                // SDL input stays on its original thread; inventory only reads
-                // filesystem/Flatpak state. Existing mappings are never replaced.
-                auto environment = installedEmulators(stateDirectory, root, false);
-                environment.controllerName = emulatorEnvironment.controllerName;
-                environment.controllerButtons = emulatorEnvironment.controllerButtons;
-                return environment;
+            emulatorRefresh = std::make_unique<EmulatorRefresh>([stateDirectory](const QString& root) {
+                return installedEmulators(stateDirectory, root, false);
             });
             emulatorRefresh->idle = [&] {
                 return !adventureLaunch.active() && !shell.runtimeChangeBlocked() && !session.blocked() && !folders.busy()
@@ -1143,10 +1139,11 @@ int main(int argc, char* argv[]) {
                     && !shell.libraryTools()->busy() && !shell.settings()->storage()->busy()
                     && !(saveBackups && saveBackups->busy());
             };
-            emulatorRefresh->apply = [&](const EmulatorEnvironment& environment, bool scanLibrary) {
+            emulatorRefresh->apply = [&](EmulatorEnvironment environment, bool scanLibrary) {
                 if (environment.libraryRoot != folders.root()) {
                     emulatorRefresh->request(folders.root(), scanLibrary); return;
                 }
+                readEmulatorController(environment, emulatorControllerId);
                 const auto prepared = prepareEmulators(environment);
                 shell.gamePreparation()->configure(stateDirectory,prepared.profiles);
                 shell.launchPreparation().requirements=[profiles=prepared.profiles,stateDirectory](const AdventureRegistration& record){return gamePreparation::readiness(profiles,stateDirectory,record);};
@@ -1234,6 +1231,16 @@ int main(int argc, char* argv[]) {
             softwareUpdates->attachInstallation(qEnvironmentVariable("TRAINEROS_SOFTWARE_ROOT"),stateDirectory,QCoreApplication::applicationFilePath());
         }
         ControllerInput input(nullptr, preferred);
+        if (emulatorRefresh) {
+            emulatorControllerId=input.instanceId();
+            bindings.connect(&input,&ControllerInput::connectionChanged,emulatorRefresh.get(),[&] {
+                emulatorControllerId=input.instanceId();
+                emulatorRefresh->request(folders.root(),false);
+            });
+        }
+        bindings.connect(&input,&ControllerInput::connectionChanged,&adventureProcess,[&] {
+            adventureProcess.setControllerMapping(input.connected()?input.sample().mapping:QString());
+        });
         shell.settings()->setController(&input);
         remotePlay.ownerDevice=[&]{return input.kernelDeviceName();};
         const auto updateTextInput=[&]{input.setTextEntryEnabled(shell.social()->incomingCall().isEmpty()&&shell.keyboard()->isOpen()&&(playerOverlay.chatOpen()?exitPresentation.ready():!shell.menuOpen()&&shell.notice().isEmpty()&&!shell.homeMenuOpen()));};

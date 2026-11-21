@@ -78,8 +78,10 @@ void ProcessService::execute(const ProcessCommand& command) {
     process_.setProcessChannelMode(QProcess::MergedChannels);
     process_.setStandardOutputFile(inspectOutput_ || !readyMarker_.isEmpty() || runtimeControls_.contains("netplay") || runtimeControls_.contains("achievements") ? QString() : QProcess::nullDevice());
     process_.setProgram(command.program); process_.setArguments(command.arguments);
-    process_.setProcessEnvironment(command.emulatorRuntime ? runtimepaths::environment()
-                                                          : QProcessEnvironment::systemEnvironment());
+    auto environment=command.emulatorRuntime ? runtimepaths::environment() : QProcessEnvironment::systemEnvironment();
+    if (!controllerMapping_.isEmpty() && !environment.contains("SDL_GAMECONTROLLERCONFIG"))
+        environment.insert("SDL_GAMECONTROLLERCONFIG",controllerMapping_);
+    process_.setProcessEnvironment(environment);
     process_.setWorkingDirectory(command.workingDirectory);
     launchStage_=readyMarker_.isEmpty()?"Starting emulator…":"Waiting for Steam to open the game…";emit launchStageChanged();
     if(stopRequested_){complete(0,false,{});return;}

@@ -41,6 +41,22 @@ class RetroArchTests final : public QObject {
         );
     }
 private slots:
+    void recognizedPadWithoutUdevMappingFallsBackToSdl() {
+        QTemporaryDir dir;
+        RetroArchInstallation installation;installation.configFile=dir.filePath("retroarch.cfg");
+        auto write=[](const QString& path,QByteArray bytes){QFile f(path);QVERIFY(f.open(QIODevice::WriteOnly));QCOMPARE(f.write(bytes),bytes.size());};
+        write(installation.configFile,"input_joypad_driver = \"sdl2\"\n");
+        QCOMPARE(retroarch::netplayJoypadDriver(installation),QByteArray("udev"));
+        installation.localPad={{"name","USB Arcade Stick"},{"vendor",101},{"product",202}};
+        QCOMPARE(retroarch::netplayJoypadDriver(installation),QByteArray("sdl2"));
+        QVERIFY(QDir().mkpath(dir.filePath("autoconfig/udev")));
+        const auto profile=dir.filePath("autoconfig/udev/arcade.cfg");
+        write(profile,"input_vendor_id = \"101\"\ninput_product_id = \"202\"\n");
+        QCOMPARE(retroarch::netplayJoypadDriver(installation),QByteArray("udev"));
+        write(profile,"input_device_alt1 = \"USB Arcade Stick\"\n");
+        QCOMPARE(retroarch::netplayJoypadDriver(installation),QByteArray("udev"));
+    }
+
     void freshProfileUsesInstalledLinkedSaveWithoutReplacingOverrides() {
 #ifndef Q_OS_LINUX
         QSKIP("Linux offline installer layout");

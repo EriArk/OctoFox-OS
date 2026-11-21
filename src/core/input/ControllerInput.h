@@ -42,6 +42,7 @@ public:
     explicit ControllerInput(QObject* parent = nullptr, SDL_JoystickID preferredDevice = -1);
     ~ControllerInput() override;
     bool connected() const { return controller_ != nullptr; }
+    SDL_JoystickID instanceId() const { return controller_ ? SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller_)) : -1; }
     bool initialized() const { return initialized_; }
     QString family() const;
     QString deviceName() const { return physicalName_.isEmpty()?sample_.name:physicalName_; }

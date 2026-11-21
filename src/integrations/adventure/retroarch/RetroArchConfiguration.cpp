@@ -49,6 +49,30 @@ QString configuredPath(const Settings& s, const QString& key, const QString& fal
     if (path.startsWith("~/")) path = QDir(runtimepaths::userHome()).filePath(path.mid(2));
     return path;
 }
+QByteArray netplayJoypadDriver(const RetroArchInstallation& installation) {
+    if (installation.localPad.isEmpty()) return "udev";
+    const auto settings=readSettings(installation.configFile);
+    // Existing explicitly configured udev installations can use manual binds.
+    if (settings.value("input_joypad_driver")!="sdl2") return "udev";
+    const auto directory=configuredPath(settings,"joypad_autoconfig_dir",
+        QFileInfo(installation.configFile).dir().filePath("autoconfig"));
+    const QDir profiles(QDir(directory).filePath("udev"));
+    const auto name=installation.localPad.value("name").toString();
+    const int vendor=installation.localPad.value("vendor").toInt();
+    const int product=installation.localPad.value("product").toInt();
+    for (const auto& file : profiles.entryList({"*.cfg"},QDir::Files)) {
+        const auto profile=readSettings(profiles.filePath(file));
+        if (vendor && product && vendor==profile.value("input_vendor_id").toInt()
+            && product==profile.value("input_product_id").toInt()) return "udev";
+        if (name.isEmpty()) continue;
+        if (profile.value("input_device")==name) return "udev";
+        for (int alt=1;alt<=9;++alt)
+            if (profile.value("input_device_alt"+QString::number(alt))==name) return "udev";
+    }
+    // SDL GameController already mapped this pad for the shell. RetroArch's
+    // SDL2 driver can deliver that mapping even without a libretro udev profile.
+    return "sdl2";
+}
 QString configDirectory(const Settings& settings, const RetroArchInstallation& i) {
     const auto path = configuredPath(settings, "rgui_config_directory");
     return safePath(path) ? path : QFileInfo(i.configFile).dir().filePath("config");

@@ -1,4 +1,5 @@
 #include "ControllerInput.h"
+#include "ControllerMappings.h"
 #include "RemoteGamePad.h"
 #include <QKeyEvent>
 #include <QDebug>
@@ -170,6 +171,7 @@ ControllerInput::ControllerInput(QObject* parent, SDL_JoystickID preferredDevice
     SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     initialized_ = SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) == 0;
+    if (initialized_) loadPackagedControllerMappings();
     if (!initialized_) qWarning() << "Controller input unavailable:" << SDL_GetError();
     clock_.start();
     connect(&timer_, &QTimer::timeout, this, &ControllerInput::poll);

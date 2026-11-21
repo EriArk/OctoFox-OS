@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     if (args.size() == 3 && args[1] == "environment") {
         QFile file(args[2]); if (!file.open(QIODevice::WriteOnly)) return 3;
         QJsonObject result;
-        for (const auto* key : {"HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME", "FLATPAK_USER_DIR"})
+        for (const auto* key : {"HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME", "FLATPAK_USER_DIR", "SDL_GAMECONTROLLERCONFIG"})
             result[key]=qEnvironmentVariable(key);
         file.write(QJsonDocument(result).toJson()); return 0;
     }

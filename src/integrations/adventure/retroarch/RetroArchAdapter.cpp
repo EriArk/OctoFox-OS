@@ -51,6 +51,7 @@ RetroArchInstallation RetroArchInstallation::fromJson(const QJsonObject& object)
     RetroArchInstallation result;
     result.program = object.value("program").toString();
     result.configFile = object.value("configFile").toString();
+    result.localPad = object.value("localPad").toObject();
     const auto coresDirectory = object.value("coresDirectory").toString();
     const QFileInfo program(result.program), config(result.configFile);
     if (!program.isAbsolute() || !program.isFile() || !program.isExecutable()

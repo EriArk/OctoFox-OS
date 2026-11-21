@@ -290,6 +290,7 @@ add_library(trainer_core STATIC
     src/core/storage/LocalStateStore.h
     src/core/storage/SessionState.cpp
     src/core/storage/SessionState.h
+    src/core/input/ControllerMappings.cpp
     src/core/input/ControllerInput.cpp
     src/core/input/ControllerInput.h
     src/core/input/PointerVisibility.cpp
@@ -364,6 +365,8 @@ file(GLOB browser_control_icons CONFIGURE_DEPENDS assets/icons/browser-controls/
 file(GLOB badge_images CONFIGURE_DEPENDS assets/badges/original-*.svg)
 qt_add_resources(trainer_core badge_assets PREFIX "/badges" BASE assets/badges
     FILES assets/badges/manifest.json ${badge_images})
+qt_add_resources(trainer_core emulator_defaults PREFIX "/emulators" BASE data/emulators FILES
+    data/emulators/duckstation-defaults.ini data/emulators/gamecontrollerdb-linux.txt data/emulators/SDL_GameControllerDB.LICENSE)
 qt_add_resources(trainer_core collection PREFIX "/collection" BASE data FILES data/catalogue.json)
 qt_add_resources(trainer_core rom_platforms PREFIX "/library" BASE data FILES data/rom-platforms.json)
 qt_add_resources(trainer_core game_preparation PREFIX "/preparation" BASE data/firmware FILES data/firmware/firmware.json)

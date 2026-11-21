@@ -3,6 +3,7 @@
 
 namespace trainer::retroarch {
 using Settings = QHash<QString, QString>;
+QByteArray netplayJoypadDriver(const RetroArchInstallation&);
 Settings readSettings(const QString& path);
 bool safePath(const QString& path);
 bool enabled(const Settings&, const QString& key, bool fallback = false);
