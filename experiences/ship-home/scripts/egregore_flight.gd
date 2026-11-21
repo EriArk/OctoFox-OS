@@ -31,6 +31,8 @@ var local_air := -1.0
 var sky_sector:=-1
 var sky_jump:=-1.0
 var avionics:=preload("res://scripts/ship_avionics.gd").new()
+var station_rooms:Dictionary={}
+var lab:=preload("res://scripts/biostation.gd").new()
 var art:ShipInterior
 
 func build(interior:ShipInterior) -> void:
@@ -51,6 +53,7 @@ func build(interior:ShipInterior) -> void:
    var pad_number:=Label3D.new();pad_number.text="01";pad_number.font_size=72;pad_number.pixel_size=0.016
    pad_number.modulate=Color("f1d49d");pad_number.outline_size=0;pad_number.rotation.x=-PI/2
    pad_number.position=surface+Vector3(0,0.22,-6.3);site.add_child(pad_number)
+   if i==lab.SITE:continue
    if i==2:
     # An inclined navigation hoop marks the inner-ring anchorage from cruise range.
     var hoop:=Node3D.new();site.add_child(hoop);hoop.position=Vector3(0,3,-22);hoop.rotation.x=1.28
@@ -80,6 +83,14 @@ func build(interior:ShipInterior) -> void:
   var item:Dictionary=Regions.CONTACTS[id]
   island(self,Regions.ORIGINS[item.sector]+item.p,55+(id%3)*5,64,id)
  art.batch_static(self)
+ # Keep each station in its own render bounds, including its dockside equipment.
+ for i in preload("res://scripts/station_rooms.gd").PORTS:
+  var rooms:=preload("res://scripts/station_rooms.gd").new()
+  add_child(rooms);rooms.position=BERTHS[i]+Vector3.UP*GROUND_Y
+  rooms.build(self,i)
+  if i==lab.SITE:
+   rooms.add_child(lab);lab.build(self)
+  art.batch_static(rooms);rooms.mount_doors();station_rooms[i]=rooms
  avionics.configure(self)
  reset(0)
 
@@ -227,6 +238,7 @@ func hits_island(pos:Vector3) -> bool:
 func reset(site:int) -> void:
  berth=clampi(site,0,BERTHS.size()-1);destination=1-berth if berth<2 else berth
  avionics.docked(berth)
+ lab.staff_visible(berth==lab.SITE)
  mode=Mode.BERTH;location=BERTHS[berth];attitude=dock_basis(berth)
  velocity=Vector3.ZERO;turn_rate=Vector3.ZERO;stick=Vector2.ZERO;throttle=0
  sync_view()
@@ -247,7 +259,7 @@ func clearance() -> String:
 
 func interact() -> void:
  if mode==Mode.BERTH:
-  mode=Mode.DEPARTING
+  mode=Mode.DEPARTING;lab.staff_visible(false)
  elif mode==Mode.FLYING and clearance().is_empty():
   mode=Mode.LANDING
  else:return

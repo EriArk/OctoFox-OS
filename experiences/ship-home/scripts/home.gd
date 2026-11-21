@@ -20,6 +20,7 @@ var cards=preload("res://scripts/look_cards.gd").new()
 var computer=preload("res://scripts/ship_computer.gd").new()
 var fabricator=preload("res://scripts/fabricator.gd").new()
 var fitting=preload("res://scripts/fitting_station.gd").new()
+var survey=preload("res://scripts/orchard_survey.gd").new()
 var mine=preload("res://scripts/ore_outcrop.gd").new()
 var garden=preload("res://scripts/botanical_garden.gd").new()
 var fishing=preload("res://scripts/shore_fishing.gd").new()
@@ -65,7 +66,7 @@ func _ready() -> void:
  art.build(cabin,self);cabin.add_child(studio);studio.build_fixed(art);art.batch_static(cabin)
  studio.build_moving(self);art.moving_controls()
  exterior.local_ship=true;add_child(exterior)
- add_child(flight);flight.build(art)
+ add_child(flight);flight.lab.studio=studio;flight.build(art)
  furnishings=Node3D.new();cabin.add_child(furnishings)
  walker=Walker.new();walker.helm=art;walker.position=Vector3(0,0.1,-0.55);add_child(walker)
  add_child(fitting);fitting.configure(walker,studio)
@@ -156,6 +157,7 @@ func _load_profile(id:String) -> void:
  if is_instance_valid(walker) and walker.seated:
   # Profile changes return to the reserved central approach before replacing furniture.
   walker.stand(Vector3(0,0.08,-2.1))
+ if survey.is_inside_tree():survey.close()
  if mine.active:mine.close()
  if garden.active:garden.close()
  if fishing.walker!=null:fishing.close()
@@ -183,6 +185,7 @@ func _load_profile(id:String) -> void:
 
 func _sync_service_deck() -> void:
  studio.service.sync(store,flight.avionics.installed)
+ for species in studio.species_plates:studio.species_plates[species].visible=store.observations.has(species)
 
 func _appearance(descriptor:Dictionary) -> void:
  var id=str(descriptor.get("profile",""))
@@ -232,7 +235,7 @@ func _ui() -> void:
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
  layer.add_child(instruments);instruments.bind(flight,walker)
  layer.add_child(prompts)
- fishing.configure(self,layer);garden.configure(self,layer);mine.configure(self,layer);fabricator.ship=self
+ survey.configure(self,layer);fishing.configure(self,layer);garden.configure(self,layer);mine.configure(self,layer);fabricator.ship=self
  prompts.used.connect(func(id:String):
   if not paused and not riding and not editing and not fitting.active and not fabricator.visible and not computer.visible and not walker.seated and id==_station():_interact())
 
@@ -242,6 +245,7 @@ func _open_colours() -> void:
 
 func _pause(value:bool) -> void:
  if value:
+  if survey.visible:survey.close()
   if mine.active:mine.close()
   if garden.active:garden.close()
   if fishing.phase!=fishing.Phase.AWAY:fishing.close()
@@ -321,6 +325,8 @@ func _process(delta:float) -> void:
   var sky:=art.sky_environment.sky.sky_material as ShaderMaterial
   if int(flight.coast.clock*8)!=int((flight.coast.clock-delta)*8):sky.set_shader_parameter("field_time",flight.coast.clock)
   if not walker.seated:flight.avionics.update_traffic(delta)
+ if survey.visible:
+  prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
  if computer.visible:
   prompts.clear_world();prompts.actions(computer.action_hints());status.hide();dot.hide();return
  if fabricator.visible:
@@ -338,6 +344,8 @@ func _process(delta:float) -> void:
  var target=STATION_TARGETS.get(station)
  if studio.service.targets.has(station):target=studio.service.targets[station]
  elif station=="mine":target=mine.global_position+Vector3.UP*0.6
+ elif station=="microscope":target=flight.lab.to_global(flight.lab.SCOPE)
+ elif station=="biologist":target=flight.lab.keeper.global_position+Vector3.UP*1.28
  elif station=="garden":target=garden.global_position+Vector3.UP*0.55
  elif station=="fish":target=flight.to_global(flight.fishing_spots[flight.berth])
  elif station=="tank":target=studio.aquarium.to_global(Vector3(0,1.05,0.42))
@@ -518,12 +526,16 @@ const STATION_TARGETS = {
  "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
-const STATION_ACTIONS={"cargo":"Inspect cargo","economiser":"Inspect cruise economiser","capacitor":"Inspect boost capacitor","mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
+const STATION_ACTIONS={"microscope":"Inspect reference slides","biologist":"Talk to Dr. Neri","cargo":"Inspect cargo","economiser":"Inspect cruise economiser","capacitor":"Inspect boost capacitor","mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
  if flight.mode==flight.Mode.BERTH and p.distance_to(studio.EXIT_CENTER)<studio.EXIT_RADIUS+0.09 and absf(walker.position.y-studio.exit_lift.position.y)<0.3:return "dock_lift"
  if outside:
+  if flight.mode==flight.Mode.BERTH and flight.berth==flight.lab.SITE:
+   var local:Vector3=flight.lab.to_local(walker.global_position)
+   if local.z>13.5 and local.distance_to(flight.lab.BIOLOGIST)<2.25:return "biologist"
+   if local.distance_to(flight.lab.SCOPE)<2.04:return "microscope"
   if flight.mode==flight.Mode.BERTH and mine.visible and walker.global_position.distance_to(mine.global_position)<2.35:return "mine"
   if flight.mode==flight.Mode.BERTH and garden.visible and walker.global_position.distance_to(garden.global_position)<2.3:return "garden"
   if flight.mode==flight.Mode.BERTH and flight.fishing_spots.has(flight.berth):
@@ -547,6 +559,9 @@ func _station() -> String:
 
 func _physics_process(delta:float) -> void:
  if paused:return
+ if outside and flight.station_rooms.has(flight.berth):
+  var rooms:Node3D=flight.station_rooms[flight.berth]
+  rooms.cycle_lock(delta,rooms.to_local(walker.global_position))
  if walker.seated:
   var mode_before=flight.mode
   var stick:=Input.get_vector("walk_left","walk_right","walk_forward","walk_back",0.18)
@@ -587,6 +602,8 @@ func _physics_process(delta:float) -> void:
 
 func _outside(value:bool) -> void:
  outside=value
+ if flight.station_rooms.has(flight.berth):
+  for light in flight.station_rooms[flight.berth].lamps:light.visible=value
  if mine.home!=null:mine.set_site(flight.berth if value else -1)
  if garden.home!=null:garden.set_site(flight.berth if value else -1)
  walker.collision_mask=(flight.WALK_LAYER|Exterior.HULL_COLLISION) if value else 3
@@ -604,6 +621,8 @@ func _interact() -> void:
  prompts.clear_world()
  var station:=_station()
  match station:
+  "microscope":survey.inspect()
+  "biologist":survey.open()
   "mine":mine.open()
   "garden":garden.open()
   "fish":fishing.open_shore()

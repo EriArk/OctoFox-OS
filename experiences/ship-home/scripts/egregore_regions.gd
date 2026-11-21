@@ -7,7 +7,7 @@ const TINTS:=[Color("65e0cf"),Color("ae9dfd"),Color("ffb578")]
 const JUMP_RANGE:=42.0
 const ORIGINS:=[Vector3.ZERO,Vector3(64000,800,-68000),Vector3(127000,1800,9000)]
 const GATE_CONTACT:=[0,2,11]
-const BERTH_CONTACT:=[0,1,2,8,11,12]
+const BERTH_CONTACT:=[0,1,2,8,11,12,15]
 const FLIGHT_RADIUS:=39000.0
 const CRUISE_SPEED:=155.0
 const CONTACTS:=[
@@ -25,7 +25,8 @@ const CONTACTS:=[
  {"name":"Cinder Anchorage","kind":"station","site":4,"sector":2,"p":Vector3.ZERO},
  {"name":"Cinder Garden","kind":"island","site":5,"sector":2,"p":Vector3(0,0,-1600)},
  {"name":"Ember Isle","kind":"island","sector":2,"p":Vector3(-22000,180,12000)},
- {"name":"Glass Atoll","kind":"island","sector":1,"p":Vector3(23000,120,-11500)}]
+ {"name":"Glass Atoll","kind":"island","sector":1,"p":Vector3(23000,120,-11500)},
+ {"name":"Lantern Biostation","kind":"station","site":6,"sector":0,"p":Vector3(0,0,6200)}]
 
 static func linked(from:int,to:int) -> bool:
  return from>=0 and to>=0 and from<CENTRES.size() and to<CENTRES.size() and from!=to and CENTRES[from].distance_to(CENTRES[to])<=JUMP_RANGE

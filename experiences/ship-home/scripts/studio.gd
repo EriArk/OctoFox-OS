@@ -12,6 +12,7 @@ var service=preload("res://scripts/service_racks.gd").new()
 var art: ShipInterior
 var printer: Node3D
 var toolhead: Node3D
+var species_plates:Dictionary={}
 var aquarium: Node3D
 var water:=ShaderMaterial.new()
 var fish: Array[Node3D] = []
@@ -338,6 +339,13 @@ func set_exit_height(height:float) -> void:
 
 func build_moving(dock:Node3D) -> void:
  service.build_payloads()
+ var species_ids:=["glassfin","loach"]
+ for i in species_ids.size():
+  var plate:=Node3D.new();aquarium.add_child(plate);plate.position=Vector3((2*i-1)*0.66,0.35,0.404)
+  art.faceplate(plate,Vector3.ZERO,Vector2(1.02,0.27),0.055,Art.BRASS)
+  art.label(plate,"ECHO ORCHARD",Vector3(0,0.065,0.012),0,12,Art.TRIM)
+  art.label(plate,preload("res://scripts/shore_catch.gd").SPECIES[species_ids[i]][0],Vector3(0,-0.046,0.012),0,23,Art.NIGHT)
+  species_plates[species_ids[i]]=plate;plate.hide()
  lift=AnimatableBody3D.new();lift.sync_to_physics=false;add_child(lift)
  lift.position=Vector3(Art.LIFT.x,0,Art.LIFT.y)
  art.cylinder(lift,Vector3.DOWN*0.077,0.836,0.15,INK)

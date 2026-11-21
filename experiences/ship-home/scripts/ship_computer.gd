@@ -98,6 +98,10 @@ func refresh() -> void:
   0:
    add_entry("Flight status",ship.flight.NAMES[ship.flight.berth] if ship.flight.mode==ship.flight.Mode.BERTH else a.SECTORS[a.sector],
     "Hull   %d%%\nShields   %d%%\nFuel   %d / %d"%[roundi(a.hull),roundi(a.shield),floori(a.fuel),int(a.TANK)])
+   add_entry("Field atlas","Echo Orchard   ·   %d / 2 species"%ship.store.observations.size(),ship.survey.brief(),"field-atlas")
+   for species in ship.store.observations:
+    var fish_record:Dictionary=ship.store.observations[species]
+    add_entry(ship.Catch.SPECIES[species][0],"Echo Orchard   ·   %d cm"%ship.Catch.length_cm(fish_record),ship.survey.NOTES[species])
    for i in a.MODULES.size():
     add_entry(a.MODULES[i],"Online" if a.enabled[i] else "Offline","Power distribution\nSYS   %d      ENG   %d      WEP   %d"%[a.pips[0],a.pips[1],a.pips[2]])
   1:
@@ -147,6 +151,8 @@ func draw_selection() -> void:
  reveal_selection.call_deferred()
  var row:Dictionary=items[index];title.text=row.name;figures.text=row.measure;description.text=row.body
  action.hide();notice.text=""
+ if row.id=="field-atlas":
+  action.text="Track "+ship.flight.NAMES[ship.survey.next_site()];action.disabled=false;action.show()
  if page>=2 and not online():notice.text="Connect to Ship Supplies to place orders or fit kits."
  if page==1 and workshop.inventory.is_empty():notice.text="Profile inventory is offline."
  if page==2 and row.id not in ship.flight.avionics.installed:
@@ -168,7 +174,10 @@ func reveal_selection() -> void:
 func activate() -> void:
  if not action.visible or action.disabled:return
  var row:Dictionary=items[index]
- if page==2:
+ if row.id=="field-atlas":
+  var site:int=ship.survey.next_site()
+  ship.flight.avionics.navigate_to(ship.flight.Regions.BERTH_CONTACT[site]);notice.text=ship.flight.avionics.reply
+ elif page==2:
   if workshop.units("upgrade",row.id)>0:
    workshop.commit("install",{"module":row.id,"player_id":workshop.inventory.player_id})
   else:

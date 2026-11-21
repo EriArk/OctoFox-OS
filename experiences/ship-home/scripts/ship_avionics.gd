@@ -68,7 +68,7 @@ func configure(flight) -> void:
  f=flight
  for i in range(3,CATALOG.size()):
   var item:Dictionary=CATALOG[i]
-  if item.kind=="island":continue
+  if item.kind=="island" or item.get("site",-1)==f.lab.SITE:continue
   var node:=Node3D.new();node.name=item.name.replace(" ","");f.add_child(node);bodies[i]=node
   if item.kind in ["ship","hostile"]:
    var hull_scene:=preload("res://assets/ship/saucer.glb").instantiate() as Node3D

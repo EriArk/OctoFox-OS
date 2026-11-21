@@ -2,7 +2,7 @@
 class_name ShipLayoutStore
 extends RefCounted
 signal saved
-const BERTH_KEYS:=["station","orchard","prism","table","cinder-port","cinder-garden"]
+const BERTH_KEYS:=["station","orchard","prism","table","cinder-port","cinder-garden","lantern-biolab"]
 const MAX_ITEMS=48
 # Different deck coordinates: preserve all earlier preview layouts in homes/.
 var directory="user://homes/studio-v1"
@@ -11,6 +11,8 @@ var error=""
 var writable=true
 var berth:=0
 var systems:Dictionary={}
+var survey_started:=false
+var observations:Dictionary={}
 var fish:Array=[]
 var botany:Dictionary={}
 var ore:Dictionary={}
@@ -29,7 +31,7 @@ static func valid(rows: Variant) -> bool:
  return true
 
 func load_home(profile: String) -> Array:
- owner=profile if not profile.is_empty() else "guest";error="";writable=true;berth=0;systems={};fish=[];botany={};ore={}
+ owner=profile if not profile.is_empty() else "guest";error="";writable=true;berth=0;survey_started=false;observations={};systems={};fish=[];botany={};ore={}
  if not FileAccess.file_exists(path()):return defaults()
  var f=FileAccess.open(path(),FileAccess.READ)
  if f==null or f.get_length()>65536:
@@ -39,6 +41,14 @@ func load_home(profile: String) -> Array:
  var value=parser.data if parsed==OK else null
  if not value is Dictionary or value.get("schema")!=1 or value.get("owner")!=owner or not valid(value.get("items")):
   error="This layout could not be loaded. Your saved file has been kept.";writable=false;return []
+ var survey:Variant=value.get("observations",{})
+ if not survey is Dictionary or not value.get("survey_started",false) is bool:
+  error="Could not read the field atlas.";writable=false;return value.items
+ for species in survey:
+  var specimen:Variant=survey[species]
+  if not preload("res://scripts/shore_catch.gd").valid_stock([specimen]) or specimen.species!=species or specimen.site!=1:
+   error="Could not read the field atlas.";writable=false;return value.items
+ observations=survey;survey_started=value.get("survey_started",false)
  var saved_fish:Variant=value.get("fish",[])
  if not preload("res://scripts/shore_catch.gd").valid_stock(saved_fish):
   error="Could not read the livewell. Your save has been kept.";writable=false;return value.items
@@ -65,7 +75,7 @@ func save(rows: Array) -> bool:
  if not writable:return false
  if not valid(rows):error="Could not save this furniture arrangement.";return false
  if DirAccess.make_dir_recursive_absolute(directory)!=OK:error="Could not create the home save folder.";return false
- var content:=JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":BERTH_KEYS[berth],"flight":systems,"fish":fish,"botany":botany,"ore":ore},"\t")
+ var content:=JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":BERTH_KEYS[berth],"flight":systems,"survey_started":survey_started,"observations":observations,"fish":fish,"botany":botany,"ore":ore},"\t")
  if content.to_utf8_buffer().size()>65536:error="Home storage is full.";return false
  var temp=path()+".tmp";var f=FileAccess.open(temp,FileAccess.WRITE)
  if f==null:error="Could not write your home. Your previous layout is safe.";return false
