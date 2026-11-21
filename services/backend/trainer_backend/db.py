@@ -74,6 +74,7 @@ def grant_runtime(database_url, role):
         'loot_items': 'SELECT', 'loot_revisions': 'SELECT',
         'bazaar_sellers': 'SELECT,INSERT', 'bazaar_listings': 'SELECT,INSERT,UPDATE',
         'bazaar_trades': 'SELECT,INSERT',
+        'festival_rounds': 'SELECT,INSERT,UPDATE',
         'bazaar_worlds': 'SELECT', 'bazaar_world_places': 'SELECT',
         'progression_accounts': 'SELECT,INSERT,UPDATE',
         'reward_links': 'SELECT,INSERT', 'reward_link_challenges': 'SELECT,INSERT,UPDATE',

@@ -9,6 +9,7 @@
 #include "platform/sdk/SdkNetwork.h"
 #include "features/device/ControlsDashboard.h"
 #include "features/trainer/AvatarAssets.h"
+#include "fixtures/FestivalTicketPeer.h"
 using namespace trainer;
 class SdkNetworkTests final:public QObject {
     Q_OBJECT
@@ -48,6 +49,7 @@ private slots:
         const QJsonObject registration{{"title","Pocket Golf"},{"protocol","pocket-golf.10"}};
         QJsonObject result;
         ControlsDashboard hostControls,guestControls;
+        FestivalTicketPeer hostEntry,guestEntry;
         PlatformHost hostSdk(hostControls),guestSdk(guestControls);
         QProcess hostGame,guestGame;
         const auto firstEndpoint=settings.filePath("first/endpoint.json");
@@ -73,6 +75,8 @@ private slots:
             hostSdk.setNetwork(&a);guestSdk.setNetwork(&b);
             hostSdk.setContext({{"profile","mint"}});guestSdk.setContext({{"profile","coral"}});
             QVERIFY(hostSdk.start(firstEndpoint));QVERIFY(guestSdk.start(secondEndpoint));
+            hostEntry.attach(hostSdk,firstEndpoint,"mint");
+            guestEntry.attach(guestSdk,secondEndpoint,"coral");
             a.launchInstalled=[&](QString local){return startGame(hostGame,firstEndpoint,local);};
             b.launchInstalled=[&](QString local){return startGame(guestGame,secondEndpoint,local);};
         }
@@ -96,8 +100,18 @@ private slots:
         QCOMPARE(host.state()["phase"],"gathering");
         QVERIFY(a.request(desk,"activity.cup.leave",{},result).isEmpty());
         QVERIFY(!result["joined"].toBool());
-        QVERIFY(a.request(desk,"activity.cup.join",{},result).isEmpty());
-        QVERIFY(b.request(desk,"activity.cup.join",{},result).isEmpty());
+        if(games) {
+            QCOMPARE(hostEntry.call("activity.cup.join")["error"].toObject()["code"].toString(),QString("festival_ticket_required"));
+            hostEntry.funded=true;
+            QVERIFY(hostEntry.call("activity.cup.join").contains("result"));
+            QCOMPARE(guestEntry.call("activity.cup.join")["error"].toObject()["code"].toString(),QString("festival_ticket_required"));
+            guestEntry.funded=true;
+            QVERIFY(guestEntry.call("activity.cup.join").contains("result"));
+            QVERIFY(!hostEntry.consumed && !guestEntry.consumed);
+        } else {
+            QVERIFY(a.request(desk,"activity.cup.join",{},result).isEmpty());
+            QVERIFY(b.request(desk,"activity.cup.join",{},result).isEmpty());
+        }
         auto advance=[&]{
             a.request(desk,"activity.cup.status",{},result);
             b.request(desk,"activity.cup.status",{},result);
@@ -116,6 +130,7 @@ private slots:
             };
             QTRY_COMPARE_WITH_TIMEOUT(scores(a).size(),2,45000);
             QTRY_COMPARE_WITH_TIMEOUT(scores(b),scores(a),5000);
+            QVERIFY(hostEntry.consumed && guestEntry.consumed);
             return;
         }
         const QJsonObject strokes{{"strokes",QJsonArray{14,16}}};

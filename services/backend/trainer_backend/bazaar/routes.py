@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request, Query
 from pydantic import Field
 from ..accounts.routes import StrictBody, bearer, wire
 from ..accounts.provider import AuthError
+from . import festival
 
 router = APIRouter()
 
@@ -199,3 +200,32 @@ def staffed_rental(bazaar_id: UUID, place_id: UUID, body: StaffedRental, request
         seller = trading.hire_locked(conn, actor, rental['receipt']['id'], op, body.species, 1, body.seller_price)
         rental['receipt'].pop('bazaar_id', None)  # Joined only on receipt replay.
         return wire({**rental, 'seller_receipt': seller['receipt']})
+
+
+FestivalGame = Literal['gallery', 'rings', 'golf_local', 'golf_online']
+
+
+class FestivalEntry(StrictBody):
+    operation_id: str = Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+    expected_price: int = Field(ge=1, le=2147483647)
+
+
+class FestivalAttempt(StrictBody):
+    index: int = Field(ge=0, le=4)
+    x: int = Field(ge=-300, le=300)
+    y: int = Field(ge=-100, le=300)
+
+
+@router.get('/v1/me/festival/{game}')
+def festival_status(game: FestivalGame, request: Request):
+    return wire(festival.status(service(request), bearer(request), game))
+
+
+@router.post('/v1/me/festival/{game}')
+def festival_entry(game: FestivalGame, body: FestivalEntry, request: Request):
+    return wire(festival.enter(service(request), bearer(request), game, UUID(body.operation_id), body.expected_price))
+
+
+@router.post('/v1/me/festival/{game}/{ticket}/attempt')
+def festival_attempt(game: FestivalGame, ticket: UUID, body: FestivalAttempt, request: Request):
+    return wire(festival.attempt(service(request), bearer(request), game, ticket, body.index, body.x, body.y))

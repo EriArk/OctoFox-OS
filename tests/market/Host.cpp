@@ -125,6 +125,8 @@ int main(int argc,char** argv) {
                 if(down<0)return;
             } else if(review["action"]=="list" && review["ready"].toBool() && !review["retry"].toBool()) {
                 for(int price=review["price"].toInt();price<65;++price)emit account.marketControl("right");
+            } else if(review["action"]=="festival" && review["price"].toInt()==10){
+                // Only used by the disposable wallet rehearsal.
             } else if(!(text.contains("250 Sparks") && text.contains("Frog")) && !text.contains("65 Sparks"))return;
             for(int i=0;i<down;++i)emit account.marketControl("down");
             emit account.marketControl("confirm");

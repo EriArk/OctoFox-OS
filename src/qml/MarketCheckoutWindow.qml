@@ -8,6 +8,7 @@ Window {
     readonly property var review: account.marketReview
     readonly property var items: review.items || []
     readonly property bool picker: !!review.picker && !review.loading
+    readonly property bool festival: review.action === "festival"
     readonly property bool rental: review.action === "rent"
     readonly property bool structured: !!review.subject || (rental && !!review.keeper)
     readonly property int lastChoice: picker ? items.length + (review.next ? 1 : 0) : review.ready ? 1 : 0
@@ -99,7 +100,7 @@ Window {
         Rectangle { width: parent.width; height: 4; color: "#e6ad66" }
         Caption {
             x: 18; y: 16; width: 440
-            text: panel.review.slot ? "FESTIVAL PARK    /    COUNTER " + String(panel.review.slot).padStart(2,"0") : "FESTIVAL PARK    /    INVENTORY"
+            text: panel.festival ? "FESTIVAL PARK    /    TICKETS" : panel.review.slot ? "FESTIVAL PARK    /    COUNTER " + String(panel.review.slot).padStart(2,"0") : "FESTIVAL PARK    /    INVENTORY"
         }
         Caption {
             anchors.right: parent.right; anchors.rightMargin: 18; y: 16
@@ -109,7 +110,7 @@ Window {
         Text {
             x: 18; y: 46; width: 604; color: panel.paper; font.pixelSize: 32; font.bold: true
             text: panel.review.retry ? "Recover trade" : panel.review.inventory ? "Profile inventory" :
-                  panel.rental ? "Rent a counter" : panel.review.action === "list" ?
+                  panel.festival ? "Festival ticket" : panel.rental ? "Rent a counter" : panel.review.action === "list" ?
                   (panel.review.picker ? "Choose your stock" : "List an item") : "Buy from counter"
         }
         Rectangle {
@@ -212,7 +213,7 @@ Window {
             visible: !!panel.review.ready || (panel.picker && !!panel.review.next)
             choice: panel.review.ready ? 1 : panel.items.length+1
             label: !panel.review.ready ? "More items" : panel.review.retry ? "Recover trade" :
-                   panel.rental ? "Confirm rental" : panel.review.action === "list" ? "List item" : "Confirm purchase"
+                   panel.festival ? "Buy ticket" : panel.rental ? "Confirm rental" : panel.review.action === "list" ? "List item" : "Confirm purchase"
         }
     }
 }

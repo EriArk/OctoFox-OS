@@ -68,7 +68,20 @@ void BackendAccount::resolveBazaarPurchase(){if(shopPending_.value("offer_id")==
 void BackendAccount::bazaarRead(const QString& method,QJsonObject args,Reply done) {
     if(state_!="connected"||player_.isEmpty()){done(401,{{"code","sign_in_required"}});return;}
     QString path;
-    if(method=="bazaar.world"&&args.isEmpty())path="/v1/bazaar-worlds/festival";
+    QByteArray verb="GET";
+    QJsonObject body;
+    if(method=="bazaar.festival" || method=="bazaar.festival.attempt") {
+        const auto game=args.take("game").toString();
+        if(!QStringList{"gallery","rings","golf_local","golf_online"}.contains(game)){
+            done(422,{{"code","invalid_game"}});return;
+        }
+        path="/v1/me/festival/"+game;
+        if(method.endsWith(".attempt")){
+            const auto ticket=args.take("ticket");
+            if(!id(ticket) || args.keys()!=QStringList{"index","x","y"}){done(422,{{"code","invalid_attempt"}});return;}
+            path+="/"+ticket.toString()+"/attempt";verb="POST";body=args;
+        }else if(!args.isEmpty()){done(422,{{"code","invalid_game"}});return;}
+    }else if(method=="bazaar.world"&&args.isEmpty())path="/v1/bazaar-worlds/festival";
     else if(method=="bazaar.costumes"&&args.isEmpty())path="/v1/bazaar-costumes";
     else if(method=="bazaar.sellers"&&args.isEmpty())path="/v1/bazaar-sellers";
     else if(method=="bazaar.listings"||method=="bazaar.own_listings") {
@@ -84,12 +97,12 @@ void BackendAccount::bazaarRead(const QString& method,QJsonObject args,Reply don
     }
     else {done(422,{{"code","unsupported_bazaar_read"}});return;}
     const auto player=player_;
-    request("GET",path,{},[this,player,method,done=std::move(done)](int status,QJsonObject result){
+    request(verb,path,body,[this,player,method,done=std::move(done)](int status,QJsonObject result){
         if(player!=player_||state_!="connected")return;
         if(status==200&&(result["player_id"]!=player||QJsonDocument(result).toJson(QJsonDocument::Compact).size()>60000)) {
             done(502,{{"code","invalid_bazaar_snapshot"}});return;
         }
-        if(status==200 && method=="bazaar.world")result["checkout_pending"]=marketPending_.value("player_id")==player;
+        if(status==200 && (method=="bazaar.world" || method=="bazaar.festival"))result["checkout_pending"]=marketPending_.value("player_id")==player;
         done(status,std::move(result));
     },access_);
 }

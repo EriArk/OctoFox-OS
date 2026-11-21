@@ -21,6 +21,10 @@ QJsonObject error(QString code) { return {{"code",code}}; }
 bool matchesReceipt(const QJsonObject& intent,const QJsonObject& result) {
     const auto op=intent["operation_id"],player=intent["player_id"],price=intent["price"];
     if(result["player_id"]!=player)return false;
+    if(intent["action"]=="festival"){
+        const auto round=result["round"].toObject();
+        return result["game"]==intent["game"] && uuid(round["id"]) && round["operation_id"]==op && round["price"]==price;
+    }
     if(intent["action"]=="list") {
         const auto row=result["listing"].toObject();
         return uuid(row["id"]) && row["operation_id"]==op && row["seller_id"]==player && row["rental_id"]==intent["rental_id"]
@@ -63,9 +67,10 @@ void BackendAccount::marketCheckout(QString channel,const QJsonObject args,Reply
     if(marketSending_ || marketReply_ || shopBusy_ || !shopPending_.isEmpty()){done(409,error("checkout_busy"));return;}
     const QString action=args["action"].toString();
     const auto price=args["price"],slot=args["slot"];
-    if(action!="resolve" && action!="inventory" && (slot.toInt()<1 || slot.toInt()>12 || !money(price))){done(422,error("invalid_offer"));return;}
+    if(action!="resolve" && action!="inventory" && action!="festival" && (slot.toInt()<1 || slot.toInt()>12 || !money(price))){done(422,error("invalid_offer"));return;}
     const bool valid=((action=="resolve" || action=="inventory") && args.size()==1) ||
         (action=="rent" && args.size()==6 && args["species"].isString() && money(args["seller_price"]) && args.contains("revision")) ||
+        (action=="festival" && args.size()==3 && money(price) && args["game"].isString()) ||
         (action=="list" && args.size()==3) ||
         (action=="buy" && args.size()==5 && uuid(args["listing_id"]) && args.contains("revision"));
     if(!valid){done(422,error("invalid_offer"));return;}
@@ -80,6 +85,22 @@ void BackendAccount::marketCheckout(QString channel,const QJsonObject args,Reply
     if(action=="resolve") {
         if(marketPending_.isEmpty() || marketPending_["player_id"]!=player_){endMarket(404,error("no_pending_checkout"));return;}
         marketIntent_=marketPending_;marketView_={{"text",marketIntent_["summary"]},{"ready",true},{"retry",true}};emit changed();return;
+    }
+    if(action=="festival"){
+        bazaarRead("bazaar.festival",{{"game",args["game"]}},[this,args,generation](int status,QJsonObject offer){
+            if(generation!=marketGeneration_)return;
+            if(status!=200 || offer["payments_available"]!=true){endMarket(409,error("market_closed"));return;}
+            if(offer["price"]!=args["price"]){endMarket(409,error("offer_changed"));return;}
+            const auto round=offer["round"].toObject();
+            if(!round.isEmpty() && !round["complete"].toBool()){endMarket(409,error("ticket_already_open"));return;}
+            static const QHash<QString,QString> names={{"gallery","Toy Gallery · 5 shots"},{"rings","Wanage · 3 rings"},
+                {"golf_local","Pocket Golf · local pair"},{"golf_online","Pocket Golf · online entry"}};
+            marketIntent_=args;marketIntent_["player_id"]=player_;marketIntent_["subject"]=names.value(args["game"].toString());
+            marketIntent_["origin"]="Festival Park";
+            marketIntent_["summary"]=QString("%1 · %2 Sparks").arg(marketIntent_["subject"].toString()).arg(args["price"].toInt());
+            marketView_={{"text",marketIntent_["summary"]},{"ready",true}};emit changed();
+        });
+        return;
     }
     bazaarRead("bazaar.world",{},[this,args,action,generation](int status,QJsonObject world){
         if(generation!=marketGeneration_)return;
@@ -190,7 +211,9 @@ void BackendAccount::submitMarket() {
     const auto op=p["operation_id"];
     if(p["player_id"]!=player_ || !uuid(op) || !money(p["price"])){endMarket(422,error("invalid_pending_checkout"));return;}
     QString path;QJsonObject body{{"operation_id",op}};
-    if(p["action"]=="rent" && uuid(p["place_id"]) && uuid(p["bazaar_id"])){
+    if(p["action"]=="festival" && QStringList{"gallery","rings","golf_local","golf_online"}.contains(p["game"].toString())){
+        path="/v1/me/festival/"+p["game"].toString();body["expected_price"]=p["price"];
+    }else if(p["action"]=="rent" && uuid(p["place_id"]) && uuid(p["bazaar_id"])){
         path="/v1/bazaars/"+p["bazaar_id"].toString()+"/places/"+p["place_id"].toString()+"/staffed-rental";
         body["revision"]=p["revision"];body["expected_price"]=p["price"];body["species"]=p["species"];body["seller_price"]=p["seller_price"];
     }else if(p["action"]=="list" && uuid(p["rental_id"]) && uuid(p["item_id"])){

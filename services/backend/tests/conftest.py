@@ -76,7 +76,7 @@ def postgres():
 def db(postgres):
     admin_url, runtime_url = postgres
     with psycopg.connect(admin_url) as conn:
-        conn.execute('''TRUNCATE trainer_backend.principals, trainer_backend.operation_receipts,
+        conn.execute('''TRUNCATE trainer_backend.festival_rounds, trainer_backend.principals, trainer_backend.operation_receipts,
             trainer_backend.jobs,trainer_backend.event_index,trainer_backend.outbox,
             trainer_backend.consumer_receipts,trainer_backend.consumer_watermarks,
             trainer_backend.audit_events,trainer_backend.players,trainer_backend.external_identities,trainer_backend.public_profiles,

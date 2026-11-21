@@ -1,5 +1,13 @@
 # Bazaar — Online, экономика и границы интеграции
 
+## 21 November 2026 — Paid festival games
+
+Each Toy Gallery or Wanage round costs 10 Sparks. Five shots at the gallery
+can win one plush for the profile bag on the third distinct hit. Wanage gives
+three rings per ticket. The local Golf Cup takes one shared 10-Spark ticket,
+and online entry takes one per profile. Unused attempts survive leaving the
+venue. The separate handheld festival fixture uses test Sparks.
+
 ## 21 November 2026 — First Festival Cup
 
 The official island has a three-ring Wanage stall on the southern park promenade.
@@ -18,7 +26,7 @@ The tested Golf simulation uses the immutable
 [Open 7 ruleset](../services/backend/registry/pocket-golf-open7.json).
 Enabling ranked cups in an environment requires registering this ruleset there,
 as well as installing the festival host and compatible Golf on each client.
-There are no buy-ins or prizes in this first event.
+The original free entry was superseded by festival tickets.
 
 ## 20 November 2026 — Festival Park test trade
 
