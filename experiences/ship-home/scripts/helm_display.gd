@@ -217,6 +217,9 @@ func update_keys(aft:bool) -> void:
   nav=a.SECTORS[a.route];systems="IN TRANSIT"
  elif a.charge>0:
   nav=a.SECTORS[a.route];systems="CHARGING %d%%"%roundi(a.charge/3*100)
+ elif f.nearby_island()>=0:
+  var site:int=f.nearby_island()
+  nav="%s   %d m\n%s  LAND" % [f.NAMES[site],roundi(f.location.distance_to(f.BERTHS[site])),"A" if not Input.get_connected_joypads().is_empty() else "F"]
  elif a.route>=0:
   nav=a.SECTORS[a.route]+"\nSHIFT VECTOR"
  elif a.target==a.Regions.BERTH_CONTACT[f.destination] and a.range_to(a.target)<70:

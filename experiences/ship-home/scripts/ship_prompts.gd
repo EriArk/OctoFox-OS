@@ -54,11 +54,12 @@ func glyph(action:String) -> String:
   "vertical":return "↕"
   "horizontal":return "↔"
   "turn":return "RS"
+  "throttle":return "RT LT" if gamepad else "[ ]"
   "tab_pair":return "LB RB" if gamepad else "[ ]"
   "rotation":return "← →" if gamepad else "Q E"
  for event in InputMap.action_get_events(action):
   if gamepad and event is InputEventJoypadButton:
-   return str({JOY_BUTTON_A:"A",JOY_BUTTON_B:"B",JOY_BUTTON_X:"X",JOY_BUTTON_Y:"Y"}.get(event.button_index,""))
+   return str({JOY_BUTTON_A:"B",JOY_BUTTON_B:"A",JOY_BUTTON_X:"Y",JOY_BUTTON_Y:"X"}.get(event.button_index,""))
   if not gamepad and event is InputEventKey:
    return OS.get_keycode_string(event.physical_keycode if event.physical_keycode else event.keycode).replace("Escape","Esc")
  return ""

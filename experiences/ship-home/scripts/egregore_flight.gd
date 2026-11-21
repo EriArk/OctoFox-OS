@@ -17,6 +17,8 @@ var throttle:=0.0
 var stick:=Vector2.ZERO
 var turn_rate:=Vector3.ZERO
 var transition:=0.0
+var landing_duration:=1.5
+var approach_height:=0.0
 var from:=Transform3D.IDENTITY
 var obstacles_by_berth:Array[Array]=[]
 var obstacle_bounds:Array[AABB]=[]
@@ -262,8 +264,23 @@ func reset(site:int) -> void:
 
 func dock_basis(site:int) -> Basis:return Basis(Vector3.UP,PI if site==1 else 0.0)
 
+# Islands are open approaches. Resolve the pad under the ship even when the
+# navigation target is a vessel or a waypoint in a different direction.
+func nearby_island() -> int:
+ var closest:=-1
+ var best:=80.0*80.0
+ for i in BERTHS.size():
+  var contact:Dictionary=Regions.CONTACTS[Regions.BERTH_CONTACT[i]]
+  if contact.sector!=avionics.sector or contact.kind!="island":continue
+  var offset:=location-BERTHS[i]
+  var distance:=Vector2(offset.x,offset.z).length_squared()
+  if offset.y>=-2 and offset.y<=120 and distance<=best:
+   closest=i;best=distance
+ return closest
+
 func clearance() -> String:
  if avionics.transit>0 or avionics.charge>0:return "Shift drive active"
+ if nearby_island()>=0:return ""
  if avionics.cruise:return "Disengage cruise"
  if avionics.deployed:return "Stow hardpoints"
  if Regions.CONTACTS[Regions.BERTH_CONTACT[destination]].kind=="station" and avionics.permit!=Regions.BERTH_CONTACT[destination]:return "Request docking clearance"
@@ -278,28 +295,57 @@ func interact() -> void:
  if mode==Mode.BERTH:
   mode=Mode.DEPARTING;lab.staff_visible(false)
  elif mode==Mode.FLYING and clearance().is_empty():
+  var island:=nearby_island()
+  landing_duration=1.5
+  if island>=0:
+   avionics.select(Regions.BERTH_CONTACT[island])
+   destination=island
+   avionics.cruise=false;avionics.boost=0;avionics.deployed=false
+   var pad:=BERTHS[island]
+   var horizontal:=Vector2(location.x-pad.x,location.z-pad.z).length()
+   approach_height=maxf(location.y,pad.y+minf(horizontal,12.0))
+   # The caldera and ridge pads can have high ground between two clear endpoints.
+   for obstacle:AABB in obstacles_by_berth[island]:
+    var level:=obstacle.get_center().y
+    if obstacle.intersects_segment(Vector3(location.x,level,location.z),Vector3(pad.x,level,pad.z))!=null:
+     approach_height=maxf(approach_height,obstacle.end.y+2.0)
+   var steps:=maxi(1,ceili(horizontal/2.0))
+   for step in range(steps+1):
+    var probe:=location.lerp(pad,float(step)/steps)
+    probe.y=approach_height-2.0
+    while hits_island(probe):
+     approach_height+=4.0;probe.y+=4.0
+   landing_duration=clampf((horizontal+2*approach_height-location.y-pad.y)/24.0,1.5,10)
   mode=Mode.LANDING
  else:return
  from=Transform3D(attitude,location);transition=0;throttle=0;velocity=Vector3.ZERO;turn_rate=Vector3.ZERO
 
-func tick(dt:float,axes:Vector2,yaw:float,power:float,strafe:Vector2,brake:bool) -> void:
+func tick(dt:float,axes:Vector2,roll:float,power:float,strafe:Vector2,brake:bool) -> void:
  avionics.advance(dt)
  if mode==Mode.BERTH:return
  if avionics.transit>0 or avionics.charge>0:
   sync_view();return
  if mode!=Mode.FLYING:
-  transition=minf(1,transition+dt/1.5)
+  transition=minf(1,transition+dt/(landing_duration if mode==Mode.LANDING else 1.5))
   var goal:Vector3=BERTHS[destination] if mode==Mode.LANDING else from.origin+Vector3.UP*6
   var blend:=smoothstep(0,1,transition)
   location=from.origin.lerp(goal,blend);stick=Vector2.ZERO
-  if mode==Mode.LANDING:attitude=from.basis.slerp(dock_basis(destination),blend)
+  if mode==Mode.LANDING:
+   attitude=from.basis.slerp(dock_basis(destination),blend)
+   if Regions.CONTACTS[Regions.BERTH_CONTACT[destination]].kind=="island":
+    # Rise clear of the shoreline, translate above the pad, then settle vertically.
+    var high_start:=Vector3(from.origin.x,approach_height,from.origin.z)
+    var high_end:=Vector3(goal.x,approach_height,goal.z)
+    if transition<0.2:location=from.origin.lerp(high_start,smoothstep(0,0.2,transition))
+    elif transition<0.68:location=high_start.lerp(high_end,smoothstep(0.2,0.68,transition))
+    else:location=high_end.lerp(goal,smoothstep(0.68,1,transition))
   if transition>=1:
    if mode==Mode.LANDING:reset(destination)
    else:mode=Mode.FLYING
  else:
   stick=stick.move_toward(axes.limit_length(),dt*5)
   throttle=0 if brake else clampf(throttle+power*dt*0.8,-0.32,1)
-  var rates:=Vector3(stick.y*0.82,-yaw*0.85,-stick.x*1.4)
+  var rates:=Vector3(stick.y*0.82,-stick.x*0.85,-roll*1.4)
   turn_rate=turn_rate.move_toward(rates,dt*3.5)
   attitude=(attitude*Basis(Quaternion.from_euler(turn_rate*dt))).orthonormalized()
   var speed:=22.0

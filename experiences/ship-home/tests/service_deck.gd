@@ -35,10 +35,10 @@ func run() -> void:
   var near:Vector3=deck.targets[station]+rack.basis.z*0.54
   w.position=Vector3(near.x,home.Art.LOWER_Y+0.07,near.z)
   check(home._station()==station,"Reach "+station)
-  press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B)
   check(home.computer.visible and home.computer.page==(1 if station=="cargo" else 2),"Open "+station)
   if station!="cargo":check(home.computer.items[home.computer.index].id==station,"Correct socket selected")
-  press(JOY_BUTTON_B)
+  press(JOY_BUTTON_A)
  for sku in deck.SAMPLES:
   if sku!="livewell":logbook.record_harvest(home.rows,sku,100)
  var fish=home.Catch.specimen(1,0.5);fish.place="bag";logbook.fish=[fish];logbook.save(home.rows)

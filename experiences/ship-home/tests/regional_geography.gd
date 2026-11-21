@@ -29,7 +29,7 @@ func run() -> void:
   await walk_to(room.to_global(Vector3(0,0,23.65)))
   check(home._station()=="route_desk","Reach route console from boarding lift")
   var contact:int=room.ROUTES[port_id]
-  press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B)
   check(f.avionics.target==contact and f.destination==f.Regions.CONTACTS[contact].site,"Console programs helm")
   home.message_time=0;home.status.hide()
   await room_shot("chart-loft" if port_id==7 else "assay-room",room,Vector3(-2.4,1.85,21.30),Vector3(0.1,1.35,24.9))
@@ -46,7 +46,7 @@ func run() -> void:
   await walk_to(Vector3(home.studio.EXIT_CENTER.x,f.GROUND_Y,8.5))
   await walk_to(activity.global_position+Vector3.FORWARD*1.23)
   check(home._station()==("garden" if port_id==7 else "mine"),"Reach local plant or ore")
-  press(JOY_BUTTON_A);check(activity.active,"Open field activity");press(JOY_BUTTON_B)
+  press(JOY_BUTTON_B);check(activity.active,"Open field activity");press(JOY_BUTTON_A)
   await walk_to(Vector3(home.studio.EXIT_CENTER.x,f.GROUND_Y,8.5))
   await board()
   fly(port_id)

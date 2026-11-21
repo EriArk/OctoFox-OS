@@ -42,7 +42,7 @@ func run() -> void:
   Input.action_release(move);Input.action_release("walk_run");await frames(16)
   check(home._station()=="fish" and w.is_on_floor(),"Walk from landing pad to "+str(site)+" pier. At "+str(w.position)+" target "+str(pier))
   if home._station()!="fish":break
-  press(JOY_BUTTON_A);check(game.phase==game.Phase.READY and game.equipment.definition==game.Rod,"Equip the SDK rod")
+  press(JOY_BUTTON_B);check(game.phase==game.Phase.READY and game.equipment.definition==game.Rod,"Equip the SDK rod")
   trigger(JOY_AXIS_TRIGGER_RIGHT,1);game.tick(0.72 if site==3 else 0.14);trigger(JOY_AXIS_TRIGGER_RIGHT,0)
   check(game.phase==game.Phase.CAST,"Release trigger to cast")
   for i in 350:
@@ -65,8 +65,8 @@ func run() -> void:
   if game.phase!=game.Phase.LANDED:break
   check(game.specimen.species==("ribbon" if site==3 else "glassfin"),"Species varies by water and cast")
   if site==3:await shot("catch")
-  press(JOY_BUTTON_A);check(home.store.fish.size()==(2 if site==3 else 1),"Keep once")
-  press(JOY_BUTTON_B)
+  press(JOY_BUTTON_B);check(home.store.fish.size()==(2 if site==3 else 1),"Keep once")
+  press(JOY_BUTTON_A)
   check(not w.stationary and not game.pole.visible,"Stow rod and restore walking")
  home._load_profile("angler")
  check(home.store.fish.size()==2,"Reload livewell")
@@ -75,11 +75,11 @@ func run() -> void:
   var toward:Vector3=home.studio.aquarium.global_position-w.position
   w.yaw=atan2(-toward.x,-toward.z);w.pitch=-0.08
   await frames(4);check(home._station()=="tank","Aquarium station reaches front glass")
-  press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B)
   var first:String=home.store.fish[0].id
-  press(JOY_BUTTON_A);press(JOY_BUTTON_RIGHT_SHOULDER);press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B);press(JOY_BUTTON_RIGHT_SHOULDER);press(JOY_BUTTON_B)
   check(home.studio.fish.size()==2 and home.store.fish[0].id==first,"Same two specimens swim in the aquarium")
-  await frames(12);await shot("aquarium");press(JOY_BUTTON_B)
+  await frames(12);await shot("aquarium");press(JOY_BUTTON_A)
   home._load_profile("other");check(home.studio.fish.is_empty(),"Other profile has its own tank")
   home._load_profile("angler")
   check(home.studio.fish.size()==2 and home.store.fish[0].id==first,"Tank persists across profile change")
@@ -114,11 +114,11 @@ func run() -> void:
   check(home.move_fish(first,"tank")!="" and home.store.fish[0].place=="bag","Failed save rolls back")
   home.store.writable=true
   game.open_tank()
-  press(JOY_BUTTON_X);press(JOY_BUTTON_B)
+  press(JOY_BUTTON_Y);press(JOY_BUTTON_A)
   check(home.store.fish.size()==1 and game.phase==game.Phase.AQUARIUM,"Cancel a release")
-  press(JOY_BUTTON_X);press(JOY_BUTTON_A)
+  press(JOY_BUTTON_Y);press(JOY_BUTTON_B)
   check(home.store.fish.is_empty(),"Confirmed release removes just the selected specimen")
-  press(JOY_BUTTON_B)
+  press(JOY_BUTTON_A)
  var model=Catch.new();model.rng.seed=14
  var fish=Catch.specimen(1,15)
  check(fish.species=="loach","Bottom fish on longer orchard cast")

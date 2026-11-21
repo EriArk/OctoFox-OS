@@ -33,12 +33,12 @@ func run() -> void:
  data["prints"]={}
  var receive=func(payload):
   client._packet({"id":str(client.serial),"result":payload})
- home.walker.position=Vector3(-2.55,0.1,2.45);press(JOY_BUTTON_A)
+ home.walker.position=Vector3(-2.55,0.1,2.45);press(JOY_BUTTON_B)
  receive.call(data);receive.call({"items":[item],"next":null})
  check(fab.amounts[0].text=="6 / 6" and not fab.print_button.disabled,"Actual stock enables print")
- press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B)
  check(["interact",fab.print_button.text] in fab.action_hints(),"Selected printable part offers the print command")
- press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B)
  check(client.last_action=="print" and client.busy,"Controller prints once")
  for lot in data.stock:
   if lot.kind=="material":lot.units=0
@@ -49,18 +49,18 @@ func run() -> void:
  if not print_capture.is_empty() and DisplayServer.get_name()!="headless":
   await process_frame;await RenderingServer.frame_post_draw
   check(root.get_texture().get_image().save_png(print_capture)==OK,"Write running print capture")
- press(JOY_BUTTON_B);press(JOY_BUTTON_A)
+ press(JOY_BUTTON_A);press(JOY_BUTTON_B)
  data.prints["traveller.top"].remaining_seconds=0
  receive.call(data);receive.call({"items":[],"next":null})
  check(fab.print_button.text=="Collect part","Completed print survives reopening")
- press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B)
  check(["interact","Collect part"] in fab.action_hints(),"Ready job offers collection")
- press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B)
  check(client.last_action=="collect","Controller collects the finished part")
  data.prints={}
  receive.call({"item_id":item.id});receive.call(data);receive.call({"items":[item],"next":null})
- press(JOY_BUTTON_B);home.walker.position=ShipInterior.BOOTH+Vector3(-0.65,0.08,-0.65)
- press(JOY_BUTTON_A);press(JOY_BUTTON_Y)
+ press(JOY_BUTTON_A);home.walker.position=ShipInterior.BOOTH+Vector3(-0.65,0.08,-0.65)
+ press(JOY_BUTTON_B);press(JOY_BUTTON_X)
  receive.call(data);receive.call({"items":[item],"next":null})
  check(home.dye.visible,"Y opens the colour studio")
  for i in 65:await physics_frame
@@ -77,13 +77,13 @@ func run() -> void:
  check(home.dye.color_index==6 and home.dye.cursor==2,"Down reaches the second palette row")
  press(JOY_BUTTON_DPAD_UP)
  check(home.dye.color_index==2,"Up returns to the same swatch column")
- press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B)
  check(["interact",home.dye.buttons[3].text] in home.dye.action_hints(),"Locked swatch offers cartridge activation")
- press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B)
  check(client.last_action=="activate","Locked colour consumes a cartridge only on confirmation")
  receive.call({});data.palette.append("rose-gold");receive.call(data);receive.call({"items":[item],"next":null})
  check(["interact","Apply finish"] in home.dye.action_hints(),"Owned colour offers application")
- press(JOY_BUTTON_A);check(client.last_action=="paint","Unlocked colour applies separately")
+ press(JOY_BUTTON_B);check(client.last_action=="paint","Unlocked colour applies separately")
  receive.call({});receive.call(data);receive.call({"items":[item],"next":null})
  press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_DPAD_RIGHT)
  var pearl:=false
@@ -94,7 +94,7 @@ func run() -> void:
  if not capture.is_empty() and DisplayServer.get_name()!="headless":
   await process_frame;await RenderingServer.frame_post_draw
   check(root.get_texture().get_image().save_png(capture)==OK,"Write colour studio capture")
- press(JOY_BUTTON_B);check(not home.dye.visible and home.fitting.active,"B returns to fitting booth")
+ press(JOY_BUTTON_A);check(not home.dye.visible and home.fitting.active,"B returns to fitting booth")
  var booth=home.fitting
  check(booth.requested==0,"Back restores the outfit card that opened colours")
  # The shell resolves saved recipes asynchronously. Browsing never sends a wear request.
@@ -116,7 +116,7 @@ func run() -> void:
   if not shot.is_empty() and DisplayServer.get_name()!="headless":
    await process_frame;await RenderingServer.frame_post_draw
    check(root.get_texture().get_image().save_png(shot)==OK,"Write look cards capture")
-  press(JOY_BUTTON_X)
+  press(JOY_BUTTON_Y)
   check(home.parts.visible and client.pending[str(client.serial)].method=="ship.parts","X opens pieces of this saved outfit")
   var shirt_options=[{"id":"tank","name":"Sports tank","recipe":{"schema":1}},{"id":"everyday-tee","name":"Everyday T-shirt","recipe":{"schema":1}}]
   receive.call({"items":shirt_options});receive.call({"avatar":booth.live_descriptor})
@@ -125,20 +125,20 @@ func run() -> void:
   check(home.parts.displayed==home.parts.wanted and not home.parts.apply.disabled,"Browse a piece before committing")
   press(JOY_BUTTON_DPAD_LEFT)
   var discarded_request:int=client.serial
-  press(JOY_BUTTON_B)
+  press(JOY_BUTTON_A)
   check(not home.parts.visible and not client.wearing,"Back discards a piece preview")
   for i in 65:await physics_frame
   client._packet({"id":str(discarded_request),"result":{"avatar":booth.live_descriptor}})
   check(client.serial>discarded_request,"Late discarded piece resumes the saved outfit preview")
   receive.call({"avatar":booth.live_descriptor})
-  press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B)
   check(client.wearing and client.pending[str(client.serial)].method=="ship.wear","Explicit A equips the chosen saved look")
   receive.call({});receive.call({"items":[{"id":"outfit.slot.1","name":"Evening flight","worn":true,"recipe":{}}],"next":-1})
   check(booth.requested==0,"Newly worn look returns to equipped card")
  booth.select(0)
- press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_A)
+ press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_B)
  check(home.dye.visible and home.dye.garment().sku=="mage.top","Collection opens its own parts")
- press(JOY_BUTTON_B);check(booth.requested==2,"Colour studio preserves collection selection")
+ press(JOY_BUTTON_A);check(booth.requested==2,"Colour studio preserves collection selection")
  for style in Garment.STYLES:
   for slot in Garment.SLOTS:
    check(not Garment.channels(style,slot).is_empty(),"Selectable surfaces in "+style+" "+slot)

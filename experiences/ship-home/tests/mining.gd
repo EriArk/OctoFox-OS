@@ -24,7 +24,7 @@ func shot(label:String) -> void:
 func hit() -> void:
  for step in 650:
   if mine.cursor.position.distance_to(mine.target.position)<0.085:
-   press(JOY_BUTTON_A);return
+   press(JOY_BUTTON_B);return
   await physics_frame
  check(false,"Cutter reaches fracture "+str(mine.cut))
 
@@ -53,18 +53,18 @@ func run() -> void:
   Input.action_release("walk_forward");await frames(10)
   check(home._station()=="mine" and w.is_on_floor(),"Reach outcrop on foot: "+Mine.SHORES[index])
   if home._station()!="mine":break
-  press(JOY_BUTTON_A);press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B);press(JOY_BUTTON_B)
   check(mine.active and mine.cut==0 and mine.help.text.contains("Missed"),"Miss leaves ore intact")
-  await hit();press(JOY_BUTTON_B)
+  await hit();press(JOY_BUTTON_A)
   check(not mine.active and w.camera.current and home.store.ore.is_empty()==(index==0),"Leaving a fracture restores exploration")
-  press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B)
   await shot("seam" if index==0 else "magnetite")
   for i in 3:await hit()
   check(not mine.active and home.store.ore.has(Mine.ORES[index]),"Three pulses yield "+Mine.ORES[index])
-  press(JOY_BUTTON_A);check(not mine.active,"Vein cannot pay twice")
+  press(JOY_BUTTON_B);check(not mine.active,"Vein cannot pay twice")
  home._load_profile("other");check(home.store.ore.is_empty(),"Profile isolation")
  home._load_profile("miner");check(home.store.ore.size()==2,"Both ores survive reload")
- w.position=home.studio.REFINERY_POS+Vector3(0.30,0.1,0.89);press(JOY_BUTTON_A)
+ w.position=home.studio.REFINERY_POS+Vector3(0.30,0.1,0.89);press(JOY_BUTTON_B)
  var fab=home.fabricator
  check(fab.refining() and fab.note.text.contains("Ship 1") and fab.print_button.disabled,"Offline cargo in Cartridges")
  if home.store.ore.size()==2:
@@ -73,13 +73,13 @@ func run() -> void:
   var data={"revision":"0","player_id":player,"refining_hours":2,"prints":{},"colors":{},"stock":[]}
   var receive=func(result):client._packet({"id":str(client.serial),"result":result})
   client.supported=true;client.inventory=data;fab.refresh()
-  press(JOY_BUTTON_A);check(client.last_action=="store_sample","Deposit ore")
+  press(JOY_BUTTON_B);check(client.last_action=="store_sample","Deposit ore")
   receive.call({});check(not home.store.ore.bauxite.days.is_empty(),"Keep ore until confirmed")
-  press(JOY_BUTTON_A);receive.call({"player_id":player,"item_id":job})
+  press(JOY_BUTTON_B);receive.call({"player_id":player,"item_id":job})
   data.stock=[{"kind":"ore","sku":"bauxite","units":1}]
   receive.call(data);receive.call({"items":[],"next":null})
   check(home.store.ore.bauxite.days.is_empty() and fab.print_button.text=="Start refining","Confirmed movement to inventory")
-  press(JOY_BUTTON_A);check(client.last_action=="refine","Start refining")
+  press(JOY_BUTTON_B);check(client.last_action=="refine","Start refining")
   receive.call({"job_id":job});data.stock=[]
   data.prints={"material.Aluminium":{"id":job,"remaining_seconds":7200,"quantity":1}}
   receive.call(data);receive.call({"items":[],"next":null})
@@ -90,5 +90,5 @@ func run() -> void:
   client.stock["material/Empty"]=1;fab.refresh()
   check(not fab.print_button.disabled and fab.print_button.text=="Start extra batch","Additional batch offers shell recipe")
   data.prints["material.Aluminium"].remaining_seconds=0;fab.refresh()
-  press(JOY_BUTTON_A);check(client.last_action=="collect_material","Collect cartridge")
+  press(JOY_BUTTON_B);check(client.last_action=="collect_material","Collect cartridge")
  print("SHIP MINING: ","PASSED" if failures.is_empty() else failures);quit(0 if failures.is_empty() else 1)

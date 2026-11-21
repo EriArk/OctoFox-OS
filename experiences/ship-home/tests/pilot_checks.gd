@@ -49,11 +49,11 @@ func run() -> void:
  for i in 3:await physics_frame
  check(not home.walker.seated and home.walker.camera.current,"Back exits to third person")
  check(home.walker.can_stand(home.walker.position+Vector3(0,0.08,0)),"Exit has a clear collision volume")
- pad(JOY_BUTTON_A);await physics_frame
- check(home.walker.seated,"Controller A enters seat")
  pad(JOY_BUTTON_B);await physics_frame
- check(not home.walker.seated,"Controller B leaves seat")
+ check(home.walker.seated,"Controller A enters seat")
  pad(JOY_BUTTON_A);await physics_frame
+ check(not home.walker.seated,"Controller B leaves seat")
+ pad(JOY_BUTTON_B);await physics_frame
  var barriers=[]
  for pos in [Vector3(0,0.65,-2.3),Vector3(-1.5,0.65,-2.5),Vector3(1.5,0.65,-2.5)]:
   var blocker=home.art.box(home,pos,Vector3(1.0,1.3,1.1),ShipInterior.TRIM,true);barriers.append(blocker)

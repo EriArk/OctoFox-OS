@@ -167,7 +167,7 @@ func _load_error() -> void:
 func _input(event: InputEvent) -> void:
 	if phase=="idle":return
 	get_viewport().set_input_as_handled()
-	if event.is_action_pressed("ui_accept") or (event is InputEventJoypadButton and event.pressed and event.button_index==JOY_BUTTON_A):
+	if event.is_action_pressed("ui_accept"):
 		if phase=="error":get_tree().reload_current_scene()
 		elif phase=="arrival" and awaiting_guest:_reveal()
 

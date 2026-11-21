@@ -107,16 +107,18 @@ Walk up behind the seat and press **A / F** to board. Press it again to launch. 
 
 | In flight | Gamepad | Keyboard |
 | --- | --- | --- |
-| Pitch and roll | Left stick | W/S and A/D |
-| Yaw and lift | D-pad left/right and up/down | Q/E and R/C |
-| Lateral thrust | Left/right triggers | Z/X |
-| Decrease / increase throttle | LB / RB | [ / ] |
-| Brake to a stop | Hold X | Hold Tab |
+| Pitch and yaw | Left stick | W/S and A/D |
+| Roll | LB / RB | Q/E |
+| Lift / descend | D-pad up/down | R/C |
+| Lateral thrust | D-pad left/right | Z/X |
+| Forward thrust | RT (release to coast to a stop in local flight) | ] / [ to trim throttle |
+| Brake / reverse | LT to stop, release and pull again from rest to reverse | Tab / [ |
 | Select the contact nearest the nose | Tap Y | Tap Y |
 | Look at contacts / ship systems / chart / power | Hold Y + D-pad left / right / up / down | Hold Y + corresponding arrow |
 | Inspect the centre scope | Click right stick | V |
 | Select a console entry / return | A / B | F / Esc |
-| Land on the selected pad | A | F |
+| Land on a nearby island pad / dock at a cleared station | A (right) | F |
+| Leave the seat during flight, takeoff or landing | B (bottom) | Esc |
 
 The bridge instruments are mounted inside the cockpit. The left and right screens slide out of side cassettes on request. Tap NAV for contacts or SYS for power routing. The SYSTEMS tab remains on the same right-hand drawer. You can also use the four helm chords above. Tap Y or touch STOW to return directly to the forward view from any page. The brow carries speed, drive mode, selected destination and distance. During final approach it shows the outstanding landing condition. Fuel, shields, hull and power allocation are available in the systems drawer. The scope marks stations with diamonds, signals with dots, ships with rectangles and armed contacts with triangles. Stems show relative height and moving contacts carry a heading stroke. A selected vessel’s orbital track is also visible through the canopy.
 
@@ -128,7 +130,7 @@ Within a cluster, islands are separated by kilometres of cruise. Echo Orchard to
 
 Each region has two enclosed stations. At Wayfarer House, cross the airlock and the telescope hall to the plotting table. At Cinder Exchange, pass the freight racks to reach the assay bench. Press **A / F** at the desk to track Glass Atoll or Kiln Caldera in the cockpit. Both local runs take about 42 seconds at full cruise before braking.
 
-At Prism select the anchorage under Contacts and request pad 01 within 850 m. Leave cruise, level the ship within 8 m of the pad, slow below 2.5 m/s and press **A / F** to land. Echo Orchard accepts a direct approach. The ship console supplies fuel and repairs at all six stations. The latest safe berth, fuel, power allocation and enabled components belong to the active profile. A mid-flight exit restores the departure checkpoint.
+At Prism select the anchorage under Contacts and request pad 01 within 850 m. Leave cruise, level the ship within 8 m of the pad, slow below 2.5 m/s and press **A / F** to land. For an island, approach within 80 m horizontally and up to 120 m above the pad. Press A when LAND appears. The ship brakes, levels, lines up and descends. You can stand up during this manoeuvre. In open flight the unattended helm brakes to a hover. The ship console supplies fuel and repairs at all six stations. The latest safe berth, fuel, power allocation and enabled components belong to the active profile. A mid-flight exit restores the departure checkpoint.
 
 The bow glass carries a heading tape, banked pitch ladder and target bearing in flight. A circle with wings shows the actual velocity vector when it lies in the forward field. Near a selected landing site the glass shows vertical speed and signed height relative to the pad. The projection goes dark at the berth and while reading a side instrument.
 
@@ -203,7 +205,8 @@ Native Home/minimize/return acceptance with the handheld compositor is still pen
 | Rotate | D-pad left / right | Q / E |
 | Move a nearby piece | Y | Y |
 | Cancel / menu | B / Start | Esc / P |
-| Interact / sit / stand up | A; B also stands up | F; Esc also stands up |
+| Interact / sit | A (right) | F |
+| Leave the pilot seat | B (bottom) | Esc |
 | Undo / remove / exit | Pause menu | Pause menu; Z also undoes |
 
 Seven starter furniture types can be placed, moved, rotated and removed. A

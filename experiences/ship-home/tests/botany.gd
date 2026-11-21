@@ -44,24 +44,24 @@ func run() -> void:
   Input.action_release("walk_forward");await frames(10)
   check(home._station()=="garden" and w.is_on_floor(),"Walk from pad to "+Garden.SHORES[i]+" patch at "+str(dest))
   if home._station()!="garden":break
-  press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B)
   check(garden.active and garden.view.current,"Inspect the real flower heads")
   var closed:=0
   while closed in garden.ripe:closed+=1
-  select_flower(closed);press(JOY_BUTTON_A)
+  select_flower(closed);press(JOY_BUTTON_B)
   check(garden.picked.is_empty(),"Leave closed buds alone")
-  select_flower(garden.ripe[0]);press(JOY_BUTTON_A);press(JOY_BUTTON_B)
+  select_flower(garden.ripe[0]);press(JOY_BUTTON_B);press(JOY_BUTTON_A)
   check(not garden.active and not home.store.botany.has(Garden.PLANTS[i]),"Leaving a partial harvest does not spend the bloom")
-  press(JOY_BUTTON_A);select_flower(garden.ripe[0])
+  press(JOY_BUTTON_B);select_flower(garden.ripe[0])
   if i==0:await shot("flowers")
-  press(JOY_BUTTON_A);press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B);press(JOY_BUTTON_B)
   check(garden.picked.size()==1,"One head cannot fill both slots")
-  select_flower(garden.ripe[1]);press(JOY_BUTTON_A)
+  select_flower(garden.ripe[1]);press(JOY_BUTTON_B)
   check(not garden.active and w.visible and home.store.botany[Garden.PLANTS[i]].days.size()==1,"Save completed sample and restore camera")
-  press(JOY_BUTTON_A);check(not garden.active,"Cleared bed cannot be harvested twice")
+  press(JOY_BUTTON_B);check(not garden.active,"Cleared bed cannot be harvested twice")
  home._load_profile("other");check(home.store.botany.is_empty(),"Profile separation")
  home._load_profile("gardener");check(home.store.botany.size()==3,"All samples survive reload")
- w.position=home.studio.REFINERY_POS+Vector3(0.30,0.1,0.89);press(JOY_BUTTON_A)
+ w.position=home.studio.REFINERY_POS+Vector3(0.30,0.1,0.89);press(JOY_BUTTON_B)
  var fab=home.fabricator
  press(JOY_BUTTON_LEFT_SHOULDER)
  check(fab.processor and fab.page==1 and fab.print_button.disabled,"Offline fabricator displays samples and keeps them")
@@ -72,17 +72,17 @@ func run() -> void:
   var data={"revision":"0","player_id":player,"extraction_hours":1,"prints":{},"colors":{},"stock":[]}
   var receive=func(result):client._packet({"id":str(client.serial),"result":result})
   client.supported=true;client.inventory=data;fab.refresh()
-  press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B)
   check(client.pending[str(client.serial)].sample==["gardener","sunbell",today],"Submit original harvest identity")
   var request:int=client.serial
   client._packet({"id":str(request),"error":{"code":"backend_unavailable"}})
   receive.call(data);receive.call({"items":[],"next":null})
   check(home.store.botany.sunbell.days.size()==1,"Retain sample on error")
-  press(JOY_BUTTON_A);receive.call({"player_id":player,"item_id":job})
+  press(JOY_BUTTON_B);receive.call({"player_id":player,"item_id":job})
   data.stock=[{"kind":"botanical","sku":"sunbell","units":1}]
   receive.call(data);receive.call({"items":[],"next":null})
   check(home.store.botany.sunbell.days.is_empty() and fab.print_button.text=="Start extraction","Sample moved to inventory")
-  press(JOY_BUTTON_A);check(client.last_action=="extract","Owned sample enables extraction")
+  press(JOY_BUTTON_B);check(client.last_action=="extract","Owned sample enables extraction")
   receive.call({"player_id":player,"job_id":job});data.stock=[]
   data.prints={"pigment.saffron":{"id":job,"quantity":1,"remaining_seconds":3600}}
   receive.call(data);receive.call({"items":[],"next":null})
@@ -90,6 +90,6 @@ func run() -> void:
   await shot("fabricator")
   client.inventory.prints["pigment.saffron"].remaining_seconds=0;fab.refresh()
   check(fab.print_button.text=="Collect cartridge" and not fab.print_button.disabled,"Collect when ready")
-  press(JOY_BUTTON_A);check(client.last_action=="collect_pigment","Use the existing inventory collection command")
-  press(JOY_BUTTON_B)
+  press(JOY_BUTTON_B);check(client.last_action=="collect_pigment","Use the existing inventory collection command")
+  press(JOY_BUTTON_A)
  print("SHIP BOTANY: ","PASSED" if failures.is_empty() else failures);quit(0 if failures.is_empty() else 1)

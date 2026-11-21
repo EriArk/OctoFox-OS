@@ -73,7 +73,7 @@ func run() -> void:
  for site in 2:
   f.reset(site);home.message_time=0
   w.position=Vector3(ShipInterior.LIFT.x,0.09,ShipInterior.LIFT.y);w.yaw=0
-  await frames(8);press(JOY_BUTTON_A);await frames(120)
+  await frames(8);press(JOY_BUTTON_B);await frames(120)
   check(home._station()=="lift" and not home.outside,"Original lift still serves the service deck")
   if site==0 and not OS.get_environment("SHIP_CAPTURE_DIR").is_empty():
    w.yaw=-0.68;w.pitch=-0.24;await frames(12);await capture("two-lifts");w.yaw=0
@@ -87,7 +87,7 @@ func run() -> void:
   await walk_to(home.studio.EXIT_CENTER)
   check(home._station()=="dock_lift","Separate physical exit lift")
   if site==0:await capture("service-lift")
-  press(JOY_BUTTON_A);await frames(25)
+  press(JOY_BUTTON_B);await frames(25)
   press(JOY_BUTTON_START);var height:float=home.studio.exit_lift.position.y;await frames(8)
   check(home.riding and home.studio.exit_lift.position.y==height,"Pause during disembarkation")
   press(JOY_BUTTON_START);await frames(36)
@@ -105,16 +105,16 @@ func run() -> void:
   await frames(20);await capture("station" if site==0 else "orchard")
   w.yaw=0;w.pitch=-0.18
   await walk_to(home.studio.EXIT_CENTER)
-  press(JOY_BUTTON_A);await frames(59)
+  press(JOY_BUTTON_B);await frames(59)
   check(home.riding and not home.viewing_exterior and sees(w.camera,hull,false) and sees(w.camera,cabin,true),"Cabin restores during ascent")
   await frames(61)
   check(not home.outside and home._station()=="dock_lift" and absf(w.position.y-ShipInterior.LOWER_Y)<0.12,"Reboard service room")
-  await walk_to(ShipInterior.LIFT);press(JOY_BUTTON_A);await frames(120)
+  await walk_to(ShipInterior.LIFT);press(JOY_BUTTON_B);await frames(120)
   check(absf(w.position.y)<0.12 and home._station()=="lift","Return to cabin")
  w.position=home.studio.exit_lift.position+Vector3.UP*0.05
  for mode in [f.Mode.FLYING,f.Mode.DEPARTING,f.Mode.LANDING]:
-  f.mode=mode;press(JOY_BUTTON_A);check(not home.riding and home._station()=="","Exterior interlock")
- f.reset(0);press(JOY_BUTTON_A);await frames(60);home._load_profile("other");await frames(8)
+  f.mode=mode;press(JOY_BUTTON_B);check(not home.riding and home._station()=="","Exterior interlock")
+ f.reset(0);press(JOY_BUTTON_B);await frames(60);home._load_profile("other");await frames(8)
  check(not home.riding and not home.outside and not w.stationary and absf(w.position.y)<0.15,"Profile switch interrupts ride and restores cabin")
  cabin=home.cabin.find_children("*","MeshInstance3D",true,false)
  check(not home.viewing_exterior and not home.lift_shutter.visible and sees(w.camera,cabin,true),"Profile change clears the transition")

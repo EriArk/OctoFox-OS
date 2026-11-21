@@ -64,12 +64,12 @@ func walk_to(point:Vector3) -> void:
 func exit_lifts() -> void:
  var w=home.walker
  w.position=Vector3(home.Art.LIFT.x,0.09,home.Art.LIFT.y);await frames(4)
- press(JOY_BUTTON_A);await frames(120)
- await walk_to(home.studio.exit_lift.position);press(JOY_BUTTON_A);await frames(120)
+ press(JOY_BUTTON_B);await frames(120)
+ await walk_to(home.studio.exit_lift.position);press(JOY_BUTTON_B);await frames(120)
  check(home.outside,"Leave through boarding hatch")
 func board() -> void:
- await walk_to(home.studio.exit_lift.position);press(JOY_BUTTON_A);await frames(120)
- await walk_to(home.studio.lift.position);press(JOY_BUTTON_A);await frames(120)
+ await walk_to(home.studio.exit_lift.position);press(JOY_BUTTON_B);await frames(120)
+ await walk_to(home.studio.lift.position);press(JOY_BUTTON_B);await frames(120)
  check(not home.outside and absf(home.walker.position.y)<0.12,"Board and return upstairs")
 
 func watch_doors() -> void:
@@ -114,9 +114,9 @@ func run() -> void:
   cam.position=Vector3(-16.0,4.6,3.7);cam.look_at(Vector3(0,-3.8,16.6));cam.fov=55;cam.make_current()
   home.prompts.hide()
   await shot("biostation");home.prompts.show();cam.free();w.camera.make_current()
- press(JOY_BUTTON_A);check(s.visible and not w.walking,"Read biologist's invitation")
+ press(JOY_BUTTON_B);check(s.visible and not w.walking,"Read biologist's invitation")
  await shot("biologist")
- press(JOY_BUTTON_A);press(JOY_BUTTON_B);check(stock.survey_started and f.avionics.target==1,"Accept and plot orchard")
+ press(JOY_BUTTON_B);press(JOY_BUTTON_A);check(stock.survey_started and f.avionics.target==1,"Accept and plot orchard")
  var rooms:Node3D=f.station_rooms[f.lab.SITE]
  await walk_to(rooms.to_global(Vector3(-2.45,0,15.35)))
  await walk_to(rooms.to_global(Vector3(-2.45,0,18.85)))
@@ -125,9 +125,9 @@ func run() -> void:
  check(home._station()=="microscope","Reach sample lab through interior partition")
  await room_shot("sample-lab",rooms,Vector3(2.70,1.76,21.41),Vector3(-0.53,1.55,24.96))
  await room_shot("research-hall",rooms,Vector3(-2.12,2.08,13.34),Vector3(1.24,1.41,17.3))
- press(JOY_BUTTON_A);check(s.visible and s.slide==0 and s.lens.visible,"Read glassfin reference slide")
- press(JOY_BUTTON_A);check(s.slide==1 and s.body.text.contains("Copper loach"),"Change microscope slide")
- await shot("microscopy");press(JOY_BUTTON_B)
+ press(JOY_BUTTON_B);check(s.visible and s.slide==0 and s.lens.visible,"Read glassfin reference slide")
+ press(JOY_BUTTON_B);check(s.slide==1 and s.body.text.contains("Copper loach"),"Change microscope slide")
+ await shot("microscopy");press(JOY_BUTTON_A)
  check(not s.lens.visible and w.walking and stock.observations.is_empty(),"Studying a reference preserves survey progress")
  await walk_to(rooms.to_global(Vector3(0,0,20.76)))
  await walk_to(rooms.to_global(Vector3(-2.45,0,18.80)))
@@ -138,7 +138,7 @@ func run() -> void:
  await exit_lifts()
  await walk_to(f.to_global(f.fishing_spots[1]))
  var game=home.fishing
- press(JOY_BUTTON_A);trigger(JOY_AXIS_TRIGGER_RIGHT,1);game.tick(0.14);trigger(JOY_AXIS_TRIGGER_RIGHT,0)
+ press(JOY_BUTTON_B);trigger(JOY_AXIS_TRIGGER_RIGHT,1);game.tick(0.14);trigger(JOY_AXIS_TRIGGER_RIGHT,0)
  for i in 400:
   if game.phase==game.Phase.BITE:break
   game.tick(1.0/60)
@@ -148,15 +148,15 @@ func run() -> void:
   Input.action_press("fish_reel",0.20 if game.fight.tension>0.82 else 0.86);game.tick(1.0/60)
  Input.action_release("fish_reel");check(game.phase==game.Phase.LANDED,"Land orchard fish")
  if not issues.is_empty():finish();return
- press(JOY_BUTTON_A);press(JOY_BUTTON_B)
+ press(JOY_BUTTON_B);press(JOY_BUTTON_A)
  var fish_id:String=stock.fish[0].id
  await board();fly(f.lab.SITE);await exit_lifts();await walk_to(meet)
- press(JOY_BUTTON_A);stock.writable=false;press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B);stock.writable=false;press(JOY_BUTTON_B)
  check(stock.observations.is_empty() and not home.studio.species_plates.glassfin.visible,"Failed save rolls back reward")
- stock.writable=true;press(JOY_BUTTON_A);press(JOY_BUTTON_B)
+ stock.writable=true;press(JOY_BUTTON_B);press(JOY_BUTTON_A)
  check(stock.observations.glassfin.id==fish_id and stock.fish[0].id==fish_id and home.studio.species_plates.glassfin.visible,"Record and plate without consuming specimen")
  check(s.candidate().is_empty(),"Duplicate species earns no second reward")
- await board();w.position=home.studio.aquarium.to_global(Vector3(0,0.04,1.2));press(JOY_BUTTON_A);press(JOY_BUTTON_A);press(JOY_BUTTON_B)
+ await board();w.position=home.studio.aquarium.to_global(Vector3(0,0.04,1.2));press(JOY_BUTTON_B);press(JOY_BUTTON_B);press(JOY_BUTTON_A)
  check(stock.fish[0].place=="tank","Display actual expedition catch")
  if out!="":
   var tank:Node3D=home.studio.aquarium;var camera:=Camera3D.new();home.add_child(camera)
@@ -164,9 +164,9 @@ func run() -> void:
   camera.position=tank.to_global(Vector3(-0.22,1.04,2.45));camera.look_at(tank.to_global(Vector3(0,0.98,0.0)))
   camera.make_current();w.hide();home.prompts.hide();await shot("species-plate")
   home.prompts.show();w.show();camera.free();w.camera.make_current()
- w.position=home.studio.COMPUTER_POS+Vector3(0.33,0.10,0.69);press(JOY_BUTTON_A);press(JOY_BUTTON_DPAD_DOWN);press(JOY_BUTTON_DPAD_DOWN)
+ w.position=home.studio.COMPUTER_POS+Vector3(0.33,0.10,0.69);press(JOY_BUTTON_B);press(JOY_BUTTON_DPAD_DOWN);press(JOY_BUTTON_DPAD_DOWN)
  check(home.computer.title.text=="Glassfin","Field atlas on ship PC")
- await shot("field-atlas");press(JOY_BUTTON_B)
+ await shot("field-atlas");press(JOY_BUTTON_A)
  home._load_profile("other");check(stock.observations.is_empty() and not stock.survey_started and not home.studio.species_plates.glassfin.visible,"Separate profiles")
  home._load_profile("angler");check(stock.observations.glassfin.id==fish_id and stock.fish[0].place=="tank" and home.studio.species_plates.glassfin.visible,"Offline journal, fish and award persist")
  # Returning with another species from the same pier earns its own unique plate.
@@ -174,7 +174,7 @@ func run() -> void:
  check(home.keep_fish(loach)=="" and s.candidate().id==loach.id,"Second species is eligible")
  check(home.move_fish(loach.id,"tank")=="" and s.candidate().id==loach.id,"Aquarium specimen can be documented")
  fly(f.lab.SITE);await exit_lifts();await walk_to(meet)
- press(JOY_BUTTON_A);press(JOY_BUTTON_A);press(JOY_BUTTON_B)
+ press(JOY_BUTTON_B);press(JOY_BUTTON_B);press(JOY_BUTTON_A)
  check(stock.observations.size()==2 and home.studio.species_plates.loach.visible and s.brief().contains("complete"),"Complete two-species survey")
  # The other ports use the same collar and have reachable, enclosed aft rooms.
  for site in [0,2,4]:

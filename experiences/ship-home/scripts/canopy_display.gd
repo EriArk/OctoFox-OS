@@ -11,6 +11,7 @@ var screen:=SubViewport.new()
 var drawing:=Control.new()
 var flight
 var pilot
+var island_pad:=-1
 var approach:=false
 var age:=0.0
 
@@ -46,7 +47,8 @@ func update_projection(dt:float,active:bool) -> void:
   approach=false
   return
  var systems=flight.avionics
- approach=systems.route<0 and systems.target==systems.Regions.BERTH_CONTACT[flight.destination] and systems.range_to(systems.target)<70
+ island_pad=flight.nearby_island() if systems.charge==0 and systems.transit==0 else -1
+ approach=island_pad>=0 or (systems.route<0 and systems.target==systems.Regions.BERTH_CONTACT[flight.destination] and systems.range_to(systems.target)<70)
  age+=dt
  if just_enabled or age>=1.0/20.0:
   age=0
@@ -110,15 +112,15 @@ func paint() -> void:
    drawing.draw_arc(path,9,0,TAU,24,INK,2.4,true)
    for direction in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP]:
     stroke([path+direction*9,path+direction*18],INK,2)
- if systems.deployed:
+ if systems.deployed and island_pad<0:
   fire_sight(systems,eye,local_basis)
  else:
   navigation(systems,eye,local_basis)
  if systems.incoming>0 or systems.flare_time>0:
   var warning:String="INBOUND  %.1f s"%systems.incoming if systems.incoming>0 else "INTERCEPTED"
   text_at(Vector2(565,350),warning,Color("ff997e"),24)
- if approach and not systems.deployed:
-  var height:float=flight.location.y-flight.BERTHS[flight.destination].y
+ if approach and (not systems.deployed or island_pad>=0):
+  var height:float=flight.location.y-flight.BERTHS[island_pad if island_pad>=0 else flight.destination].y
   var instruction:String=flight.clearance()
   text_at(Vector2(105,354),"PAD ΔH  %+.1f m"%height,INK,24)
   text_at(Vector2(595,354),"V/S  %+.1f m/s"%flight.velocity.y,INK,24)
@@ -126,6 +128,7 @@ func paint() -> void:
 
 func navigation(systems,eye:Vector3,local_basis:Basis) -> void:
  var ray:Vector3=local_basis*(systems.jump_axis() if systems.route>=0 else systems.position_of(systems.target)-flight.location)
+ if island_pad>=0:ray=local_basis*(flight.BERTHS[island_pad]-flight.location)
  var aim:=glass_point(eye,ray)
  var target_on_glass:bool=ray.z<0 and FIELD.grow(-15).has_point(aim)
  if target_on_glass:

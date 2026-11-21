@@ -17,14 +17,14 @@ func run() -> void:
  if not desc.is_empty():
   check(home.walker.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(desc))),"SDK avatar loads")
  home.walker.position=Vector3(-2.55,0.1,2.45)
- press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B)
  var fab=home.fabricator
  check(home.studio.scan>0 and fab.visible and root.disable_3d and not home.walker.walking,"Station opens blueprint console")
  check(fab.heading.text=="Trail cloak" and fab.amounts[0].text=="— / 6","Inspect part without inventing a balance")
  for set_index in 3:
   if set_index>0:press(JOY_BUTTON_DPAD_DOWN)
   check(fab.blueprint==set_index,"Select a set with D-pad")
-  press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B)
   for i in 4:
    if i>0:press(JOY_BUTTON_DPAD_RIGHT)
    check(fab.part==i and fab.heading.text==fab.Garment.NAMES[fab.Garment.STYLES[set_index]][i],"Inspect all four part recipes")
@@ -47,14 +47,14 @@ func run() -> void:
   click.button_index=MOUSE_BUTTON_LEFT;click.pressed=down
   root.push_input(click,true)
  check(fab.part==2,"Pointer selects a single piece")
- press(JOY_BUTTON_B);check(not fab.visible and not root.disable_3d and home.walker.walking and not home.paused,"Back restores ship input")
- press(JOY_BUTTON_A);press(JOY_BUTTON_START)
+ press(JOY_BUTTON_A);check(not fab.visible and not root.disable_3d and home.walker.walking and not home.paused,"Back restores ship input")
+ press(JOY_BUTTON_B);press(JOY_BUTTON_START)
  check(home.paused and not fab.visible and not home.walker.walking,"Pause takes precedence over the fabricator")
  home._pause(false)
  home.walker.position=ShipInterior.BOOTH+Vector3(-0.65,0.08,-0.65)
  var approach:Vector3=home.walker.position
  var original_meshes=home.walker.visual.find_children("*","MeshInstance3D",true,false).filter(func(m):return m.visible)
- press(JOY_BUTTON_A);check(home.fitting.active and home.fitting.camera.current,"Enter fitting camera")
+ press(JOY_BUTTON_B);check(home.fitting.active and home.fitting.camera.current,"Enter fitting camera")
  for style in [1,2,3]:
   press(JOY_BUTTON_RIGHT_SHOULDER)
   var saw_closed:=false
@@ -63,13 +63,13 @@ func run() -> void:
    if home.fitting.closure>0.99:saw_closed=true
    if home.fitting.current==style:check(saw_closed,"Screen closes before garment changes")
   check(home.fitting.current==style and home.fitting.closure==0 and is_instance_valid(home.fitting.garment),"Full costume revealed")
- press(JOY_BUTTON_B)
+ press(JOY_BUTTON_A)
  for i in 100:await physics_frame
  check(not home.fitting.active and home.walker.camera.current,"Restore exploration camera")
  check(home.walker.position.distance_to(approach)<0.14,"Return to booth entrance")
  for part in original_meshes:check(part.visible,"Original clothing restored")
  # Rapid selection and an appearance change must not strand the curtain or the camera.
- press(JOY_BUTTON_A);press(JOY_BUTTON_RIGHT_SHOULDER)
+ press(JOY_BUTTON_B);press(JOY_BUTTON_RIGHT_SHOULDER)
  for i in 29:await physics_frame
  press(JOY_BUTTON_RIGHT_SHOULDER)
  for i in 110:await physics_frame
@@ -79,7 +79,7 @@ func run() -> void:
  var center:=ShipInterior.LIFT
  home.walker.position=Vector3(center.x,0.08,center.y)
  for i in 5:await physics_frame
- press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B)
  for i in 24:await physics_frame
  var midway:float=home.walker.position.y
  press(JOY_BUTTON_START)
@@ -98,7 +98,7 @@ func run() -> void:
  for i in 35:await physics_frame
  Input.action_release("walk_back")
  check(home._station()=="lift","Return to lower lift on foot")
- press(JOY_BUTTON_A)
+ press(JOY_BUTTON_B)
  for i in 125:await physics_frame
  check(absf(home.walker.position.y)<0.1 and not home.riding and not home.walker.stationary,"Return to studio")
  print("STUDIO ", "PASS" if failures.is_empty() else failures)
