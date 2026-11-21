@@ -36,9 +36,9 @@ func _ready() -> void:
  pivot=Node3D.new();pivot.position.y=1.25;add_child(pivot)
  arm=SpringArm3D.new();arm.spring_length=2.1;arm.margin=0.2;arm.collision_mask=3
  var probe=SphereShape3D.new();probe.radius=0.14;arm.shape=probe;arm.add_excluded_object(get_rid());pivot.add_child(arm)
- camera=Camera3D.new();camera.fov=68;camera.near=0.06;camera.far=600;arm.add_child(camera);camera.current=true
+ camera=Camera3D.new();camera.fov=68;camera.near=0.06;camera.far=2400;arm.add_child(camera);camera.current=true
  pilot_pivot=Node3D.new();pilot_pivot.position=PILOT_EYE;add_child(pilot_pivot)
- pilot_camera=Camera3D.new();pilot_camera.fov=78;pilot_camera.near=0.20;pilot_camera.far=600;pilot_pivot.add_child(pilot_camera)
+ pilot_camera=Camera3D.new();pilot_camera.fov=78;pilot_camera.near=0.20;pilot_camera.far=2400;pilot_pivot.add_child(pilot_camera)
  anonymous()
 
 func anonymous() -> void:

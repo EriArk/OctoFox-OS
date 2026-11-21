@@ -25,11 +25,23 @@ func run() -> void:
  check(f.air_zones.size()==4 and f.find_children("Waterfalls","MeshInstance3D",true,false).size()==4,"Running water on each open island")
  check(f.find_children("RisingSpray","MultiMeshInstance3D",true,false).size()==4,"Spray at all four rims")
  check(f.local_air==0.0 and home.art.field_stars.visible,"Station opens onto the Egregore")
- f.location=Vector3(0,0,-57);f.sync_view()
- check(f.local_air>0.0 and f.local_air<1.0,"Approach blends both skies before landing")
+ check(f.find_children("AtmosphereClouds*","MultiMeshInstance3D",true,false).size()==4,"Each open sea has spatial cloud banks")
  for zone in f.air_zones:
-  f.location=Vector3(zone.x,zone.y+6,zone.z);f.sync_view()
-  check(f.local_air==1.0 and not home.art.field_stars.visible,"Open island has a daylight sky")
+  var center:=Vector3(zone.x,zone.y,zone.z)
+  for heading in [Vector3.BACK,Vector3.UP*f.coast.CLOUD_HEIGHT]:
+   var ray:Vector3=heading*f.shell_radius(zone.w)
+   f.location=center+ray*1.03;f.sync_view()
+   check(f.local_air==0 and f.cloud_cover>0,"Outer cloud precedes daylight")
+   f.location=center+ray*0.93;f.sync_view()
+   check(f.cloud_cover>0.95 and f.local_air>0 and f.local_air<1,"Canopy is obscured during the sky change")
+   f.location=center+ray*0.72;f.sync_view()
+   check(f.local_air==1.0 and f.cloud_cover==0.0 and not home.art.field_stars.visible,"Clear air inside the bank")
+  var water_area:=0.0;var land_area:=0.0
+  for j in f.coast.SEGMENTS:
+   var a:float=TAU*j/f.coast.SEGMENTS;var seed_angle:float=f.air_zones.find(zone)*1.7
+   land_area+=pow(f.coast.headland(a,seed_angle),2)
+   water_area+=pow(f.coast.rim(a,seed_angle),2)-pow(f.coast.headland(a,seed_angle),2)
+  check(water_area>land_area*5.0,"Surrounding water dominates each island footprint")
  f.reset(0)
  if is_instance_valid(w.skeleton):
   var rig:Skeleton3D=w.skeleton
@@ -57,7 +69,8 @@ func run() -> void:
   # Fly toward the other berth using exactly the normal throttle and brake actions.
   Input.action_press("next_item");await frames(85);Input.action_release("next_item")
   check(home.exterior.drive_power>0.9,"Aft exhaust responds to forward throttle")
-  for i in 360:
+  var flight_frames:=ceili(f.BERTHS[0].distance_to(f.BERTHS[1])/22.0*60.0)+180
+  for i in flight_frames:
    if f.location.distance_to(f.BERTHS[f.destination])<18:break
    await physics_frame
   check(not f.clearance().is_empty(),"A fast approach cannot start docking")

@@ -8,7 +8,7 @@ void vertex() {
  seed=INSTANCE_CUSTOM.r;
  phase=fract(flow_time*(0.14+0.045*seed)+seed);
  // Instances carry a radial basis. Drift out from the cliff, then lift in the air.
- float spread=INSTANCE_CUSTOM.g*3.4;
+ float spread=INSTANCE_CUSTOM.g*11.0;
  vec3 drift=vec3(0.26*sin(phase*4.0+seed*29.0),phase*phase*1.85,phase*1.55)*spread;
  vec4 center=MODELVIEW_MATRIX*vec4(drift,1.0);
  center.xy += VERTEX.xy*spread*(0.65+1.25*phase);

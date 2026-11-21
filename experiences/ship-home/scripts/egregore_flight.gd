@@ -4,7 +4,7 @@ extends Node3D
 enum Mode { BERTH, DEPARTING, FLYING, LANDING }
 const GROUND_Y:=-5.35
 const WALK_LAYER:=8
-const BERTHS=[Vector3.ZERO,Vector3(0,0,-96)]
+const BERTHS=[Vector3.ZERO,Vector3(0,0,-600)]
 const NAMES=["Lantern Station","Echo Orchard"]
 var mode:=Mode.BERTH
 var berth:=0
@@ -20,6 +20,10 @@ var from:=Transform3D.IDENTITY
 var obstacles:Array[AABB]=[]
 var coast := preload("res://scripts/island_coast.gd").new()
 var air_zones: Array[Vector4] = []
+var cloud_materials: Array[ShaderMaterial] = []
+var cloud_densities: Array[float] = []
+var island_depths: Array[float] = []
+var cloud_cover := -1.0
 var local_air := -1.0
 var art:ShipInterior
 
@@ -49,24 +53,11 @@ func build(interior:ShipInterior) -> void:
     art.beam(site,p+Vector3.DOWN*3,surface,0.85,Color("56536b"))
     solid(site.position+p,Vector3(8,16,8))
   else:
-   island(site,Vector3(2,-3.902,-3),18,11,true)
-   var trees: Array[Transform3D] = []
-   for j in 5:
-    var angle:=PI+0.53*j
-    var p:=Vector3(cos(angle)*12,-3.9,sin(angle)*12-4)
-    var height:=5.0+j%3
-    trees.append(Transform3D(Basis(Vector3.UP,angle).scaled(Vector3.ONE*height),p))
-    var trunk:=StaticBody3D.new()
-    trunk.position=p+Vector3.UP*height*0.28
-    trunk.collision_layer=WALK_LAYER;trunk.collision_mask=0
-    var shape:=CollisionShape3D.new()
-    var cylinder:=CylinderShape3D.new();cylinder.radius=height*0.047;cylinder.height=height*0.56
-    shape.shape=cylinder;trunk.add_child(shape);site.add_child(trunk)
-    solid(site.position+p+Vector3.UP*4,Vector3(7,9,5))
-   coast.plant_batch(site,"tree_detailed",trees)
- # Disconnected strata mark the outskirts of the orchard.
- for p in [Vector3(38,-4,-114),Vector3(-47,15,-149),Vector3(53,25,-186)]:
-  island(self,p,8.5,7.5)
+   island(site,Vector3(30,-3.902,-48),94.0,64.0,true)
+ # Each sea has space for its own basin and atmosphere.
+ island(self,Vector3(-485,68,-988),48.0,52.0)
+ island(self,Vector3(548,90,-887),57.0,62.0)
+ island(self,Vector3(115,122,-1277),65.0,74.0)
  art.batch_static(self)
  reset(0)
 
@@ -81,25 +72,95 @@ func walk_surface(mesh:MeshInstance3D) -> void:
 
 func island(parent:Node3D,center:Vector3,radius:float,depth:float,walkable:=false) -> void:
  var sector_center := center if parent==self else parent.position+center
- var crown := coast.build(parent,center,radius,depth,float(air_zones.size())*1.7)
- coast.plant_shore(crown,radius,float(air_zones.size())*1.7)
+ var seed_angle := float(air_zones.size())*1.7
+ var crown := coast.build(parent,center,radius,depth,seed_angle)
+ coast.plant_shore(crown,radius,seed_angle)
+ plant_groves(parent,center,radius,seed_angle,walkable)
  air_zones.append(Vector4(sector_center.x,sector_center.y,sector_center.z,radius))
+ island_depths.append(depth)
+ cloud_densities.append(-1.0)
+ cloud_materials.append(coast.cloud_boundary(parent,center,shell_radius(radius),seed_angle))
  if walkable:walk_surface(crown)
- solid(sector_center-Vector3.UP*depth*0.5,Vector3(radius*1.6,depth,radius*1.4))
+
+func plant_groves(parent:Node3D,center:Vector3,radius:float,seed_angle:float,walkable:bool) -> void:
+ var trees: Array[Transform3D] = []
+ var rng:=RandomNumberGenerator.new();rng.seed=3412+roundi(seed_angle*100)
+ for i in (96 if walkable else 44):
+  var a:=float(i%10)*TAU/10+seed_angle+rng.randf_range(-0.23,0.23)
+  var fraction:=rng.randf_range(0.37,0.80)
+  var flat:=coast.polar(a,radius*coast.headland(a,seed_angle)*fraction)
+  if walkable and absf(flat.x-coast.PAD_FROM_CENTER.x)<13 and flat.y>coast.PAD_FROM_CENTER.y-14:continue
+  var ground:=coast.relief(flat,radius,seed_angle,fraction)
+  if ground<0.10 or ground>radius*0.22:continue
+  var p:=center+Vector3(flat.x,ground-0.10,flat.y)
+  var height:=rng.randf_range(3.1,6.8)
+  trees.append(Transform3D(Basis(Vector3.UP,a).scaled(Vector3.ONE*height),p))
+  var sector_p:=p if parent==self else p+parent.position
+  solid(sector_p+Vector3.UP*height*0.65,Vector3(height*0.64,height*1.3,height*0.64))
+  if walkable:
+   var trunk:=StaticBody3D.new()
+   trunk.position=p+Vector3.UP*height*0.28
+   trunk.collision_layer=WALK_LAYER;trunk.collision_mask=0
+   var shape:=CollisionShape3D.new();var cylinder:=CylinderShape3D.new()
+   cylinder.radius=height*0.047;cylinder.height=height*0.56
+   shape.shape=cylinder;trunk.add_child(shape);parent.add_child(trunk)
+ coast.plant_batch(parent,"tree_detailed",trees)
+
+func shell_radius(radius:float) -> float:
+ return radius*coast.SEA_RADIUS*1.31
 
 func update_air() -> void:
- var air := 0.0
- for zone in air_zones:
-  var distance := location.distance_to(Vector3(zone.x,zone.y,zone.z))
-  air=maxf(air,1.0-smoothstep(zone.w+8.0,zone.w*2.45+18.0,distance))
- if is_equal_approx(air,local_air):return
- local_air=air
- var sky_material := art.sky_environment.sky.sky_material as ShaderMaterial
+ var nearest := INF
+ for i in air_zones.size():
+  var zone:=air_zones[i]
+  var offset := location-Vector3(zone.x,zone.y,zone.z)
+  offset.y/=coast.CLOUD_HEIGHT
+  var distance:=offset.length()/shell_radius(zone.w)
+  nearest=minf(nearest,distance)
+  var visible_density:=smoothstep(0.74,0.93,distance)*lerpf(1.0,0.23,smoothstep(1.04,1.40,distance))
+  if not is_equal_approx(cloud_densities[i],visible_density):
+   cloud_densities[i]=visible_density
+   cloud_materials[i].set_shader_parameter("presence",visible_density)
+ # From either side: cross the physical banks, change sky in the thickest part,
+ # then clear the mist with daylight already established over the ocean.
+ var air := 1.0-smoothstep(0.89,0.966,nearest)
+ var cover := smoothstep(0.76,0.925,nearest)*(1.0-smoothstep(0.967,1.075,nearest))
+ if is_equal_approx(air,local_air) and is_equal_approx(cover,cloud_cover):return
+ local_air=air;cloud_cover=cover
+ var env:=art.sky_environment
+ var sky_material := env.sky.sky_material as ShaderMaterial
  sky_material.set_shader_parameter("local_air",air)
  var stars := art.field_stars.multimesh.mesh.material as StandardMaterial3D
- stars.albedo_color=Color(1,1,1,1.0-air)
- art.field_stars.visible=air<1.0
- art.sky_environment.ambient_light_energy=lerpf(0.40,0.88,air)
+ stars.albedo_color=Color(1,1,1,(1.0-air)*(1.0-cover))
+ art.field_stars.visible=stars.albedo_color.a>0.001
+ env.ambient_light_energy=lerpf(0.40,0.88,maxf(air,cover*0.63))
+ env.fog_enabled=cover>0.001
+ env.fog_mode=Environment.FOG_MODE_DEPTH
+ env.fog_depth_begin=9.0
+ env.fog_depth_end=lerpf(165.0,48.0,cover)
+ env.fog_light_color=Color("c0cfd0")
+ env.fog_light_energy=0.75
+ env.fog_density=cover*0.92
+ env.fog_sky_affect=cover
+
+func hits_island(pos:Vector3) -> bool:
+ for i in air_zones.size():
+  var zone:=air_zones[i]
+  var local:=pos-Vector3(zone.x,zone.y,zone.z)
+  if local.y > zone.w*0.70+4 or local.y < -island_depths[i]*1.1-4:continue
+  var flat:=Vector2(local.x,local.z)
+  var planar:=flat/Vector2(1,0.90)
+  var a:=planar.angle();var seed_angle:=i*1.7
+  var edge:=zone.w*coast.rim(a,seed_angle)
+  var r:=maxf(0,planar.length()-2.5)/edge
+  if r>1.0:continue
+  # Room for flying below the tapering shelf, including close to its spilling lip.
+  var underside:=coast.SEA_Y-island_depths[i]*pow(maxf(0,1-r*r),0.72)
+  if local.y<underside-3.1:continue
+  var fraction:=planar.length()/(zone.w*coast.headland(a,seed_angle))
+  var surface:=coast.relief(flat,zone.w,seed_angle,fraction) if fraction<1.0 else maxf(coast.SEA_Y,coast.seabed(flat,zone.w,seed_angle))
+  if local.y<surface+3.1:return true
+ return false
 
 func reset(site:int) -> void:
  berth=clampi(site,0,BERTHS.size()-1);destination=1-berth
@@ -144,6 +205,8 @@ func tick(dt:float,axes:Vector2,yaw:float,power:float,strafe:Vector2,brake:bool)
   var command:=Vector3(strafe.x*8,strafe.y*8,-throttle*22)
   velocity=velocity.move_toward(Vector3.ZERO if brake else attitude*command,dt*(15 if brake else 8))
   var next:=location+velocity*dt
+  if hits_island(next):
+   velocity=Vector3.ZERO;throttle=0;next=location
   for box in obstacles:
    if box.has_point(next) or box.intersects_segment(location,next)!=null:
     velocity=Vector3.ZERO;throttle=0;next=location;break

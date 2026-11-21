@@ -639,8 +639,8 @@ func build(parent:Node3D,space:Node3D) -> void:
  var rng=RandomNumberGenerator.new();rng.seed=14112026
  for i in field.instance_count:
   var y=rng.randf_range(-0.75,0.85);var angle=rng.randf_range(0,TAU);var radial=sqrt(1-y*y)
-  var point=Vector3(cos(angle)*radial,y,sin(angle)*radial)*260
-  field.set_instance_transform(i,Transform3D(Basis.IDENTITY.scaled(Vector3.ONE*rng.randf_range(0.6,2.4)),point))
+  var point=Vector3(cos(angle)*radial,y,sin(angle)*radial)*1900
+  field.set_instance_transform(i,Transform3D(Basis.IDENTITY.scaled(Vector3.ONE*(7.3*rng.randf_range(0.6,2.4))),point))
   field.set_instance_color(i,Color("d4dfff") if i%3 else Color("ffe6c5"))
  stars.multimesh=field;space.add_child(stars);field_stars=stars;sky_environment=env.environment
  env.environment.sky=sky;env.environment.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
