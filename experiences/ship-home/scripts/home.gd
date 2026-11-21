@@ -204,7 +204,7 @@ func _pause(value:bool) -> void:
  cards.visible=fitting.active and not value and not dye.visible
  helm_help.visible=value and walker.seated
  if helm_help.visible:
-  helm_help.text=("LS   Pitch / roll       RS   Look\nD-pad   Yaw / lift       Triggers   Strafe\nLB / RB   Throttle       X   Brake\nY + D-pad   Contacts / ship / chart / distributor     R3   Scope" if prompts.gamepad else "W S   Pitch       A D   Roll       Mouse   Look\nQ E   Yaw       R C   Lift       Z X   Strafe\n[ ]   Throttle       Tab   Brake\nY + arrow   Bridge instruments     V   Scope")
+  helm_help.text=("LS   Pitch / roll       RS   Look\nD-pad   Yaw / lift       Triggers   Strafe\nLB / RB   Throttle       X   Brake\nY + D-pad   Contacts / ship / chart / distributor     R3   Scope\nL3   Fire group     Y + L3   Mount     Y + A   Point defence" if prompts.gamepad else "W S   Pitch       A D   Roll       Mouse   Look\nQ E   Yaw       R C   Lift       Z X   Strafe\n[ ]   Throttle       Tab   Brake\nY + arrow   Bridge instruments     V   Scope\nG   Fire group     Y + G   Mount     Y + F   Point defence")
  exterior.set_process(not value)
  paused=value;walker.walking=not value;menu.visible=value
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value or fitting.active else Input.MOUSE_MODE_CAPTURED
@@ -239,7 +239,7 @@ func _unhandled_input(event:InputEvent) -> void:
   get_viewport().set_input_as_handled();return
  if walker.seated:
   if event.is_action_pressed("interact"):
-   if flight.mode==flight.Mode.FLYING and flight.avionics.lock_id>=0:flight.avionics.fire()
+   if flight.mode==flight.Mode.FLYING and flight.avionics.deployed:flight.avionics.fire()
    elif flight.mode==flight.Mode.FLYING and not flight.clearance().is_empty():flight.avionics.say(flight.clearance())
    else:
     if flight.mode==flight.Mode.BERTH:

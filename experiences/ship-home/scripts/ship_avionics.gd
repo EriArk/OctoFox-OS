@@ -19,6 +19,29 @@ const CATALOG = [
  {"name":"Table Isle","kind":"island","sector":0,"p":Vector3(-485,68,-988)},
  {"name":"Crown Isle","kind":"island","sector":0,"p":Vector3(548,90,-887)},
  {"name":"Twin Spurs","kind":"island","sector":0,"p":Vector3(115,122,-1277)}]
+enum Group { PULSE, LASER, MISSILES }
+const GROUP_NAMES:=["Pulse cannon","Beam laser","Seeker rack"]
+const WARDEN:=5
+const RACK_SIZE:=3
+const SEEK_TIME:=1.4
+const FLIGHT_TIME:=1.25
+const WARNING_TIME:=4.0
+var group:=Group.PULSE
+var gimballed:=true
+var missiles:=RACK_SIZE
+var seeker:=0.0
+var missile_time:=0.0
+var incoming:=0.0
+var retaliation:=0.0
+var defence_cooldown:=0.0
+var burst_from:=Vector3.ZERO
+var burst_to:=Vector3.ZERO
+var shot_group:=Group.PULSE
+var burst_span:=0.0
+var missile_from:=Vector3.ZERO
+var incoming_from:=Vector3.ZERO
+var flare_time:=0.0
+var flare_at:=Vector3.ZERO
 var f
 var sector:=0
 var target:=1
@@ -69,16 +92,19 @@ func configure(flight) -> void:
 func fresh(saved:Dictionary) -> void:
  fuel=clampf(float(saved.get("fuel",TANK)),0,TANK)
  pips.assign(saved.get("pips",[2,2,2]));enabled.assign(saved.get("modules",[true,true,true,true,true,true]))
+ group=clampi(int(saved.get("fireGroup",Group.PULSE)),Group.PULSE,Group.MISSILES)
+ gimballed=bool(saved.get("gimballed",true));missiles=clampi(int(saved.get("missiles",RACK_SIZE)),0,RACK_SIZE)
  shield=100;hull=100;engine=100;weapon=100;npc_shield=100;disabled_time=0;orbit_time=0
  reply="";reply_time=0
 
 func snapshot() -> Dictionary:
- return {"fuel":fuel,"pips":pips.duplicate(),"modules":enabled.duplicate()}
+ return {"fuel":fuel,"pips":pips.duplicate(),"modules":enabled.duplicate(),"fireGroup":group,"gimballed":gimballed,"missiles":missiles}
 
 func docked(site:int) -> void:
  sector=1 if site==2 else 0
  target=1-site if site<2 else 7
  permit=-1;route=-1;lock_id=-1;deployed=false;cruise=false;boost=0;charge=0;transit=0
+ clear_ordnance()
  update_traffic(0)
 
 func say(text:String) -> void:
@@ -101,7 +127,7 @@ func contacts() -> Array[int]:
 
 func select(id:int) -> void:
  if not id in contacts():return
- if lock_id!=id:lock_id=-1
+ if lock_id!=id:lock_id=-1;seeker=0
  target=id
  if CATALOG[id].has("site"):f.destination=id
 
@@ -158,24 +184,111 @@ func hardpoints() -> void:
  if f.mode!=f.Mode.FLYING or cruise or charge>0:say("Normal flight required");return
  deployed=not deployed
  if deployed:permit=-1
- else:lock_id=-1
+ else:lock_id=-1;seeker=0
  say("Hardpoints deployed" if deployed else "Hardpoints stowed")
 
 func acquire() -> void:
- if lock_id==target:lock_id=-1;return
+ if lock_id==target:lock_id=-1;seeker=0;return
  if not deployed or not enabled[2]:say("Deploy hardpoints and power sensors");return
  if CATALOG[target].kind!="hostile" or disabled_time>0:say("No hostile signature");return
  if range_to(target)>650:say("Outside tracking range");return
  lock_id=target;say("Target locked · "+CATALOG[target].name)
 
+func cycle_group() -> void:
+ group=(group+1)%GROUP_NAMES.size()
+ seeker=0
+
+func cycle_mount() -> void:
+ if group==Group.MISSILES:return
+ gimballed=not gimballed
+
+func tracking() -> bool:
+ if sector!=1 or lock_id!=WARDEN or not deployed or disabled_time>0:return false
+ var ray:Vector3=position_of(WARDEN)-f.location
+ return ray.length()<=500 and (-f.attitude.z).dot(ray.normalized())>0.82
+
+func muzzle() -> Vector3:
+ return f.location+f.attitude*Vector3(1.7,0.85,-5.5)
+
+func pulse_span() -> float:
+ var distance:=minf(500,muzzle().distance_to(position_of(WARDEN))) if sector==1 else 500.0
+ return lerpf(0.30,2.1,distance/500.0)
+
+func pulse_mark() -> Vector3:
+ # The Warden follows an authored orbit; sample its animation at the bolt's arrival beat.
+ return position_of(WARDEN,orbit_time+pulse_span())
+
+func gun_ray() -> Vector3:
+ if gimballed and tracking():
+  var point:=pulse_mark() if group==Group.PULSE else position_of(WARDEN)
+  return (point-muzzle()).normalized()
+ return -f.attitude.z
+
+func hit_warden(amount:float) -> void:
+ npc_shield=maxf(0,npc_shield-amount)
+ if npc_shield<=0:
+  disabled_time=30;lock_id=-1;seeker=0;retaliation=0;say("Warden disabled")
+ else:
+  if retaliation<=0:retaliation=0.8
+  say("Warden shield  %d%%"%roundi(npc_shield))
+
 func fire() -> void:
- if lock_id!=target or not deployed or disabled_time>0:say("Acquire a hostile contact");return
- if weapon<20 or pulse_time>0:say("Emitter recharging");return
- var ray:Vector3=position_of(target)-f.location
- if ray.length()>500 or (-f.attitude.z).dot(ray.normalized())<0.82:say("Bring the target into the forward arc");return
- weapon-=20;pulse_time=0.45;npc_shield=maxf(0,npc_shield-25)
- if npc_shield<=0:disabled_time=30;lock_id=-1;say("Warden disabled")
- else:say("Pulse contact · Warden shield %d%%"%int(npc_shield))
+ if not deployed or not enabled[5] or f.mode!=f.Mode.FLYING:return
+ if group==Group.MISSILES:
+  if not tracking() or seeker<1:say("Seeker has no lock");return
+  if missiles==0:say("Rack empty");return
+  if missile_time>0:return
+  missiles-=1;seeker=0;missile_time=FLIGHT_TIME
+  missile_from=f.location+f.attitude*Vector3(1.7,0.8,-5.5)
+  say("Seeker away");return
+ var cost:=20 if group==Group.PULSE else 28
+ if weapon<cost or pulse_time>0:say("Emitter recharging");return
+ var ray:=gun_ray()
+ shot_group=group;weapon-=cost
+ burst_from=muzzle()
+ if group==Group.PULSE:
+  burst_span=pulse_span();pulse_time=burst_span
+  var reach:=minf(500,burst_from.distance_to(pulse_mark())) if sector==1 else 500.0
+  burst_to=burst_from+ray*reach
+  return
+ burst_span=0.48;pulse_time=burst_span
+ burst_to=burst_from+ray*500
+ if sector==1 and disabled_time<=0:
+  var target_ray:Vector3=position_of(WARDEN)-burst_from
+  if target_ray.length()<=500 and ray.dot(target_ray.normalized())>=0.9998:
+   burst_to=position_of(WARDEN)
+   hit_warden(34)
+
+func incoming_point() -> Vector3:
+ return incoming_from.lerp(f.location,1.0-incoming/WARNING_TIME)
+
+func intercept() -> void:
+ if incoming<=0:say("No inbound signature");return
+ if not enabled[5] or defence_cooldown>0:say("Defence unavailable");return
+ flare_at=incoming_point();flare_time=0.65;incoming=0;defence_cooldown=6
+ say("Inbound neutralised")
+
+func clear_ordnance() -> void:
+ incoming=0;missile_time=0;retaliation=0;seeker=0;flare_time=0;pulse_time=0;defence_cooldown=0
+
+func advance_ordnance(dt:float) -> void:
+ if group==Group.MISSILES and tracking():
+  seeker=minf(1,seeker+dt/SEEK_TIME)
+ else:seeker=0
+ defence_cooldown=maxf(0,defence_cooldown-dt)
+ flare_time=maxf(0,flare_time-dt)
+ if missile_time>0:
+  missile_time=maxf(0,missile_time-dt)
+  if missile_time==0 and disabled_time<=0:hit_warden(48)
+ if incoming>0:
+  incoming=maxf(0,incoming-dt)
+  if incoming==0:
+   var absorbed:=minf(shield,20)
+   shield-=absorbed;hull=maxf(0,hull-(20-absorbed));say("Missile impact")
+ if retaliation>0:
+  retaliation=maxf(0,retaliation-dt)
+  if retaliation==0 and disabled_time<=0 and sector==1 and f.mode==f.Mode.FLYING and range_to(WARDEN)<500 and not cruise and charge==0:
+   incoming=WARNING_TIME;incoming_from=position_of(WARDEN);retaliation=12
 
 func toggle_cruise() -> void:
  if cruise:cruise=false;say("Normal flight");return
@@ -200,7 +313,7 @@ func jump() -> void:
 
 func service() -> void:
  if f.mode!=f.Mode.BERTH or f.berth==1:say("Station service requires a berth");return
- fuel=TANK;hull=100;shield=100 if enabled[1] else 0;say("Service complete · tank full")
+ fuel=TANK;missiles=RACK_SIZE;hull=100;shield=100 if enabled[1] else 0;say("Service complete · tank full")
 
 func impact(speed:float) -> void:
  if speed<5:return
@@ -210,7 +323,11 @@ func impact(speed:float) -> void:
 func advance(dt:float) -> void:
  update_traffic(dt)
  reply_time=maxf(reply_time-dt,0)
- pulse_time=maxf(pulse_time-dt,0);boost=maxf(boost-dt,0)
+ if pulse_time>0:
+  pulse_time=maxf(0,pulse_time-dt)
+  if pulse_time==0 and shot_group==Group.PULSE and sector==1 and disabled_time<=0 and burst_to.distance_to(position_of(WARDEN))<4:
+   hit_warden(25)
+ boost=maxf(boost-dt,0)
  engine=minf(100,engine+dt*pips[1]*2.8);weapon=minf(100,weapon+dt*pips[2]*3.0)
  if enabled[1]:shield=minf(100,shield+dt*pips[0]*0.9)
  if disabled_time>0:
@@ -219,6 +336,7 @@ func advance(dt:float) -> void:
  if lock_id>=0 and range_to(lock_id)>650:lock_id=-1
  if sector==1 and disabled_time<=0 and f.mode==f.Mode.FLYING and range_to(5)<90:
   var hit:=dt*5.0/lerpf(0.74,1.26,pips[0]/4.0);var absorbed:=minf(hit,shield);shield-=absorbed;hull=maxf(0,hull-hit+absorbed)
+ advance_ordnance(dt)
  if hull<=0:
   f.reset(f.berth);service();hull=100;say("Recovery tow · last berth");return
  if cruise:
@@ -235,7 +353,7 @@ func advance(dt:float) -> void:
   if (-f.attitude.z).dot(jump_axis())<0.95:charge=0;say("Alignment lost");return
   charge+=dt
   if charge>=3:
-   charge=0;transit=2;fuel-=JUMP_COST
+   charge=0;transit=2;fuel-=JUMP_COST;clear_ordnance()
 
 func update_traffic(dt:float) -> void:
  orbit_time+=dt

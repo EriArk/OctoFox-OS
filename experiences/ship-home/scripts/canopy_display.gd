@@ -101,7 +101,7 @@ func paint() -> void:
     stroke([inside,outside,outside+down*(5.0 if rung>=0 else -5.0)],INK,2)
   var label_pos:=center+horizon*(span+10)
   if FIELD.grow(-16).has_point(label_pos):text_at(label_pos+Vector2(0,6),"%+d"%rung,INK,17)
- stroke([nose+Vector2(-13,0),nose+Vector2(-5,0),nose+Vector2(0,5),nose+Vector2(5,0),nose+Vector2(13,0)],INK,2)
+ if not systems.deployed:stroke([nose+Vector2(-13,0),nose+Vector2(-5,0),nose+Vector2(0,5),nose+Vector2(5,0),nose+Vector2(13,0)],INK,2)
  var velocity:Vector3=local_basis*flight.velocity
  if velocity.length()>1.0 and velocity.z<0:
   var path:=glass_point(eye,velocity)
@@ -110,6 +110,21 @@ func paint() -> void:
    drawing.draw_arc(path,9,0,TAU,24,INK,2.4,true)
    for direction in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP]:
     stroke([path+direction*9,path+direction*18],INK,2)
+ if systems.deployed:
+  fire_sight(systems,eye,local_basis)
+ else:
+  navigation(systems,eye,local_basis)
+ if systems.incoming>0 or systems.flare_time>0:
+  var warning:String="INBOUND  %.1f s"%systems.incoming if systems.incoming>0 else "INTERCEPTED"
+  text_at(Vector2(565,350),warning,Color("ff997e"),24)
+ if approach and not systems.deployed:
+  var height:float=flight.location.y-flight.BERTHS[flight.destination].y
+  var instruction:String=flight.clearance()
+  text_at(Vector2(105,354),"PAD ΔH  %+.1f m"%height,INK,24)
+  text_at(Vector2(595,354),"V/S  %+.1f m/s"%flight.velocity.y,INK,24)
+  if instruction=="":text_at(Vector2(403,354),"LAND",TARGET,26)
+
+func navigation(systems,eye:Vector3,local_basis:Basis) -> void:
  var ray:Vector3=local_basis*(systems.jump_axis() if systems.route>=0 else systems.position_of(systems.target)-flight.location)
  var aim:=glass_point(eye,ray)
  var target_on_glass:bool=ray.z<0 and FIELD.grow(-15).has_point(aim)
@@ -123,9 +138,66 @@ func paint() -> void:
   var wing:=direction.orthogonal()*8
   stroke([target_point-direction*14+wing,target_point,target_point-direction*14-wing],TARGET,3)
   if ray.z>=0:text_at(target_point+Vector2(-20,26),"AFT",TARGET,19)
- if approach:
-  var height:float=flight.location.y-flight.BERTHS[flight.destination].y
-  var instruction:String=flight.clearance()
-  text_at(Vector2(105,354),"PAD ΔH  %+.1f m"%height,INK,24)
-  text_at(Vector2(595,354),"V/S  %+.1f m/s"%flight.velocity.y,INK,24)
-  if instruction=="":text_at(Vector2(403,354),"LAND",TARGET,26)
+
+func corners(at:Vector2,radius:float,arm:float,ink:Color) -> void:
+ for corner in [Vector2(-1,-1),Vector2(1,-1),Vector2(1,1),Vector2(-1,1)]:
+  var tip:Vector2=at+corner*radius
+  stroke([tip-Vector2(corner.x*arm,0),tip,tip-Vector2(0,corner.y*arm)],ink,2)
+
+func ring(at:Vector2,radius:float,start:float,end:float,ink:Color) -> void:
+ drawing.draw_arc(at,radius,start,end,32,SHADOW,5,true)
+ drawing.draw_arc(at,radius,start,end,32,ink,2.3,true)
+
+func fire_sight(a,eye:Vector3,local_basis:Basis) -> void:
+ var seeker_rack:bool=a.group==a.Group.MISSILES
+ var pulse:bool=a.group==a.Group.PULSE
+ var acquired:bool=a.tracking()
+ var locked:bool=a.lock_id==a.WARDEN
+ var present:bool=a.sector==1 and a.disabled_time<=0 and (locked or a.target==a.WARDEN)
+ var center:=glass_point(eye,Vector3.FORWARD)
+ var contact:=center
+ var on_glass:=false
+ if present:
+  var ray:Vector3=local_basis*(a.position_of(a.WARDEN)-flight.location)
+  contact=glass_point(eye,ray)
+  on_glass=ray.z<0 and FIELD.grow(-16).has_point(contact)
+  if on_glass:corners(contact,12,6,TARGET)
+ var mode:String="GIMBAL" if a.gimballed else "FIXED"
+ var status:String=a.GROUP_NAMES[a.group].to_upper()+"   /   "+mode
+ if seeker_rack:
+  status="SEEKER   /   %d"%a.missiles
+  var point:Vector2=contact if acquired and on_glass else center
+  var radius:float=lerpf(30,18,a.seeker)
+  corners(point,radius,8,INK)
+  if a.seeker>0.01:ring(point,radius+5,-PI/2,-PI/2+TAU*a.seeker,INK)
+  var hint:="NO LOCK"
+  if a.missile_time>0:hint="IN FLIGHT"
+  elif a.missiles==0:hint="EMPTY"
+  elif a.seeker>=1:hint="LOCK"
+  elif a.seeker>0:hint="ACQUIRING  %d%%"%floori(a.seeker*100)
+  text_at(Vector2(200,350),hint,TARGET,22)
+ else:
+  var depth:=500.0
+  if acquired:
+   depth=a.muzzle().distance_to(a.pulse_mark() if pulse else a.position_of(a.WARDEN))
+  var bore:Vector3=local_basis*(a.muzzle()-flight.location+a.gun_ray()*depth)
+  var point:=glass_point(eye,bore)
+  if bore.z<0 and FIELD.grow(-18).has_point(point):
+   if pulse:
+    for side in [0.0,PI]:ring(point,10,side-0.76,side+0.76,INK)
+   else:
+    for direction in [Vector2.UP,Vector2.DOWN,Vector2.LEFT,Vector2.RIGHT]:
+     stroke([point+direction*5,point+direction*14],INK)
+   if a.gimballed and acquired:drawing.draw_circle(point,2.2,INK,true,-1,true)
+  if pulse and acquired and on_glass:
+   var predicted:Vector3=local_basis*(a.pulse_mark()-flight.location)
+   var lead:=glass_point(eye,predicted)
+   if predicted.z<0 and FIELD.grow(-12).has_point(lead):
+    ring(lead,4,0,TAU,INK)
+    if lead.distance_to(contact)>18:stroke([contact.direction_to(lead)*14+contact,lead+lead.direction_to(contact)*6],INK,1.5)
+    var offset:=Vector2(24,-27) if lead.x<740 else Vector2(-76,-27)
+    if lead.y<130:offset.y=34
+    stroke([lead+lead.direction_to(lead+offset)*7,lead+offset*0.75],INK,1.6)
+    text_at(lead+offset+Vector2(0,5),"LEAD",INK,18)
+  if present and not on_glass:text_at(Vector2(350,350),"OFF GLASS",TARGET,19)
+ text_at(Vector2(60,381),status,INK,23)

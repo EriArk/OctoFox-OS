@@ -28,7 +28,7 @@ var extensions: Array[float]=[0.0,0.0]
 var gauges:Array[Label3D]=[]
 var canopy:=preload("res://scripts/canopy_display.gd").new()
 var radar_mesh:=ImmediateMesh.new()
-var transit_line:=MeshInstance3D.new()
+var ordnance:=preload("res://scripts/ordnance_effects.gd").new()
 var scanner:=MeshInstance3D.new()
 var sweep:=0.0
 
@@ -80,8 +80,7 @@ func bind(flight,walker) -> void:
   gauges.append(key_text(key,Vector3(-0.197,-0.019,0.005),30,WHITE))
  f.art.helm_root.add_child(canopy)
  canopy.configure(f,pilot)
- var dye:=StandardMaterial3D.new();dye.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED;dye.albedo_color=MINT
- f.art.helm_root.add_child(transit_line);transit_line.material_override=dye
+ f.add_child(ordnance)
  hide()
 
 func key_text(key:Node3D,at:Vector3,size:int,ink:Color) -> Label3D:
@@ -93,7 +92,7 @@ func key_text(key:Node3D,at:Vector3,size:int,ink:Color) -> Label3D:
  return line
 
 func side_of(section:String) -> int:
- return 1 if section in ["Ship","Power","Modules"] else 0
+ return 1 if section in ["Ship","Power","Modules","Fire control"] else 0
 
 func refresh() -> void:
  if page=="" or page=="Scope":return
@@ -172,7 +171,7 @@ func tick(dt:float,active:bool) -> void:
   gauges[i].visible=active
  var glass_live:bool=active and page=="" and f.mode==f.Mode.FLYING and a.transit==0
  canopy.update_projection(dt,glass_live)
- transit_line.visible=glass_live and a.pulse_time>0
+ ordnance.refresh(a)
  if not active:return
  if page!="":
   var focus:Vector3=f.art.radar.global_position
@@ -189,12 +188,6 @@ func tick(dt:float,active:bool) -> void:
  var course:bool=a.route>=0
  var ray:Vector3=f.attitude.inverse()*(a.jump_axis() if course else a.position_of(a.target)-f.location)
  var behind:=ray.z>=0
- if transit_line.visible:
-  var eye:Vector3=f.art.helm_root.to_local(pilot.pilot_camera.global_position)
-  var hit:Vector3=eye+ray*((eye.z-canopy.position.z)/maxf(-ray.z,0.001))
-  var trace:=ImmediateMesh.new();trace.surface_begin(Mesh.PRIMITIVE_LINES)
-  trace.surface_add_vertex(Vector3(0.55,0.75,-0.56));trace.surface_add_vertex(hit)
-  trace.surface_end();transit_line.mesh=trace
  update_keys(behind)
  sweep+=dt
  if sweep>=0.10:
@@ -250,9 +243,14 @@ func rows() -> Array:
    return entries
   "Contact":
    var id:int=a.target;var kind:String=a.CATALOG[id].kind
-   if kind=="hostile":return [["Target lock","TRACKING" if a.lock_id==id else "ACQUIRE","lock"],["Pulse emitter","%d%%"%roundi(a.weapon),"fire"],["Hail ship","COMMS","hail"]]
+   if kind=="hostile":return [["Target lock","TRACKING" if a.lock_id==id else "ACQUIRE","lock"],[a.GROUP_NAMES[a.group],"%d LEFT"%a.missiles if a.group==a.Group.MISSILES else "%d%%"%roundi(a.weapon),"fire"],["Hail ship","COMMS","hail"]]
    return [["Request pad 01" if kind=="station" else "Hail contact","CLEARED" if a.permit==id else "COMMS","hail"]]
-  "Ship":return [["Components","6 MODULES","modules"],["Hardpoints","DEPLOYED" if a.deployed else "STOWED","arms"],["Cruise drive","ENGAGED" if a.cruise else "STANDBY","cruise"],["Engine boost","%d%%"%roundi(a.engine),"boost"],["Station service","FUEL / REPAIR","service"]]
+  "Ship":return [["Components","6 MODULES","modules"],["Hardpoints","DEPLOYED" if a.deployed else "STOWED","arms"],["Cruise drive","ENGAGED" if a.cruise else "STANDBY","cruise"],["Engine boost","%d%%"%roundi(a.engine),"boost"],["Station service","FUEL / REPAIR","service"],["Fire control",a.GROUP_NAMES[a.group].to_upper(),"fire_control"]]
+  "Fire control":
+   var controls:Array=[["Fire group",a.GROUP_NAMES[a.group],"cycle"]]
+   if a.group!=a.Group.MISSILES:controls.append(["Mount","GIMBAL" if a.gimballed else "FIXED","mount"])
+   controls.append(["Point defence","INTERCEPT" if a.incoming>0 else ("RECHARGE" if a.defence_cooldown>0 else "READY"),"defend"])
+   return controls
   "Modules":
    var list:Array=[]
    for i in a.MODULES.size():list.append([a.MODULES[i],"ONLINE" if a.enabled[i] else "OFFLINE",i])
@@ -285,11 +283,21 @@ func activate(power_delta:int=1) -> void:
     "plot":a.plot()
     "jump":a.jump()
     "hail":a.hail()
+    "fire_control":open("Fire control")
+    "cycle":a.cycle_group();cursor=0
+    "mount":a.cycle_mount()
+    "defend":a.intercept()
     "lock":a.acquire()
     "fire":a.fire()
  refresh()
 
 func event(e:InputEvent) -> bool:
+ if y_down and e.is_action_pressed("interact"):
+  chord=true;a.intercept();return true
+ if page=="" and ((e is InputEventJoypadButton and e.button_index==JOY_BUTTON_LEFT_STICK and e.pressed) or (e is InputEventKey and e.physical_keycode==KEY_G and e.pressed and not e.echo)):
+  if y_down:chord=true;a.cycle_mount()
+  else:a.cycle_group()
+  return true
  if (e is InputEventJoypadButton and e.button_index==JOY_BUTTON_RIGHT_STICK and e.pressed) or (e is InputEventKey and e.physical_keycode==KEY_V and e.pressed and not e.echo):
   open("" if page=="Scope" else "Scope");return true
  if e.is_action_pressed("pick_item"):
@@ -306,7 +314,7 @@ func event(e:InputEvent) -> bool:
   chord=true;open(dir);return true
  if page=="":return false
  if e.is_action_pressed("cancel_ship"):
-  open("Contacts" if page=="Contact" else ("Ship" if page=="Modules" else ("Chart" if page=="Local" else "")));return true
+  open("Contacts" if page=="Contact" else ("Ship" if page in ["Modules","Fire control"] else ("Chart" if page=="Local" else "")));return true
  if e.is_action_pressed("interact") or e.is_action_pressed("ui_accept"):
   activate();return true
  if page=="Power" and dir in ["Contacts","Ship"]:
@@ -411,7 +419,7 @@ func paint(c:Control,side:int) -> void:
  if a==null or page in ["","Scope"] or side_of(page)!=side:return
  c.draw_rect(Rect2(Vector2.ZERO,Vector2(PIXELS)),Color("0d2028"))
  var accent:=AMBER if side==0 else MINT
- var primary:=page in ["Contacts","Contact","Ship","Modules"]
+ var primary:=page in ["Contacts","Contact","Ship","Modules","Fire control"]
  label(c,20,32,"CONTACTS" if side==0 else "SYSTEMS",accent if primary else MUTED,22)
  label(c,274,32,"CHART" if side==0 else "POWER",MUTED if primary else accent,22)
  label(c,519,32,"STOW",WHITE,19)
@@ -432,7 +440,7 @@ func paint(c:Control,side:int) -> void:
   top=88
  elif page=="Ship":
   label(c,23,79,"HULL  %d%%     SHIELD  %d%%     FUEL  %d"%[roundi(a.hull),roundi(a.shield),floori(a.fuel)],MINT,20)
-  top=95
+  top=88
  elif page=="Modules":
   var loads:=[4,3,1,1,3,2];var draw:=0
   for i in loads.size():
@@ -455,6 +463,6 @@ func paint(c:Control,side:int) -> void:
    for j in 4:c.draw_rect(Rect2(389+31*j,r.position.y+19,23,17),AMBER if j<a.pips[i] else Color("36494e"))
    label(c,536,r.position.y+38,"+",WHITE if a.pips[i]<4 else MUTED,30)
   else:label(c,362,r.position.y+26,str(entries[i][1]),MINT,20)
- if a.reply_time>0:
+ if a.incoming>0 or a.reply_time>0:
   c.draw_rect(Rect2(0,320,600,40),Color("243b40"))
-  label(c,13,347,a.reply,AMBER,19)
+  label(c,13,347,"MISSILE INBOUND  ·  %d s"%ceili(a.incoming) if a.incoming>0 else a.reply,RED if a.incoming>0 else AMBER,19)

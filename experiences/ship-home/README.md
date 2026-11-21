@@ -83,7 +83,18 @@ At Prism select the anchorage under Contacts and request pad 01 within 850 m. Le
 
 The bow glass carries a heading tape, banked pitch ladder and target bearing in flight. A circle with wings shows the actual velocity vector when it lies in the forward field. Near a selected landing site the glass shows vertical speed and signed height relative to the pad. The projection goes dark at the berth and while reading a side instrument.
 
-Six pips are shared between SYS, ENG and WEP. On the right display, select a row and press left or right to release or draw one unit. A adds one unit, and the minus and plus controls accept touch. Each bus accepts up to four units. More SYS improves shield recovery and resistance. ENG recharges boost, and WEP recharges the pulse emitter. On the right console you can switch off individual systems or extend the two hull emitters. Select the Warden, acquire a separate lock and bring it into the forward arc before firing with **A / F**. In communications range a courier answers a hail. [Bridge instruments and flight captures](../../docs/evidence/2026-11-21-captains-bridge/README.md).
+Six pips are shared between SYS, ENG and WEP. On the right display, select a row and press left or right to release or draw one unit. A adds one unit, and the minus and plus controls accept touch. Each bus accepts up to four units. More SYS improves shield recovery and resistance. ENG recharges boost, and WEP recharges the gun capacitor. On the right console you can switch off individual systems or extend the two hull emitters. In communications range a courier answers a hail. [Bridge instruments and flight captures](../../docs/evidence/2026-11-21-captains-bridge/README.md).
+
+### Fire control
+
+Deploy hardpoints from the right Ship panel. Select Prism Warden in Contacts and choose **Target lock** to enable tracking. In forward view **L3 / G** cycles weapons, **Y + L3 / Y + G** switches between fixed and gimballed guns, and **A / F** fires. These settings are also on the right panel under **Fire control**.
+
+- The pulse cannon fires a travelling bolt. Amber corners mark the ship. The mint circle labelled **LEAD** marks where the patrol will be when that bolt arrives. With a fixed gun, steer the split sight over the circle. A gimbal follows it while the lock is inside the forward tracking arc.
+- The laser's open cross marks its beam. It hits immediately. With either gun you can fire straight ahead without a lock.
+- The seeker rack has three rounds. Keep the locked ship inside the forward arc until the brackets close and **LOCK** appears. Station service replenishes the rack.
+- An **INBOUND** countdown warns of an incoming missile. Use **Y + A / Y + F** for point defence, or choose it on the Fire control panel. The six-second recharge starts after an interception.
+
+The cannon sight follows the Leading option in [Frontier’s Elite Dangerous manual](https://hosting.zaonce.net/elite/website/assets/ELITE-DANGEROUS-GAME-MANUAL.pdf).
 
 Echo Orchard lies 600 metres from Lantern Station. A sea several times the area of the land surrounds its ridgeline, inlets and offshore stacks. Fly into the cloud banks at the edge of the sea’s atmosphere. Visibility drops briefly, then opens onto the daylight sky above the ocean. Departing through the bank returns you to the Egregore. [Flight through the clouds](../../docs/evidence/2026-11-21-island-seas/README.md) · [Art sources](assets/islands/SOURCE.md).
 
