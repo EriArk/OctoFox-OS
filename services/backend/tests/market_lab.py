@@ -22,7 +22,7 @@ from trainer_backend.economy.maintenance import grant_test_sparks
 from trainer_backend.economy.service import Progression
 
 
-def prepare(db, directory):
+def prepare(db, directory, island=False):
     admin, runtime = db
     accounts = Accounts(Database(runtime), CONFIG, Provider())
     service = Bazaars(Progression(accounts.db, accounts))
@@ -45,6 +45,13 @@ def prepare(db, directory):
         with wallet.open('x') as out:
             wallet.chmod(0o600)
             json.dump({'refresh_token':session['refresh_token']},out)
+        if name=='Mika' and island:
+            from trainer_backend.economy.shop import Shop
+            grant_test_sparks(admin,player,subject,5000,'Island rehearsal license',uuid4())
+            Shop(service.progression).purchase(session['access_token'],uuid4(),'bazaar.personal',1,5000)
+            owned=service.create(session['access_token'],dict(name="Mika's Island",description="Beach market",listed=True,access="open"))
+            with psycopg.connect(admin) as conn:
+                conn.execute("INSERT INTO trainer_backend.bazaar_worlds VALUES('mika-island',%s)",(owned['bazaar']['id'],))
         if name=='Mika':
             with psycopg.connect(admin) as conn:
                 for title in ['Oran Berry','Pecha Berry']:
@@ -60,11 +67,12 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('directory',type=Path)
     parser.add_argument('--port',type=int,default=18641)
+    parser.add_argument('--island',action='store_true')
     args=parser.parse_args()
     args.directory.mkdir(mode=0o700,exist_ok=True)
     with contextmanager(postgres.__wrapped__)() as db:
-        app=prepare(db,args.directory)
         policy.PAYMENTS_AVAILABLE=True
+        app=prepare(db,args.directory,args.island)
         try:
             uvicorn.run(app,host='127.0.0.1',port=args.port,access_log=False)
         finally:

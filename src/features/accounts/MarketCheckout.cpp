@@ -21,6 +21,15 @@ QJsonObject error(QString code) { return {{"code",code}}; }
 bool matchesReceipt(const QJsonObject& intent,const QJsonObject& result) {
     const auto op=intent["operation_id"],player=intent["player_id"],price=intent["price"];
     if(result["player_id"]!=player)return false;
+    if(intent["action"]=="festival"){
+        const auto round=result["round"].toObject();
+        return result["game"]==intent["game"] && uuid(round["id"]) && round["operation_id"]==op && round["price"]==price;
+    }
+    if(intent["action"]=="build"){
+        const auto row=result["receipt"].toObject();
+        return row["player_id"]==player && row["offer_id"]=="bazaar.stall" && row["operation_id"]==op &&
+            row["price"]==price && result["purchased_place"].toObject()["bazaar_id"]==intent["bazaar_id"];
+    }
     if(intent["action"]=="list") {
         const auto row=result["listing"].toObject();
         return uuid(row["id"]) && row["operation_id"]==op && row["seller_id"]==player && row["rental_id"]==intent["rental_id"]
@@ -38,7 +47,7 @@ bool matchesReceipt(const QJsonObject& intent,const QJsonObject& result) {
 QVariantMap BackendAccount::marketReview() const {
     if (marketView_.isEmpty()) return {};
     auto view = marketView_.toVariantMap();
-    for (const auto key : {"action", "slot", "price", "seller_price", "subject", "origin", "keeper"}) {
+    for (const auto key : {"action", "slot", "price", "seller_price", "subject", "origin", "keeper", "world"}) {
         if (marketIntent_.contains(key)) view.insert(key, marketIntent_.value(key).toVariant());
     }
     view.insert("art", itemArt({{"title", marketIntent_["subject"]}, {"game", marketIntent_["origin"]}}));
@@ -58,14 +67,21 @@ void BackendAccount::closeMarketReview(const QString& channel) {
     if(channel==marketChannel_ && !marketSending_)endMarket(409,error("review_cancelled"));
 }
 
-void BackendAccount::marketCheckout(QString channel,const QJsonObject args,Reply done) {
+void BackendAccount::marketCheckout(QString channel,QJsonObject args,Reply done) {
     if(!inventoryConnected()){done(401,error("sign_in_required"));return;}
     if(marketSending_ || marketReply_ || shopBusy_ || !shopPending_.isEmpty()){done(409,error("checkout_busy"));return;}
     const QString action=args["action"].toString();
-    const auto price=args["price"],slot=args["slot"];
-    if(action!="resolve" && action!="inventory" && (slot.toInt()<1 || slot.toInt()>12 || !money(price))){done(422,error("invalid_offer"));return;}
+    const QJsonValue price=args.value("price"),slot=args.value("slot");
+    const auto worldKey=args.take("world");
+    if(!worldKey.isUndefined() && worldKey!="mika-island"){done(422,error("invalid_world"));return;}
+    QJsonObject scope;
+    if(worldKey=="mika-island")scope["world"]=worldKey;
+    if(action!="resolve" && action!="inventory" && action!="festival" && (slot.toInt()<1 || slot.toInt()>12 || !money(price))){done(422,error("invalid_offer"));return;}
     const bool valid=((action=="resolve" || action=="inventory") && args.size()==1) ||
         (action=="rent" && args.size()==6 && args["species"].isString() && money(args["seller_price"]) && args.contains("revision")) ||
+        (action=="festival" && args.size()==3 && money(price) && args["game"].isString()) ||
+        ((action=="reprice" || action=="withdraw") && args.size()==5 && uuid(args["listing_id"]) && args["revision"].isString()) ||
+        ((action=="build" || action=="weekly") && worldKey=="mika-island" && slot.toInt()==1 && args.size()==4 && args["revision"].isString()) ||
         (action=="list" && args.size()==3) ||
         (action=="buy" && args.size()==5 && uuid(args["listing_id"]) && args.contains("revision"));
     if(!valid){done(422,error("invalid_offer"));return;}
@@ -81,13 +97,57 @@ void BackendAccount::marketCheckout(QString channel,const QJsonObject args,Reply
         if(marketPending_.isEmpty() || marketPending_["player_id"]!=player_){endMarket(404,error("no_pending_checkout"));return;}
         marketIntent_=marketPending_;marketView_={{"text",marketIntent_["summary"]},{"ready",true},{"retry",true}};emit changed();return;
     }
-    bazaarRead("bazaar.world",{},[this,args,action,generation](int status,QJsonObject world){
+    if(action=="festival"){
+        bazaarRead("bazaar.festival",{{"game",args["game"]}},[this,args,generation](int status,QJsonObject offer){
+            if(generation!=marketGeneration_)return;
+            if(status!=200 || offer["payments_available"]!=true){endMarket(409,error("market_closed"));return;}
+            if(offer["price"]!=args["price"]){endMarket(409,error("offer_changed"));return;}
+            const auto round=offer["round"].toObject();
+            if(!round.isEmpty() && !round["complete"].toBool()){endMarket(409,error("ticket_already_open"));return;}
+            static const QHash<QString,QString> names={{"gallery","Toy Gallery · 5 shots"},{"rings","Wanage · 3 rings"},
+                {"golf_local","Pocket Golf · local pair"},{"golf_online","Pocket Golf · online entry"}};
+            marketIntent_=args;marketIntent_["player_id"]=player_;marketIntent_["subject"]=names.value(args["game"].toString());
+            marketIntent_["origin"]="Festival Park";
+            marketIntent_["summary"]=QString("%1 · %2 Sparks").arg(marketIntent_["subject"].toString()).arg(args["price"].toInt());
+            marketView_={{"text",marketIntent_["summary"]},{"ready",true}};emit changed();
+        });
+        return;
+    }
+    if(action=="reprice" || action=="withdraw"){
+        request("GET","/v1/me/bazaar-listings?listing_id="+args["listing_id"].toString(),{},[this,args,action,generation](int status,QJsonObject result){
+            if(generation!=marketGeneration_)return;
+            const auto rows=result["items"].toArray();
+            const auto item=rows.isEmpty()?QJsonObject():rows.first().toObject();
+            if(status!=200 || result["player_id"]!=player_ || item["seller_id"]!=player_ || item["id"]!=args["listing_id"]
+                || item["state"]!="listed" || item["revision"]!=args["revision"] || item["price"]!=args["price"]){
+                endMarket(409,error("listing_changed"));return;
+            }
+            marketIntent_=args;marketIntent_["player_id"]=player_;marketIntent_["subject"]=item["presentation"].toObject()["title"];
+            marketIntent_["origin"]=item["presentation"].toObject()["game"];
+            marketView_={{"text",action=="withdraw"?"Return this item to your profile":"Set your asking price"},{"ready",true}};emit changed();
+        },access_);
+        return;
+    }
+    bazaarRead("bazaar.world",scope,[this,args,scope,action,generation](int status,QJsonObject world){
         if(generation!=marketGeneration_)return;
         if(status!=200 || world["payments_available"]!=true){endMarket(409,error("market_closed"));return;}
         QJsonObject row;
         for(const auto entry:world["places"].toArray())if(entry.toObject()["slot"]==args["slot"])row=entry.toObject();
+        if(action=="build" || action=="weekly"){
+            const auto offer=world["stall_offer"].toObject();
+            if(world["owner_id"]!=player_ || !uuid(world["bazaar_id"]) ||
+                (action=="build" && (offer["price"]!=args["price"] || offer["revision"]!=args["revision"] || !row.isEmpty())) ||
+                (action=="weekly" && (!uuid(row["id"]) || row["revision"]!=args["revision"]))){
+                endMarket(409,error("place_changed"));return;
+            }
+            marketIntent_=args;marketIntent_["world"]=scope["world"];marketIntent_["player_id"]=player_;
+            marketIntent_["bazaar_id"]=world["bazaar_id"];marketIntent_["place_id"]=row["id"];
+            marketIntent_["subject"]="Island counter";marketIntent_["origin"]="Mika’s Island";
+            marketIntent_["summary"]=action=="build"?"Buy the first permanent island counter":"Set the weekly rent";
+            marketView_={{"text",marketIntent_["summary"]},{"ready",true}};emit changed();return;
+        }
         if(!uuid(row["id"]) || !uuid(world["bazaar_id"])){endMarket(409,error("place_changed"));return;}
-        marketIntent_=args;marketIntent_["player_id"]=player_;marketIntent_["place_id"]=row["id"];marketIntent_["bazaar_id"]=world["bazaar_id"];
+        marketIntent_=args;if(!scope.isEmpty())marketIntent_["world"]=scope["world"];marketIntent_["player_id"]=player_;marketIntent_["place_id"]=row["id"];marketIntent_["bazaar_id"]=world["bazaar_id"];
         const auto slot=QString::number(args["slot"].toInt()),price=QString::number(args["price"].toInteger());
         if(action=="rent") {
             if(!row["tenant_id"].isNull() || world["owner_id"]==player_ || row["weekly_price"]!=args["price"] || row["revision"]!=args["revision"] || world["seller_price"]!=args["seller_price"]){
@@ -165,7 +225,7 @@ void BackendAccount::chooseMarketItem(int index) {
 
 void BackendAccount::confirmMarketListing(int askingPrice) {
     if (askingPrice < 1 || !marketReply_ || marketSending_ || !marketPending_.isEmpty()
-        || marketIntent_["action"] != "list" || marketView_["ready"] != true) return;
+        || !QStringList{"list","reprice","weekly"}.contains(marketIntent_["action"].toString()) || marketView_["ready"] != true) return;
     marketIntent_["price"] = askingPrice;
     marketIntent_["summary"] = QString("List %1 at stall %2 for %3 Sparks?")
         .arg(marketIntent_["subject"].toString()).arg(marketIntent_["slot"].toInt()).arg(askingPrice);
@@ -177,6 +237,23 @@ void BackendAccount::answerMarketReview(bool confirm) {
     if(marketIntent_["action"]=="inventory"){endMarket(200,{{"viewed",true}});return;}
     if(!confirm){endMarket(409,error("review_cancelled"));return;}
     if(marketView_["ready"]!=true || marketIntent_["player_id"]!=player_)return;
+    const auto action=marketIntent_["action"].toString();
+    if(action=="withdraw" || action=="reprice" || action=="weekly"){
+        auto path="/v1/me/bazaar-listings/"+marketIntent_["listing_id"].toString();
+        QJsonObject body{{"revision",marketIntent_["revision"]}};
+        if(action=="weekly"){
+            path="/v1/me/bazaars/"+marketIntent_["bazaar_id"].toString()+"/places/"+marketIntent_["place_id"].toString();
+            body["weekly_price"]=marketIntent_["price"];
+        }else if(action=="withdraw")path+="/withdraw";
+        else {path+="/price";body["price"]=marketIntent_["price"];}
+        marketSending_=true;marketView_={{"text","Updating counter…"}};emit changed();
+        request(action=="withdraw"?"POST":"PUT",path,body,[this,action](int status,QJsonObject result){
+            marketSending_=false;
+            if(status==200 && result["player_id"]==player_)endMarket(200,{{"confirmed",true},{"action",action}});
+            else endMarket(status==200?502:status,error(result["code"].toString("counter_unavailable")));
+        },access_);
+        return;
+    }
     if(marketPending_.isEmpty()) {
         marketIntent_["operation_id"]=QUuid::createUuid().toString(QUuid::WithoutBraces);
         marketPending_=marketIntent_;
@@ -190,7 +267,11 @@ void BackendAccount::submitMarket() {
     const auto op=p["operation_id"];
     if(p["player_id"]!=player_ || !uuid(op) || !money(p["price"])){endMarket(422,error("invalid_pending_checkout"));return;}
     QString path;QJsonObject body{{"operation_id",op}};
-    if(p["action"]=="rent" && uuid(p["place_id"]) && uuid(p["bazaar_id"])){
+    if(p["action"]=="build" && p["world"]=="mika-island"){
+        path="/v1/bazaar-worlds/mika-island/stall";body["revision"]=p["revision"];body["expected_price"]=p["price"];
+    }else if(p["action"]=="festival" && QStringList{"gallery","rings","golf_local","golf_online"}.contains(p["game"].toString())){
+        path="/v1/me/festival/"+p["game"].toString();body["expected_price"]=p["price"];
+    }else if(p["action"]=="rent" && uuid(p["place_id"]) && uuid(p["bazaar_id"])){
         path="/v1/bazaars/"+p["bazaar_id"].toString()+"/places/"+p["place_id"].toString()+"/staffed-rental";
         body["revision"]=p["revision"];body["expected_price"]=p["price"];body["species"]=p["species"];body["seller_price"]=p["seller_price"];
     }else if(p["action"]=="list" && uuid(p["rental_id"]) && uuid(p["item_id"])){

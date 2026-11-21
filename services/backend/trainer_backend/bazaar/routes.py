@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request, Query
 from pydantic import Field
 from ..accounts.routes import StrictBody, bearer, wire
 from ..accounts.provider import AuthError
+from . import festival
 
 router = APIRouter()
 
@@ -146,13 +147,22 @@ def list_item(rental_id: UUID, body: ListItem, request: Request):
 
 
 @router.get('/v1/me/bazaar-listings')
-def own_listings(request: Request, after: UUID | None = None):
-    return wire(trading.listings(service(request),bearer(request),after=after))
+def own_listings(request: Request, after: UUID | None = None, listing_id: UUID | None = None):
+    return wire(trading.listings(service(request),bearer(request),after=after,listing_id=listing_id))
 
 
 @router.get('/v1/bazaar-places/{place_id}/listings')
 def place_listings(place_id: UUID, request: Request, after: UUID | None = None, listing_id: UUID | None = None):
     return wire(trading.listings(service(request),bearer(request),place_id,after,listing_id))
+
+
+class AskingPrice(ListingRevision):
+    price: int = Field(ge=1,le=2147483647)
+
+
+@router.put('/v1/me/bazaar-listings/{listing_id}/price')
+def reprice_listing(listing_id: UUID, body: AskingPrice, request: Request):
+    return wire(trading.reprice(service(request),bearer(request),listing_id,int(body.revision),body.price))
 
 
 @router.post('/v1/me/bazaar-listings/{listing_id}/withdraw')
@@ -172,7 +182,7 @@ def trade_receipt(operation_id: UUID, request: Request):
 
 @router.get('/v1/bazaar-worlds/{world_key}')
 def world_services(world_key: str, request: Request):
-    if world_key!='festival':raise AuthError('world_not_found',404)
+    if world_key not in ('festival','mika-island'):raise AuthError('world_not_found',404)
     return wire(trading.world(service(request),bearer(request),world_key))
 
 
@@ -199,3 +209,55 @@ def staffed_rental(bazaar_id: UUID, place_id: UUID, body: StaffedRental, request
         seller = trading.hire_locked(conn, actor, rental['receipt']['id'], op, body.species, 1, body.seller_price)
         rental['receipt'].pop('bazaar_id', None)  # Joined only on receipt replay.
         return wire({**rental, 'seller_receipt': seller['receipt']})
+
+
+FestivalGame = Literal['gallery', 'rings', 'golf_local', 'golf_online']
+
+
+class FestivalEntry(StrictBody):
+    operation_id: str = Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+    expected_price: int = Field(ge=1, le=2147483647)
+
+
+class FestivalAttempt(StrictBody):
+    index: int = Field(ge=0, le=4)
+    x: int = Field(ge=-300, le=300)
+    y: int = Field(ge=-100, le=300)
+
+
+@router.get('/v1/me/festival/{game}')
+def festival_status(game: FestivalGame, request: Request):
+    return wire(festival.status(service(request), bearer(request), game))
+
+
+@router.post('/v1/me/festival/{game}')
+def festival_entry(game: FestivalGame, body: FestivalEntry, request: Request):
+    return wire(festival.enter(service(request), bearer(request), game, UUID(body.operation_id), body.expected_price))
+
+
+@router.post('/v1/me/festival/{game}/{ticket}/attempt')
+def festival_attempt(game: FestivalGame, ticket: UUID, body: FestivalAttempt, request: Request):
+    return wire(festival.attempt(service(request), bearer(request), game, ticket, body.index, body.x, body.y))
+
+@router.post('/v1/bazaar-worlds/mika-island/stall')
+def buy_island_stall(body: RentPlace, request: Request):
+    result=request.app.state.shop.purchase(bearer(request),UUID(body.operation_id),'bazaar.stall',int(body.revision),body.expected_price,
+                                           first_island_stall=True)
+    return wire({key:result[key] for key in ('player_id','receipt','purchased_place')})
+
+
+class VisitOffer(StrictBody):
+    guest: str = Field(pattern=r'^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$')
+    code: str = Field(pattern=r'^([0-9]{1,16}(-[a-z]{1,14}){8}|near:[0-9]{1,5}:[0-9a-f]{64}:[0-9a-f]{32})$',max_length=160)
+
+class IslandVisit(StrictBody):
+    visit: str = Field(pattern=r'^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$')
+    leave: bool = False
+    offers: list[VisitOffer] = Field(default_factory=list,max_length=7)
+
+
+@router.post('/v1/bazaar-worlds/mika-island/visit')
+def island_visit(body: IslandVisit, request: Request):
+    from . import visits
+    return wire(visits.update(service(request),bearer(request),UUID(body.visit),leave=body.leave,
+                              offers={UUID(o.guest):o.code for o in body.offers}))

@@ -112,6 +112,22 @@ void LobbyRoomCoordinator::send(const QString& peer,QString kind,QJsonObject dat
         {"boot",boot_},{"serial",qint64(++serial_)},
         {"expires",now()+90},{"generation",state()["generation"]},{"reply",reply},{"data",data}});
 }
+// The first festival is a two-person party. Only the landing point is cosmetic.
+bool LobbyRoomCoordinator::tossFestivalRing(int x,int z) {
+    const auto room=state();
+    const auto stamp=QDateTime::currentMSecsSinceEpoch();
+    if(stamp-lastFestivalRing_<450 || x < -130 || x > 130 || z < -80 || z > 80 || room["members"].toArray().size()!=2 ||
+       (room["phase"]!="choosing" && room["phase"]!="gathering"))return false;
+    for(const auto& v:room["members"].toArray()){
+        const auto m=v.toObject();
+        if(m["id"]!=self_ && m["connected"].toBool()){
+            lastFestivalRing_=stamp;
+            send(m["id"].toString(),"festival-ring",{{"x",x},{"z",z}});
+            return true;
+        }
+    }
+    return false;
+}
 void LobbyRoomCoordinator::broadcast() {
     if(!hosting()||!online_||loading_)return;
     const auto snapshot=session_.state();
@@ -359,6 +375,17 @@ void LobbyRoomCoordinator::receive(QString peer,QString name,const QJsonObject& 
     const auto probe=data["probe"].toString();
     const bool probing=(kind=="join"||kind=="ping")&&!QUuid(probe).isNull();
     if(probing&&(!hosting()||id!=session_.id())) {send(peer,"closed",{},probe,id);return;}
+    if(kind=="festival-ring"){
+        const auto room=state();
+        if(id!=room["id"] || p["generation"]!=room["generation"] || peerBoots_.value(peer)!=boot ||
+           room["members"].toArray().size()!=2 || (room["phase"]!="choosing" && room["phase"]!="gathering"))return;
+        const auto x=data["x"].toInt(999),z=data["z"].toInt(999);
+        if(x < -130 || x > 130 || z < -80 || z > 80)return;
+        for(const auto& v:room["members"].toArray())if(v.toObject()["id"]==peer && v.toObject()["connected"].toBool()){
+            peerSerials_[peer]=serial;emit festivalRing(x,z);break;
+        }
+        return;
+    }
     if(hosting()) {
         if(id!=session_.id())return;
         if(kind=="invite-received") {

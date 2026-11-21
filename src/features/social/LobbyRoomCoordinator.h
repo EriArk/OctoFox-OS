@@ -46,6 +46,7 @@ public:
     bool setRelay(QString relay);
     bool setDetails(QString title,qint64 startsAt);
     bool setConversation(QString channel);
+    bool tossFestivalRing(int x,int z);
     void receive(QString peer,QString name,const QJsonObject& packet);
     void deliveryFailed(const QString& peer);
     QJsonObject state() const;
@@ -77,6 +78,7 @@ signals:
     void liveLaunchRequested(QString operation,QString ticket,QJsonObject party);
     void liveJoinFailed(QString operation);
     void liveReleased(QString peer,QString operation);
+    void festivalRing(int x,int z);
     void runtimeSignal(QString peer,QString ticket,QString connection,QJsonObject payload);
     void notice(QString message);
     void membershipEnded(QString room);
@@ -112,6 +114,7 @@ private:
     qint64 publicationRevision_=0;
     QString publicationTopic_="other";
     quint64 serial_=0;
+    qint64 lastFestivalRing_=0;
     QMap<QString,QString> peerBoots_;
     QMap<QString,quint64> peerSerials_;
     QMap<QString,qint64> retiredBoots_;

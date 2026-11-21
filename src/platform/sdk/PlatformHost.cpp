@@ -121,6 +121,8 @@ void PlatformHost::setContext(const QJsonObject& value) {
     const bool accountChanged = value["account"].toObject()["player_id"] != context_["account"].toObject()["player_id"];
     context_ = value; ++revision_;
     if (ownerChanged||accountChanged) {
+        onlineCupEntry_.clear();
+        if(network_)network_->clearCup();
         avatar_={};
         // An old process must not automatically adopt the next player's context.
         // Clear all contributions together: releasing peers one by one must not
@@ -218,8 +220,8 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         if(peer.shipWorkshop&&shipLooks&&wearShipLook)caps["ship.looks"]=1;
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
-        if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}
-        if(backend_){caps["play.scorecards"]=1;caps["bazaar.read"]=1;caps["bazaar.checkout"]=1;}
+        if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;caps["bazaar.cup"]=1;}
+        if(backend_){caps["play.scorecards"]=1;caps["bazaar.read"]=1;caps["bazaar.checkout"]=1;caps["bazaar.festival"]=1;caps["bazaar.counter"]=1;}
         if(selectHomeWidget)caps["ui.home.widget"]=1;
         ok({{"protocol", 1}, {"capabilities", caps}, {"context", snapshot()}});
         return;
@@ -258,6 +260,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
     if((method.startsWith("bazaar.")||method.startsWith("workshop."))&&backend_) {
         const bool workshop=method.startsWith("workshop.");
         if(workshop&&!peer.shipWorkshop){fail("workshop_unavailable");return;}
+        if(method=="bazaar.festival.attempt" && args["game"]=="golf_online"){fail("unsupported_method");return;}
         if(peer.playBusy){fail("service_busy");return;}
         peer.playBusy=true;const QPointer<QTcpSocket> target(socket);const auto channel=peer.playChannel;const QPointer<PlatformHost> guard(this);
         auto reply=[this,guard,target,channel,id](int status,QJsonObject result){
@@ -274,10 +277,14 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
     if(method.startsWith("play.")&&backend_) {
         if(peer.playBusy){fail("play_busy");return;}
         peer.playBusy=true;const QPointer<QTcpSocket> target(socket);const auto channel=peer.playChannel;const QPointer<PlatformHost> guard(this);
-        backend_->playRequest(channel,peer.app,method,args,[this,guard,target,channel,id](int status,QJsonObject result){
+        const auto ticket=network_?network_->cupTicket():QString();
+        backend_->playRequest(channel,peer.app,method,args,[this,guard,target,channel,id,ticket,method](int status,QJsonObject result){
             if(!guard||!target||!peers_.contains(target)||peers_[target].playChannel!=channel)return;
             peers_[target].playBusy=false;
-            if(status>=200&&status<300)send(target,{{"id",id},{"result",result}});
+            if(status>=200&&status<300){
+                if(network_)network_->observeCupScore(peers_[target].app,ticket,method,result);
+                send(target,{{"id",id},{"result",result}});
+            }
             else send(target,{{"id",id},{"error",QJsonObject{{"code",result["code"].toString("backend_unavailable")}}}});
         });return;
     }
@@ -324,7 +331,44 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
     }
     if(network_&&(method.startsWith("activity.")||method.startsWith("network."))) {
         if(context_["profile"].toString().isEmpty()){fail("no_profile");return;}
+        const bool joining=method=="activity.cup.join";
+        const bool golfStatus=method=="activity.cup.status" && peer.app=="art.abysstail.pocket-golf";
         QJsonObject result;
+        if(joining || golfStatus){
+            if(golfStatus){
+                const auto error=network_->request(peer.app,method,args,result);
+                if(!error.isEmpty()){fail(error);return;}
+                if(!result["entered"].toBool()){ok(result);return;}
+            }
+            if(!backend_ || (golfStatus && onlineCupEntry_.isEmpty())){fail("festival_ticket_required");return;}
+            if(peer.playBusy){fail("service_busy");return;}
+            peer.playBusy=true;
+            const QPointer<QTcpSocket> target(socket);
+            const QPointer<PlatformHost> guard(this);
+            const auto channel=peer.playChannel;
+            const auto match=network_->cupTicket();
+            QJsonObject query{{"game","golf_online"}};
+            if(golfStatus){query["ticket"]=onlineCupEntry_;query["index"]=0;query["x"]=0;query["y"]=0;}
+            backend_->bazaarRead(joining?"bazaar.festival":"bazaar.festival.attempt",query,
+                [this,guard,target,channel,id,joining,method,args,result,match](int status,QJsonObject offer) mutable {
+                    if(!guard || !target || !peers_.contains(target) || peers_[target].playChannel!=channel)return;
+                    auto& current=peers_[target];
+                    current.playBusy=false;
+                    QString error;
+                    const auto round=offer["round"].toObject();
+                    if(status!=200 || !network_ || round["id"].toString().isEmpty())error="festival_ticket_required";
+                    else if(joining){
+                        if(round["complete"].toBool())error="festival_ticket_required";
+                        else {
+                            error=network_->request(current.app,method,args,result);
+                            if(error.isEmpty())onlineCupEntry_=round["id"].toString();
+                        }
+                    }else if(match!=network_->cupTicket() || !round["complete"].toBool())error="cup_closed";
+                    if(error.isEmpty())send(target,{{"id",id},{"result",result}});
+                    else send(target,{{"id",id},{"error",QJsonObject{{"code",error}}}});
+                });
+            return;
+        }
         const auto error=network_->request(peer.app,method,args,result);
         if(error.isEmpty())ok(result);else fail(error);
         return;

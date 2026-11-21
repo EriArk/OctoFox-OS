@@ -6,7 +6,7 @@ inside `BackendAccount`. The SDK app ID is self-declared, not publisher authorit
 
 | Method | Parameters |
 |---|---|
-| `bazaar.world` | `{}`; the registered `festival` world |
+| `bazaar.world` | Empty for Festival Park or `{"world":"mika-island"}` for the bound beach island |
 | `bazaar.sellers` | `{}` |
 | `bazaar.costumes` | `{}`; unavailable offers, no wearable delivery yet |
 | `bazaar.listings` | `place_id` UUID, optional `after` UUID |
@@ -38,6 +38,7 @@ an unconfirmed review.
 | rent | slot, price, revision, species, seller_price | Shows the weekly price, keeper fee and total. One transaction creates both. |
 | list | slot, price | Owner picks one stored item from their paged profile inventory and can change the proposed price before confirming. |
 | buy | slot, listing_id, revision, price | Reviews the current item and price. The backend transfers the existing item. |
+| festival | game, price | Reviews the current ticket and creates one paid round for the active profile. |
 | inventory | — | Opens the private profile inventory. The requesting game gets only a viewed acknowledgement. |
 | resolve | — | Reviews and resends the exact approved operation from the durable journal. |
 
@@ -45,3 +46,29 @@ Slots are integers 1–12, prices are positive integers, revisions are decimal s
 The world response includes the current account's `checkout_pending` flag. Each
 occupied place can carry a public `tenant_name` and up to three `showcase` entries
 with title, game, icon and price. Older hosts may omit the game name. The production Backend's payment policy stays closed.
+
+## Festival tickets
+
+Hosts advertising `bazaar.festival` version 1 support the following calls.
+
+| Method | Arguments | Result |
+| --- | --- | --- |
+| `bazaar.festival` | `game` | Current price, attempt limit, payment availability, pending checkout flag and latest round for this player. |
+| `bazaar.festival.attempt` | `game`, `ticket`, zero-based `index`, integer `x`, `y` | Updated round with accepted attempts, points, completion and prize. |
+
+Games are `gallery`, `rings`, `golf_local` and `golf_online`. Coordinates use
+centimetres in the gallery target plane or on the Wanage counter. A local cup
+consumes one attempt at (0, 0). Online cup admission checks the active player's
+ticket at `activity.cup.join` and redeems it when Golf enters that match.
+A withdrawn player can use their unredeemed ticket at the next registration.
+
+Each game may have one unfinished ticket per profile. Replaying an identical
+indexed attempt returns the saved result. Buying a ticket goes through the
+native checkout window. The third distinct gallery hit deposits that toy in
+the profile inventory in the same transaction that records the hit.
+
+### Personal counter and visits
+
+Hosts advertising `bazaar.counter: 1` support `build`, `weekly`, `withdraw` and `reprice` in the native checkout. Pass `world: "mika-island"` for the island. Slot 1 is the first purchased counter. Only its world owner can build it or change its weekly rent. The tenant controls the keeper and stock. The world response includes the latest sale for the current tenant and the public preview of up to three items. Festival Park returns the current player's won plush titles.
+
+On the island, `bazaar.visit` registers a random per-entry UUID. Poll every three seconds. The oldest present visitor hosts the peer links. Explicit departure or eighteen seconds without a heartbeat releases the role. Each guest receives its own secure-channel invitation. Movement travels over the TrainerOS records transport. Every economic action still requires the authenticated Backend and the appropriate owner, tenant or buyer.

@@ -9,10 +9,155 @@
 #include "platform/sdk/SdkNetwork.h"
 #include "features/device/ControlsDashboard.h"
 #include "features/trainer/AvatarAssets.h"
+#include "fixtures/FestivalTicketPeer.h"
 using namespace trainer;
 class SdkNetworkTests final:public QObject {
     Q_OBJECT
 private slots:
+    void festivalCupRequiresBothEntrants_data() {
+        QTest::addColumn<bool>("games");
+        QTest::newRow("sdk")<<false;
+        QTest::newRow("two Pocket Golf processes")<<true;
+    }
+    void festivalCupRequiresBothEntrants() {
+        QFETCH(bool,games);
+        const auto engine=qEnvironmentVariable("GOLF_TEST_GODOT");
+        const auto project=qEnvironmentVariable("GOLF_TEST_PROJECT");
+        if(games && (engine.isEmpty() || project.isEmpty()))QSKIP("Pocket Golf and Godot required");
+        if(qEnvironmentVariableIsEmpty("TRAINEROS_TEST_RECORD_PYTHON"))QSKIP("Isolated helper interpreter required");
+        QTemporaryDir settings;
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+        QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,settings.path());
+        LobbyCoordinator host, guest;
+        LobbyRuntime first(host),second(guest);
+        host.configure("51","Mint",true);
+        guest.configure("52","Coral",true);
+        first.configure("51",true);
+        second.configure("52",true);
+        connect(&host,&LobbyCoordinator::outgoing,&guest,[&](QString peer,QJsonObject packet){
+            if(peer=="52")guest.receive("51","Mint",packet);
+        });
+        connect(&guest,&LobbyCoordinator::outgoing,&host,[&](QString peer,QJsonObject packet){
+            if(peer=="51")host.receive("52","Coral",packet);
+        });
+        const QString desk="org.traineros.bazaar.festival",golf="art.abysstail.pocket-golf";
+        const auto helper=QString::fromUtf8(SDK_SOURCE)+"/packaging/emulators/melonds/secure-channel.py";
+        const auto python=qEnvironmentVariable("TRAINEROS_TEST_RECORD_PYTHON");
+        SdkNetwork a(host,first,python,helper,"127.0.0.1"),b(guest,second,python,helper,"127.0.0.1");
+        const auto cleanup=qScopeGuard([&]{guest.disconnect();host.disconnect();});
+        const QVariantList installed{QVariantMap{{"app",golf},{"title","Pocket Golf"},{"protocol","pocket-golf.10"},{"local","crates:golf"},{"seats",8}}};
+        const QJsonObject registration{{"title","Pocket Golf"},{"protocol","pocket-golf.10"}};
+        QJsonObject result;
+        ControlsDashboard hostControls,guestControls;
+        FestivalTicketPeer hostEntry,guestEntry;
+        PlatformHost hostSdk(hostControls),guestSdk(guestControls);
+        QProcess hostGame,guestGame;
+        const auto firstEndpoint=settings.filePath("first/endpoint.json");
+        const auto secondEndpoint=settings.filePath("second/endpoint.json");
+        auto startGame=[&](QProcess& process,const QString& endpoint,const QString& local) {
+            if(local!="crates:golf")return false;
+            auto env=QProcessEnvironment::systemEnvironment();
+            env.insert("TRAINEROS_SDK_ENDPOINT",endpoint);
+            env.insert("XDG_DATA_HOME",endpoint+".data");
+            process.setProcessEnvironment(env);
+            process.setProcessChannelMode(QProcess::MergedChannels);
+            process.start(engine,{"--headless","--path",project,"--script","res://tests/festival_online_test.gd"});
+            return process.waitForStarted();
+        };
+        const auto closeGames=qScopeGuard([&]{
+            for(auto* proc:{&hostGame,&guestGame}){
+                if(proc->state()!=QProcess::NotRunning){proc->kill();proc->waitForFinished();}
+                if(games)qInfo().noquote()<<proc->readAll();
+            }
+        });
+        if(games){
+            hostControls.setOwner("mint");guestControls.setOwner("coral");
+            hostSdk.setNetwork(&a);guestSdk.setNetwork(&b);
+            hostSdk.setContext({{"profile","mint"}});guestSdk.setContext({{"profile","coral"}});
+            QVERIFY(hostSdk.start(firstEndpoint));QVERIFY(guestSdk.start(secondEndpoint));
+            hostEntry.attach(hostSdk,firstEndpoint,"mint");
+            guestEntry.attach(guestSdk,secondEndpoint,"coral");
+            a.launchInstalled=[&](QString local){return startGame(hostGame,firstEndpoint,local);};
+            b.launchInstalled=[&](QString local){return startGame(guestGame,secondEndpoint,local);};
+        }
+        for(auto* node:{&a,&b}){
+            node->setInstalledActivities(installed);
+            if(!games)QVERIFY(node->request(golf,"activity.register",registration,result).isEmpty());
+        }
+        QCOMPARE(a.request(desk,"activity.cup.join",{},result),"need_two");
+        QVERIFY(host.create("private"));
+        QVERIFY(host.invite("52"));
+        guest.answer(true);
+        QCOMPARE(b.request(desk,"activity.cup.join",{},result),"host_first");
+        QSignalSpy rings(&b,&SdkNetwork::event);
+        QVERIFY(a.request(desk,"activity.cup.toss",{{"x",15},{"z",22}},result).isEmpty());
+        QCOMPARE(rings.count(),1);
+        QCOMPARE(rings.first().at(1).toJsonObject()["event"],"festival.ring");
+        QVERIFY(a.request(desk,"activity.cup.join",{},result).isEmpty());
+        QVERIFY(b.request(desk,"activity.cup.status",{},result).isEmpty());
+        QVERIFY(!result["joined"].toBool());
+        QVERIFY(a.request(desk,"activity.cup.status",{},result).isEmpty());
+        QCOMPARE(host.state()["phase"],"gathering");
+        QVERIFY(a.request(desk,"activity.cup.leave",{},result).isEmpty());
+        QVERIFY(!result["joined"].toBool());
+        if(games) {
+            QCOMPARE(hostEntry.call("activity.cup.join")["error"].toObject()["code"].toString(),QString("festival_ticket_required"));
+            hostEntry.funded=true;
+            QVERIFY(hostEntry.call("activity.cup.join").contains("result"));
+            QCOMPARE(guestEntry.call("activity.cup.join")["error"].toObject()["code"].toString(),QString("festival_ticket_required"));
+            guestEntry.funded=true;
+            QVERIFY(guestEntry.call("activity.cup.join").contains("result"));
+            QVERIFY(!hostEntry.consumed && !guestEntry.consumed);
+        } else {
+            QVERIFY(a.request(desk,"activity.cup.join",{},result).isEmpty());
+            QVERIFY(b.request(desk,"activity.cup.join",{},result).isEmpty());
+        }
+        auto advance=[&]{
+            a.request(desk,"activity.cup.status",{},result);
+            b.request(desk,"activity.cup.status",{},result);
+            return host.state()["phase"]=="playing" && guest.state()["phase"]=="playing";
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(advance(),15000);
+        for(auto* node:{&a,&b}){
+            QVERIFY(node->request(golf,"activity.cup.status",{},result).isEmpty());
+            QVERIFY(result["entered"].toBool());
+        }
+        if(games){
+            auto scores=[&](SdkNetwork& node){
+                QJsonObject deskState;
+                node.request(desk,"activity.cup.status",{},deskState);
+                return deskState["board"].toObject()["strokes"].toArray();
+            };
+            QTRY_COMPARE_WITH_TIMEOUT(scores(a).size(),2,45000);
+            QTRY_COMPARE_WITH_TIMEOUT(scores(b),scores(a),5000);
+            QVERIFY(hostEntry.consumed && guestEntry.consumed);
+            return;
+        }
+        const QJsonObject strokes{{"strokes",QJsonArray{14,16}}};
+        QVERIFY(a.request(golf,"activity.cup.finish",strokes,result).isEmpty());
+        QVERIFY(a.request(desk,"activity.cup.status",{},result).isEmpty());
+        QCOMPARE(result["board"].toObject()["state"],"unranked");
+        QJsonObject match{{"id","test-round"},{"ruleset_id","pocket-golf.island.open7.v1"},
+                          {"mode","individual"},{"seats",QJsonArray{1,1}}};
+        a.observeCupScore(golf,a.cupTicket(),"play.create",{{"match",match}});
+        match["state"]="confirmed";
+        match["participants"]=QJsonArray{QJsonObject{{"player_id","test-host"},{"side",0}},QJsonObject{{"player_id","test-guest"},{"side",1}}};
+        match["outcomes"]=QJsonArray{QJsonObject{{"place",1},{"score",14},{"members",QJsonArray{"test-host"}}},
+                                     QJsonObject{{"place",2},{"score",16},{"members",QJsonArray{"test-guest"}}}};
+        a.observeCupScore(golf,"old-ticket","play.get",match);
+        QVERIFY(a.request(desk,"activity.cup.status",{},result).isEmpty());
+        QCOMPARE(result["board"].toObject()["state"],"unranked");
+        a.observeCupScore(golf,a.cupTicket(),"play.get",match);
+        QVERIFY(a.request(desk,"activity.cup.status",{},result).isEmpty());
+        QCOMPARE(result["board"].toObject()["state"],"confirmed");
+        QCOMPARE(result["board"].toObject()["rows"].toArray().size(),2);
+        QCOMPARE(result["board"].toObject()["rows"].toArray().first().toObject()["name"],"Mint");
+        a.disconnected(golf);
+        QTRY_COMPARE(host.state()["phase"],"gathering");
+        QVERIFY(a.request(desk,"activity.cup.status",{},result).isEmpty());
+        QVERIFY(!result["joined"].toBool());
+        QCOMPARE(result["board"].toObject()["state"],"confirmed");
+    }
     void sixteenPeersCreditIsolationAndCleanup() {
         const auto python=qEnvironmentVariable("TRAINEROS_TEST_RECORD_PYTHON");
         if(python.isEmpty())QSKIP("Isolated helper interpreter required");

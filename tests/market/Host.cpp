@@ -96,7 +96,8 @@ int main(int argc,char** argv) {
     }
     // Drive the real window's pad actions only in the explicitly requested QA run.
     QString lastView;bool refusedRental=false;
-    if(args.contains("--rehearse"))QObject::connect(&account,&BackendAccount::changed,&app,[&]{
+    const bool counterRun=args.contains("--counter-rehearsal");
+    if(args.contains("--rehearse") || counterRun)QObject::connect(&account,&BackendAccount::changed,&app,[&]{
         const auto view=account.marketReview();
         const auto text=view["text"].toString();
         if(text.isEmpty()){lastView.clear();return;}
@@ -114,17 +115,23 @@ int main(int argc,char** argv) {
                 }
                 return;
             }
-            if(text.contains("Stall 2 for 7 days") && !refusedRental){
+            if(text.contains("Stall 2 for 7 days") && !refusedRental && !counterRun){
                 refusedRental=true;emit account.marketControl("back");return;
             }
             int down=1;
             if(review["picker"].toBool()) {
                 const auto items=review["items"].toList();down=-1;
-                const QString target=args.contains("--stock-pecha")?"Pecha Berry":"Oran Berry";
+                const QString target=counterRun?"Honey Bear":args.contains("--stock-pecha")?"Pecha Berry":"Oran Berry";
                 for(int i=0;i<items.size();++i)if(items[i].toMap()["title"]==target)down=i;
                 if(down<0)return;
             } else if(review["action"]=="list" && review["ready"].toBool() && !review["retry"].toBool()) {
-                for(int price=review["price"].toInt();price<65;++price)emit account.marketControl("right");
+                for(int price=review["price"].toInt();price<(counterRun?30:65);++price)emit account.marketControl("right");
+            } else if(counterRun && review["action"]=="reprice") {
+                for(int price=review["price"].toInt();price>25;--price)emit account.marketControl("left");
+            } else if(counterRun && QStringList{"build","weekly","withdraw","rent","buy"}.contains(review["action"].toString())){
+                // A private disposable wallet only, selected by the QA runner.
+            } else if(review["action"]=="festival" && review["price"].toInt()==10){
+                // Only used by the disposable wallet rehearsal.
             } else if(!(text.contains("250 Sparks") && text.contains("Frog")) && !text.contains("65 Sparks"))return;
             for(int i=0;i<down;++i)emit account.marketControl("down");
             emit account.marketControl("confirm");

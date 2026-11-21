@@ -61,6 +61,7 @@ private:
     QHash<QTcpSocket*, Peer> peers_;
     std::unique_ptr<QLockFile> lock_;
     QString endpoint_, token_, instance_;
+    QString onlineCupEntry_;
     QJsonObject context_;
     QJsonObject avatar_;
     bool avatarAvailable_ = false;

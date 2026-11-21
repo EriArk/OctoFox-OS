@@ -88,6 +88,10 @@
 
 На Odin 2 и Flip 2 установлен Ship Home `acc1bfffdb5b84ae`. На обеих портативках Godot прошёл маршрут «станция → остров → станция» с программной подачей управления. Проверены отказ при слишком быстром заходе, торможение, посадка, сохранение стоянки, возврат на палубу, пауза и столкновение с площадкой. На общем риге тест проверяет контакт обеих ладоней с рукоятками при нейтральном и крайних отклонениях с допуском 1,6 см. На рабочей станции проверены виды вперёд, вбок и вниз, смена аватара в кресле и захваченная мышь. Снимки сделаны на рабочей станции. Ручная оценка стиков и обзора на экране портативки остаётся открытой. [Посадка сбоку](docs/evidence/2026-11-21-ship-flight/seat.jpg) · [Управление](experiences/ship-home/README.md#flying-the-first-egregore-route).
 
+## 21 November 2026 — Island counter and festival collectibles
+
+Odin 2 ran Mika and Ren against disposable wallets. Mika built a 500-Spark beach counter. Ren rented it with a keeper. In Festival Park, Mika won and listed Honey Bear, and Ren bought it for 25 while Mika was offline. Her latest sale and prize ribbon survived reconnect. The production economy remains gated.
+
 ## 20 November 2026 — Bazaar 0.0.18
 
 The native Bazaar test host on Odin 2 presented the current offer and returned to the

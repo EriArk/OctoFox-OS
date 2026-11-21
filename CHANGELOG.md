@@ -88,6 +88,10 @@
 
 Кресло сдвинуто к приборам на 37 см и поднято на 10 см. Пилот держит левой рукой тягу, правой — стик, обе ноги стоят на педалях. Станцию «Фонарь» и остров «Сад эха» связывает первый маршрут. Корабль разгоняется, кренится, тормозит и садится на выбранную площадку. Последняя стоянка сохраняется в профиле. [Вид из кресла](docs/evidence/2026-11-21-ship-flight/forward.jpg) · [Руки](docs/evidence/2026-11-21-ship-flight/controls.jpg) · [Подход к острову](docs/evidence/2026-11-21-ship-flight/approach.jpg).
 
+## 21 November 2026 — Island counter and festival collectibles
+
+Bazaar counters now display festival plush and support changing the price or returning a listing. Beach island owners can buy their first counter and set its weekly rent. Island visits hand the peer host role to a remaining player.
+
 ## 20 November 2026 — Festival market interface
 
 The native trade window shows the item and the Sparks on opposite sides. Owners can select a profile item, adjust the asking price with the pad or touch, and confirm. Pending trades keep their signed-off price when recovered.
