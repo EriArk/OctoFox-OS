@@ -117,11 +117,18 @@ func nose_contact() -> void:
 func range_to(id:int) -> float:return position_of(id).distance_to(f.location)
 func jump_axis() -> Vector3:return Vector3.FORWARD if sector==0 else Vector3.BACK
 
-func distribute(bus:int) -> void:
- if pips[bus]>=4:say("Maximum allocation");return
- var donor:=(bus+1)%3;var other:=(bus+2)%3
- if pips[other]>pips[donor]:donor=other
- pips[donor]-=1;pips[bus]+=1
+func distribute(bus:int,delta:int=1) -> void:
+ if bus<0 or bus>=pips.size() or absi(delta)!=1:return
+ if delta>0 and pips[bus]>=4:say("Maximum allocation");return
+ if delta<0 and pips[bus]==0:say("Minimum allocation");return
+ var partner:=(bus+1)%3
+ var other:=(bus+2)%3
+ if (pips[other]-pips[partner])*delta>0:partner=other
+ pips[bus]+=delta
+ pips[partner]-=delta
+ var source:int=partner if delta>0 else bus
+ var recipient:int=bus if delta>0 else partner
+ say("%s  →  %s    ·    1 unit"%[BUSES[source],BUSES[recipient]])
 
 func module_switch(index:int) -> void:
  enabled[index]=not enabled[index]

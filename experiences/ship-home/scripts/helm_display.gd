@@ -26,7 +26,7 @@ var canvases:Array[Control]=[]
 var saved_look:=Vector2.ZERO
 var extensions: Array[float]=[0.0,0.0]
 var gauges:Array[Label3D]=[]
-var reticle:=MeshInstance3D.new()
+var canopy:=preload("res://scripts/canopy_display.gd").new()
 var radar_mesh:=ImmediateMesh.new()
 var transit_line:=MeshInstance3D.new()
 var scanner:=MeshInstance3D.new()
@@ -78,11 +78,9 @@ func bind(flight,walker) -> void:
   var title:=key_text(key,Vector3(-0.197,0.051,0.004),21,AMBER if side<0 else MINT)
   title.text="NAV   ▴" if side<0 else "SYS   ▴"
   gauges.append(key_text(key,Vector3(-0.197,-0.019,0.005),30,WHITE))
- var mark:=ImmediateMesh.new();mark.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
- for point in [Vector2(0,1),Vector2(1,0),Vector2(0,-1),Vector2(-1,0),Vector2(0,1)]:
-  mark.surface_add_vertex(Vector3(point.x,point.y,0)*0.025)
- mark.surface_end();reticle.mesh=mark;var dye:=StandardMaterial3D.new();dye.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED;dye.albedo_color=MINT
- reticle.material_override=dye;f.art.helm_root.add_child(reticle);reticle.hide()
+ f.art.helm_root.add_child(canopy)
+ canopy.configure(f,pilot)
+ var dye:=StandardMaterial3D.new();dye.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED;dye.albedo_color=MINT
  f.art.helm_root.add_child(transit_line);transit_line.material_override=dye
  hide()
 
@@ -109,13 +107,14 @@ func open(section:String) -> void:
   pilot.yaw=saved_look.x;pilot.pitch=saved_look.y
   pilot.pilot_camera.fov=78
  page=section;cursor=0;buttons.clear()
+ if section!="":canopy.update_projection(0,false)
  if pilot.seated:
   pilot.walking=page==""
   Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if page!="" else Input.MOUSE_MODE_CAPTURED
  refresh()
 
 func clear() -> void:
- open("");y_down=false;chord=false;hide();scanner.hide()
+ open("");y_down=false;chord=false;hide();scanner.hide();canopy.update_projection(0,false)
 
 func line3(mesh:ImmediateMesh,one:Vector3,two:Vector3,ink:Color) -> void:
  var width:=(two-one).cross(Vector3(0,0.55,1)).normalized()*0.0016
@@ -171,8 +170,9 @@ func tick(dt:float,active:bool) -> void:
   mount.position.y=STOWED_Y+TRAVEL*smoothstep(0.0,1.0,extensions[i])
   mount.visible=extensions[i]>0.0
   gauges[i].visible=active
- reticle.visible=active and page=="" and f.mode==f.Mode.FLYING and a.transit==0
- transit_line.visible=reticle.visible and a.pulse_time>0
+ var glass_live:bool=active and page=="" and f.mode==f.Mode.FLYING and a.transit==0
+ canopy.update_projection(dt,glass_live)
+ transit_line.visible=glass_live and a.pulse_time>0
  if not active:return
  if page!="":
   var focus:Vector3=f.art.radar.global_position
@@ -188,16 +188,12 @@ func tick(dt:float,active:bool) -> void:
   pilot.pilot_camera.fov=lerpf(pilot.pilot_camera.fov,23.0 if page=="Scope" else 32.0,blend)
  var course:bool=a.route>=0
  var ray:Vector3=f.attitude.inverse()*(a.jump_axis() if course else a.position_of(a.target)-f.location)
- var eye:Vector3=f.art.helm_root.to_local(pilot.pilot_pivot.global_position)
- var frac:=1.55/maxf(0.05,-ray.z)
- var offset:=Vector2(ray.x,ray.y)*frac
  var behind:=ray.z>=0
- if behind:offset.x=signf(ray.x+0.001)*0.68
- var edge:=offset.clamp(Vector2(-0.68,-0.22),Vector2(0.68,0.38))
- reticle.position=eye+Vector3(edge.x,edge.y,-1.55)
  if transit_line.visible:
+  var eye:Vector3=f.art.helm_root.to_local(pilot.pilot_camera.global_position)
+  var hit:Vector3=eye+ray*((eye.z-canopy.position.z)/maxf(-ray.z,0.001))
   var trace:=ImmediateMesh.new();trace.surface_begin(Mesh.PRIMITIVE_LINES)
-  trace.surface_add_vertex(Vector3(0.55,0.75,-0.56));trace.surface_add_vertex(reticle.position)
+  trace.surface_add_vertex(Vector3(0.55,0.75,-0.56));trace.surface_add_vertex(hit)
   trace.surface_end();transit_line.mesh=trace
  update_keys(behind)
  sweep+=dt
@@ -269,13 +265,13 @@ func rows() -> Array:
   "Chart":return [[a.SECTORS[1-a.sector],"PLOTTED" if a.route>=0 else "PLOT COURSE","plot"],["Shift drive","CANCEL" if a.charge>0 else "CHARGE","jump"],["Sector ephemeris","LOCAL","local"]]
  return []
 
-func activate() -> void:
+func activate(power_delta:int=1) -> void:
  var entries:=rows()
  if cursor>=entries.size() or entries.is_empty() or a.transit>0:return
  var action:Variant=entries[cursor][2]
  match page:
   "Contacts":a.select(action);open("Contact")
-  "Power":a.distribute(action)
+  "Power":a.distribute(action,power_delta)
   "Modules":a.module_switch(action)
   _:
    match action:
@@ -313,6 +309,8 @@ func event(e:InputEvent) -> bool:
   open("Contacts" if page=="Contact" else ("Ship" if page=="Modules" else ("Chart" if page=="Local" else "")));return true
  if e.is_action_pressed("interact") or e.is_action_pressed("ui_accept"):
   activate();return true
+ if page=="Power" and dir in ["Contacts","Ship"]:
+  activate(-1 if dir=="Contacts" else 1);return true
  if page=="Scope":return not e.is_action_pressed("pause_ship")
  if dir in ["Chart","Power"]:cursor=posmod(cursor+(-1 if dir=="Chart" else 1),maxi(1,rows().size()))
  return not e.is_action_pressed("pause_ship")
@@ -322,6 +320,7 @@ func _input(e:InputEvent) -> void:
  if e is InputEventJoypadButton or e is InputEventKey:
   if not e.is_action_pressed("pause_ship") and event(e):get_viewport().set_input_as_handled()
   return
+ if e.device==InputEvent.DEVICE_ID_EMULATION:return
  var pos:Vector2
  if e is InputEventScreenTouch and e.pressed:pos=e.position
  elif e is InputEventMouseButton and e.button_index==MOUSE_BUTTON_LEFT and e.pressed:pos=e.position
@@ -331,7 +330,7 @@ func _input(e:InputEvent) -> void:
   for i in 2:
    var uv:=face_hit(camera,pos,f.art.helm_keys[i],KEY_SIZE)
    if uv.x>=0:
-    open("Contacts" if i==0 else "Ship");get_viewport().set_input_as_handled();return
+    open("Contacts" if i==0 else "Power");get_viewport().set_input_as_handled();return
  for side in 2:
   if page in ["","Scope"] or side_of(page)!=side or extensions[side]<0.98:continue
   var uv:=face_hit(camera,pos,surfaces[side],PANEL_SIZE)
@@ -343,7 +342,10 @@ func _input(e:InputEvent) -> void:
    else:open("Ship" if px.x<260 else "Power")
   else:
    for i in buttons.size():
-    if buttons[i].has_point(px):cursor=i+first_button;activate();break
+    if buttons[i].has_point(px):
+     cursor=i+first_button
+     activate(-1 if page=="Power" and px.x>=321 and px.x<384 else 1)
+     break
   get_viewport().set_input_as_handled();return
 
  if page in ["","Scope"] and not camera.is_position_behind(f.art.radar.global_position):
@@ -439,16 +441,19 @@ func paint(c:Control,side:int) -> void:
  elif page=="Contact":
   label(c,18,94,a.CATALOG[a.target].name,AMBER,32);top=121
  elif page=="Power":
-  label(c,23,91,"CAPACITOR",MUTED,19);label(c,358,91,"ALLOCATION",MUTED,19);top=110;height=55
+  label(c,25,85,"BUS",MUTED,19);label(c,244,85,"CHARGE",MUTED,19)
+  label(c,375,85,"6 POWER UNITS",MINT,19);top=101;height=69
  var entries:=rows()
  first_button=maxi(0,cursor-5)
  for i in range(first_button,mini(first_button+6,entries.size())):
   var r:=Rect2(14,top+(i-first_button)*height,571,height-2);buttons.append(r)
   if i==cursor:c.draw_rect(r,Color("2a474e"));c.draw_rect(Rect2(r.position,Vector2(4,r.size.y)),AMBER)
-  label(c,25,r.position.y+27,str(entries[i][0]),WHITE,23)
+  label(c,25,r.position.y+(36 if page=="Power" else 27),str(entries[i][0]),WHITE,23)
   if page=="Power":
-   label(c,280,r.position.y+27,"%d%%"%roundi([a.shield,a.engine,a.weapon][i]),MINT,20)
-   for j in 4:c.draw_rect(Rect2(363+35*j,r.position.y+12,27,12),AMBER if j<a.pips[i] else Color("36494e"))
+   label(c,245,r.position.y+36,"%d%%"%roundi([a.shield,a.engine,a.weapon][i]),MINT,21)
+   label(c,342,r.position.y+38,"−",WHITE if a.pips[i]>0 else MUTED,30)
+   for j in 4:c.draw_rect(Rect2(389+31*j,r.position.y+19,23,17),AMBER if j<a.pips[i] else Color("36494e"))
+   label(c,536,r.position.y+38,"+",WHITE if a.pips[i]<4 else MUTED,30)
   else:label(c,362,r.position.y+26,str(entries[i][1]),MINT,20)
  if a.reply_time>0:
   c.draw_rect(Rect2(0,320,600,40),Color("243b40"))
