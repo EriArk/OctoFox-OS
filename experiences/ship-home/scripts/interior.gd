@@ -417,10 +417,8 @@ var stick:Node3D
 var throttle:Node3D
 var left_grip:Marker3D
 var right_grip:Marker3D
-var horizon_dial:Node3D
-var ladder:Node3D
+var helm_keys:Array[Node3D]=[]
 var radar:Node3D
-var contact:MeshInstance3D
 var field_stars:MultiMeshInstance3D
 var sky_environment:Environment
 
@@ -475,7 +473,7 @@ func flight_deck(root:Node3D) -> void:
  var dash:=Node3D.new();dash.position=Vector3(0,0,-0.84);root.add_child(dash)
  formed_shell(dash,[Vector4(0.38,0.49,-0.09,0.13),Vector4(0.72,0.94,-0.22,0.19),Vector4(0.80,1.02,-0.24,0.20),Vector4(0.84,0.96,-0.21,0.18)],graphite)
  box(dash,Vector3(0,0.67,0),Vector3(1.72,0.26,0.34),graphite,true)
- var scope:=Node3D.new();scope.position=Vector3(0,0.895,0.018);scope.rotation.x=0.22;dash.add_child(scope)
+ var scope:=Node3D.new();scope.position=Vector3(0,0.868,0.018);scope.rotation.x=0.22;scope.scale=Vector3.ONE*0.84;dash.add_child(scope)
  radar=scope
  cylinder(scope,Vector3.ZERO,0.265,0.045,graphite)
  cylinder(scope,Vector3.UP*0.024,0.252,0.012,inset)
@@ -488,31 +486,15 @@ func flight_deck(root:Node3D) -> void:
   var d:=Vector3(sin(i*PI/2),0,cos(i*PI/2))
   beam(scope,center+d*0.078,center+d*0.205,0.002,Color("795d3a"),true)
  for x in [-0.042,0.042]:beam(scope,center+Vector3(x,0.001,0.036),center+Vector3(0,0.002,-0.045),0.004,amber,true)
- # Idle instruments use engraved scales and our own saucer's wire silhouette.
+ # These low switch faces carry flight telemetry and open the side drawers.
  for side in [-1,1]:
-  var dial:=Node3D.new();dial.position=Vector3(side*0.56,0.916,0.015)
-  dial.rotation=Vector3(0.38,-side*0.24,0);dash.add_child(dial)
-  var surround:=Node3D.new();dial.add_child(surround);surround.rotation.x=-PI/2
-  veneer_case(surround,Vector3.ZERO,Vector2(0.48,0.37),0.045,0.042)
-  var bezel=box(dial,Vector3.ZERO,Vector3(0.43,0.045,0.32),inset)
-  if side>0:
-   scope_arc(bezel,Vector3.UP*0.032,0.13,PI*0.72,PI*2.28,Color("996837"),0.003)
-   var outline:Array[Vector3]=[]
-   for i in 41:
-    var a:=i*TAU/40;outline.append(Vector3(0.096*cos(a),0.056,0.056*sin(a)))
-   tube(dial,outline,0.004,amber,true)
-   for axis in [Vector2(0.093,0),Vector2(0,0.053)]:
-    var dome:Array[Vector3]=[]
-    for i in 17:
-     var a:=i*PI/16
-     dome.append(Vector3(axis.x*cos(a),0.056+0.042*sin(a),axis.y*cos(a)))
-    tube(dial,dome,0.0028,amber,true)
-  else:
-   horizon_dial=dial
-   tube(dial,[Vector3(-0.038,0.041,0),Vector3(0,0.041,0.024),Vector3(0.038,0.041,0)],0.004,Color("8bb6b1"),true)
-  # Woven transducer insets below the instrument castings.
-  faceplate(dash,Vector3(side*0.56,0.757,0.205),Vector2(0.47,0.091),0.036,WEAVE)
-  bezel(dash,Vector3(side*0.56,0.757,0.208),Vector2(0.47,0.091),0.036,0.007,BRASS)
+  var key:=Node3D.new()
+  key.position=Vector3(side*0.47,0.908,0.045)
+  key.rotation=Vector3(-0.71,-side*0.20,0)
+  dash.add_child(key);helm_keys.append(key)
+  veneer_case(key,Vector3.ZERO,Vector2(0.454,0.166),0.031,0.027)
+  faceplate(key,Vector3.BACK*0.002,Vector2(0.437,0.151),0.018,inset)
+  bezel(key,Vector3.BACK*0.003,Vector2(0.437,0.151),0.018,0.004,BRASS)
  root=helm_root
  for side in [-1,1]:
   var wing:=Node3D.new()
@@ -526,12 +508,6 @@ func flight_deck(root:Node3D) -> void:
 # Bearings are fixed to the consoles; these two moving assemblies are built after the cabin batch.
 func moving_controls() -> void:
  stick=Node3D.new();throttle=Node3D.new();left_grip=Marker3D.new();right_grip=Marker3D.new()
- ladder=Node3D.new();horizon_dial.add_child(ladder)
- for i in range(-2,3):
-  var span:=0.125 if i==0 else (0.072 if absi(i)==1 else 0.043)
-  for edge in [-1,1]:
-   beam(ladder,Vector3(edge*0.015,0.032,i*0.032),Vector3(edge*span,0.032,i*0.032),0.0028,Color("d3833a"),true)
- contact=box(radar,Vector3(0,0.052,-0.2),Vector3(0.018,0.012,0.018),Color("8dffe3"),false,true)
  for side in [-1,1]:
   var lever:=stick if side>0 else throttle
   helm_root.add_child(lever);lever.position=Vector3(side*0.265,0.715,0.18)

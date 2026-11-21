@@ -6,7 +6,7 @@ that icon; Apps remains an alternative. [Device checks](../../docs/evidence/2026
 
 The bow cockpit opens directly into a studio inside the 10.6 × 12.4 metre saucer.
 Curved ceiling panels surround an illuminated orbital dial. Portholes light the dinette, and an inlaid runner crosses the timber deck. An enamel landscape of Echo Orchard hangs above the quilt. A berth is recessed into the aft liner between two illuminated display shelves.
-Bent walnut surrounds the two folding terminals. A narrow brass lip catches the light around each glass face. The same walnut and dark woven grille flank the sleeping alcove. A shielded wall lamp grazes the weave, a reading lamp lights the pillow, and the aquarium casts slow ripples on the deck.
+Bent walnut surrounds the two retractable terminals. A narrow brass lip catches the light around each glass face. The same walnut and dark woven grille flank the sleeping alcove. A shielded wall lamp grazes the weave, a reading lamp lights the pillow, and the aquarium casts slow ripples on the deck.
 Opposite the galley, a lounge chair and a curved-backed banquette share one movable
 table by the aquarium. The galley stool sits below the breakfast ledge. A clear
 central aisle connects the cockpit, lift and berth. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
@@ -75,7 +75,7 @@ Walk up behind the seat and press **A / F** to board. Press it again to launch. 
 | Select a console entry / return | A / B | F / Esc |
 | Land on the selected pad | A | F |
 
-The bridge instruments are mounted inside the cockpit. Turning to a console brings its display into focus. Touch either panel directly, or use the four helm chords above. The scope marks stations with diamonds, signals with dots, ships with rectangles and armed contacts with triangles. Stems show relative height and moving contacts carry a heading stroke. A selected vessel’s orbital track is also visible through the canopy.
+The bridge instruments are mounted inside the cockpit. The left and right screens slide out of side cassettes on request. Tap the inset NAV or SYS key, or use the four helm chords above. Tap Y or touch STOW to return directly to the forward view from any page. The brow carries speed, drive mode, selected destination and distance. During final approach it shows the outstanding landing condition. Fuel, shields, hull and power allocation are available in the systems drawer. The scope marks stations with diamonds, signals with dots, ships with rectangles and armed contacts with triangles. Stems show relative height and moving contacts carry a heading stroke. A selected vessel’s orbital track is also visible through the canopy.
 
 From Lantern Station, launch and fly at least 75 metres clear. Open the chart, plot Prism Shoal, point the nose at the course diamond and charge the shift drive with hardpoints stowed. Each crossing uses 22 units of fuel. The chart also shows the return cost. Cruise uses fuel within the sector. Normal flight remains available on reserve. The local chart shows traffic orbits.
 

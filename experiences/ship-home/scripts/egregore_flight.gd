@@ -247,10 +247,6 @@ func tick(dt:float,axes:Vector2,yaw:float,power:float,strafe:Vector2,brake:bool)
 
 func sync_view() -> void:
  transform=Transform3D(attitude,location).inverse()
- var up:=attitude.transposed()*Vector3.UP
- art.ladder.rotation.y=atan2(up.x,up.y)
- art.ladder.position.z=clampf(up.z,-1,1)*0.046
- art.contact.visible=false
  art.field_stars.basis=attitude.transposed()
  art.sky_environment.sky_rotation=attitude.transposed().get_euler()
  update_air()

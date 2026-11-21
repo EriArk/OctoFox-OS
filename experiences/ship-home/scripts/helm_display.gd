@@ -6,8 +6,9 @@ const MINT=Color("94e5d5")
 const RED=Color("ff927a")
 const WHITE=Color("f2f0df")
 const MUTED=Color("afc4c4")
-const GLASS=Color("10252df2")
-const PAGES=["Contacts","Ship","Chart","Power"]
+const KEY_SIZE:=Vector2(0.454,0.166)
+const TRAVEL:=0.76
+const STOWED_Y:=-0.222
 var f
 var a
 var pilot
@@ -23,7 +24,7 @@ var surfaces:Array[MeshInstance3D]=[]
 var viewports:Array[SubViewport]=[]
 var canvases:Array[Control]=[]
 var saved_look:=Vector2.ZERO
-var repeater:=Label3D.new()
+var extensions: Array[float]=[0.0,0.0]
 var gauges:Array[Label3D]=[]
 var reticle:=MeshInstance3D.new()
 var radar_mesh:=ImmediateMesh.new()
@@ -43,17 +44,25 @@ func bind(flight,walker) -> void:
  f.art.radar.add_child(dial_glass);dial_glass.rotation.x=-PI/2;dial_glass.position.y=0.046
  dial_glass.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
  for side in [-1,1]:
-  var mount:=Node3D.new();f.art.helm_root.add_child(mount)
-  mount.position=Vector3(side*1.08,0.785,-0.42)
-  mount.rotation=Vector3(-1.14,side*-0.94,0)
+  var track:=Node3D.new();f.art.helm_root.add_child(track)
+  track.position=Vector3(side*1.08,0.605,-0.385)
+  track.rotation=Vector3(-0.22,side*-0.94,0)
+  # The screen slides between two fixed lips; only the active leaf is rendered.
+  f.art.box(track,Vector3(0,-0.265,0.050),Vector3(0.701,0.53,0.033),f.art.TRIM)
+  f.art.box(track,Vector3(0,-0.265,-0.098),Vector3(0.701,0.53,0.036),f.art.NIGHT)
+  for end in [-1,1]:
+   f.art.box(track,Vector3(end*0.347,-0.265,-0.024),Vector3(0.018,0.53,0.163),f.art.TRIM)
+  f.art.box(track,Vector3(0,-0.011,0.052),Vector3(0.693,0.013,0.035),f.art.BRASS)
+  var mount:=Node3D.new();track.add_child(mount)
+  mount.position.y=STOWED_Y;mount.hide()
   # The glass sits flush in a radiused wood cabinet with a woven speaker below.
   f.art.veneer_case(mount,Vector3(0,-0.021,-0.003),Vector2(0.666,0.463),0.068,0.041)
   f.art.bezel(mount,Vector3(0,0,-0.001),Vector2(0.621,0.382),0.023,0.006,f.art.BRASS)
   f.art.faceplate(mount,Vector3(0,-0.218,-0.001),Vector2(0.551,0.039),0.017,f.art.WEAVE)
   f.art.bezel(mount,Vector3(0,-0.218,0),Vector2(0.558,0.045),0.019,0.003,f.art.BRASS)
-  f.art.box(mount,Vector3(0,-0.29,-0.079),Vector3(0.15,0.25,0.08),Color("34434a"))
+  f.art.box(mount,Vector3(0,-0.411,-0.058),Vector3(0.14,0.47,0.045),Color("34434a"))
   var screen:=SubViewport.new();screen.size=PIXELS;screen.disable_3d=true
-  screen.render_target_update_mode=SubViewport.UPDATE_ONCE;screen.handle_input_locally=false;add_child(screen)
+  screen.render_target_update_mode=SubViewport.UPDATE_DISABLED;screen.handle_input_locally=false;add_child(screen)
   var canvas:=Control.new();canvas.size=PIXELS;screen.add_child(canvas)
   var index:=surfaces.size();canvas.draw.connect(paint.bind(canvas,index))
   var glass:=MeshInstance3D.new();var quad:=QuadMesh.new();quad.size=PANEL_SIZE;glass.mesh=quad
@@ -65,11 +74,10 @@ func bind(flight,walker) -> void:
   light.set_shader_parameter("tint",AMBER if side<0 else MINT);rim.material_override=light
   rim.position.z=0.001;rim.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF;mount.add_child(rim)
   surfaces.append(glass);viewports.append(screen);canvases.append(canvas)
-  var gauge:=Label3D.new();f.art.helm_root.add_child(gauge)
-  gauge.position=Vector3(side*0.50,0.944,-0.57);gauge.rotation=Vector3(-0.36,-side*0.28,0)
-  gauge.font_size=30;gauge.pixel_size=0.00115;gauge.outline_size=5;gauge.outline_modulate=Color("245d55");gauge.modulate=MINT;gauges.append(gauge)
- f.art.helm_root.add_child(repeater);repeater.position=Vector3(0,0.995,-0.68)
- repeater.pixel_size=0.00105;repeater.font_size=38;repeater.outline_size=5;repeater.outline_modulate=Color("654322");repeater.modulate=AMBER
+  var key:Node3D=f.art.helm_keys[index]
+  var title:=key_text(key,Vector3(-0.197,0.051,0.004),21,AMBER if side<0 else MINT)
+  title.text="NAV   ▴" if side<0 else "SYS   ▴"
+  gauges.append(key_text(key,Vector3(-0.197,-0.019,0.005),30,WHITE))
  var mark:=ImmediateMesh.new();mark.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
  for point in [Vector2(0,1),Vector2(1,0),Vector2(0,-1),Vector2(-1,0),Vector2(0,1)]:
   mark.surface_add_vertex(Vector3(point.x,point.y,0)*0.025)
@@ -78,12 +86,22 @@ func bind(flight,walker) -> void:
  f.art.helm_root.add_child(transit_line);transit_line.material_override=dye
  hide()
 
+func key_text(key:Node3D,at:Vector3,size:int,ink:Color) -> Label3D:
+ var line:=Label3D.new()
+ line.position=at;line.font_size=size;line.pixel_size=0.0010
+ line.horizontal_alignment=HORIZONTAL_ALIGNMENT_LEFT
+ line.outline_size=0;line.modulate=ink;line.double_sided=false
+ key.add_child(line)
+ return line
+
 func side_of(section:String) -> int:
  return 1 if section in ["Ship","Power","Modules"] else 0
 
 func refresh() -> void:
- for i in canvases.size():
-  canvases[i].queue_redraw();viewports[i].render_target_update_mode=SubViewport.UPDATE_ONCE
+ if page=="" or page=="Scope":return
+ var i:=side_of(page)
+ canvases[i].queue_redraw()
+ viewports[i].render_target_update_mode=SubViewport.UPDATE_ONCE
 
 func open(section:String) -> void:
  if page=="" and section!="":saved_look=Vector2(pilot.yaw,pilot.pitch)
@@ -142,24 +160,32 @@ func scan() -> void:
  mesh.surface_end()
 
 func tick(dt:float,active:bool) -> void:
- visible=active;scanner.visible=active;repeater.visible=active
+ visible=active;scanner.visible=active
+ var selected:=-1 if not active or page in ["","Scope"] else side_of(page)
+ # Fully lower the previous drawer before exposing its opposite.
+ var retract_first:=selected>=0 and extensions[1-selected]>0.0
  for i in surfaces.size():
   var mount:=surfaces[i].get_parent() as Node3D
-  var raised:=active and page!="" and page!="Scope" and side_of(page)==i
-  var factor:=1.0-exp(-16.0*dt)
-  mount.position.y=lerpf(mount.position.y,1.145 if raised else 0.785,factor)
-  mount.rotation.x=lerpf(mount.rotation.x,-0.22 if raised else -1.14,factor)
+  var goal:=1.0 if i==selected and not retract_first else 0.0
+  extensions[i]=move_toward(extensions[i],goal,dt*5.5) if active else 0.0
+  mount.position.y=STOWED_Y+TRAVEL*smoothstep(0.0,1.0,extensions[i])
+  mount.visible=extensions[i]>0.0
   gauges[i].visible=active
  reticle.visible=active and page=="" and f.mode==f.Mode.FLYING and a.transit==0
  transit_line.visible=reticle.visible and a.pulse_time>0
  if not active:return
  if page!="":
-  var focus:Vector3=f.art.radar.global_position if page=="Scope" else surfaces[side_of(page)].global_position
+  var focus:Vector3=f.art.radar.global_position
+  if selected>=0:
+   var track:Node3D=surfaces[selected].get_parent().get_parent()
+   # Aim just inboard of the leaf so the canopy stays in peripheral view.
+   var inward:=0.105 if selected==0 else -0.105
+   focus=track.to_global(Vector3(inward,STOWED_Y+TRAVEL,0))
   var ray:Vector3=(focus-pilot.pilot_pivot.global_position).normalized()
   var blend:=1.0-exp(-15.0*dt)
   pilot.yaw=lerp_angle(pilot.yaw,atan2(-ray.x,-ray.z),blend)
   pilot.pitch=lerpf(pilot.pitch,asin(ray.y),blend)
-  pilot.pilot_camera.fov=lerpf(pilot.pilot_camera.fov,23.0,blend)
+  pilot.pilot_camera.fov=lerpf(pilot.pilot_camera.fov,23.0 if page=="Scope" else 32.0,blend)
  var course:bool=a.route>=0
  var ray:Vector3=f.attitude.inverse()*(a.jump_axis() if course else a.position_of(a.target)-f.location)
  var eye:Vector3=f.art.helm_root.to_local(pilot.pilot_pivot.global_position)
@@ -173,22 +199,52 @@ func tick(dt:float,active:bool) -> void:
   var trace:=ImmediateMesh.new();trace.surface_begin(Mesh.PRIMITIVE_LINES)
   trace.surface_add_vertex(Vector3(0.55,0.75,-0.56));trace.surface_add_vertex(reticle.position)
   trace.surface_end();transit_line.mesh=trace
- var reading:String="PAD 01   /   MOORED" if f.mode==f.Mode.BERTH else "%03d m/s    %s"%[roundi(f.velocity.length()),"CRUISE" if a.cruise else "LOCAL"]
- if f.mode==f.Mode.FLYING:
-  reading+="\n"+("SHIFT VECTOR" if course else "%s   %d m"%[a.CATALOG[a.target].name,roundi(a.range_to(a.target))])
-  if behind:reading+="   AFT"
-  if a.lock_id>=0:reading+="   LOCK"
-  if a.permit==a.target and a.range_to(a.target)<70:
-   var approach:String=f.clearance()
-   reading+="\nPAD 01   /   "+("LAND" if approach=="" else approach.to_upper())
- if a.charge>0:reading="DRIVE CHARGE   %d%%"%roundi(a.charge/3*100)
- if a.transit>0:reading="TRANSIT   /   "+a.SECTORS[a.route].to_upper()
- repeater.text=reading
- gauges[0].text="THR  %+03d%%"%roundi(f.throttle*100)
- gauges[1].text="SHD %d  /  FUEL %d"%[roundi(a.shield),roundi(a.fuel)]
+ update_keys(behind)
  sweep+=dt
  if sweep>=0.10:
   sweep=0;scan();refresh()
+
+func update_keys(aft:bool) -> void:
+ var nav:String=a.CATALOG[a.target].name+"\n%d m%s"%[roundi(a.range_to(a.target)),"  AFT" if aft else ""]
+ var mode: String="CRUISE" if a.cruise else "LOCAL"
+ var systems:="%d m/s   %s"%[roundi(f.velocity.length()),mode]
+ var caution:=""
+ if f.mode==f.Mode.BERTH:
+  nav=f.NAMES[f.berth];systems="MOORED"
+ elif f.mode==f.Mode.LANDING:
+  nav=f.NAMES[f.destination];systems="TOUCHDOWN"
+ elif f.mode==f.Mode.DEPARTING:
+  nav=f.NAMES[f.berth];systems="LIFTING OFF"
+ elif a.transit>0:
+  nav=a.SECTORS[a.route];systems="IN TRANSIT"
+ elif a.charge>0:
+  nav=a.SECTORS[a.route];systems="CHARGING %d%%"%roundi(a.charge/3*100)
+ elif a.route>=0:
+  nav=a.SECTORS[a.route]+"\nSHIFT VECTOR"
+ elif a.target==f.destination and a.range_to(a.target)<70:
+  var instruction:String=f.clearance()
+  nav="PAD 01   %d m"%roundi(a.range_to(a.target)) if a.target!=1 else "ISLAND   %d m"%roundi(a.range_to(a.target))
+  nav+="\n"+("LAND" if instruction=="" else landing_order(instruction))
+ elif a.lock_id>=0:
+  nav+="  LOCK"
+ if f.mode==f.Mode.FLYING:
+  if a.hull<35:caution="HULL %d%%"%roundi(a.hull)
+  elif a.fuel<a.JUMP_COST:caution="LOW FUEL %d"%floori(a.fuel)
+  elif a.shield<25:caution="SHIELD %d%%"%roundi(a.shield)
+ gauges[0].text=nav
+ if caution=="" and f.mode==f.Mode.FLYING and a.transit<=0 and not is_zero_approx(f.throttle):
+  systems+="\nTHR %+.0f%%"%(f.throttle*100)
+ gauges[1].text=systems+("\n"+caution if caution!="" else "")
+ gauges[1].modulate=AMBER if caution!="" else WHITE
+
+func landing_order(instruction:String) -> String:
+ match instruction:
+  "Request docking clearance":return "CALL CONTROL"
+  "Select the landing site":return "SELECT SITE"
+  "Approach the pad":return "ON APPROACH"
+  "Level the ship":return "LEVEL %d°"%roundi(rad_to_deg(f.attitude.y.angle_to(Vector3.UP)))
+  "Slow below 2.5 m/s":return "SLOW < 2.5 m/s"
+  _:return instruction.to_upper()
 
 func rows() -> Array:
  match page:
@@ -243,7 +299,9 @@ func event(e:InputEvent) -> bool:
  if e.is_action_pressed("pick_item"):
   y_down=true;chord=false;return true
  if e.is_action_released("pick_item"):
-  if y_down and not chord and page=="":a.nose_contact()
+  if y_down and not chord:
+   if page=="":a.nose_contact()
+   else:open("")
   y_down=false;chord=false;return true
  var dir:=""
  for pair in [["rotate_left","ui_left","Contacts"],["rotate_right","ui_right","Ship"],["fly_up","ui_up","Chart"],["fly_down","ui_down","Power"]]:
@@ -269,17 +327,17 @@ func _input(e:InputEvent) -> void:
  elif e is InputEventMouseButton and e.button_index==MOUSE_BUTTON_LEFT and e.pressed:pos=e.position
  else:return
  var camera:Camera3D=pilot.pilot_camera
+ if page=="":
+  for i in 2:
+   var uv:=face_hit(camera,pos,f.art.helm_keys[i],KEY_SIZE)
+   if uv.x>=0:
+    open("Contacts" if i==0 else "Ship");get_viewport().set_input_as_handled();return
  for side in 2:
-  var panel:=surfaces[side];var basis:=panel.global_transform.basis
-  var plane:=Plane(basis.z.normalized(),panel.global_position)
-  var hit:Variant=plane.intersects_ray(camera.project_ray_origin(pos),camera.project_ray_normal(pos))
-  if hit==null:continue
-  var local:=panel.to_local(hit)
-  var uv:=Vector2(local.x,-local.y)/PANEL_SIZE+Vector2.ONE*0.5
-  if not Rect2(Vector2.ZERO,Vector2.ONE).has_point(uv):continue
+  if page in ["","Scope"] or side_of(page)!=side or extensions[side]<0.98:continue
+  var uv:=face_hit(camera,pos,surfaces[side],PANEL_SIZE)
+  if uv.x<0:continue
   var px:=uv*Vector2(PIXELS)
-  if page=="" or side!=side_of(page):open("Contacts" if side==0 else "Ship")
-  elif px.y<48:
+  if px.y<48:
    if px.x>507:open("")
    elif side==0:open("Contacts" if px.x<260 else "Chart")
    else:open("Ship" if px.x<260 else "Power")
@@ -288,17 +346,25 @@ func _input(e:InputEvent) -> void:
     if buttons[i].has_point(px):cursor=i+first_button;activate();break
   get_viewport().set_input_as_handled();return
 
- if not camera.is_position_behind(f.art.radar.global_position):
+ if page in ["","Scope"] and not camera.is_position_behind(f.art.radar.global_position):
   var dial:Vector2=camera.unproject_position(f.art.radar.global_position)
   var rim:Vector2=camera.unproject_position(f.art.radar.to_global(Vector3(0.235,0.045,0)))
   if pos.distance_to(dial)<dial.distance_to(rim):
    open("" if page=="Scope" else "Scope");get_viewport().set_input_as_handled()
 
+func face_hit(camera:Camera3D,pos:Vector2,face:Node3D,size:Vector2) -> Vector2:
+ var normal:=face.global_basis.z.normalized()
+ var ray:=camera.project_ray_normal(pos)
+ if ray.dot(normal)>=0:return Vector2(-1,-1)
+ var hit:Variant=Plane(normal,face.global_position).intersects_ray(camera.project_ray_origin(pos),ray)
+ if hit!=null:
+  var local:=face.to_local(hit)
+  var uv:=Vector2(local.x,-local.y)/size+Vector2.ONE*0.5
+  if Rect2(Vector2.ZERO,Vector2.ONE).has_point(uv):return uv
+ return Vector2(-1,-1)
+
 func label(c:Control,x:float,y:float,value:String,col:Color,px:int=23) -> void:
  c.draw_string(ThemeDB.fallback_font,Vector2(x,y),value,HORIZONTAL_ALIGNMENT_LEFT,-1,px,col)
-
-func meter(c:Control,x:float,y:float,w:float,value:float,ink:Color) -> void:
- c.draw_rect(Rect2(x,y,w,7),Color("294044"));c.draw_rect(Rect2(x,y,w*clampf(value/100,0,1),7),ink)
 
 func map_view(c:Control,local:bool) -> void:
  var center:=Vector2(302,122)
@@ -340,58 +406,50 @@ func map_view(c:Control,local:bool) -> void:
    label(c,pts[i].x-48,pts[i].y+(22 if i==1 else -10),a.SECTORS[i],WHITE,17)
 
 func paint(c:Control,side:int) -> void:
- if a==null:return
+ if a==null or page in ["","Scope"] or side_of(page)!=side:return
  c.draw_rect(Rect2(Vector2.ZERO,Vector2(PIXELS)),Color("0d2028"))
- var focused:=page!="" and page!="Scope" and side_of(page)==side
- var name1:="CONTACTS" if side==0 else "SHIP SYSTEMS"
- var name2:="CHART" if side==0 else "DISTRIBUTOR"
- label(c,18,32,name1,MINT,23);label(c,270,32,name2,MINT,23)
- if focused:label(c,519,32,"EXIT",AMBER,21)
- c.draw_line(Vector2(15,47),Vector2(584,47),Color("41616a"),2)
- if not focused:
-  if side==0:
-   label(c,18,94,a.SECTORS[a.sector].to_upper(),AMBER,30)
-   label(c,18,137,a.CATALOG[a.target].name,WHITE,29)
-   label(c,18,178,"%d m    /    %d m/s"%[roundi(a.range_to(a.target)),roundi(f.velocity.length())],MINT,32)
-   label(c,18,226,"PAD 01   CLEARED" if a.permit>=0 else ("SHIFT  /  "+a.SECTORS[a.route] if a.route>=0 else "LOCAL NAVIGATION"),AMBER,23)
-   label(c,18,268,"THRUST   %d%%"%roundi(f.throttle*100),WHITE)
-   meter(c,18,283,360,absf(f.throttle)*100,AMBER)
-  else:
-   for i in 3:
-    var value:float=[a.shield,a.hull,a.fuel][i]
-    var x:=20+i*193
-    label(c,x,100,["SHIELD","HULL","FUEL"][i],MUTED)
-    label(c,x,150,"%d"%roundi(value),WHITE,40);meter(c,x,169,159,value,MINT)
-    label(c,x,238,a.BUSES[i],AMBER,24)
-    for j in 4:c.draw_rect(Rect2(x+j*33,255,25,11),AMBER if j<a.pips[i] else Color("30424a"))
-   label(c,20,308,"HARDPOINTS   "+("EXTENDED" if a.deployed else "STOWED"),WHITE,21)
- else:
-  buttons.clear()
-  var top:=74;var height:=38
-  if page in ["Chart","Local"]:
-   map_view(c,page=="Local");top=210
-   if page=="Chart":
-    var reserve:float=a.fuel-2*a.JUMP_COST
-    var balance:="RESERVE %d"%floori(reserve) if reserve>=0 else "REFUEL TO RETURN"
-    label(c,18,194,"TANK %d   /   LEG 22   /   %s"%[floori(a.fuel),balance],MINT if reserve>=0 else AMBER,19)
-  elif page=="Modules":
-   var loads:=[4,3,1,1,3,2];var draw:=0
-   for i in loads.size():
-    if a.enabled[i]:draw+=loads[i]
-   label(c,18,75,"REACTOR   %d / 16 MW"%draw,AMBER,20);top=84
-  elif page=="Contact":
-   label(c,18,94,a.CATALOG[a.target].name,AMBER,32);top=121
-  elif page=="Power":
-   label(c,18,90,"CAPACITOR DISTRIBUTION",AMBER,24);top=112;height=53
-  var entries:=rows()
-  first_button=maxi(0,cursor-5)
-  for i in range(first_button,mini(first_button+6,entries.size())):
-   var r:=Rect2(14,top+(i-first_button)*height,571,height-2);buttons.append(r)
-   if i==cursor:c.draw_rect(r,Color("2a474e"));c.draw_rect(Rect2(r.position,Vector2(4,r.size.y)),AMBER)
-   label(c,25,r.position.y+27,str(entries[i][0]),WHITE,23)
-   if page=="Power":
-    for j in 4:c.draw_rect(Rect2(363+35*j,r.position.y+12,27,12),AMBER if j<a.pips[i] else Color("36494e"))
-   else:label(c,362,r.position.y+26,str(entries[i][1]),MINT,20)
- if a.reply_time>0 and (side==0 or focused):
+ var accent:=AMBER if side==0 else MINT
+ var primary:=page in ["Contacts","Contact","Ship","Modules"]
+ label(c,20,32,"CONTACTS" if side==0 else "SYSTEMS",accent if primary else MUTED,22)
+ label(c,274,32,"CHART" if side==0 else "POWER",MUTED if primary else accent,22)
+ label(c,519,32,"STOW",WHITE,19)
+ c.draw_line(Vector2(15,47),Vector2(584,47),Color("345159"),1)
+ var tab_x:=20 if primary else 274
+ c.draw_line(Vector2(tab_x,46),Vector2(tab_x+91,46),accent,3)
+ buttons.clear()
+ var top:=74;var height:=38
+ if page in ["Chart","Local"]:
+  map_view(c,page=="Local");top=210
+  if page=="Chart":
+   var reserve:float=a.fuel-2*a.JUMP_COST
+   var balance:="RESERVE %d"%floori(reserve) if reserve>=0 else "REFUEL TO RETURN"
+   label(c,18,194,"TANK %d   /   LEG 22   /   %s"%[floori(a.fuel),balance],MINT if reserve>=0 else AMBER,19)
+ elif page=="Contacts":
+  var up:Vector3=f.attitude.transposed()*Vector3.UP
+  label(c,23,77,"PITCH  %+.0f°     BANK  %+.0f°"%[rad_to_deg(asin(clampf(-up.z,-1.0,1.0))),rad_to_deg(atan2(up.x,up.y))],MUTED,19)
+  top=88
+ elif page=="Ship":
+  label(c,23,79,"HULL  %d%%     SHIELD  %d%%     FUEL  %d"%[roundi(a.hull),roundi(a.shield),floori(a.fuel)],MINT,20)
+  top=95
+ elif page=="Modules":
+  var loads:=[4,3,1,1,3,2];var draw:=0
+  for i in loads.size():
+   if a.enabled[i]:draw+=loads[i]
+  label(c,18,75,"REACTOR   %d / 16 MW"%draw,AMBER,20);top=84
+ elif page=="Contact":
+  label(c,18,94,a.CATALOG[a.target].name,AMBER,32);top=121
+ elif page=="Power":
+  label(c,23,91,"CAPACITOR",MUTED,19);label(c,358,91,"ALLOCATION",MUTED,19);top=110;height=55
+ var entries:=rows()
+ first_button=maxi(0,cursor-5)
+ for i in range(first_button,mini(first_button+6,entries.size())):
+  var r:=Rect2(14,top+(i-first_button)*height,571,height-2);buttons.append(r)
+  if i==cursor:c.draw_rect(r,Color("2a474e"));c.draw_rect(Rect2(r.position,Vector2(4,r.size.y)),AMBER)
+  label(c,25,r.position.y+27,str(entries[i][0]),WHITE,23)
+  if page=="Power":
+   label(c,280,r.position.y+27,"%d%%"%roundi([a.shield,a.engine,a.weapon][i]),MINT,20)
+   for j in 4:c.draw_rect(Rect2(363+35*j,r.position.y+12,27,12),AMBER if j<a.pips[i] else Color("36494e"))
+  else:label(c,362,r.position.y+26,str(entries[i][1]),MINT,20)
+ if a.reply_time>0:
   c.draw_rect(Rect2(0,320,600,40),Color("243b40"))
   label(c,13,347,a.reply,AMBER,19)

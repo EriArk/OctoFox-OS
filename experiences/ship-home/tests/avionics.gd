@@ -21,6 +21,12 @@ func shot(label:String) -> void:
  await RenderingServer.frame_post_draw
  root.get_texture().get_image().save_png(out+"/"+label+".png")
  await physics_frame
+func touch(world_point:Vector3) -> void:
+ var tap:=InputEventScreenTouch.new()
+ tap.position=home.walker.pilot_camera.unproject_position(world_point)
+ tap.pressed=true;root.push_input(tap,true)
+ tap.pressed=false;root.push_input(tap,true)
+
 func _initialize() -> void:run.call_deferred()
 func run() -> void:
  home=load("res://main.tscn").instantiate();root.add_child(home)
@@ -30,12 +36,32 @@ func run() -> void:
  var f=home.flight;var a=f.avionics;var hud=home.instruments
  var descriptor:=OS.get_environment("SHIP_TEST_DESCRIPTOR")
  if not descriptor.is_empty():home.walker.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(descriptor)))
+ # Let the window manager finish its startup focus transition before driving the bridge.
+ if not out.is_empty():await frames(52)
  home._pause(false);home.walker.position=Vector3(0,0.08,-2.4);press(JOY_BUTTON_A);await frames(4)
+ check(hud.extensions==[0.0,0.0] and not hud.surfaces[0].is_visible_in_tree() and not hud.surfaces[1].is_visible_in_tree(),"Both drawers are housed when seated")
+ await shot("moored")
+ if not out.is_empty():
+  for side in 2:
+   var key_at:Vector3=home.art.helm_keys[side].global_position
+   check(root.get_visible_rect().has_point(home.walker.pilot_camera.unproject_position(key_at)),"Stowed-panel key reachable in forward view")
+   touch(key_at)
+   check(hud.page==("Contacts" if side==0 else "Ship"),"Touch the navigation and system release keys")
+   await frames(32)
+   touch(hud.surfaces[side].to_global(Vector3(0.25,0.158,0)))
+   check(hud.page=="","Stow key returns to flight")
+   await frames(32)
+ panel(JOY_BUTTON_DPAD_RIGHT);choose(0);press(JOY_BUTTON_Y)
+ check(hud.page=="","One Y tap stows a nested instrument page")
  panel(JOY_BUTTON_DPAD_DOWN);check(hud.page=="Power","Y + down opens distributor")
  choose(1);check(a.pips==[2,3,1],"Conserve six pips while diverting to engines")
+ await frames(27)
+ check(hud.extensions==[0.0,1.0],"Only the selected drawer is raised")
  await shot("power")
  panel(JOY_BUTTON_DPAD_LEFT);choose(2);choose(0)
  check(a.target==3 and a.reply.contains("Passing"),"Track and hail an orbiting courier")
+ await frames(33)
+ check(hud.extensions==[1.0,0.0],"Changing sides stows the previous drawer")
  await shot("contacts")
  press(JOY_BUTTON_RIGHT_STICK);await frames(20);check(hud.page=="Scope","Lean to the physical scanner")
  await shot("scope");press(JOY_BUTTON_B)
@@ -82,6 +108,8 @@ func run() -> void:
   await physics_frame
  Input.action_press("decorate");await frames(110);Input.action_release("decorate")
  check(f.clearance()=="","Reach assigned pad, level and slow")
+ check(hud.gauges[0].text.contains("LAND") and hud.extensions==[0.0,0.0],"Landing guidance remains on the dash with drawers retracted")
+ await shot("approach")
  press(JOY_BUTTON_A);await frames(110)
  check(f.berth==2 and f.mode==f.Mode.BERTH,"Land at Prism")
  home._load_profile("pilot");check(f.berth==2 and a.sector==1 and a.pips==[2,3,1] and a.fuel<79,"Reload dock, systems and fuel")
@@ -94,8 +122,7 @@ func run() -> void:
   var glass:MeshInstance3D=hud.surfaces[1]
   var pixel:Vector2=hud.buttons[2].get_center()/Vector2(hud.PIXELS)
   var point:=glass.to_global(Vector3((pixel.x-0.5)*hud.PANEL_SIZE.x,(0.5-pixel.y)*hud.PANEL_SIZE.y,0))
-  var tap:=InputEventScreenTouch.new();tap.position=home.walker.pilot_camera.unproject_position(point);tap.pressed=true
-  root.push_input(tap,true);tap.pressed=false;root.push_input(tap,true)
+  touch(point)
   check(a.enabled[2],"Touch the actual glass to restore sensors")
  press(JOY_BUTTON_B);press(JOY_BUTTON_B);press(JOY_BUTTON_A);await frames(100)
  Input.action_press("next_item");await frames(310);Input.action_release("next_item")
