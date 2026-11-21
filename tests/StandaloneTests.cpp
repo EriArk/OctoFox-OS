@@ -509,6 +509,8 @@ private slots:
         QFile settings(profile["initialConfigDirectory"].toString()+"/settings.ini");
         QVERIFY(settings.open(QIODevice::ReadOnly));const auto fresh=settings.readAll();settings.close();
         QVERIFY(fresh.contains("Cross = Keyboard/K"));QVERIFY(fresh.contains("Cross = SDL-0/A"));
+        QVERIFY(fresh.contains("SetupWizardIncomplete = false"));QVERIFY(fresh.contains("NoDesktopFile = true"));
+        QVERIFY(fresh.contains("CheckAtStartup = false"));
         QVERIFY(fresh.contains("RDown = SDL-0/+RightY"));QVERIFY(fresh.contains("[Hotkeys]"));
         env.controllerName="USB";env.playerIndex=1;prepareEmulators(env);
         QVERIFY(settings.open(QIODevice::ReadOnly));QVERIFY(settings.readAll().contains("Cross = SDL-1/A"));settings.close();

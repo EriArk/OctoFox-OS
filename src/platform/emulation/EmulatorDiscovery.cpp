@@ -233,13 +233,29 @@ bool duckStationControls(const EmulatorEnvironment& env,const QString& directory
         return mapped;
     };
     auto mapped=forPlayer(env.playerIndex);
-    if (!exists(path)) {
+    auto prepared=[&] {
         auto fresh=original;
-        return seed(path,fresh.replace(stock,mapped));
-    }
+        fresh.replace("CheckAtStartup = true","CheckAtStartup = false"); // The runtime is maintained by OctoFox.
+        fresh.replace("[Main]\n","[Main]\nNoDesktopFile = true\nSetupWizardIncomplete = false\n");
+        const auto ra=QDir(env.home).filePath(".var/app/org.libretro.RetroArch/config/retroarch/retroarch.cfg");
+        const auto bios=retroarch::configuredPath(retroarch::readSettings(ra),"system_directory",
+            QDir::isAbsolutePath(env.libraryRoot)?QFileInfo(env.libraryRoot).dir().filePath("bios"):QString());
+        if (retroarch::safePath(bios))
+            fresh.replace("[BIOS]\n","[BIOS]\nSearchDirectory = "+bios.toUtf8()+"\n");
+        return fresh.replace(stock,mapped);
+    };
+    if (!exists(path)) return seed(path,prepared());
     QFile existing(path);
     if (!existing.open(QIODevice::ReadOnly) || existing.size()>1024*1024) return false;
     const auto data=existing.readAll();existing.close();
+    // Software 56 shipped factory settings plus bindings. Only migrate that
+    // exact generated file; a wizard or preference edited by the owner wins.
+    auto legacy=original;
+    if (data==legacy.replace(stock,mapped) || data==original) {
+        const auto next=prepared();
+        QSaveFile output(path);
+        return output.open(QIODevice::WriteOnly) && output.write(next)==next.size() && output.commit();
+    }
     // DuckStation can sort keys on exit. Compare the complete binding set
     // before changing the old device number, leaving custom controls intact.
     const bool crlf=data.contains("\r\n");

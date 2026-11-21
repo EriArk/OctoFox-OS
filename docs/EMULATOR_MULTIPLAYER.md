@@ -160,7 +160,9 @@ The managed DuckStation AppImage at `dd4a0eb77` generates keyboard-only
 Pad1 bindings on first start. The template in `data/emulators` is the stock
 settings file from a disposable home on that build. Discovery adds SDL
 bindings for faces, triggers, sticks, D-pad, Start and Select alongside the
-keyboard. Existing custom Pad1 bindings take precedence.
+keyboard. The managed profile uses the library BIOS directory and opens games
+without the standalone desktop shortcut prompt or initial setup wizard. Existing
+custom Pad1 bindings take precedence.
 
 ## Flip 2 guest controls on managed Armada — 2026-11-21
 
