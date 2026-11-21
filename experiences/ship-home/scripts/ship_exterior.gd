@@ -10,12 +10,12 @@ var emitters:=MultiMeshInstance3D.new()
 var hardpoint_travel:=0.0
 var hardpoints_out:=false
 const EMITTERS = ["GravityForePort", "GravityForeStarboard", "GravityAftPort", "GravityAftStarboard"]
-const EXHAUSTS = ["ExhaustPort", "ExhaustStarboard"]
 const RINGS_PER_EMITTER := 4
 var gravity := MultiMeshInstance3D.new()
-var exhaust := MultiMeshInstance3D.new()
+var exhaust := preload("res://scripts/drive_plumes.gd").new()
 var ring_material := ShaderMaterial.new()
-var plume_material := ShaderMaterial.new()
+var plume_material:ShaderMaterial:
+ get:return exhaust.plume_material
 var cycle := 0.0
 var hover_amount := -1.0
 var drive_power := -1.0
@@ -43,18 +43,7 @@ func _ready() -> void:
  gravity.multimesh=pulses;gravity.material_override=ring_material
  gravity.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF;add_child(gravity)
 
- var jet:=CylinderMesh.new()
- jet.bottom_radius=0.36;jet.top_radius=0.055;jet.height=1;jet.radial_segments=28;jet.rings=1
- jet.cap_top=false;jet.cap_bottom=false
- plume_material.shader=preload("res://shaders/drive_exhaust.gdshader")
- var jets:=MultiMesh.new();jets.transform_format=MultiMesh.TRANSFORM_3D;jets.mesh=jet
- jets.instance_count=EXHAUSTS.size()
- for i in EXHAUSTS.size():
-  var nozzle:Node3D=$Hull.find_child(EXHAUSTS[i],true,false)
-  jets.set_instance_transform(i,Transform3D(Basis(Vector3.RIGHT,PI/2),to_local(nozzle.global_position)))
- jets.custom_aabb=AABB(Vector3(-4.3,0.9,6.8),Vector3(8.6,1.1,2.4))
- exhaust.multimesh=jets;exhaust.material_override=plume_material
- exhaust.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF;add_child(exhaust)
+ add_child(exhaust);exhaust.mount($Hull)
  set_propulsion(1.0,0.0)
  var pods:=MultiMesh.new();pods.transform_format=MultiMesh.TRANSFORM_3D
  var emitter:=CylinderMesh.new();emitter.top_radius=0.16;emitter.bottom_radius=0.27;emitter.height=2.2
@@ -63,15 +52,13 @@ func _ready() -> void:
  emitters.multimesh=pods;emitters.visible=false;add_child(emitters)
  if local_ship:_local_hull()
 
-func set_propulsion(hover:float,forward_thrust:float) -> void:
+func set_propulsion(hover:float,forward_thrust:float,plume_scale:=1.0) -> void:
  var strength:=clampf(hover,0,1)
  if hover_amount!=strength:
   hover_amount=strength
   ring_material.set_shader_parameter("travel",lerpf(1.08,-1.49-Flight.GROUND_Y-0.06,strength))
- var power:=clampf(forward_thrust,0,1)
- if drive_power!=power:
-  drive_power=power
-  plume_material.set_shader_parameter("power",power)
+ drive_power=clampf(forward_thrust,0,1)
+ exhaust.set_power(drive_power*plume_scale)
 
 # Older exterior callers supply only a landing fraction.
 func set_gear_deployment(amount:float) -> void:

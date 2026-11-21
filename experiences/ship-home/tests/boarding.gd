@@ -77,6 +77,13 @@ func run() -> void:
   check(home._station()=="lift" and not home.outside,"Original lift still serves the service deck")
   if site==0 and not OS.get_environment("SHIP_CAPTURE_DIR").is_empty():
    w.yaw=-0.68;w.pitch=-0.24;await frames(12);await capture("two-lifts");w.yaw=0
+  if site==0:
+   for id in ["cargo","economiser","capacitor"]:
+    var deck=home.studio.service
+    var rack:Node3D=deck.cargo if id=="cargo" else deck.sockets
+    var at:Vector3=deck.targets[id]+rack.basis.z*0.54
+    await walk_to(Vector2(at.x,at.z))
+    check(home._station()==id,"Walk from lift to "+id)
   await walk_to(home.studio.EXIT_CENTER)
   check(home._station()=="dock_lift","Separate physical exit lift")
   if site==0:await capture("service-lift")

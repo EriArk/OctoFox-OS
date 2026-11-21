@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 class_name ShipLayoutStore
 extends RefCounted
+signal saved
 const BERTH_KEYS:=["station","orchard","prism","table","cinder-port","cinder-garden"]
 const MAX_ITEMS=48
 # Different deck coordinates: preserve all earlier preview layouts in homes/.
@@ -72,7 +73,7 @@ func save(rows: Array) -> bool:
  var result=f.get_error();f.close()
  if result!=OK:error="Saving failed. Your previous layout is safe.";return false
  if DirAccess.rename_absolute(temp,path())!=OK:error="Could not finish saving your home.";return false
- error="";return true
+ error="";saved.emit();return true
 
 func field_cargo(sku:String) -> Dictionary:
  return ore if sku in preload("res://scripts/ore_outcrop.gd").ORES else botany

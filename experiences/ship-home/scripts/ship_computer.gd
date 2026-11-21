@@ -69,8 +69,8 @@ func fit() -> void:
  var scale_factor:=minf(size.x/1280,size.y/720)
  sheet.scale=Vector2.ONE*scale_factor;sheet.position=(size-sheet.size*scale_factor)/2
 
-func open() -> void:
- page=0;index=0;stick=0;confirmation.clear()
+func open(start_page:=0,start_index:=0) -> void:
+ scroll.scroll_vertical=0;page=start_page;index=start_index;stick=0;confirmation.clear()
  workshop.notice="";show();refresh();workshop.refresh_workshop()
 
 func close() -> void:

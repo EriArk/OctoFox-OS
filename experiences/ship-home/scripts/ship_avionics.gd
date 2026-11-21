@@ -17,6 +17,7 @@ const RACK_SIZE:=3
 const SEEK_TIME:=1.4
 const FLIGHT_TIME:=1.25
 const WARNING_TIME:=4.0
+var traffic_plumes:Dictionary={}
 var installed:Array=[]
 var group:=Group.PULSE
 var gimballed:=true
@@ -72,6 +73,8 @@ func configure(flight) -> void:
   if item.kind in ["ship","hostile"]:
    var hull_scene:=preload("res://assets/ship/saucer.glb").instantiate() as Node3D
    node.add_child(hull_scene)
+   var plumes:=preload("res://scripts/drive_plumes.gd").new()
+   node.add_child(plumes);plumes.mount(hull_scene);traffic_plumes[i]=plumes
    if item.kind=="hostile":
     for side in [-1,1]:f.art.box(node,Vector3(side*3,0.45,-4.3),Vector3(0.48,0.48,3.0),Color("cf715b"),false,true)
   else:
@@ -398,6 +401,7 @@ func update_traffic(dt:float) -> void:
  for id:int in bodies:
   var node:Node3D=bodies[id];node.visible=CATALOG[id].sector==sector
   if not node.visible:continue
+  if traffic_plumes.has(id):traffic_plumes[id].set_power(0.0 if id==WARDEN and disabled_time>0 else 0.62)
   node.position=position_of(id)
   if CATALOG[id].has("orbit"):
    node.rotation.y=atan2(node.position.x-position_of(id,orbit_time+0.1).x,node.position.z-position_of(id,orbit_time+0.1).z)

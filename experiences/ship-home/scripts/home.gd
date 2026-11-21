@@ -71,6 +71,7 @@ func _ready() -> void:
  add_child(fitting);fitting.configure(walker,studio)
  Exterior.configure_camera(walker.pilot_camera,true);Exterior.configure_camera(fitting.camera,true)
  add_child(mine);add_child(garden);add_child(fishing)
+ store.saved.connect(_sync_service_deck)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
  parts.client=avatar_client;parts.fitting=fitting
@@ -171,6 +172,7 @@ func _load_profile(id:String) -> void:
  profile=id;rows=store.load_home(id);undo_rows=[];has_undo=false;moving_index=-1
  if instruments.is_inside_tree():instruments.clear()
  flight.avionics.fresh(store.systems)
+ _sync_service_deck()
  flight.reset(store.berth)
  if is_instance_valid(avatar_client):
   avatar_client.reset_fish()
@@ -178,6 +180,9 @@ func _load_profile(id:String) -> void:
  update_fish()
  _draw_furniture()
  if not store.error.is_empty():notify(store.error)
+
+func _sync_service_deck() -> void:
+ studio.service.sync(store,flight.avionics.installed)
 
 func _appearance(descriptor:Dictionary) -> void:
  var id=str(descriptor.get("profile",""))
@@ -331,7 +336,8 @@ func _process(delta:float) -> void:
   fishing.tick(delta);prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
  var station = _station()
  var target=STATION_TARGETS.get(station)
- if station=="mine":target=mine.global_position+Vector3.UP*0.6
+ if studio.service.targets.has(station):target=studio.service.targets[station]
+ elif station=="mine":target=mine.global_position+Vector3.UP*0.6
  elif station=="garden":target=garden.global_position+Vector3.UP*0.55
  elif station=="fish":target=flight.to_global(flight.fishing_spots[flight.berth])
  elif station=="tank":target=studio.aquarium.to_global(Vector3(0,1.05,0.42))
@@ -512,7 +518,7 @@ const STATION_TARGETS = {
  "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
-const STATION_ACTIONS={"mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
+const STATION_ACTIONS={"cargo":"Inspect cargo","economiser":"Inspect cruise economiser","capacitor":"Inspect boost capacitor","mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
@@ -524,6 +530,7 @@ func _station() -> String:
    if walker.global_position.distance_to(flight.to_global(flight.fishing_spots[flight.berth]))<2.6:return "fish"
   return ""
  if p.distance_to(Art.LIFT)<0.89 and abs(walker.position.y-studio.lift.position.y)<0.4:return "lift"
+ if absf(walker.position.y-Art.LOWER_Y)<0.45:return studio.service.nearest(p)
  if walker.position.y< -0.4:return ""
  if studio.aquarium.to_local(walker.position).distance_to(Vector3(0,0,0.95))<1.42:return "tank"
  if _near_pilot():return "pilot"
@@ -551,7 +558,10 @@ func _physics_process(delta:float) -> void:
    flight.Mode.DEPARTING:exterior.set_propulsion(1.0-flight.transition,flight.transition*0.30)
    flight.Mode.LANDING:exterior.set_propulsion(flight.transition,(1.0-flight.transition)*0.30)
    flight.Mode.BERTH:exterior.set_propulsion(1.0,0.0)
-   flight.Mode.FLYING:exterior.set_propulsion(0.0,flight.throttle)
+   flight.Mode.FLYING:
+    var thrust:float=flight.throttle if flight.avionics.enabled[0] else 0.0
+    var plume_scale:=1.0 if flight.avionics.boost>0 else (0.88 if flight.avionics.cruise else 0.60)
+    exterior.set_propulsion(0.0,thrust,plume_scale)
   walker.steer(stick if flight.mode==flight.Mode.BERTH else flight.stick,flight.throttle)
   if mode_before==flight.Mode.LANDING and flight.mode==flight.Mode.BERTH:
    store.berth=flight.berth;store.systems=flight.avionics.snapshot()
@@ -601,8 +611,11 @@ func _interact() -> void:
   "pilot":
    if editing:_edit(false)
    walker.sit()
-  "computer":
-   walker.walking=false;walker.attend(null);computer.open()
+  "computer","cargo","economiser","capacitor":
+   walker.walking=false;walker.attend(null)
+   if station=="cargo":computer.open(1)
+   elif station in computer.KITS:computer.open(2,computer.KITS.find(station))
+   else:computer.open()
    status.hide();prompts.actions(computer.action_hints());get_viewport().disable_3d=true
    Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
   "workbench","refinery":

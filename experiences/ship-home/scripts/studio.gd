@@ -8,6 +8,7 @@ const CERAMIC = Color("e8d4ba")
 const PRINTER_POS=Vector3(-2.85,0,1.48)
 const REFINERY_POS=Vector3(-1.64,0,0.89)
 const COMPUTER_POS=Vector3(-4.11,0,1.55)
+var service=preload("res://scripts/service_racks.gd").new()
 var art: ShipInterior
 var printer: Node3D
 var toolhead: Node3D
@@ -299,6 +300,7 @@ func lower_deck() -> void:
   var light_bar=art.box(room,radial*(radius-0.18)+Vector3.UP*1.73,Vector3(0.036,0.32,0.022),Color("e2b57d"),false,true)
   light_bar.rotation.y=angle
 
+ service.build_fixed(room,art)
  # Four recessed inspection covers correspond to the four gravity emitters.
  for i in 4:
   var angle:float=PI/8+i*PI/2
@@ -335,6 +337,7 @@ func set_exit_height(height:float) -> void:
  suspension.scale.y=maxf(0.005,Art.LOWER_Y-height)
 
 func build_moving(dock:Node3D) -> void:
+ service.build_payloads()
  lift=AnimatableBody3D.new();lift.sync_to_physics=false;add_child(lift)
  lift.position=Vector3(Art.LIFT.x,0,Art.LIFT.y)
  art.cylinder(lift,Vector3.DOWN*0.077,0.836,0.15,INK)
