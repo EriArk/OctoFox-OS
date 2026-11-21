@@ -11,6 +11,18 @@ Opposite the galley, a lounge chair and a curved-backed banquette share one mova
 table by the aquarium. The galley stool sits below the breakfast ledge. A clear
 central aisle connects the cockpit, lift and berth. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
 
+### Island flowers and pigment cartridges
+
+Walk past the landing circle on Echo Orchard, Table Isle or Cinder Garden. Press **A / F** by the flower patch. Select a stem with left or right and pick the two open heads with visible pollen. Closed buds stay on the plant. Completing the pair saves a field sample to the current ship profile, including while offline. Each patch blooms again at midnight UTC.
+
+| Island | Plant | Cartridge finish |
+| --- | --- | --- |
+| Echo Orchard | Sunbell | Saffron, matte |
+| Table Isle | Tideflower | Sea glass, satin |
+| Cinder Garden | Starbloom | Aurora violet, iridescent |
+
+At the ship's **Fabricator**, switch to **Pigments** with the shoulder buttons. Choose **Store sample** to place the harvest in Profile Inventory. The sample can be sold at the Bazaar or used to start a one-hour extraction. The timer keeps running after exit. **Collect cartridge** adds a tradable pigment cartridge to Profile Inventory. Activate it in the fitting station to permanently unlock its colour. The server recognises a harvest by account, garden and UTC day, so retrying a transfer after a lost reply recovers the original inventory item. The field sample stays on the ship until the service confirms it.
+
 ### Shore fishing and the ship aquarium
 
 Land at Echo Orchard or Table Isle, leave by the lower lift and follow the fishing pier sign from the landing circle. Press **A / F** at the end of the pier to take out the SDK rod.

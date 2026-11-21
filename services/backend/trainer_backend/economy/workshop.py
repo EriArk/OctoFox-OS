@@ -24,10 +24,15 @@ COLORS = {
     'saffron': ('Saffron', '#dfae43', 'matte'),
     'moonstone': ('Moonstone', '#accbda', 'pearlescent'),
 }
+# Raw field samples identify their island and UTC bloom, even when gathered offline.
+BOTANICALS = {'sunbell': 'saffron', 'tideflower': 'sea-glass', 'starbloom': 'aurora'}
+EXTRACTION_HOURS = 1
 CHANNELS = ('primary', 'secondary', 'trim', 'accent')
 
 
 def item_title(kind, sku):
+    if kind == 'botanical':
+        return sku.capitalize() + ' sample'
     if kind == 'material':
         return sku + ' cartridge'
     if kind == 'pigment':
@@ -100,7 +105,7 @@ def snapshot(conn, player):
             count(*) OVER (PARTITION BY sku) quantity
         FROM trainer_backend.workshop_prints WHERE player_id=%s AND item_id IS NULL
         ORDER BY sku,ready_at,id""", (player,)).fetchall()
-    return {'print_hours': {style: dict(zip(PARTS, hours)) for style, hours in PRINT_HOURS.items()},
+    return {'extraction_hours': EXTRACTION_HOURS, 'print_hours': {style: dict(zip(PARTS, hours)) for style, hours in PRINT_HOURS.items()},
             'prints': {r['sku']: {k: r[k] for k in ('id', 'remaining_seconds', 'quantity')} for r in orders},
             'player_id': player, 'stock': [{**r, 'units': int(r['units'])} for r in counts],
             'palette': [r['color'] for r in palette],
@@ -138,6 +143,29 @@ def print_piece(conn, player, style, part, expected_hours):
     return job
 
 
+def harvest(conn, player, plant, day):
+    dates = conn.execute("""SELECT floor(extract(epoch FROM created_at)/86400)::int first_day,
+        floor(extract(epoch FROM statement_timestamp())/86400)::int today
+        FROM trainer_backend.principals WHERE id=%s""", (player,)).fetchone()
+    if not dates['first_day'] <= day <= dates['today']:
+        raise AuthError('invalid_harvest_day', 422)
+    return write(conn, player, 'botanical', {'sku': plant, 'source': 'Island harvest', 'day': day})
+
+
+def extract(conn, player, plant, hours):
+    if hours != EXTRACTION_HOURS:
+        raise AuthError('review_extraction_duration', 409)
+    sample = stored(conn, player, 'botanical', plant)
+    if not sample:
+        raise AuthError('field_sample_required', 409)
+    write(conn, player, 'botanical', {**sample['payload'], 'units': 0}, sample['id'])
+    job = uuid4()
+    conn.execute("""INSERT INTO trainer_backend.workshop_prints(id,player_id,sku,ready_at)
+        VALUES(%s,%s,%s,statement_timestamp()+make_interval(hours => %s))""",
+                 (job, player, 'pigment.' + BOTANICALS[plant], hours))
+    return job
+
+
 def collect(conn, player, job):
     row = conn.execute("""SELECT sku,item_id,ready_at<=clock_timestamp() ready FROM trainer_backend.workshop_prints
         WHERE player_id=%s AND id=%s FOR UPDATE""", (player, job)).fetchone()
@@ -147,7 +175,10 @@ def collect(conn, player, job):
         return row['item_id']
     if not row['ready']:
         raise AuthError('print_in_progress', 409)
-    item = write(conn, player, 'garment', {'sku': row['sku'], 'colors': {}})
+    if row['sku'].startswith('pigment.'):
+        item = write(conn, player, 'pigment', {'sku': row['sku'].split('.')[1], 'source': 'Island harvest'})
+    else:
+        item = write(conn, player, 'garment', {'sku': row['sku'], 'colors': {}})
     conn.execute('UPDATE trainer_backend.workshop_prints SET item_id=%s WHERE id=%s', (item, job))
     return item
 

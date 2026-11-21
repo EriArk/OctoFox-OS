@@ -2,6 +2,7 @@
 extends ColorRect
 signal dismissed
 const Garment = preload("res://scripts/fitting_garment.gd")
+const Garden=preload("res://scripts/botanical_garden.gd")
 const Plate = preload("res://scripts/fabricator_plate.gd")
 const MATERIALS = ["Cotton","Plastic","Aluminium","Steel"]
 const PARTS = ["Top","Bottom","Footwear","Headwear"]
@@ -20,6 +21,9 @@ const IVORY = Color("#f4eddc")
 const MUTED = Color("#b3c3bb")
 const GOLD = Color("#e6c684")
 var workshop
+var ship:Node
+var pigment_index:=0
+var store_sample_button:Button
 var next_tick:=0
 var last_ready:Dictionary={}
 var has_materials:=false
@@ -94,8 +98,8 @@ func _ready() -> void:
  add_child(sheet);sheet.size=CANVAS;sheet.mouse_filter=Control.MOUSE_FILTER_IGNORE
  resized.connect(fit_screen);fit_screen()
  label(sheet,"Fabricator",Rect2(45,21,354,66),46,IVORY,true)
- for i in 2:
-  tabs.append(button(["Blueprints","Cartridges"][i],Rect2(481+i*174,33,164,45),select_page.bind(i)))
+ for i in 3:
+  tabs.append(button(["Blueprints","Cartridges","Pigments"][i],Rect2(481+i*174,33,164,45),select_page.bind(i)))
  button("Close",Rect2(1117,33,119,45),close)
  block(Rect2(44,98,1192,1),LINE)
  group_label=label(sheet,"",Rect2(44,115,330,41),26,IVORY,true)
@@ -123,6 +127,7 @@ func _ready() -> void:
   parts.append(button(PARTS[i],Rect2(437+i*201,560,190,48),select_part.bind(i)))
  note=label(sheet,"",Rect2(44,616,900,44),20,MUTED)
  print_button=button("Print part",Rect2(1022,617,211,42),print_selected)
+ store_sample_button=button("Store sample",Rect2(803,617,200,42),store_selected_sample);store_sample_button.hide()
  print_button.disabled=true
  print_button.add_theme_stylebox_override("disabled",style(Color("#223739"),LINE))
  print_button.add_theme_color_override("font_disabled_color",Color("#a1aaa1"))
@@ -134,12 +139,24 @@ func fit_screen() -> void:
  sheet.scale=Vector2.ONE*factor;sheet.position=(size-CANVAS*factor)/2
 
 func open() -> void:
- page=0;blueprint=0;part=0;material_index=0;on_parts=false;stick=Vector2i.ZERO
+ page=0;blueprint=0;part=0;material_index=0;pigment_index=0;on_parts=false;stick=Vector2i.ZERO
  if is_instance_valid(workshop):workshop.notice=""
  last_ready.clear();show();refresh()
  if is_instance_valid(workshop):workshop.refresh_workshop()
 
 func print_selected() -> void:
+ if page==2:
+  if print_button.disabled:return
+  var sku:String=Garden.COLORS[pigment_index]
+  var plant:String=Garden.PLANTS[pigment_index]
+  var job:Dictionary=workshop.inventory.get("prints",{}).get("pigment."+sku,{})
+  if not job.is_empty() and seconds_left(job)==0:
+   workshop.commit("collect",{"job":job.id},"collect_pigment")
+  else:
+   if workshop.units("botanical",plant)>0:
+    workshop.commit("print",{"plant":plant,"hours":int(workshop.inventory.extraction_hours)},"extract")
+   else:store_selected_sample()
+  return
  if not print_button.disabled and is_instance_valid(workshop):
   var style_id:String=Garment.STYLES[blueprint]
   var slot:String=Garment.SLOTS[part].to_lower()
@@ -148,6 +165,13 @@ func print_selected() -> void:
    workshop.commit("collect",{"job":job.id})
   else:
    workshop.commit("print",{"style":style_id,"part":slot,"hours":int(workshop.inventory.print_hours[style_id][slot])})
+
+func store_selected_sample() -> void:
+ var plant:String=Garden.PLANTS[pigment_index]
+ var days:Array=ship.store.botany.get(plant,{}).get("days",[])
+ for i in range(days.size()-1,-1,-1):
+  if int(days[i])<=Garden.today():
+   workshop.store_sample(plant,int(days[i]),ship.profile);return
 
 func seconds_left(job:Dictionary) -> int:
  var elapsed:=int((Time.get_ticks_msec()-int(workshop.stock_received_ms))/1000.0)
@@ -178,7 +202,16 @@ func update_print_status() -> void:
  print_button.disabled=workshop.busy or (not ready and not has_materials)
 
 func _process(_delta:float) -> void:
- if visible and page==0 and Time.get_ticks_msec()>=next_tick:
+ if visible and page==2 and Time.get_ticks_msec()>=next_tick:
+  next_tick=Time.get_ticks_msec()+1000
+  if is_instance_valid(workshop):
+   var key:String="pigment."+Garden.COLORS[pigment_index]
+   var job:Dictionary=workshop.inventory.get("prints",{}).get(key,{})
+   if not job.is_empty():
+    var seconds:=seconds_left(job)
+    if seconds>0:part_label.text="Extracting   "+time_text(seconds)
+    elif print_button.text!="Collect cartridge":refresh_pigment()
+ elif visible and page==0 and Time.get_ticks_msec()>=next_tick:
   next_tick=Time.get_ticks_msec()+1000
   var ready:Dictionary={}
   if is_instance_valid(workshop):
@@ -200,7 +233,8 @@ func select_entry(index:int) -> void:
  if page==0:
   if blueprint!=index:part=0
   blueprint=index
- else:material_index=index
+ elif page==1:material_index=index
+ else:pigment_index=index
  refresh()
 
 func select_part(index:int) -> void:
@@ -208,11 +242,14 @@ func select_part(index:int) -> void:
 
 func refresh() -> void:
  if not is_node_ready():return
+ for i in tabs.size():highlight(tabs[i],i==page,false)
+ store_sample_button.hide();note.size.x=900
+ if page==2:
+  refresh_pigment();return
  var connected:bool=is_instance_valid(workshop) and not workshop.inventory.is_empty()
  var browsing_sets:=page==0
  var index:int=blueprint if browsing_sets else material_index
  var style_id:String=Garment.STYLES[blueprint]
- for i in 2:highlight(tabs[i],i==page,false)
  group_label.text="Set blueprints" if browsing_sets else "Cartridge types"
  for i in list.size():
   list[i].visible=not browsing_sets or i<Garment.STYLES.size()
@@ -276,19 +313,65 @@ func refresh() -> void:
   if workshop.busy:note.text="Updating inventory…"
   elif not workshop.notice.is_empty():note.text=workshop.notice
 
+func refresh_pigment() -> void:
+ if not is_instance_valid(ship):return
+ var connected:bool=is_instance_valid(workshop) and ship.profile!="" and workshop.inventory.has("extraction_hours")
+ group_label.text="Field samples"
+ for i in list.size():
+  list[i].visible=i<Garden.PLANTS.size()
+  if not list[i].visible:continue
+  var count:int=ship.store.botany.get(Garden.PLANTS[i],{}).get("days",[]).size()
+  names[i].text=Garden.NAMES[i]
+  subtitles[i].text="Ship %d   ·   Inventory %d"%[count,workshop.units("botanical",Garden.PLANTS[i])] if connected else "On ship   %d"%count
+  thumbs[i].pigment(Garden.SWATCHES[i]);list[i].tooltip_text=Garden.SHORES[i]
+  highlight(list[i],i==pigment_index,i==pigment_index)
+ var key:String=Garden.COLORS[pigment_index]
+ var palette:Dictionary=workshop.inventory.get("colors",{}).get(key,{}) if is_instance_valid(workshop) else {}
+ var fallback:Array=["Saffron","Sea glass","Aurora violet"]
+ var color_name:String=palette.get("name",fallback[pigment_index])
+ heading.text=color_name+" cartridge";caption.text=Garden.NAMES[pigment_index]+"   /   "+Garden.SHORES[pigment_index]
+ art.pigment(Garden.SWATCHES[pigment_index]);section.text="Pigment extraction"
+ columns.text="";quantity_heading.text="";part_label.show()
+ for b in parts:b.hide()
+ for i in rows.size():
+  ingredients[i].hide();rows[i].position.x=868;rows[i].text="";amounts[i].text=""
+ rows[0].text="Samples needed";amounts[0].text="1"
+ rows[1].text="Extraction time";amounts[1].text="%d h"%int(workshop.inventory.get("extraction_hours",1) if connected else 1)
+ rows[2].text="Finish";amounts[2].text=palette.get("finish",["matte","satin","iridescent"][pigment_index]).capitalize()
+ var job:Dictionary=workshop.inventory.get("prints",{}).get("pigment."+key,{}) if connected else {}
+ var ready:=not job.is_empty() and seconds_left(job)==0
+ var samples:Array=ship.store.botany.get(Garden.PLANTS[pigment_index],{}).get("days",[])
+ var has_sample:bool=samples.any(func(d):return int(d)<=Garden.today())
+ part_label.text="Open colour in the fitting station" if job.is_empty() else ("Ready to collect" if ready else "Extracting   "+time_text(seconds_left(job)))
+ var in_inventory:bool=connected and workshop.units("botanical",Garden.PLANTS[pigment_index])>0
+ print_button.show()
+ print_button.text="Collect cartridge" if ready else ("Store sample" if has_sample and not in_inventory else "Start extraction")
+ print_button.disabled=not connected or workshop.busy or not (ready or has_sample or in_inventory)
+ store_sample_button.visible=connected and has_sample and (ready or in_inventory)
+ store_sample_button.disabled=not connected or workshop.busy
+ note.size.x=732 if store_sample_button.visible else 900
+ note.text="Pick two open flowers at "+Garden.SHORES[pigment_index]+"." if not has_sample else "Field sample stored on this ship."
+ if not samples.is_empty() and not has_sample:note.text="Sample dated in the future. Check the system clock."
+ if not connected:note.text="Samples stay on this ship. Connect to a workshop with pigment extraction."
+ elif workshop.busy:note.text="Updating inventory…"
+ elif workshop.notice!="":note.text=workshop.notice
+
 func action_hints() -> Array:
- var actions:Array=[["vertical","Blueprint" if page==0 else "Cartridge"],["tab_pair","Tabs"]]
+ var actions:Array=[["vertical",["Blueprint","Cartridge","Plant"][page]],["tab_pair","Tabs"]]
  if page==0:
   actions.append(["horizontal","Part"])
   if not on_parts:actions.append(["interact","Choose part"])
   elif not print_button.disabled:actions.append(["interact",print_button.text])
+ if page==2 and not print_button.disabled:actions.append(["interact",print_button.text])
+ if page==2 and store_sample_button.visible:actions.append(["pick_item","Store sample"])
  actions.append(["cancel_ship","Close"])
  return actions
 
 func navigate(direction:Vector2i) -> void:
  if direction.y!=0:
   if page==0:select_entry(posmod(blueprint+direction.y,Garment.STYLES.size()))
-  else:select_entry(posmod(material_index+direction.y,MATERIALS.size()))
+  elif page==1:select_entry(posmod(material_index+direction.y,MATERIALS.size()))
+  else:select_entry(posmod(pigment_index+direction.y,Garden.PLANTS.size()))
  elif page==0 and direction.x!=0:
   select_part(posmod(part+direction.x,parts.size()))
 
@@ -297,7 +380,8 @@ func _input(event:InputEvent) -> void:
  if event is InputEventMouse or event is InputEventScreenTouch or event is InputEventScreenDrag:return
  if event.is_action_pressed("pause_ship"):return
  if event.is_action_pressed("cancel_ship") or event.is_action_pressed("ui_cancel"):close()
- elif event.is_action_pressed("previous_item") or event.is_action_pressed("next_item"):select_page(1-page)
+ elif event.is_action_pressed("previous_item"):select_page(posmod(page-1,tabs.size()))
+ elif event.is_action_pressed("next_item"):select_page((page+1)%tabs.size())
  elif event is InputEventJoypadMotion:
   var axis:int=event.axis
   if axis==JOY_AXIS_LEFT_X or axis==JOY_AXIS_LEFT_Y:
@@ -309,6 +393,8 @@ func _input(event:InputEvent) -> void:
  elif event.is_action_pressed("ui_down",true):navigate(Vector2i.DOWN)
  elif event.is_action_pressed("ui_left",true):navigate(Vector2i.LEFT)
  elif event.is_action_pressed("ui_right",true):navigate(Vector2i.RIGHT)
+ elif page==2 and event.is_action_pressed("pick_item") and store_sample_button.visible:store_selected_sample()
+ elif page==2 and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):print_selected()
  elif page==0 and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):
   if on_parts and not print_button.disabled:print_selected()
   else:select_part(part)

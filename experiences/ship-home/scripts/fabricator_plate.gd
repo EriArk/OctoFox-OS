@@ -7,9 +7,13 @@ var row := 0
 var column := 0
 var cartridge := false
 var gridded := false
+var ink:=Color.TRANSPARENT
 
 func present(index: int, part: int, material_view: bool) -> void:
- row=index;column=part;cartridge=material_view;queue_redraw()
+ ink=Color.TRANSPARENT;row=index;column=part;cartridge=material_view;queue_redraw()
+
+func pigment(tint:Color) -> void:
+ cartridge=true;ink=tint;queue_redraw()
 
 func _draw() -> void:
  var grid:=Color("#385458")
@@ -32,13 +36,16 @@ func _draw() -> void:
   draw_texture_rect_region(ATLAS,Rect2((size-Vector2.ONE*side)/2,Vector2.ONE*side),Rect2(column*cell,row*cell,cell,cell))
 
 func draw_cartridge() -> void:
- var tint:Color=TINTS[row]
+ var tint:Color=ink if ink.a>0 else TINTS[row]
  var body:=PackedVector2Array([Vector2(-53,-18),Vector2(-43,-28),Vector2(36,-28),Vector2(51,-18),Vector2(51,19),Vector2(41,27),Vector2(-44,27),Vector2(-53,17)])
  draw_colored_polygon(body,Color("#9bb1aa"))
  draw_rect(Rect2(-50,-16,99,34),Color("#415c60"))
  draw_rect(Rect2(-35,-14,69,29),tint.darkened(0.35))
  # The inspection window shows the feedstock: fibre, filament, or metal strips.
- if row<2:
+ if ink.a>0:
+  draw_rect(Rect2(-32,-7,64,20),tint)
+  draw_line(Vector2(-32,-7),Vector2(32,-7),tint.lightened(0.5),2,true)
+ elif row<2:
   for i in 9:
    var px:float=-28+i*7
    if row==0:

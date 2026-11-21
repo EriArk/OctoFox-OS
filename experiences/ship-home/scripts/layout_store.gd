@@ -11,6 +11,7 @@ var writable=true
 var berth:=0
 var systems:Dictionary={}
 var fish:Array=[]
+var botany:Dictionary={}
 
 func path() -> String: return directory+"/"+owner.sha256_text()+".json"
 
@@ -26,7 +27,7 @@ static func valid(rows: Variant) -> bool:
  return true
 
 func load_home(profile: String) -> Array:
- owner=profile if not profile.is_empty() else "guest";error="";writable=true;berth=0;systems={};fish=[]
+ owner=profile if not profile.is_empty() else "guest";error="";writable=true;berth=0;systems={};fish=[];botany={}
  if not FileAccess.file_exists(path()):return defaults()
  var f=FileAccess.open(path(),FileAccess.READ)
  if f==null or f.get_length()>65536:
@@ -39,6 +40,10 @@ func load_home(profile: String) -> Array:
  var saved_fish:Variant=value.get("fish",[])
  if not preload("res://scripts/shore_catch.gd").valid_stock(saved_fish):
   error="Could not read the livewell. Your save has been kept.";writable=false;return value.items
+ var saved_botany:Variant=value.get("botany",{})
+ if not preload("res://scripts/botanical_garden.gd").valid_samples(saved_botany):
+  error="Could not read the botanical samples. Your save has been kept.";writable=false;return value.items
+ botany=saved_botany
  fish=saved_fish
  berth=maxi(0,BERTH_KEYS.find(value.get("berth","station")))
  var state:Variant=value.get("flight",{})
@@ -54,13 +59,35 @@ func save(rows: Array) -> bool:
  if not writable:return false
  if not valid(rows):error="Could not save this furniture arrangement.";return false
  if DirAccess.make_dir_recursive_absolute(directory)!=OK:error="Could not create the home save folder.";return false
+ var content:=JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":BERTH_KEYS[berth],"flight":systems,"fish":fish,"botany":botany},"\t")
+ if content.to_utf8_buffer().size()>65536:error="Home storage is full.";return false
  var temp=path()+".tmp";var f=FileAccess.open(temp,FileAccess.WRITE)
  if f==null:error="Could not write your home. Your previous layout is safe.";return false
- f.store_string(JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":BERTH_KEYS[berth],"flight":systems,"fish":fish},"\t"));f.flush()
+ f.store_string(content);f.flush()
  var result=f.get_error();f.close()
  if result!=OK:error="Saving failed. Your previous layout is safe.";return false
  if DirAccess.rename_absolute(temp,path())!=OK:error="Could not finish saving your home.";return false
  error="";return true
+
+func record_harvest(rows:Array,plant:String,day:int) -> String:
+ var entry:Dictionary=botany.get(plant,{"last":-1,"days":[]}).duplicate(true)
+ if entry.last==day or entry.days.any(func(sample):return int(sample)==day):return "Picked today"
+ entry.last=day;entry.days.append(day);entry.days.sort()
+ return save_samples(rows,plant,entry)
+
+func confirm_sample_transfer(rows:Array,plant:String,day:int) -> String:
+ if not botany.has(plant):return ""
+ var entry:Dictionary=botany[plant].duplicate(true)
+ # JSON represents numbers as floats after a restart.
+ entry.days=entry.days.filter(func(sample):return int(sample)!=day)
+ return save_samples(rows,plant,entry)
+
+func save_samples(rows:Array,plant:String,entry:Dictionary) -> String:
+ var before:=botany
+ botany=before.duplicate();botany[plant]=entry
+ if save(rows):return ""
+ botany=before
+ return error if error!="" else "Could not save samples"
 
 const ORIGINAL_FURNISHINGS = [
   {"item":"armchair","x":-1.95,"z":-0.90,"angle":PI},

@@ -10,6 +10,7 @@ var fish_next:=""
 var fish_epoch:=0
 var fish_error:=""
 
+signal sample_stored(owner:String,plant:String,day:int)
 signal workshop_changed
 var supported := false
 signal looks_changed
@@ -84,6 +85,13 @@ func wear_look(row:Dictionary,field:String="",item:String="") -> void:
  _request("ship.wear",args)
  looks_changed.emit()
 
+func store_sample(plant:String,day:int,owner:String) -> void:
+ if busy or owner=="" or not inventory.has("extraction_hours"):return
+ busy=true;notice="";last_action="store_sample"
+ _request("workshop.collect",{"plant":plant,"day":day,"player_id":inventory.player_id})
+ pending[str(serial)].sample=[owner,plant,day]
+ workshop_changed.emit()
+
 func refresh_workshop() -> void:
  if not supported or busy:return
  busy=true;_request("workshop.get")
@@ -96,14 +104,14 @@ func more_garments() -> void:
 func units(kind:String,sku:String) -> int:
  return stock.get(kind+"/"+sku,0)
 
-func commit(action:String, args:Dictionary) -> void:
+func commit(action:String, args:Dictionary, feedback:String="") -> void:
  if busy or not supported or not inventory.has("revision"):return
  var bytes:=Crypto.new().generate_random_bytes(16)
  bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128
  var hex:=bytes.hex_encode()
  args["operation_id"]="%s-%s-%s-%s-%s"%[hex.substr(0,8),hex.substr(8,4),hex.substr(12,4),hex.substr(16,4),hex.substr(20)]
  args["revision"]=inventory.revision
- last_action=action;busy=true;notice=""
+ last_action=feedback if feedback!="" else action;busy=true;notice=""
  _request("workshop."+action,args);workshop_changed.emit()
 
 func _process(delta:float) -> void:
@@ -178,6 +186,7 @@ func _packet(packet:Dictionary) -> void:
  if not method.begins_with("workshop."):
   super._packet(packet)
   return
+ var sample:Array=pending[str(packet.id)].get("sample",[])
  pending.erase(str(packet.id))
  var data:Dictionary=packet.get("result",{})
  if packet.has("error"):
@@ -199,6 +208,10 @@ func _packet(packet:Dictionary) -> void:
   next_page=str(data.next) if data.get("next") else ""
   busy=false
  else:
-  notice={"print":"Print started","collect":"Part added to inventory","paint":"Finish saved","activate":"Colour added to your palette"}.get(last_action,"Saved")
+  if not sample.is_empty():
+   if str(data.get("item_id","")).length()!=36:
+    busy=false;notice="Could not confirm transfer. Your sample has been kept.";workshop_changed.emit();return
+   sample_stored.emit(sample[0],sample[1],sample[2])
+  notice={"store_sample":"Field sample added to inventory","extract":"Pigment extraction started","collect_pigment":"Cartridge added to inventory","print":"Print started","collect":"Part added to inventory","paint":"Finish saved","activate":"Colour added to your palette"}.get(last_action,"Saved")
   _request("workshop.get")
  workshop_changed.emit()

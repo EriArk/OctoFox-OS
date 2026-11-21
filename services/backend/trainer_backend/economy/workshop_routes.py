@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 from typing import Annotated, Literal
-from uuid import UUID
+from uuid import UUID, uuid5
 from psycopg.types.json import Jsonb
 from fastapi import APIRouter, Request
 from pydantic import Field
@@ -28,6 +28,20 @@ class Print(Operation):
     hours: int | None = Field(default=None, ge=1, le=24)
     style: Literal['traveller', 'mage', 'merchant']
     part: Literal['top', 'bottom', 'boots', 'hat']
+
+
+Plant = Literal['sunbell', 'tideflower', 'starbloom']
+
+
+class BotanicalPrint(Operation):
+    plant: Plant
+    hours: int
+
+
+class Harvest(StrictBody):
+    plant: Plant
+    day: int = Field(ge=0, le=4000000)
+    player_id: Id
 
 
 class Activate(Operation):
@@ -86,12 +100,26 @@ def mutate(request, name, body, apply):
 
 
 @router.post('/v1/me/workshop/print')
-def print_part(request: Request, body: Print):
+def print_part(request: Request, body: Print | BotanicalPrint):
+    if isinstance(body, BotanicalPrint):
+        return mutate(request, 'print', body, lambda c, p: workshop.extract(c, p, body.plant, body.hours))
     return mutate(request, 'print', body, lambda c, p: workshop.print_piece(c, p, body.style, body.part, body.hours))
 
 
 @router.post('/v1/me/workshop/collect')
-def collect(request: Request, body: Collect):
+def collect(request: Request, body: Collect | Harvest):
+    if isinstance(body, Harvest):
+        api = service(request)
+        with api.db.transaction() as conn:
+            player = api.account(conn, bearer(request)).player_id
+            if str(player) != body.player_id:
+                raise AuthError('identity_changed', 409)
+            workshop.lock_account(conn, player)
+            key = uuid5(UUID(str(player)), f'octofox.botany.{body.plant}.{body.day}')
+            receipt = run_command(BoundDatabase(conn), Principal(player, 'player'), 'inventory.harvest',
+                                  str(key), body.model_dump(), lambda c, _: Outcome(
+                                      'completed', workshop.harvest(c, player, body.plant, body.day)))
+            return wire({'player_id': player, 'item_id': receipt['resource_id']})
     return mutate(request, 'collect', body, lambda c, p: workshop.collect(c, p, body.job))
 
 
