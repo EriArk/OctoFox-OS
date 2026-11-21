@@ -200,7 +200,7 @@ func clearance() -> String:
 
 func interact() -> void:
  if mode==Mode.BERTH:
-  mode=Mode.DEPARTING;destination=1-berth if berth<2 else 2
+  mode=Mode.DEPARTING
  elif mode==Mode.FLYING and clearance().is_empty():
   mode=Mode.LANDING
  else:return

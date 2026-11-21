@@ -3,6 +3,7 @@ extends RefCounted
 ## Navigation, sensors and cockpit panels all read the same sector catalogue.
 const SECTORS = ["Lantern Reach","Prism Shoal"]
 const ORIGINS = [Vector3.ZERO,Vector3(42000,800,-36000)]
+const ENTRY_OFFSET:=Vector3(0,6,700)
 const JUMP_COST := 22.0
 const TANK := 100.0
 const MODULES = ["Thrusters","Shields","Sensors","Comms","Shift drive","Emitter bank"]
@@ -46,6 +47,7 @@ var f
 var sector:=0
 var target:=1
 var route:=-1
+var arrival_target:=-1
 var permit:=-1
 var lock_id:=-1
 var deployed:=false
@@ -103,7 +105,7 @@ func snapshot() -> Dictionary:
 func docked(site:int) -> void:
  sector=1 if site==2 else 0
  target=1-site if site<2 else 7
- permit=-1;route=-1;lock_id=-1;deployed=false;cruise=false;boost=0;charge=0;transit=0
+ permit=-1;route=-1;arrival_target=-1;lock_id=-1;deployed=false;cruise=false;boost=0;charge=0;transit=0
  clear_ordnance()
  update_traffic(0)
 
@@ -119,17 +121,23 @@ func position_of(id:int,at:float=-1) -> Vector3:
   pos+=Vector3(cos(t)*radii.x,5*sin(2*t),sin(t)*radii.y)
  return pos
 
-func contacts() -> Array[int]:
+func chart_contacts(region:int) -> Array[int]:
  var result:Array[int]=[]
  for i in CATALOG.size():
-  if CATALOG[i].sector==sector and (enabled[2] or CATALOG[i].has("site")):result.append(i)
+  var entry:Dictionary=CATALOG[i]
+  if entry.sector!=region or (not enabled[2] and not entry.has("site")):continue
+  if region!=sector and entry.has("orbit"):continue
+  result.append(i)
  return result
+
+func contacts() -> Array[int]:
+ return chart_contacts(sector)
 
 func select(id:int) -> void:
  if not id in contacts():return
  if lock_id!=id:lock_id=-1;seeker=0
  target=id
- if CATALOG[id].has("site"):f.destination=id
+ if CATALOG[id].has("site") and f.mode!=f.Mode.LANDING:f.destination=CATALOG[id].site
 
 func nose_contact() -> void:
  var score:=-2.0;var best:=-1
@@ -300,8 +308,32 @@ func boost_drive() -> void:
  if f.mode!=f.Mode.FLYING or cruise or not enabled[0] or engine<36 or charge>0:say("Boost unavailable");return
  engine-=36;boost=1.8;say("Boost")
 
-func plot() -> void:
- route=1-sector;say("Course plotted · "+SECTORS[route])
+func plot(waypoint:int=-1) -> void:
+ if transit>0 or charge>0:
+  say("Shift drive engaged");return
+ var region:=1-sector
+ if waypoint<0:waypoint=chart_contacts(region)[0]
+ if waypoint not in chart_contacts(region):return
+ route=region;arrival_target=waypoint
+ say("Course plotted · "+CATALOG[waypoint].name)
+
+func clear_course() -> void:
+ if charge>0 or transit>0:say("Shift drive engaged");return
+ route=-1;arrival_target=-1
+ say("Course cleared")
+
+func navigate_to(id:int) -> bool:
+ if f.mode==f.Mode.LANDING:
+  say("Docking in progress");return false
+ if transit>0 or charge>0:
+  say("Shift drive engaged");return false
+ var region:int=CATALOG[id].sector
+ if id not in chart_contacts(region):return false
+ if region!=sector:plot(id)
+ else:
+  route=-1;arrival_target=-1;select(id)
+  say("Tracking · "+CATALOG[id].name)
+ return true
 
 func jump() -> void:
  if charge>0:charge=0;say("Charge cancelled");return
@@ -346,8 +378,10 @@ func advance(dt:float) -> void:
   transit=maxf(0,transit-dt)
   if transit==0:
    sector=route;route=-1;permit=-1;lock_id=-1
-   f.destination=2 if sector==1 else 0;target=f.destination
-   f.location=ORIGINS[sector]+Vector3(0,6,700);f.attitude=Basis.IDENTITY
+   f.destination=2 if sector==1 else 0
+   select(arrival_target if arrival_target in contacts() else f.destination)
+   arrival_target=-1
+   f.location=ORIGINS[sector]+ENTRY_OFFSET;f.attitude=Basis.IDENTITY
    f.velocity=Vector3.ZERO;f.throttle=0;f.turn_rate=Vector3.ZERO;update_traffic(0);say("Arrived · "+SECTORS[sector])
  elif charge>0:
   if (-f.attitude.z).dot(jump_axis())<0.95:charge=0;say("Alignment lost");return
