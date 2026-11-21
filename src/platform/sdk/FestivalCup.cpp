@@ -22,7 +22,7 @@ bool cupGame(const QJsonObject& room) {
 }
 
 void SdkNetwork::clearCup() {
-    cupRoom_.clear();cupOwner_.clear();cupGeneration_=0;cupTicket_.clear();cupMatch_.clear();cupBoard_={};
+    cupRoom_.clear();cupOwner_.clear();cupGeneration_=0;cupTicket_.clear();cupMatch_.clear();cupPlayers_.clear();cupBoard_={};
 }
 
 void SdkNetwork::observeCupScore(const QString& app,const QString& ticket,const QString& method,const QJsonObject& result) {
@@ -43,7 +43,7 @@ void SdkNetwork::observeCupScore(const QString& app,const QString& ticket,const 
         const auto ids=r["members"].toArray();
         for(const auto& participant:result["participants"].toArray()){
             const auto player=participant.toObject();
-            if(ids.contains(player["player_id"]))name=player["side"].toInt()==0?"Host":"Guest";
+            if(ids.contains(player["player_id"]))name=cupPlayers_.value(player["side"].toInt(-1));
         }
         rows.append(QJsonObject{{"place",r["place"]},{"score",r["score"]},{"name",name}});
     }
@@ -94,6 +94,12 @@ QString SdkNetwork::cupRequest(const QString& app,const QString& method,const QJ
         if(!joined){
             clearCup();cupOwner_=lobby_.self();cupRoom_=room["id"].toString();
             cupGeneration_=room["generation"].toInteger();joined=true;
+            for(const auto& value:seats){
+                const auto member=value.toObject();
+                const auto name=member["name"].toString().simplified().left(12);
+                if(member["id"]==room["owner"])cupPlayers_.prepend(name);
+                else cupPlayers_.append(name);
+            }
         }
     }else if(method=="activity.cup.leave"){
         if(joined && gathering){

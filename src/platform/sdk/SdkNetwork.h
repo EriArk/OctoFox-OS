@@ -52,6 +52,7 @@ private:
     Completion completion_;
     bool host_=false,announced_=false,stopping_=false;
     QString cupRoom_,cupOwner_,cupTicket_,cupMatch_;
+    QStringList cupPlayers_;
     qint64 cupGeneration_=0;
     QJsonObject cupBoard_;
     QString cupRequest(const QString&,const QString&,const QJsonObject&,QJsonObject&);

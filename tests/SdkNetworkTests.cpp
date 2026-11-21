@@ -41,7 +41,7 @@ private slots:
         });
         const QString desk="org.traineros.bazaar.festival",golf="art.abysstail.pocket-golf";
         const auto helper=QString::fromUtf8(SDK_SOURCE)+"/packaging/emulators/melonds/secure-channel.py";
-        const auto python=qEnvironmentVariable("TRAINEROS_TEST_RECORD_PYTHON",QString::fromUtf8(SDK_PYTHON));
+        const auto python=qEnvironmentVariable("TRAINEROS_TEST_RECORD_PYTHON");
         SdkNetwork a(host,first,python,helper,"127.0.0.1"),b(guest,second,python,helper,"127.0.0.1");
         const auto cleanup=qScopeGuard([&]{guest.disconnect();host.disconnect();});
         const QVariantList installed{QVariantMap{{"app",golf},{"title","Pocket Golf"},{"protocol","pocket-golf.10"},{"local","crates:golf"},{"seats",8}}};
@@ -126,7 +126,9 @@ private slots:
                           {"mode","individual"},{"seats",QJsonArray{1,1}}};
         a.observeCupScore(golf,a.cupTicket(),"play.create",{{"match",match}});
         match["state"]="confirmed";
-        match["outcomes"]=QJsonArray{QJsonObject{{"place",1},{"score",14}},QJsonObject{{"place",2},{"score",16}}};
+        match["participants"]=QJsonArray{QJsonObject{{"player_id","test-host"},{"side",0}},QJsonObject{{"player_id","test-guest"},{"side",1}}};
+        match["outcomes"]=QJsonArray{QJsonObject{{"place",1},{"score",14},{"members",QJsonArray{"test-host"}}},
+                                     QJsonObject{{"place",2},{"score",16},{"members",QJsonArray{"test-guest"}}}};
         a.observeCupScore(golf,"old-ticket","play.get",match);
         QVERIFY(a.request(desk,"activity.cup.status",{},result).isEmpty());
         QCOMPARE(result["board"].toObject()["state"],"unranked");
@@ -134,6 +136,7 @@ private slots:
         QVERIFY(a.request(desk,"activity.cup.status",{},result).isEmpty());
         QCOMPARE(result["board"].toObject()["state"],"confirmed");
         QCOMPARE(result["board"].toObject()["rows"].toArray().size(),2);
+        QCOMPARE(result["board"].toObject()["rows"].toArray().first().toObject()["name"],"Mint");
         a.disconnected(golf);
         QTRY_COMPARE(host.state()["phase"],"gathering");
         QVERIFY(a.request(desk,"activity.cup.status",{},result).isEmpty());
