@@ -23,6 +23,9 @@ const MUTED = Color("#b3c3bb")
 const GOLD = Color("#e6c684")
 var workshop
 var ship:Node
+var processor:=false
+var station_title:Label
+var ore_index:=0
 var pigment_index:=0
 var store_sample_button:Button
 var next_tick:=0
@@ -98,9 +101,9 @@ func _ready() -> void:
  bold_font.base_font=ThemeDB.fallback_font;bold_font.variation_embolden=0.5
  add_child(sheet);sheet.size=CANVAS;sheet.mouse_filter=Control.MOUSE_FILTER_IGNORE
  resized.connect(fit_screen);fit_screen()
- label(sheet,"Fabricator",Rect2(45,21,354,66),46,IVORY,true)
- for i in 3:
-  tabs.append(button(["Blueprints","Cartridges","Pigments"][i],Rect2(481+i*174,33,164,45),select_page.bind(i)))
+ station_title=label(sheet,"Fabricator",Rect2(45,21,354,66),46,IVORY,true)
+ for i in 2:
+  tabs.append(button(["Blueprints","Cartridges"][i],Rect2(647+i*174,33,164,45),select_page.bind(i)))
  button("Close",Rect2(1117,33,119,45),close)
  block(Rect2(44,98,1192,1),LINE)
  group_label=label(sheet,"",Rect2(44,115,330,41),26,IVORY,true)
@@ -139,36 +142,52 @@ func fit_screen() -> void:
  var factor:=minf(size.x/CANVAS.x,size.y/CANVAS.y)
  sheet.scale=Vector2.ONE*factor;sheet.position=(size-CANVAS*factor)/2
 
-func open() -> void:
- page=0;blueprint=0;part=0;material_index=0;pigment_index=0;on_parts=false;stick=Vector2i.ZERO
+func open(use_processor:=false) -> void:
+ processor=use_processor
+ station_title.text="Refinery" if processor else "Fabricator"
+ tabs[0].text="Ore" if processor else "Blueprints"
+ tabs[1].text="Plants" if processor else "Cartridges"
+ ore_index=0;page=0;blueprint=0;part=0;material_index=0;pigment_index=0;on_parts=false;stick=Vector2i.ZERO
  if is_instance_valid(workshop):workshop.notice=""
  last_ready.clear();show();refresh()
  if is_instance_valid(workshop):workshop.refresh_workshop()
 
 func refining() -> bool:
- return page==1 and MATERIALS[material_index] in Mine.METALS
+ return processor and page==0
 
 func sample_sku() -> String:
- if refining():return Mine.ORES[Mine.METALS.find(MATERIALS[material_index])]
+ if refining():return Mine.ORES[ore_index]
  return Garden.PLANTS[pigment_index]
 
 func job_key() -> String:
- if refining():return "material."+MATERIALS[material_index]
+ if refining():return "material."+Mine.METALS[ore_index]
  return "pigment."+Garden.COLORS[pigment_index]
 
+func case_recipe() -> bool:
+ return not processor and page==0 and blueprint==Garment.STYLES.size()
+
 func print_selected() -> void:
- if page==2 or refining():
+ if case_recipe():
+  if print_button.disabled:return
+  var job:Dictionary=workshop.inventory.get("prints",{}).get("material.Empty",{})
+  if not job.is_empty() and seconds_left(job)==0:workshop.commit("collect",{"job":job.id},"collect_material")
+  else:workshop.commit("print",{"casing":"empty","hours":1},"print_case")
+  return
+ if processor:
   if print_button.disabled:return
   var sku:=sample_sku()
   var job:Dictionary=workshop.inventory.get("prints",{}).get(job_key(),{})
   if not job.is_empty() and seconds_left(job)==0:
    workshop.commit("collect",{"job":job.id},"collect_material" if refining() else "collect_pigment")
   elif workshop.units("ore" if refining() else "botanical",sku)>0:
-   if refining():workshop.commit("print",{"ore":sku,"hours":int(workshop.inventory.refining_hours)},"refine")
-   else:workshop.commit("print",{"plant":sku,"hours":int(workshop.inventory.extraction_hours)},"extract")
+   var args:Dictionary={}
+   if refining():args={"ore":sku,"hours":int(workshop.inventory.refining_hours)}
+   else:args={"plant":sku,"hours":int(workshop.inventory.extraction_hours)}
+   if not job.is_empty():args.extra_case=true
+   workshop.commit("print",args,"refine" if refining() else "extract")
   else:store_selected_sample()
   return
- if not print_button.disabled and is_instance_valid(workshop):
+ if page==0 and not print_button.disabled and is_instance_valid(workshop):
   var style_id:String=Garment.STYLES[blueprint]
   var slot:String=Garment.SLOTS[part].to_lower()
   var job:Dictionary=workshop.inventory.get("prints",{}).get(style_id+"."+slot,{})
@@ -213,7 +232,7 @@ func update_print_status() -> void:
  print_button.disabled=workshop.busy or (not ready and not has_materials)
 
 func _process(_delta:float) -> void:
- if visible and (page==2 or refining()) and Time.get_ticks_msec()>=next_tick:
+ if visible and processor and Time.get_ticks_msec()>=next_tick:
   next_tick=Time.get_ticks_msec()+1000
   if is_instance_valid(workshop):
    var key:=job_key()
@@ -222,8 +241,9 @@ func _process(_delta:float) -> void:
     var seconds:=seconds_left(job)
     if seconds>0:part_label.text=("Refining   " if refining() else "Extracting   ")+time_text(seconds)
     elif print_button.text!="Collect cartridge":refresh()
- elif visible and page==0 and Time.get_ticks_msec()>=next_tick:
+ elif visible and not processor and page==0 and Time.get_ticks_msec()>=next_tick:
   next_tick=Time.get_ticks_msec()+1000
+  if case_recipe():refresh();return
   var ready:Dictionary={}
   if is_instance_valid(workshop):
    var jobs:Dictionary=workshop.inventory.get("prints",{})
@@ -241,30 +261,35 @@ func select_page(index:int) -> void:
 
 func select_entry(index:int) -> void:
  on_parts=false
- if page==0:
+ if processor:
+  if refining():ore_index=index
+  else:pigment_index=index
+ elif page==0:
   if blueprint!=index:part=0
   blueprint=index
- elif page==1:material_index=index
- else:pigment_index=index
+ else:material_index=index
  refresh()
 
 func select_part(index:int) -> void:
  on_parts=true;part=index;refresh()
 
 func refresh() -> void:
- if not is_node_ready():return
+ if not is_node_ready() or not visible:return
  for i in tabs.size():highlight(tabs[i],i==page,false)
  store_sample_button.hide();note.size.x=900
- if page==2:
-  refresh_pigment();return
+ if processor:
+  refresh_refinery();return
  var connected:bool=is_instance_valid(workshop) and not workshop.inventory.is_empty()
  var browsing_sets:=page==0
  var index:int=blueprint if browsing_sets else material_index
- var style_id:String=Garment.STYLES[blueprint]
- group_label.text="Set blueprints" if browsing_sets else "Cartridge types"
+ var style_id:String=Garment.STYLES[blueprint] if blueprint<Garment.STYLES.size() else ""
+ group_label.text="Blueprints" if browsing_sets else "Cartridge types"
  for i in list.size():
-  list[i].visible=not browsing_sets or i<Garment.STYLES.size()
-  if not list[i].visible:continue
+  list[i].show()
+  if browsing_sets and i==Garment.STYLES.size():
+   names[i].text="Empty cartridge";list[i].tooltip_text="Reusable cartridge shell blueprint"
+   subtitles[i].text=("Owned" if workshop.units("blueprint","empty")>0 else "Blueprint needed") if connected else "1 recipe"
+   thumbs[i].pigment(Color("#b6b9aa"));highlight(list[i],i==index,i==index);continue
   var title:String=Garment.STYLES[i].capitalize() if browsing_sets else MATERIALS[i]
   names[i].text=title
   if browsing_sets:
@@ -286,7 +311,19 @@ func refresh() -> void:
  for i in rows.size():
   rows[i].text="";amounts[i].text="";ingredients[i].hide()
   rows[i].position.x=928 if browsing_sets else 868
- if browsing_sets:
+ if case_recipe():
+  for b in parts:b.hide()
+  caption.text="Reusable utility blueprint";heading.text="Empty cartridge"
+  art.pigment(Color("#b6b9aa"));section.text="Required cartridges";columns.text="Material";quantity_heading.text="Held / Needed"
+  ingredients[0].present(1,0,true);ingredients[0].show();rows[0].text="Plastic"
+  amounts[0].text=("%d / 1"%workshop.units("material","Plastic")) if connected else "— / 1"
+  var job:Dictionary=workshop.inventory.get("prints",{}).get("material.Empty",{}) if connected else {}
+  var ready:=not job.is_empty() and seconds_left(job)==0
+  part_label.text="Print time · 1 h" if job.is_empty() else ("Ready to collect" if ready else "Printing   "+time_text(seconds_left(job)))
+  print_button.text="Collect cartridge" if ready else "Print cartridge"
+  print_button.disabled=not connected or not workshop.inventory.has("case_hours") or workshop.busy or not (ready or (workshop.units("blueprint","empty")>0 and workshop.units("material","Plastic")>=1))
+  note.text="Buy the blueprint at the ship computer." if not connected or workshop.units("blueprint","empty")==0 else "An empty shell for an additional refinery batch."
+ elif browsing_sets:
   caption.text=style_id.capitalize()+"   /   Reusable set blueprint"
   heading.text=Garment.NAMES[style_id][part]
   art.present(blueprint,part+1,false)
@@ -320,44 +357,52 @@ func refresh() -> void:
     rows[i].text=outfit.capitalize();amounts[i].text=str(uses);i+=1
   note.text=("Held   %d"%workshop.units("material",selected)) if connected else "Cartridge balance unavailable."
 
- if refining() and is_instance_valid(ship):
-  var deposit_index:=Mine.METALS.find(MATERIALS[material_index])
-  caption.text=Mine.ORES[deposit_index].capitalize()+"   /   "+Mine.SHORES[deposit_index]
-  part_label.show()
-  var online:bool=connected and ship.profile!="" and workshop.inventory.has("refining_hours")
-  refresh_processing(online,"1 ore → 1 cartridge unit   ·   %d h"%int(workshop.inventory.refining_hours if online else 2))
-  return
-
  if is_instance_valid(workshop):
   if workshop.busy:note.text="Updating inventory…"
   elif not workshop.notice.is_empty():note.text=workshop.notice
 
-func refresh_pigment() -> void:
+func refresh_refinery() -> void:
  if not is_instance_valid(ship):return
- var connected:bool=is_instance_valid(workshop) and ship.profile!="" and workshop.inventory.has("extraction_hours")
- group_label.text="Field samples"
+ var metal:=refining()
+ var capability:="refining_hours" if metal else "extraction_hours"
+ var connected:bool=is_instance_valid(workshop) and ship.profile!="" and workshop.inventory.has(capability)
+ var catalogue:Array=Mine.ORES if metal else Garden.PLANTS
+ var selected:=ore_index if metal else pigment_index
+ var shores:Array=Mine.SHORES if metal else Garden.SHORES
+ group_label.text="Ore samples" if metal else "Field samples"
  for i in list.size():
-  list[i].visible=i<Garden.PLANTS.size()
+  list[i].visible=i<catalogue.size()
   if not list[i].visible:continue
-  var count:int=ship.store.botany.get(Garden.PLANTS[i],{}).get("days",[]).size()
-  names[i].text=Garden.NAMES[i]
-  subtitles[i].text="Ship %d   ·   Inventory %d"%[count,workshop.units("botanical",Garden.PLANTS[i])] if connected else "On ship   %d"%count
-  thumbs[i].pigment(Garden.SWATCHES[i]);list[i].tooltip_text=Garden.SHORES[i]
-  highlight(list[i],i==pigment_index,i==pigment_index)
- var key:String=Garden.COLORS[pigment_index]
- var palette:Dictionary=workshop.inventory.get("colors",{}).get(key,{}) if is_instance_valid(workshop) else {}
- var fallback:Array=["Saffron","Sea glass","Aurora violet"]
- var color_name:String=palette.get("name",fallback[pigment_index])
- heading.text=color_name+" cartridge";caption.text=Garden.NAMES[pigment_index]+"   /   "+Garden.SHORES[pigment_index]
- art.pigment(Garden.SWATCHES[pigment_index]);section.text="Pigment extraction"
+  var sku:String=catalogue[i]
+  var count:int=ship.store.field_cargo(sku).get(sku,{}).get("days",[]).size()
+  names[i].text=sku.capitalize()
+  subtitles[i].text="Ship %d   ·   Inventory %d"%[count,workshop.units("ore" if metal else "botanical",sku)] if connected else "On ship   %d"%count
+  if metal:thumbs[i].present(MATERIALS.find(Mine.METALS[i]),0,true)
+  else:thumbs[i].pigment(Garden.SWATCHES[i])
+  list[i].tooltip_text=shores[i]
+  highlight(list[i],i==selected,i==selected)
+ caption.text=catalogue[selected].capitalize()+"   /   "+shores[selected]
+ if metal:
+  heading.text=Mine.METALS[selected]+" cartridge"
+  art.present(MATERIALS.find(Mine.METALS[selected]),0,true)
+ else:
+  var color_name:String=["Saffron","Sea glass","Aurora violet"][selected]
+  heading.text=color_name+" cartridge"
+  art.pigment(Garden.SWATCHES[selected])
+ section.text="Metal refining" if metal else "Pigment extraction"
  columns.text="";quantity_heading.text="";part_label.show()
  for b in parts:b.hide()
  for i in rows.size():
   ingredients[i].hide();rows[i].position.x=868;rows[i].text="";amounts[i].text=""
  rows[0].text="Samples needed";amounts[0].text="1"
- rows[1].text="Extraction time";amounts[1].text="%d h"%int(workshop.inventory.get("extraction_hours",1) if connected else 1)
- rows[2].text="Finish";amounts[2].text=palette.get("finish",["matte","satin","iridescent"][pigment_index]).capitalize()
- refresh_processing(connected,"Open colour in the fitting station")
+ rows[1].text="Processing time";amounts[1].text="%d h"%int(workshop.inventory[capability] if connected else (2 if metal else 1))
+ rows[2].text="Yield" if metal else "Finish"
+ amounts[2].text="1 unit" if metal else ["Matte","Satin","Iridescent"][selected]
+ if not metal and connected:
+  var palette:Dictionary=workshop.inventory.get("colors",{}).get(Garden.COLORS[selected],{})
+  heading.text=palette.get("name",heading.text.trim_suffix(" cartridge"))+" cartridge"
+  amounts[2].text=palette.get("finish",amounts[2].text).capitalize()
+ refresh_processing(connected,"Use in fabricator blueprints" if metal else "Open colour in the fitting station")
 
 func refresh_processing(connected:bool, purpose:String) -> void:
  var sku:=sample_sku()
@@ -382,28 +427,39 @@ func refresh_processing(connected:bool, purpose:String) -> void:
  else:
   note.text="Field sample stored on this ship." if available else "Pick two open flowers at "+Garden.SHORES[pigment_index]+"."
   if not connected:note.text="Samples stay on this ship. Connect to a workshop with pigment extraction."
+ if not job.is_empty() and not ready:
+  var shells:int=workshop.units("material","Empty")
+  rows[3].text="Extra batch shell";amounts[3].text="%d / 1"%shells
+  note.text="Additional batch needs 1 empty cartridge   ·   Held %d"%shells
+  if held>0:
+   print_button.text="Start extra batch";print_button.disabled=workshop.busy or shells==0
  if not samples.is_empty() and not available:note.text="Sample dated in the future. Check the system clock."
  if connected:
   if workshop.busy:note.text="Updating inventory…"
   elif workshop.notice!="":note.text=workshop.notice
 
 func action_hints() -> Array:
- var actions:Array=[["vertical",["Blueprint","Cartridge","Plant"][page]],["tab_pair","Tabs"]]
- if page==0:
+ var labels:Array=["Ore","Plant"] if processor else ["Blueprint","Cartridge"]
+ var actions:Array=[["vertical",labels[page]],["tab_pair","Tabs"]]
+ if case_recipe():
+  if not print_button.disabled:actions.append(["interact",print_button.text])
+ elif not processor and page==0:
   actions.append(["horizontal","Part"])
   if not on_parts:actions.append(["interact","Choose part"])
   elif not print_button.disabled:actions.append(["interact",print_button.text])
- if (page==2 or refining()) and not print_button.disabled:actions.append(["interact",print_button.text])
+ if processor and not print_button.disabled:actions.append(["interact",print_button.text])
  if store_sample_button.visible:actions.append(["pick_item",store_sample_button.text])
  actions.append(["cancel_ship","Close"])
  return actions
 
 func navigate(direction:Vector2i) -> void:
  if direction.y!=0:
-  if page==0:select_entry(posmod(blueprint+direction.y,Garment.STYLES.size()))
-  elif page==1:select_entry(posmod(material_index+direction.y,MATERIALS.size()))
-  else:select_entry(posmod(pigment_index+direction.y,Garden.PLANTS.size()))
- elif page==0 and direction.x!=0:
+  if processor:
+   if refining():select_entry(posmod(ore_index+direction.y,Mine.ORES.size()))
+   else:select_entry(posmod(pigment_index+direction.y,Garden.PLANTS.size()))
+  elif page==0:select_entry(posmod(blueprint+direction.y,Garment.STYLES.size()+1))
+  else:select_entry(posmod(material_index+direction.y,MATERIALS.size()))
+ elif not processor and not case_recipe() and page==0 and direction.x!=0:
   select_part(posmod(part+direction.x,parts.size()))
 
 func _input(event:InputEvent) -> void:
@@ -425,7 +481,7 @@ func _input(event:InputEvent) -> void:
  elif event.is_action_pressed("ui_left",true):navigate(Vector2i.LEFT)
  elif event.is_action_pressed("ui_right",true):navigate(Vector2i.RIGHT)
  elif event.is_action_pressed("pick_item") and store_sample_button.visible:store_selected_sample()
- elif (page==2 or refining()) and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):print_selected()
+ elif (processor or case_recipe()) and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):print_selected()
  elif page==0 and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):
   if on_parts and not print_button.disabled:print_selected()
   else:select_part(part)

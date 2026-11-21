@@ -184,6 +184,6 @@ func control(event:InputEvent) -> void:
    if picked.size()==1:
     var error:String=home.store.record_harvest(home.rows,PLANTS[plant],day)
     if error!="":message=error;refresh();return
-    close();home.notify(NAMES[plant]+" sample saved · process at the fabricator");return
+    close();home.notify(NAMES[plant]+" sample saved · process at the refinery");return
    picked.append(selected);blossoms[selected].hide();message="Find the other open flower"
  refresh()

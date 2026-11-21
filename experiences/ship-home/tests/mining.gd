@@ -64,9 +64,8 @@ func run() -> void:
   press(JOY_BUTTON_A);check(not mine.active,"Vein cannot pay twice")
  home._load_profile("other");check(home.store.ore.is_empty(),"Profile isolation")
  home._load_profile("miner");check(home.store.ore.size()==2,"Both ores survive reload")
- w.position=Vector3(-2.55,0.1,2.45);press(JOY_BUTTON_A)
+ w.position=home.studio.REFINERY_POS+Vector3(0.30,0.1,0.89);press(JOY_BUTTON_A)
  var fab=home.fabricator
- press(JOY_BUTTON_RIGHT_SHOULDER);press(JOY_BUTTON_DPAD_DOWN);press(JOY_BUTTON_DPAD_DOWN)
  check(fab.refining() and fab.note.text.contains("Ship 1") and fab.print_button.disabled,"Offline cargo in Cartridges")
  if home.store.ore.size()==2:
   var player:="d69c6f99-d23a-4f1f-a357-74169d4d043a"
@@ -86,6 +85,10 @@ func run() -> void:
   receive.call(data);receive.call({"items":[],"next":null})
   check(fab.part_label.text.contains("02:00:00"),"Two-hour job")
   await shot("refinery")
+  client.stock["ore/bauxite"]=1;fab.refresh()
+  check(fab.print_button.disabled,"Parallel refining needs an empty cartridge")
+  client.stock["material/Empty"]=1;fab.refresh()
+  check(not fab.print_button.disabled and fab.print_button.text=="Start extra batch","Additional batch offers shell recipe")
   data.prints["material.Aluminium"].remaining_seconds=0;fab.refresh()
   press(JOY_BUTTON_A);check(client.last_action=="collect_material","Collect cartridge")
  print("SHIP MINING: ","PASSED" if failures.is_empty() else failures);quit(0 if failures.is_empty() else 1)

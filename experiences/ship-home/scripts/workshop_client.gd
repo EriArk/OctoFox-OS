@@ -21,6 +21,7 @@ var wearing:=false
 var saved_looks:Array=[]
 var pending_looks:Array=[]
 var look_notice:=""
+var supplies_supported:=false
 var timed_prints := false
 var stock_received_ms := 0
 var busy := false
@@ -46,7 +47,7 @@ func disconnect_host() -> void:
  super.disconnect_host()
  looks_supported=false;looks_loading=false;wearing=false;saved_looks.clear();pending_looks.clear();look_notice=""
  looks_changed.emit()
- expired.clear();supported=false;timed_prints=false;busy=false;inventory.clear();stock.clear();garments.clear();next_page="";notice=""
+ expired.clear();supplies_supported=false;supported=false;timed_prints=false;busy=false;inventory.clear();stock.clear();garments.clear();next_page="";notice=""
  workshop_changed.emit()
 
 func send_fish(fish:Dictionary,owner:String) -> void:
@@ -163,6 +164,7 @@ func _packet(packet:Dictionary) -> void:
  if method=="hello":
   fish_supported=packet.get("result",{}).get("capabilities",{}).get("ship.fishing")==1
   looks_supported=packet.get("result",{}).get("capabilities",{}).get("ship.looks")==1
+  supplies_supported=packet.get("result",{}).get("capabilities",{}).get("ship.supplies")==1
   timed_prints=packet.get("result",{}).get("capabilities",{}).get("ship.timed_prints")==1
   supported=packet.get("result",{}).get("capabilities",{}).get("ship.workshop")==1
  if method=="ship.parts":
@@ -215,6 +217,6 @@ func _packet(packet:Dictionary) -> void:
    if str(data.get("item_id","")).length()!=36:
     busy=false;notice="Could not confirm transfer. Your sample has been kept.";workshop_changed.emit();return
    sample_stored.emit(sample[0],sample[1],sample[2])
-  notice={"refine":"Ore refining started","collect_material":"Material cartridge added to inventory","store_sample":"Field sample added to inventory","extract":"Pigment extraction started","collect_pigment":"Cartridge added to inventory","print":"Print started","collect":"Part added to inventory","paint":"Finish saved","activate":"Colour added to your palette"}.get(last_action,"Saved")
+  notice={"buy":"Order added to inventory","install":"Module installed","print_case":"Cartridge print started","refine":"Ore refining started","collect_material":"Material cartridge added to inventory","store_sample":"Field sample added to inventory","extract":"Pigment extraction started","collect_pigment":"Cartridge added to inventory","print":"Print started","collect":"Part added to inventory","paint":"Finish saved","activate":"Colour added to your palette"}.get(last_action,"Saved")
   _request("workshop.get")
  workshop_changed.emit()

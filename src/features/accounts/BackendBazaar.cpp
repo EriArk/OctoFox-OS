@@ -78,16 +78,17 @@ void BackendAccount::workshopRequest(const QString& method,QJsonObject args,Repl
             if(!id(cursor)){done(422,{{"code","invalid_cursor"}});return;}
             path+="?after="+cursor.toString();
         }
-    }else if(method=="workshop.fish"||method=="workshop.fishdisplay"||method=="workshop.print"||method=="workshop.collect"||method=="workshop.activate"||method=="workshop.paint"){
+    }else if(method=="workshop.fish"||method=="workshop.fishdisplay"||method=="workshop.print"||method=="workshop.collect"||method=="workshop.activate"||method=="workshop.paint"||method=="workshop.buy"||method=="workshop.install"){
         verb="POST";path+="/"+method.section('.',1);
     }else if(method!="workshop.get"){done(422,{{"code","unsupported_method"}});return;}
     if(verb=="GET"&&!args.isEmpty()){done(422,{{"code","invalid_request"}});return;}
     const auto player=player_;
-    request(verb,path,args,[this,player,done=std::move(done)](int status,QJsonObject value){
+    request(verb,path,args,[this,player,method,done=std::move(done)](int status,QJsonObject value){
         if(player_!=player||!inventoryConnected()){done(401,{{"code","identity_changed"}});return;}
         if(status==200&&(value["player_id"]!=player||QJsonDocument(value).toJson(QJsonDocument::Compact).size()>60000)){
             done(502,{{"code","invalid_workshop_reply"}});return;
         }
+        if(status==200 && method=="workshop.buy")refreshProgression(false);
         done(status,std::move(value));
     },access_);
 }

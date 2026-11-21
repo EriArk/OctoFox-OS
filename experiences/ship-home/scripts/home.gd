@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends Node3D
+const Studio=preload("res://scripts/studio.gd")
 const Art=preload("res://scripts/interior.gd")
 const Exterior=preload("res://scripts/ship_exterior.gd")
 const ExteriorScene=preload("res://exterior.tscn")
@@ -12,10 +13,11 @@ const Store=preload("res://scripts/layout_store.gd")
 const AvatarClient=preload("res://scripts/workshop_client.gd")
 var art=Art.new()
 var flight=preload("res://scripts/egregore_flight.gd").new()
-var studio=preload("res://scripts/studio.gd").new()
+var studio=Studio.new()
 var dye=preload("res://scripts/dye_console.gd").new()
 var parts=preload("res://scripts/look_parts.gd").new()
 var cards=preload("res://scripts/look_cards.gd").new()
+var computer=preload("res://scripts/ship_computer.gd").new()
 var fabricator=preload("res://scripts/fabricator.gd").new()
 var fitting=preload("res://scripts/fitting_station.gd").new()
 var mine=preload("res://scripts/ore_outcrop.gd").new()
@@ -85,6 +87,7 @@ func _ready() -> void:
  avatar_client.recipe_failed.connect(fitting.resolve_failed)
  fitting.workshop=avatar_client
  avatar_client.workshop_changed.connect(fitting.restore_colors)
+ computer.workshop=avatar_client;computer.ship=self
  fabricator.workshop=avatar_client;dye.workshop=avatar_client;dye.fitting=fitting
  avatar_client.sample_stored.connect(func(owner:String,plant:String,day:int):
   if owner==profile:
@@ -93,6 +96,13 @@ func _ready() -> void:
    fabricator.refresh())
  avatar_client.fish_stock_changed.connect(update_fish)
  avatar_client.fish_transferred.connect(fish_sent)
+ avatar_client.workshop_changed.connect(func():
+  var stock:Dictionary=avatar_client.inventory
+  if stock.get("installed") is Array and avatar_client.profile_id==profile and not profile.is_empty() and flight.avionics.installed!=stock.installed:
+   flight.avionics.installed=stock.installed.duplicate()
+   store.systems=flight.avionics.snapshot()
+   if not store.save(rows):notify(store.error)
+  computer.refresh())
  avatar_client.workshop_changed.connect(fabricator.refresh)
  avatar_client.workshop_changed.connect(dye.refresh)
  fitting.changed.connect(dye.paint_preview)
@@ -155,6 +165,7 @@ func _load_profile(id:String) -> void:
  studio.lift.position.y=0;studio.set_exit_height(Art.LOWER_Y);exterior.set_propulsion(1.0,0.0)
  if parts.is_inside_tree():parts.close()
  if dye.is_inside_tree() and dye.visible:dye.close()
+ if computer.is_inside_tree():computer.close()
  if fabricator.is_inside_tree():fabricator.close()
  fitting.selected_pieces.clear()
  profile=id;rows=store.load_home(id);undo_rows=[];has_undo=false;moving_index=-1
@@ -187,7 +198,7 @@ func _appearance(descriptor:Dictionary) -> void:
 func _identity_lost(reason:String) -> void:
  parts.close()
  if dye.visible:dye.close()
- fabricator.close()
+ computer.close();fabricator.close()
  fitting.finish()
  fitting.live_descriptor={}
  walker.anonymous()
@@ -212,12 +223,13 @@ func _ui() -> void:
  helm_help.add_theme_font_size_override("font_size",17);column.add_child(helm_help);helm_help.hide()
  menu.visible=false
  layer.add_child(cards);layer.add_child(dye);layer.add_child(parts)
+ layer.add_child(computer);computer.dismissed.connect(_close_fabricator)
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
  layer.add_child(instruments);instruments.bind(flight,walker)
  layer.add_child(prompts)
  fishing.configure(self,layer);garden.configure(self,layer);mine.configure(self,layer);fabricator.ship=self
  prompts.used.connect(func(id:String):
-  if not paused and not riding and not editing and not fitting.active and not fabricator.visible and not walker.seated and id==_station():_interact())
+  if not paused and not riding and not editing and not fitting.active and not fabricator.visible and not computer.visible and not walker.seated and id==_station():_interact())
 
 func _open_colours() -> void:
  if not fitting.returning:
@@ -231,7 +243,7 @@ func _pause(value:bool) -> void:
   instruments.clear()
   parts.close();prompts.clear_world();prompts.actions([])
  if value and dye.visible:dye.close()
- if value:fabricator.close()
+ if value:computer.close();fabricator.close()
  cards.visible=fitting.active and not value and not dye.visible
  helm_help.visible=value and walker.seated
  if helm_help.visible:
@@ -304,6 +316,8 @@ func _process(delta:float) -> void:
   var sky:=art.sky_environment.sky.sky_material as ShaderMaterial
   if int(flight.coast.clock*8)!=int((flight.coast.clock-delta)*8):sky.set_shader_parameter("field_time",flight.coast.clock)
   if not walker.seated:flight.avionics.update_traffic(delta)
+ if computer.visible:
+  prompts.clear_world();prompts.actions(computer.action_hints());status.hide();dot.hide();return
  if fabricator.visible:
   prompts.clear_world();prompts.actions(fabricator.action_hints());status.hide();dot.hide();return
  if not paused:
@@ -426,7 +440,7 @@ func can_place(id:String,pos:Vector3,rotation_y:float,ignored:int=-1) -> bool:
   if not Art.inside_hull(corner,0.45):return false
  # Keep the spine and both ends of the compact hatches clear.
  if area.intersects(Rect2(-0.72,-2.1,1.44,8.7)):return false
- for keep_clear in [Rect2(Art.LIFT-Vector2(1,1),Vector2(2,2)),Rect2(Art.BOOTH.x-1.0,Art.BOOTH.z-1.0,2,2),Rect2(-1.95,5.10,3.9,1.18),Rect2(-3.65,0.96,1.60,1.00)]:
+ for keep_clear in [Rect2(Art.LIFT-Vector2(1,1),Vector2(2,2)),Rect2(Art.BOOTH.x-1.0,Art.BOOTH.z-1.0,2,2),Rect2(-1.95,5.10,3.9,1.18),Rect2(-3.65,0.96,1.60,1.00),Rect2(-2.18,0.36,1.08,1.04),Rect2(-4.61,1.05,1.00,1.00)]:
   if area.intersects(keep_clear):return false
  if id=="rug":return true
  if area.grow(0.3).has_point(Vector2(walker.position.x,walker.position.z)):return false
@@ -493,11 +507,12 @@ func _leave_pilot() -> bool:
  notify("There is no clear space to stand up.");return false
 
 const STATION_TARGETS = {
- "pilot": Vector3(0,0.9,-3.4), "workbench": Vector3(-2.85,0.9,1.48),
+ "pilot": Vector3(0,0.9,-3.4), "workbench": Studio.PRINTER_POS+Vector3.UP*0.9,
+ "refinery":Studio.REFINERY_POS+Vector3.UP*0.84,"computer":Studio.COMPUTER_POS+Vector3.UP,
  "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
-const STATION_ACTIONS={"mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
+const STATION_ACTIONS={"mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
@@ -512,7 +527,13 @@ func _station() -> String:
  if walker.position.y< -0.4:return ""
  if studio.aquarium.to_local(walker.position).distance_to(Vector3(0,0,0.95))<1.42:return "tank"
  if _near_pilot():return "pilot"
- if p.distance_to(Vector2(-2.85,1.48))<1.5:return "workbench"
+ var nearest:=""
+ var reach:=1.5
+ for station in ["workbench","refinery","computer"]:
+  var at:Vector3=STATION_TARGETS[station]
+  var distance:=p.distance_to(Vector2(at.x,at.z))
+  if distance<reach:nearest=station;reach=distance
+ if nearest!="":return nearest
  if p.distance_to(Vector2(Art.BOOTH.x,Art.BOOTH.z))<1.32:return "wardrobe"
  if p.distance_to(Vector2(0,5.67))<1.56:return "cabin"
  return ""
@@ -571,7 +592,8 @@ func _interact() -> void:
   _leave_pilot()
   return
  prompts.clear_world()
- match _station():
+ var station:=_station()
+ match station:
   "mine":mine.open()
   "garden":garden.open()
   "fish":fishing.open_shore()
@@ -579,8 +601,13 @@ func _interact() -> void:
   "pilot":
    if editing:_edit(false)
    walker.sit()
-  "workbench":
-   studio.scan=2.4;walker.walking=false;walker.attend(null);fabricator.open()
+  "computer":
+   walker.walking=false;walker.attend(null);computer.open()
+   status.hide();prompts.actions(computer.action_hints());get_viewport().disable_3d=true
+   Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+  "workbench","refinery":
+   if station=="workbench":studio.scan=2.4
+   walker.walking=false;walker.attend(null);fabricator.open(station=="refinery")
    status.hide();prompts.actions(fabricator.action_hints())
    get_viewport().disable_3d=true
    Input.mouse_mode=Input.MOUSE_MODE_VISIBLE

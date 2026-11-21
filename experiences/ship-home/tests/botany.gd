@@ -61,10 +61,10 @@ func run() -> void:
   press(JOY_BUTTON_A);check(not garden.active,"Cleared bed cannot be harvested twice")
  home._load_profile("other");check(home.store.botany.is_empty(),"Profile separation")
  home._load_profile("gardener");check(home.store.botany.size()==3,"All samples survive reload")
- w.position=Vector3(-2.55,0.1,2.45);press(JOY_BUTTON_A)
+ w.position=home.studio.REFINERY_POS+Vector3(0.30,0.1,0.89);press(JOY_BUTTON_A)
  var fab=home.fabricator
  press(JOY_BUTTON_LEFT_SHOULDER)
- check(fab.page==2 and fab.print_button.disabled,"Offline fabricator displays samples and keeps them")
+ check(fab.processor and fab.page==1 and fab.print_button.disabled,"Offline fabricator displays samples and keeps them")
  if home.store.botany.size()==3:
   var today:=Garden.today()
   var player:="9bdb9bc5-5ad0-435b-97ee-c178f849adfc"

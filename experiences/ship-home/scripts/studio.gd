@@ -5,6 +5,9 @@ const Art = preload("res://scripts/interior.gd")
 const INK = Color("283d47")
 const MINT = Color("86e4cf")
 const CERAMIC = Color("e8d4ba")
+const PRINTER_POS=Vector3(-2.85,0,1.48)
+const REFINERY_POS=Vector3(-1.64,0,0.89)
+const COMPUTER_POS=Vector3(-4.11,0,1.55)
 var art: ShipInterior
 var printer: Node3D
 var toolhead: Node3D
@@ -47,7 +50,7 @@ func oval(parent: Node3D, pos: Vector3, size: Vector3, color: Color) -> MeshInst
 func build_fixed(builder: ShipInterior) -> void:
  art=builder
  berth()
- printer=module(Vector3(-2.85,0,1.48),0.45)
+ printer=module(PRINTER_POS,0.45)
  art.box(printer,Vector3(0,0.43,0),Vector3(1.13,0.85,0.76),INK,true)
  art.box(printer,Vector3(0,0.86,0),Vector3(1.36,0.10,0.89),CERAMIC)
  art.cylinder(printer,Vector3(0,0.94,0),0.36,0.055,Art.TRIM)
@@ -70,6 +73,8 @@ func build_fixed(builder: ShipInterior) -> void:
  art.faceplate(printer,Vector3(0.12,0.51,0.397),Vector2(0.41,0.30),0.065,Art.ENAMEL)
  for i in 4:
   art.faceplate(printer,Vector3(0.13,0.59-i*0.049,0.406),Vector2(0.27-i*0.033,0.014),0.006,MINT,i==0)
+ build_refinery()
+ build_computer()
  tank()
  booth=module(Art.BOOTH,-2.6)
  art.cylinder(booth,Vector3(0,0.037,0),0.82,0.074,INK)
@@ -80,6 +85,43 @@ func build_fixed(builder: ShipInterior) -> void:
  for x in [-0.37,0.37]:
   art.beam(booth,Vector3(x,0,-0.67),Vector3(x,2.08,-0.67),0.035,Art.TRIM)
  lower_deck()
+
+func build_refinery() -> void:
+ var unit:=module(REFINERY_POS,0.45)
+ art.box(unit,Vector3(0,0.34,0),Vector3(0.83,0.68,0.64),Art.ENAMEL,true)
+ art.box(unit,Vector3(0,0.68,0),Vector3(0.89,0.08,0.70),Art.WALNUT)
+ # A flared feed hopper narrows into the brass throat above the fill chamber.
+ art.cylinder(unit,Vector3(-0.11,0.85,-0.05),0.12,0.28,Art.COPPER,0.29)
+ ring(unit,Vector3(-0.11,1.005,-0.05),0.28,0.024,CERAMIC)
+ art.cylinder(unit,Vector3(-0.11,1.001,-0.05),0.257,0.014,INK)
+ for i in 5:
+  var x:float=(i-2)*0.079
+  var half:=sqrt(0.24*0.24-x*x)
+  art.beam(unit,Vector3(x-0.11,1.013,-0.05-half),Vector3(x-0.11,1.013,-0.05+half),0.010,Art.BRASS)
+ art.cylinder(unit,Vector3(0.27,0.92,-0.17),0.075,0.42,Art.TRIM)
+ art.tube(unit,[Vector3(0.27,1.12,-0.17),Vector3(0.27,1.18,-0.17),Vector3(0.12,1.18,-0.17),Vector3(0.08,1.04,-0.17)],0.023,Art.COPPER)
+ art.faceplate(unit,Vector3(0,0.38,0.327),Vector2(0.68,0.39),0.06,INK)
+ art.bezel(unit,Vector3(0,0.38,0.333),Vector2(0.69,0.40),0.06,0.018,Art.COPPER)
+ art.box(unit,Vector3(0,0.29,0.379),Vector3(0.40,0.12,0.12),CERAMIC)
+ art.box(unit,Vector3(0,0.29,0.443),Vector3(0.24,0.068,0.012),Art.BRASS)
+ art.box(unit,Vector3(0,0.49,0.34),Vector3(0.37,0.024,0.014),AMBER,false,true)
+
+func build_computer() -> void:
+ var pc:=module(COMPUTER_POS,0.70)
+ art.box(pc,Vector3(0,0.37,0),Vector3(0.65,0.74,0.58),Art.ENAMEL,true)
+ art.box(pc,Vector3(0,0.76,0.04),Vector3(0.92,0.085,0.65),Art.WALNUT)
+ art.box(pc,Vector3(0,0.94,-0.17),Vector3(0.19,0.34,0.16),Art.BRASS)
+ var screen:=Node3D.new();pc.add_child(screen);screen.position=Vector3(0,1.23,-0.12);screen.rotation.x=-0.10
+ art.box(screen,Vector3.ZERO,Vector3(0.92,0.55,0.132),CERAMIC)
+ art.faceplate(screen,Vector3(0,0,0.072),Vector2(0.83,0.46),0.04,INK)
+ art.bezel(screen,Vector3(0,0,0.078),Vector2(0.84,0.47),0.04,0.012,Art.COPPER)
+ art.label(screen,"SHIP SYSTEMS",Vector3(0,0.07,0.083),0,16,MINT)
+ for i in 4:
+  art.box(screen,Vector3(-0.095+i*0.063,-0.09,0.081),Vector3(0.047,0.019+0.014*i,0.008),MINT,false,true)
+ art.box(pc,Vector3(0,0.82,0.16),Vector3(0.59,0.042,0.19),INK)
+ for row in 3:
+  for col in 10:
+   art.box(pc,Vector3((col-4.5)*0.054,0.847,0.105+row*0.053),Vector3(0.044,0.011,0.035),CERAMIC if row==2 else Art.BRASS)
 
 func berth() -> void:
  var bay:=module(Vector3(0,0,5.67),PI)

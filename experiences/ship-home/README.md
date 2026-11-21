@@ -15,7 +15,7 @@ central aisle connects the cockpit, lift and berth. The earlier warm interior sh
 
 Land at **Table Isle** for bauxite or **Cinder Garden** for magnetite. Walk from the landing circle to the exposed vein and press **A** on the controller or **F** on the keyboard. Follow the cutter along the seam and pulse as it crosses each of the three rings. A miss leaves the current fracture available. Leaving the outcrop restores an unfinished cut. Each vein yields one sample per UTC day. Offline ore travels with the current ship profile.
 
-Open **Fabricator → Cartridges** and select **Aluminium** for bauxite or **Steel** for magnetite. **Store ore** transfers the field sample to profile inventory, where it can be traded. **Start refining** consumes one sample. After two hours, **Collect cartridge** adds one unit of the selected metal for existing outfit recipes or trade. If the workshop is unavailable, the ore stays on the ship.
+Open **Refinery → Ore** next to the fabricator and select **Bauxite** for aluminium or **Magnetite** for steel. **Store ore** transfers the field sample to profile inventory, where it can be traded. **Start refining** consumes one sample. After two hours, **Collect cartridge** adds one unit of the selected metal for existing outfit recipes or trade. If the workshop is unavailable, the ore stays on the ship.
 
 ### Island flowers and pigment cartridges
 
@@ -27,7 +27,7 @@ Walk past the landing circle on Echo Orchard, Table Isle or Cinder Garden. Press
 | Table Isle | Tideflower | Sea glass, satin |
 | Cinder Garden | Starbloom | Aurora violet, iridescent |
 
-At the ship's **Fabricator**, switch to **Pigments** with the shoulder buttons. Choose **Store sample** to place the harvest in Profile Inventory. The sample can be sold at the Bazaar or used to start a one-hour extraction. The timer keeps running after exit. **Collect cartridge** adds a tradable pigment cartridge to Profile Inventory. Activate it in the fitting station to permanently unlock its colour. The server recognises a harvest by account, garden and UTC day, so retrying a transfer after a lost reply recovers the original inventory item. The field sample stays on the ship until the service confirms it.
+At the ship's **Refinery**, switch to **Plants** with the shoulder buttons. Choose **Store sample** to place the harvest in Profile Inventory. The sample can be sold at the Bazaar or used to start a one-hour extraction. The timer keeps running after exit. **Collect cartridge** adds a tradable pigment cartridge to Profile Inventory. Activate it in the fitting station to permanently unlock its colour. The server recognises a harvest by account, garden and UTC day, so retrying a transfer after a lost reply recovers the original inventory item. The field sample stays on the ship until the service confirms it.
 
 ### Shore fishing and the ship aquarium
 
@@ -57,6 +57,12 @@ pigment cartridges. Ordinary dyes retain the garment surface's authored metal re
 [Official colour picker screenshot](https://www-static.warframe.com/uploads/a370a469ad2348e9f83db978934e27ca.PNG) ·
 [Artist guide to tint masks and materials](https://www.warframe.com/en/steamworkshop/texturing-guide) ·
 [Voidshell materials](https://www.warframe.com/en/patch-notes/pc/31-5-0).
+
+### Ship computer and refinery
+
+The ship computer has a screen and keyboard beside the fabricator. Open it with **A / F**. Use **LB / RB** or **[ / ]** for Ship, Cargo, Upgrades and Store. Ship shows hull, shields, fuel and powered modules. Cargo lists local samples and fish in the livewell alongside available workshop stock. The Store quotes prices in Sparks. Select an order once to review it and again to pay. Purchases arrive as tradable inventory items. Fit an upgrade from Upgrades to apply it to this ship profile. The cruise economiser cuts cruise fuel use by 20%. The boost capacitor reduces a boost from 36 to 27 energy.
+
+At the refinery, the first batch of each output uses the original recipe. A concurrent batch of the same output also consumes an empty cartridge. Buy shells at the computer or buy the reusable empty cartridge blueprint and print one from a unit of plastic in one hour. Existing pending jobs keep their original timers and can be collected at the refinery.
 
 ### Using the fabricator and fitting booth
 

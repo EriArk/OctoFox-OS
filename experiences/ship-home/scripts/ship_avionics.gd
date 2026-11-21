@@ -17,6 +17,7 @@ const RACK_SIZE:=3
 const SEEK_TIME:=1.4
 const FLIGHT_TIME:=1.25
 const WARNING_TIME:=4.0
+var installed:Array=[]
 var group:=Group.PULSE
 var gimballed:=true
 var missiles:=RACK_SIZE
@@ -82,6 +83,7 @@ func configure(flight) -> void:
  update_traffic(0)
 
 func fresh(saved:Dictionary) -> void:
+ installed=saved.get("installed",[]).duplicate() if saved.get("installed") is Array else []
  fuel=clampf(float(saved.get("fuel",TANK)),0,TANK)
  pips.assign(saved.get("pips",[2,2,2]));enabled.assign(saved.get("modules",[true,true,true,true,true,true]))
  group=clampi(int(saved.get("fireGroup",Group.PULSE)),Group.PULSE,Group.MISSILES)
@@ -90,7 +92,7 @@ func fresh(saved:Dictionary) -> void:
  reply="";reply_time=0
 
 func snapshot() -> Dictionary:
- return {"fuel":fuel,"pips":pips.duplicate(),"modules":enabled.duplicate(),"fireGroup":group,"gimballed":gimballed,"missiles":missiles}
+ return {"installed":installed.duplicate(),"fuel":fuel,"pips":pips.duplicate(),"modules":enabled.duplicate(),"fireGroup":group,"gimballed":gimballed,"missiles":missiles}
 
 func docked(site:int) -> void:
  sector=CATALOG[Regions.BERTH_CONTACT[site]].sector
@@ -297,9 +299,11 @@ func toggle_cruise() -> void:
   say("Cruise requires fuel, drives and stowed hardpoints");return
  cruise=true;boost=0;say("Cruise engaged")
 
+func boost_cost() -> float:return 27.0 if "capacitor" in installed else 36.0
+
 func boost_drive() -> void:
- if f.mode!=f.Mode.FLYING or cruise or not enabled[0] or engine<36 or charge>0:say("Boost unavailable");return
- engine-=36;boost=1.8;say("Boost")
+ if f.mode!=f.Mode.FLYING or cruise or not enabled[0] or engine<boost_cost() or charge>0:say("Boost unavailable");return
+ engine-=boost_cost();boost=1.8;say("Boost")
 
 func plot(waypoint:int=-1) -> void:
  if transit>0 or charge>0:
@@ -368,7 +372,7 @@ func advance(dt:float) -> void:
  if hull<=0:
   f.reset(f.berth);service();hull=100;say("Recovery tow · last berth");return
  if cruise:
-  fuel=maxf(0,fuel-dt*(0.025+0.065*absf(f.throttle)))
+  fuel=maxf(0,fuel-dt*(0.025+0.065*absf(f.throttle))*(0.8 if "economiser" in installed else 1.0))
   if fuel<1:cruise=false;say("Cruise reserve reached")
  if transit>0:
   transit=maxf(0,transit-dt)

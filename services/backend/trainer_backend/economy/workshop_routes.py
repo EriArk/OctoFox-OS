@@ -33,7 +33,13 @@ class Print(Operation):
 Plant = Literal['sunbell', 'tideflower', 'starbloom']
 
 
+class CasePrint(Operation):
+    casing: Literal['empty']
+    hours: int
+
+
 class BotanicalPrint(Operation):
+    extra_case: bool = False
     plant: Plant
     hours: int
 
@@ -42,6 +48,7 @@ Ore = Literal['bauxite', 'magnetite']
 
 
 class OrePrint(Operation):
+    extra_case: bool = False
     ore: Ore
     hours: int
 
@@ -100,6 +107,12 @@ def mutate(request, name, body, apply):
         player = api.account(conn, bearer(request)).player_id
         workshop.lock_account(conn, player)
 
+        if getattr(body, 'player_id', str(player)) != str(player):
+            raise AuthError('identity_changed', 409)
+        payload = body.model_dump(mode='json', exclude={'operation_id'}, exclude_none=True)
+        if payload.get('extra_case') is False:
+            del payload['extra_case']  # Preserve receipt hashes for pre-refinery clients.
+
         def execute(c, _receipt):
             if revision(c, player) != body.revision:
                 raise AuthError('inventory_changed', 409)
@@ -107,7 +120,7 @@ def mutate(request, name, body, apply):
 
         try:
             receipt = run_command(BoundDatabase(conn), Principal(player, 'player'), 'inventory.' + name,
-                                  body.operation_id, body.model_dump(mode='json', exclude={'operation_id'}, exclude_none=True), execute)
+                                  body.operation_id, payload, execute)
         except Conflict:
             raise AuthError('operation_payload_conflict', 409) from None
         key = 'job_id' if name == 'print' and body.hours is not None else 'item_id'
@@ -115,11 +128,13 @@ def mutate(request, name, body, apply):
 
 
 @router.post('/v1/me/workshop/print')
-def print_part(request: Request, body: Print | BotanicalPrint | OrePrint):
+def print_part(request: Request, body: Print | BotanicalPrint | OrePrint | CasePrint):
+    if isinstance(body, CasePrint):
+        return mutate(request, 'print', body, lambda c,p: workshop.print_case(c,p,body.hours))
     if isinstance(body, OrePrint):
-        return mutate(request, 'print', body, lambda c, p: workshop.extract(c, p, body.ore, body.hours))
+        return mutate(request, 'print', body, lambda c, p: workshop.extract(c, p, body.ore, body.hours, body.extra_case))
     if isinstance(body, BotanicalPrint):
-        return mutate(request, 'print', body, lambda c, p: workshop.extract(c, p, body.plant, body.hours))
+        return mutate(request, 'print', body, lambda c, p: workshop.extract(c, p, body.plant, body.hours, body.extra_case))
     return mutate(request, 'print', body, lambda c, p: workshop.print_piece(c, p, body.style, body.part, body.hours))
 
 
@@ -139,6 +154,27 @@ def collect(request: Request, body: Collect | Harvest | OreBatch):
                                       'completed', workshop.harvest(c, player, sku, body.day)))
             return wire({'player_id': player, 'item_id': receipt['resource_id']})
     return mutate(request, 'collect', body, lambda c, p: workshop.collect(c, p, body.job))
+
+
+class SuppliesOrder(Operation):
+    player_id: Id
+    offer: str = Field(max_length=32)
+    price: int = Field(gt=0)
+
+
+class FitModule(Operation):
+    player_id: Id
+    module: Literal['economiser', 'capacitor']
+
+
+@router.post('/v1/me/workshop/buy')
+def buy(request: Request, body: SuppliesOrder):
+    return mutate(request, 'buy', body, lambda c, p: workshop.purchase(c, p, body.offer, body.price))
+
+
+@router.post('/v1/me/workshop/install')
+def install(request: Request, body: FitModule):
+    return mutate(request, 'install', body, lambda c, p: workshop.install_module(c, p, body.module))
 
 
 @router.post('/v1/me/workshop/activate')

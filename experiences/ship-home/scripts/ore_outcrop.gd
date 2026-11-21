@@ -173,7 +173,7 @@ func control(event:InputEvent) -> void:
  if cut==CUTS.size()-1:
   var problem:String=home.store.record_harvest(home.rows,ORES[index],mining_day)
   if problem!="":hint(problem);return
-  close();home.notify(ORES[index].capitalize()+" recovered · refine at the fabricator");return
+  close();home.notify(ORES[index].capitalize()+" recovered · refine at the refinery");return
  deposits[cut].hide();cut+=1;aim();hint("Fracture opened · follow the next ring")
 
 func close() -> void:
