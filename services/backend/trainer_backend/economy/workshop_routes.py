@@ -38,10 +38,25 @@ class BotanicalPrint(Operation):
     hours: int
 
 
-class Harvest(StrictBody):
-    plant: Plant
+Ore = Literal['bauxite', 'magnetite']
+
+
+class OrePrint(Operation):
+    ore: Ore
+    hours: int
+
+
+class FieldBatch(StrictBody):
     day: int = Field(ge=0, le=4000000)
     player_id: Id
+
+
+class Harvest(FieldBatch):
+    plant: Plant
+
+
+class OreBatch(FieldBatch):
+    ore: Ore
 
 
 class Activate(Operation):
@@ -100,25 +115,28 @@ def mutate(request, name, body, apply):
 
 
 @router.post('/v1/me/workshop/print')
-def print_part(request: Request, body: Print | BotanicalPrint):
+def print_part(request: Request, body: Print | BotanicalPrint | OrePrint):
+    if isinstance(body, OrePrint):
+        return mutate(request, 'print', body, lambda c, p: workshop.extract(c, p, body.ore, body.hours))
     if isinstance(body, BotanicalPrint):
         return mutate(request, 'print', body, lambda c, p: workshop.extract(c, p, body.plant, body.hours))
     return mutate(request, 'print', body, lambda c, p: workshop.print_piece(c, p, body.style, body.part, body.hours))
 
 
 @router.post('/v1/me/workshop/collect')
-def collect(request: Request, body: Collect | Harvest):
-    if isinstance(body, Harvest):
+def collect(request: Request, body: Collect | Harvest | OreBatch):
+    if isinstance(body, FieldBatch):
+        origin, sku = ('mining', body.ore) if isinstance(body, OreBatch) else ('botany', body.plant)
         api = service(request)
         with api.db.transaction() as conn:
             player = api.account(conn, bearer(request)).player_id
             if str(player) != body.player_id:
                 raise AuthError('identity_changed', 409)
             workshop.lock_account(conn, player)
-            key = uuid5(UUID(str(player)), f'octofox.botany.{body.plant}.{body.day}')
+            key = uuid5(UUID(str(player)), f'octofox.{origin}.{sku}.{body.day}')
             receipt = run_command(BoundDatabase(conn), Principal(player, 'player'), 'inventory.harvest',
                                   str(key), body.model_dump(), lambda c, _: Outcome(
-                                      'completed', workshop.harvest(c, player, body.plant, body.day)))
+                                      'completed', workshop.harvest(c, player, sku, body.day)))
             return wire({'player_id': player, 'item_id': receipt['resource_id']})
     return mutate(request, 'collect', body, lambda c, p: workshop.collect(c, p, body.job))
 

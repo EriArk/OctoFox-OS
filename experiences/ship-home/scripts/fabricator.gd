@@ -2,6 +2,7 @@
 extends ColorRect
 signal dismissed
 const Garment = preload("res://scripts/fitting_garment.gd")
+const Mine=preload("res://scripts/ore_outcrop.gd")
 const Garden=preload("res://scripts/botanical_garden.gd")
 const Plate = preload("res://scripts/fabricator_plate.gd")
 const MATERIALS = ["Cotton","Plastic","Aluminium","Steel"]
@@ -144,18 +145,28 @@ func open() -> void:
  last_ready.clear();show();refresh()
  if is_instance_valid(workshop):workshop.refresh_workshop()
 
+func refining() -> bool:
+ return page==1 and MATERIALS[material_index] in Mine.METALS
+
+func sample_sku() -> String:
+ if refining():return Mine.ORES[Mine.METALS.find(MATERIALS[material_index])]
+ return Garden.PLANTS[pigment_index]
+
+func job_key() -> String:
+ if refining():return "material."+MATERIALS[material_index]
+ return "pigment."+Garden.COLORS[pigment_index]
+
 func print_selected() -> void:
- if page==2:
+ if page==2 or refining():
   if print_button.disabled:return
-  var sku:String=Garden.COLORS[pigment_index]
-  var plant:String=Garden.PLANTS[pigment_index]
-  var job:Dictionary=workshop.inventory.get("prints",{}).get("pigment."+sku,{})
+  var sku:=sample_sku()
+  var job:Dictionary=workshop.inventory.get("prints",{}).get(job_key(),{})
   if not job.is_empty() and seconds_left(job)==0:
-   workshop.commit("collect",{"job":job.id},"collect_pigment")
-  else:
-   if workshop.units("botanical",plant)>0:
-    workshop.commit("print",{"plant":plant,"hours":int(workshop.inventory.extraction_hours)},"extract")
-   else:store_selected_sample()
+   workshop.commit("collect",{"job":job.id},"collect_material" if refining() else "collect_pigment")
+  elif workshop.units("ore" if refining() else "botanical",sku)>0:
+   if refining():workshop.commit("print",{"ore":sku,"hours":int(workshop.inventory.refining_hours)},"refine")
+   else:workshop.commit("print",{"plant":sku,"hours":int(workshop.inventory.extraction_hours)},"extract")
+  else:store_selected_sample()
   return
  if not print_button.disabled and is_instance_valid(workshop):
   var style_id:String=Garment.STYLES[blueprint]
@@ -167,8 +178,8 @@ func print_selected() -> void:
    workshop.commit("print",{"style":style_id,"part":slot,"hours":int(workshop.inventory.print_hours[style_id][slot])})
 
 func store_selected_sample() -> void:
- var plant:String=Garden.PLANTS[pigment_index]
- var days:Array=ship.store.botany.get(plant,{}).get("days",[])
+ var plant:=sample_sku()
+ var days:Array=ship.store.field_cargo(plant).get(plant,{}).get("days",[])
  for i in range(days.size()-1,-1,-1):
   if int(days[i])<=Garden.today():
    workshop.store_sample(plant,int(days[i]),ship.profile);return
@@ -202,15 +213,15 @@ func update_print_status() -> void:
  print_button.disabled=workshop.busy or (not ready and not has_materials)
 
 func _process(_delta:float) -> void:
- if visible and page==2 and Time.get_ticks_msec()>=next_tick:
+ if visible and (page==2 or refining()) and Time.get_ticks_msec()>=next_tick:
   next_tick=Time.get_ticks_msec()+1000
   if is_instance_valid(workshop):
-   var key:String="pigment."+Garden.COLORS[pigment_index]
+   var key:=job_key()
    var job:Dictionary=workshop.inventory.get("prints",{}).get(key,{})
    if not job.is_empty():
     var seconds:=seconds_left(job)
-    if seconds>0:part_label.text="Extracting   "+time_text(seconds)
-    elif print_button.text!="Collect cartridge":refresh_pigment()
+    if seconds>0:part_label.text=("Refining   " if refining() else "Extracting   ")+time_text(seconds)
+    elif print_button.text!="Collect cartridge":refresh()
  elif visible and page==0 and Time.get_ticks_msec()>=next_tick:
   next_tick=Time.get_ticks_msec()+1000
   var ready:Dictionary={}
@@ -309,6 +320,14 @@ func refresh() -> void:
     rows[i].text=outfit.capitalize();amounts[i].text=str(uses);i+=1
   note.text=("Held   %d"%workshop.units("material",selected)) if connected else "Cartridge balance unavailable."
 
+ if refining() and is_instance_valid(ship):
+  var deposit_index:=Mine.METALS.find(MATERIALS[material_index])
+  caption.text=Mine.ORES[deposit_index].capitalize()+"   /   "+Mine.SHORES[deposit_index]
+  part_label.show()
+  var online:bool=connected and ship.profile!="" and workshop.inventory.has("refining_hours")
+  refresh_processing(online,"1 ore → 1 cartridge unit   ·   %d h"%int(workshop.inventory.refining_hours if online else 2))
+  return
+
  if is_instance_valid(workshop):
   if workshop.busy:note.text="Updating inventory…"
   elif not workshop.notice.is_empty():note.text=workshop.notice
@@ -338,23 +357,35 @@ func refresh_pigment() -> void:
  rows[0].text="Samples needed";amounts[0].text="1"
  rows[1].text="Extraction time";amounts[1].text="%d h"%int(workshop.inventory.get("extraction_hours",1) if connected else 1)
  rows[2].text="Finish";amounts[2].text=palette.get("finish",["matte","satin","iridescent"][pigment_index]).capitalize()
- var job:Dictionary=workshop.inventory.get("prints",{}).get("pigment."+key,{}) if connected else {}
+ refresh_processing(connected,"Open colour in the fitting station")
+
+func refresh_processing(connected:bool, purpose:String) -> void:
+ var sku:=sample_sku()
+ var job:Dictionary=workshop.inventory.get("prints",{}).get(job_key(),{}) if connected else {}
  var ready:=not job.is_empty() and seconds_left(job)==0
- var samples:Array=ship.store.botany.get(Garden.PLANTS[pigment_index],{}).get("days",[])
- var has_sample:bool=samples.any(func(d):return int(d)<=Garden.today())
- part_label.text="Open colour in the fitting station" if job.is_empty() else ("Ready to collect" if ready else "Extracting   "+time_text(seconds_left(job)))
- var in_inventory:bool=connected and workshop.units("botanical",Garden.PLANTS[pigment_index])>0
- print_button.show()
- print_button.text="Collect cartridge" if ready else ("Store sample" if has_sample and not in_inventory else "Start extraction")
- print_button.disabled=not connected or workshop.busy or not (ready or has_sample or in_inventory)
- store_sample_button.visible=connected and has_sample and (ready or in_inventory)
+ var samples:Array=ship.store.field_cargo(sku).get(sku,{}).get("days",[])
+ var available:bool=samples.any(func(d):return int(d)<=Garden.today())
+ var held:int=workshop.units("ore" if refining() else "botanical",sku) if connected else 0
+ var progress:="Refining   " if refining() else "Extracting   "
+ part_label.text=purpose if job.is_empty() else ("Ready to collect" if ready else progress+time_text(seconds_left(job)))
+ var deposit:="Store ore" if refining() else "Store sample"
+ print_button.show();print_button.text="Start refining" if refining() else "Start extraction"
+ if ready:print_button.text="Collect cartridge"
+ elif available and held==0:print_button.text=deposit
+ print_button.disabled=not connected or workshop.busy or not (ready or available or held>0)
+ store_sample_button.text=deposit;store_sample_button.visible=connected and available and (ready or held>0)
  store_sample_button.disabled=not connected or workshop.busy
  note.size.x=732 if store_sample_button.visible else 900
- note.text="Pick two open flowers at "+Garden.SHORES[pigment_index]+"." if not has_sample else "Field sample stored on this ship."
- if not samples.is_empty() and not has_sample:note.text="Sample dated in the future. Check the system clock."
- if not connected:note.text="Samples stay on this ship. Connect to a workshop with pigment extraction."
- elif workshop.busy:note.text="Updating inventory…"
- elif workshop.notice!="":note.text=workshop.notice
+ if refining():
+  note.text="%s ore   ·   Ship %d"%[sku.capitalize(),samples.size()]
+  note.text+=("   ·   Inventory %d"%held) if connected else "   ·   Connect to a workshop with ore refining."
+ else:
+  note.text="Field sample stored on this ship." if available else "Pick two open flowers at "+Garden.SHORES[pigment_index]+"."
+  if not connected:note.text="Samples stay on this ship. Connect to a workshop with pigment extraction."
+ if not samples.is_empty() and not available:note.text="Sample dated in the future. Check the system clock."
+ if connected:
+  if workshop.busy:note.text="Updating inventory…"
+  elif workshop.notice!="":note.text=workshop.notice
 
 func action_hints() -> Array:
  var actions:Array=[["vertical",["Blueprint","Cartridge","Plant"][page]],["tab_pair","Tabs"]]
@@ -362,8 +393,8 @@ func action_hints() -> Array:
   actions.append(["horizontal","Part"])
   if not on_parts:actions.append(["interact","Choose part"])
   elif not print_button.disabled:actions.append(["interact",print_button.text])
- if page==2 and not print_button.disabled:actions.append(["interact",print_button.text])
- if page==2 and store_sample_button.visible:actions.append(["pick_item","Store sample"])
+ if (page==2 or refining()) and not print_button.disabled:actions.append(["interact",print_button.text])
+ if store_sample_button.visible:actions.append(["pick_item",store_sample_button.text])
  actions.append(["cancel_ship","Close"])
  return actions
 
@@ -393,8 +424,8 @@ func _input(event:InputEvent) -> void:
  elif event.is_action_pressed("ui_down",true):navigate(Vector2i.DOWN)
  elif event.is_action_pressed("ui_left",true):navigate(Vector2i.LEFT)
  elif event.is_action_pressed("ui_right",true):navigate(Vector2i.RIGHT)
- elif page==2 and event.is_action_pressed("pick_item") and store_sample_button.visible:store_selected_sample()
- elif page==2 and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):print_selected()
+ elif event.is_action_pressed("pick_item") and store_sample_button.visible:store_selected_sample()
+ elif (page==2 or refining()) and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):print_selected()
  elif page==0 and (event.is_action_pressed("ui_accept") or event.is_action_pressed("interact")):
   if on_parts and not print_button.disabled:print_selected()
   else:select_part(part)

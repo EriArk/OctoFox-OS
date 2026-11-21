@@ -11,6 +11,12 @@ Opposite the galley, a lounge chair and a curved-backed banquette share one mova
 table by the aquarium. The galley stool sits below the breakfast ledge. A clear
 central aisle connects the cockpit, lift and berth. The earlier warm interior shipped as preview `34aa5da8b7518ad3`.
 
+### Mining and metal cartridges
+
+Land at **Table Isle** for bauxite or **Cinder Garden** for magnetite. Walk from the landing circle to the exposed vein and press **A** on the controller or **F** on the keyboard. Follow the cutter along the seam and pulse as it crosses each of the three rings. A miss leaves the current fracture available. Leaving the outcrop restores an unfinished cut. Each vein yields one sample per UTC day. Offline ore travels with the current ship profile.
+
+Open **Fabricator → Cartridges** and select **Aluminium** for bauxite or **Steel** for magnetite. **Store ore** transfers the field sample to profile inventory, where it can be traded. **Start refining** consumes one sample. After two hours, **Collect cartridge** adds one unit of the selected metal for existing outfit recipes or trade. If the workshop is unavailable, the ore stays on the ship.
+
 ### Island flowers and pigment cartridges
 
 Walk past the landing circle on Echo Orchard, Table Isle or Cinder Garden. Press **A / F** by the flower patch. Select a stem with left or right and pick the two open heads with visible pollen. Closed buds stay on the plant. Completing the pair saves a field sample to the current ship profile, including while offline. Each patch blooms again at midnight UTC.

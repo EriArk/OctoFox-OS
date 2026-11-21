@@ -30,10 +30,10 @@ var sphere:=SphereMesh.new()
 static func today() -> int:
  return floori(Time.get_unix_time_from_system()/86400.0)
 
-static func valid_samples(value:Variant) -> bool:
+static func valid_samples(value:Variant, catalogue:Array=PLANTS) -> bool:
  if not value is Dictionary:return false
  for key in value:
-  if key not in PLANTS or not value[key] is Dictionary:return false
+  if key not in catalogue or not value[key] is Dictionary:return false
   var entry:Dictionary=value[key]
   if not entry.get("days") is Array or not whole_day(entry.get("last")):return false
   var previous:=-1

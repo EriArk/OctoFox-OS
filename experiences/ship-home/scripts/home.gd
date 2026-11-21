@@ -18,6 +18,7 @@ var parts=preload("res://scripts/look_parts.gd").new()
 var cards=preload("res://scripts/look_cards.gd").new()
 var fabricator=preload("res://scripts/fabricator.gd").new()
 var fitting=preload("res://scripts/fitting_station.gd").new()
+var mine=preload("res://scripts/ore_outcrop.gd").new()
 var garden=preload("res://scripts/botanical_garden.gd").new()
 var fishing=preload("res://scripts/shore_fishing.gd").new()
 const Catch=preload("res://scripts/shore_catch.gd")
@@ -67,7 +68,7 @@ func _ready() -> void:
  walker=Walker.new();walker.helm=art;walker.position=Vector3(0,0.1,-0.55);add_child(walker)
  add_child(fitting);fitting.configure(walker,studio)
  Exterior.configure_camera(walker.pilot_camera,true);Exterior.configure_camera(fitting.camera,true)
- add_child(garden);add_child(fishing)
+ add_child(mine);add_child(garden);add_child(fishing)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
  parts.client=avatar_client;parts.fitting=fitting
@@ -144,6 +145,7 @@ func _load_profile(id:String) -> void:
  if is_instance_valid(walker) and walker.seated:
   # Profile changes return to the reserved central approach before replacing furniture.
   walker.stand(Vector3(0,0.08,-2.1))
+ if mine.active:mine.close()
  if garden.active:garden.close()
  if fishing.walker!=null:fishing.close()
  if outside or riding or walker.position.y< -0.4:
@@ -213,7 +215,7 @@ func _ui() -> void:
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
  layer.add_child(instruments);instruments.bind(flight,walker)
  layer.add_child(prompts)
- fishing.configure(self,layer);garden.configure(self,layer);fabricator.ship=self
+ fishing.configure(self,layer);garden.configure(self,layer);mine.configure(self,layer);fabricator.ship=self
  prompts.used.connect(func(id:String):
   if not paused and not riding and not editing and not fitting.active and not fabricator.visible and not walker.seated and id==_station():_interact())
 
@@ -223,6 +225,7 @@ func _open_colours() -> void:
 
 func _pause(value:bool) -> void:
  if value:
+  if mine.active:mine.close()
   if garden.active:garden.close()
   if fishing.phase!=fishing.Phase.AWAY:fishing.close()
   instruments.clear()
@@ -246,6 +249,8 @@ func _close_fabricator() -> void:
 func _unhandled_input(event:InputEvent) -> void:
  if event.is_action_pressed("pause_ship"):
   _pause(not paused);get_viewport().set_input_as_handled();return
+ if mine.active and not paused:
+  mine.control(event);get_viewport().set_input_as_handled();return
  if garden.active and not paused:
   garden.control(event);get_viewport().set_input_as_handled();return
  if not paused and fishing.phase!=fishing.Phase.AWAY:
@@ -305,13 +310,15 @@ func _process(delta:float) -> void:
   if not viewing_exterior:studio.animate(delta)
   fitting.update(delta)
  garden.tick()
- if garden.active:
+ if not paused:mine.tick(delta)
+ if garden.active or mine.active:
   prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
  if fishing.phase!=fishing.Phase.AWAY:
   fishing.tick(delta);prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
  var station = _station()
  var target=STATION_TARGETS.get(station)
- if station=="garden":target=garden.global_position+Vector3.UP*0.55
+ if station=="mine":target=mine.global_position+Vector3.UP*0.6
+ elif station=="garden":target=garden.global_position+Vector3.UP*0.55
  elif station=="fish":target=flight.to_global(flight.fishing_spots[flight.berth])
  elif station=="tank":target=studio.aquarium.to_global(Vector3(0,1.05,0.42))
  elif station=="lift":target=studio.lift.position+Vector3.UP*0.12
@@ -490,12 +497,13 @@ const STATION_TARGETS = {
  "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
-const STATION_ACTIONS={"garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
+const STATION_ACTIONS={"mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
  if flight.mode==flight.Mode.BERTH and p.distance_to(studio.EXIT_CENTER)<studio.EXIT_RADIUS+0.09 and absf(walker.position.y-studio.exit_lift.position.y)<0.3:return "dock_lift"
  if outside:
+  if flight.mode==flight.Mode.BERTH and mine.visible and walker.global_position.distance_to(mine.global_position)<2.35:return "mine"
   if flight.mode==flight.Mode.BERTH and garden.visible and walker.global_position.distance_to(garden.global_position)<2.3:return "garden"
   if flight.mode==flight.Mode.BERTH and flight.fishing_spots.has(flight.berth):
    if walker.global_position.distance_to(flight.to_global(flight.fishing_spots[flight.berth]))<2.6:return "fish"
@@ -548,6 +556,7 @@ func _physics_process(delta:float) -> void:
 
 func _outside(value:bool) -> void:
  outside=value
+ if mine.home!=null:mine.set_site(flight.berth if value else -1)
  if garden.home!=null:garden.set_site(flight.berth if value else -1)
  walker.collision_mask=(flight.WALK_LAYER|Exterior.HULL_COLLISION) if value else 3
  _set_ship_view(value);lift_shutter.hide()
@@ -563,6 +572,7 @@ func _interact() -> void:
   return
  prompts.clear_world()
  match _station():
+  "mine":mine.open()
   "garden":garden.open()
   "fish":fishing.open_shore()
   "tank":fishing.open_tank()

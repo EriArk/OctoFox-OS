@@ -85,11 +85,14 @@ func wear_look(row:Dictionary,field:String="",item:String="") -> void:
  _request("ship.wear",args)
  looks_changed.emit()
 
-func store_sample(plant:String,day:int,owner:String) -> void:
- if busy or owner=="" or not inventory.has("extraction_hours"):return
+func store_sample(sku:String,day:int,owner:String) -> void:
+ var mineral:=sku in preload("res://scripts/ore_outcrop.gd").ORES
+ if busy or owner=="" or not inventory.has("refining_hours" if mineral else "extraction_hours"):return
  busy=true;notice="";last_action="store_sample"
- _request("workshop.collect",{"plant":plant,"day":day,"player_id":inventory.player_id})
- pending[str(serial)].sample=[owner,plant,day]
+ var batch={"day":day,"player_id":inventory.player_id}
+ batch["ore" if mineral else "plant"]=sku
+ _request("workshop.collect",batch)
+ pending[str(serial)].sample=[owner,sku,day]
  workshop_changed.emit()
 
 func refresh_workshop() -> void:
@@ -212,6 +215,6 @@ func _packet(packet:Dictionary) -> void:
    if str(data.get("item_id","")).length()!=36:
     busy=false;notice="Could not confirm transfer. Your sample has been kept.";workshop_changed.emit();return
    sample_stored.emit(sample[0],sample[1],sample[2])
-  notice={"store_sample":"Field sample added to inventory","extract":"Pigment extraction started","collect_pigment":"Cartridge added to inventory","print":"Print started","collect":"Part added to inventory","paint":"Finish saved","activate":"Colour added to your palette"}.get(last_action,"Saved")
+  notice={"refine":"Ore refining started","collect_material":"Material cartridge added to inventory","store_sample":"Field sample added to inventory","extract":"Pigment extraction started","collect_pigment":"Cartridge added to inventory","print":"Print started","collect":"Part added to inventory","paint":"Finish saved","activate":"Colour added to your palette"}.get(last_action,"Saved")
   _request("workshop.get")
  workshop_changed.emit()
