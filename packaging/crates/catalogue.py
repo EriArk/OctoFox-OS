@@ -11,6 +11,9 @@ import re
 import struct
 import subprocess
 import sys
+
+# The installed helper directory is part of the signed, immutable shell payload.
+sys.dont_write_bytecode = True
 import tempfile
 import urllib.request
 

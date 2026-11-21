@@ -7,6 +7,9 @@ import signal
 import re
 import subprocess
 import sys
+
+# The installed helper directory is part of the signed, immutable shell payload.
+sys.dont_write_bytecode = True
 from installer import Store, ID, safe_path
 
 def main():

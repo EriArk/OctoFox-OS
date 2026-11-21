@@ -13,6 +13,9 @@ from pathlib import Path, PurePosixPath
 import re
 import shutil
 import sys
+
+# The installed helper directory is part of the signed, immutable shell payload.
+sys.dont_write_bytecode = True
 import tarfile
 import urllib.request
 from urllib.parse import urlsplit
