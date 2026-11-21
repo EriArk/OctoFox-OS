@@ -14,7 +14,7 @@ Window {
     readonly property int lastChoice: picker ? items.length + (review.next ? 1 : 0) : review.ready ? 1 : 0
     readonly property string viewKey: [review.text, review.loading, review.next, picker].join("/")
     property int selected: 0
-    readonly property bool pricing: review.action === "list" && !!review.ready && !review.retry
+    readonly property bool pricing: ["list","weekly","reprice"].includes(review.action) && !!review.ready && !review.retry
     function stepPrice(delta) {
         priceField.text = String(Math.min(2147483647, Math.max(1,(Number(priceField.text) || 1)+delta)))
     }
@@ -34,7 +34,7 @@ Window {
     onViewKeyChanged: Qt.callLater(resetSelection)
     function resetSelection() {
         selected = review.ready || (picker && items.length) ? 1 : 0
-        if (review.action === "list" && review.ready && !review.retry) priceField.text=String(review.price)
+        if (pricing) priceField.text=String(review.price)
     }
     onVisibleChanged: if (visible) { raise(); requestActivate() }
     onClosing: function(event) { event.accepted=false; account.answerMarketReview(false) }
@@ -100,7 +100,7 @@ Window {
         Rectangle { width: parent.width; height: 4; color: "#e6ad66" }
         Caption {
             x: 18; y: 16; width: 440
-            text: panel.festival ? "FESTIVAL PARK    /    TICKETS" : panel.review.slot ? "FESTIVAL PARK    /    COUNTER " + String(panel.review.slot).padStart(2,"0") : "FESTIVAL PARK    /    INVENTORY"
+            text: panel.review.world === "mika-island" ? "MIKA’S ISLAND    /    COUNTER 01" : panel.festival ? "FESTIVAL PARK    /    TICKETS" : panel.review.slot ? "FESTIVAL PARK    /    COUNTER " + String(panel.review.slot).padStart(2,"0") : "FESTIVAL PARK    /    INVENTORY"
         }
         Caption {
             anchors.right: parent.right; anchors.rightMargin: 18; y: 16
@@ -110,8 +110,8 @@ Window {
         Text {
             x: 18; y: 46; width: 604; color: panel.paper; font.pixelSize: 32; font.bold: true
             text: panel.review.retry ? "Recover trade" : panel.review.inventory ? "Profile inventory" :
-                  panel.festival ? "Festival ticket" : panel.rental ? "Rent a counter" : panel.review.action === "list" ?
-                  (panel.review.picker ? "Choose your stock" : "List an item") : "Buy from counter"
+                  ({"withdraw":"Take item back","reprice":"Change asking price","weekly":"Weekly rent","build":"Build island counter"})[panel.review.action] || (panel.festival ? "Festival ticket" : panel.rental ? "Rent a counter" : panel.review.action === "list" ?
+                  (panel.review.picker ? "Choose your stock" : "List an item") : "Buy from counter")
         }
         Rectangle {
             x: 16; y: 100; width: 608; height: 186
@@ -152,7 +152,7 @@ Window {
             Column {
                 x: 352; y: 20; width: 248; spacing: 7
                 visible: !!panel.review.ready && panel.structured
-                Caption { text: panel.review.action === "list" ? "ASKING PRICE" : "YOU PAY" }
+                Caption { text: panel.review.action === "withdraw" ? "CURRENT PRICE" : panel.review.action === "weekly" ? "SPARKS PER WEEK" : panel.pricing ? "ASKING PRICE" : "YOU PAY" }
                 Row {
                     visible: panel.pricing
                     spacing: 4
@@ -213,7 +213,7 @@ Window {
             visible: !!panel.review.ready || (panel.picker && !!panel.review.next)
             choice: panel.review.ready ? 1 : panel.items.length+1
             label: !panel.review.ready ? "More items" : panel.review.retry ? "Recover trade" :
-                   panel.festival ? "Buy ticket" : panel.rental ? "Confirm rental" : panel.review.action === "list" ? "List item" : "Confirm purchase"
+                   ({"withdraw":"Return to bag","reprice":"Save price","weekly":"Set rent","build":"Buy counter"})[panel.review.action] || (panel.festival ? "Buy ticket" : panel.rental ? "Confirm rental" : panel.review.action === "list" ? "List item" : "Confirm purchase")
         }
     }
 }

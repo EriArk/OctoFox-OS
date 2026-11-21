@@ -81,7 +81,11 @@ void BackendAccount::bazaarRead(const QString& method,QJsonObject args,Reply don
             if(!id(ticket) || args.keys()!=QStringList{"index","x","y"}){done(422,{{"code","invalid_attempt"}});return;}
             path+="/"+ticket.toString()+"/attempt";verb="POST";body=args;
         }else if(!args.isEmpty()){done(422,{{"code","invalid_game"}});return;}
-    }else if(method=="bazaar.world"&&args.isEmpty())path="/v1/bazaar-worlds/festival";
+    }else if(method=="bazaar.visit" && id(args["visit"]) && args.size()<=3){
+        path="/v1/bazaar-worlds/mika-island/visit";verb="POST";body=args;
+    }else if(method=="bazaar.world" && (args.isEmpty() || (args.size()==1 && args["world"]=="mika-island"))){
+        path="/v1/bazaar-worlds/"+args["world"].toString("festival");
+    }
     else if(method=="bazaar.costumes"&&args.isEmpty())path="/v1/bazaar-costumes";
     else if(method=="bazaar.sellers"&&args.isEmpty())path="/v1/bazaar-sellers";
     else if(method=="bazaar.listings"||method=="bazaar.own_listings") {

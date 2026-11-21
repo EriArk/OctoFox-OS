@@ -217,7 +217,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;caps["bazaar.cup"]=1;}
-        if(backend_){caps["play.scorecards"]=1;caps["bazaar.read"]=1;caps["bazaar.checkout"]=1;caps["bazaar.festival"]=1;}
+        if(backend_){caps["play.scorecards"]=1;caps["bazaar.read"]=1;caps["bazaar.checkout"]=1;caps["bazaar.festival"]=1;caps["bazaar.counter"]=1;}
         if(selectHomeWidget)caps["ui.home.widget"]=1;
         ok({{"protocol", 1}, {"capabilities", caps}, {"context", snapshot()}});
         return;

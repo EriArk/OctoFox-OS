@@ -60,7 +60,7 @@ class Shop:
                     'bazaar': bazaar.owned(conn, actor.player_id),
                     'equipped': appearance['offer_id'] if appearance else None, 'receipt': receipt}
 
-    def purchase(self, access, operation, offer_id, revision, price, bazaar_details=None):
+    def purchase(self, access, operation, offer_id, revision, price, bazaar_details=None, *, first_island_stall=False):
         purchase_details = bazaar.details(bazaar_details) if bazaar_details is not None else {}
         with self.db.transaction() as conn:
             actor = self.progression.account(conn, access)
@@ -86,6 +86,11 @@ class Shop:
                     raise AuthError('already_owned', 409)
                 if offer['purpose']=='bazaar_stall' and not bazaar.owned(conn,actor.player_id):
                     raise AuthError('bazaar_required',409)
+                if first_island_stall:
+                    site=conn.execute("""SELECT b.id FROM trainer_backend.bazaar_worlds w JOIN trainer_backend.bazaars b ON b.id=w.bazaar_id
+                        WHERE w.world_key='mika-island' AND b.kind='personal' AND b.owner_id=%s""",(actor.player_id,)).fetchone()
+                    if not site or conn.execute('SELECT 1 FROM trainer_backend.bazaar_places WHERE bazaar_id=%s',(site['id'],)).fetchone():
+                        raise AuthError('place_changed',409)
                 if mastery(account['xp'])['level'] < offer['minimum_level']:
                     raise AuthError('level_required', 409)
                 if account['balance'] < offer['price']:

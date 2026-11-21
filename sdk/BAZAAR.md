@@ -6,7 +6,7 @@ inside `BackendAccount`. The SDK app ID is self-declared, not publisher authorit
 
 | Method | Parameters |
 |---|---|
-| `bazaar.world` | `{}`; the registered `festival` world |
+| `bazaar.world` | Empty for Festival Park or `{"world":"mika-island"}` for the bound beach island |
 | `bazaar.sellers` | `{}` |
 | `bazaar.costumes` | `{}`; unavailable offers, no wearable delivery yet |
 | `bazaar.listings` | `place_id` UUID, optional `after` UUID |
@@ -66,3 +66,9 @@ Each game may have one unfinished ticket per profile. Replaying an identical
 indexed attempt returns the saved result. Buying a ticket goes through the
 native checkout window. The third distinct gallery hit deposits that toy in
 the profile inventory in the same transaction that records the hit.
+
+### Personal counter and visits
+
+Hosts advertising `bazaar.counter: 1` support `build`, `weekly`, `withdraw` and `reprice` in the native checkout. Pass `world: "mika-island"` for the island. Slot 1 is the first purchased counter. Only its world owner can build it or change its weekly rent. The tenant controls the keeper and stock. The world response includes the latest sale for the current tenant and the public preview of up to three items. Festival Park returns the current player's won plush titles.
+
+On the island, `bazaar.visit` registers a random per-entry UUID. Poll every three seconds. The oldest present visitor hosts the peer links. Explicit departure or eighteen seconds without a heartbeat releases the role. Each guest receives its own secure-channel invitation. Movement travels over the TrainerOS records transport. Every economic action still requires the authenticated Backend and the appropriate owner, tenant or buyer.

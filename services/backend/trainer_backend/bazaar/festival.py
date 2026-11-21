@@ -26,7 +26,11 @@ def view(player, game, row):
 def status(service, token, game):
     with service.db.transaction() as conn:
         player = service.progression.account(conn, token).player_id
-        return view(player, game, latest(conn, player, game))
+        result=view(player, game, latest(conn, player, game))
+        if game=='gallery':
+            result['won']=[r['prize'] for r in conn.execute("""SELECT DISTINCT prize FROM trainer_backend.festival_rounds
+                WHERE player_id=%s AND game='gallery' AND prize IS NOT NULL ORDER BY prize""",(player,))]
+        return result
 
 
 def enter(service, token, game, operation, expected):

@@ -1,5 +1,9 @@
 # TrainerOS — история изменений
 
+## 21 November 2026 — Island counter and festival collectibles
+
+Bazaar counters now display festival plush and support changing the price or returning a listing. Beach island owners can buy their first counter and set its weekly rent. Island visits hand the peer host role to a remaining player.
+
 ## 20 November 2026 — Festival market interface
 
 The native trade window shows the item and the Sparks on opposite sides. Owners can select a profile item, adjust the asking price with the pad or touch, and confirm. Pending trades keep their signed-off price when recovered.

@@ -103,8 +103,8 @@ def create_listing(service, token, rental_id, item_id, operation, price):
         actor=service.progression.account(conn,token);accounts(conn,[actor.player_id])
         old=conn.execute('SELECT * FROM trainer_backend.bazaar_listings WHERE seller_id=%s AND operation_id=%s',(actor.player_id,operation)).fetchone()
         if old:
-            if (old['rental_id'],old['item_id'],old['price'])!=(rental_id,item_id,price):raise AuthError('listing_identity_conflict',409)
-            return {'player_id':actor.player_id,'listing':old}
+            if (old['rental_id'],old['item_id'],old['initial_price'])!=(rental_id,item_id,price):raise AuthError('listing_identity_conflict',409)
+            return {'player_id':actor.player_id,'listing':{**old,'price':old['initial_price']}}
         enabled();lease(conn,actor,rental_id)
         if not conn.execute('SELECT 1 FROM trainer_backend.bazaar_sellers WHERE rental_id=%s',(rental_id,)).fetchone():
             raise AuthError('seller_required',409)
@@ -114,6 +114,24 @@ def create_listing(service, token, rental_id, item_id, operation, price):
         conn.execute("UPDATE trainer_backend.loot_items SET state='listed' WHERE id=%s",(item_id,))
         row=conn.execute('''INSERT INTO trainer_backend.bazaar_listings(id,rental_id,seller_id,item_id,operation_id,price)
             VALUES(%s,%s,%s,%s,%s,%s) RETURNING *''',(uuid4(),rental_id,actor.player_id,item_id,operation,price)).fetchone()
+        return {'player_id':actor.player_id,'listing':row}
+
+
+def reprice(service, token, listing_id, revision, price):
+    with service.db.transaction() as conn:
+        actor=service.progression.account(conn,token)
+        accounts(conn,[actor.player_id])
+        rental=conn.execute('SELECT rental_id FROM trainer_backend.bazaar_listings WHERE id=%s AND seller_id=%s',
+                            (listing_id,actor.player_id)).fetchone()
+        if not rental:raise AuthError('listing_not_found',404)
+        enabled()
+        lease(conn,actor,rental['rental_id'])
+        row=conn.execute('SELECT * FROM trainer_backend.bazaar_listings WHERE id=%s FOR UPDATE',(listing_id,)).fetchone()
+        if row['state']!='listed':raise AuthError('listing_changed',409)
+        if row['price']!=price:
+            if row['revision']!=revision:raise AuthError('listing_changed',409)
+            row=conn.execute('UPDATE trainer_backend.bazaar_listings SET price=%s,revision=revision+1 WHERE id=%s RETURNING *',
+                             (price,listing_id)).fetchone()
         return {'player_id':actor.player_id,'listing':row}
 
 
@@ -200,9 +218,16 @@ def world(service, token, key):
         if not bound:raise AuthError('world_not_configured',409)
         venue=rentals.visible(conn,actor,bound['bazaar_id'])
         if venue['owner_id']!=actor.player_id:access(conn,actor,bound['bazaar_id'])
-        rows=conn.execute('''SELECT w.slot,p.id,p.name,p.weekly_price,p.revision,r.id AS rental_id,r.tenant_id,r.expires_at,s.species,
+        slots_sql = "SELECT slot,place_id FROM trainer_backend.bazaar_world_places WHERE world_key=%s"
+        slot_arg=key
+        if key=='mika-island':
+            slots_sql = """SELECT 1 AS slot,p.id AS place_id FROM trainer_backend.bazaar_places p
+                JOIN trainer_backend.purchases receipt ON receipt.id=p.purchase_id WHERE p.bazaar_id=%s
+                ORDER BY receipt.created_at,p.id LIMIT 1"""
+            slot_arg=bound['bazaar_id']
+        rows=conn.execute(f'''SELECT w.slot,p.id,p.name,p.weekly_price,p.revision,r.id AS rental_id,r.tenant_id,r.expires_at,s.species,
                 profile.display_name AS tenant_name,COALESCE(shelf.items,'[]'::jsonb) AS showcase
-            FROM trainer_backend.bazaar_world_places w JOIN trainer_backend.bazaar_places p ON p.id=w.place_id
+            FROM ({slots_sql}) w JOIN trainer_backend.bazaar_places p ON p.id=w.place_id
             LEFT JOIN LATERAL (SELECT * FROM trainer_backend.bazaar_rentals WHERE place_id=p.id AND expires_at>clock_timestamp()
                 ORDER BY expires_at DESC LIMIT 1) r ON true
             LEFT JOIN trainer_backend.bazaar_sellers s ON s.rental_id=r.id
@@ -215,7 +240,19 @@ def world(service, token, key):
                     WHERE l.rental_id=r.id AND l.state='listed' AND NOT EXISTS (
                         SELECT 1 FROM trainer_backend.bazaar_blocks b WHERE b.bazaar_id=p.bazaar_id AND b.player_id=r.tenant_id)
                     ORDER BY l.id LIMIT 3) sample) shelf ON true
-            WHERE w.world_key=%s AND p.bazaar_id=%s ORDER BY w.slot''',(key,bound['bazaar_id'])).fetchall()
+            WHERE p.bazaar_id=%s ORDER BY w.slot''',(slot_arg,bound['bazaar_id'])).fetchall()
+        for place in rows:
+            if place['tenant_id']==actor.player_id:
+                place['recent_sale']=conn.execute("""SELECT i.presentation->>'title' AS title,t.price FROM trainer_backend.bazaar_trades t
+                    JOIN trainer_backend.bazaar_listings l ON l.id=t.listing_id JOIN trainer_backend.loot_items i ON i.id=t.item_id
+                    WHERE l.rental_id=%s AND t.seller_id=%s ORDER BY t.created_at DESC,t.id DESC LIMIT 1""",
+                    (place['rental_id'],actor.player_id)).fetchone()
+        won=[]
+        if key=='festival':
+            won=[r['prize'] for r in conn.execute("SELECT DISTINCT prize FROM trainer_backend.festival_rounds WHERE player_id=%s AND game='gallery' AND prize IS NOT NULL",(actor.player_id,))]
         owner=venue['owner_id']
-        return {'player_id':actor.player_id,'bazaar_id':bound['bazaar_id'],'owner_id':owner,'places':rows,
+        offer=None
+        if key=='mika-island' and owner==actor.player_id and not rows and policy.PAYMENTS_AVAILABLE:
+            offer=conn.execute("SELECT id,price,revision FROM trainer_backend.shop_offers WHERE id='bazaar.stall' AND available").fetchone()
+        return {'player_id':actor.player_id,'bazaar_id':bound['bazaar_id'],'owner_id':owner,'places':rows,'stall_offer':offer,'world':key,'won':won,
                 'payments_available':policy.PAYMENTS_AVAILABLE,'seller_price':SELLER_PRICE,'seller_revision':1}
