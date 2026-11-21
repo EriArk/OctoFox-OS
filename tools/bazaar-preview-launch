@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Launch a legacy Armada Bazaar desktop entry against the current Crates game."""
+import json
+import os
+from pathlib import Path
+import re
+import sys
+
+sys.dont_write_bytecode = True
+
+
+def main():
+    home = Path.home()
+    software = home / ".local/share/traineros-software"
+    legacy = home / ".local/share/traineros-development/bazaar/current/bazaar.arm64"
+    flags = ["--display-driver", "x11", "--rendering-method", "gl_compatibility", *sys.argv[1:]]
+    if (software / "receipt.json").is_file():
+        active = json.loads((software / "receipt.json").read_text())["active"]
+        if not re.fullmatch("[0-9a-f]{64}", active):
+            raise ValueError("Invalid software receipt")
+        helpers = software / "versions" / active / "payload/share/traineros/crates"
+        if (helpers / "installer.py").is_file():
+            sys.path.insert(0, str(helpers))
+            from installer import Store, safe_path
+            config = json.loads((software / "config.json").read_text())
+            store = Store(Path(config["dataDirectory"]) / "crates")
+            with store.lock("bazaar", exclusive=False) as lease:
+                receipt = store.receipt("bazaar")
+                if receipt:
+                    name = receipt["object"]
+                    if receipt["id"] != "bazaar" or not re.fullmatch("bazaar-[0-9a-f]{64}", name):
+                        raise ValueError("Invalid Bazaar receipt")
+                    base = store.root / "objects" / name
+                    entry = (base / safe_path(receipt["entry"])).resolve()
+                    if base.is_symlink() or not entry.is_relative_to(base.resolve()) or not entry.is_file():
+                        raise ValueError("Invalid Bazaar executable")
+                    os.set_inheritable(lease.fileno(), True)
+                    os.execv(entry, [str(entry), *flags])
+    os.execv(legacy, [str(legacy), *flags])
+
+
+if __name__ == "__main__":
+    main()

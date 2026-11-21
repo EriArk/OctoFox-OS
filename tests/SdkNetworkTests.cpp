@@ -1,6 +1,8 @@
 #include <QtTest>
 #include <QTemporaryDir>
 #include <QSettings>
+#include <QFile>
+#include <QJsonDocument>
 #include <QProcess>
 #include <vector>
 #include <algorithm>
@@ -248,8 +250,17 @@ private:
         const auto ae=dir.filePath("a/endpoint.json"),be=dir.filePath("b/endpoint.json");QVERIFY(ah.start(ae));QVERIFY(bh.start(be));
         QVERIFY(a.create("private"));QVERIFY(a.invite("2"));b.answer(true);
         QCOMPARE(a.state()["members"].toArray().size(),2);
-        const QVariantList installed{QVariantMap{{"app",avatars?"art.abysstail.pocket-golf":"org.example.records"},{"title",avatars?"Pocket Golf":"Record test"},{"protocol",avatars?"pocket-golf.5":"test-1"},{"local","crates:counter"}}};
-        an.setInstalledActivities(installed);bn.setInstalledActivities(installed);
+        QVariantMap activity{{"app","org.example.records"},{"protocol","test-1"},{"title","Record test"},{"local","crates:counter"}};
+        if(avatars) {
+            QFile manifest(qEnvironmentVariable("TRAINER_GOLF_PROJECT")+"/traineros-activity.json");
+            QVERIFY(manifest.open(QIODevice::ReadOnly));
+            const auto game=QJsonDocument::fromJson(manifest.readAll()).object();
+            QCOMPARE(game["app"].toString(),"art.abysstail.pocket-golf");
+            QVERIFY(!game["protocol"].toString().isEmpty());
+            for(const auto key:{"app","protocol","seats"})activity[key]=game[key].toVariant();
+            activity["title"]="Pocket Golf";
+        }
+        an.setInstalledActivities({activity});bn.setInstalledActivities({activity});
         for(int pass=0;pass<2;++pass) {
             QProcess ac,bc;QByteArray ao,bo;
             const auto probe=QString::fromUtf8(SDK_SOURCE)+"/tests/SdkNetworkProbe.py";
