@@ -68,6 +68,7 @@ signals:
     void liveLaunchRequested(QString operation,QString ticket,QJsonObject party);
     void liveJoinFailed(QString operation);
     void liveReleased(QString peer,QString operation);
+    void festivalRing(int x,int z);
     void runtimeSignal(QString peer,QString ticket,QString connection,QJsonObject payload);
     void notice(QString message);
     void membershipEnded(QString room);

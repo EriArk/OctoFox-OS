@@ -30,6 +30,7 @@ LobbyRoomCoordinator* LobbyCoordinator::appendRoom(bool local) {
     connect(r,&LobbyRoomCoordinator::liveLaunchRequested,this,[this,r](QString op,QString t,QJsonObject s){if(r==active_)emit liveLaunchRequested(op,t,s);});
     connect(r,&LobbyRoomCoordinator::liveJoinFailed,this,[this,r](QString op){if(r==active_)emit liveJoinFailed(op);});
     connect(r,&LobbyRoomCoordinator::liveReleased,this,[this,r](QString p,QString op){if(r==active_)emit liveReleased(p,op);});
+    connect(r,&LobbyRoomCoordinator::festivalRing,this,[this,r](int x,int z){if(r==active_)emit festivalRing(x,z);});
     connect(r,&LobbyRoomCoordinator::runtimeSignal,this,[this,r](QString p,QString t,QString c,QJsonObject v){if(r==active_)emit runtimeSignal(p,t,c,v);});
     r->configure(local?localSelf_:self_,local?localName_:name_,local?localConnected_:online_);return r;
 }

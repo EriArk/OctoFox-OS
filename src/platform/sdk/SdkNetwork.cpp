@@ -26,6 +26,9 @@ SdkNetwork::SdkNetwork(LobbyCoordinator& lobby,LobbyRuntime& runtime,QString pyt
     runtime_.registerService(Mode,this);
     connect(&lobby_,&LobbyCoordinator::changed,this,&SdkNetwork::reconcile);
     connect(&lobby_,&LobbyCoordinator::runtimeSignal,this,&SdkNetwork::signal);
+    connect(&lobby_,&LobbyCoordinator::festivalRing,this,[this](int x,int z){
+        emit event("org.traineros.bazaar.festival",{{"event","festival.ring"},{"x",x},{"z",z}});
+    });
     deadline_.setSingleShot(true);deadline_.setInterval(60000);
     connect(&deadline_,&QTimer::timeout,this,[this]{end("connection_timeout");});
 }
@@ -59,6 +62,7 @@ QJsonObject SdkNetwork::channelState() const {
 }
 QString SdkNetwork::request(const QString& app,const QString& method,const QJsonObject& args,QJsonObject& result) {
     if(!available())return "transport_unavailable";
+    if(method.startsWith("activity.cup."))return cupRequest(app,method,args,result);
     if(method=="activity.register"){
         const auto title=args["title"].toString().trimmed(),protocol=args["protocol"].toString();static const QRegularExpression version("^[a-zA-Z0-9_.-]{1,64}$");
         if(title.isEmpty()||title.size()>64||!version.match(protocol).hasMatch())return "invalid_activity";
@@ -86,7 +90,14 @@ QString SdkNetwork::request(const QString& app,const QString& method,const QJson
     if(args["sequence"].toString()!=QString::number(link->consumed)||link->consumed>=link->received)return "invalid_sequence";
     return write(*link,{{"consume",qint64(link->consumed++)}})?QString():QString("channel_unavailable");
 }
-void SdkNetwork::disconnected(const QString& app){const bool removed=apps_.remove(app);if(app==app_)end("app_disconnected");if(removed)emit activitiesChanged();}
+void SdkNetwork::disconnected(const QString& app){if(app=="org.traineros.bazaar.festival" && cupTicket_.isEmpty() && !cupRoom_.isEmpty()){
+        const auto s=lobby_.state();
+        if(s["id"]==cupRoom_ && s["generation"].toInteger()==cupGeneration_ && s["phase"]=="gathering"){
+            lobby_.ready(false);runtime_.cancelPending();
+        }
+        clearCup();
+    }
+    const bool removed=apps_.remove(app);if(app==app_)end("app_disconnected");if(removed)emit activitiesChanged();}
 void SdkNetwork::prepare(QString operation,QJsonObject context,Completion done){
     const auto game=context["game"].toObject(),descriptor=game["runtime"].toObject();const auto app=descriptor["app"].toString();const auto local=installed_.value(app);int maximum=local["seats"].toInt(2);
     if(!available()||local.isEmpty()||local["runtime"]!=descriptor||game["mode"]!=Mode||game["id"]!="sdk:"+app||game["seats"]!=maximum){done(false,"Install the matching game version from Crates on this device.");return;}
@@ -109,7 +120,9 @@ void SdkNetwork::launch(QString operation,QString ticket,QJsonObject state,Compl
     if(operation!=operation_||ticket.isEmpty()||state["phase"]!="launching"||state["ticket"]!=ticket||state["id"]!=prepared_["lobby"]
        ||state["generation"]!=prepared_["generation"]||state["game"]!=prepared_["game"]||state["owner"]!=prepared_["owner"]
        ||members(state["members"].toArray())!=members(prepared_["members"].toArray())||(!apps_.contains(app_)&&!installed_.contains(app_))){done(false,"The app session changed. Prepare again.");return;}
-    ticket_=ticket;binding_=binding(state);completion_=std::move(done);host_=state["owner"]==self_;stopping_=false;
+    ticket_=ticket;
+    if(app_=="art.abysstail.pocket-golf" && state["id"]==cupRoom_ && !cupRoom_.isEmpty() && state["generation"].toInteger()==cupGeneration_ && self_==cupOwner_)cupTicket_=ticket;
+    binding_=binding(state);completion_=std::move(done);host_=state["owner"]==self_;stopping_=false;
     for(const auto& v:binding_["members"].toArray()){const auto id=v.toObject()["id"].toString();if(id!=self_&&(host_||id==state["owner"]))addLink(id);}
     deadline_.start();if(!apps_.contains(app_)&&(!launchInstalled||!launchInstalled(launchIds_.value(app_)))){end("launch_unavailable");return;}
     if(!host_){const auto l=links_.first();l->connection=QUuid::createUuid().toString(QUuid::WithoutBraces);const auto ticketCopy=ticket_;

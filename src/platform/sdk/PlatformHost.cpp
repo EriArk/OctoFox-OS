@@ -121,6 +121,7 @@ void PlatformHost::setContext(const QJsonObject& value) {
     const bool accountChanged = value["account"].toObject()["player_id"] != context_["account"].toObject()["player_id"];
     context_ = value; ++revision_;
     if (ownerChanged||accountChanged) {
+        if(network_)network_->clearCup();
         avatar_={};
         // An old process must not automatically adopt the next player's context.
         // Clear all contributions together: releasing peers one by one must not
@@ -214,7 +215,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         auto caps=capabilities();
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
-        if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;}
+        if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;caps["bazaar.cup"]=1;}
         if(backend_){caps["play.scorecards"]=1;caps["bazaar.read"]=1;caps["bazaar.checkout"]=1;}
         if(selectHomeWidget)caps["ui.home.widget"]=1;
         ok({{"protocol", 1}, {"capabilities", caps}, {"context", snapshot()}});
@@ -241,10 +242,14 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
     if(method.startsWith("play.")&&backend_) {
         if(peer.playBusy){fail("play_busy");return;}
         peer.playBusy=true;const QPointer<QTcpSocket> target(socket);const auto channel=peer.playChannel;const QPointer<PlatformHost> guard(this);
-        backend_->playRequest(channel,peer.app,method,args,[this,guard,target,channel,id](int status,QJsonObject result){
+        const auto ticket=network_?network_->cupTicket():QString();
+        backend_->playRequest(channel,peer.app,method,args,[this,guard,target,channel,id,ticket,method](int status,QJsonObject result){
             if(!guard||!target||!peers_.contains(target)||peers_[target].playChannel!=channel)return;
             peers_[target].playBusy=false;
-            if(status>=200&&status<300)send(target,{{"id",id},{"result",result}});
+            if(status>=200&&status<300){
+                if(network_)network_->observeCupScore(peers_[target].app,ticket,method,result);
+                send(target,{{"id",id},{"result",result}});
+            }
             else send(target,{{"id",id},{"error",QJsonObject{{"code",result["code"].toString("backend_unavailable")}}}});
         });return;
     }

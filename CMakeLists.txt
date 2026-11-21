@@ -27,6 +27,7 @@ add_library(trainer_core STATIC
     src/features/accounts/BackendAccount.cpp src/features/accounts/BackendCommerce.cpp src/features/accounts/BackendOutfits.cpp src/features/accounts/BackendPrizes.cpp src/features/accounts/BackendBazaar.cpp src/features/accounts/MarketCheckout.cpp
     src/features/trainer/AvatarAssets.cpp src/features/trainer/AvatarWearables.cpp src/features/trainer/OutfitController.cpp src/features/trainer/VisitorProfile.cpp src/features/trainer/ProfileInventory.cpp
     src/platform/sdk/PlatformHost.cpp
+    src/platform/sdk/FestivalCup.cpp
     src/platform/sdk/SdkNetwork.cpp
     src/features/browser/BrowserController.cpp
     src/features/adventure/LaunchPresentation.cpp

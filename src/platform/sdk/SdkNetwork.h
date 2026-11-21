@@ -16,6 +16,9 @@ public:
     ~SdkNetwork() override;
     bool available() const;
     QString request(const QString& app,const QString& method,const QJsonObject&,QJsonObject& result);
+    void clearCup();
+    QString cupTicket() const {return cupTicket_==ticket_ && !ticket_.isEmpty() && matches()?ticket_:QString();}
+    void observeCupScore(const QString&,const QString&,const QString&,const QJsonObject&);
     void disconnected(const QString& app);
     QVariantList activities() const;
     void setInstalledActivities(const QVariantList&);
@@ -48,6 +51,10 @@ private:
     QJsonObject prepared_,binding_;
     Completion completion_;
     bool host_=false,announced_=false,stopping_=false;
+    QString cupRoom_,cupOwner_,cupTicket_,cupMatch_;
+    qint64 cupGeneration_=0;
+    QJsonObject cupBoard_;
+    QString cupRequest(const QString&,const QString&,const QJsonObject&,QJsonObject&);
     bool allConnected() const;
     void addLink(const QString&);
     QJsonObject channelState() const;
