@@ -2,6 +2,8 @@ shader_type sky;
 render_mode use_debanding;
 uniform sampler2D coast : source_color, filter_linear, repeat_disable;
 uniform float local_air = 0.0;
+uniform vec3 source_bearing=vec3(0.7,0.0,-0.7);
+uniform vec4 cluster_tint : source_color=vec4(0.45,0.86,0.81,1.0);
 uniform float sector_shift=0.0;
 uniform float jump_glow=0.0;
 uniform float field_time=0.0;
@@ -21,7 +23,7 @@ void sky() {
  float longitude=atan(d.x,d.z);
  float t=field_time*0.045;
  float band=d.y+mix(0.34,-0.45,sector_shift)*d.x+0.12+0.08*sin(3.0*longitude+t*0.13);
- vec3 source=normalize(vec3(mix(-0.62,0.70,sector_shift),0.13,-1.0));
+ vec3 source=normalize(source_bearing);
  float towards=max(0.0,dot(source,d));
  float span=length(d-source);
  vec3 across=normalize(cross(source,vec3(0,1,0))), up=cross(across,source);
@@ -40,7 +42,7 @@ void sky() {
  }
  float veil=exp(-14.0*abs(band))*(0.38+0.62*cloud);
  float filament=exp(-95.0*abs(band+0.025*sin(14.0*d.x+8.0*d.z)));
- base+=vec3(0.067,0.23,0.20)*veil+vec3(0.18,0.13,0.095)*filament*cloud;
+ base+=(vec3(0.05,0.08,0.10)+cluster_tint.rgb*0.29)*veil+vec3(0.18,0.13,0.095)*filament*cloud;
  vec2 uv=vec2(atan(d.z,d.x)*0.15915494+0.5,asin(d.y)*0.31830989+0.5)*vec2(600.0,300.0);
  float h=hash(vec3(floor(uv),1.0));
  float star=step(0.991,h)*pow(max(0.0,1.0-length(fract(uv)-0.5)*2.0),2.0);

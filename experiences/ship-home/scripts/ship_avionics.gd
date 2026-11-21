@@ -1,25 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends RefCounted
 ## Navigation, sensors and cockpit panels all read the same sector catalogue.
-const SECTORS = ["Lantern Reach","Prism Shoal"]
-const ORIGINS = [Vector3.ZERO,Vector3(42000,800,-36000)]
+const Regions:=preload("res://scripts/egregore_regions.gd")
+const SECTORS:=Regions.NAMES
+const ORIGINS:=Regions.ORIGINS
 const ENTRY_OFFSET:=Vector3(0,6,700)
 const JUMP_COST := 22.0
 const TANK := 100.0
 const MODULES = ["Thrusters","Shields","Sensors","Comms","Shift drive","Emitter bank"]
 const BUSES = ["SYS","ENG","WEP"]
-const CATALOG = [
- {"name":"Lantern Station","kind":"station","site":0,"sector":0,"p":Vector3.ZERO},
- {"name":"Echo Orchard","kind":"island","site":1,"sector":0,"p":Vector3(0,0,-600)},
- {"name":"Prism Anchorage","kind":"station","site":2,"sector":1,"p":Vector3.ZERO},
- {"name":"Amber Courier","kind":"ship","sector":0,"p":Vector3(0,25,-130),"orbit":Vector2(76,40)},
- {"name":"Veil signal","kind":"signal","sector":0,"p":Vector3(-120,48,-380)},
- {"name":"Prism Warden","kind":"hostile","sector":1,"p":Vector3(78,22,300),"orbit":Vector2(55,45)},
- {"name":"Ring surveyor","kind":"ship","sector":1,"p":Vector3(-30,28,150),"orbit":Vector2(90,55)},
- {"name":"Prism relay","kind":"signal","sector":1,"p":Vector3(-87,26,490)},
- {"name":"Table Isle","kind":"island","sector":0,"p":Vector3(-485,68,-988)},
- {"name":"Crown Isle","kind":"island","sector":0,"p":Vector3(548,90,-887)},
- {"name":"Twin Spurs","kind":"island","sector":0,"p":Vector3(115,122,-1277)}]
+const CATALOG:=Regions.CONTACTS
 enum Group { PULSE, LASER, MISSILES }
 const GROUP_NAMES:=["Pulse cannon","Beam laser","Seeker rack"]
 const WARDEN:=5
@@ -103,8 +93,8 @@ func snapshot() -> Dictionary:
  return {"fuel":fuel,"pips":pips.duplicate(),"modules":enabled.duplicate(),"fireGroup":group,"gimballed":gimballed,"missiles":missiles}
 
 func docked(site:int) -> void:
- sector=1 if site==2 else 0
- target=1-site if site<2 else 7
+ sector=CATALOG[Regions.BERTH_CONTACT[site]].sector
+ target=1-site if site<2 else (7 if site==2 else Regions.GATE_CONTACT[sector])
  permit=-1;route=-1;arrival_target=-1;lock_id=-1;deployed=false;cruise=false;boost=0;charge=0;transit=0
  clear_ordnance()
  update_traffic(0)
@@ -149,7 +139,10 @@ func nose_contact() -> void:
  if best>=0:select(best);say(CATALOG[best].name)
 
 func range_to(id:int) -> float:return position_of(id).distance_to(f.location)
-func jump_axis() -> Vector3:return Vector3.FORWARD if sector==0 else Vector3.BACK
+func jump_axis() -> Vector3:
+ # The established Lantern–Prism corridor leaves through the bow and returns aft.
+ if mini(sector,route)==0:return Vector3.FORWARD if sector==0 else Vector3.BACK
+ return (Regions.CENTRES[route]-Regions.CENTRES[sector]).normalized() if route>=0 else Vector3.FORWARD
 
 func distribute(bus:int,delta:int=1) -> void:
  if bus<0 or bus>=pips.size() or absi(delta)!=1:return
@@ -170,7 +163,7 @@ func module_switch(index:int) -> void:
   match index:
    0:cruise=false;boost=0
    1:shield=0
-   2:lock_id=-1;select(f.destination)
+   2:lock_id=-1;select(Regions.BERTH_CONTACT[f.destination])
    4:charge=0;cruise=false
    5:deployed=false;lock_id=-1
 
@@ -181,7 +174,7 @@ func hail() -> void:
   "station":
    if f.mode!=f.Mode.FLYING:say("Already alongside");return
    if deployed:say("Control · Stow hardpoints first");return
-   permit=target;f.destination=target;say(CATALOG[target].name+" · Cleared for pad 01")
+   permit=target;f.destination=CATALOG[target].site;say(CATALOG[target].name+" · Cleared for pad 01")
   "ship":say(CATALOG[target].name+" · Passing on your scope. Safe flight.")
   "hostile":say("Warden · Restricted patrol. Keep your distance.")
   "island":say("Open landing site · Approach at your discretion" if CATALOG[target].has("site") else "Survey contact · No landing pad")
@@ -311,10 +304,12 @@ func boost_drive() -> void:
 func plot(waypoint:int=-1) -> void:
  if transit>0 or charge>0:
   say("Shift drive engaged");return
- var region:=1-sector
- if waypoint<0:waypoint=chart_contacts(region)[0]
+ if waypoint<0:waypoint=Regions.GATE_CONTACT[1 if sector==0 else 0]
+ var region:int=CATALOG[waypoint].sector
  if waypoint not in chart_contacts(region):return
- route=region;arrival_target=waypoint
+ var legs:=Regions.passage(sector,region)
+ if legs.is_empty():say("No shift corridor");return
+ route=legs[0];arrival_target=waypoint
  say("Course plotted · "+CATALOG[waypoint].name)
 
 func clear_course() -> void:
@@ -338,13 +333,14 @@ func navigate_to(id:int) -> bool:
 func jump() -> void:
  if charge>0:charge=0;say("Charge cancelled");return
  if route<0:say("Plot a route first");return
+ if not Regions.linked(sector,route):say("Destination outside drive range");return
  if f.mode!=f.Mode.FLYING or deployed or not enabled[4] or fuel<JUMP_COST:say("Jump requires flight, fuel and a clear drive");return
- if f.local_air>0.01 or range_to(0 if sector==0 else 2)<75:say("Clear the local mass shadow");return
+ if f.local_air>0.01 or range_to(Regions.GATE_CONTACT[sector])<75:say("Clear the local mass shadow");return
  if (-f.attitude.z).dot(jump_axis())<0.95:say("Align with the course diamond");return
  cruise=false;boost=0;f.velocity=Vector3.ZERO;f.throttle=0;charge=0.001;say("Shift drive charging")
 
 func service() -> void:
- if f.mode!=f.Mode.BERTH or f.berth==1:say("Station service requires a berth");return
+ if f.mode!=f.Mode.BERTH or CATALOG[Regions.BERTH_CONTACT[f.berth]].kind!="station":say("Station service requires a berth");return
  fuel=TANK;missiles=RACK_SIZE;hull=100;shield=100 if enabled[1] else 0;say("Service complete · tank full")
 
 func impact(speed:float) -> void:
@@ -372,15 +368,19 @@ func advance(dt:float) -> void:
  if hull<=0:
   f.reset(f.berth);service();hull=100;say("Recovery tow · last berth");return
  if cruise:
-  fuel=maxf(0,fuel-dt*(0.12+0.22*absf(f.throttle)))
+  fuel=maxf(0,fuel-dt*(0.025+0.065*absf(f.throttle)))
   if fuel<1:cruise=false;say("Cruise reserve reached")
  if transit>0:
   transit=maxf(0,transit-dt)
   if transit==0:
    sector=route;route=-1;permit=-1;lock_id=-1
-   f.destination=2 if sector==1 else 0
-   select(arrival_target if arrival_target in contacts() else f.destination)
-   arrival_target=-1
+   var gate:int=Regions.GATE_CONTACT[sector]
+   select(gate)
+   if arrival_target>=0 and CATALOG[arrival_target].sector!=sector:
+    plot(arrival_target)
+   else:
+    if arrival_target in contacts():select(arrival_target)
+    arrival_target=-1
    f.location=ORIGINS[sector]+ENTRY_OFFSET;f.attitude=Basis.IDENTITY
    f.velocity=Vector3.ZERO;f.throttle=0;f.turn_rate=Vector3.ZERO;update_traffic(0);say("Arrived · "+SECTORS[sector])
  elif charge>0:

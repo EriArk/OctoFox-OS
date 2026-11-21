@@ -4,8 +4,9 @@ extends Node3D
 enum Mode { BERTH, DEPARTING, FLYING, LANDING }
 const GROUND_Y:=-5.35
 const WALK_LAYER:=8
-const BERTHS=[Vector3.ZERO,Vector3(0,0,-600),Vector3(42000,800,-36000)]
-const NAMES=["Lantern Station","Echo Orchard","Prism Anchorage"]
+const Regions:=preload("res://scripts/egregore_regions.gd")
+var BERTHS:Array[Vector3]=[]
+var NAMES:Array[String]=[]
 var mode:=Mode.BERTH
 var berth:=0
 var destination:=1
@@ -22,6 +23,7 @@ var coast := preload("res://scripts/island_coast.gd").new()
 var air_zones: Array[Vector4] = []
 var cloud_materials: Array[ShaderMaterial] = []
 var cloud_densities: Array[float] = []
+var chart_islands:Dictionary[int,Array]={}
 var island_depths: Array[float] = []
 var cloud_cover := -1.0
 var local_air := -1.0
@@ -32,6 +34,9 @@ var art:ShipInterior
 
 func build(interior:ShipInterior) -> void:
  art=interior
+ for id in Regions.BERTH_CONTACT:
+  var item:Dictionary=Regions.CONTACTS[id]
+  BERTHS.append(Regions.ORIGINS[item.sector]+item.p);NAMES.append(item.name)
  for i in BERTHS.size():
   var site:=Node3D.new();add_child(site);site.position=BERTHS[i]+Vector3.UP*(GROUND_Y+3.9)
   var surface:=Vector3.DOWN*4.1
@@ -41,7 +46,7 @@ func build(interior:ShipInterior) -> void:
    var a:=TAU*j/20.0;var b:=TAU*(j+0.72)/20.0
    art.beam(site,surface+Vector3(cos(a)*7.7,0.23,sin(a)*7.7),surface+Vector3(cos(b)*7.7,0.23,sin(b)*7.7),0.085,Color("ffca71"),true)
   solid(site.position+Vector3(0,-6.3,0),Vector3(17,4,17))
-  if i!=1:
+  if Regions.CONTACTS[Regions.BERTH_CONTACT[i]].kind=="station":
    var pad_number:=Label3D.new();pad_number.text="01";pad_number.font_size=72;pad_number.pixel_size=0.016
    pad_number.modulate=Color("f1d49d");pad_number.outline_size=0;pad_number.rotation.x=-PI/2
    pad_number.position=surface+Vector3(0,0.22,-6.3);site.add_child(pad_number)
@@ -67,11 +72,11 @@ func build(interior:ShipInterior) -> void:
     art.beam(site,p+Vector3.DOWN*3,surface,0.85,Color("56536b"))
     solid(site.position+p,Vector3(8,16,8))
   else:
-   island(site,Vector3(30,-3.902,-48),94.0,64.0,true)
+   island(site,Vector3(30,-3.902,-48),94.0,64.0,Regions.BERTH_CONTACT[i],true)
  # Each sea has space for its own basin and atmosphere.
- island(self,Vector3(-485,68,-988),48.0,52.0)
- island(self,Vector3(548,90,-887),57.0,62.0)
- island(self,Vector3(115,122,-1277),65.0,74.0)
+ for id in [9,10,13,14]:
+  var item:Dictionary=Regions.CONTACTS[id]
+  island(self,Regions.ORIGINS[item.sector]+item.p,55+(id%3)*5,64,id)
  art.batch_static(self)
  avionics.configure(self)
  reset(0)
@@ -85,10 +90,11 @@ func walk_surface(mesh:MeshInstance3D) -> void:
  var body:=mesh.get_child(mesh.get_child_count()-1) as StaticBody3D
  body.collision_layer=WALK_LAYER;body.collision_mask=0
 
-func island(parent:Node3D,center:Vector3,radius:float,depth:float,walkable:=false) -> void:
+func island(parent:Node3D,center:Vector3,radius:float,depth:float,contact:int,walkable:=false) -> void:
  var sector_center := center if parent==self else parent.position+center
  var seed_angle := float(air_zones.size())*1.7
  var crown := coast.build(parent,center,radius,depth,seed_angle)
+ chart_islands[contact]=[crown.mesh,crown.get_node("../Water").mesh,crown.get_node("../Waterfalls").mesh]
  coast.plant_shore(crown,radius,seed_angle)
  plant_groves(parent,center,radius,seed_angle,walkable)
  air_zones.append(Vector4(sector_center.x,sector_center.y,sector_center.z,radius))
@@ -178,7 +184,7 @@ func hits_island(pos:Vector3) -> bool:
  return false
 
 func reset(site:int) -> void:
- berth=clampi(site,0,BERTHS.size()-1);destination=1-berth if berth<2 else 2
+ berth=clampi(site,0,BERTHS.size()-1);destination=1-berth if berth<2 else berth
  avionics.docked(berth)
  mode=Mode.BERTH;location=BERTHS[berth];attitude=dock_basis(berth)
  velocity=Vector3.ZERO;turn_rate=Vector3.ZERO;stick=Vector2.ZERO;throttle=0
@@ -190,8 +196,8 @@ func clearance() -> String:
  if avionics.transit>0 or avionics.charge>0:return "Shift drive active"
  if avionics.cruise:return "Disengage cruise"
  if avionics.deployed:return "Stow hardpoints"
- if destination!=1 and avionics.permit!=destination:return "Request docking clearance"
- if avionics.target!=destination:return "Select the landing site"
+ if Regions.CONTACTS[Regions.BERTH_CONTACT[destination]].kind=="station" and avionics.permit!=Regions.BERTH_CONTACT[destination]:return "Request docking clearance"
+ if avionics.target!=Regions.BERTH_CONTACT[destination]:return "Select the landing site"
  var offset:Vector3=location-BERTHS[destination]
  if Vector2(offset.x,offset.z).length()>8 or offset.y>9 or offset.y< -0.3:return "Approach the pad"
  if velocity.length()>2.5:return "Slow below 2.5 m/s"
@@ -227,13 +233,13 @@ func tick(dt:float,axes:Vector2,yaw:float,power:float,strafe:Vector2,brake:bool)
   turn_rate=turn_rate.move_toward(rates,dt*3.5)
   attitude=(attitude*Basis(Quaternion.from_euler(turn_rate*dt))).orthonormalized()
   var speed:=22.0
-  if avionics.cruise:speed=155.0
+  if avionics.cruise:speed=Regions.CRUISE_SPEED
   elif avionics.boost>0:speed=52.0
   if brake:avionics.cruise=false;avionics.boost=0
   var command:=Vector3(strafe.x*8,strafe.y*8,-throttle*speed) if avionics.enabled[0] else Vector3.ZERO
   velocity=velocity.move_toward(Vector3.ZERO if brake else attitude*command,dt*(maxf(15,velocity.length()*1.5) if brake else (55 if avionics.cruise else 8)))
   var next:=location+velocity*dt
-  if next.distance_to(avionics.ORIGINS[avionics.sector])>3600 and next.distance_squared_to(avionics.ORIGINS[avionics.sector])>location.distance_squared_to(avionics.ORIGINS[avionics.sector]):
+  if next.distance_to(avionics.ORIGINS[avionics.sector])>Regions.FLIGHT_RADIUS and next.distance_squared_to(avionics.ORIGINS[avionics.sector])>location.distance_squared_to(avionics.ORIGINS[avionics.sector]):
    next=location;throttle=0;velocity=Vector3.ZERO;avionics.say("Sector boundary · Use the shift drive")
   if hits_island(next):
    avionics.impact(velocity.length());avionics.cruise=false
@@ -252,7 +258,10 @@ func sync_view() -> void:
  update_air()
  var sky:=art.sky_environment.sky.sky_material as ShaderMaterial
  if sky_sector!=avionics.sector:
-  sky_sector=avionics.sector;sky.set_shader_parameter("sector_shift",float(sky_sector))
+  sky_sector=avionics.sector
+  sky.set_shader_parameter("sector_shift",clampf(float(sky_sector),0,1))
+  sky.set_shader_parameter("source_bearing",-Regions.CENTRES[sky_sector].normalized())
+  sky.set_shader_parameter("cluster_tint",Regions.TINTS[sky_sector])
  var glow:=sin(PI*avionics.transit/2.0)
  if not is_equal_approx(glow,sky_jump):
   sky_jump=glow;sky.set_shader_parameter("jump_glow",glow)

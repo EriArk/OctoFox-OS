@@ -28,9 +28,19 @@ func touch(world_point:Vector3) -> void:
  tap.pressed=false;root.push_input(tap,true)
 
 func chart_tap(px:Vector2) -> void:
- var hud=home.instruments
- var uv:=px/Vector2(hud.PIXELS)-Vector2.ONE*0.5
- touch(hud.surfaces[0].to_global(Vector3(uv.x*hud.PANEL_SIZE.x,-uv.y*hud.PANEL_SIZE.y,0)))
+ var chart=home.instruments.chart
+ var tap:=InputEventScreenTouch.new();tap.position=chart.ui_offset()+px*chart.ui_scale()
+ tap.pressed=true;root.push_input(tap,true);tap.pressed=false;root.push_input(tap,true)
+
+func chart_finger(index:int,point:Vector2,pressed:bool) -> void:
+ var chart=home.instruments.chart
+ var tap:=InputEventScreenTouch.new();tap.index=index;tap.position=chart.ui_offset()+point*chart.ui_scale()
+ tap.pressed=pressed;root.push_input(tap,true)
+
+func chart_drag(index:int,point:Vector2) -> void:
+ var chart=home.instruments.chart
+ var drag:=InputEventScreenDrag.new();drag.index=index;drag.position=chart.ui_offset()+point*chart.ui_scale()
+ root.push_input(drag,true)
 
 func _initialize() -> void:run.call_deferred()
 func run() -> void:
@@ -87,7 +97,27 @@ func run() -> void:
  press(JOY_BUTTON_RIGHT_STICK);await frames(20);check(hud.page=="Scope","Lean to the physical scanner")
  await shot("scope");press(JOY_BUTTON_B)
  panel(JOY_BUTTON_DPAD_UP);choose(0);check(a.route==1,"Chart plots next sector")
+ check(hud.chart.camera.current and hud.chart.size==root.get_visible_rect().size,"Atlas takes over the full viewport")
  await shot("chart")
+ var initial:Transform3D=hud.chart.camera.transform
+ Input.action_press("look_right");Input.action_press("fly_right");await frames(25)
+ Input.action_release("look_right");Input.action_release("fly_right")
+ check(not initial.basis.is_equal_approx(hud.chart.camera.basis) and hud.chart.distance<110,"Orbit and zoom move the atlas camera")
+ await shot("rotated")
+ if not out.is_empty():
+  var previous_yaw:float=hud.chart.yaw
+  var previous_zoom:float=hud.chart.goal
+  chart_finger(0,Vector2(330,280),true);chart_drag(0,Vector2(355,300))
+  chart_finger(1,Vector2(430,300),true);chart_drag(1,Vector2(465,300))
+  chart_finger(1,Vector2(465,300),false);chart_finger(0,Vector2(355,300),false)
+  check(hud.chart.yaw!=previous_yaw and hud.chart.goal<previous_zoom and hud.page=="Chart","Drag and pinch orbit and zoom without selecting a marker")
+ press(JOY_BUTTON_LEFT_SHOULDER)
+ check(hud.chart.region==2,"Cycle to Cinder Drift")
+ choose(2);press(JOY_BUTTON_DPAD_RIGHT);press(JOY_BUTTON_A)
+ check(a.route==1 and a.arrival_target==12,"Full-screen atlas plots both legs to Cinder Garden")
+ await frames(36);await shot("clusters")
+ choose(0);press(JOY_BUTTON_RIGHT_SHOULDER);choose(0)
+ check(a.route==1,"Restore the single-hop course for the flight circuit")
  choose(2);check(hud.page=="Local","Local chart shows contact orbits")
  press(JOY_BUTTON_DPAD_RIGHT);press(JOY_BUTTON_DPAD_RIGHT)
  check(hud.chart.focus==8 and a.target==3 and a.route==1,"Previewing a survey island preserves the active course")
@@ -97,21 +127,27 @@ func run() -> void:
   check(hud.chart.focus==9 and a.target==3,"Touch an individual island on the projected chart")
   chart_tap(hud.chart.PREV.get_center())
   check(hud.chart.focus==8,"Touch cycles nearby or overlapping marks")
+ if not out.is_empty():
+  var old_distance:float=hud.chart.distance
+  for i in 10:chart_tap(hud.chart.PLUS.get_center())
+  await frames(65)
+  check(hud.chart.distance<old_distance*.2,"Touch zoom resolves the selected island")
+  await shot("island-detail")
  press(JOY_BUTTON_A)
  check(a.target==8 and a.route==-1 and hud.page=="","Tracking a local island replaces the jump vector and stows the drawer")
  panel(JOY_BUTTON_DPAD_UP);choose(2)
  press(JOY_BUTTON_RIGHT_SHOULDER);press(JOY_BUTTON_DPAD_RIGHT)
- check(hud.chart.focus==7 and a.chart_contacts(1)==[2,7] and a.target==8,"Remote chart lists charted sites without exposing live traffic")
+ check(hud.chart.focus==7 and a.chart_contacts(1)==[2,7,14] and a.target==8,"Remote chart lists charted sites without exposing live traffic")
  await frames(33);await shot("arrival-chart")
  if not out.is_empty():
-  chart_tap(Vector2(140,70));check(hud.chart.region==0,"Touch switches chart sectors")
-  chart_tap(Vector2(430,70));await frames(9)
-  chart_tap(hud.chart.pins[7]);chart_tap(hud.chart.ENGAGE.get_center())
+  press(JOY_BUTTON_LEFT_SHOULDER);check(hud.chart.region==0,"Browse back to home cluster")
+  press(JOY_BUTTON_RIGHT_SHOULDER);await frames(80)
+  chart_tap(hud.chart.NEXT.get_center());chart_tap(hud.chart.row(0).get_center())
  else:press(JOY_BUTTON_A)
  check(hud.page=="Chart" and a.route==1 and a.arrival_target==7 and a.target==8,"Commit an arrival beacon without changing local sensors")
  choose(0)
  check(a.route==-1 and a.arrival_target==-1,"Clear a plotted leg before charging the drive")
- choose(2);press(JOY_BUTTON_RIGHT_SHOULDER);press(JOY_BUTTON_DPAD_RIGHT);press(JOY_BUTTON_A)
+ choose(2);press(JOY_BUTTON_DPAD_RIGHT);press(JOY_BUTTON_A)
  await shot("plotted")
  press(JOY_BUTTON_B);press(JOY_BUTTON_A);await frames(100)
  check(f.mode==f.Mode.FLYING,"Launch from station")

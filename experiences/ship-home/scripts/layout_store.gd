@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 class_name ShipLayoutStore
 extends RefCounted
+const BERTH_KEYS:=["station","orchard","prism","table","cinder-port","cinder-garden"]
 const MAX_ITEMS=48
 # Different deck coordinates: preserve all earlier preview layouts in homes/.
 var directory="user://homes/studio-v1"
@@ -34,7 +35,7 @@ func load_home(profile: String) -> Array:
  var value=parser.data if parsed==OK else null
  if not value is Dictionary or value.get("schema")!=1 or value.get("owner")!=owner or not valid(value.get("items")):
   error="This layout could not be loaded. Your saved file has been kept.";writable=false;return []
- berth=maxi(0,["station","orchard","prism"].find(value.get("berth","station")))
+ berth=maxi(0,BERTH_KEYS.find(value.get("berth","station")))
  var state:Variant=value.get("flight",{})
  if state is Dictionary and not state.is_empty():
   var buses:Variant=state.get("pips");var modules:Variant=state.get("modules")
@@ -50,7 +51,7 @@ func save(rows: Array) -> bool:
  if DirAccess.make_dir_recursive_absolute(directory)!=OK:error="Could not create the home save folder.";return false
  var temp=path()+".tmp";var f=FileAccess.open(temp,FileAccess.WRITE)
  if f==null:error="Could not write your home. Your previous layout is safe.";return false
- f.store_string(JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":["station","orchard","prism"][berth],"flight":systems},"\t"));f.flush()
+ f.store_string(JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":BERTH_KEYS[berth],"flight":systems},"\t"));f.flush()
  var result=f.get_error();f.close()
  if result!=OK:error="Saving failed. Your previous layout is safe.";return false
  if DirAccess.rename_absolute(temp,path())!=OK:error="Could not finish saving your home.";return false

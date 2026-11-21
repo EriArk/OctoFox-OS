@@ -82,6 +82,7 @@ func bind(flight,walker) -> void:
  f.art.helm_root.add_child(canopy)
  canopy.configure(f,pilot)
  f.add_child(ordnance)
+ add_child(chart);chart.setup(self)
  hide()
 
 func key_text(key:Node3D,at:Vector3,size:int,ink:Color) -> Label3D:
@@ -96,7 +97,7 @@ func side_of(section:String) -> int:
  return 1 if section in ["Ship","Power","Modules","Fire control"] else 0
 
 func refresh() -> void:
- if page=="" or page=="Scope":return
+ if page in ["","Scope","Chart","Local"]:return
  var i:=side_of(page)
  canvases[i].queue_redraw()
  viewports[i].render_target_update_mode=SubViewport.UPDATE_ONCE
@@ -106,8 +107,10 @@ func open(section:String) -> void:
  if page!="" and section=="":
   pilot.yaw=saved_look.x;pilot.pitch=saved_look.y
   pilot.pilot_camera.fov=78
+ var had_atlas:=page in ["Chart","Local"]
  page=section;cursor=0;buttons.clear()
- if section=="Local":chart.browse(a,a.sector)
+ if page in ["Chart","Local"]:chart.show_page(not had_atlas)
+ elif had_atlas:chart.stow()
  if section!="":canopy.update_projection(0,false)
  if pilot.seated:
   pilot.walking=page==""
@@ -161,7 +164,7 @@ func scan() -> void:
 
 func tick(dt:float,active:bool) -> void:
  visible=active;scanner.visible=active
- var selected:=-1 if not active or page in ["","Scope"] else side_of(page)
+ var selected:=-1 if not active or page in ["","Scope","Chart","Local"] else side_of(page)
  # Fully lower the previous drawer before exposing its opposite.
  var retract_first:=selected>=0 and extensions[1-selected]>0.0
  for i in surfaces.size():
@@ -175,6 +178,8 @@ func tick(dt:float,active:bool) -> void:
  canopy.update_projection(dt,glass_live)
  ordnance.refresh(a)
  if not active:return
+ if page in ["Local","Chart"]:
+  chart.update_view(dt);return
  if page!="":
   var focus:Vector3=f.art.radar.global_position
   if selected>=0:
@@ -196,7 +201,8 @@ func tick(dt:float,active:bool) -> void:
   sweep=0;scan();refresh()
 
 func update_keys(aft:bool) -> void:
- var nav:String=a.CATALOG[a.target].name+"\n%d m%s"%[roundi(a.range_to(a.target)),"  AFT" if aft else ""]
+ var nav:String=a.CATALOG[a.target].name+"\n"+a.Regions.range_text(a.range_to(a.target))+("  AFT" if aft else "")
+ if a.cruise and a.route<0:nav+="   "+a.Regions.cruise_time(a.range_to(a.target))
  var mode: String="CRUISE" if a.cruise else "LOCAL"
  var systems:="%d m/s   %s"%[roundi(f.velocity.length()),mode]
  var caution:=""
@@ -212,9 +218,9 @@ func update_keys(aft:bool) -> void:
   nav=a.SECTORS[a.route];systems="CHARGING %d%%"%roundi(a.charge/3*100)
  elif a.route>=0:
   nav=a.SECTORS[a.route]+"\nSHIFT VECTOR"
- elif a.target==f.destination and a.range_to(a.target)<70:
+ elif a.target==a.Regions.BERTH_CONTACT[f.destination] and a.range_to(a.target)<70:
   var instruction:String=f.clearance()
-  nav="PAD 01   %d m"%roundi(a.range_to(a.target)) if a.target!=1 else "ISLAND   %d m"%roundi(a.range_to(a.target))
+  nav="PAD 01   %d m"%roundi(a.range_to(a.target)) if a.CATALOG[a.target].kind=="station" else "ISLAND   %d m"%roundi(a.range_to(a.target))
   nav+="\n"+("LAND" if instruction=="" else landing_order(instruction))
  elif a.lock_id>=0:
   nav+="  LOCK"
@@ -261,7 +267,6 @@ func rows() -> Array:
    var list:Array=[]
    for i in 3:list.append([["Systems & shields","Engines & boost","Weapons"][i],str(a.pips[i])+" / 4",i])
    return list
-  "Chart":return [[a.CATALOG[a.arrival_target].name if a.route>=0 else a.SECTORS[1-a.sector],"CLEAR COURSE" if a.route>=0 else "PLOT COURSE","plot"],["Shift drive","CANCEL" if a.charge>0 else "CHARGE","jump"],["Sector charts","WAYPOINTS","local"]]
  return []
 
 func activate(power_delta:int=1) -> void:
@@ -274,16 +279,11 @@ func activate(power_delta:int=1) -> void:
   "Modules":a.module_switch(action)
   _:
    match action:
-    "local":open("Local")
     "modules":open("Modules")
     "arms":a.hardpoints()
     "cruise":a.toggle_cruise()
     "boost":a.boost_drive()
     "service":a.service()
-    "plot":
-     if a.route<0:a.plot()
-     else:a.clear_course()
-    "jump":a.jump()
     "hail":a.hail()
     "fire_control":open("Fire control")
     "cycle":a.cycle_group();cursor=0
@@ -317,13 +317,16 @@ func event(e:InputEvent) -> bool:
  if page=="":return false
  if e.is_action_pressed("cancel_ship"):
   open("Contacts" if page=="Contact" else ("Ship" if page in ["Modules","Fire control"] else ("Chart" if page=="Local" else "")));return true
- if page=="Local":
-  if e.is_action_pressed("previous_item"):chart.browse(a,0)
-  elif e.is_action_pressed("next_item"):chart.browse(a,1)
-  elif dir in ["Contacts","Ship"]:chart.step(a,-1 if dir=="Contacts" else 1)
-  elif e.is_action_pressed("interact") or e.is_action_pressed("ui_accept"):commit_waypoint()
-  else:return not e.is_action_pressed("pause_ship")
-  refresh();return true
+ if page in ["Local","Chart"]:
+  if e.is_action_pressed("previous_item"):chart.browse(a,chart.region-1)
+  elif e.is_action_pressed("next_item"):chart.browse(a,chart.region+1)
+  elif dir in ["Contacts","Ship"]:
+   var step:=-1 if dir=="Contacts" else 1
+   if page=="Local":chart.step(a,step)
+   else:chart.browse(a,chart.region+step)
+  elif dir in ["Chart","Power"]:cursor=posmod(cursor+(-1 if dir=="Chart" else 1),chart.controls().size())
+  elif e.is_action_pressed("interact") or e.is_action_pressed("ui_accept"):chart.act(cursor)
+  return not e.is_action_pressed("pause_ship")
  if e.is_action_pressed("interact") or e.is_action_pressed("ui_accept"):
   activate();return true
  if page=="Power" and dir in ["Contacts","Ship"]:
@@ -341,6 +344,9 @@ func _input(e:InputEvent) -> void:
   if not e.is_action_pressed("pause_ship") and event(e):get_viewport().set_input_as_handled()
   return
  if e.device==InputEvent.DEVICE_ID_EMULATION:return
+ if page in ["Local","Chart"]:
+  if chart.pointer(e):get_viewport().set_input_as_handled()
+  return
  var pos:Vector2
  if e is InputEventScreenTouch and e.pressed:pos=e.position
  elif e is InputEventMouseButton and e.button_index==MOUSE_BUTTON_LEFT and e.pressed:pos=e.position
@@ -360,13 +366,6 @@ func _input(e:InputEvent) -> void:
    if px.x>507:open("")
    elif side==0:open("Contacts" if px.x<260 else "Chart")
    else:open("Ship" if px.x<260 else "Power")
-  elif page=="Local":
-   if chart.touch_at(px,a):commit_waypoint()
-   refresh()
-  elif page=="Chart" and px.y<172:
-   for region in a.SECTORS.size():
-    if px.distance_to(sector_pin(region))<26:
-     open("Local");chart.browse(a,region);refresh();break
   else:
    for i in buttons.size():
     if buttons[i].has_point(px):
@@ -395,25 +394,8 @@ func face_hit(camera:Camera3D,pos:Vector2,face:Node3D,size:Vector2) -> Vector2:
 func label(c:Control,x:float,y:float,value:String,col:Color,px:int=23) -> void:
  c.draw_string(ThemeDB.fallback_font,Vector2(x,y),value,HORIZONTAL_ALIGNMENT_LEFT,-1,px,col)
 
-func sector_pin(region:int) -> Vector2:
- return Vector2(184,157) if region==0 else Vector2(416,86)
-
-func map_view(c:Control) -> void:
- var center:=Vector2(302,122)
- for k in 3:
-  var points:=PackedVector2Array()
-  for j in 73:
-   var t:=j*TAU/72;points.append(center+Vector2(cos(t)*(126+k*26),sin(t)*(35+k*6)).rotated(-0.16))
-  c.draw_polyline(points,Color("537478"),2,true)
- c.draw_circle(center,6,AMBER)
- var pts:=[sector_pin(0),sector_pin(1)]
- c.draw_dashed_line(pts[0],pts[1],AMBER if a.route>=0 else MUTED,2,8)
- for i in 2:
-  c.draw_circle(pts[i],7 if i==a.sector else 5,MINT if i==a.sector else AMBER)
-  label(c,pts[i].x-48,pts[i].y+(22 if i==1 else -10),a.SECTORS[i],WHITE,17)
-
 func paint(c:Control,side:int) -> void:
- if a==null or page in ["","Scope"] or side_of(page)!=side:return
+ if a==null or page in ["","Scope","Local","Chart"] or side_of(page)!=side:return
  c.draw_rect(Rect2(Vector2.ZERO,Vector2(PIXELS)),Color("0d2028"))
  var accent:=AMBER if side==0 else MINT
  var primary:=page in ["Contacts","Contact","Ship","Modules","Fire control"]
@@ -425,14 +407,7 @@ func paint(c:Control,side:int) -> void:
  c.draw_line(Vector2(tab_x,46),Vector2(tab_x+91,46),accent,3)
  buttons.clear()
  var top:=74;var height:=38
- if page=="Local":
-  chart.render(c,a);return
- if page=="Chart":
-  map_view(c);top=210
-  var reserve:float=a.fuel-2*a.JUMP_COST
-  var balance:="RESERVE %d"%floori(reserve) if reserve>=0 else "REFUEL TO RETURN"
-  label(c,18,194,"TANK %d   /   LEG 22   /   %s"%[floori(a.fuel),balance],MINT if reserve>=0 else AMBER,19)
- elif page=="Contacts":
+ if page=="Contacts":
   var up:Vector3=f.attitude.transposed()*Vector3.UP
   label(c,23,77,"PITCH  %+.0f°     BANK  %+.0f°"%[rad_to_deg(asin(clampf(-up.z,-1.0,1.0))),rad_to_deg(atan2(up.x,up.y))],MUTED,19)
   top=88

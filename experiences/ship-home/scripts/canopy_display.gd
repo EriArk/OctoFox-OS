@@ -46,7 +46,7 @@ func update_projection(dt:float,active:bool) -> void:
   approach=false
   return
  var systems=flight.avionics
- approach=systems.route<0 and systems.target==flight.destination and systems.range_to(systems.target)<70
+ approach=systems.route<0 and systems.target==systems.Regions.BERTH_CONTACT[flight.destination] and systems.range_to(systems.target)<70
  age+=dt
  if just_enabled or age>=1.0/20.0:
   age=0

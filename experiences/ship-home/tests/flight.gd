@@ -22,10 +22,10 @@ func run() -> void:
  if not desc.is_empty():check(w.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(desc))),"Bind SDK pilot")
  home._pause(false);w.position=Vector3(0,0.08,-2.4);press(JOY_BUTTON_A)
  check(w.seated and f.mode==f.Mode.BERTH,"Board at station")
- check(f.air_zones.size()==4 and f.find_children("Waterfalls","MeshInstance3D",true,false).size()==4,"Running water on each open island")
- check(f.find_children("RisingSpray","MultiMeshInstance3D",true,false).size()==4,"Spray at all four rims")
+ check(f.air_zones.size()==7 and f.find_children("Waterfalls","MeshInstance3D",true,false).size()==7,"Running water on each open island")
+ check(f.find_children("RisingSpray","MultiMeshInstance3D",true,false).size()==7,"Spray at all island rims")
  check(f.local_air==0.0 and home.art.field_stars.visible,"Station opens onto the Egregore")
- check(f.find_children("AtmosphereClouds*","MultiMeshInstance3D",true,false).size()==4,"Each open sea has spatial cloud banks")
+ check(f.find_children("AtmosphereClouds*","MultiMeshInstance3D",true,false).size()==7,"Each open sea has spatial cloud banks")
  for zone in f.air_zones:
   var center:=Vector3(zone.x,zone.y,zone.z)
   for heading in [Vector3.BACK,Vector3.UP*f.coast.CLOUD_HEIGHT]:
@@ -93,4 +93,40 @@ func run() -> void:
  f.reset(0);f.interact();f.tick(2,Vector2.ZERO,0,0,Vector2.ZERO,false)
  for i in 200:f.tick(1.0/60,Vector2.ZERO,0,0,Vector2.DOWN,false)
  check(f.location.y>=f.GROUND_Y+2.7-0.001,"Hull cannot pass through landing platform")
+ exercise_cluster_flight(f)
  print("SHIP FLIGHT: ","PASSED" if failures.is_empty() else failures);quit(0 if failures.is_empty() else 1)
+
+func exercise_cluster_flight(f) -> void:
+ var a=f.avionics
+ f.reset(1);f.interact();f.tick(1.6,Vector2.ZERO,0,0,Vector2.ZERO,false)
+ a.navigate_to(8)
+ for i in 600:f.tick(1.0/30,Vector2.ZERO,0,0,Vector2.DOWN,false)
+ var overhead:Vector3=f.BERTHS[3]+Vector3.UP*130
+ f.attitude=Basis.looking_at(overhead-f.location)
+ a.toggle_cruise()
+ var elapsed:=0.0
+ while f.location.distance_to(overhead)>190 and elapsed<300:
+  f.tick(1.0/30,Vector2.ZERO,0,1,Vector2.ZERO,false)
+  elapsed+=1.0/30
+ check(elapsed>165 and elapsed<185 and f.location.distance_to(overhead)<190,"Cruise covers Echo Orchard to Table Isle in about three minutes")
+ check(f.destination==3 and a.target==8 and a.fuel>65,"Cruise route keeps the destination and uses affordable fuel")
+ print("Echo Orchard to Table Isle · cruise seconds ",snappedf(elapsed,.1))
+ f.reset(0);f.interact();f.tick(1.6,Vector2.ZERO,0,0,Vector2.ZERO,false)
+ # Start the drive beyond the station mass shadow, with full fuel.
+ f.location=Vector3(0,10,165);f.sync_view();a.fuel=100
+ check(a.Regions.passage(0,2)==[1,2] and a.Regions.passage(2,0)==[1,0],"Opposite clusters require a stop in Prism in both directions")
+ a.route=2;a.jump()
+ check(a.charge==0,"Drive rejects an out-of-range leg even if selected directly")
+ a.plot(12)
+ for leg in [1,2]:
+  check(a.route==leg and a.arrival_target==12,"Plotted route exposes only the next reachable cluster")
+  if leg==2:
+   a.fuel=21;a.jump();check(a.charge==0 and a.route==2,"Insufficient fuel cannot skip the second crossing")
+   a.fuel=78
+  f.attitude=Basis.looking_at(a.jump_axis())
+  a.jump()
+  for i in 165:f.tick(1.0/30,Vector2.ZERO,0,0,Vector2.ZERO,false)
+  check(a.sector==leg and absf(a.fuel-(100-22*leg))<.01,"One crossing consumes exactly one leg of fuel")
+ check(a.route==-1 and a.target==12 and f.destination==5,"Second crossing selects the garden landing pad")
+ f.reset(5)
+ check(a.sector==2 and f.local_air>.99,"Reloading Cinder Garden restores its cluster and atmosphere")

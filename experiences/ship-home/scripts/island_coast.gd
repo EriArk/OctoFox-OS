@@ -66,7 +66,7 @@ func relief(pos: Vector2, radius: float, seed_angle: float, fraction: float) -> 
  valley*=smoothstep(-0.33,-0.12,p.y)
  var lake:=mound(p,Vector2(0.19,-0.153),Vector2(0.205,0.152))
  h=lerpf(h,SEA_Y-1.8,maxf(valley,smoothstep(0.24,0.69,lake)))
- if is_zero_approx(seed_angle):
+ if is_zero_approx(seed_angle) or is_equal_approx(seed_angle,1.7) or is_equal_approx(seed_angle,3.4):
   # A level approach along the valley floor leads to the existing pad and lift.
   var corridor := Vector2(PAD_FROM_CENTER.x,maxf(pos.y,PAD_FROM_CENTER.y))
   h *= smoothstep(17.0,34.0,pos.distance_to(corridor))
