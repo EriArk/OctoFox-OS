@@ -152,13 +152,13 @@ func fire_sight(a,eye:Vector3,local_basis:Basis) -> void:
  var seeker_rack:bool=a.group==a.Group.MISSILES
  var pulse:bool=a.group==a.Group.PULSE
  var acquired:bool=a.tracking()
- var locked:bool=a.lock_id==a.WARDEN
- var present:bool=a.sector==1 and a.disabled_time<=0 and (locked or a.target==a.WARDEN)
+ var locked:bool=a.lock_id>=0 and a.lock_id==a.hostile_id
+ var present:bool=a.hostile_id>=0 and a.disabled_time<=0 and (locked or a.target==a.hostile_id)
  var center:=glass_point(eye,Vector3.FORWARD)
  var contact:=center
  var on_glass:=false
  if present:
-  var ray:Vector3=local_basis*(a.position_of(a.WARDEN)-flight.location)
+  var ray:Vector3=local_basis*(a.position_of(a.hostile_id)-flight.location)
   contact=glass_point(eye,ray)
   on_glass=ray.z<0 and FIELD.grow(-16).has_point(contact)
   if on_glass:corners(contact,12,6,TARGET)
@@ -179,7 +179,7 @@ func fire_sight(a,eye:Vector3,local_basis:Basis) -> void:
  else:
   var depth:=500.0
   if acquired:
-   depth=a.muzzle().distance_to(a.pulse_mark() if pulse else a.position_of(a.WARDEN))
+   depth=a.muzzle().distance_to(a.pulse_mark() if pulse else a.position_of(a.hostile_id))
   var bore:Vector3=local_basis*(a.muzzle()-flight.location+a.gun_ray()*depth)
   var point:=glass_point(eye,bore)
   if bore.z<0 and FIELD.grow(-18).has_point(point):

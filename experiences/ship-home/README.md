@@ -134,6 +134,12 @@ The bow glass carries a heading tape, banked pitch ladder and target bearing in 
 
 Six pips are shared between SYS, ENG and WEP. On the right display, select a row and press left or right to release or draw one unit. A adds one unit, and the minus and plus controls accept touch. Each bus accepts up to four units. More SYS improves shield recovery and resistance. ENG recharges boost, and WEP recharges the gun capacitor. On the right console you can switch off individual systems or extend the two hull emitters. In communications range a courier answers a hail. [Bridge instruments and flight captures](../../docs/evidence/2026-11-21-captains-bridge/README.md).
 
+### Regional traffic
+
+Look for the delegate in Lantern Station, the scout in Wayfarer House or the freight factor in Cinder Exchange. Use **A / F** beside them to mark a local ship. Return to the helm, take off and close to 850 m. Open **Contacts** with **Y + D-pad left**, select the vessel and hail it. **Track** copies its transmitted destination to your own navigation display. Freighters, pathfinders and envoys report the destination of their current leg, including the return journey.
+
+Ash Jackal patrols the freight lane outside Cinder Exchange. In normal flight the pirate warns an approaching ship before engaging. The Prism Warden remains a separate patrol. A winged scope mark indicates field fauna. Near Prism Anchorage and Lantern Biostation, select the local ray and choose **Listen to call**. The calf answers at a higher pitch. The dock residents use the [Quaternius character set](licenses/Quaternius-Characters-CC0.txt) shared with Bazaar.
+
 ### Fire control
 
 Deploy hardpoints from the right Ship panel. Select Prism Warden in Contacts and choose **Target lock** to enable tracking. In forward view **L3 / G** cycles weapons, **Y + L3 / Y + G** switches between fixed and gimballed guns, and **A / F** fires. These settings are also on the right panel under **Fire control**.

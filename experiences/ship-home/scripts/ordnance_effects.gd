@@ -37,7 +37,7 @@ func refresh(a) -> void:
    streak(a.burst_from,a.burst_to,0.014,Color("a4fff4"))
  if a.missile_time>0:
   var t:float=1-a.missile_time/a.FLIGHT_TIME
-  var goal:Vector3=a.position_of(a.WARDEN)
+  var goal:Vector3=a.position_of(a.hostile_id)
   streak(a.missile_from.lerp(goal,maxf(0,t-0.09)),a.missile_from.lerp(goal,maxf(t,0.003)),0.82,Color("ffc27a"))
  if a.incoming>0:
   var p:Vector3=a.incoming_point()

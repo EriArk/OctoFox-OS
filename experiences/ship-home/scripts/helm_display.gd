@@ -151,11 +151,12 @@ func scan() -> void:
   line3(mesh,base,top,ink)
   match kind:
    "ship":glyph(mesh,top,[Vector2(-1,-0.55),Vector2(1,-0.55),Vector2(1,0.55),Vector2(-1,0.55)],ink)
+   "fauna":glyph(mesh,top,[Vector2(-1,-0.6),Vector2(0,0.2),Vector2(1,-0.6),Vector2(0,1)],Color("bca2eb"))
    "hostile":glyph(mesh,top,[Vector2(0,-1),Vector2(1,0.7),Vector2(-1,0.7)],ink)
    "station":glyph(mesh,top,[Vector2(-1,0),Vector2(0,-1),Vector2(1,0),Vector2(0,1)],ink)
    "island":glyph(mesh,top,[Vector2(-1,0.6),Vector2(-0.4,-0.7),Vector2(0.4,-0.3),Vector2(1,0.6)],ink)
    _:glyph(mesh,top,[Vector2(-0.32,0),Vector2(0,-0.32),Vector2(0.32,0),Vector2(0,0.32)],ink)
-  if a.CATALOG[id].has("orbit"):
+  if a.Regions.moving(a.CATALOG[id]):
    var heading:Vector3=f.attitude.inverse()*(a.position_of(id,a.orbit_time+1)-a.position_of(id)).normalized()
    line3(mesh,top,top+heading*0.037,ink)
   if id==a.target:
@@ -252,6 +253,9 @@ func rows() -> Array:
   "Contact":
    var id:int=a.target;var kind:String=a.CATALOG[id].kind
    if kind=="hostile":return [["Target lock","TRACKING" if a.lock_id==id else "ACQUIRE","lock"],[a.GROUP_NAMES[a.group],"%d LEFT"%a.missiles if a.group==a.Group.MISSILES else "%d%%"%roundi(a.weapon),"fire"],["Hail ship","COMMS","hail"]]
+   if kind=="fauna":return [["Listen to call","RECEIVER","hail"]]
+   if id==a.received_from and a.received_waypoint>=0:
+    return [["Hail again","COMMS","hail"],["Track "+a.CATALOG[a.received_waypoint].name,"COURSE","fix"]]
    return [["Request pad 01" if kind=="station" else "Hail contact","CLEARED" if a.permit==id else "COMMS","hail"]]
   "Ship":return [["Components","6 MODULES","modules"],["Hardpoints","DEPLOYED" if a.deployed else "STOWED","arms"],["Cruise drive","ENGAGED" if a.cruise else "STANDBY","cruise"],["Engine boost","%d%%"%roundi(a.engine),"boost"],["Station service","FUEL / REPAIR","service"],["Fire control",a.GROUP_NAMES[a.group].to_upper(),"fire_control"]]
   "Fire control":
@@ -285,6 +289,7 @@ func activate(power_delta:int=1) -> void:
     "boost":a.boost_drive()
     "service":a.service()
     "hail":a.hail()
+    "fix":a.track_transmission();open("")
     "fire_control":open("Fire control")
     "cycle":a.cycle_group();cursor=0
     "mount":a.cycle_mount()
@@ -366,6 +371,10 @@ func _input(e:InputEvent) -> void:
    if px.x>507:open("")
    elif side==0:open("Contacts" if px.x<260 else "Chart")
    else:open("Ship" if px.x<260 else "Power")
+  elif page=="Contacts" and rows().size()>6 and px.y<87 and px.x>=409:
+   var count:=rows().size()
+   cursor=clampi(first_button+11 if px.x>=502 else first_button-1,0,count-1)
+   refresh()
   else:
    for i in buttons.size():
     if buttons[i].has_point(px):
@@ -410,6 +419,9 @@ func paint(c:Control,side:int) -> void:
  if page=="Contacts":
   var up:Vector3=f.attitude.transposed()*Vector3.UP
   label(c,23,77,"PITCH  %+.0f°     BANK  %+.0f°"%[rad_to_deg(asin(clampf(-up.z,-1.0,1.0))),rad_to_deg(atan2(up.x,up.y))],MUTED,19)
+  if rows().size()>6:
+   label(c,415,77,"‹ Prev",MUTED if cursor<6 else WHITE,20)
+   label(c,503,77,"Next ›",MUTED if cursor==rows().size()-1 else WHITE,20)
   top=88
  elif page=="Ship":
   label(c,23,79,"HULL  %d%%     SHIELD  %d%%     FUEL  %d"%[roundi(a.hull),roundi(a.shield),floori(a.fuel)],MINT,20)
@@ -420,7 +432,9 @@ func paint(c:Control,side:int) -> void:
    if a.enabled[i]:draw+=loads[i]
   label(c,18,75,"REACTOR   %d / 16 MW"%draw,AMBER,20);top=84
  elif page=="Contact":
-  label(c,18,94,a.CATALOG[a.target].name,AMBER,32);top=121
+  label(c,18,94,a.CATALOG[a.target].name,AMBER,32)
+  if a.CATALOG[a.target].has("role"):label(c,362,94,a.CATALOG[a.target].role.to_upper(),MINT,19)
+  top=121
  elif page=="Power":
   label(c,25,85,"BUS",MUTED,19);label(c,244,85,"CHARGE",MUTED,19)
   label(c,375,85,"6 POWER UNITS",MINT,19);top=101;height=69

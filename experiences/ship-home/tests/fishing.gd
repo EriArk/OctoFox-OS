@@ -54,9 +54,13 @@ func run() -> void:
   if site==1:await shot("pier")
   for i in 4500:
    if game.phase!=game.Phase.FIGHT:break
-   Input.action_press("fish_reel",0.2 if game.fight.tension>0.82 else 0.86)
+   # Point the rod against the pull and let drag run during a strong surge.
+   var left:bool=game.fight.direction>0
+   Input.action_press("look_left" if left else "look_right")
+   Input.action_release("look_right" if left else "look_left")
+   Input.action_press("fish_reel",0.0 if game.fight.tension>0.75 else 0.86)
    game.tick(1.0/60)
-  Input.action_release("fish_reel")
+  Input.action_release("fish_reel");Input.action_release("look_left");Input.action_release("look_right")
   check(game.phase==game.Phase.LANDED,"Land a catch with analog drag: "+str(site)+" "+game.outcome)
   if game.phase!=game.Phase.LANDED:break
   check(game.specimen.species==("ribbon" if site==3 else "glassfin"),"Species varies by water and cast")

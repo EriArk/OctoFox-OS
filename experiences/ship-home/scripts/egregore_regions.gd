@@ -14,10 +14,10 @@ const CONTACTS:=[
  {"name":"Lantern Station","kind":"station","site":0,"sector":0,"p":Vector3.ZERO},
  {"name":"Echo Orchard","kind":"island","site":1,"sector":0,"p":Vector3(0,0,-600)},
  {"name":"Prism Anchorage","kind":"station","site":2,"sector":1,"p":Vector3.ZERO},
- {"name":"Amber Courier","kind":"ship","sector":0,"p":Vector3(0,25,-130),"orbit":Vector2(76,40)},
+ {"name":"Amber Courier","role":"Courier","kind":"ship","sector":0,"p":Vector3(0,25,-130),"orbit":Vector2(76,40)},
  {"name":"Veil signal","kind":"signal","sector":0,"p":Vector3(-120,48,-380)},
- {"name":"Prism Warden","kind":"hostile","sector":1,"p":Vector3(78,22,300),"orbit":Vector2(55,45)},
- {"name":"Ring surveyor","kind":"ship","sector":1,"p":Vector3(-30,28,150),"orbit":Vector2(90,55)},
+ {"name":"Prism Warden","role":"Patrol","kind":"hostile","sector":1,"p":Vector3(78,22,300),"orbit":Vector2(55,45)},
+ {"name":"Ring surveyor","role":"Surveyor","kind":"ship","sector":1,"p":Vector3(-30,28,150),"orbit":Vector2(90,55)},
  {"name":"Prism relay","kind":"signal","sector":1,"p":Vector3(-87,26,490)},
  {"name":"Table Isle","kind":"island","site":3,"sector":0,"p":Vector3(-24000,68,-13000)},
  {"name":"Crown Isle","kind":"island","site":12,"sector":0,"p":Vector3(11000,90,-23000)},
@@ -31,7 +31,43 @@ const CONTACTS:=[
  {"name":"Cinder Exchange","kind":"station","site":8,"sector":2,"p":Vector3(-19000,110,-8500)},
  {"name":"Reedwater Delta","kind":"island","site":9,"sector":0,"p":Vector3(-1400,35,22100)},
  {"name":"Meridian Rift","kind":"island","site":10,"sector":1,"p":Vector3(0,0,-6700)},
- {"name":"Kiln Caldera","kind":"island","site":11,"sector":2,"p":Vector3(-19000,110,-15000)}]
+ {"name":"Kiln Caldera","kind":"island","site":11,"sector":2,"p":Vector3(-19000,110,-15000)},
+ {"name":"Marigold Hauler","role":"Freighter","kind":"ship","sector":2,"lane":Vector2i(17,20),"period":154.0},
+ {"name":"Threadrunner","role":"Pathfinder","kind":"ship","sector":1,"lane":Vector2i(16,14),"period":122.0},
+ {"name":"Vesper Envoy","role":"Envoy","kind":"ship","sector":0,"lane":Vector2i(0,15),"period":164.0},
+ {"name":"Ash Jackal","role":"Pirate","kind":"hostile","sector":2,"p":Vector3(-18780,195,-10100),"orbit":Vector2(152,91)},
+ {"name":"Veil ray","role":"Field fauna","kind":"fauna","sector":1,"p":Vector3(135,73,-210),"orbit":Vector2(125,64),"period":132.0},
+ {"name":"Lantern calf","role":"Field fauna","kind":"fauna","sector":0,"p":Vector3(86,71,6000),"orbit":Vector2(82,43),"period":95.0,"size":0.63}]
+const HAULER:=21
+const PATHFINDER:=22
+const ENVOY:=23
+const JACKAL:=24
+const VEIL_RAY:=25
+
+static func moving(entry:Dictionary) -> bool:
+ return entry.has("orbit") or entry.has("lane")
+
+static func period(entry:Dictionary) -> float:
+ return entry.get("period",TAU/0.072)
+
+static func lane_destination(entry:Dictionary,clock:float) -> int:
+ return entry.lane.y if fposmod(clock,period(entry))<period(entry)*0.5 else entry.lane.x
+
+static func contact_position(id:int,clock:float) -> Vector3:
+ var entry:Dictionary=CONTACTS[id]
+ var origin:Vector3=ORIGINS[entry.sector]
+ if entry.has("lane"):
+  var start:Vector3=CONTACTS[entry.lane.x].p
+  var end:Vector3=CONTACTS[entry.lane.y].p
+  var side:Vector3=start.direction_to(end).cross(Vector3.UP).normalized()
+  var angle:=TAU*clock/period(entry)
+  # Parallel outbound and return legs pass above the port, with a wide turn at either end.
+  return origin+start.lerp(end,(1-cos(angle))*0.5)+side*(115+92*sin(angle))+Vector3.UP*(97+8*cos(2*angle))
+ var pos:Vector3=origin+entry.p
+ if entry.has("orbit"):
+  var angle:=clock*TAU/period(entry)+id
+  pos+=Vector3(cos(angle)*entry.orbit.x,5*sin(2*angle),sin(angle)*entry.orbit.y)
+ return pos
 
 # Shore orientation belongs to the place. Adding berths must not rotate an existing coast.
 const ISLANDS={

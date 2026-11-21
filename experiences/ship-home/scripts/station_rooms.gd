@@ -16,6 +16,14 @@ const PORTS={
  7:["WAYFARER HOUSE","WAYFINDERS’ HALL","CHART LOFT",Color("637d9d")],
  8:["CINDER EXCHANGE","FREIGHT RECEIVING","ASSAY ROOM",Color("b4764b")]}
 const ROUTES={7:14,8:20}
+const R=preload("res://scripts/egregore_regions.gd")
+const STAFF={
+ 0:{"name":"Delegate Sola","model":"Kimono_Female","contact":R.ENVOY,"report":"Our envoy is running the Lantern passage.","color":Color("85b9a6")},
+ 7:{"name":"Scout Ivo","model":"Casual_Female","contact":R.PATHFINDER,"report":"Threadrunner is surveying the atoll.","color":Color("778fb6")},
+ 8:{"name":"Factor Orin","model":"OldClassy_Male","contact":R.HAULER,"report":"Hail Marigold for the convoy destination.","color":Color("b98966")}
+}
+const STAFF_POST:=Vector3(-1.86,0,15.72)
+var resident:Node3D
 const ROUTE_DESK:=Vector3(0,1.15,24.65)
 var art:ShipInterior
 var port:int
@@ -219,6 +227,15 @@ func freight_exchange(flight) -> void:
   art.label(self,["FE  /  MAGNETITE","AL  /  BAUXITE"][row],Vector3(1.55,2.09-row*0.25,26.02),PI,21,Art.SEA_GLASS)
  art.label(self,"KILN CALDERA  /  ORE RECEIVING",Vector3(0,2.99,26.25),PI,42,FRAME)
  art.label(self,"CORE SCANNER",Vector3(0.68,0.71,24.20),PI,26,Art.PAPER)
+
+func crew_on_duty(on:bool) -> void:
+ if not STAFF.has(port):return
+ if resident==null:
+  if not on:return
+  resident=Node3D.new();resident.position=STAFF_POST;resident.rotation.y=PI-0.32;add_child(resident)
+  preload("res://scripts/port_resident.gd").dress(resident,STAFF[port].model,STAFF[port].color)
+ resident.visible=on
+ resident.process_mode=Node.PROCESS_MODE_INHERIT if on else Node.PROCESS_MODE_DISABLED
 
 func mount_doors() -> void:
  for z in LOCKS:

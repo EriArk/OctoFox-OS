@@ -177,9 +177,9 @@ func orbit_plot() -> void:
  for id in a.chart_contacts(region):
   var item:Dictionary=a.CATALOG[id]
   var pos:=marker(id)
-  if item.has("orbit"):
+  if R.moving(item):
    var orbit:=PackedVector3Array()
-   for k in 49:orbit.append(point(a.position_of(id,k*TAU/(48*.072))))
+   for k in 49:orbit.append(point(a.position_of(id,k*R.period(item)/48)))
    line3(orbit,Color("637b8c"))
   if camera.is_position_behind(pos):continue
   var p:=project(pos)
@@ -190,6 +190,7 @@ func orbit_plot() -> void:
   match item.kind:
    "island","hostile":draw_polyline(PackedVector2Array([p+Vector2(0,-6),p+Vector2(7,5),p+Vector2(-7,5),p+Vector2(0,-6)]),color,2,true)
    "station":draw_polyline(PackedVector2Array([p+Vector2.UP*7,p+Vector2.RIGHT*7,p+Vector2.DOWN*7,p+Vector2.LEFT*7,p+Vector2.UP*7]),color,2,true)
+   "fauna":draw_arc(p,6,0,TAU,16,Color("bca2eb"),2,true)
    "ship":draw_rect(Rect2(p-Vector2(6,4),Vector2(12,8)),color,false,2)
    _:draw_circle(p,4,color)
  var ship:=point(reference())
@@ -271,7 +272,7 @@ func _draw() -> void:
  if is_detail():
   var item:Dictionary=a.CATALOG[focus]
   label(Vector2(870,280),item.name,INK,23)
-  var kind:String=item.kind.to_upper()
+  var kind:String=str(item.get("role",item.kind)).to_upper()
   if item.kind=="island":kind="ISLAND  /  "+("OPEN PAD" if item.has("site") else "FLYBY")
   label(Vector2(870,305),kind,SEA,16)
   var m:=reference().distance_to(a.position_of(focus))

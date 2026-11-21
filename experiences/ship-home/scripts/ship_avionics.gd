@@ -13,6 +13,15 @@ const CATALOG:=Regions.CONTACTS
 enum Group { PULSE, LASER, MISSILES }
 const GROUP_NAMES:=["Pulse cannon","Beam laser","Seeker rack"]
 const WARDEN:=5
+const Hulls:=preload("res://scripts/traffic_hulls.gd")
+var hostile_id:int:
+ get:return [-1,WARDEN,Regions.JACKAL][sector]
+var shield_by_region:Array[float]=[100,100,100]
+var recovery_by_region:Array[float]=[0,0,0]
+var pirate_warning:=false
+var received_from:=-1
+var received_waypoint:=-1
+var receiver:=AudioStreamPlayer.new()
 const RACK_SIZE:=3
 const SEEK_TIME:=1.4
 const FLIGHT_TIME:=1.25
@@ -54,8 +63,12 @@ var shield:=100.0
 var hull:=100.0
 var engine:=100.0
 var weapon:=100.0
-var npc_shield:=100.0
-var disabled_time:=0.0
+var npc_shield:float:
+ get:return shield_by_region[sector]
+ set(value):shield_by_region[sector]=value
+var disabled_time:float:
+ get:return recovery_by_region[sector]
+ set(value):recovery_by_region[sector]=value
 var pulse_time:=0.0
 var orbit_time:=0.0
 var reply:=""
@@ -71,15 +84,19 @@ func configure(flight) -> void:
   if item.has("site"):continue
   var node:=Node3D.new();node.name=item.name.replace(" ","");f.add_child(node);bodies[i]=node
   if item.kind in ["ship","hostile"]:
-   var hull_scene:=preload("res://assets/ship/saucer.glb").instantiate() as Node3D
-   node.add_child(hull_scene)
-   var plumes:=preload("res://scripts/drive_plumes.gd").new()
-   node.add_child(plumes);plumes.mount(hull_scene);traffic_plumes[i]=plumes
-   if item.kind=="hostile":
+   if i==WARDEN:
+    var hull_scene:=preload("res://assets/ship/saucer.glb").instantiate() as Node3D
+    node.add_child(hull_scene)
     for side in [-1,1]:f.art.box(node,Vector3(side*3,0.45,-4.3),Vector3(0.48,0.48,3.0),Color("cf715b"),false,true)
+   else:Hulls.vessel(node,f.art,item.role)
+   var plumes:=preload("res://scripts/drive_plumes.gd").new()
+   node.add_child(plumes);plumes.mount(node);traffic_plumes[i]=plumes
+  elif item.kind=="fauna":
+   Hulls.ray(node);node.scale=Vector3.ONE*float(item.get("size",1.0))
   else:
    f.art.cylinder(node,Vector3.ZERO,1.7,5.5,Color("586677"),0.4)
    f.art.cylinder(node,Vector3.UP*2.7,0.65,0.4,Color("74e2d2"),0.4)
+ f.add_child(receiver);receiver.volume_db=-14
  f.add_child(path_line)
  var ink:=StandardMaterial3D.new();ink.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED;ink.albedo_color=Color("78b6b3")
  path_line.material_override=ink
@@ -91,7 +108,7 @@ func fresh(saved:Dictionary) -> void:
  pips.assign(saved.get("pips",[2,2,2]));enabled.assign(saved.get("modules",[true,true,true,true,true,true]))
  group=clampi(int(saved.get("fireGroup",Group.PULSE)),Group.PULSE,Group.MISSILES)
  gimballed=bool(saved.get("gimballed",true));missiles=clampi(int(saved.get("missiles",RACK_SIZE)),0,RACK_SIZE)
- shield=100;hull=100;engine=100;weapon=100;npc_shield=100;disabled_time=0;orbit_time=0
+ shield=100;hull=100;engine=100;weapon=100;shield_by_region.fill(100.0);recovery_by_region.fill(0.0);orbit_time=0
  reply="";reply_time=0
 
 func snapshot() -> Dictionary:
@@ -108,20 +125,14 @@ func say(text:String) -> void:
  reply=text;reply_time=5
 
 func position_of(id:int,at:float=-1) -> Vector3:
- var item:Dictionary=CATALOG[id]
- var pos:Vector3=ORIGINS[item.sector]+item.p
- if item.has("orbit"):
-  var t:float=(orbit_time if at<0 else at)*0.072+id
-  var radii:Vector2=item.orbit
-  pos+=Vector3(cos(t)*radii.x,5*sin(2*t),sin(t)*radii.y)
- return pos
+ return Regions.contact_position(id,orbit_time if at<0 else at)
 
 func chart_contacts(region:int) -> Array[int]:
  var result:Array[int]=[]
  for i in CATALOG.size():
   var entry:Dictionary=CATALOG[i]
   if entry.sector!=region or (not enabled[2] and not entry.has("site")):continue
-  if region!=sector and entry.has("orbit"):continue
+  if region!=sector and Regions.moving(entry):continue
   result.append(i)
  return result
 
@@ -130,6 +141,7 @@ func contacts() -> Array[int]:
 
 func select(id:int) -> void:
  if not id in contacts():return
+ if target!=id:received_from=-1;received_waypoint=-1
  if lock_id!=id:lock_id=-1;seeker=0
  target=id
  if CATALOG[id].has("site") and f.mode!=f.Mode.LANDING:f.destination=CATALOG[id].site
@@ -180,10 +192,39 @@ func hail() -> void:
    if f.mode!=f.Mode.FLYING:say("Already alongside");return
    if deployed:say("Control · Stow hardpoints first");return
    permit=target;f.destination=CATALOG[target].site;say(CATALOG[target].name+" · Cleared for pad 01")
-  "ship":say(CATALOG[target].name+" · Passing on your scope. Safe flight.")
-  "hostile":say("Warden · Restricted patrol. Keep your distance.")
+  "ship":
+   var entry:Dictionary=CATALOG[target]
+   if entry.has("lane"):
+    received_from=target;received_waypoint=Regions.lane_destination(entry,orbit_time)
+    var call:String={"Freighter":"Ore convoy","Pathfinder":"Survey run","Envoy":"Delegation"}[entry.role]
+    say(call+" to "+CATALOG[received_waypoint].name+" · Fix sent")
+   elif target==3:say("Passing Lantern · Orchard mail aboard.")
+   else:say("Field survey · Ray calls near Prism Anchorage.")
+  "hostile":
+   if disabled_time>0:say("Transponder only · Drive offline")
+   else:say("Ash Jackal · Leave the convoy lane." if target==Regions.JACKAL else "Warden · Restricted patrol. Keep your distance.")
+  "fauna":
+   if receiver.stream==null:receiver.stream=ray_song()
+   receiver.pitch_scale=1.0 if target==Regions.VEIL_RAY else 1.35
+   receiver.play();say(CATALOG[target].name+" · Paired harmonic call")
   "island":say("Open landing site · Approach at your discretion" if CATALOG[target].has("site") else "Survey contact · No landing pad")
   _:say("Beacon · Sector coordinates confirmed")
+
+func track_transmission() -> void:
+ if target==received_from and received_waypoint>=0:navigate_to(received_waypoint)
+
+func ray_song() -> AudioStreamWAV:
+ var clip:=AudioStreamWAV.new();clip.format=AudioStreamWAV.FORMAT_16_BITS;clip.mix_rate=16000
+ var bytes:=PackedByteArray();bytes.resize(clip.mix_rate*3)
+ var phase:=0.0
+ for i in bytes.size()/2:
+  var t:=float(i)/clip.mix_rate
+  var local:=fmod(t,0.75)
+  var pitch:=lerpf(390,210,local/0.75)*(1.0 if t<0.75 else 0.77)
+  phase+=TAU*pitch/clip.mix_rate
+  var envelope:=sin(PI*local/0.75)
+  bytes.encode_s16(i*2,roundi(17500*envelope*envelope*(sin(phase)+0.20*sin(phase*2))))
+ clip.data=bytes;return clip
 
 func hardpoints() -> void:
  if not enabled[5]:say("Emitter bank offline");return
@@ -209,34 +250,34 @@ func cycle_mount() -> void:
  gimballed=not gimballed
 
 func tracking() -> bool:
- if sector!=1 or lock_id!=WARDEN or not deployed or disabled_time>0:return false
- var ray:Vector3=position_of(WARDEN)-f.location
+ if hostile_id<0 or lock_id!=hostile_id or not deployed or disabled_time>0:return false
+ var ray:Vector3=position_of(hostile_id)-f.location
  return ray.length()<=500 and (-f.attitude.z).dot(ray.normalized())>0.82
 
 func muzzle() -> Vector3:
  return f.location+f.attitude*Vector3(1.7,0.85,-5.5)
 
 func pulse_span() -> float:
- var distance:=minf(500,muzzle().distance_to(position_of(WARDEN))) if sector==1 else 500.0
+ var distance:=minf(500,muzzle().distance_to(position_of(hostile_id))) if hostile_id>=0 else 500.0
  return lerpf(0.30,2.1,distance/500.0)
 
 func pulse_mark() -> Vector3:
- # The Warden follows an authored orbit; sample its animation at the bolt's arrival beat.
- return position_of(WARDEN,orbit_time+pulse_span())
+ # Sample the patrol route at the projected arrival time.
+ return position_of(hostile_id,orbit_time+pulse_span())
 
 func gun_ray() -> Vector3:
  if gimballed and tracking():
-  var point:=pulse_mark() if group==Group.PULSE else position_of(WARDEN)
+  var point:=pulse_mark() if group==Group.PULSE else position_of(hostile_id)
   return (point-muzzle()).normalized()
  return -f.attitude.z
 
-func hit_warden(amount:float) -> void:
+func hit_hostile(amount:float) -> void:
  npc_shield=maxf(0,npc_shield-amount)
  if npc_shield<=0:
-  disabled_time=30;lock_id=-1;seeker=0;retaliation=0;say("Warden disabled")
+  disabled_time=30;lock_id=-1;seeker=0;retaliation=0;say(CATALOG[hostile_id].name+" disabled")
  else:
   if retaliation<=0:retaliation=0.8
-  say("Warden shield  %d%%"%roundi(npc_shield))
+  say("%s shield  %d%%"%[CATALOG[hostile_id].name,roundi(npc_shield)])
 
 func fire() -> void:
  if not deployed or not enabled[5] or f.mode!=f.Mode.FLYING:return
@@ -254,16 +295,16 @@ func fire() -> void:
  burst_from=muzzle()
  if group==Group.PULSE:
   burst_span=pulse_span();pulse_time=burst_span
-  var reach:=minf(500,burst_from.distance_to(pulse_mark())) if sector==1 else 500.0
+  var reach:=minf(500,burst_from.distance_to(pulse_mark())) if hostile_id>=0 else 500.0
   burst_to=burst_from+ray*reach
   return
  burst_span=0.48;pulse_time=burst_span
  burst_to=burst_from+ray*500
- if sector==1 and disabled_time<=0:
-  var target_ray:Vector3=position_of(WARDEN)-burst_from
+ if hostile_id>=0 and disabled_time<=0:
+  var target_ray:Vector3=position_of(hostile_id)-burst_from
   if target_ray.length()<=500 and ray.dot(target_ray.normalized())>=0.9998:
-   burst_to=position_of(WARDEN)
-   hit_warden(34)
+   burst_to=position_of(hostile_id)
+   hit_hostile(34)
 
 func incoming_point() -> Vector3:
  return incoming_from.lerp(f.location,1.0-incoming/WARNING_TIME)
@@ -275,6 +316,7 @@ func intercept() -> void:
  say("Inbound neutralised")
 
 func clear_ordnance() -> void:
+ received_from=-1;received_waypoint=-1;pirate_warning=false;receiver.stop()
  incoming=0;missile_time=0;retaliation=0;seeker=0;flare_time=0;pulse_time=0;defence_cooldown=0
 
 func advance_ordnance(dt:float) -> void:
@@ -285,7 +327,7 @@ func advance_ordnance(dt:float) -> void:
  flare_time=maxf(0,flare_time-dt)
  if missile_time>0:
   missile_time=maxf(0,missile_time-dt)
-  if missile_time==0 and disabled_time<=0:hit_warden(48)
+  if missile_time==0 and disabled_time<=0:hit_hostile(48)
  if incoming>0:
   incoming=maxf(0,incoming-dt)
   if incoming==0:
@@ -293,8 +335,8 @@ func advance_ordnance(dt:float) -> void:
    shield-=absorbed;hull=maxf(0,hull-(20-absorbed));say("Missile impact")
  if retaliation>0:
   retaliation=maxf(0,retaliation-dt)
-  if retaliation==0 and disabled_time<=0 and sector==1 and f.mode==f.Mode.FLYING and range_to(WARDEN)<500 and not cruise and charge==0:
-   incoming=WARNING_TIME;incoming_from=position_of(WARDEN);retaliation=12
+  if retaliation==0 and disabled_time<=0 and hostile_id>=0 and f.mode==f.Mode.FLYING and range_to(hostile_id)<500 and not cruise and charge==0:
+   incoming=WARNING_TIME;incoming_from=position_of(hostile_id);retaliation=12
 
 func toggle_cruise() -> void:
  if cruise:cruise=false;say("Normal flight");return
@@ -360,16 +402,22 @@ func advance(dt:float) -> void:
  reply_time=maxf(reply_time-dt,0)
  if pulse_time>0:
   pulse_time=maxf(0,pulse_time-dt)
-  if pulse_time==0 and shot_group==Group.PULSE and sector==1 and disabled_time<=0 and burst_to.distance_to(position_of(WARDEN))<4:
-   hit_warden(25)
+  if pulse_time==0 and shot_group==Group.PULSE and hostile_id>=0 and disabled_time<=0 and burst_to.distance_to(position_of(hostile_id))<4:
+   hit_hostile(25)
  boost=maxf(boost-dt,0)
  engine=minf(100,engine+dt*pips[1]*2.8);weapon=minf(100,weapon+dt*pips[2]*3.0)
  if enabled[1]:shield=minf(100,shield+dt*pips[0]*0.9)
- if disabled_time>0:
-  disabled_time=maxf(0,disabled_time-dt)
-  if disabled_time==0:npc_shield=100
+ for region in recovery_by_region.size():
+  if recovery_by_region[region]>0:
+   recovery_by_region[region]=maxf(0,recovery_by_region[region]-dt)
+   if recovery_by_region[region]==0:shield_by_region[region]=100
  if lock_id>=0 and range_to(lock_id)>650:lock_id=-1
- if sector==1 and disabled_time<=0 and f.mode==f.Mode.FLYING and range_to(5)<90:
+ if hostile_id==Regions.JACKAL and disabled_time<=0 and f.mode==f.Mode.FLYING and not cruise and charge==0 and transit==0:
+  var distance:=range_to(hostile_id)
+  if distance>650:pirate_warning=false
+  elif distance<400 and not pirate_warning:
+   pirate_warning=true;retaliation=5;say("Ash Jackal · Turn away from the convoy.")
+ if hostile_id==WARDEN and disabled_time<=0 and f.mode==f.Mode.FLYING and range_to(WARDEN)<90:
   var hit:=dt*5.0/lerpf(0.74,1.26,pips[0]/4.0);var absorbed:=minf(hit,shield);shield-=absorbed;hull=maxf(0,hull-hit+absorbed)
  advance_ordnance(dt)
  if hull<=0:
@@ -401,13 +449,13 @@ func update_traffic(dt:float) -> void:
  for id:int in bodies:
   var node:Node3D=bodies[id];node.visible=CATALOG[id].sector==sector
   if not node.visible:continue
-  if traffic_plumes.has(id):traffic_plumes[id].set_power(0.0 if id==WARDEN and disabled_time>0 else 0.62)
+  if traffic_plumes.has(id):traffic_plumes[id].set_power(0.0 if id==hostile_id and disabled_time>0 else 0.62)
   node.position=position_of(id)
-  if CATALOG[id].has("orbit"):
+  if Regions.moving(CATALOG[id]):
    node.rotation.y=atan2(node.position.x-position_of(id,orbit_time+0.1).x,node.position.z-position_of(id,orbit_time+0.1).z)
  if target!=line_target:
   line_target=target;path_line.mesh=null
-  if CATALOG[target].has("orbit"):
+  if Regions.moving(CATALOG[target]):
    var line:=ImmediateMesh.new();line.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
-   for i in 73:line.surface_add_vertex(position_of(target,i*TAU/(72*0.072)))
+   for i in 73:line.surface_add_vertex(position_of(target,i*Regions.period(CATALOG[target])/72))
    line.surface_end();path_line.mesh=line

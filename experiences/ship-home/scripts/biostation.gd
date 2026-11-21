@@ -137,23 +137,7 @@ func prepare_lab(flight) -> void:
 
 func _staff() -> void:
  keeper=Node3D.new();keeper.position=BIOLOGIST;keeper.rotation.y=PI;add_child(keeper)
- var visual:=preload("res://assets/residents/Casual_Female.glb").instantiate() as Node3D
- keeper.add_child(visual)
- var bounds:=AABB()
- for part:MeshInstance3D in visual.find_children("*","MeshInstance3D",true,false):
-  var box: AABB=(visual.global_transform.affine_inverse()*part.global_transform)*part.get_aabb()
-  bounds=bounds.merge(box) if bounds.has_volume() else box
-  # Match the skin/eyes treatment of the Bazaar resident cast.
-  var palette={"Skin":Color("bf8869"),"Face":Color("352a26"),"Shirt":Color("89bbb0")}
-  for surface in part.mesh.get_surface_count():
-   var base=part.mesh.surface_get_material(surface)
-   if base is StandardMaterial3D and palette.has(base.resource_name):
-    var material:StandardMaterial3D=base.duplicate();material.albedo_color=palette[base.resource_name]
-    material.roughness=0.83;part.set_surface_override_material(surface,material)
- var factor:=1.56/maxf(bounds.size.y,0.01)
- visual.scale=Vector3.ONE*factor;visual.position.y=-bounds.position.y*factor
- var animator:AnimationPlayer=visual.find_child("AnimationPlayer",true,false)
- animator.get_animation("Idle").loop_mode=Animation.LOOP_LINEAR;animator.play("Idle")
+ preload("res://scripts/port_resident.gd").dress(keeper,"Casual_Female",Color("89bbb0"))
  for i in 5:
   var fish:Node3D=studio.make_fish(self,{"id":"%04x1000-1000-4100-8110-000000000000"%(i*1021),"species":"glassfin" if i%2==0 else "loach"})
   fish.scale*=2.5;swimmers.append(fish)

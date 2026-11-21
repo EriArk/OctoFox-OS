@@ -343,6 +343,8 @@ func _process(delta:float) -> void:
  var station = _station()
  var target=STATION_TARGETS.get(station)
  if studio.service.targets.has(station):target=studio.service.targets[station]
+ elif station=="port_crew":
+  target=flight.station_rooms[flight.berth].resident.global_position+Vector3.UP*1.26
  elif station=="route_desk":
   var room=flight.station_rooms[flight.berth]
   target=room.to_global(room.ROUTE_DESK)
@@ -359,7 +361,10 @@ func _process(delta:float) -> void:
  var exploring:bool=not (paused or editing or fitting.active or riding or walker.seated)
  if exploring and target!=null:
   var caption:String=STATION_ACTIONS[station]
-  if station=="route_desk":
+  if station=="port_crew":
+   var room=flight.station_rooms[flight.berth]
+   caption="Talk to "+room.STAFF[room.port].name
+  elif station=="route_desk":
    var room=flight.station_rooms[flight.berth]
    caption="Plot course to "+flight.Regions.CONTACTS[room.ROUTES[flight.berth]].name
   elif station=="dock_lift":caption="Board ship" if outside else "Exit to "+flight.NAMES[flight.berth]
@@ -532,7 +537,7 @@ const STATION_TARGETS = {
  "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
-const STATION_ACTIONS={"route_desk":"Plot island course","microscope":"Inspect reference slides","biologist":"Talk to Dr. Neri","cargo":"Inspect cargo","economiser":"Inspect cruise economiser","capacitor":"Inspect boost capacitor","mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
+const STATION_ACTIONS={"port_crew":"Talk","route_desk":"Plot island course","microscope":"Inspect reference slides","biologist":"Talk to Dr. Neri","cargo":"Inspect cargo","economiser":"Inspect cruise economiser","capacitor":"Inspect boost capacitor","mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
@@ -540,6 +545,7 @@ func _station() -> String:
  if outside:
   if flight.mode==flight.Mode.BERTH and flight.station_rooms.has(flight.berth):
    var room=flight.station_rooms[flight.berth]
+   if room.resident!=null and room.resident.visible and room.resident.global_position.distance_to(walker.global_position)<1.9:return "port_crew"
    if room.ROUTES.has(flight.berth) and room.to_local(walker.global_position).distance_to(room.ROUTE_DESK)<2.42:return "route_desk"
   if flight.mode==flight.Mode.BERTH and flight.berth==flight.lab.SITE:
    var local:Vector3=flight.lab.to_local(walker.global_position)
@@ -612,6 +618,7 @@ func _physics_process(delta:float) -> void:
 func _outside(value:bool) -> void:
  outside=value
  if flight.station_rooms.has(flight.berth):
+  flight.station_rooms[flight.berth].crew_on_duty(value)
   for light in flight.station_rooms[flight.berth].lamps:light.visible=value
  if mine.home!=null:mine.set_site(flight.berth if value else -1)
  if garden.home!=null:garden.set_site(flight.berth if value else -1)
@@ -630,6 +637,11 @@ func _interact() -> void:
  prompts.clear_world()
  var station:=_station()
  match station:
+  "port_crew":
+   var room=flight.station_rooms[flight.berth]
+   var staff:Dictionary=room.STAFF[room.port]
+   var tracked:bool=flight.avionics.navigate_to(staff.contact)
+   notify(staff.report+(" Contact marked." if tracked else " Power sensors to track."))
   "route_desk":
    var room=flight.station_rooms[flight.berth]
    if flight.avionics.navigate_to(room.ROUTES[flight.berth]):notify(flight.avionics.reply)
