@@ -506,9 +506,11 @@ private slots:
         EmulatorEnvironment env;env.home=dir.path();env.configHome=dir.filePath(".config");
         env.stateDirectory=dir.filePath("state");env.libraryRoot=dir.filePath("Emulation/roms");
         const auto program=dir.filePath("Applications/DuckStation.AppImage");
+        QVERIFY(QDir().mkpath(QFileInfo(program).absolutePath()));
         write(program,"fixture");QVERIFY(QFile::setPermissions(program,QFile::ReadOwner|QFile::ExeOwner));
         env.executables={{"duckstation-qt",program}};
         const auto real=dir.filePath(".local/share/duckstation");
+        QVERIFY(QDir().mkpath(real));
         write(real+"/settings.ini","[Main]\nSetupWizardIncomplete = true\n[GPU]\nRenderer = personal\n");
         auto found=prepareEmulators(env);
         QCOMPARE(found.profiles["duckstation"]["initialConfigDirectory"].toString(),real);
