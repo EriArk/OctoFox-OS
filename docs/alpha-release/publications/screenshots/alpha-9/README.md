@@ -2,6 +2,23 @@
 
 41 скриншот для поста. Номера на обзорном листе совпадают с номерами файлов. Каждый кадр открывается отдельно в исходном разрешении.
 
+## Коллажи для поста
+
+| Встречи в эгрегоре | Острова и перелёты |
+| --- | --- |
+| [![Встречи в эгрегоре](collages/01-egregore-encounters.jpg)](collages/01-egregore-encounters.jpg) | [![Острова и перелёты](collages/02-egregore-islands.jpg)](collages/02-egregore-islands.jpg) |
+
+| Корабль снаружи и внутри | Festival Park и аттракционы |
+| --- | --- |
+| [![Корабль снаружи и внутри](collages/03-ship.jpg)](collages/03-ship.jpg) | [![Festival Park и аттракционы](collages/04-bazaar.jpg)](collages/04-bazaar.jpg) |
+
+| Micro Rally | Pocket Golf |
+| --- | --- |
+| [![Micro Rally](collages/05-micro-rally.jpg)](collages/05-micro-rally.jpg) | [![Pocket Golf](collages/06-pocket-golf.jpg)](collages/06-pocket-golf.jpg) |
+
+
+## Отдельные скриншоты
+
 ![Обзор всех скриншотов](preview.jpg)
 
 ## Корабль
