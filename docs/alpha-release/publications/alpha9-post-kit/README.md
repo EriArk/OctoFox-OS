@@ -19,3 +19,11 @@ Public links belong in posts:
 - Community: https://discord.gg/xBN9DXt8Q
 
 This is staging content for review, **not an OS release**. Never merge the publication kit into `main` just to publish an announcement.
+
+## One-click ZIP download
+
+The **complete ZIP with the original 13 images and both texts** is the GitHub-generated archive of the dedicated export-only branch:
+
+https://github.com/EriArk/OctoFox-OS/archive/refs/heads/publication/alpha9-post-kit-download-20261122.zip
+
+That branch deliberately contains only this publication kit, not the full source tree. Keep using this staging branch if you want to edit the drafts and review image choices.
