@@ -19,6 +19,8 @@ The SDK is a v1 preview; see [implementation and remaining contracts](PLATFORM_S
 
 ## Maintainer entry points
 
+**Ongoing cross-project discussions:** [OctoFox design journal (Russian)](OCTOFOX_DESIGN_JOURNAL_RU.md) — a maintained index of owner decisions, tentative ideas and links across UX, games, multiplayer, Crates, Egregore, adapters, economy and trusted saves. It is not an implementation status report.
+
 | Question | Document |
 | --- | --- |
 | Working rules | [AGENTS](../AGENTS.md), [development workflow](DEVELOPMENT_WORKFLOW.md) |
