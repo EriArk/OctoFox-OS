@@ -152,7 +152,7 @@ void ControllerInput::publishShellMapping() {
     QSaveFile file(directory+"/traineros-shell-input.json");
     if(!file.open(QIODevice::WriteOnly))return;
     const auto data=QJsonDocument(QJsonObject{{"version",1},{"device",physicalName_.isEmpty()?kernelDeviceName():physicalName_},
-        {"calibration",QJsonObject::fromVariantMap(profile_.json())},{"keyboardButton",family()=="nintendo"?"north":"west"},{"southConfirms",confirmButton()==SDL_CONTROLLER_BUTTON_A},{"invertX",profile_.invertX},{"invertY",profile_.invertY}}).toJson(QJsonDocument::Compact);
+        {"calibration",QJsonObject::fromVariantMap(profile_.json())},{"keyboardButton",family()=="nintendo"?"north":"west"},{"mapping",sample_.mapping},{"family",family()},{"southConfirms",confirmButton()==SDL_CONTROLLER_BUTTON_A},{"invertX",profile_.invertX},{"invertY",profile_.invertY}}).toJson(QJsonDocument::Compact);
     if(file.write(data)==data.size())file.commit();
 #endif
 }

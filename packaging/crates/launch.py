@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Hold the package lease for the entire child lifetime, including minimization."""
+import json
 import os
 from pathlib import Path
 import signal
@@ -11,6 +12,45 @@ import sys
 # The installed helper directory is part of the signed, immutable shell payload.
 sys.dont_write_bytecode = True
 from installer import Store, ID, safe_path
+
+# These catalogue games use SDL's A/B as their primary/back actions.
+# Other packages may provide their own layout (including Steam Input).
+PAD_GAMES = {
+    '2048', 'hextris', 'breakout', 'pong', 'snake-arena', 'light-cycles',
+    'falling-blocks', 'minesweeper-race', 'chain-reaction', 'mini-racing',
+    'tanks', 'pocket-artillery', 'micro-rally', 'pocket-golf', 'bazaar',
+}
+
+def game_controller_environment(env, project):
+    if project not in PAD_GAMES or not env.get('XDG_RUNTIME_DIR'):
+        return
+    try:
+        with (Path(env['XDG_RUNTIME_DIR'])/'traineros-shell-input.json').open('rb') as stream:
+            profile = json.loads(stream.read(16385))
+        mapping = profile['mapping']
+        if not isinstance(mapping, str) or '\n' in mapping or not isinstance(profile['southConfirms'], bool):
+            return
+        fields = mapping.split(',')
+        if len(fields) < 4 or not re.fullmatch('[0-9a-fA-F]{32}', fields[0]):
+            return
+    except (OSError, ValueError, TypeError, KeyError):
+        return
+    existing = env.get('SDL_GAMECONTROLLERCONFIG', '').splitlines()
+    matches = [line for line in existing if line.partition(',')[0].lower() == fields[0].lower()]
+    # Keep explicit per-game/user bindings for this controller. Children of
+    # Bazaar (the Festival Cup) can inherit an already adapted mapping.
+    if any(line != mapping for line in matches):
+        return
+    swap = {}
+    if not profile['southConfirms']:
+        swap.update(a='b', b='a')
+    if profile.get('family') == 'nintendo':
+        swap.update(x='y', y='x')
+    for i in range(2, len(fields)):
+        name, sep, binding = fields[i].partition(':')
+        if sep and name in swap:
+            fields[i] = swap[name] + ':' + binding
+    env['SDL_GAMECONTROLLERCONFIG'] = '\n'.join([line for line in existing if line not in matches] + [','.join(fields)])
 
 def main():
     root, project = sys.argv[1:3]
@@ -35,7 +75,9 @@ def main():
         env['TRAINEROS_SDK_ENDPOINT'] = os.environ.get('TRAINEROS_SDK_ENDPOINT') or str(
             Path(os.environ.get('XDG_DATA_HOME') or Path.home()/'.local/share') /
             'traineros/platform-v1/endpoint.json')
-        if r['kind']=='game': env['TRAINEROS_CRATES_GAME']='1'
+        if r['kind']=='game':
+            env['TRAINEROS_CRATES_GAME']='1'
+            game_controller_environment(env, project)
         for key in ('QT_QUICK_BACKEND','QT_SCALE_FACTOR','QSG_RHI_BACKEND'):
             env.pop(key,None)
         # The managed Qt web runner shares the browser's affected Armada GL

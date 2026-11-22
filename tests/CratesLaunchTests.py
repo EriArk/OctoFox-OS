@@ -14,8 +14,32 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'packaging/crates'))
 import installer
+from launch import game_controller_environment
 
 class LaunchTests(unittest.TestCase):
+    def test_controller_layout_is_specific_to_the_game_and_selected_pad(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            guid='a'*32
+            mapping=guid+',Gamepad,a:b0,b:b1,x:b2,y:b3,start:b7,leftx:a0,'
+            other='b'*32+',Other,a:b9,'
+            profile=Path(tmp)/'traineros-shell-input.json'
+            profile.write_text(json.dumps(dict(mapping=mapping,southConfirms=False,family='nintendo')))
+            env={'XDG_RUNTIME_DIR':tmp,'SDL_GAMECONTROLLERCONFIG':other+'\n'+mapping}
+            game_controller_environment(env,'bazaar')
+            expected=other+'\n'+guid+',Gamepad,b:b0,a:b1,y:b2,x:b3,start:b7,leftx:a0,'
+            self.assertEqual(env['SDL_GAMECONTROLLERCONFIG'],expected)
+            game_controller_environment(env,'pocket-golf')
+            self.assertEqual(env['SDL_GAMECONTROLLERCONFIG'],expected)
+            env['SDL_GAMECONTROLLERCONFIG']=mapping
+            game_controller_environment(env,'some-other-game')
+            self.assertEqual(env['SDL_GAMECONTROLLERCONFIG'],mapping)
+            profile.write_text(json.dumps(dict(mapping=mapping,southConfirms=True,family='playstation')))
+            game_controller_environment(env,'pong')
+            self.assertEqual(env['SDL_GAMECONTROLLERCONFIG'],mapping)
+            profile.write_text('null')
+            game_controller_environment(env,'pong')
+            self.assertEqual(env['SDL_GAMECONTROLLERCONFIG'],mapping)
+
     def test_installed_process_discovers_host_and_keeps_private_data(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

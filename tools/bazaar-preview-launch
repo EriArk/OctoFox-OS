@@ -36,7 +36,11 @@ def main():
                     if base.is_symlink() or not entry.is_relative_to(base.resolve()) or not entry.is_file():
                         raise ValueError("Invalid Bazaar executable")
                     os.set_inheritable(lease.fileno(), True)
-                    os.execv(entry, [str(entry), *flags])
+                    env = dict(os.environ)
+                    import launch
+                    if hasattr(launch, 'game_controller_environment'):
+                        launch.game_controller_environment(env, 'bazaar')
+                    os.execve(entry, [str(entry), *flags], env)
     os.execv(legacy, [str(legacy), *flags])
 
 
