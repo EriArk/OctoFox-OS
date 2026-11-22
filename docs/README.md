@@ -52,6 +52,7 @@ Dated technical records preserve specific checks, hashes, limitations and recove
 
 ## Agreed future contracts
 
+- [Living economy rules (Russian)](ECONOMY_LIVING_SPEC_RU.md) and [trusted save / tradable game loot (Russian)](TRUSTED_SAVE_TRADE_RU.md) — owner decisions from 22 November 2026, proposed rates and open implementation gaps. Not evidence of enabled production spending or verified sessions.
 - [Account and economy (Russian)](TRAINEROS_ACCOUNT_ECONOMY_RU.md), [Backend (Russian)](TRAINEROS_BACKEND_PLAN_RU.md), [Crates storage (Russian)](CRATES_SERVER_STORAGE_RU.md).
 - [Bazaar](BAZAAR.md), #262–264: the catalogue and colorful future-world placeholders are included in Alpha 7. Purchases and rentals remain disabled until worlds exist; prepared economy, rights and settings are preserved. World admission, hosting and trading remain unfinished.
 - SDK #235–244, PC #246–251 and Picker #252–254 are tracked in their current issues. An agreed target does not imply an installed feature.
