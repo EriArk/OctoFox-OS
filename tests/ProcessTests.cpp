@@ -20,6 +20,30 @@ class ProcessTests final : public QObject {
         );
     }
 private slots:
+#ifdef Q_OS_LINUX
+    void externalLaunchDropsShellLibrariesAndPreservesGameLibraries() {
+        QTemporaryDir dir;
+        const auto before=qgetenv("LD_LIBRARY_PATH"), managed=qgetenv("TRAINEROS_SOFTWARE_MANAGED");
+        const auto restore=qScopeGuard([&]{
+            if(before.isNull())qunsetenv("LD_LIBRARY_PATH");else qputenv("LD_LIBRARY_PATH",before);
+            if(managed.isNull())qunsetenv("TRAINEROS_SOFTWARE_MANAGED");else qputenv("TRAINEROS_SOFTWARE_MANAGED",managed);
+        });
+        qputenv("TRAINEROS_SOFTWARE_MANAGED","1");
+        const auto bundled=QDir::cleanPath(QCoreApplication::applicationDirPath()+"/../lib").toUtf8();
+        const auto custom=dir.filePath("game-libs").toUtf8();
+        ProcessService process;
+        QSignalSpy finished(&process,&ProcessService::finished);
+        const auto output=dir.filePath("environment.json");
+        ProcessCommand command{probe(),{"environment",output},{}};command.emulatorRuntime=true;
+        qputenv("LD_LIBRARY_PATH",bundled+':'+custom);
+        QVERIFY(process.start(command));QTRY_COMPARE(finished.size(),1);
+        QFile file(output);QVERIFY(file.open(QIODevice::ReadOnly));
+        QCOMPARE(QJsonDocument::fromJson(file.readAll()).object()["LD_LIBRARY_PATH"].toString(),QString::fromUtf8(custom));file.close();
+        qputenv("LD_LIBRARY_PATH",bundled);
+        QVERIFY(process.start(command));QTRY_COMPARE(finished.size(),2);QVERIFY(file.open(QIODevice::ReadOnly));
+        QVERIFY(QJsonDocument::fromJson(file.readAll()).object()["LD_LIBRARY_PATH"].toString().isEmpty());
+    }
+#endif
     void emulatorHomeDoesNotLeakIntoDesktopChildren() {
         QTemporaryDir dir;
         const auto old=qgetenv("TRAINEROS_RUNTIME_HOME");

@@ -122,6 +122,23 @@ QString configDirectory(const Route& route, bool flatpak, const EmulatorEnvironm
     const auto base = flatpak ? QDir(env.home).filePath(".var/app/" + route.app + "/config") : env.configHome;
     return QDir(base).filePath(route.id == "dolphin" ? "dolphin-emu" : route.id == "azahar" ? "azahar-emu" : route.id == "cemu" ? "Cemu" : route.id == "melonds" ? "melonDS" : route.id == "vita3k" ? "Vita3K" : route.id);
 }
+// Native DuckStation AppImages keep settings alongside their user data. Older
+// discovered profiles recorded an XDG config directory used by other adapters.
+QString nativeDuckDirectory(const EmulatorEnvironment& env) {
+    const auto data=env.home==QDir::homePath() && !env.managed
+        ? QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) : env.home+"/.local/share";
+    return QDir(data).filePath("duckstation");
+}
+QString discoveredConfigDirectory(const Route& route,const QJsonObject& profile,const QString& directory,const EmulatorEnvironment& env) {
+    if(route.id!="duckstation" || !profile["runtimeFile"].toString().endsWith(".AppImage",Qt::CaseInsensitive))return directory;
+    const auto target=nativeDuckDirectory(env);
+    if(env.managed && directory!=target && !exists(target+"/settings.ini")){
+        // Carry forward the private installation's existing bindings and settings.
+        QFile old(directory+"/settings.ini");
+        if(old.size()<=1024*1024 && old.open(QIODevice::ReadOnly))seed(target+"/settings.ini",old.readAll());
+    }
+    return target;
+}
 // RetroArch consults its user autoconfig tree when the private runtime
 // starts. Seed the Linux drivers from that same installed Flatpak for built-in,
 // USB and Bluetooth controllers, including pads connected after first boot.
@@ -207,7 +224,7 @@ QByteArray wiiRemote(const EmulatorEnvironment& env) {
 // Linux build creates a keyboard-only Pad1; native multi-bind uses repeated keys.
 bool duckStationControls(const EmulatorEnvironment& env,const QString& directory) {
     const auto path=QDir(directory).filePath("settings.ini");
-    if (!env.managed || QFileInfo(path).isSymLink()) return true;
+    if ((!env.managed && directory!=nativeDuckDirectory(env)) || QFileInfo(path).isSymLink()) return true;
     QFile factory(":/emulators/duckstation-defaults.ini");
     if (!factory.open(QIODevice::ReadOnly)) return false;
     const auto original=factory.readAll();
@@ -248,6 +265,35 @@ bool duckStationControls(const EmulatorEnvironment& env,const QString& directory
     QFile existing(path);
     if (!existing.open(QIODevice::ReadOnly) || existing.size()>1024*1024) return false;
     const auto data=existing.readAll();existing.close();
+    // A first launch may have written a partial settings file. Preserve its
+    // existing sections and choices, including any manually configured pad.
+    auto partial=data;partial.replace("\r\n","\n");
+    const auto sections=partial.split('\n');
+    QByteArray group;
+    bool unfinished=false;
+    for(const auto& line:sections){
+        if(line.startsWith('['))group=line.trimmed();
+        if(group=="[Main]" && line.trimmed()=="SetupWizardIncomplete = true")unfinished=true;
+    }
+    if(unfinished){
+        partial.replace("SetupWizardIncomplete = true","SetupWizardIncomplete = false");
+        const auto defaults=prepared();
+        QByteArray block;
+        const auto appendMissing=[&] {
+            if(block.isEmpty())return;
+            const auto heading=block.left(block.indexOf('\n'));
+            if(!sections.contains(heading))partial+="\n"+block;
+        };
+        for(const auto& line:defaults.split('\n')){
+            if(line.startsWith('[')){appendMissing();block.clear();}
+            block+=line+'\n';
+        }
+        appendMissing();
+        if(!partial.contains("NoDesktopFile ="))partial.replace("[Main]\n","[Main]\nNoDesktopFile = true\n");
+        if(data.contains("\r\n"))partial.replace("\n","\r\n");
+        QSaveFile output(path);
+        return output.open(QIODevice::WriteOnly) && output.write(partial)==partial.size() && output.commit();
+    }
     // Software 56 shipped factory settings plus bindings. Only migrate that
     // exact generated file; a wizard or preference edited by the owner wins.
     auto legacy=original;
@@ -545,7 +591,8 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
                 && oldRuntime.contains("/app/" + route.app + "/") && oldRuntime.endsWith("/files/bin/" + route.binary)
                 && executable(currentRuntime)) profile["runtimeFile"] = currentRuntime;
             if (!supplied && QDir::isAbsolutePath(profile["initialConfigDirectory"].toString())) {
-                const auto directory=profile["initialConfigDirectory"].toString();
+                const auto directory=discoveredConfigDirectory(route,profile,profile["initialConfigDirectory"].toString(),env);
+                profile["initialConfigDirectory"]=directory;
                 controllerDefaults(route,directory,env,result.notices);
                 describeControllerProfile(route,directory,env,profile,result.notices);
             }
@@ -594,7 +641,7 @@ EmulatorDiscovery prepareEmulators(const EmulatorEnvironment& env) {
         }
         profile = {{"version",1},{"adapter",route.id},{"program",program},{"runtimeFile",runtimeFile},
             {"prefixArguments",arguments},{"validatedPlatforms",QJsonArray::fromStringList(route.platforms)}};
-        const auto configDir = configDirectory(route, flatpak, env);
+        const auto configDir = discoveredConfigDirectory(route,profile,configDirectory(route, flatpak, env),env);
         profile["initialConfigDirectory"] = configDir;
         if (route.id == "retroarch") {
             const auto config = QDir(configDir).filePath("retroarch.cfg");

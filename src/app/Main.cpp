@@ -1,6 +1,7 @@
 #include <QUuid>
 #include "adapters/pokemon/PokemonExperience.h"
 #include "PlatformBinding.h"
+#include "platform/emulation/RuntimePaths.h"
 #include "SessionConnections.h"
 #include "platform/storage/LibraryMountWatcher.h"
 #include "platform/storage/LibraryStorage.h"
@@ -123,6 +124,7 @@ public:
         auto paths=QIcon::themeSearchPaths();
         auto data=QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
         data<<QDir::homePath()+"/.local/share/flatpak/exports/share"<<"/var/lib/flatpak/exports/share";
+        if(!runtimepaths::home().isEmpty())data<<runtimepaths::data()+"/flatpak/exports/share";
         QStringList fallback=QIcon::fallbackSearchPaths();
         for(const auto& base:data){
             if(QDir(base+"/icons").exists())paths<<base+"/icons";
@@ -153,6 +155,10 @@ public:
         }
         // A private runtime may have no desktop registration. Use the same
         // licensed hardware photograph as its platform in Games.
+        if(id=="vita3k"){
+            const auto bundled=runtimepaths::data()+"/TrainerOS/emulators/vita3k-netplay/runtime/.DirIcon";
+            if(QFileInfo::exists(bundled))return QIcon(bundled);
+        }
         const auto photo=":/platforms/"+platform+".png";
         return QFileInfo::exists(photo)?QIcon(photo):QIcon::fromTheme("applications-games");
     }

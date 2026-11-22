@@ -20,7 +20,7 @@ inline void startGamePreparationSmoke(QQuickWindow* window,trainer::ShellControl
     const auto write=[](const QString& path,const QByteArray& bytes){QDir().mkpath(QFileInfo(path).absolutePath());QFile f(path);return f.open(QIODevice::WriteOnly)&&f.write(bytes)==bytes.size();};
     const auto runtime=dir->path()+"/bin/azahar.exe";write(runtime,"fixture");QFile(runtime).setPermissions(QFile::ReadOwner|QFile::WriteOwner|QFile::ExeOwner);
     QDir().mkpath(dir->path()+"/bin/user");write(dir->path()+"/input/otp.bin",QByteArray(256,'x'));
-    const QJsonObject profile{{"version",1},{"adapter","azahar"},{"program",QCoreApplication::applicationFilePath()},{"runtimeFile",runtime},{"validatedPlatforms",QJsonArray{"n3ds"}},{"prefixArguments",QJsonArray{}}};
+    const QJsonObject profile{{"version",1},{"adapter","azahar"},{"program",QCoreApplication::applicationFilePath()},{"runtimeFile",runtime},{"setupProgram",QCoreApplication::applicationDirPath()+"/trainer_process_probe"},{"setupArguments",QJsonArray{}},{"validatedPlatforms",QJsonArray{"n3ds"}},{"prefixArguments",QJsonArray{}}};
     write(dir->path()+"/integrations/azahar.json",QJsonDocument(profile).toJson());
     write(dir->path()+"/cores/mgba_libretro.so","fixture");write(dir->path()+"/cores/fceumm_libretro.so","fixture");write(dir->path()+"/cores/pcsx_rearmed_libretro.so","fixture");
     write(dir->path()+"/retroarch.cfg",("system_directory = \""+dir->path()+"/bios\"\n").toUtf8());
@@ -67,6 +67,7 @@ inline void startGamePreparationSmoke(QQuickWindow* window,trainer::ShellControl
             check(shell.service()=="emulators","Touch opens the standalone emulator list");break;
         }
         case 12:
+            check(f->emulators().size()==1 && f->emulators().first().toMap()["id"]=="azahar","Grid contains the discovered standalone frontend");
             capture("emulator-launcher");shell.dispatch(trainer::Action::Back);
             check(shell.service().isEmpty() && shell.page()==trainer::ShellController::GamesPage,"Back returns to Games");
             shell.dispatch(trainer::Action::ToggleFavorite);

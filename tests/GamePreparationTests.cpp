@@ -59,6 +59,21 @@ private slots:
         QSignalSpy closed(&flow,&GamePreparationController::closeRequested);
         flow.dispatchLauncher(Action::Back);QCOMPARE(closed.size(),1);
     }
+    void launcherNavigatesThePartialLastRow() {
+        QTemporaryDir directory;
+        const auto probe=QCoreApplication::applicationDirPath()+"/trainer_process_probe";
+        const QJsonObject profile{{"setupProgram",probe},{"setupArguments",QJsonArray{}}};
+        QHash<QString,QJsonObject> profiles;
+        for(const auto& id:QStringList{"azahar","cemu","dolphin","duckstation","rpcs3","vita3k"})profiles.insert(id,profile);
+        GamePreparationController flow;
+        flow.configure(directory.path(),profiles);flow.beginLauncher({});
+        flow.dispatchLauncher(Action::Right);flow.dispatchLauncher(Action::Right);
+        QCOMPARE(flow.emulatorIndex(),2);
+        flow.dispatchLauncher(Action::Down);QCOMPARE(flow.emulatorIndex(),5);
+        flow.dispatchLauncher(Action::Right);QCOMPARE(flow.emulatorIndex(),5);
+        flow.dispatchLauncher(Action::Up);QCOMPARE(flow.emulatorIndex(),1);
+        flow.dispatchLauncher(Action::Left);flow.dispatchLauncher(Action::Left);QCOMPARE(flow.emulatorIndex(),0);
+    }
     void nativeSetupUsesOwnedProcessAndGuards() {
         QTemporaryDir d;const auto probe=QCoreApplication::applicationDirPath()+"/trainer_process_probe";
         const auto output=d.path()+"/setup-result";

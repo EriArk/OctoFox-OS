@@ -1,6 +1,7 @@
 #include "ProcessService.h"
 #include "platform/emulation/RuntimePaths.h"
 #include <QDir>
+#include <QCoreApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPointer>
@@ -79,6 +80,18 @@ void ProcessService::execute(const ProcessCommand& command) {
     process_.setStandardOutputFile(inspectOutput_ || !readyMarker_.isEmpty() || runtimeControls_.contains("netplay") || runtimeControls_.contains("achievements") ? QString() : QProcess::nullDevice());
     process_.setProgram(command.program); process_.setArguments(command.arguments);
     auto environment=command.emulatorRuntime ? runtimepaths::environment() : QProcessEnvironment::systemEnvironment();
+#ifdef Q_OS_LINUX
+    // The managed shell bundles its file-manager libraries. Passing its
+    // private lib directory to an AppImage can override the game's ABI.
+    if(environment.value("TRAINEROS_SOFTWARE_MANAGED")=="1" && environment.contains("LD_LIBRARY_PATH")){
+        const auto bundled=QDir::cleanPath(QCoreApplication::applicationDirPath()+"/../lib");
+        auto paths=environment.value("LD_LIBRARY_PATH").split(':');
+        if(paths.removeAll(bundled)){
+            if(paths.isEmpty())environment.remove("LD_LIBRARY_PATH");
+            else environment.insert("LD_LIBRARY_PATH",paths.join(':'));
+        }
+    }
+#endif
     if (!controllerMapping_.isEmpty() && !environment.contains("SDL_GAMECONTROLLERCONFIG"))
         environment.insert("SDL_GAMECONTROLLERCONFIG",controllerMapping_);
     process_.setProcessEnvironment(environment);

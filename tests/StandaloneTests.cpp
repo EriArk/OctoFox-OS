@@ -501,6 +501,27 @@ private slots:
         QVERIFY(personal.open(QIODevice::ReadOnly));QCOMPARE(personal.readAll(),QByteArray("[Controls]\n# personal mapping\n"));
         QVERIFY(ds.open(QIODevice::ReadOnly));QVERIFY(ds.readAll().contains("JoystickID = 1"));
     }
+    void nativeDuckStationUsesRealDataDirectoryOnFirstAndRetainedDiscovery() {
+        QTemporaryDir dir;
+        EmulatorEnvironment env;env.home=dir.path();env.configHome=dir.filePath(".config");
+        env.stateDirectory=dir.filePath("state");env.libraryRoot=dir.filePath("Emulation/roms");
+        const auto program=dir.filePath("Applications/DuckStation.AppImage");
+        write(program,"fixture");QVERIFY(QFile::setPermissions(program,QFile::ReadOwner|QFile::ExeOwner));
+        env.executables={{"duckstation-qt",program}};
+        const auto real=dir.filePath(".local/share/duckstation");
+        write(real+"/settings.ini","[Main]\nSetupWizardIncomplete = true\n[GPU]\nRenderer = personal\n");
+        auto found=prepareEmulators(env);
+        QCOMPARE(found.profiles["duckstation"]["initialConfigDirectory"].toString(),real);
+        QFile settings(real+"/settings.ini");QVERIFY(settings.open(QIODevice::ReadOnly));
+        const auto data=settings.readAll();settings.close();
+        QVERIFY(data.contains("SetupWizardIncomplete = false"));QVERIFY(data.contains("Renderer = personal"));
+        QVERIFY(data.contains("Cross = SDL-0/A"));QVERIFY(data.contains("SearchDirectory = "));
+        const auto path=env.stateDirectory+"/integrations/discovered/duckstation.json";
+        auto previous=found.profiles["duckstation"];previous["initialConfigDirectory"]=env.configHome+"/duckstation";
+        write(path,QJsonDocument(previous).toJson());
+        found=prepareEmulators(env);QCOMPARE(found.profiles["duckstation"]["initialConfigDirectory"].toString(),real);
+        QVERIFY(settings.open(QIODevice::ReadOnly));QCOMPARE(settings.readAll(),data);
+    }
     void duckStationKeepsFactoryKeyboardAndAddsGamepadOnFreshInstall() {
         QTemporaryDir dir;EmulatorEnvironment env;
         env.managed=true;env.home=dir.path();env.configHome=dir.filePath("config");env.stateDirectory=dir.filePath("state");
