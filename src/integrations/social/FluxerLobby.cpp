@@ -118,7 +118,7 @@ void FluxerSession::lobbyDirectoryCommand(const QString& operation,const QVarian
 void FluxerSession::loadLobbyDirectory(int channel,QString before) {
     if(channel>=lobbyDirectory::channels.size()) {
         lobbyDirectoryRows_=lobbyDirectoryPending_;lobbyDirectoryPending_.clear();lobbyDirectoryBusy_=false;
-        lobbyMembershipReady_=true;lobbyMembershipRetry_.stop();lobbyDirectoryNeedsJoin_=false;lobbyDirectoryStatus_=lobbyDirectoryRows_.isEmpty()?"No open lobbies yet.":QString();publish();return;
+        lobbyMembershipReady_=true;lobbyMembershipRetry_.stop();lobbyDirectoryNeedsJoin_=false;lobbyDirectoryStatus_=lobbyDirectoryRows_.isEmpty()?"No public lobbies listed.":QString();publish();return;
     }
     const auto revision=lobbyDirectoryRevision_;
     const auto path="/v1/channels/"+lobbyDirectory::channels[channel]+"/messages?limit=100"+(before.isEmpty()?QString():"&before="+before);

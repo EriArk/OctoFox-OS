@@ -910,26 +910,66 @@ private slots:
         QVERIFY(runtime.prepare());service.preparation(true,{});runtime.registerService("netplay",nullptr);
         QVERIFY(!runtime.available());QVERIFY(!host.ready(true));
     }
-    void twoMembersKeepOneLobbyAcrossReadyLaunchAndReturn() {
-        LobbyCoordinator host,guest;
-        host.configure("1","Host",true);guest.configure("2","Guest",true);
-        connect(&host,&LobbyCoordinator::outgoing,&guest,[&](QString peer,QJsonObject packet){if(peer=="2")guest.receive("1","Host",packet);});
-        connect(&guest,&LobbyCoordinator::outgoing,&host,[&](QString peer,QJsonObject packet){if(peer=="1")host.receive("2","Guest",packet);});
-        QVERIFY(host.create());QVERIFY(host.invite("2"));QVERIFY(!guest.invitation().isEmpty());
-        QVERIFY(guest.state().isEmpty());guest.answer(true);
-        const auto id=host.state()["id"].toString();QCOMPARE(guest.state()["id"].toString(),id);
-        QVERIFY(host.selectGame(game()));QVERIFY(host.seat(1));QVERIFY(guest.seat(2));
-        const auto generation=quint64(host.state()["generation"].toInteger());
-        QVERIFY(host.prepared(generation,true));QVERIFY(guest.prepared(generation,true));
-        QSignalSpy hostLaunch(&host,&LobbyCoordinator::launchRequested),guestLaunch(&guest,&LobbyCoordinator::launchRequested);
-        QVERIFY(guest.ready(true));QCOMPARE(guestLaunch.size(),0);QVERIFY(host.ready(true));
-        QCOMPARE(hostLaunch.size(),0);QVERIFY(!guest.start());QVERIFY(host.start());
-        QCOMPARE(hostLaunch.size(),1);QCOMPARE(guestLaunch.size(),1);
-        const auto ticket=hostLaunch[0][0].toString();QVERIFY(host.acknowledgeLaunch(ticket,true));
-        QCOMPARE(host.state()["phase"].toString(),"launching");QVERIFY(guest.acknowledgeLaunch(ticket,true));
-        QVERIFY(host.finishGame(ticket));QCOMPARE(guest.state()["id"].toString(),id);
-        QVERIFY(!guest.ready(true));QCOMPARE(guest.state()["members"].toArray().size(),2);
-        host.leave();QVERIFY(guest.state().isEmpty());
+    void membersKeepOneLobbyAcrossReadyLaunchAndReturn_data() {
+        QTest::addColumn<int>("players");
+        for (int size : {2, 3, 4})
+            QTest::newRow(qPrintable(QString::number(size))) << size;
+    }
+    void membersKeepOneLobbyAcrossReadyLaunchAndReturn() {
+        QFETCH(int, players);
+        LobbyCoordinator clients[4];
+        auto& host = clients[0];
+        host.configure("1", "Host", true);
+        QVERIFY(host.create("private"));
+        const auto room = host.state()["id"].toString();
+        int launches[4]{};
+        QString tickets[4];
+        for (int i = 0; i < players; ++i) {
+            connect(&clients[i], &LobbyCoordinator::launchRequested, this, [&, i](QString ticket) {
+                ++launches[i];
+                tickets[i] = ticket;
+            });
+            if (i == 0) continue;
+            const auto id = QString::number(i + 1);
+            clients[i].configure(id, id, true);
+            connect(&host, &LobbyCoordinator::outgoing, &clients[i], [&, i, id](QString peer, QJsonObject packet) {
+                if (peer == id) clients[i].receive("1", "Host", packet);
+            });
+            connect(&clients[i], &LobbyCoordinator::outgoing, &host, [&, id](QString peer, QJsonObject packet) {
+                if (peer == "1") host.receive(id, id, packet);
+            });
+            QVERIFY(host.invite(id));
+            QVERIFY(!clients[i].invitation().isEmpty());
+            QVERIFY(clients[i].state().isEmpty());
+            clients[i].answer(true);
+            QCOMPARE(clients[i].state()["id"].toString(), room);
+        }
+        QVERIFY(host.selectGame(game("test", players)));
+        const auto generation = host.state()["generation"].toInteger();
+        for (int i = 0; i < players; ++i) {
+            QVERIFY(clients[i].seat(i + 1));
+            QVERIFY(clients[i].prepared(generation, true));
+            QVERIFY(clients[i].ready(true));
+            if (i < players - 1) QVERIFY(!host.start());
+        }
+        QVERIFY(!clients[players - 1].start());
+        for (int i = 0; i < players; ++i) QCOMPARE(launches[i], 0);
+        QVERIFY(host.start());
+        for (int i = 0; i < players; ++i) {
+            QCOMPARE(launches[i], 1);
+            QCOMPARE(tickets[i], tickets[0]);
+            QCOMPARE(host.state()["phase"].toString(), "launching");
+            QVERIFY(clients[i].acknowledgeLaunch(tickets[i], true));
+        }
+        for (int i = 0; i < players; ++i) QCOMPARE(clients[i].state()["phase"].toString(), "playing");
+        QVERIFY(host.finishGame(tickets[0]));
+        for (int i = 0; i < players; ++i) {
+            QCOMPARE(clients[i].state()["id"].toString(), room);
+            QCOMPARE(clients[i].state()["members"].toArray().size(), players);
+            QVERIFY(!clients[i].ready(true));
+        }
+        host.leave();
+        for (int i = 1; i < players; ++i) QVERIFY(clients[i].state().isEmpty());
     }
     void publicJoinApprovalAndUnknownHostCannotForceLaunch() {
         LobbyCoordinator host,guest;

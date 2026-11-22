@@ -116,8 +116,13 @@ Item {
                     }
                     Row {
                         x: host.x+host.width+8; anchors.bottom: parent.bottom; anchors.bottomMargin: card.compact ? 5 : 11; spacing: 8
-                        Text { text: (card.modelData.seats ? (card.modelData.seats-card.modelData.available)+" / "+card.modelData.seats+(card.compact ? "" : " seats") : (card.modelData.members ? card.modelData.members+" together" : "Game not chosen"))+(card.compact && card.modelData.startsAt ? " · "+root.timeLabel(card.modelData.startsAt) : "")
-                            font.pixelSize: card.compact ? 9 : 11; color: Theme.ink }
+                        Text {
+                            readonly property string occupancy: card.modelData.seats
+                                ? (card.modelData.seats - card.modelData.available) + " / " + card.modelData.seats + (card.compact ? "" : " seats")
+                                : (card.modelData.members ? card.modelData.members + " together" : "")
+                            text: [occupancy, card.compact ? root.timeLabel(card.modelData.startsAt) : ""].filter(Boolean).join(" · ")
+                            visible: text.length > 0; font.pixelSize: card.compact ? 9 : 11; color: Theme.ink
+                        }
                         Text { text: card.modelData.access==="approval" ? "Approval" : card.modelData.kind==="invitation" ? "Invited" : "Open"
                             font.pixelSize: card.compact ? 9 : 10; color: Theme.muted; visible: !card.compact || !card.modelData.startsAt }
                     }
