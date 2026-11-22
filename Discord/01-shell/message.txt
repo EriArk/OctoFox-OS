@@ -1,0 +1,17 @@
+🦊 **TrainerOS is now OctoFox OS — Alpha 9 is out!**
+
+Hey everyone!
+
+Well, I had to rename TrainerOS because the name was already taken.
+
+So, meet **OctoFox OS!** Same project, new name, and quite a lot has changed along the way.
+
+🎮 **What’s OctoFox OS?**
+
+My attempt to turn Linux handhelds into a complete gaming system, where your games, friends, achievements, apps, and multiplayer all belong together.
+
+✨ **What’s been happening?**
+
+* **Games & Emulation** — A unified library, collections, different browsing layouts, emulator integration, and in-game menus.
+* **Multiplayer & Social** — Play retro games with friends online without the usual emulator headaches. No messing with IP addresses, ports, or complicated netplay setups for supported games. Just create a Lobby, invite your friends, pick a game, and play. Plus integrated chats, voice calls, and communities.
+* **Personal Profiles** — Customizable 3D avatars, achievements, progression, and deeper integrations with supported games.
