@@ -112,7 +112,7 @@ func update_view(dt:float) -> void:
  var stick:=Input.get_vector("look_left","look_right","look_up","look_down",.18)
  var keys:=Input.get_vector("walk_left","walk_right","walk_forward","walk_back",.18)
  rotate_by((stick+keys).limit_length()*dt*1.8)
- var triggers:=Input.get_axis("fly_thrust","fly_brake")
+ var triggers:=Input.get_axis("pilot_fire","pilot_thrust")
  if Input.is_physical_key_pressed(KEY_X):triggers=-1
  elif Input.is_physical_key_pressed(KEY_Z):triggers=1
  if absf(triggers)>.05:zoom(triggers*dt*1.75)

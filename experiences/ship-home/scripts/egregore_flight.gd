@@ -17,6 +17,8 @@ var throttle:=0.0
 var stick:=Vector2.ZERO
 var turn_rate:=Vector3.ZERO
 var transition:=0.0
+var assisted:=true
+var assisted_approach:=false
 var landing_duration:=1.5
 var approach_height:=0.0
 var from:=Transform3D.IDENTITY
@@ -266,27 +268,23 @@ func reset(site:int) -> void:
 
 func dock_basis(site:int) -> Basis:return Basis(Vector3.UP,PI if site==1 else 0.0)
 
-# Islands are open approaches. Resolve the pad under the ship even when the
-# navigation target is a vessel or a waypoint in a different direction.
+func in_approach(site:int) -> bool:
+ var offset:=location-BERTHS[site]
+ return offset.y>=-2 and offset.y<=120 and Vector2(offset.x,offset.z).length()<=80
+
 func nearby_island() -> int:
- var closest:=-1
- var best:=80.0*80.0
- for i in BERTHS.size():
-  var contact:Dictionary=Regions.CONTACTS[Regions.BERTH_CONTACT[i]]
-  if contact.sector!=avionics.sector or contact.kind!="island":continue
-  var offset:=location-BERTHS[i]
-  var distance:=Vector2(offset.x,offset.z).length_squared()
-  if offset.y>=-2 and offset.y<=120 and distance<=best:
-   closest=i;best=distance
- return closest
+ if avionics.target==Regions.BERTH_CONTACT[destination] and Regions.CONTACTS[avionics.target].kind=="island" and in_approach(destination):return destination
+ return -1
 
 func clearance() -> String:
  if avionics.transit>0 or avionics.charge>0:return "Shift drive active"
- if nearby_island()>=0:return ""
+ if avionics.target!=Regions.BERTH_CONTACT[destination]:return "Select the landing site"
+ var station:bool=Regions.CONTACTS[avionics.target].kind=="station"
+ if station and avionics.permit!=avionics.target:return "Request docking clearance" if avionics.range_to(avionics.target)<=850 else "Approach within 850 m"
+ if assisted:
+  return "" if in_approach(destination) else "Approach the pad"
  if avionics.cruise:return "Disengage cruise"
  if avionics.deployed:return "Stow hardpoints"
- if Regions.CONTACTS[Regions.BERTH_CONTACT[destination]].kind=="station" and avionics.permit!=Regions.BERTH_CONTACT[destination]:return "Request docking clearance"
- if avionics.target!=Regions.BERTH_CONTACT[destination]:return "Select the landing site"
  var offset:Vector3=location-BERTHS[destination]
  if Vector2(offset.x,offset.z).length()>8 or offset.y>9 or offset.y< -0.3:return "Approach the pad"
  if velocity.length()>2.5:return "Slow below 2.5 m/s"
@@ -296,18 +294,23 @@ func clearance() -> String:
 func interact() -> void:
  if mode==Mode.BERTH:
   mode=Mode.DEPARTING;lab.staff_visible(false)
- elif mode==Mode.FLYING and clearance().is_empty():
-  var island:=nearby_island()
+ elif mode==Mode.LANDING:
+  mode=Mode.FLYING;transition=0;avionics.say("Landing cancelled");return
+ elif mode==Mode.FLYING:
+  var instruction:=clearance()
+  if instruction=="Request docking clearance":
+   avionics.hail();return
+  if instruction!="":
+   avionics.say(instruction);return
+  assisted_approach=assisted
   landing_duration=1.5
-  if island>=0:
-   avionics.select(Regions.BERTH_CONTACT[island])
-   destination=island
+  if assisted_approach:
    avionics.cruise=false;avionics.boost=0;avionics.deployed=false
-   var pad:=BERTHS[island]
+   var pad:=BERTHS[destination]
    var horizontal:=Vector2(location.x-pad.x,location.z-pad.z).length()
    approach_height=maxf(location.y,pad.y+minf(horizontal,12.0))
    # The caldera and ridge pads can have high ground between two clear endpoints.
-   for obstacle:AABB in obstacles_by_berth[island]:
+   for obstacle:AABB in obstacles_by_berth[destination]:
     var level:=obstacle.get_center().y
     if obstacle.intersects_segment(Vector3(location.x,level,location.z),Vector3(pad.x,level,pad.z))!=null:
      approach_height=maxf(approach_height,obstacle.end.y+2.0)
@@ -318,9 +321,17 @@ func interact() -> void:
     while hits_island(probe):
      approach_height+=4.0;probe.y+=4.0
    landing_duration=clampf((horizontal+2*approach_height-location.y-pad.y)/24.0,1.5,10)
+   if hits_structure(location,Vector3(location.x,approach_height,location.z)):
+    avionics.say("Obstructed approach · move clear");return
   mode=Mode.LANDING
  else:return
  from=Transform3D(attitude,location);transition=0;throttle=0;velocity=Vector3.ZERO;turn_rate=Vector3.ZERO
+
+func level_ship(dt:float) -> void:
+ var forward:=-attitude.z
+ var bearing:=Vector3(forward.x,0,forward.z)
+ if bearing.length_squared()<0.0001:bearing=Vector3.UP.cross(attitude.x)
+ attitude=attitude.slerp(Basis.looking_at(bearing.normalized()),1-exp(-3.0*dt)).orthonormalized()
 
 func tick(dt:float,axes:Vector2,roll:float,power:float,strafe:Vector2,brake:bool) -> void:
  avionics.advance(dt)
@@ -334,7 +345,7 @@ func tick(dt:float,axes:Vector2,roll:float,power:float,strafe:Vector2,brake:bool
   location=from.origin.lerp(goal,blend);stick=Vector2.ZERO
   if mode==Mode.LANDING:
    attitude=from.basis.slerp(dock_basis(destination),blend)
-   if Regions.CONTACTS[Regions.BERTH_CONTACT[destination]].kind=="island":
+   if assisted_approach:
     # Rise clear of the shoreline, translate above the pad, then settle vertically.
     var high_start:=Vector3(from.origin.x,approach_height,from.origin.z)
     var high_end:=Vector3(goal.x,approach_height,goal.z)
@@ -354,7 +365,8 @@ func tick(dt:float,axes:Vector2,roll:float,power:float,strafe:Vector2,brake:bool
   if avionics.cruise:speed=Regions.CRUISE_SPEED
   elif avionics.boost>0:speed=52.0
   if brake:avionics.cruise=false;avionics.boost=0
-  var command:=Vector3(strafe.x*8,strafe.y*8,-throttle*speed) if avionics.enabled[0] else Vector3.ZERO
+  var drive:=1.0 if avionics.boost>0 else throttle
+  var command:=Vector3(strafe.x*8,strafe.y*8,-drive*speed) if avionics.enabled[0] else Vector3.ZERO
   velocity=velocity.move_toward(Vector3.ZERO if brake else attitude*command,dt*(maxf(15,velocity.length()*1.5) if brake else (55 if avionics.cruise else 8)))
   var next:=location+velocity*dt
   if next.distance_to(avionics.ORIGINS[avionics.sector])>Regions.FLIGHT_RADIUS and next.distance_squared_to(avionics.ORIGINS[avionics.sector])>location.distance_squared_to(avionics.ORIGINS[avionics.sector]):

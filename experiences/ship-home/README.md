@@ -103,26 +103,27 @@ The same control takes the character back up. After landing, cross the service r
 
 ### Flying the Egregore
 
-Walk up behind the seat and press **A / F** to board. Press it again to launch. The pilot sits forward and above the chair rails, with both feet on the pedals. The left hand follows the throttle and the right follows the stick. Turn your head with the right stick or mouse to see the controls.
+Walk up behind the seat and press **A / F** to board. Press it again to launch. The pilot sits forward and above the chair rails, with both feet on the pedals. The left hand follows the throttle and the right follows the stick. Use the mouse to look around from the seat. On Odin the face labels below are A east, B south, X north and Y west.
 
 | In flight | Gamepad | Keyboard |
 | --- | --- | --- |
-| Pitch and yaw | Left stick | W/S and A/D |
-| Roll | LB / RB | Q/E |
-| Lift / descend | D-pad up/down | R/C |
-| Lateral thrust | D-pad left/right | Z/X |
-| Forward thrust | RT (release to coast to a stop in local flight) | ] / [ to trim throttle |
-| Brake / reverse | LT to stop, release and pull again from rest to reverse | Tab / [ |
-| Select the contact nearest the nose | Tap Y | Tap Y |
-| Look at contacts / ship systems / chart / power | Hold Y + D-pad left / right / up / down | Hold Y + corresponding arrow |
-| Inspect the centre scope | Click right stick | V |
-| Select a console entry / return | A / B | F / Esc |
-| Land on a nearby island pad / dock at a cleared station | A (right) | F |
-| Leave the seat during flight, takeoff or landing | B (bottom) | Esc |
+| Strafe / lift | LS horizontal / vertical | Z/X and R/C |
+| Pitch / roll | RS vertical / horizontal | W/S and Q/E |
+| Yaw | Hold L1 and move RS horizontally | A/D |
+| Forward / reverse thrust | L2 / L1 + L2 | ] / [ throttle trim |
+| Brake / boost | R1 / L3 | Tab / Systems panel |
+| Fire / deploy hardpoints / change weapon | R2 / X / L1 + X | F while armed / Systems / G |
+| Target ahead / lock | Y / L1 + Y | Y / Contacts |
+| Cruise / jump along plotted route | Select / L1 + Select | Systems / Atlas |
+| Open Contacts / Systems / Atlas / Power | D-pad left / right / up / down | Hold Y + arrow |
+| Scope / pause | R3 / Start | V / P |
+| Launch, request pad, land, abort landing | A | F |
+| Level and stabilize / leave seat | Tap B / hold B for 0.6 s | Tab brakes / Esc stands |
+| Panel selection / back | D-pad and A / B | Arrows and F / Esc |
 
-The bridge instruments are mounted inside the cockpit. The left and right screens slide out of side cassettes on request. Tap NAV for contacts or SYS for power routing. The SYSTEMS tab remains on the same right-hand drawer. You can also use the four helm chords above. Tap Y or touch STOW to return directly to the forward view from any page. The brow carries speed, drive mode, selected destination and distance. During final approach it shows the outstanding landing condition. Fuel, shields, hull and power allocation are available in the systems drawer. The scope marks stations with diamonds, signals with dots, ships with rectangles and armed contacts with triangles. Stems show relative height and moving contacts carry a heading stroke. A selected vessel’s orbital track is also visible through the canopy.
+The bridge instruments are mounted inside the cockpit. The left and right screens slide out of side cassettes on request. Tap NAV for contacts or SYS for power routing. The SYSTEMS tab remains on the same right-hand drawer. Use the D-pad shortcuts from the forward view. B steps back through a panel, and STOW closes it by touch. The brow carries speed, drive mode, selected destination and distance. During final approach it shows the outstanding landing condition. Fuel, shields, hull and power allocation are available in the systems drawer. The scope marks stations with diamonds, signals with dots, ships with rectangles and armed contacts with triangles. Stems show relative height and moving contacts carry a heading stroke. A selected vessel’s orbital track is also visible through the canopy.
 
-Open the full-screen **Egregore atlas** with **Y + D-pad up**, or tap **CHART** on the navigation terminal. Orbit with the right stick and zoom with the triggers. On a touch screen, drag to rotate, pinch or use +/− to zoom. On a desktop, drag and use the scroll wheel. LB/RB select a cluster. **Explore cluster** opens its islands, stations and sensor contacts. Left/right selects a contact and A tracks it locally or plots an intercluster route. B returns to the wider field and Y stows the atlas.
+Open the full-screen **Egregore atlas** with **D-pad up**, or tap **CHART** on the navigation terminal. Orbit with the right stick and zoom with the triggers. On a touch screen, drag to rotate, pinch or use +/− to zoom. On a desktop, drag and use the scroll wheel. LB/RB select a cluster. **Explore cluster** opens its islands, stations and sensor contacts. Left/right selects a contact and A tracks it locally or plots an intercluster route. B returns to the wider field and another B closes the atlas.
 
 Lantern Reach, Prism Shoal and Cinder Drift are concentrations of pseudo-matter in the ring around the Source. The map uses a schematic scale for cluster positions and the flight coordinates in metres inside each cluster. Islands show their shoreline and terrain as you zoom in. Only clusters within drive range are linked. From Lantern, Cinder requires a stop in Prism. Each leg costs 22 fuel and needs a separate charge. The atlas shows the next cluster, the leg cost and the fuel for the remaining route. Clear the local mass shadow, stow hardpoints, align with the course diamond and charge the drive. After the final jump the selected arrival waypoint appears on the glass.
 
@@ -130,7 +131,7 @@ Within a cluster, islands are separated by kilometres of cruise. Echo Orchard to
 
 Each region has two enclosed stations. At Wayfarer House, cross the airlock and the telescope hall to the plotting table. At Cinder Exchange, pass the freight racks to reach the assay bench. Press **A / F** at the desk to track Glass Atoll or Kiln Caldera in the cockpit. Both local runs take about 42 seconds at full cruise before braking.
 
-At Prism select the anchorage under Contacts and request pad 01 within 850 m. Leave cruise, level the ship within 8 m of the pad, slow below 2.5 m/s and press **A / F** to land. For an island, approach within 80 m horizontally and up to 120 m above the pad. Press A when LAND appears. The ship brakes, levels, lines up and descends. You can stand up during this manoeuvre. In open flight the unattended helm brakes to a hover. The ship console supplies fuel and repairs at all six stations. The latest safe berth, fuel, power allocation and enabled components belong to the active profile. A mid-flight exit restores the departure checkpoint.
+Select a station, close to 850 m and press A for clearance. With the pad selected, approach within 80 m horizontally and from 2 m below to 120 m above the pad. Press A again to line up and descend. Islands use the same approach envelope and require no clearance. Press A during descent to cancel at your current position. For a manual final approach turn off **Landing assist** in Systems, stow weapons, exit cruise, align over the pad within 8 m, level off and slow to 2.5 m/s or less before pressing A. Hold B to leave the seat, including during docking. In open flight the unattended helm brakes to a hover. The ship console supplies fuel and repairs at all six stations. The latest safe berth, fuel, power allocation and enabled components belong to the active profile. A mid-flight exit restores the departure checkpoint.
 
 The bow glass carries a heading tape, banked pitch ladder and target bearing in flight. A circle with wings shows the actual velocity vector when it lies in the forward field. Near a selected landing site the glass shows vertical speed and signed height relative to the pad. The projection goes dark at the berth and while reading a side instrument.
 
@@ -138,18 +139,18 @@ Six pips are shared between SYS, ENG and WEP. On the right display, select a row
 
 ### Regional traffic
 
-Look for the delegate in Lantern Station, the scout in Wayfarer House or the freight factor in Cinder Exchange. Use **A / F** beside them to mark a local ship. Return to the helm, take off and close to 850 m. Open **Contacts** with **Y + D-pad left**, select the vessel and hail it. **Track** copies its transmitted destination to your own navigation display. Freighters, pathfinders and envoys report the destination of their current leg, including the return journey.
+Look for the delegate in Lantern Station, the scout in Wayfarer House or the freight factor in Cinder Exchange. Use **A / F** beside them to mark a local ship. Return to the helm, take off and close to 850 m. Open **Contacts** with **D-pad left**, select the vessel and hail it. **Track** copies its transmitted destination to your own navigation display. Freighters, pathfinders and envoys report the destination of their current leg, including the return journey.
 
 Ash Jackal patrols the freight lane outside Cinder Exchange. In normal flight the pirate warns an approaching ship before engaging. The Prism Warden remains a separate patrol. A winged scope mark indicates field fauna. Near Prism Anchorage and Lantern Biostation, select the local ray and choose **Listen to call**. The calf answers at a higher pitch. The dock residents use the [Quaternius character set](licenses/Quaternius-Characters-CC0.txt) shared with Bazaar.
 
 ### Fire control
 
-Deploy hardpoints from the right Ship panel. Select Prism Warden in Contacts and choose **Target lock** to enable tracking. In forward view **L3 / G** cycles weapons, **Y + L3 / Y + G** switches between fixed and gimballed guns, and **A / F** fires. These settings are also on the right panel under **Fire control**.
+Deploy hardpoints from the right Ship panel. Select Prism Warden in Contacts and choose **Target lock** to enable tracking. Use **L1 + X / G** to cycle weapons, **R2 / F** to fire, and **Systems → Fire control → Mount** to switch between fixed and gimballed guns. These settings are also on the right panel under **Fire control**.
 
 - The pulse cannon fires a travelling bolt. Amber corners mark the ship. The mint circle labelled **LEAD** marks where the patrol will be when that bolt arrives. With a fixed gun, steer the split sight over the circle. A gimbal follows it while the lock is inside the forward tracking arc.
 - The laser's open cross marks its beam. It hits immediately. With either gun you can fire straight ahead without a lock.
 - The seeker rack has three rounds. Keep the locked ship inside the forward arc until the brackets close and **LOCK** appears. Station service replenishes the rack.
-- An **INBOUND** countdown warns of an incoming missile. Use **Y + A / Y + F** for point defence, or choose it on the Fire control panel. The six-second recharge starts after an interception.
+- An **INBOUND** countdown warns of an incoming missile. Choose **Systems → Fire control → Point defence** to intercept, or press Y + F on the keyboard. The six-second recharge starts after an interception.
 
 The cannon sight follows the Leading option in [Frontier’s Elite Dangerous manual](https://hosting.zaonce.net/elite/website/assets/ELITE-DANGEROUS-GAME-MANUAL.pdf).
 

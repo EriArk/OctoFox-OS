@@ -47,8 +47,11 @@ var placement_valid=false
 var moving_index=-1
 var paused=false
 var trigger_thrust:=false
-var left_trigger_held:=false
-var reversing:=false
+var modifier:=false
+var stand_timer:=-1.0
+var wait_neutral:=false
+var stabilizing:=false
+const STAND_HOLD:=0.60
 var dot:=Label.new()
 var status:Label
 var prompts=preload("res://scripts/ship_prompts.gd").new()
@@ -63,6 +66,8 @@ var arrival_identity_resolved := false
 func _ready() -> void:
  Engine.max_fps=60
  _inputs()
+ Input.joy_connection_changed.connect(func(_id:int, connected:bool):
+  if not connected and is_instance_valid(walker) and walker.seated:_reset_helm_input())
  cabin.name="Cabin";add_child(cabin)
  for camera:Camera3D in get_tree().root.find_children("*","Camera3D",true,false):
   if camera.get_world_3d()==get_world_3d():Exterior.configure_camera(camera,false)
@@ -137,16 +142,17 @@ func _set_ship_view(at_dock:bool) -> void:
  walker.arm.collision_mask=(flight.WALK_LAYER|Exterior.HULL_COLLISION) if at_dock else 3
 
 func _inputs() -> void:
- for action in ["roll_left","roll_right","throttle_down","throttle_up","fly_brake","fly_thrust","walk_left","walk_right","walk_forward","walk_back","look_left","look_right","look_up","look_down","fly_up","fly_down","fly_left","fly_right","walk_run","decorate","confirm_place","cancel_ship","next_item","previous_item","rotate_left","rotate_right","pick_item","undo_place","interact","pause_ship"]:
+ for action in ["pilot_pitch_up","pilot_pitch_down","pilot_yaw_left","pilot_yaw_right","pilot_brake","roll_left","roll_right","throttle_down","throttle_up","pilot_thrust","pilot_fire","walk_left","walk_right","walk_forward","walk_back","look_left","look_right","look_up","look_down","fly_up","fly_down","fly_left","fly_right","walk_run","decorate","confirm_place","cancel_ship","next_item","previous_item","rotate_left","rotate_right","pick_item","undo_place","interact","pause_ship"]:
   if not InputMap.has_action(action):InputMap.add_action(action,0.18)
- var keys={"roll_left":KEY_Q,"roll_right":KEY_E,"throttle_down":KEY_BRACKETLEFT,"throttle_up":KEY_BRACKETRIGHT,"fly_up":KEY_R,"fly_down":KEY_C,"fly_left":KEY_Z,"fly_right":KEY_X,"walk_left":KEY_A,"walk_right":KEY_D,"walk_forward":KEY_W,"walk_back":KEY_S,"walk_run":KEY_SHIFT,"decorate":KEY_TAB,"confirm_place":KEY_ENTER,"cancel_ship":KEY_ESCAPE,"next_item":KEY_BRACKETRIGHT,"previous_item":KEY_BRACKETLEFT,"rotate_left":KEY_Q,"rotate_right":KEY_E,"pick_item":KEY_Y,"undo_place":KEY_Z,"interact":KEY_F,"pause_ship":KEY_P}
+ var keys={"pilot_pitch_up":KEY_S,"pilot_pitch_down":KEY_W,"pilot_yaw_left":KEY_A,"pilot_yaw_right":KEY_D,"roll_left":KEY_Q,"roll_right":KEY_E,"throttle_down":KEY_BRACKETLEFT,"throttle_up":KEY_BRACKETRIGHT,"fly_up":KEY_R,"fly_down":KEY_C,"fly_left":KEY_Z,"fly_right":KEY_X,"walk_left":KEY_A,"walk_right":KEY_D,"walk_forward":KEY_W,"walk_back":KEY_S,"walk_run":KEY_SHIFT,"decorate":KEY_TAB,"confirm_place":KEY_ENTER,"cancel_ship":KEY_ESCAPE,"next_item":KEY_BRACKETRIGHT,"previous_item":KEY_BRACKETLEFT,"rotate_left":KEY_Q,"rotate_right":KEY_E,"pick_item":KEY_Y,"undo_place":KEY_Z,"interact":KEY_F,"pause_ship":KEY_P}
  for action in keys:
   var key=InputEventKey.new();key.physical_keycode=keys[action];InputMap.action_add_event(action,key)
- var pads={"fly_left":JOY_BUTTON_DPAD_LEFT,"fly_right":JOY_BUTTON_DPAD_RIGHT,"roll_left":JOY_BUTTON_LEFT_SHOULDER,"roll_right":JOY_BUTTON_RIGHT_SHOULDER,"fly_up":JOY_BUTTON_DPAD_UP,"fly_down":JOY_BUTTON_DPAD_DOWN,"decorate":JOY_BUTTON_Y,"confirm_place":JOY_BUTTON_B,"cancel_ship":JOY_BUTTON_A,"next_item":JOY_BUTTON_RIGHT_SHOULDER,"previous_item":JOY_BUTTON_LEFT_SHOULDER,"rotate_left":JOY_BUTTON_DPAD_LEFT,"rotate_right":JOY_BUTTON_DPAD_RIGHT,"pick_item":JOY_BUTTON_X,"interact":JOY_BUTTON_B,"pause_ship":JOY_BUTTON_START,"walk_run":JOY_BUTTON_LEFT_STICK}
+ var pads={"pilot_brake":JOY_BUTTON_RIGHT_SHOULDER,"decorate":JOY_BUTTON_Y,"confirm_place":JOY_BUTTON_B,"cancel_ship":JOY_BUTTON_A,"next_item":JOY_BUTTON_RIGHT_SHOULDER,"previous_item":JOY_BUTTON_LEFT_SHOULDER,"rotate_left":JOY_BUTTON_DPAD_LEFT,"rotate_right":JOY_BUTTON_DPAD_RIGHT,"pick_item":JOY_BUTTON_X,"interact":JOY_BUTTON_B,"pause_ship":JOY_BUTTON_START,"walk_run":JOY_BUTTON_LEFT_STICK}
  for action in pads:
   var button=InputEventJoypadButton.new();button.device=-1;button.button_index=pads[action];InputMap.action_add_event(action,button)
- var axes={"fly_brake":[JOY_AXIS_TRIGGER_LEFT,1],"fly_thrust":[JOY_AXIS_TRIGGER_RIGHT,1],"walk_left":[JOY_AXIS_LEFT_X,-1],"walk_right":[JOY_AXIS_LEFT_X,1],"walk_forward":[JOY_AXIS_LEFT_Y,-1],"walk_back":[JOY_AXIS_LEFT_Y,1],"look_left":[JOY_AXIS_RIGHT_X,-1],"look_right":[JOY_AXIS_RIGHT_X,1],"look_up":[JOY_AXIS_RIGHT_Y,-1],"look_down":[JOY_AXIS_RIGHT_Y,1]}
+ var axes={"pilot_left":[JOY_AXIS_LEFT_X,-1],"pilot_right":[JOY_AXIS_LEFT_X,1],"pilot_up":[JOY_AXIS_LEFT_Y,-1],"pilot_down":[JOY_AXIS_LEFT_Y,1],"pilot_thrust":[JOY_AXIS_TRIGGER_LEFT,1],"pilot_fire":[JOY_AXIS_TRIGGER_RIGHT,1],"walk_left":[JOY_AXIS_LEFT_X,-1],"walk_right":[JOY_AXIS_LEFT_X,1],"walk_forward":[JOY_AXIS_LEFT_Y,-1],"walk_back":[JOY_AXIS_LEFT_Y,1],"look_left":[JOY_AXIS_RIGHT_X,-1],"look_right":[JOY_AXIS_RIGHT_X,1],"look_up":[JOY_AXIS_RIGHT_Y,-1],"look_down":[JOY_AXIS_RIGHT_Y,1]}
  for action in axes:
+  if not InputMap.has_action(action):InputMap.add_action(action,0.18)
   var axis=InputEventJoypadMotion.new();axis.device=-1;axis.axis=axes[action][0];axis.axis_value=axes[action][1];InputMap.action_add_event(action,axis)
 
  for action in ["fish_reel","fish_hook"]:
@@ -260,6 +266,7 @@ func _open_colours() -> void:
 
 func _pause(value:bool) -> void:
  if value:
+  _reset_helm_input()
   if survey.visible:survey.close()
   if mine.active:mine.close()
   if garden.active:garden.close()
@@ -271,7 +278,7 @@ func _pause(value:bool) -> void:
  cards.visible=fitting.active and not value and not dye.visible
  helm_help.visible=value and walker.seated
  if helm_help.visible:
-  helm_help.text=("LS   Pitch / yaw       RS   Look\nRT   Thrust       LT   Brake / reverse\nLB / RB   Roll       D-pad   Strafe / lift       B   Leave seat\nY + D-pad   Contacts / ship / chart / distributor     R3   Scope\nL3   Fire group     Y + L3   Mount     Y + A   Point defence" if prompts.gamepad else "W S   Pitch       A D   Yaw       Mouse   Look\nQ E   Roll       R C   Lift       Z X   Strafe\n[ ]   Throttle       Tab   Brake       Esc   Leave seat\nY + arrow   Bridge instruments     V   Scope\nG   Fire group     Y + G   Mount     Y + F   Point defence")
+  helm_help.text=("LS   Strafe / lift       RS   Pitch / roll       L1 + RS   Yaw\nL2   Thrust   ·   L1 reverse       R1   Brake       R2   Fire\nA   Launch / request / land / cancel       B   Stabilize · hold to stand\nX   Hardpoints · L1 group       Y   Target · L1 lock\nL3   Boost       R3   Scope       Select   Cruise · L1 jump\n← Contacts       → Systems       ↑ Atlas       ↓ Power" if prompts.gamepad else "W S   Pitch       A D   Yaw       Mouse   Look\nQ E   Roll       R C   Lift       Z X   Strafe\n[ ]   Throttle       Tab   Brake       Esc   Leave seat\nY + arrow   Bridge instruments     V   Scope\nG   Fire group     Y + G   Mount     Y + F   Point defence")
  exterior.set_process(not value)
  paused=value;walker.walking=not value;menu.visible=value
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value or fitting.active else Input.MOUSE_MODE_CAPTURED
@@ -282,6 +289,59 @@ func _close_fabricator() -> void:
  walker.walking=not paused
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if paused else Input.MOUSE_MODE_CAPTURED
 
+func _reset_helm_input() -> void:
+ modifier=false;stand_timer=-1;trigger_thrust=false;stabilizing=false
+ wait_neutral=true
+ flight.throttle=0
+
+func _pilot_interact() -> void:
+ if flight.mode==flight.Mode.BERTH:
+  store.systems=flight.avionics.snapshot()
+  if not store.save(rows):notify(store.error)
+ flight.interact()
+
+func _input(event:InputEvent) -> void:
+ if not is_instance_valid(walker) or not walker.seated or paused:return
+ if event.is_action_pressed("pause_ship"):
+  _pause(true);get_viewport().set_input_as_handled();return
+ if event is InputEventKey:
+  if instruments.event(event):get_viewport().set_input_as_handled()
+  return
+ if not event is InputEventJoypadButton:return
+ var key:int=event.button_index
+ if key==JOY_BUTTON_A:
+  if event.pressed:stand_timer=0
+  elif stand_timer>=0:
+   stand_timer=-1
+   if instruments.page!="":instruments.back()
+   elif flight.mode==flight.Mode.FLYING:
+    stabilizing=true;flight.throttle=0;flight.avionics.say("Stabilizing")
+ elif instruments.page!="":
+  modifier=false
+  instruments.event(event)
+ elif key==JOY_BUTTON_LEFT_SHOULDER:
+  modifier=event.pressed
+ elif event.pressed:
+  match key:
+   JOY_BUTTON_B:_pilot_interact()
+   JOY_BUTTON_Y:
+    if modifier:flight.avionics.cycle_group()
+    else:flight.avionics.hardpoints()
+   JOY_BUTTON_X:
+    if modifier:flight.avionics.acquire()
+    else:flight.avionics.nose_contact()
+   JOY_BUTTON_BACK:
+    if modifier:flight.avionics.jump()
+    else:flight.avionics.toggle_cruise()
+   JOY_BUTTON_LEFT_STICK:flight.avionics.boost_drive()
+   JOY_BUTTON_RIGHT_STICK:instruments.open("Scope")
+   JOY_BUTTON_DPAD_LEFT:instruments.open("Contacts")
+   JOY_BUTTON_DPAD_RIGHT:instruments.open("Ship")
+   JOY_BUTTON_DPAD_UP:instruments.open("Chart")
+   JOY_BUTTON_DPAD_DOWN:instruments.open("Power")
+ if instruments.page!="":wait_neutral=true
+ get_viewport().set_input_as_handled()
+
 func _unhandled_input(event:InputEvent) -> void:
  if event.is_action_pressed("pause_ship"):
   _pause(not paused);get_viewport().set_input_as_handled();return
@@ -291,8 +351,6 @@ func _unhandled_input(event:InputEvent) -> void:
   garden.control(event);get_viewport().set_input_as_handled();return
  if not paused and fishing.phase!=fishing.Phase.AWAY:
   fishing.control(event);get_viewport().set_input_as_handled();return
- if walker.seated and not paused and instruments.event(event):
-  get_viewport().set_input_as_handled();return
  if event.is_action_pressed("cancel_ship"):
   if paused:_pause(false)
   elif fitting.active:fitting.leave()
@@ -312,13 +370,8 @@ func _unhandled_input(event:InputEvent) -> void:
   get_viewport().set_input_as_handled();return
  if walker.seated:
   if event.is_action_pressed("interact"):
-   if flight.mode==flight.Mode.FLYING and flight.avionics.deployed and flight.nearby_island()<0:flight.avionics.fire()
-   elif flight.mode==flight.Mode.FLYING and not flight.clearance().is_empty():flight.avionics.say(flight.clearance())
-   else:
-    if flight.mode==flight.Mode.BERTH:
-     store.systems=flight.avionics.snapshot()
-     if not store.save(rows):notify(store.error)
-    flight.interact()
+   if flight.mode==flight.Mode.FLYING and flight.avionics.deployed:flight.avionics.fire()
+   else:_pilot_interact()
    get_viewport().set_input_as_handled()
   return
  if event.is_action_pressed("decorate"):_edit(not editing)
@@ -416,10 +469,12 @@ func _action_hints() -> Array:
   rows.append(["cancel_ship","Leave"]);return rows
  if walker.seated:
   if instruments.page!="":return []
-  if flight.mode==flight.Mode.BERTH:return [["interact","Launch"],["pick_item","Hold + D-pad · Panels"],["cancel_ship","Stand up"]]
+  if flight.mode==flight.Mode.BERTH:return [["interact","Launch"],["cancel_ship","Hold to stand"]]
+  if flight.mode==flight.Mode.LANDING:return [["interact","Cancel landing"],["cancel_ship","Hold to stand"]]
   if flight.mode!=flight.Mode.FLYING:return []
-  var commands:Array=[["throttle","Thrust / brake"],["pick_item","Target / hold + D-pad"]]
+  var commands:Array=[["throttle","Thrust / brake"],["pick_item","Target"]]
   if flight.clearance().is_empty():commands.append(["interact","Land"])
+  elif flight.clearance()=="Request docking clearance":commands.append(["interact","Request pad"])
   return commands
  if editing:
   var rows:Array=[["tab_pair","Furniture"],["rotation","Rotate"]]
@@ -547,7 +602,7 @@ func _leave_pilot() -> bool:
  for at in [previous,Vector3(0,0.08,-2.1),Vector3(-1.5,0.08,-2.5),Vector3(1.5,0.08,-2.5)]:
   if walker.can_stand(at):
    walker.stand(at);instruments.clear()
-   trigger_thrust=false;left_trigger_held=false;reversing=false
+   _reset_helm_input()
    flight.throttle=0;flight.avionics.cruise=false;flight.avionics.boost=0
    return true
  notify("There is no clear space to stand up.");return false
@@ -593,36 +648,50 @@ func _station() -> String:
  if p.distance_to(Vector2(0,5.67))<1.56:return "cabin"
  return ""
 
-func _fly_manual(delta:float,stick:Vector2) -> void:
- var thrust:=Input.get_action_strength("fly_thrust")
- var left:=Input.get_action_strength("fly_brake")
+func _fly_manual(delta:float) -> Vector2:
+ var translate:=Input.get_vector("pilot_left","pilot_right","pilot_down","pilot_up",0.18)
+ var rotate:=Input.get_vector("look_left","look_right","look_down","look_up",0.18)
+ var thrust:=Input.get_action_strength("pilot_thrust")
+ var fire:=Input.get_action_strength("pilot_fire")
+ if wait_neutral:
+  wait_neutral=not (translate.is_zero_approx() and rotate.is_zero_approx() and thrust==0 and fire==0)
+  translate=Vector2.ZERO;rotate=Vector2.ZERO;thrust=0;fire=0
+ var yaw:=rotate.x if modifier else 0.0
+ var roll:=0.0 if modifier else rotate.x
+ var axes:=Vector2(yaw+Input.get_axis("pilot_yaw_left","pilot_yaw_right"),rotate.y+Input.get_axis("pilot_pitch_down","pilot_pitch_up"))
+ roll+=Input.get_axis("roll_left","roll_right")
+ translate+=Vector2(Input.get_axis("fly_left","fly_right"),Input.get_axis("fly_down","fly_up"))
  var trim:=Input.get_axis("throttle_down","throttle_up")
- if left>0 and not left_trigger_held:
-  reversing=flight.velocity.length()<0.8 and absf(flight.throttle)<0.05
- left_trigger_held=left>0
- var braking:=Input.is_action_pressed("decorate") or (left_trigger_held and not reversing)
- if left_trigger_held or thrust>0:
+ if thrust>0:
   trigger_thrust=true
-  flight.throttle=-0.32*left if left_trigger_held else thrust
- elif trim!=0:
-  trigger_thrust=false
- elif trigger_thrust and not flight.avionics.cruise:
-  flight.throttle=0
- flight.tick(delta,stick,Input.get_axis("roll_left","roll_right"),trim,Vector2(Input.get_axis("fly_left","fly_right"),Input.get_axis("fly_down","fly_up")),braking)
+  flight.throttle=move_toward(flight.throttle,-0.32*thrust if modifier else thrust,delta*3.5)
+ elif trigger_thrust:
+  flight.throttle=0;trigger_thrust=false
+ if fire>0.35 and flight.avionics.pulse_time<=0 and flight.avionics.missile_time<=0:flight.avionics.fire()
+ if not axes.is_zero_approx() or roll!=0 or not translate.is_zero_approx() or thrust>0 or trim!=0:stabilizing=false
+ if stabilizing:flight.level_ship(delta)
+ var brake:=Input.is_action_pressed("pilot_brake") or Input.is_physical_key_pressed(KEY_TAB) or stabilizing
+ flight.tick(delta,axes,roll,trim,translate.limit_length(),brake)
+ return Vector2(rotate.x+Input.get_axis("roll_left","roll_right")+Input.get_axis("pilot_yaw_left","pilot_yaw_right"),axes.y).limit_length()
 
 func _physics_process(delta:float) -> void:
  if paused:return
+ if stand_timer>=0 and walker.seated:
+  stand_timer+=delta
+  if stand_timer>=STAND_HOLD:
+   stand_timer=-1;_leave_pilot()
  if outside and flight.station_rooms.has(flight.berth):
   var rooms:Node3D=flight.station_rooms[flight.berth]
   rooms.cycle_lock(delta,rooms.to_local(walker.global_position))
  if walker.seated or flight.mode!=flight.Mode.BERTH:
   var mode_before=flight.mode
-  var stick:=Input.get_vector("walk_left","walk_right","walk_forward","walk_back",0.18)
+  var stick:=Vector2.ZERO
   if not walker.seated:
    flight.tick(delta,Vector2.ZERO,0,0,Vector2.ZERO,true)
   elif instruments.y_down or instruments.page!="":
-   stick=Vector2.ZERO;flight.tick(delta,stick,0,0,Vector2.ZERO,false)
-  elif flight.mode==flight.Mode.FLYING:_fly_manual(delta,stick)
+   stick=Vector2.ZERO;flight.throttle=0;wait_neutral=true
+   flight.tick(delta,stick,0,0,Vector2.ZERO,false)
+  elif flight.mode==flight.Mode.FLYING:stick=_fly_manual(delta)
   else:flight.tick(delta,Vector2.ZERO,0,0,Vector2.ZERO,false)
   exterior.hardpoints_out=flight.avionics.deployed
   match flight.mode:
@@ -633,7 +702,7 @@ func _physics_process(delta:float) -> void:
     var thrust:float=flight.throttle if flight.avionics.enabled[0] else 0.0
     var plume_scale:=1.0 if flight.avionics.boost>0 else (0.88 if flight.avionics.cruise else 0.60)
     exterior.set_propulsion(0.0,thrust,plume_scale)
-  if walker.seated:walker.steer(stick if flight.mode==flight.Mode.BERTH else flight.stick,flight.throttle)
+  if walker.seated:walker.steer(stick,flight.throttle)
   if mode_before==flight.Mode.LANDING and flight.mode==flight.Mode.BERTH:
    store.berth=flight.berth;store.systems=flight.avionics.snapshot()
    if not store.save(rows):notify(store.error)
@@ -694,7 +763,7 @@ func _interact() -> void:
   "tank":fishing.open_tank()
   "pilot":
    if editing:_edit(false)
-   walker.sit()
+   _reset_helm_input();walker.sit()
   "computer","cargo","economiser","capacitor":
    walker.walking=false;walker.attend(null)
    if station=="cargo":computer.open(1)

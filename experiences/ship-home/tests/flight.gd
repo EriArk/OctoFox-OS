@@ -9,6 +9,13 @@ func press(button:int) -> void:
  for down in [true,false]:
   var e:=InputEventJoypadButton.new();e.button_index=button;e.pressed=down;root.push_input(e,true)
 
+func button(code:int,down:bool) -> void:
+ var e:=InputEventJoypadButton.new();e.button_index=code;e.pressed=down
+ Input.parse_input_event(e);Input.flush_buffered_events()
+
+func stand() -> void:
+ button(JOY_BUTTON_A,true);await frames(40);button(JOY_BUTTON_A,false)
+
 func frames(n:int) -> void:
  for i in n:await physics_frame
 
@@ -59,7 +66,7 @@ func run() -> void:
     var hip:=rig.to_global(rig.get_bone_global_pose(rig.find_bone("pelvis")).origin)
     check(hip.distance_to(home.art.helm_root.to_global(Vector3(0,0.615,0.38)))<0.001,"Hips stay on the seat")
  for leg in 2:
-  press(JOY_BUTTON_B);press(JOY_BUTTON_A)
+  press(JOY_BUTTON_B);await stand()
   check(not w.seated and not home.paused,"Stand during powered departure")
   await frames(100)
   check(f.mode==f.Mode.FLYING,"Departure completes with the seat empty")
@@ -80,31 +87,32 @@ func run() -> void:
    if f.location.distance_to(f.BERTHS[f.destination])<18:break
    await physics_frame
   if leg==0:
-   f.avionics.select(0);f.attitude=f.attitude.rotated(Vector3.FORWARD,0.55)
-   check(f.clearance().is_empty(),"Island accepts an off-axis moving ship with another target")
+   f.avionics.select(1);f.attitude=f.attitude.rotated(Vector3.FORWARD,0.55)
+   check(f.clearance().is_empty(),"Island accepts an off-axis moving ship at the selected pad")
    press(JOY_BUTTON_B);check(f.mode==f.Mode.LANDING and f.destination==1,"East button captures the local island")
-   press(JOY_BUTTON_A);check(not w.seated and not home.paused,"Stand while the landing assist flies")
+   await stand();check(not w.seated and not home.paused,"Stand while the landing assist flies")
    await frames(620)
    press(JOY_BUTTON_B);check(w.seated,"Retake helm at island")
   else:
-   press(JOY_BUTTON_B);check(f.mode==f.Mode.FLYING,"Station keeps docking clearance")
-   Input.action_press("decorate");await frames(100);Input.action_release("decorate")
-   check(f.clearance()=="Request docking clearance","Station needs local permission")
-   f.avionics.hail()
-   check(f.clearance().is_empty(),"Stopped level over station: "+str(f.location))
-   press(JOY_BUTTON_B);await frames(100)
+   f.avionics.select(0)
+   press(JOY_BUTTON_B);check(f.mode==f.Mode.FLYING and f.avionics.permit==0,"First A requests the station pad")
+   press(JOY_BUTTON_B);check(f.mode==f.Mode.LANDING,"Second A starts the approach")
+   await frames(12);var before:Vector3=f.location
+   press(JOY_BUTTON_B);check(f.mode==f.Mode.FLYING and f.location==before,"Abort without teleporting")
+   press(JOY_BUTTON_B);await frames(620)
   check(f.mode==f.Mode.BERTH and f.berth==(1-leg),"Arrive and settle at destination")
   check(is_equal_approx(f.local_air,float(1-leg)),"Settled sky follows the actual berth on both legs")
   check(home.exterior.hover_amount==1 and home.exterior.drive_power==0,"Landing restores full hover and idle exhaust")
   var store:=ShipLayoutStore.new();store.directory=home.store.directory;store.load_home("test")
   check(store.berth==f.berth,"Restore most recently landed berth")
- press(JOY_BUTTON_A);check(not w.seated and w.camera.current,"Leave chair after arrival")
+ await stand();check(not w.seated and w.camera.current,"Leave chair after arrival")
  f.interact();f.tick(2,Vector2.ZERO,0,0,Vector2.ZERO,false)
  for i in 20:f.tick(1.0/60,Vector2(0.7,0.4),0.6,0,Vector2(1,0.8),false)
  check(not f.attitude.is_equal_approx(Basis.IDENTITY) and f.velocity.length()>0.5,"Attitude and translations respond")
  f.reset(0);f.interact();f.tick(2,Vector2.ZERO,0,0,Vector2.ZERO,false)
  for i in 200:f.tick(1.0/60,Vector2.ZERO,0,0,Vector2.DOWN,false)
  check(f.location.y>=f.GROUND_Y+2.7-0.001,"Hull cannot pass through landing platform")
+ exercise_station_approaches(f)
  exercise_island_approaches(f)
  await exercise_triggers()
  exercise_cluster_flight(f)
@@ -155,15 +163,43 @@ func exercise_triggers() -> void:
  f.reset(0);home.walker.position=Vector3(0,0.08,-2.4);home.walker.sit()
  f.interact();await frames(100)
  f.location+=Vector3.UP*100
- axis_event(JOY_AXIS_TRIGGER_RIGHT,0.82);await frames(80)
- check(f.velocity.length()>8 and f.throttle>0.5,"RT gives forward thrust on a reconnected controller")
- axis_event(JOY_AXIS_TRIGGER_RIGHT,0);axis_event(JOY_AXIS_TRIGGER_LEFT,1);await frames(100)
- check(f.velocity.is_zero_approx() and is_zero_approx(f.throttle),"LT brakes and holding it keeps the ship still")
- axis_event(JOY_AXIS_TRIGGER_LEFT,0);await frames(2)
- axis_event(JOY_AXIS_TRIGGER_LEFT,1);await frames(30)
- check(f.throttle<0,"Pull LT again from rest to reverse")
- axis_event(JOY_AXIS_TRIGGER_LEFT,0);press(JOY_BUTTON_A)
- check(not home.walker.seated and not home.paused,"Bottom face button leaves an airborne helm")
+ axis_event(JOY_AXIS_TRIGGER_LEFT,0.7);await frames(80)
+ check(f.velocity.length()>7 and f.throttle>0.4 and f.throttle<0.8,"Analog L2 forward")
+ button(JOY_BUTTON_LEFT_SHOULDER,true);await frames(35)
+ check(f.throttle<0,"L1 reverses held L2")
+ button(JOY_BUTTON_LEFT_SHOULDER,false);await frames(30)
+ check(f.throttle>0,"Releasing L1 restores forward thrust")
+ axis_event(JOY_AXIS_TRIGGER_LEFT,0);button(JOY_BUTTON_RIGHT_SHOULDER,true);await frames(100)
+ check(f.velocity.is_zero_approx(),"R1 brakes")
+ button(JOY_BUTTON_RIGHT_SHOULDER,false)
+ axis_event(JOY_AXIS_LEFT_X,0.55);axis_event(JOY_AXIS_LEFT_Y,-0.85);await frames(62)
+ check(f.velocity.x>1 and f.velocity.y>f.velocity.x and f.attitude.is_equal_approx(Basis.IDENTITY),"LS strafes and lifts proportionally without rotating")
+ axis_event(JOY_AXIS_LEFT_X,0);axis_event(JOY_AXIS_LEFT_Y,0)
+ axis_event(JOY_AXIS_RIGHT_X,0.7);axis_event(JOY_AXIS_RIGHT_Y,-0.4);await frames(18)
+ check(f.turn_rate.z< -0.2 and f.turn_rate.x>0.1 and absf(f.turn_rate.y)<0.01,"RS rolls and pitches nose up")
+ button(JOY_BUTTON_LEFT_SHOULDER,true);await frames(40)
+ check(absf(f.turn_rate.z)<0.01 and f.turn_rate.y< -0.2,"L1 swaps roll for yaw")
+ axis_event(JOY_AXIS_RIGHT_X,0);axis_event(JOY_AXIS_RIGHT_Y,0);button(JOY_BUTTON_LEFT_SHOULDER,false)
+ press(JOY_BUTTON_A);await frames(120)
+ check(home.walker.seated and f.attitude.y.dot(Vector3.UP)>0.99,"B tap levels without leaving")
+ press(JOY_BUTTON_BACK);check(f.avionics.cruise,"Select engages cruise")
+ press(JOY_BUTTON_BACK);check(not f.avionics.cruise,"Select leaves cruise")
+ press(JOY_BUTTON_LEFT_STICK);check(f.avionics.boost>0,"L3 boosts")
+ f.avionics.boost=0
+ press(JOY_BUTTON_Y);check(f.avionics.deployed,"North X deploys")
+ var group:int=f.avionics.group
+ button(JOY_BUTTON_LEFT_SHOULDER,true);press(JOY_BUTTON_Y)
+ check(f.avionics.deployed and f.avionics.group!=group,"L1 + X only switches group")
+ f.avionics.select(f.avionics.Regions.JACKAL)
+ button(JOY_BUTTON_LEFT_SHOULDER,false);press(JOY_BUTTON_Y)
+ check(not f.avionics.deployed,"North X stows")
+ f.avionics.plot();f.attitude=Basis.looking_at(f.avionics.jump_axis())
+ f.location=f.BERTHS[0]+Vector3.UP*180;f.sync_view()
+ button(JOY_BUTTON_LEFT_SHOULDER,true);press(JOY_BUTTON_BACK)
+ check(f.avionics.charge>0 and not f.avionics.cruise,"L1 + Select starts plotted jump")
+ press(JOY_BUTTON_BACK);button(JOY_BUTTON_LEFT_SHOULDER,false)
+ check(f.avionics.charge==0,"Cancel jump charge")
+ await stand();check(not home.walker.seated and not home.paused,"Hold B leaves an airborne helm")
  var orientation:Basis=f.attitude
  axis_event(JOY_AXIS_LEFT_X,1);axis_event(JOY_AXIS_TRIGGER_RIGHT,1);await frames(80)
  check(f.velocity.is_zero_approx() and orientation.is_equal_approx(f.attitude),"Cabin movement cannot steer or accelerate an empty helm")
@@ -176,7 +212,7 @@ func exercise_island_approaches(f) -> void:
   if f.Regions.CONTACTS[id].kind!="island":continue
   var approaches:=0
   for heading in 8:
-   f.reset(site);f.mode=f.Mode.FLYING
+   f.reset(site);f.mode=f.Mode.FLYING;f.avionics.select(id)
    var angle:=TAU*heading/8.0
    f.location=f.BERTHS[site]+Vector3(cos(angle)*65,15,sin(angle)*65)
    if f.hits_island(f.location) or f.hits_structure(f.location,f.location):continue
@@ -193,3 +229,24 @@ func exercise_island_approaches(f) -> void:
    approaches+=1
   check(approaches>0,"Reachable pad: "+f.NAMES[site]);sites_checked+=1
  check(sites_checked==10,"Every open island accepts assisted landings")
+
+func exercise_station_approaches(f) -> void:
+ for site in f.BERTHS.size():
+  var id:int=f.Regions.BERTH_CONTACT[site]
+  if f.Regions.CONTACTS[id].kind!="station":continue
+  f.reset(site);f.mode=f.Mode.FLYING;f.avionics.select(id)
+  f.location=f.BERTHS[site]+Vector3.UP*851
+  f.interact();check(f.avionics.permit==-1,"Permission denied beyond 850 m")
+  f.location.y-=1;f.interact();check(f.avionics.permit==id and f.mode==f.Mode.FLYING,"Permission at 850 m")
+  f.location=f.BERTHS[site]+Vector3(22,25,20)
+  f.assisted=false;f.interact();check(f.mode==f.Mode.FLYING,"Manual docking needs a precise approach")
+  f.assisted=true;f.interact();check(f.mode==f.Mode.LANDING,"Station assist captures "+f.NAMES[site])
+  for frame in 410:
+   if f.mode!=f.Mode.LANDING:break
+   var before:Vector3=f.location;f.tick(1.0/30,Vector2.ZERO,0,0,Vector2.ZERO,false)
+   check(not f.hits_structure(before,f.location),"Station glide clears structures")
+  check(f.mode==f.Mode.BERTH and f.berth==site,"Touch down at selected station")
+  f.mode=f.Mode.FLYING;f.avionics.select(id);f.avionics.hail()
+  f.location=f.BERTHS[site]+Vector3.UP*4;f.assisted=false;f.interact()
+  check(f.mode==f.Mode.LANDING and not f.assisted_approach,"Manual final settle")
+  f.tick(2,Vector2.ZERO,0,0,Vector2.ZERO,false);f.assisted=true

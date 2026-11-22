@@ -210,19 +210,19 @@ func update_keys(aft:bool) -> void:
  if f.mode==f.Mode.BERTH:
   nav=f.NAMES[f.berth];systems="MOORED"
  elif f.mode==f.Mode.LANDING:
-  nav=f.NAMES[f.destination];systems="TOUCHDOWN"
+  nav=f.NAMES[f.destination];systems="LANDING · A CANCEL"
  elif f.mode==f.Mode.DEPARTING:
   nav=f.NAMES[f.berth];systems="LIFTING OFF"
  elif a.transit>0:
   nav=a.SECTORS[a.route];systems="IN TRANSIT"
  elif a.charge>0:
   nav=a.SECTORS[a.route];systems="CHARGING %d%%"%roundi(a.charge/3*100)
- elif f.nearby_island()>=0:
+ elif f.assisted and f.nearby_island()>=0:
   var site:int=f.nearby_island()
   nav="%s   %d m\n%s  LAND" % [f.NAMES[site],roundi(f.location.distance_to(f.BERTHS[site])),"A" if not Input.get_connected_joypads().is_empty() else "F"]
  elif a.route>=0:
   nav=a.SECTORS[a.route]+"\nSHIFT VECTOR"
- elif a.target==a.Regions.BERTH_CONTACT[f.destination] and a.range_to(a.target)<70:
+ elif a.target==a.Regions.BERTH_CONTACT[f.destination] and a.range_to(a.target)<=850:
   var instruction:String=f.clearance()
   nav="PAD 01   %d m"%roundi(a.range_to(a.target)) if a.CATALOG[a.target].kind=="station" else "ISLAND   %d m"%roundi(a.range_to(a.target))
   nav+="\n"+("LAND" if instruction=="" else landing_order(instruction))
@@ -240,7 +240,7 @@ func update_keys(aft:bool) -> void:
 
 func landing_order(instruction:String) -> String:
  match instruction:
-  "Request docking clearance":return "CALL CONTROL"
+  "Request docking clearance":return "A · REQUEST PAD"
   "Select the landing site":return "SELECT SITE"
   "Approach the pad":return "ON APPROACH"
   "Level the ship":return "LEVEL %d°"%roundi(rad_to_deg(f.attitude.y.angle_to(Vector3.UP)))
@@ -260,7 +260,7 @@ func rows() -> Array:
    if id==a.received_from and a.received_waypoint>=0:
     return [["Hail again","COMMS","hail"],["Track "+a.CATALOG[a.received_waypoint].name,"COURSE","fix"]]
    return [["Request pad 01" if kind=="station" else "Hail contact","CLEARED" if a.permit==id else "COMMS","hail"]]
-  "Ship":return [["Components","6 MODULES","modules"],["Hardpoints","DEPLOYED" if a.deployed else "STOWED","arms"],["Cruise drive","ENGAGED" if a.cruise else "STANDBY","cruise"],["Engine boost","%d%%"%roundi(a.engine),"boost"],["Station service","FUEL / REPAIR","service"],["Fire control",a.GROUP_NAMES[a.group].to_upper(),"fire_control"]]
+  "Ship":return [["Components","6 MODULES","modules"],["Hardpoints","DEPLOYED" if a.deployed else "STOWED","arms"],["Cruise drive","ENGAGED" if a.cruise else "STANDBY","cruise"],["Engine boost","%d%%"%roundi(a.engine),"boost"],["Station service","FUEL / REPAIR","service"],["Fire control",a.GROUP_NAMES[a.group].to_upper(),"fire_control"],["Landing assist","ON" if f.assisted else "MANUAL","assist"]]
   "Fire control":
    var controls:Array=[["Fire group",a.GROUP_NAMES[a.group],"cycle"]]
    if a.group!=a.Group.MISSILES:controls.append(["Mount","GIMBAL" if a.gimballed else "FIXED","mount"])
@@ -293,6 +293,7 @@ func activate(power_delta:int=1) -> void:
     "service":a.service()
     "hail":a.hail()
     "fix":a.track_transmission();open("")
+    "assist":f.assisted=not f.assisted
     "fire_control":open("Fire control")
     "cycle":a.cycle_group();cursor=0
     "mount":a.cycle_mount()
@@ -301,18 +302,21 @@ func activate(power_delta:int=1) -> void:
     "fire":a.fire()
  refresh()
 
+func back() -> void:
+ open("Contacts" if page=="Contact" else ("Ship" if page in ["Modules","Fire control"] else ("Chart" if page=="Local" else "")))
+
 func event(e:InputEvent) -> bool:
  if y_down and e.is_action_pressed("interact"):
   chord=true;a.intercept();return true
- if page=="" and ((e is InputEventJoypadButton and e.button_index==JOY_BUTTON_LEFT_STICK and e.pressed) or (e is InputEventKey and e.physical_keycode==KEY_G and e.pressed and not e.echo)):
+ if page=="" and e is InputEventKey and e.physical_keycode==KEY_G and e.pressed and not e.echo:
   if y_down:chord=true;a.cycle_mount()
   else:a.cycle_group()
   return true
  if (e is InputEventJoypadButton and e.button_index==JOY_BUTTON_RIGHT_STICK and e.pressed) or (e is InputEventKey and e.physical_keycode==KEY_V and e.pressed and not e.echo):
   open("" if page=="Scope" else "Scope");return true
- if e.is_action_pressed("pick_item"):
+ if e is InputEventKey and e.is_action_pressed("pick_item"):
   y_down=true;chord=false;return true
- if e.is_action_released("pick_item"):
+ if e is InputEventKey and e.is_action_released("pick_item"):
   if y_down and not chord:
    if page=="":a.nose_contact()
    else:open("")
@@ -324,7 +328,7 @@ func event(e:InputEvent) -> bool:
   chord=true;open(dir);return true
  if page=="":return false
  if e.is_action_pressed("cancel_ship"):
-  open("Contacts" if page=="Contact" else ("Ship" if page in ["Modules","Fire control"] else ("Chart" if page=="Local" else "")));return true
+  back();return true
  if page in ["Local","Chart"]:
   if e.is_action_pressed("previous_item"):chart.browse(a,chart.region-1)
   elif e.is_action_pressed("next_item"):chart.browse(a,chart.region+1)
@@ -348,9 +352,6 @@ func commit_waypoint() -> void:
 
 func _input(e:InputEvent) -> void:
  if not visible:return
- if e is InputEventJoypadButton or e is InputEventKey:
-  if not e.is_action_pressed("pause_ship") and event(e):get_viewport().set_input_as_handled()
-  return
  if e.device==InputEvent.DEVICE_ID_EMULATION:return
  if page in ["Local","Chart"]:
   if chart.pointer(e):get_viewport().set_input_as_handled()
@@ -374,7 +375,7 @@ func _input(e:InputEvent) -> void:
    if px.x>507:open("")
    elif side==0:open("Contacts" if px.x<260 else "Chart")
    else:open("Ship" if px.x<260 else "Power")
-  elif page=="Contacts" and rows().size()>6 and px.y<87 and px.x>=409:
+  elif page in ["Contacts","Ship"] and rows().size()>6 and px.y<87 and px.x>=409:
    var count:=rows().size()
    cursor=clampi(first_button+11 if px.x>=502 else first_button-1,0,count-1)
    refresh()
@@ -428,6 +429,8 @@ func paint(c:Control,side:int) -> void:
   top=88
  elif page=="Ship":
   label(c,23,79,"HULL  %d%%     SHIELD  %d%%     FUEL  %d"%[roundi(a.hull),roundi(a.shield),floori(a.fuel)],MINT,20)
+  label(c,420,77,"‹ Prev",MUTED if cursor<6 else WHITE,18)
+  label(c,508,77,"Next ›",WHITE if cursor<rows().size()-1 else MUTED,18)
   top=88
  elif page=="Modules":
   var loads:=[4,3,1,1,3,2];var draw:=0

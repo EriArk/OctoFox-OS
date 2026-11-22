@@ -180,6 +180,7 @@ func _physics_process(delta:float) -> void:
  var direction=Vector3.ZERO
  if walking:
   var look=Input.get_vector("look_left","look_right","look_up","look_down",0.20)
+  if seated:look=Vector2.ZERO
   yaw-=look.x*delta*2.2;pitch=clamp(pitch-look.y*delta*1.7,-1.10 if seated else -0.75,0.45)
   var v=Input.get_vector("walk_left","walk_right","walk_forward","walk_back",0.18)
   direction=Basis(Vector3.UP,yaw)*Vector3(v.x,0,v.y)

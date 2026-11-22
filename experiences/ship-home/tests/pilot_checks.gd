@@ -34,7 +34,7 @@ func run() -> void:
  for i in 25:await physics_frame
  Input.action_release("walk_forward");Input.action_release("look_right")
  check(home.walker.position.distance_to(fixed)<0.001,"Walking input cannot move seated pilot")
- check(home.walker.yaw< -0.2,"Right stick looks around while seated")
+ check(is_zero_approx(home.walker.yaw),"Pilot stick leaves the forward view steady")
  # Dummy/headless display cannot capture a mouse. pilot_tour verifies the real
  # captured-pointer route under Xvfb instead of manufacturing a headless result.
  home.walker.yaw=5;home.walker.pitch=5;await physics_frame;await physics_frame
@@ -51,8 +51,11 @@ func run() -> void:
  check(home.walker.can_stand(home.walker.position+Vector3(0,0.08,0)),"Exit has a clear collision volume")
  pad(JOY_BUTTON_B);await physics_frame
  check(home.walker.seated,"Controller A enters seat")
- pad(JOY_BUTTON_A);await physics_frame
- check(not home.walker.seated,"Controller B leaves seat")
+ var back:=InputEventJoypadButton.new();back.button_index=JOY_BUTTON_A;back.pressed=true
+ root.push_input(back,true)
+ for i in 40:await physics_frame
+ back.pressed=false;root.push_input(back,true)
+ check(not home.walker.seated,"Hold controller B to leave seat")
  pad(JOY_BUTTON_B);await physics_frame
  var barriers=[]
  for pos in [Vector3(0,0.65,-2.3),Vector3(-1.5,0.65,-2.5),Vector3(1.5,0.65,-2.5)]:

@@ -116,6 +116,7 @@ func paint() -> void:
   fire_sight(systems,eye,local_basis)
  else:
   navigation(systems,eye,local_basis)
+ if systems.reply_time>0:text_at(Vector2(104,306),systems.reply,INK,19)
  if systems.incoming>0 or systems.flare_time>0:
   var warning:String="INBOUND  %.1f s"%systems.incoming if systems.incoming>0 else "INTERCEPTED"
   text_at(Vector2(565,350),warning,Color("ff997e"),24)

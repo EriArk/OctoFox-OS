@@ -54,7 +54,7 @@ func glyph(action:String) -> String:
   "vertical":return "↕"
   "horizontal":return "↔"
   "turn":return "RS"
-  "throttle":return "RT LT" if gamepad else "[ ]"
+  "throttle":return "L2 R1" if gamepad else "[ ]"
   "tab_pair":return "LB RB" if gamepad else "[ ]"
   "rotation":return "← →" if gamepad else "Q E"
  for event in InputMap.action_get_events(action):
