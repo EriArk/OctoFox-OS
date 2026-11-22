@@ -520,7 +520,7 @@ Window {
                 if (shell.service === "settings" && shell.settings.categoryId==="game-input" && shell.settings.controlsFocused) return [h("↑↓","Choose"),h("L2/R2","Tabs"),h("A","Select"),h("B",shell.settings.gameInput.choosing?"Cancel":"Back")]
                 if (shell.service === "settings") return [h(shell.settings.controlsFocused?"←→":"↑↓",shell.settings.controlsFocused?"Adjust":"Section"),h("A",shell.settings.controlsFocused ? "Select" : "Open"),h("B",shell.settings.controlsFocused ? "Categories" : "Back")]
                 if (shell.service === "device") return [h("←→","Adjust"),h("Y","Refresh"),h("A","Select"),h("B","Back")]
-                if (shell.service === "emulators") return shell.gamePreparation.emulators.length ? [h("↑↓","Choose"),h("A",shell.gamePreparation.setupRunning?"Return":"Open"),h("B","Back")] : [h("B","Back")]
+                if (shell.service === "emulators") return shell.gamePreparation.emulators.length ? [h("↔↕","Choose"),h("A",shell.gamePreparation.setupRunning?"Return":"Open"),h("B","Back")] : [h("B","Back")]
                 if (shell.service === "game-preparation") return [h("A","Select"),h("L3",shell.gamePreparation.setupRunning?"Return to emulator":"Open emulator"),h("B","Back")]
                 if (shell.serviceOpen) return [h("A","Select"),h("B","Back")]
                 if (shell.gamePerformance.open) return [h("A","Adjust"),h("B","Close")]

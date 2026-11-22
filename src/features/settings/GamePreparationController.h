@@ -22,6 +22,7 @@ class GamePreparationController final : public QObject {
     Q_PROPERTY(QStringList groups READ groups NOTIFY changed)
     Q_PROPERTY(bool busy READ busy NOTIFY changed)
     Q_PROPERTY(bool setupAvailable READ setupAvailable NOTIFY changed)
+    Q_PROPERTY(int emulatorColumns READ emulatorColumns CONSTANT)
     Q_PROPERTY(QVariantList emulators READ emulators NOTIFY changed)
     Q_PROPERTY(int emulatorIndex READ emulatorIndex NOTIFY changed)
     Q_PROPERTY(bool setupRunning READ setupRunning NOTIFY changed)
@@ -39,6 +40,7 @@ public:
     Q_INVOKABLE void openSetup();
     QVariantList emulators() const { return emulators_; }
     int emulatorIndex() const { return emulatorIndex_; }
+    static constexpr int emulatorColumns() { return 4; }
     void beginLauncher(const QString& platform);
     void dispatchLauncher(Action action);
     Q_INVOKABLE void launchEmulator(int index);

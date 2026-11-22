@@ -140,10 +140,26 @@ public:
             }
         }
     }
+    static QIcon emulatorIcon(const QString& path) {
+        const QString id=path.section('/',1,1), platform=path.section('/',2,2);
+        static const QMap<QString,QString> icons{
+            {"azahar","org.azahar_emu.Azahar"},{"cemu","info.cemu.Cemu"},{"dolphin","org.DolphinEmu.dolphin-emu"},
+            {"duckstation","org.duckstation.DuckStation"},{"eden","dev.eden_emu.eden"},{"melonds","net.kuribo64.melonDS"},
+            {"ppsspp","org.ppsspp.PPSSPP"},{"retroarch","org.libretro.RetroArch"},{"rpcs3","net.rpcs3.RPCS3"},
+            {"vita3k","org.vita3k.Vita3K"},{"xemu","app.xemu.xemu"}};
+        for(const QString& name:QStringList{"armada-"+id,icons.value(id,id),id}){
+            auto icon=QIcon::fromTheme(name);
+            if(!icon.isNull())return icon;
+        }
+        // A private runtime may have no desktop registration. Use the same
+        // licensed hardware photograph as its platform in Games.
+        const auto photo=":/platforms/"+platform+".png";
+        return QFileInfo::exists(photo)?QIcon(photo):QIcon::fromTheme("applications-games");
+    }
     QImage requestImage(const QString& id,QSize* size,const QSize& requested) override {
         const auto name=QUrl::fromPercentEncoding(id.toUtf8());
         const QSize target=requested.isValid()?requested.boundedTo(QSize(256,256)):QSize(64,64);
-        const QIcon icon=QFileInfo(name).isAbsolute()?QIcon(name):QIcon::fromTheme(name);
+        const QIcon icon=name.startsWith("emulator/")?emulatorIcon(name):QFileInfo(name).isAbsolute()?QIcon(name):QIcon::fromTheme(name);
         auto result=icon.pixmap(target).toImage();
         if(result.isNull()) {
             result=QImage(target,QImage::Format_ARGB32_Premultiplied);result.fill(Qt::transparent);

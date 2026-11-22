@@ -97,7 +97,7 @@ void GamePreparationController::updateEmulators(const QString& platform) {
         for(const auto& item:platforms)labels.append(platformName(item.toString()));
         if(!platform.isEmpty() && platforms.contains(platform) && id!="retroarch" && match<0)match=emulators_.size();
         if(id==previous)emulatorIndex_=emulators_.size();
-        emulators_.append(QVariantMap{{"id",id},{"title",names.value(id,id)},{"detail",id=="retroarch"?QString("Multi-system"):labels.join(" · ")}});
+        emulators_.append(QVariantMap{{"id",id},{"platform",platforms.isEmpty()?QString():platforms.first().toString()},{"title",names.value(id,id)},{"detail",id=="retroarch"?QString("Multi-system"):labels.join(" · ")}});
     }
     if(match>=0)emulatorIndex_=match;
     else if(emulatorIndex_<0 && !emulators_.isEmpty())emulatorIndex_=0;
@@ -108,9 +108,14 @@ void GamePreparationController::beginLauncher(const QString& platform) {
 void GamePreparationController::dispatchLauncher(Action action) {
     if(action==Action::Back){close();return;}
     if(action==Action::Confirm){launchEmulator(emulatorIndex_);return;}
-    if(!busy_ && !emulators_.isEmpty() && (action==Action::Up || action==Action::Down)){
-        emulatorIndex_=std::clamp(emulatorIndex_+(action==Action::Up?-1:1),0,int(emulators_.size())-1);emit changed();
-    }
+    if(busy_ || emulators_.isEmpty())return;
+    const int end=int(emulators_.size())-1, row=emulatorIndex_/emulatorColumns();
+    int next=emulatorIndex_;
+    if(action==Action::Left && next%emulatorColumns()>0)--next;
+    if(action==Action::Right && next%emulatorColumns()<emulatorColumns()-1 && next<end)++next;
+    if(action==Action::Up && row>0)next-=emulatorColumns();
+    if(action==Action::Down && row<end/emulatorColumns())next=std::min(next+emulatorColumns(),end);
+    if(next!=emulatorIndex_){emulatorIndex_=next;emit changed();}
 }
 void GamePreparationController::launchEmulator(int index) {
     if(!launcher_ || index<0 || index>=emulators_.size())return;

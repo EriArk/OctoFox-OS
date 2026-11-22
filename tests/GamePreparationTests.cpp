@@ -49,7 +49,7 @@ private slots:
         QCOMPARE(flow.emulators().size(),2);
         QCOMPARE(flow.emulators().value(flow.emulatorIndex()).toMap()["title"].toString(),"Vita3K");
         QVERIFY(!flow.busy());QVERIFY(flow.rows().isEmpty());
-        flow.dispatchLauncher(Action::Up);
+        flow.dispatchLauncher(Action::Left);
         QSignalSpy started(&flow,&GamePreparationController::setupStarted);
         flow.dispatchLauncher(Action::Confirm);
         QTRY_COMPARE(started.size(),1);QCOMPARE(started.first().value(1).toString(),"RPCS3");
