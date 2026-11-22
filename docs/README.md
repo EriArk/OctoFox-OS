@@ -19,7 +19,7 @@ The SDK is a v1 preview; see [implementation and remaining contracts](PLATFORM_S
 
 ## Maintainer entry points
 
-**Ongoing cross-project discussions:** [OctoFox design journal (Russian)](OCTOFOX_DESIGN_JOURNAL_RU.md) — a maintained index of owner decisions, tentative ideas and links across UX, games, multiplayer, Crates, Egregore, adapters, economy and trusted saves. The current deep dive is [Ship Home and Egregore (Russian)](SHIP_HOME_EGREGORE_DISCUSSION_RU.md). Neither document is an implementation status report.
+**Ongoing cross-project discussions:** [OctoFox design journal (Russian)](OCTOFOX_DESIGN_JOURNAL_RU.md) — a maintained index of owner decisions, tentative ideas and links across UX, games, multiplayer, Crates, Egregore, adapters, economy and trusted saves. The current deep dive is [Ship Home and Egregore (Russian)](SHIP_HOME_EGREGORE_DISCUSSION_RU.md), including the [gamepad controls and docking audit](SHIP_FLIGHT_CONTROLS_AND_DOCKING_RU.md). Neither document is an implementation status report.
 
 | Question | Document |
 | --- | --- |
