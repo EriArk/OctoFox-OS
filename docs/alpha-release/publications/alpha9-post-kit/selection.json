@@ -1,0 +1,106 @@
+[
+  {
+    "order": 1,
+    "archive_path": "01_Reddit_and_Discord/01-home.png",
+    "source_blob_sha": "f6a5938235533a18ebafff82b7f50a152bdbff61",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/interface/29-home.png",
+    "title": "Home",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 2,
+    "archive_path": "01_Reddit_and_Discord/02-games.png",
+    "source_blob_sha": "0ce6dadeb14878c8f074a9ee5f034f4b56885137",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/interface/30-games.png",
+    "title": "Games",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 3,
+    "archive_path": "01_Reddit_and_Discord/03-create-lobby.png",
+    "source_blob_sha": "acce420f4e9c3ee98a62986298a20daf0b4c75ca",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/interface/33-create-lobby.png",
+    "title": "Create Lobby",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 4,
+    "archive_path": "01_Reddit_and_Discord/04-profile.png",
+    "source_blob_sha": "de8be29327003b5b750832ae3c84ca51c8dd2f48",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/interface/40-profile.png",
+    "title": "Profile",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 5,
+    "archive_path": "01_Reddit_and_Discord/05-crates.png",
+    "source_blob_sha": "794622200b23c663204b579220a61454a443bf28",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/interface/36-crates.png",
+    "title": "Crates",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 6,
+    "archive_path": "01_Reddit_and_Discord/06-ship.jpg",
+    "source_blob_sha": "1c3c1d7e4536a9c916555c9a6c32eaae8669bba2",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/collages/03-ship.jpg",
+    "title": "Ship Home",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 7,
+    "archive_path": "01_Reddit_and_Discord/07-egregore-islands.jpg",
+    "source_blob_sha": "66d2cff75f2ffab7965605e6a574b11394fa7329",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/collages/02-egregore-islands.jpg",
+    "title": "Egregore islands",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 8,
+    "archive_path": "01_Reddit_and_Discord/08-bazaar.jpg",
+    "source_blob_sha": "ece12702c34f8c639e90cb26acc31466bf307ca4",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/collages/04-bazaar.jpg",
+    "title": "Bazaar",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 9,
+    "archive_path": "01_Reddit_and_Discord/09-pocket-golf.jpg",
+    "source_blob_sha": "176cf04a18aa1ab50d59e52cac784e6ac1703123",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/collages/06-pocket-golf.jpg",
+    "title": "Pocket Golf",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 10,
+    "archive_path": "01_Reddit_and_Discord/10-micro-rally.jpg",
+    "source_blob_sha": "698ff241d5d82688631131ba5f23f6059d3c5eba",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/collages/05-micro-rally.jpg",
+    "title": "Micro Rally",
+    "usage": "Reddit and Discord"
+  },
+  {
+    "order": 11,
+    "archive_path": "02_Discord_Extras/11-bazaar-directory.png",
+    "source_blob_sha": "92a2622bfd7b4c63132f858e2e61389f9ee3f22f",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/interface/34-bazaar-directory.png",
+    "title": "Bazaar directory",
+    "usage": "Discord extra"
+  },
+  {
+    "order": 12,
+    "archive_path": "02_Discord_Extras/12-egregore-encounters.jpg",
+    "source_blob_sha": "7a24d52a351029b82e661fcf30dd3014ee98fe63",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/collages/01-egregore-encounters.jpg",
+    "title": "Egregore encounters",
+    "usage": "Discord extra"
+  },
+  {
+    "order": 13,
+    "archive_path": "02_Discord_Extras/13-aquarium.jpg",
+    "source_blob_sha": "82b9a65a59d1b8d009ee18e6ec2b1869be04a394",
+    "source_path": "docs/alpha-release/publications/screenshots/alpha-9/fishing/19-aquarium.jpg",
+    "title": "Aquarium",
+    "usage": "Discord extra"
+  }
+]
