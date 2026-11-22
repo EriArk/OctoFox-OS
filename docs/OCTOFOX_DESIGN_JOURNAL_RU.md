@@ -25,7 +25,7 @@
 | **Доверие, сейвы, торговый лут** | [живая спецификация доверенных сейвов](TRUSTED_SAVE_TRADE_RU.md), [Save Lineage](SAVE_LINEAGE.md), [#93](https://github.com/EriArk/OctoFox-OS/issues/93) / [#94](https://github.com/EriArk/OctoFox-OS/issues/94) |
 | **Онлайн и мультиплеер** | [Lobby](LOBBY.md), [сеть и транспорт](MULTIPLAYER_EXPERIENCE.md), [Social](SOCIAL.md), [Fluxer](FLUXER_CAPABILITIES_RU.md): приглашения, комнаты, связь, совместная игра |
 | **Crates и SDK** | [Crates](CRATES77_CATALOGUE.md), [SDK](../sdk/README.md), [контракт SDK](PLATFORM_SDK.md): игры, приложения, расширения, виджеты, поставка |
-| **Эгрегор / Ship Home** | [игровой Ship Home](../experiences/ship-home/README.md), [связанная экономика](ECONOMY_LIVING_SPEC_RU.md); космология связанного проекта [AbyssWorldGame](https://github.com/EriArk/AbyssWorldGame/blob/main/docs/COSMOLOGY.md): миры, корабли, добыча, производство, исследование |
+| **Эгрегор / Ship Home** | **[Живой обзор корабля и Эгрегора](SHIP_HOME_EGREGORE_DISCUSSION_RU.md)**, [исходный Ship Home](../experiences/ship-home/README.md), [связанная экономика](ECONOMY_LIVING_SPEC_RU.md); [космология AbyssWorldGame](https://github.com/EriArk/AbyssWorldGame/blob/main/docs/COSMOLOGY.md): миры, корабли, добыча, производство, исследование |
 | **Bazaar и социальные пространства** | [Bazaar](BAZAAR.md), [серверная торговля](../services/backend/bazaar-trading.md), [живая экономика](ECONOMY_LIVING_SPEC_RU.md): торговые места, товары, игроки, экономика |
 | **Устройства, производительность и выпуск** | [производительность](PERFORMANCE72.md), [устройства](ARMADA_PLATFORM.md), [OTA/готовность](PUBLIC_READINESS.md), [статус функций](FEATURE_READINESS.md) |
 
