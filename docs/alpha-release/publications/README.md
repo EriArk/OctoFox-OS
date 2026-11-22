@@ -1,5 +1,9 @@
 # OctoFox OS Alpha publication materials
 
+## Alpha 9 screenshots
+
+[Browse the 41 post screenshots and contact sheet](screenshots/alpha-9/README.md).
+
 ## Install and try Alpha 7
 
 - [Official Alpha 7 release and download](https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.7).
