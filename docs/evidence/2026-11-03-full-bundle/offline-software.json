@@ -1,8 +1,0 @@
-{
-  "offlinePrepare": true,
-  "dependencyCheck": true,
-  "installAuditRepeatUninstall": true,
-  "personalDataPreserved": true,
-  "systemIntegrationInstalled": false,
-  "key": "disposable validation key"
-}

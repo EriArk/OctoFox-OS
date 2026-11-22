@@ -1,3 +1,0 @@
-PASSED
-
-QML warnings: 0

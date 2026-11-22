@@ -1,9 +1,0 @@
-{
-    "needs": {
-        "energy": 80,
-        "food": 100,
-        "mood": 80
-    },
-    "warnings": [
-    ]
-}

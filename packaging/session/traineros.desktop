@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=OctoFox OS
-Comment=Controller-first OctoFox OS session
-Exec=/var/opt/traineros/session/start-session.sh
-TryExec=/var/opt/traineros/session/start-session.sh
-Type=Application
-DesktopNames=TrainerOS

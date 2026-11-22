@@ -1,8 +1,0 @@
-{
-  "service": "RetroAchievements",
-  "method": "restored-token-login2",
-  "http": 200,
-  "success": true,
-  "identityMatches": true,
-  "tokenPresent": true
-}

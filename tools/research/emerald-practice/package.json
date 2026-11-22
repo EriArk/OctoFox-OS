@@ -1,8 +1,0 @@
-{
-  "name": "traineros-emerald-practice-probe",
-  "private": true,
-  "description": "Pinned offline Emerald practice dependency; installed explicitly outside Git",
-  "dependencies": {
-    "pokemon-showdown": "0.11.11"
-  }
-}
