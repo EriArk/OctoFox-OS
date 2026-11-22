@@ -28,6 +28,7 @@ class MultiversePresentation final : public QObject {
     Q_PROPERTY(QString systemName READ systemName NOTIFY changed)
     Q_PROPERTY(QString systemId READ systemId NOTIFY changed)
     Q_PROPERTY(QString query READ query NOTIFY changed)
+    Q_PROPERTY(bool hasFilters READ hasFilters NOTIFY changed)
     Q_PROPERTY(QString filterLabel READ filterLabel NOTIFY changed)
     Q_PROPERTY(int focusIndex READ focusIndex NOTIFY changed)
     Q_PROPERTY(bool sample READ sample CONSTANT)
@@ -66,6 +67,7 @@ public:
     QString systemName() const;
     QString systemId() const { return system_; }
     QString query() const { return queries_.value(system_); }
+    bool hasFilters() const { return !query().isEmpty() || filters_.value(system_)!=0; }
     QString filterLabel() const;
     int focusIndex() const;
     void applySearch(const QString&);

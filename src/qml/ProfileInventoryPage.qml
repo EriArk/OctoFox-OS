@@ -10,8 +10,8 @@ Item {
     readonly property var selected: view.selected || ({})
     readonly property color accent: Theme.dark ? "#a6e0c9" : "#356f60"
     readonly property string statusText: view.preview ? "SAMPLE ITEMS" : view.busy ? "Loading inventory…" : view.message ||
-        (view.state === "signed_out" ? "Connect your TrainerOS account to view your items." :
-         view.state === "offline" ? "Reconnect your TrainerOS account to load your inventory." :
+        (view.state === "signed_out" ? "Sign in to OctoFox OS in Settings → Accounts to view your items." :
+         view.state === "offline" ? "Reconnect your OctoFox OS account to load your inventory." :
          view.state === "ready" ? (view.hasMore ? "Search and filters apply to loaded items. Load more to see the rest." : "Inventory up to date.") : "Inventory is being prepared.")
     enabled: shell.profileContentActive
 
@@ -90,7 +90,6 @@ Item {
             width: parent.width - 8; spacing: 12
             Text { width: parent.width; text: root.view.loaded ? "No matches" : root.view.busy ? "Loading inventory" : root.view.state === "ready" ? "Your inventory is empty" : root.view.state === "signed_out" ? "Your profile inventory" : "Inventory unavailable"; wrapMode: Text.WordWrap; font.family: Theme.displayFamily; font.pixelSize: 22; color: Theme.ink }
             Text { width: parent.width; text: root.view.loaded ? "Try another name, change the filter or load more items." : root.view.state === "ready" ? "Collectibles from supported games will appear here. You won't need your own bazaar." : root.statusText; textFormat: Text.PlainText; wrapMode: Text.WordWrap; font.pixelSize: 13; color: Theme.muted }
-            Text { width: parent.width; visible: !root.view.total; text: "Transfers and trading are not available yet. Nothing has been moved from your saves."; wrapMode: Text.WordWrap; font.pixelSize: 12; color: root.accent }
             CapButton { objectName: "inventory-clear-search"; visible: !!root.view.search; width: 150; height: 30; label: "Clear search"; textSize: 12; onActivated: root.inventory.clearSearch() }
         }
         Flickable {

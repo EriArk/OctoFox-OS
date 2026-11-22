@@ -717,18 +717,31 @@ void ShellController::openGameHubFace(const QString& face) {
     goToPage(GameHubPage);setHubFace(face);
 }
 void ShellController::importRom() {
-    if(page_!=GamesPage || !collectionsRoot_ || !pairedNavigationAvailable() || navigationLocked()
+    const bool platformGames=!collectionsRoot_ && multiverseFace_ && multiverse_.route()=="games" && multiverse_.collection()=="multiverse" && multiverse_.systemId()!="pc";
+    if(page_!=GamesPage || !(collectionsRoot_ || platformGames) || !pairedNavigationAvailable() || navigationLocked()
        || !liveGame_.isEmpty() || libraryManager_.saving())return;
     if(!repository_.editable()){showNotice("Import is unavailable in the sample library.");return;}
     libraryFromWorlds_=true;service_="library";
-    libraryManager_.beginImport(gamesRootZone_=="platforms"?gamesPlatforms().value(gamesPlatformIndex()).toMap()["id"].toString():QString());
+    libraryManager_.beginImport(platformGames?multiverse_.systemId():gamesRootZone_=="platforms"?gamesPlatforms().value(gamesPlatformIndex()).toMap()["id"].toString():QString());
     emit changed();
 }
+void ShellController::activateEmptyLibrary() {
+    if(page_!=GamesPage || collectionsRoot_ || !multiverseFace_ || multiverse_.route()!="games" ||
+       !pairedNavigationAvailable() || navigationLocked() || !multiverse_.games().isEmpty())return;
+    if(multiverse_.hasFilters()) { multiverse_.activate(0);pcAddFocused_=false;emit changed(); }
+    else if(multiverse_.collection().startsWith("user:"))manageCollection(false);
+    else if(multiverse_.collection()!="multiverse")dispatch(Action::Back);
+    else if(multiverse_.systemId()=="pc")pcGames_.begin();
+    else importRom();
+}
 void ShellController::openEmulators() {
-    if(page_!=GamesPage || !collectionsRoot_ || !pairedNavigationAvailable() || runtimeChangeBlocked() || !liveGame_.isEmpty())return;
-    gamePreparationFromGames_=true;gameSetupReturn_=false;service_="game-preparation";
+    if(page_!=GamesPage || !collectionsRoot_ || !pairedNavigationAvailable())return;
+    if(runtimeChangeBlocked() || !liveGame_.isEmpty()){
+        showNotice("Finish the current game or operation before opening an emulator.");return;
+    }
+    gamePreparationFromGames_=true;gameSetupReturn_=false;service_="emulators";
     if(!apps_.ready())apps_.refresh();
-    gamePreparation_.begin(gamesRootZone_=="platforms"?gamesPlatforms().value(gamesPlatformIndex()).toMap()["id"].toString():QString());
+    gamePreparation_.beginLauncher(gamesRootZone_=="platforms"?gamesPlatforms().value(gamesPlatformIndex()).toMap()["id"].toString():QString());
     emit changed();
 }
 void ShellController::openAppsFace(const QString& face) {
@@ -1108,6 +1121,7 @@ int ShellController::focusIndex() const {
     if (service_ == "settings") return hall_.account()->isOpen() ? hall_.account()->focusIndex() : trainer_.editing() ? trainer_.focusIndex() : settings_.focusIndex();
     if (service_ == "device") return device_.focusIndex();
     if (service_ == "diagnostics") return diagnostics_.focusIndex();
+    if (service_ == "emulators") return gamePreparation_.emulatorIndex();
     if (service_ == "game-preparation") return gamePreparation_.focusIndex();
     if (trainer_.editing()) return trainer_.focusIndex();
     if (page_ == 1 && collectionsRoot_) return collectionFocus_;
@@ -1696,6 +1710,7 @@ void ShellController::activate(int index, const QString& area) {
     else if (service_ == "settings") { if(hall_.account()->isOpen()) { hall_.account()->activate(index); return; } if(trainer_.editing()) { trainer_.activate(index); return; } if(settings_.controlsFocused()) {if(settings_.category()==10)network_.activate(index);else settings_.activateRow(index);} else {settings_.selectSection(index);settings_.dispatch(Action::Confirm);} return; }
     else if (service_ == "device") { device_.activate(index); return; }
     else if (service_ == "diagnostics") { diagnostics_.activate(index); return; }
+    else if (service_ == "emulators") { gamePreparation_.launchEmulator(index); return; }
     else if (service_ == "game-preparation") { gamePreparation_.activate(index); return; }
     else if (trainer_.editing()) { trainer_.activate(index); return; }
     else if(page_==0 && area.startsWith("experience-home:") && activeModule_) {
@@ -2480,6 +2495,7 @@ void ShellController::dispatch(Action action) {
         if (service_ == "settings") { if(hall_.account()->isOpen()) hall_.account()->dispatch(action); else if(trainer_.editing()) trainer_.dispatch(action,true); else if(settings_.category()==10 && settings_.controlsFocused()) network_.dispatch(action); else settings_.dispatch(action); return; }
         if (service_ == "device") { device_.dispatch(action); return; }
         if (service_ == "diagnostics") { diagnostics_.dispatch(action); return; }
+        if (service_ == "emulators") { gamePreparation_.dispatchLauncher(action); return; }
         if (service_ == "game-preparation") { gamePreparation_.dispatch(action); return; }
         if (trainer_.editing()) { trainer_.dispatch(action); return; }
 
@@ -2510,10 +2526,11 @@ void ShellController::dispatch(Action action) {
                 emit changed();
                 return;
             }
-            if(multiverseFace_ && multiverse_.systemId()=="pc" && multiverse_.route()=="games") {
-                if(action==Action::Up && multiverse_.focusIndex()==0){pcAddFocused_=true;emit changed();return;}
+            if(action==Action::Confirm && multiverseFace_ && multiverse_.route()=="games" && multiverse_.games().isEmpty()){activateEmptyLibrary();return;}
+            if(multiverseFace_ && multiverse_.systemId()=="pc" && multiverse_.collection()=="multiverse" && multiverse_.route()=="games") {
+                if(action==Action::Up && !multiverse_.games().isEmpty() && multiverse_.focusIndex()==0){pcAddFocused_=true;emit changed();return;}
                 if(pcAddFocused_ && action==Action::Down){pcAddFocused_=false;emit changed();return;}
-                if(action==Action::Confirm && (pcAddFocused_ || multiverse_.games().isEmpty())){pcGames_.begin();return;}
+                if(action==Action::Confirm && pcAddFocused_){pcGames_.begin();return;}
             }
             if(action==Action::Back) {
                 pcAddFocused_=false;

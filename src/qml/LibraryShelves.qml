@@ -10,6 +10,8 @@ Item {
     signal focusRequested(int index)
     signal activated(int index)
     signal favoriteRequested(string gameId)
+    required property string emptyTitle
+    required property string emptyDetail
     signal emptyActivated()
     // Small collections get one generous shelf; larger libraries keep two rows.
     readonly property int visibleRows: entries.length <= columns ? 1 : 2
@@ -109,7 +111,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         y: shelves.y + (root.rowHeight-height)/2 - 8; width: 330; height: 84
         visible: root.entries.length===0; selected: visible && root.takesFocus
-        label: "No games on these shelves"; detail: "Choose another collection or reset filters"
+        label: root.emptyTitle; detail: root.emptyDetail
         onActivated: root.emptyActivated()
     }
 }

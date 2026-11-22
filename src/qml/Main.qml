@@ -520,6 +520,7 @@ Window {
                 if (shell.service === "settings" && shell.settings.categoryId==="game-input" && shell.settings.controlsFocused) return [h("↑↓","Choose"),h("L2/R2","Tabs"),h("A","Select"),h("B",shell.settings.gameInput.choosing?"Cancel":"Back")]
                 if (shell.service === "settings") return [h(shell.settings.controlsFocused?"←→":"↑↓",shell.settings.controlsFocused?"Adjust":"Section"),h("A",shell.settings.controlsFocused ? "Select" : "Open"),h("B",shell.settings.controlsFocused ? "Categories" : "Back")]
                 if (shell.service === "device") return [h("←→","Adjust"),h("Y","Refresh"),h("A","Select"),h("B","Back")]
+                if (shell.service === "emulators") return shell.gamePreparation.emulators.length ? [h("↑↓","Choose"),h("A",shell.gamePreparation.setupRunning?"Return":"Open"),h("B","Back")] : [h("B","Back")]
                 if (shell.service === "game-preparation") return [h("A","Select"),h("L3",shell.gamePreparation.setupRunning?"Return to emulator":"Open emulator"),h("B","Back")]
                 if (shell.serviceOpen) return [h("A","Select"),h("B","Back")]
                 if (shell.gamePerformance.open) return [h("A","Adjust"),h("B","Close")]
@@ -602,6 +603,7 @@ Window {
         Loader { anchors.fill: screen; active: shell.service === "trainer-setup"; visible: active; sourceComponent: TrainerSetupPanel { shell: shellController } }
         Loader { anchors.fill: screen; active: shell.service === "device"; visible: active; sourceComponent: DevicePanel { shell: shellController } }
         Loader { anchors.fill: screen; active: shell.service === "diagnostics"; visible: active; sourceComponent: DiagnosticsPanel { shell: shellController } }
+        Loader { anchors.fill: screen; active: shell.service === "emulators"; visible: active; sourceComponent: EmulatorLauncher { shell: shellController } }
         Loader { anchors.fill: screen; active: shell.service === "game-preparation"; visible: active; sourceComponent: GamePreparationPanel { shell: shellController } }
         Loader { anchors.fill: screen; z: 2.8; active: shell.primaryId === "apps" && shell.appsFace === "crates" && shell.crates.detailOpen && !shell.serviceOpen && !shell.quickAppsOpen && !shell.drawerOpen; visible: active; sourceComponent: CratesProjectPopup { flow: shell.crates } }
         Loader { anchors.fill: screen; z: shell.menuOpen ? 4.2 : 3.1; active: shell.scraper.open && !shell.keyboard.open; visible: active; sourceComponent: ScrapePanel { shell: shellController } }

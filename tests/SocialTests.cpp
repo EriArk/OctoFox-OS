@@ -97,7 +97,9 @@ private slots:
         c.dispatch(Action::Back);
         QCOMPARE(commands.takeLast().first().toString(),QString("cancel-login"));
         c.receive(0,{{"state","signed-out"}});
-        c.dispatch(Action::LocalAction);
+        c.dispatch(Action::Down);QVERIFY(c.lobbyLocalSelected());
+        c.dispatch(Action::Up);QVERIFY(!c.lobbyLocalSelected());
+        c.dispatch(Action::Down);c.dispatch(Action::Confirm);
         QCOMPARE(c.lobbyScope(),QString("local"));
         QVERIFY(!c.lobbyNeedsSignIn());
         c.setLobbyScope("online");

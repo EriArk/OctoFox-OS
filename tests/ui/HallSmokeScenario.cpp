@@ -277,7 +277,7 @@ void startAchievementGallerySmoke(QQuickWindow* window, ShellController& shell, 
             check(popup && popup->isVisible() && popup->width()<grid->width()*.85,"medium popup over gallery");
             check(grid && grid->isVisible(),"gallery remains behind popup");
             shell.dispatch(Action::NextFace);shell.dispatch(Action::Secondary);shell.dispatch(Action::ToggleContinue);
-            check(shell.hubFace()=="ra" && !shell.quickAppsOpen() && !shell.drawerOpen(),"popup traps background navigation");
+            check(shell.service()=="profile" && shell.profileRoute()=="ra" && !shell.quickAppsOpen() && !shell.drawerOpen(),"popup traps background navigation");
             capture("popup");press(b);break;
         }
         case 4:
@@ -285,7 +285,7 @@ void startAchievementGallerySmoke(QQuickWindow* window, ShellController& shell, 
             press(SDL_CONTROLLER_BUTTON_BACK);break;
         case 5:
             check(hall->galleryMenuOpen(),"Select options");capture("options");
-            shell.dispatch(Action::NextFace);check(shell.hubFace()=="ra","options trap face navigation");
+            shell.dispatch(Action::NextFace);check(shell.service()=="profile" && shell.profileRoute()=="ra","options trap face navigation");
             press(SDL_CONTROLLER_BUTTON_DPAD_DOWN);press(a);break;
         case 6:
             check(!hall->galleryMenuOpen() && hall->gallery()["filter"]=="Earned","earned filter");
@@ -324,7 +324,7 @@ void startAchievementGallerySmoke(QQuickWindow* window, ShellController& shell, 
         case 18: {
             auto* history=window->findChild<QQuickItem*>("achievement-history-popup");
             check(history && history->isVisible() && history->width()<window->width()*.8,"history is a compact popup");
-            shell.dispatch(Action::NextFace);check(shell.hubFace()=="ra","history traps background navigation");
+            shell.dispatch(Action::NextFace);check(shell.service()=="profile" && shell.profileRoute()=="ra","history traps background navigation");
             capture("history");press(b);break;
         }
         case 19:check(!hall->historyOpen() && hall->route()=="sets","history closes to game selection");capture("games-1080");break;

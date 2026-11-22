@@ -259,6 +259,7 @@ public:
     QString onlineFace() const { return onlineFace_; }
     bool chatNavigationFocused() const { return chatNavigationFocused_; }
     Q_INVOKABLE void importRom();
+    Q_INVOKABLE void activateEmptyLibrary();
     Q_INVOKABLE void openEmulators();
     Q_INVOKABLE void openAppsFace(const QString& face);
     Q_INVOKABLE void openOnlineFace(const QString& face);

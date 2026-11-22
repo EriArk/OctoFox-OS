@@ -8,9 +8,13 @@
 
 namespace trainer {
 GamePreparationController::GamePreparationController(QObject* parent):QObject(parent) {
-    connect(&setup_,&ProcessService::started,this,[this]{emit setupStarted(setup_.processId(),platformTitle()+" setup");emit changed();});
+    connect(&setup_,&ProcessService::started,this,[this]{emit setupStarted(setup_.processId(),frontendTitle_);emit changed();});
     connect(&setup_,&ProcessService::finished,this,[this](int code,bool crashed,const QString& error){
         busy_=false;emit setupFinished();
+        if(launcher_){
+            status_=!error.isEmpty()?error:crashed||code!=0?frontendTitle_+" closed unexpectedly.":QString();
+            emit changed();emit installed();return;
+        }
         status_=!error.isEmpty()?error:crashed||code!=0?QString("Emulator setup ended without success. Open it again to review its state."):QString("Emulator setup closed. Checking its files again…");
         taskDetail_=status_;emit changed();emit installed();refresh();
     });
@@ -25,7 +29,8 @@ void GamePreparationController::configure(QString directory,QHash<QString,QJsonO
     const bool hadRows=!rows_.isEmpty();
     picker_.cancel();if(busy_)cancel_=true;directory_=directory;profiles_=profiles;files_.clear();rows_.clear();if(packReport_.isEmpty())selected_.clear();
     status_="Runtime configuration changed. Check files again before importing.";emit changed();
-    if(hadRows&&!busy_)refresh();
+    if(launcher_){updateEmulators();status_.clear();emit changed();}
+    else if(hadRows&&!busy_)refresh();
 }
 QVariantList GamePreparationController::rows() const {QVariantList result;for(const auto& v:rows_)if(group_.isEmpty()||v.toMap()["group"]==group_)result<<v;return result;}
 QVariantList GamePreparationController::fileRows() const {QVariantList result;for(const auto& v:rows())if(v.toMap().contains("filename"))result<<v;return result;}
@@ -68,22 +73,68 @@ QJsonObject GamePreparationController::setupProfile() const {
     if(core.isEmpty() || QDir(ra["coresDirectory"].toString()).entryList({core+"_libretro.*"},QDir::Files).isEmpty())return {};
     return ra;
 }
-bool GamePreparationController::setupAvailable() const {
-    const auto p=setupProfile();return QFileInfo(p["setupProgram"].toString()).isAbsolute()&&QFileInfo(p["setupProgram"].toString()).isExecutable()&&p["setupArguments"].isArray();
+static bool validFrontend(const QJsonObject& profile) {
+    const QFileInfo program(profile["setupProgram"].toString());
+    const auto args=profile["setupArguments"];
+    if(!program.isAbsolute() || !program.isFile() || !program.isExecutable() || !args.isArray() || args.toArray().size()>32)return false;
+    for(const auto& argument:args.toArray())if(!argument.isString() || argument.toString().contains(QChar::Null))return false;
+    return true;
+}
+bool GamePreparationController::setupAvailable() const {return validFrontend(setupProfile());}
+void GamePreparationController::updateEmulators(const QString& platform) {
+    static const QMap<QString,QString> names{{"armsx2","ARMSX2"},{"azahar","Azahar"},{"cemu","Cemu"},{"dolphin","Dolphin"},
+        {"duckstation","DuckStation"},{"eden","Eden"},{"melonds","melonDS"},{"ppsspp","PPSSPP"},{"retroarch","RetroArch"},
+        {"rpcs3","RPCS3"},{"vita3k","Vita3K"},{"xemu","xemu"}};
+    const auto previous=emulators_.value(emulatorIndex_).toMap()["id"].toString();
+    emulators_.clear();emulatorIndex_=-1;
+    QStringList ids=profiles_.keys();ids.sort();
+    int match=-1;
+    for(const auto& id:ids) {
+        const auto p=profiles_.value(id);
+        if(!validFrontend(p))continue;
+        const auto platforms=p["validatedPlatforms"].toArray();
+        QStringList labels;
+        for(const auto& item:platforms)labels.append(platformName(item.toString()));
+        if(!platform.isEmpty() && platforms.contains(platform) && id!="retroarch" && match<0)match=emulators_.size();
+        if(id==previous)emulatorIndex_=emulators_.size();
+        emulators_.append(QVariantMap{{"id",id},{"title",names.value(id,id)},{"detail",id=="retroarch"?QString("Multi-system"):labels.join(" · ")}});
+    }
+    if(match>=0)emulatorIndex_=match;
+    else if(emulatorIndex_<0 && !emulators_.isEmpty())emulatorIndex_=0;
+}
+void GamePreparationController::beginLauncher(const QString& platform) {
+    launcher_=true;status_.clear();updateEmulators(platform);emit changed();
+}
+void GamePreparationController::dispatchLauncher(Action action) {
+    if(action==Action::Back){close();return;}
+    if(action==Action::Confirm){launchEmulator(emulatorIndex_);return;}
+    if(!busy_ && !emulators_.isEmpty() && (action==Action::Up || action==Action::Down)){
+        emulatorIndex_=std::clamp(emulatorIndex_+(action==Action::Up?-1:1),0,int(emulators_.size())-1);emit changed();
+    }
+}
+void GamePreparationController::launchEmulator(int index) {
+    if(!launcher_ || index<0 || index>=emulators_.size())return;
+    if(setup_.active()){emit resumeSetup();return;}
+    if(busy_)return;
+    emulatorIndex_=index;
+    const auto row=emulators_[index].toMap();
+    startFrontend(profiles_.value(row["id"].toString()),row["title"].toString());
 }
 void GamePreparationController::openSetup() {
     if(setup_.active()){emit resumeSetup();return;}
-    if(busy_||!setupAvailable())return;
-    if(canImport&&!canImport()){status_="Finish the game or current operation before opening emulator setup.";emit changed();return;}
+    if(!busy_)startFrontend(setupProfile(),platformTitle()+" setup");
+}
+void GamePreparationController::startFrontend(const QJsonObject& profile,const QString& title) {
+    if(!validFrontend(profile)){status_="The emulator is unavailable.";emit changed();return;}
+    if(canImport&&!canImport()){status_="Finish the game or current operation before opening an emulator.";emit changed();return;}
     if(setupGuard){const auto error=setupGuard();if(!error.isEmpty()){status_=error;emit changed();return;}}
-    const auto p=setupProfile();ProcessCommand command;command.program=p["setupProgram"].toString();
-    const auto args=p["setupArguments"].toArray();if(args.size()>32)return;
-    for(const auto& v:args){if(!v.isString()||v.toString().contains(QChar::Null))return;command.arguments<<v.toString();}
-    command.emulatorRuntime=true;busy_=true;status_="Use the emulator's interface to install firmware or game packages, then close it and check again.";
-    if(!setup_.start(command)){busy_=false;status_="The emulator setup could not start. Check Software setup.";}
+    ProcessCommand command;command.program=profile["setupProgram"].toString();
+    for(const auto& v:profile["setupArguments"].toArray())command.arguments<<v.toString();
+    command.emulatorRuntime=true;busy_=true;frontendTitle_=title;status_=launcher_?"Opening "+title+"…":"Use the emulator's interface to install firmware or game packages, then close it and check again.";
+    if(!setup_.start(command)){busy_=false;status_="Could not start "+title+".";}
     emit changed();
 }
-void GamePreparationController::begin(const QString& platform,const QString& adapter){setupAdapter_=adapter;picker_.cancel();if(!platform.isEmpty())group_=platform;focus_=100;refresh();}
+void GamePreparationController::begin(const QString& platform,const QString& adapter){launcher_=false;setupAdapter_=adapter;picker_.cancel();if(!platform.isEmpty())group_=platform;focus_=100;refresh();}
 void GamePreparationController::refresh() {
     if(busy_)return;busy_=true;cancel_=false;status_="Checking configured emulators and their files…";emit changed();
     const auto profiles=profiles_;const auto directory=directory_;
@@ -138,7 +189,7 @@ void GamePreparationController::importPack(const QString& source) {
     });
 }
 void GamePreparationController::cancel(){cancel_=true;if(setup_.active())setup_.stop();}
-void GamePreparationController::close(){if(setup_.active()){status_="Close the emulator setup first, or use Return to emulator.";emit changed();return;}picker_.cancel();emit closeRequested();}
+void GamePreparationController::close(){if(setup_.active()){status_=launcher_?"Close the emulator to leave, or select it to return.":"Close the emulator setup first, or use Return to emulator.";emit changed();return;}picker_.cancel();emit closeRequested();}
 void GamePreparationController::select(int index){const auto list=rows();if(index<0||index>=list.size())return;selected_=list[index].toMap()["id"].toString();const auto files=fileRows();for(int n=0;n<files.size();++n)if(files[n].toMap()["id"]==selected_)focus_=1000+n;emit changed();}
 void GamePreparationController::selectGroup(const QString& value){const auto list=platforms();for(int n=0;n<list.size();++n)if(list[n].toMap()["id"]==value){selectPlatform(n);return;}}
 void GamePreparationController::selectPlatform(int index){const auto list=platforms();if(index<0||index>=list.size())return;if(group_!=list[index].toMap()["id"].toString())setupAdapter_.clear();group_=list[index].toMap()["id"].toString();selected_=fileRows().value(0).toMap()["id"].toString();focus_=100+index;emit platformSelected(group_);emit changed();}

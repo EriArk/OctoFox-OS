@@ -11,6 +11,8 @@ Item {
     signal focusRequested(int index)
     signal activated(int index)
     signal favoriteRequested(string gameId)
+    required property string emptyTitle
+    required property string emptyDetail
     signal emptyActivated()
     function reveal() {
         if (!visible || !takesFocus || tiles.dragging || tiles.flicking || !entries.length) return
@@ -116,7 +118,7 @@ Item {
     CapButton {
         anchors.centerIn: parent; width: 330; height: 84
         visible: root.entries.length===0; selected: visible && root.takesFocus
-        label: "No matching games"; detail: "Choose another collection or reset filters"
+        label: root.emptyTitle; detail: root.emptyDetail
         onActivated: root.emptyActivated()
     }
 }

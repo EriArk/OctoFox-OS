@@ -198,7 +198,7 @@ void SocialController::setOwner(QString owner) {
     toastTimer_.stop();toastTitle_.clear();toastText_.clear();emit presentationChanged();
     socialSettingsKey_.clear();peopleFilter_.clear();communityId_.clear();faceRoutes_.clear();pendingFaceRoute_.clear();pinnedPeople_.clear();pinnedGroups_.clear();pinnedCommunities_.clear();
     discoverPreview_.clear();discoverArea_="search";discoverPage_=0;discoverAll_=false;verificationGuild_.clear();verificationMethod_.clear();
-    owner_=std::move(owner);++generation_;snapshot_.clear();drafts_.clear();menu_.clear();toastChannel_.clear();directConversationLease_.clear();
+    lobbyLocalSelected_=false;owner_=std::move(owner);++generation_;snapshot_.clear();drafts_.clear();menu_.clear();toastChannel_.clear();directConversationLease_.clear();
     selection_.stop();contacts_=false;searchStarted_=false;searchFocus_=-1;
     textPurpose_.clear();textChannel_.clear();textId_.clear();query_.clear();focus_=messageFocus_=0;reading_=false;
     syncingLocalLobby_=false;emit ownerRequested(owner_,generation_);emit changed();
@@ -208,7 +208,7 @@ void SocialController::setFace(QString face) {
     faceRoutes_[face_]={{"channel",snapshot_["channel"]},{"focus",focus_},{"community",communityId_},
         {"reading",reading_},{"message",messages().value(messageFocus_).toMap()["id"]},{"control",conversationControl_},{"filter",peopleFilter_}};
     saveSocialPreferences();closeMenu();selection_.stop();
-    partyFocus_=false;partyIndex_=0;face_=std::move(face);reading_=false;contacts_=false;conversationControl_=-1;enterConversationPerson_.clear();enterConversationChannel_.clear();
+    lobbyLocalSelected_=false;partyFocus_=false;partyIndex_=0;face_=std::move(face);reading_=false;contacts_=false;conversationControl_=-1;enterConversationPerson_.clear();enterConversationChannel_.clear();
     const auto route=faceRoutes_.value(face_);focus_=route.value("focus",0).toInt();peopleFilter_=route["filter"].toString();
     pendingFaceRoute_=route;
     if(route["channel"]==snapshot_["channel"]) {
@@ -545,6 +545,7 @@ void SocialController::receive(quint64 generation,QVariantMap snapshot) {
     if(stream_.active()&&((!oldVoice["watching"].toString().isEmpty()&&newVoice["watching"].toString().isEmpty())
         ||newVoice["channel"]!=oldVoice["channel"]||newVoice["state"].toString().isEmpty()))stream_.close();
     const bool switchingAccount=snapshot_["userId"]!=snapshot["userId"];
+    if(snapshot_["state"]!=snapshot["state"])lobbyLocalSelected_=false;
     snapshot_=std::move(snapshot);
     // Hiding a banner is local presentation state, never a declined call.
     // Retain it across reconnect snapshots; a confirmed end allows the next ring.
@@ -743,7 +744,7 @@ QVariantList SocialController::hints() const {
             const auto state=snapshot_.value("state").toString();
             if(state=="authorizing")h("B","Cancel sign-in");
             else {
-                if(!owner_.isEmpty() && state!="restoring" && state!="connecting")h("A","Sign in");
+                h("↑↓","Choose");h("A",lobbyLocalSelected()?"Local lobbies":"Sign in");
                 h("Select","Local lobbies");
             }
             return result;

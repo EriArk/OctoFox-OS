@@ -22,6 +22,8 @@ class GamePreparationController final : public QObject {
     Q_PROPERTY(QStringList groups READ groups NOTIFY changed)
     Q_PROPERTY(bool busy READ busy NOTIFY changed)
     Q_PROPERTY(bool setupAvailable READ setupAvailable NOTIFY changed)
+    Q_PROPERTY(QVariantList emulators READ emulators NOTIFY changed)
+    Q_PROPERTY(int emulatorIndex READ emulatorIndex NOTIFY changed)
     Q_PROPERTY(bool setupRunning READ setupRunning NOTIFY changed)
     Q_PROPERTY(int focusIndex READ focusIndex NOTIFY changed)
     Q_PROPERTY(trainer::FilePickerController* picker READ picker CONSTANT)
@@ -35,6 +37,11 @@ public:
     bool setupAvailable() const;
     bool setupRunning() const{return setup_.active();}
     Q_INVOKABLE void openSetup();
+    QVariantList emulators() const { return emulators_; }
+    int emulatorIndex() const { return emulatorIndex_; }
+    void beginLauncher(const QString& platform);
+    void dispatchLauncher(Action action);
+    Q_INVOKABLE void launchEmulator(int index);
     QVariantList rows() const;
     QVariantList platforms() const;
     QVariantList fileRows() const;
@@ -79,6 +86,12 @@ private:
     void importSelected(const QString&);
     void importPack(const QString&);
     QJsonObject setupProfile() const;
+    void updateEmulators(const QString& platform = {});
+    void startFrontend(const QJsonObject& profile, const QString& title);
+    QVariantList emulators_;
+    int emulatorIndex_=-1;
+    QString frontendTitle_;
+    bool launcher_=false;
     ProcessService setup_;
     FilePickerController picker_{nullptr};
     QHash<QString,QJsonObject> profiles_;

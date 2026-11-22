@@ -87,9 +87,9 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
             capture("settings-controller-960");diagram("settings-controller-diagram");check(input.glyph("A")==QString::fromUtf8("×"),"Controller glyphs follow profile");
             // Touch the visible stepper, not its C++ action. It must not also
             // activate the underlying row and accidentally advance two families.
-            auto* row=visibleItem(window->contentItem(),"settings-control-1");
+            auto* row=visibleItem(window->contentItem(),"settings-control-0");
             tap(visibleItem(row,"settings-step-next"));
-            check(input.family()=="steam","One stepper tap changes one family");
+            check(input.family()=="nintendo","One stepper tap changes one family");
             auto p=input.profile();p["family"]="playstation";input.setProfile(p);
             shell.dispatch(trainer::Action::NextFace);check(settings->categoryId()=="game-input","Shell routes triggers to Settings pages");
             flow->configure(library.get(),folder->path(),"preview-owner");break;
@@ -116,7 +116,7 @@ inline void startSettingsSmoke(QQuickWindow* window, trainer::ShellController& s
         case 10: capture("settings-communication");settings->clock()->read=[] {return trainer::ClockSnapshot{"Asia/Jerusalem",{}, {"Asia/Jerusalem","Asia/Tokyo"},true,true,true,true};};settings->selectPage("clock");break;
         case 11: capture("settings-clock");settings->selectPage("system");break;
         case 12: capture("settings-system");settings->selectPage("appearance");settings->cycleTheme(1);break;
-        case 13: check(settings->theme()=="dark","Dark mode selected");capture("settings-dark");settings->selectPage("controller",true);settings->activateRow(0);break;
+        case 13: check(settings->theme()=="dark","Dark mode selected");capture("settings-dark");settings->selectPage("controller",true);settings->activateRow(1);settings->activateRow(2);break;
         case 14: check(input.captureMode()=="center","Calibration owns controller input");capture("settings-calibration-dark");input.cancelCapture();settings->selectPage("game-input",true);flow->setPage(1);flow->openTools();break;
         case 15: capture("settings-input-tools-dark");flow->activateTool(1);break;
         case 16: capture("settings-input-capture-dark");QTest::keyClick(window,Qt::Key_K,Qt::ControlModifier|Qt::AltModifier);break;

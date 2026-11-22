@@ -466,8 +466,11 @@ void SocialController::dispatchLobby(Action action) {
         const auto state=snapshot_.value("state").toString();
         if(state=="authorizing") {
             if(action==Action::Back)emit commandRequested("cancel-login",{});
-        } else if(action==Action::ContextMenu||action==Action::LocalAction)setLobbyScope("local");
-        else if(action==Action::Confirm && state!="restoring" && state!="connecting")login();
+        } else if(action==Action::Up || action==Action::Down) {
+            lobbyLocalSelected_=action==Action::Down;emit changed();
+        } else if(action==Action::ContextMenu || action==Action::LocalAction ||
+                  (action==Action::Confirm && lobbyLocalSelected()))setLobbyScope("local");
+        else if(action==Action::Confirm)login();
         return;
     }
     if(!lobbyDetailFocused_||lobbyRows().value(lobbyFocus()).toMap()["kind"]!="own") {

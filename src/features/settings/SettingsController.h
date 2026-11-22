@@ -163,6 +163,7 @@ private:
     QString libraryStatus_;
     QString error_;
     QString backendAction_="Sign in to OctoFox OS with Fluxer",backendDetail_="Open your Trainer to sign in";
+    bool advancedController_ = false;
     int category_ = 0, row_ = 0;
     bool pane_ = false;
 };

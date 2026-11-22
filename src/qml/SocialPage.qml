@@ -100,8 +100,8 @@ FocusScope {
             Rectangle { visible: (root.account.code || "").length > 0; width: parent.width; height: 60; radius: 10; color: Theme.surfaceColor("#fff4c6"); border.color: Theme.surfaceColor("#c5af66"); border.width: 2
                 Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; anchors.centerIn: parent; text: root.account.code || ""; font.family: Theme.brandFamily; font.pixelSize: 27; color: Theme.ink; textFormat: Text.PlainText }
             }
-            CapButton { visible: root.account.state !== "authorizing"; width: parent.width; height: 54; label: root.signingIn ? "Signing in..." : "Sign in"; tint: Theme.yellow; selected: root.takesFocus; enabled: !!root.account.available && !root.signingIn; claimsFocus: false; onActivated: root.social.login() }
-            CapButton { visible: root.lobbySignIn && root.account.state !== "authorizing"; width: parent.width; height: 40; label: "Local lobbies · same network"; tint: Theme.blue; claimsFocus: false; onActivated: root.social.setLobbyScope("local") }
+            CapButton { visible: root.account.state !== "authorizing"; width: parent.width; height: 54; label: root.signingIn ? "Signing in..." : "Sign in"; tint: Theme.yellow; selected: root.takesFocus && (!root.lobbySignIn || !root.social.lobbyLocalSelected); enabled: !!root.account.available && !root.signingIn; claimsFocus: false; onActivated: root.social.login() }
+            CapButton { visible: root.lobbySignIn && root.account.state !== "authorizing"; width: parent.width; height: 40; label: "Local lobbies · same network"; selected: root.takesFocus && root.social.lobbyLocalSelected; tint: Theme.blue; claimsFocus: false; onActivated: root.social.setLobbyScope("local") }
             Text { renderType: typeof Text.CurveRendering === "number" ? Text.CurveRendering : Text.QtRendering; width: parent.width; visible: root.account.state !== "authorizing" && !!root.account.status && root.account.status !== "Sign in"; text: root.account.status || ""; color: Theme.muted; font.pixelSize: 13; wrapMode: Text.WordWrap; textFormat: Text.PlainText }
         }
     }

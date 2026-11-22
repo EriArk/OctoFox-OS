@@ -61,13 +61,18 @@ double SettingsController::displayDensity(double sw, double sh, double ww, doubl
     return trainer::displayDensity(sw, sh, ww, wh, profile, percent);
 }
 void SettingsController::adjustDisplay(int row, int direction) {
-    if(category_==7 && input_ && direction && row>=1 && row<=5) {
+    if(category_==7 && input_ && input_->connected() && direction && (row==0 || (advancedController_ && row>=3 && row<=6))) {
         auto p=input_->profile();
-        if(row==1) {const auto values=ControllerProfile::families();p["family"]=values[(values.indexOf(p["family"].toString())+values.size()+(direction<0?-1:1))%values.size()];}
-        if(row==2) {const QStringList values{"auto","east","south"};p["confirm"]=values[(values.indexOf(p["confirm"].toString())+values.size()+(direction<0?-1:1))%values.size()];}
-        if(row==3)p["deadzone"]=std::clamp(p["deadzone"].toInt()+(direction<0?-5:5),5,40);
-        if(row==4)p["invertX"]=!p["invertX"].toBool();
-        if(row==5)p["invertY"]=!p["invertY"].toBool();
+        if(row==0) {
+            const QStringList layouts{"auto","xbox","playstation","nintendo"};
+            const auto current=std::max(qsizetype(0),layouts.indexOf(p["family"].toString()));
+            p["family"]=layouts[(current+layouts.size()+(direction<0?-1:1))%layouts.size()];
+            p["confirm"]="auto";
+        }
+        if(row==3) {const QStringList values{"auto","east","south"};p["confirm"]=values[(values.indexOf(p["confirm"].toString())+values.size()+(direction<0?-1:1))%values.size()];}
+        if(row==4)p["deadzone"]=std::clamp(p["deadzone"].toInt()+(direction<0?-5:5),5,40);
+        if(row==5)p["invertX"]=!p["invertX"].toBool();
+        if(row==6)p["invertY"]=!p["invertY"].toBool();
         input_->setProfile(p);return;
     }
     if(!saving_ && category_==1 && row==1 && direction) {
@@ -142,14 +147,22 @@ QVariantList SettingsController::controls() const {
     case 7: {
         const auto p=input_?input_->profile():ControllerProfile{}.json();
         const char* kind=input_&&input_->connected()?"stepper":"unavailable";
-        return {row("Check controller","action",input_&&!input_->deviceName().isEmpty()?input_->deviceName():"Connect a controller · touch remains available"),
-            row("Controller icons",kind,p["family"].toString()+(p["family"]=="auto"&&input_?" · "+input_->family():QString())),
-            row("Confirm button",kind,p["confirm"].toString()+" · "+(input_?input_->glyph("A"):QString("A"))),
-            row("Stick dead zone",kind,QString::number(p["deadzone"].toInt())+"%"),
-            row("Invert left stick X",kind,p["invertX"].toBool()?"On":"Off"),
-            row("Invert left stick Y",kind,p["invertY"].toBool()?"On":"Off"),
-            row("Reset this controller",input_&&input_->connected()?"action":"unavailable","Restore automatic layout and default calibration"),
-            row("Recovery","status",input_&&!input_->profileError().isEmpty()?input_->profileError():QString("Home: controls · Home + %1: keyboard. Touch remains available.").arg(input_?input_->glyph(input_->family()=="nintendo"?"north":"west"):QString("X")))};
+        const QMap<QString,QString> names{{"auto","Automatic"},{"nintendo","Switch"},{"xbox","Xbox"},{"playstation","PlayStation"},{"steam","Steam"},{"generic","Generic"}};
+        const auto family=p["family"].toString();
+        QString layout=names.value(family);
+        if(family=="auto" && input_ && input_->connected())layout+=" · "+names.value(input_->family());
+        QVariantList rows{row("Controller layout",kind,layout),
+            row("Advanced controls","action",advancedController_?"Hide calibration and overrides":"Calibration and overrides")};
+        if(advancedController_) {
+            rows.append(row("Calibrate sticks & triggers",input_&&input_->connected()?"action":"unavailable",""));
+            rows.append(row("Confirm button",kind,p["confirm"].toString()+" · "+(input_?input_->glyph("A"):QString())));
+            rows.append(row("Stick dead zone",kind,QString::number(p["deadzone"].toInt())+"%"));
+            rows.append(row("Invert left stick X",kind,p["invertX"].toBool()?"On":"Off"));
+            rows.append(row("Invert left stick Y",kind,p["invertY"].toBool()?"On":"Off"));
+            rows.append(row("Reset this controller",input_&&input_->connected()?"action":"unavailable","Restore automatic layout and default calibration"));
+            rows.append(row("Test controller","action","View live buttons and sticks"));
+        }
+        return rows;
     }
     case 8: {
         QVariantList result{row("Collections","action","Create and edit your game collections")};
@@ -205,6 +218,7 @@ void SettingsController::selectCategory(int index, bool enter) {
     clock_.leave();
     if(index!=13)communication_.leave();
     storage_.close();
+    advancedController_ = false;
     category_ = std::clamp(index,0,int(pageIds.size())-1); row_=category_==5?4:0; pane_=enter;
     if(category_==16 && !gameInput_.editing())gameInput_.begin();
     if(category_==11)clock_.begin();
@@ -242,9 +256,11 @@ void SettingsController::activateRow(int index) {
     else if(category_==5 && row_==3) emit healthRequested();
     else if(category_==5 && row_==4)openUpdates();
     else if(category_==5) emit deviceRequested(row_);
-    else if(category_==7 && row_==0 && input_) input_->beginCapture("center");
-    else if(category_==7 && row_>=1 && row_<=5) adjustDisplay(row_,1);
-    else if(category_==7 && row_==6 && input_) input_->resetProfile();
+    else if(category_==7 && row_==1) advancedController_=!advancedController_;
+    else if(category_==7 && row_==2 && input_) input_->beginCapture("center");
+    else if(category_==7 && row_==7 && input_ && input_->connected()) input_->resetProfile();
+    else if(category_==7 && row_==8) emit controllerRequested();
+    else if(category_==7) adjustDisplay(row_,1);
     else if(category_==8 && row_==0) emit collectionsRequested();
     else if(category_==8 && row_==1 && libraryAvailable_ && !libraryScanning_) emit libraryRefreshRequested();
     else if(category_==8 && row_==2) storage_.begin();

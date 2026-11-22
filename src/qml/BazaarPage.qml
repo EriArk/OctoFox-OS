@@ -48,7 +48,7 @@ Item {
             }
             GridView {
                 id: grid; objectName: "bazaar-player-grid"
-                y: toolbar.height+10; width: parent.width; height: parent.height-y
+                y: toolbar.height+10; width: parent.width; height: parent.height-y-directoryStatus.height
                 clip: true; boundsBehavior: Flickable.StopAtBounds
                 model: root.catalogue.rooms
                 cellWidth: width; cellHeight: Math.max(root.compact ? 158 : 172,Math.floor(height/2))
@@ -82,11 +82,17 @@ Item {
                     function onRowsChanged() { Qt.callLater(root.restoreScroll) }
                 }
             }
+            Text {
+                id: directoryStatus; objectName: "bazaar-directory-status"
+                anchors.bottom: parent.bottom; width: parent.width
+                text: root.catalogue.status; textFormat: Text.PlainText
+                height: text.length ? implicitHeight+5 : 0; color: Theme.muted; font.pixelSize: 12; wrapMode: Text.WordWrap
+            }
             Column {
                 objectName: "bazaar-empty"; visible: root.catalogue.rooms.length===0
                 x: 20; y: grid.y+36; width: parent.width-40; spacing: 10
-                Text { width:parent.width; text: "No bazaars found"; color:Theme.ink; font.family:Theme.displayFamily; font.pixelSize:24; wrapMode:Text.WordWrap }
-                Text { objectName:"bazaar-status"; width:parent.width; text:root.catalogue.favoritesOnly?"Save a bazaar with the star to find it here.":"Try another name or clear the search."; color:Theme.muted;font.pixelSize:14;wrapMode:Text.WordWrap }
+                Text { width:parent.width; text: root.catalogue.busy ? "Loading bazaars…" : root.catalogue.search || root.catalogue.favoritesOnly ? "No matching bazaars" : "Player bazaars"; color:Theme.ink; font.family:Theme.displayFamily; font.pixelSize:24; wrapMode:Text.WordWrap }
+                Text { objectName:"bazaar-status"; width:parent.width; text:root.catalogue.favoritesOnly?"Save a bazaar with the star to find it here.":root.catalogue.search?"Try another name or clear the search.":""; color:Theme.muted;font.pixelSize:14;wrapMode:Text.WordWrap }
             }
         }
     }

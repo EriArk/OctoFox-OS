@@ -10,9 +10,9 @@ Item {
     Component.onCompleted: if (visible) visited = true
     onVisibleChanged: if (visible) visited = true
     readonly property bool takesFocus: visible && !(root.pc && shell.pcAddFocused) && shell.pairedNavigationAvailable && !shell.collectionManager.open && !shell.serviceOpen && !shell.libraryTools.open && !shell.scraper.open && !shell.menuOpen && !shell.keyboard.open && !shell.notice.length
-    readonly property bool pc: model.route === "games" && model.systemId === "pc"
-    readonly property bool emptyPc: pc && model.games.length === 0
-    CapButton { anchors.right: parent.right; anchors.rightMargin: 12; y: 0; z: 2; visible: root.pc && !root.emptyPc
+    readonly property bool pc: model.route === "games" && model.collection === "multiverse" && model.systemId === "pc"
+    readonly property bool emptyPc: pc && !model.hasFilters && model.games.length === 0
+    CapButton { anchors.right: parent.right; anchors.rightMargin: 12; y: 0; z: 2; visible: root.pc && root.model.games.length > 0
         width: 134; height: 34; label: "+ Add game"; tint: Theme.green; selected: shell.pcAddFocused
         onActivated: shell.pcGames.begin() }
     PageHeader {
@@ -28,7 +28,7 @@ Item {
             Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Your PC games"; font.family: Theme.displayFamily; font.pixelSize: 29; color: Theme.ink }
             Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Bring a game folder into your library."; font.pixelSize: 17; color: Theme.muted }
             CapButton { anchors.horizontalCenter: parent.horizontalCenter; width: 194; height: 44; label: "+ Add game"; tint: Theme.green
-                selected: root.takesFocus || root.shell.pcAddFocused; onActivated: root.shell.pcGames.begin() }
+                selected: root.takesFocus || root.shell.pcAddFocused; onActivated: root.shell.activateEmptyLibrary() }
         }
         Text {
             anchors.centerIn: parent
@@ -72,6 +72,7 @@ Item {
             function onScrollRequested(direction) { if (root.takesFocus && browser.visible) browser.scrollDescription(direction) }
         }
         LibraryGrid {
+            emptyTitle: browser.emptyTitle; emptyDetail: browser.emptyDetail
             anchors.fill: parent
             readonly property bool selectedLayout: root.model.route === "games" && !root.emptyPc && root.model.viewStyle === "grid"
             visible: selectedLayout
@@ -85,6 +86,7 @@ Item {
             onEmptyActivated: browser.emptyActivated()
         }
         LibraryShelves {
+            emptyTitle: browser.emptyTitle; emptyDetail: browser.emptyDetail
             anchors.fill: parent
             readonly property bool selectedLayout: root.model.route === "games" && !root.emptyPc && root.model.viewStyle === "shelves"
             visible: selectedLayout
@@ -109,11 +111,11 @@ Item {
             previewDelay: root.shell.settings.previewDelay
             filterText: root.model.filterLabel + (root.model.query ? " · " + root.model.query : "")
             actionVisible: entry.linked === true
-            emptyTitle: root.pc ? "Your PC games, at home here" : root.model.query || root.model.filterLabel !== "All titles" ? "No matching titles" : "This collection is empty"
-            emptyDetail: root.pc ? "Add a game folder to get started" : root.model.query || root.model.filterLabel !== "All titles" ? "Reset search and filter" : "Add games or edit collection rules"
+            emptyTitle: root.model.hasFilters ? "No matching games" : root.model.collection === "multiverse" ? "No games on this platform yet" : "This collection is empty"
+            emptyDetail: root.model.hasFilters ? "Reset search and filters" : root.model.collection === "multiverse" ? "Import a ROM" : root.model.collection.startsWith("user:") ? "Edit collection" : "Back to collections"
             onActivated: index => root.shell.activate(index)
             onFavoriteRequested: gameId => root.shell.toggleLibraryFavorite(gameId)
-            onEmptyActivated: { if(root.pc)root.shell.pcGames.begin(); else if(root.model.collection.startsWith("user:") && !root.model.query && root.model.filterLabel === "All titles") root.shell.manageCollection(false); else root.shell.activate(0) }
+            onEmptyActivated: root.shell.activateEmptyLibrary()
         }
     }
 }

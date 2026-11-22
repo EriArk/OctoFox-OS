@@ -49,7 +49,8 @@ void startDiagnosticsSmoke(QQuickWindow* window, ShellController& shell, Session
         auto* checks = shell.diagnostics();
         if (session.blocked() || reports.saving() || shell.device()->busy()) return;
         switch ((*stage)++) {
-        case 0: shell.systemAction("settings"); shell.settings()->selectPage("controller"); press(a); break;
+        case 0: shell.systemAction("settings"); shell.settings()->selectPage("controller");
+            shell.settings()->activateRow(1); shell.settings()->activateRow(8); break;
         case 1:
             check(shell.service() == "diagnostics" && focus("diagnostic-action-0"), "Controller service opened with deterministic focus");
             SDL_JoystickSetVirtualButton(joystick, SDL_CONTROLLER_BUTTON_Y, 1);
@@ -73,7 +74,7 @@ void startDiagnosticsSmoke(QQuickWindow* window, ShellController& shell, Session
             press(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER); break;
         case 5:
             check(shell.page() == 1 && !shell.serviceOpen(), "R1 switches primary section");
-            press(start); press(a); for(int i=0;i<7;++i) press(down); press(a); press(a); break;
+            shell.systemAction("settings");shell.settings()->selectPage("controller");shell.settings()->activateRow(1);shell.settings()->activateRow(8);break;
         case 6:
             check(checks->buttons()[9].toMap()["seen"].toBool(), "R1 history survives reopening");
             if (!fixedDisplay) window->resize(1920,1080); press(a);
@@ -93,7 +94,7 @@ void startDiagnosticsSmoke(QQuickWindow* window, ShellController& shell, Session
             check(checks->status().contains("saved locally"), "Report saved through controller action");
             QFile report(reports.lastReportPath()); check(report.open(QIODevice::ReadOnly), "Report readable");
             const auto json = QJsonDocument::fromJson(report.readAll()).object();
-            check(json["input"].toObject()["buttons"].toArray()[SDL_CONTROLLER_BUTTON_Y].toObject()["observed"].toBool(), "Report contains observed X");
+            check(json["input"].toObject()["buttons"].toArray().toVariantList().value(SDL_CONTROLLER_BUTTON_Y).toMap()["observed"].toBool(), "Report contains observed X");
             capture("report-saved"); press(right); press(a); if (!fixedDisplay) window->resize(1024,768); break;
         }
         case 10:
@@ -101,7 +102,7 @@ void startDiagnosticsSmoke(QQuickWindow* window, ShellController& shell, Session
             check(checks->runtimeLines().join(' ').contains(QString("%1 × %2").arg(window->width()).arg(window->height())), "Display follows window changes without a manual refresh");
             capture("letterboxed"); press(b); break;
         case 11:
-            check(shell.service()=="settings" && focus("settings-control-0"), "B restores original system-menu entry");
+            check(shell.service()=="settings" && focus("settings-control-8"), "Back restores the controller test entry");
             press(SDL_CONTROLLER_BUTTON_LEFTSHOULDER); check(shell.page() == 0, "L1 remains global");
             if (!fixedDisplay) window->resize(960,540); press(start);
             press(SDL_CONTROLLER_BUTTON_Y); // Direct shortcut to Volume.
@@ -331,12 +332,12 @@ void startDiagnosticsSmoke(QQuickWindow* window, ShellController& shell, Session
             check(focus("settings-control-2"), "Cancelled power restores its row");
             shell.settings()->selectPage("controller"); break;
         case 73:
-            check(shell.settings()->category()==7 && focus("settings-control-0"), "Controller category");
-            capture("settings-controller"); press(a); break;
+            check(shell.settings()->category()==7 && shell.settings()->controls().size()==2 && focus("settings-control-0"), "Controller category");
+            capture("settings-controller"); press(down); press(a); break;
         case 74:
-            check(shell.service()=="diagnostics", "Controller test from Settings"); press(b); break;
+            check(shell.settings()->controls().size()>2 && focus("settings-control-1"), "Advanced controls expand on request"); press(a);press(SDL_CONTROLLER_BUTTON_DPAD_UP);break;
         case 75:
-            check(shell.service()=="settings" && focus("settings-control-0"), "Controller test returns to its row");
+            check(shell.service()=="settings" && focus("settings-control-0"), "Layout stays reachable after collapsing advanced controls");
             shell.settings()->selectPage("trainer"); press(a);
             for(int i=0;i<2;++i) press(down); press(a); break;
         case 76: {

@@ -637,6 +637,7 @@ qt_add_qml_module(traineros
         src/qml/ClockPane.qml
         src/qml/DevicePanel.qml
         src/qml/DiagnosticsPanel.qml
+        src/qml/EmulatorLauncher.qml
         src/qml/GamePreparationPanel.qml
         src/qml/KeyboardPanel.qml
         src/adapters/pokemon/TrainerPage.qml

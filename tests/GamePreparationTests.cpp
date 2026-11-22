@@ -36,6 +36,29 @@ private slots:
         result=readiness(profiles,d.path(),r);QVERIFY(result["problem"].toString().isEmpty());QVERIFY(result["warning"].toString().contains("Online")); // No online credentials required for solo play.
         r.adventure.adapterId="unconfigured";QCOMPARE(readiness(profiles,d.path(),r)["repair"].toString(),"software");
     }
+    void launcherListsFrontendsAndOpensTheChosenEmulator() {
+        QTemporaryDir directory;
+        const auto probe=QCoreApplication::applicationDirPath()+"/trainer_process_probe";
+        const auto result=directory.filePath("chosen");
+        const auto profile=[&](const QString& platform) {return QJsonObject{
+            {"validatedPlatforms",QJsonArray{platform}},{"setupProgram",probe},
+            {"setupArguments",QJsonArray{"echo",result,platform}}};};
+        GamePreparationController flow;
+        flow.configure(directory.path(),{{"vita3k",profile("psvita")},{"rpcs3",profile("ps3")},{"no-frontend",{}}});
+        flow.beginLauncher("psvita");
+        QCOMPARE(flow.emulators().size(),2);
+        QCOMPARE(flow.emulators().value(flow.emulatorIndex()).toMap()["title"].toString(),"Vita3K");
+        QVERIFY(!flow.busy());QVERIFY(flow.rows().isEmpty());
+        flow.dispatchLauncher(Action::Up);
+        QSignalSpy started(&flow,&GamePreparationController::setupStarted);
+        flow.dispatchLauncher(Action::Confirm);
+        QTRY_COMPARE(started.size(),1);QCOMPARE(started.first().value(1).toString(),"RPCS3");
+        QTRY_VERIFY(!flow.busy());QCOMPARE(get(result).trimmed(),QByteArray("ps3"));
+        flow.launchEmulator(1);QTRY_COMPARE(started.size(),2);QTRY_VERIFY(!flow.busy());
+        QCOMPARE(get(result).trimmed(),QByteArray("psvita"));
+        QSignalSpy closed(&flow,&GamePreparationController::closeRequested);
+        flow.dispatchLauncher(Action::Back);QCOMPARE(closed.size(),1);
+    }
     void nativeSetupUsesOwnedProcessAndGuards() {
         QTemporaryDir d;const auto probe=QCoreApplication::applicationDirPath()+"/trainer_process_probe";
         const auto output=d.path()+"/setup-result";

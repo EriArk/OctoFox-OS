@@ -18,6 +18,7 @@ void SocialController::configureLocalLobby(QString directory,QString name) {
 }
 void SocialController::setLobbyScope(QString scope) {
     if(scope!="online"&&scope!="local")return;
+    lobbyLocalSelected_=false;
     lobbyScope_=scope;lobbySelection_.clear();lobbyLastRoom_.clear();lobbyDetailFocused_=false;
     syncLocalLobby();emit changed();
 }

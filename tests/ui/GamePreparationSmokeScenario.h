@@ -54,6 +54,23 @@ inline void startGamePreparationSmoke(QQuickWindow* window,trainer::ShellControl
         case 7: check(f->report().contains("2 installed"),"Pack fills remaining console files");f->selectGroup("n3ds");capture("pack-installed-960");f->onlineAction(0);break;
         case 8: check(shell.service()=="game-preparation","Online control stays in the same screen");check(shell.settings()->onlineControls()[1].toMap()["detail"]=="pretendo","Inline Online service selector works");capture("online-inline-960");window->resize(1280,720);shell.settings()->cycleTheme(1);break;
         case 9: capture("online-inline-dark-1280");shell.dispatch(trainer::Action::Back);check(shell.service()=="settings","Controller Back returns to Settings");break;
+        case 10: shell.goToPage(trainer::ShellController::GamesPage);break;
+        case 11: {
+            std::function<QQuickItem*(QQuickItem*)> button=[&](QQuickItem* parent)->QQuickItem*{
+                if(parent->objectName()=="games-emulators" && parent->isVisible())return parent;
+                for(auto* child:parent->childItems())if(auto* match=button(child))return match;
+                return nullptr;
+            };
+            auto* entry=button(window->contentItem());
+            check(entry,"Games has a visible Emulators button");
+            if(entry)QTest::mouseClick(window,Qt::LeftButton,Qt::NoModifier,entry->mapToScene(entry->boundingRect().center()).toPoint());
+            check(shell.service()=="emulators","Touch opens the standalone emulator list");break;
+        }
+        case 12:
+            capture("emulator-launcher");shell.dispatch(trainer::Action::Back);
+            check(shell.service().isEmpty() && shell.page()==trainer::ShellController::GamesPage,"Back returns to Games");
+            shell.dispatch(trainer::Action::ToggleFavorite);
+            check(shell.service()=="emulators","Games controller shortcut opens the same list");break;
         default: {
             timer->stop();completed=true;const bool ok=diagnostics.isEmpty()&&warnings==0;
             QFile report(output+"/verification.txt");if(report.open(QIODevice::WriteOnly))report.write(((ok?QString("PASSED\n"):QString("FAILED\n"))+diagnostics.join('\n')+QString("\nQML warnings: %1\n").arg(warnings)).toUtf8());

@@ -96,6 +96,7 @@ class SocialController final : public QObject {
     Q_PROPERTY(QVariantMap homeLobby READ homeLobby NOTIFY changed)
     Q_PROPERTY(QVariantMap lobbyState READ lobbyState NOTIFY changed)
     Q_PROPERTY(QVariantMap lobbyDirectory READ lobbyDirectory NOTIFY changed)
+    Q_PROPERTY(bool lobbyLocalSelected READ lobbyLocalSelected NOTIFY changed)
     Q_PROPERTY(bool lobbyNeedsSignIn READ lobbyNeedsSignIn NOTIFY changed)
     Q_PROPERTY(QString lobbyScope READ lobbyScope WRITE setLobbyScope NOTIFY changed)
     Q_PROPERTY(QVariantList lobbyRows READ lobbyRows NOTIFY changed)
@@ -175,6 +176,7 @@ public:
     void leaveViewedLobby(bool close=false);
     QVariantMap lobbyState() const {auto state=viewedLobby().state().toVariantMap();if(!state.isEmpty())state["leaving"]=lobbyLeaving_.contains(state["id"].toString());return state;}
     QVariantMap lobbyDirectory() const;
+    bool lobbyLocalSelected() const {return lobbyLocalSelected_ || owner_.isEmpty() || snapshot_.value("state")=="restoring" || snapshot_.value("state")=="connecting";}
     bool lobbyNeedsSignIn() const {return lobbyScope_=="online" && snapshot_.value("state")!="connected";}
     QString lobbyScope() const {return lobbyScope_;}
     Q_INVOKABLE void setLobbyScope(QString scope);
@@ -476,6 +478,7 @@ private:
     int myLobbiesIndex_=0;
     LobbyCoordinator lobby_{this};
     LocalLobbyTransport localLobby_{this};
+    bool lobbyLocalSelected_=false;
     QString localLobbyDirectory_,lobbyScope_="online";
     bool syncingLocalLobby_=false;
     void syncLocalLobby();
