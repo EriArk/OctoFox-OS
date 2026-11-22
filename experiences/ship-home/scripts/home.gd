@@ -255,6 +255,7 @@ func _ui() -> void:
  layer.add_child(computer);computer.dismissed.connect(_close_fabricator)
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
  layer.add_child(instruments);instruments.bind(flight,walker)
+ instruments.page_changed.connect(_reset_helm_input)
  layer.add_child(prompts)
  survey.configure(self,layer);fishing.configure(self,layer);garden.configure(self,layer);mine.configure(self,layer);fabricator.ship=self
  prompts.used.connect(func(id:String):
@@ -265,8 +266,8 @@ func _open_colours() -> void:
   dye.open();Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 
 func _pause(value:bool) -> void:
+ if walker.seated:_reset_helm_input()
  if value:
-  _reset_helm_input()
   if survey.visible:survey.close()
   if mine.active:mine.close()
   if garden.active:garden.close()
@@ -291,7 +292,7 @@ func _close_fabricator() -> void:
 
 func _reset_helm_input() -> void:
  modifier=false;stand_timer=-1;trigger_thrust=false;stabilizing=false
- wait_neutral=true
+ wait_neutral=not Input.get_vector("pilot_left","pilot_right","pilot_down","pilot_up",0.18).is_zero_approx() or not Input.get_vector("look_left","look_right","look_down","look_up",0.18).is_zero_approx() or Input.is_action_pressed("pilot_thrust") or Input.is_action_pressed("pilot_fire")
  flight.throttle=0
 
 func _pilot_interact() -> void:
@@ -339,7 +340,6 @@ func _input(event:InputEvent) -> void:
    JOY_BUTTON_DPAD_RIGHT:instruments.open("Ship")
    JOY_BUTTON_DPAD_UP:instruments.open("Chart")
    JOY_BUTTON_DPAD_DOWN:instruments.open("Power")
- if instruments.page!="":wait_neutral=true
  get_viewport().set_input_as_handled()
 
 func _unhandled_input(event:InputEvent) -> void:
@@ -689,7 +689,7 @@ func _physics_process(delta:float) -> void:
   if not walker.seated:
    flight.tick(delta,Vector2.ZERO,0,0,Vector2.ZERO,true)
   elif instruments.y_down or instruments.page!="":
-   stick=Vector2.ZERO;flight.throttle=0;wait_neutral=true
+   stick=Vector2.ZERO;flight.throttle=0
    flight.tick(delta,stick,0,0,Vector2.ZERO,false)
   elif flight.mode==flight.Mode.FLYING:stick=_fly_manual(delta)
   else:flight.tick(delta,Vector2.ZERO,0,0,Vector2.ZERO,false)

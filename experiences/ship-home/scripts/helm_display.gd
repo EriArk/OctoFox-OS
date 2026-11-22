@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends Control
 ## One set of selectable panel rows serves touch, keyboard and the pilot's pad.
+signal page_changed
 const AMBER=Color("ffce78")
 const MINT=Color("94e5d5")
 const RED=Color("ff927a")
@@ -109,6 +110,7 @@ func open(section:String) -> void:
   pilot.pilot_camera.fov=78
  var had_atlas:=page in ["Chart","Local"]
  page=section;cursor=0;buttons.clear()
+ page_changed.emit()
  if page in ["Chart","Local"]:chart.show_page(not had_atlas)
  elif had_atlas:chart.stow()
  if section!="":canopy.update_projection(0,false)
