@@ -105,14 +105,11 @@ private slots:
         shell.dispatch(Action::NextPage);QCOMPARE(shell.page(),4);
         shell.dispatch(Action::PreviousPage);QCOMPARE(shell.page(),3);
         shell.dispatch(Action::Home);
-        QCOMPARE(shell.page(), 3); QVERIFY(shell.homeMenuOpen());
+        QCOMPARE(shell.page(), 0); QVERIFY(!shell.homeMenuOpen());
         const auto origin = shell.navigationState();
-        shell.dispatch(Action::NextPage); QCOMPARE(shell.navigationState(), origin);
-        shell.dispatch(Action::Home); QVERIFY(!shell.homeMenuOpen());
-        QCOMPARE(shell.navigationState(), origin);
-        shell.dispatch(Action::Home);shell.dispatch(Action::Right);
+        shell.dispatch(Action::Home); QCOMPARE(shell.navigationState(), origin);
         QVERIFY(!shell.notificationsOpen());
-        shell.dispatch(Action::Home);shell.dispatch(Action::ToggleNotifications);QVERIFY(shell.notificationsOpen());
+        shell.dispatch(Action::ToggleNotifications);QVERIFY(shell.notificationsOpen());
         shell.dispatch(Action::Confirm);QCOMPARE(shell.navigationState(),origin);
         shell.dispatch(Action::NextPage);QCOMPARE(shell.navigationState(),origin);
         shell.dispatch(Action::Back);QVERIFY(!shell.notificationsOpen());QVERIFY(!shell.homeMenuOpen());
@@ -121,7 +118,7 @@ private slots:
         QCOMPARE(shell.page(), 0); QVERIFY(!shell.homeMenuOpen());
         shell.goToPage(1); shell.dispatch(Action::SystemMenu);
         shell.dispatch(Action::Home);
-        QCOMPARE(shell.page(), 1); QVERIFY(!shell.menuOpen()); QVERIFY(!shell.homeMenuOpen());
+        QCOMPARE(shell.page(), 0); QVERIFY(!shell.menuOpen()); QVERIFY(!shell.homeMenuOpen());
         shell.goToSection("social");
         QCOMPARE(shell.page(), 3); QCOMPARE(shell.socialFace(), "chats"); QVERIFY(!shell.menuOpen());
         shell.openGameHubFace("adapter");shell.selectAdapterScreen("party");

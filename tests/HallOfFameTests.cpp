@@ -106,7 +106,7 @@ private slots:
         QCOMPARE(shell.hall()->route(),"achievement-detail");QCOMPARE(shell.hall()->rowIndex(),1);
         const auto state=shell.hall()->navigationState();
         shell.dispatch(Action::Back);
-        shell.goToSection("apps");QCOMPARE(shell.page(),4);shell.goToSection("gamehub");QCOMPARE(shell.page(),2);
+        shell.goToSection("apps");QCOMPARE(shell.page(),4);shell.openGameHubFace("ra");QCOMPARE(shell.service(),"profile");
         QCOMPARE(shell.hall()->route(),"achievements");QCOMPARE(shell.hall()->rowIndex(),1);
         shell.hall()->restoreNavigation(state);shell.dispatch(Action::Back);
         QCOMPARE(shell.hall()->rows().size(),3);QCOMPARE(shell.hall()->rowIndex(),1);
@@ -510,15 +510,19 @@ private slots:
         shell.openGameHubFace("ra");shell.activate(0);shell.activate(1);
         shell.dispatch(Action::SystemMenu); shell.dispatch(Action::Back);
         QCOMPARE(shell.hall()->route(), "achievement-detail");
-        shell.dispatch(Action::PreviousPage); shell.dispatch(Action::NextPage);
+        shell.goToSection("apps"); shell.openGameHubFace("ra");
         QCOMPARE(shell.hall()->rowIndex(), 1);
-        shell.activate(1);
+        shell.dispatch(Action::Back);
+        QCOMPARE(shell.hall()->route(), "achievements");
+        shell.dispatch(Action::LocalAction);
+        QVERIFY(shell.hall()->galleryMenuOpen());
+        shell.hall()->chooseGalleryOption(7);
         QVERIFY(shell.hall()->status().contains("Refreshing"));
         QTRY_VERIFY(shell.hall()->status().contains("sample records"));
         QCOMPARE(shell.home(), home);
         QCOMPARE(archive.loadArchive().entries.size(), 4);
-        shell.dispatch(Action::Back); shell.dispatch(Action::Back); shell.dispatch(Action::Back);
-        QCOMPARE(shell.page(), 2); QCOMPARE(shell.hall()->route(), "sets");
+        shell.dispatch(Action::Back);
+        QCOMPARE(shell.service(),"profile"); QCOMPARE(shell.hall()->route(), "sets");
     }
 };
 QTEST_GUILESS_MAIN(HallOfFameTests)

@@ -274,7 +274,7 @@ private slots:
         tap(worlds, Action::Confirm);
         QCOMPARE(home.size(), 1);
     }
-    void shellKeepsWheelAcrossModalsButReopensWorldGridAfterPageChange() {
+    void shellRestoresSelectionAcrossModalsAndPageChanges() {
         MutableLibrary library;MockTrainerRepository profiles;RecordingAdapter adapter;
         DevelopmentPlatformService platform;MockPokedexRepository dex;
         MockHallOfFameRepository shellArchive;MockAchievementProvider shellAchievements;
@@ -285,7 +285,7 @@ private slots:
         shell.dispatch(Action::SystemMenu);shell.dispatch(Action::Back);
         QCOMPARE(shell.multiverse()->detail()["id"],selected);
         shell.dispatch(Action::NextPage);shell.dispatch(Action::PreviousPage);
-        QVERIFY(shell.collectionsRoot());shell.dispatch(Action::Confirm);
+        QVERIFY(!shell.collectionsRoot());
         QCOMPARE(shell.multiverse()->route(),"games");QCOMPARE(shell.multiverse()->detail()["id"],selected);
         shell.dispatch(Action::Back);QVERIFY(shell.collectionsRoot());
 

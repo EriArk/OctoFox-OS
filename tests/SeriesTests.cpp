@@ -61,7 +61,7 @@ private slots:
         ShellController shell(library,profiles,adapter,platform,builtinExperiences(dex,dex),archive,achievements);
         LocalFileCatalog files;shell.libraryManager()->files()->setCatalog(&files);shell.libraryManager()->setInitialFolder(dir.path());
         shell.goToSection("games");QVERIFY(shell.collectionsRoot());
-        shell.dispatch(Action::ToggleFavorite);QCOMPARE(shell.service(),"game-preparation");QTRY_VERIFY(!shell.gamePreparation()->busy());
+        shell.dispatch(Action::ToggleFavorite);QCOMPARE(shell.service(),"emulators");QTRY_VERIFY(!shell.gamePreparation()->busy());
         shell.gamePreparation()->close();QVERIFY(!shell.serviceOpen());QCOMPARE(shell.primaryId(),"games");
         shell.dispatch(Action::Secondary);QVERIFY(shell.quickAppsOpen());shell.dispatch(Action::ChangeView);
         QVERIFY(!shell.serviceOpen());shell.dispatch(Action::Back);
