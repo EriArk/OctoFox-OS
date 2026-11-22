@@ -28,9 +28,9 @@ It describes accepted behaviour; [project status](PROJECT_STATUS.md) distinguish
 
 ## Development status and getting started
 
-**Alpha 8 is an installer over existing ArmadaOS for AYN Odin 2 and Retroid
+**Alpha 9 is an installer over existing ArmadaOS for AYN Odin 2 and Retroid
 Pocket Flip 2.** Download `OctoFox-OS-Full-Setup.tar` from the
-[Alpha release](https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.8),
+[Alpha release](https://github.com/EriArk/OctoFox-OS/releases/tag/v0.1.0-alpha.9),
 extract the whole folder in Desktop, and run `Install OctoFox OS.sh` as your normal
 user. The release includes English and Russian installation instructions.
 Internet access and administrator authorization are needed for dependencies.
@@ -41,9 +41,7 @@ saved sessions from older installations. New players receive a temporary nicknam
 and can choose their nickname and avatar during setup. Managed installations
 receive Alpha updates through Settings → System → Software updates.
 
-This is an early Alpha, with limited multiplayer acceptance. The earlier clean
-installer/wizard/reboot check was on Flip with Alpha 7; a new Alpha 8 clean-device
-installation is not claimed. Ready-to-flash images, Beta and Stable are unavailable.
+Full Setup was tested in a fresh installation directory on Flip 2. Automatic desktop-to-OctoFox session switching on a freshly installed Armada system remains unverified for Alpha 9. See the [release verification and known limitations](docs/evidence/2026-11-22-alpha9/README.md).
 
 - [Build and run from source](docs/DEVELOPMENT.md)
 - [Project status (Russian)](PROJECT_STATUS.md) · [Changelog (Russian)](CHANGELOG.md) — current capabilities, evidence and dated changes for posts and the website.
@@ -56,7 +54,7 @@ installation is not claimed. Ready-to-flash images, Beta and Stable are unavaila
 | Library, series and handheld shell | Installed device evidence; compatibility depends on available runtimes/content |
 | Semantic game integration | Exact supported game/build adapters, not all games on a platform |
 | Social and multiplayer | Implemented routes with bounded evidence; distinct-network, larger-group and human audio acceptance remain open |
-| Public distribution and updates | Alpha installer over Armada; clean Flip install/wizard/reboot verified. Public Alpha 8 OTA applied on both devices; Odin needed a managed baseline and scan recovery. Software 48 rollback is retained; rollback execution remains separate. Images and SteamOS/Bazzite come later |
+| Public distribution and updates | Alpha 9 for Armada ARM64. Odin 2 and Flip 2 received Software 63 through public OTA and retained Software 62 for rollback. |
 | Code license and public artwork | Original code: GPL-3.0-or-later; third-party terms remain separate and artwork review is ongoing |
 
 ## Pick a game and play
