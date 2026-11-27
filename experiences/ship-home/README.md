@@ -60,9 +60,9 @@ pigment cartridges. Ordinary dyes retain the garment surface's authored metal re
 
 ### Ship computer and refinery
 
-The ship computer has a screen and keyboard beside the fabricator. Open it with **A / F**. Use **LB / RB** or **[ / ]** for Ship, Cargo, Upgrades and Store. Ship shows hull, shields, fuel and powered modules. Cargo lists local samples and fish in the livewell alongside available workshop stock. The Store quotes prices in Sparks. Select an order once to review it and again to pay. Purchases arrive as tradable inventory items. Fit an upgrade from Upgrades to apply it to this ship profile. The cruise economiser cuts cruise fuel use by 20%. The boost capacitor reduces a boost from 36 to 27 energy.
+The ship computer has a screen and keyboard beside the fabricator. Open it with **A / F**. Use **LB / RB** or **[ / ]** for Ship, Cargo, Upgrades and Market. Ship shows hull, shields, fuel and powered modules. Cargo lists local samples and fish in the livewell alongside available workshop stock. In Market, filter by Clothing or Consumables. Select a blueprint to review its outputs, materials, print times and price in Sparks, then confirm the purchase. Owned blueprints can be reused at the fabricator. Fit an upgrade from Upgrades to apply it to this ship profile. The cruise economiser cuts cruise fuel use by 20%. The boost capacitor reduces a boost from 36 to 27 energy.
 
-At the refinery, the first batch of each output uses the original recipe. A concurrent batch of the same output also consumes an empty cartridge. Buy shells at the computer or buy the reusable empty cartridge blueprint and print one from a unit of plastic in one hour. Existing pending jobs keep their original timers and can be collected at the refinery.
+At the refinery, the first batch of each output uses the original recipe. A concurrent batch of the same output also consumes an empty cartridge. Buy the reusable empty cartridge blueprint at the computer and print a shell from one unit of plastic in one hour. When Bazaar purchases are open, the supplies merchant also sells finished shells. Existing pending jobs keep their original timers and can be collected at the refinery.
 
 ### Using the fabricator and fitting booth
 
@@ -83,7 +83,7 @@ The garment plates are rendered from the ship's THREAD models.
 [Fabricator screenshots](../../docs/evidence/2026-11-20-ship-fabricator/README.md).
 
 At the circular fitting platform press **A / F**. Browse your current look, saved
-outfits and the Traveller, Mage and Merchant collections with the D-pad or **LB / RB**.
+outfits and the pieces you own from the Traveller, Mage and Merchant collections with the D-pad or **LB / RB**. The booth and profile wardrobe share garment ownership and finishes. Face, hair and body customization stay in the profile editor.
 Turn the character with the right stick. Browsing previews an outfit behind the
 pleated screens. **A** on a saved look equips it through the profile wardrobe.
 **X** on a saved look, or **A** on the equipped look, opens its individual pieces.

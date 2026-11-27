@@ -5,6 +5,12 @@ will use this inventory; owning or renting a bazaar is not a prerequisite to
 holding items. The owner selected Pokémon Emerald as the first and currently only
 semantic game adapter in this scope.
 
+## Clothing and reusable blueprints
+
+A garment belongs to the player as an inventory item. Its finish follows that particular item. The profile wardrobe and the home fitting booth read the same ownership. Equipping a saved look preserves the character’s current hair and face. Removing or listing a garment must respect its equipped state.
+
+Market sells reusable manufacturing blueprints. Printing consumes materials and collection puts the finished piece in inventory. Bazaar merchants offer a limited selection of finished goods when checkout is open. Player listings can transfer eligible finished pieces with their finishes. Blueprints stay with their owner. Previously acquired profile scenes can still be applied from the profile. [Ship computer and wardrobe](../experiences/ship-home/README.md#ship-computer-and-refinery) · [Acceptance checks](evidence/ship-wardrobe-20261127/README.md)
+
 ## Current source implementation
 
 Profile → Inventory is a free entry beside Wardrobe. The owner rejected the
