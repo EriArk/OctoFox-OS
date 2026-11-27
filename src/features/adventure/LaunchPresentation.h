@@ -13,6 +13,7 @@ public:
                        RuntimeMultiplayer&,SocialController&,AdventureExitPresentation&,AppsController&);
     QVariantMap state() const;
     bool visible() const;
+    bool waitingForWindow() const { return waitingForWindow_; }
     void setWaitingForWindow(bool waiting);
     Q_INVOKABLE void cancel();
 signals:

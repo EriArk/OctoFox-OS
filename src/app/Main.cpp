@@ -1360,8 +1360,8 @@ int main(int argc, char* argv[]) {
         if (!smoke) {
             input.setEnabled(app.applicationState() == Qt::ApplicationActive);
             bindings.connect(&app, &QGuiApplication::applicationStateChanged, &input,
-                             [&input, &adventureLaunch](Qt::ApplicationState state) {
-                input.setEnabled(state == Qt::ApplicationActive && (!adventureLaunch.active() || adventureLaunch.preparing()));
+                             [&input, &adventureLaunch, &launchPresentation](Qt::ApplicationState state) {
+                input.setEnabled(state == Qt::ApplicationActive && (!adventureLaunch.active() || adventureLaunch.preparing() || launchPresentation.waitingForWindow()));
             });
         }
         SpriteArt sprites(parser.isSet("sprite-dir") ? parser.value("sprite-dir") : smoke || parser.isSet("ephemeral")
@@ -1641,7 +1641,7 @@ int main(int argc, char* argv[]) {
                         && QStringList{"steam","pc-local","crates-native"}.contains(record->adventure.adapterId))
                         game={{"id","game:"+record->adventure.id},{"gameId",record->adventure.id},{"name",record->adventure.title},{"icon","applications-games"}};
                     shell.apps()->setGameState(game,adventureLaunch.minimized());
-                    input.setEnabled(app.applicationState() == Qt::ApplicationActive && (!adventureLaunch.active() || adventureLaunch.preparing()));
+                    input.setEnabled(app.applicationState() == Qt::ApplicationActive && (!adventureLaunch.active() || adventureLaunch.preparing() || launchPresentation.waitingForWindow()));
                 });
                 bindings.connect(&adventureLaunch, &AdventureLaunchController::checkpointRequested, store.get(),
                                  [&](quint64 token, const QJsonObject& state) {
@@ -1651,17 +1651,19 @@ int main(int argc, char* argv[]) {
                 });
                 auto* handoff = new QTimer(window);
                 handoff->setSingleShot(true);
-                // Some compositors assign focus only after the launcher unmaps.
+                // Let compositors that keep the launcher raised select the new surface.
                 handoff->setInterval(10000);
                 const auto releaseWindow = [&,window,handoff] {
-                    if (!handoff->isActive() && !adventureLaunch.active()) return;
                     handoff->stop();
                     if (adventureLaunch.state()=="running" && !adventureLaunch.minimized()) window->hide();
                     launchPresentation.setWaitingForWindow(false);
+                    input.setEnabled(false);
                 };
-                bindings.connect(handoff,&QTimer::timeout,window,releaseWindow);
-                bindings.connect(window,&QWindow::activeChanged,window,[window,handoff,releaseWindow]{
-                    if (!window->isActive() && handoff->isActive()) releaseWindow();
+                bindings.connect(handoff,&QTimer::timeout,window,[&,window]{
+                    if (launchPresentation.waitingForWindow()) window->lower();
+                });
+                bindings.connect(window,&QWindow::activeChanged,window,[&,window,releaseWindow]{
+                    if (!window->isActive() && launchPresentation.waitingForWindow()) releaseWindow();
                 });
                 bindings.connect(&adventureLaunch,&AdventureLaunchController::changed,window,[&,handoff]{
                     if (adventureLaunch.state()!="running" || adventureLaunch.minimized()) {
@@ -1672,6 +1674,7 @@ int main(int argc, char* argv[]) {
                 bindings.connect(&adventureLaunch,&AdventureLaunchController::suspendRequested,window,[&,window,handoff,releaseWindow]{
                     if (!window->isActive()) { releaseWindow(); return; }
                     launchPresentation.setWaitingForWindow(true);
+                    input.setEnabled(app.applicationState()==Qt::ApplicationActive);
                     handoff->start();
                 });
                 bindings.connect(&shell, &ShellController::changed, &adventureLaunch, [&] {

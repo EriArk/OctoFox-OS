@@ -47,10 +47,11 @@ QVariantMap LaunchPresentation::state() const {
     }
     if(title.isEmpty())title=social_.lobbyCoordinator()->state()["game"].toObject()["title"].toString();
     return {{"visible",visible()},{"title",title.isEmpty()?QString("Your game"):title},{"art",art},
-        {"stage",stage},{"cancellable",!waitingForWindow_&&!preparation_.cancelling()&&lifecycle_.state()!="stopping"}};
+        {"stage",stage},{"cancellable",!preparation_.cancelling()&&lifecycle_.state()!="stopping"}};
 }
 void LaunchPresentation::cancel() {
-    if(!visible()||waitingForWindow_||!apps_.openingTitle().isEmpty())return;
+    if(!visible()||!apps_.openingTitle().isEmpty())return;
+    if(waitingForWindow_){lifecycle_.cancel();return;}
     preparation_.cancel();lifecycle_.cancelOpening();
     if(social_.lobbyRuntime()->opening())social_.lobbyRuntime()->cancelPending();
     multiplayer_.cancelOpening();emit changed();
