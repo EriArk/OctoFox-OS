@@ -52,6 +52,7 @@ public:
     QString current() const{return current_;}
     qint64 processId() const{return processId_;}
     QString currentName() const;
+    QString openingTitle() const;
     bool controlsOpen() const{return controls_;}
     int controlIndex() const{return controlFocus_;}
     void openFile(const QString& url);

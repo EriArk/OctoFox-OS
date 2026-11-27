@@ -4,7 +4,7 @@ Item {
     id: root
     required property var launch
     readonly property var info: launch.state
-    Rectangle { anchors.fill: parent; color: Theme.surfaceColor("#b0102022") }
+    Rectangle { anchors.fill: parent; color: Theme.chassisTop }
     MouseArea { anchors.fill: parent }
     Rectangle { anchors.centerIn: popup; anchors.verticalCenterOffset: 6; width: popup.width + 4; height: popup.height + 4; radius: 20; color: Theme.surfaceColor("#55000000") }
     Panel {
@@ -21,7 +21,7 @@ Item {
                 GradientStop { position: 0; color: Theme.surfaceColor("#30101a20") }
                 GradientStop { position: 1; color: Theme.surfaceColor("#ef152c2d") }
             } }
-            Text { x: 24; y: 22; text: "LET’S PLAY"; font.pixelSize: 12; font.letterSpacing: 2; color: Theme.yellow }
+            Text { x: 24; y: 22; text: "OCTOFOX OS"; font.pixelSize: 12; font.letterSpacing: 2; color: Theme.yellow }
             Text { x: 24; anchors.bottom: parent.bottom; anchors.bottomMargin: 22; width: parent.width - 48
                 text: root.info.title || ""; color: Theme.accentInk; font.family: Theme.displayFamily; font.pixelSize: 30
                 maximumLineCount: 2; wrapMode: Text.WordWrap; elide: Text.ElideRight; textFormat: Text.PlainText }
@@ -38,7 +38,7 @@ Item {
             text: root.info.stage || "Opening game…"; font.pixelSize: 18; color: Theme.ink; wrapMode: Text.WordWrap; textFormat: Text.PlainText }
         CapButton { objectName: "launch-cancel"; anchors.right: parent.right; anchors.rightMargin: 27; y: 219
             width: 132; height: 40; tint: Theme.pink; label: "Cancel"; selected: root.visible
-            enabled: root.info.cancellable !== false; onActivated: root.launch.cancel() }
-        Text { x: 30; y: 281; text: "B · Cancel opening"; font.pixelSize: 12; color: Theme.muted }
+            visible: root.info.cancellable !== false; enabled: visible; onActivated: root.launch.cancel() }
+        Text { x: 30; y: 281; visible: root.info.cancellable !== false; text: "B · Cancel opening"; font.pixelSize: 12; color: Theme.muted }
     }
 }

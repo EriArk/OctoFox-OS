@@ -98,6 +98,7 @@ Item {
             FilesIcon { anchors.horizontalCenter: parent.horizontalCenter; width: 56; height: 56; kind: "folder"; opacity: .65 }
             Text { width: parent.width; horizontalAlignment: Text.AlignHCenter; text: root.state.busy ? "Opening folder…" : root.state.error || (root.state.query.length ? "No matching files" : "This folder is empty"); textFormat: Text.PlainText; wrapMode: Text.Wrap; font.pixelSize: 14; color: Theme.muted }
         }
+        LoadingCover { anchors.fill: parent; visible: root.state.busy; caption: "Opening folder…" }
         Connections { target: root.flow; function onScrollRequested(direction) { files.contentY=Math.max(0,Math.min(Math.max(0,files.contentHeight-files.height),files.contentY+direction*55)) } }
     }
     Text { x: sidebar.width+22; y: root.height-50; width: parent.width-x-12; height: 18; color: root.state.error.length ? Theme.textColor("#96502d") : Theme.muted; font.pixelSize: 11; elide: Text.ElideRight; textFormat: Text.PlainText

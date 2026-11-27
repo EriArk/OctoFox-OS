@@ -5,6 +5,7 @@
 #include "core/navigation/LaunchPreparation.h"
 #include "features/adventure/RemotePlayRuntime.h"
 #include "features/adventure/AdventureExitPresentation.h"
+#include "features/apps/AppsController.h"
 #include "features/social/SocialController.h"
 #include "integrations/social/FluxerSession.h"
 #include "platform/input/AdventureOverlayService.h"
@@ -314,7 +315,13 @@ private slots:
     }
     void commonSplashCancelsBeforeCheckpointAndLeavesRunningGamesAlone() {
         Fixture f;LaunchPreparation preparation(f.library,f.retro);
-        LaunchPresentation presentation(f.library,preparation,f.lifecycle,f.runtime,f.social,f.view);
+        AppsController apps;
+        LaunchPresentation presentation(f.library,preparation,f.lifecycle,f.runtime,f.social,f.view,apps);
+        apps.accept({{"event","state"},{"launching","fixture.desktop"}});
+        QVERIFY(presentation.visible());
+        QVERIFY(!presentation.state()["cancellable"].toBool());
+        apps.accept({{"event","foreground"},{"id","fixture.desktop"}});
+        QVERIFY(!presentation.visible());
         QObject::disconnect(&f.lifecycle,&AdventureLaunchController::checkpointRequested,&f.lifecycle,nullptr);
         QSignalSpy checkpoints(&f.lifecycle,&AdventureLaunchController::checkpointRequested);
         QVERIFY(f.lifecycle.launch({"unused",{},{}},{},"missing"));QVERIFY(presentation.visible());

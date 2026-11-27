@@ -51,6 +51,11 @@ View3D {
     DirectionalLight { eulerRotation: Qt.vector3d(-25, -25, 0); brightness: 1.4; ambientColor: "#888888" }
     DirectionalLight { eulerRotation: Qt.vector3d(-10, 140, 0); brightness: 0.7 }
     AvatarView3D { id: avatar; objectName:"wardrobe-preview-rig";source: root.modelSource; attention: Qt.point(root.attention.x * Math.cos(root.yaw*Math.PI/180),root.attention.y); eulerRotation.y: root.yaw+root.turn }
+    LoadingCover {
+        anchors.fill: parent
+        visible: root.modelSource.toString().length > 0 && !avatar.ready && !avatar.error
+        caption: "Preparing character…"
+    }
     Text { anchors.centerIn: parent; width: parent.width; wrapMode: Text.Wrap; horizontalAlignment: Text.AlignHCenter; visible: avatar.error.length>0; text: "Preview unavailable"; color: Theme.textColor("#853b24") }
     MouseArea {
         anchors.fill: parent

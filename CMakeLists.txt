@@ -605,6 +605,7 @@ qt_add_qml_module(traineros
         src/qml/ConnectionsPane.qml
         src/qml/ConnectionsPopup.qml
         src/qml/StoragePanel.qml
+        src/qml/LoadingCover.qml
         src/qml/LaunchPanel.qml
         src/qml/LobbyImportPanel.qml
         src/qml/CollectionsPanel.qml

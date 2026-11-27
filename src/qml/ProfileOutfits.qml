@@ -61,6 +61,7 @@ Item {
                 }
             }
             Text { anchors.centerIn: parent; width: parent.width-30; visible: !portrait.active || !!root.view.previewError; text:root.view.previewError?"Preview unavailable": "Preparing your look...";wrapMode:Text.WordWrap;horizontalAlignment:Text.AlignHCenter;font.pixelSize:12;color:Theme.muted }
+            LoadingCover { anchors.fill: portrait; visible: root.view.previewBusy; caption: "Preparing outfit…" }
             Row { anchors.bottom: parent.bottom; anchors.bottomMargin: 6; anchors.horizontalCenter:parent.horizontalCenter; spacing:12
                 SocialIconButton { icon:"arrow-left";label:"Rotate left";onClicked:if(portrait.item)portrait.item.yaw-=30 }
                 SocialIconButton { icon:"arrow-right";label:"Rotate right";onClicked:if(portrait.item)portrait.item.yaw+=30 }

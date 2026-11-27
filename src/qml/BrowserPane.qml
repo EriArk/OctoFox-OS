@@ -216,6 +216,11 @@ Item {
         active:!!flow.profile&&flow.available;source:"BrowserEngine.qml"
         onLoaded:{item.flow=root.flow;item.surface=root;item.reconcile()}
     }
+    LoadingCover {
+        anchors.fill: webLoader
+        visible: !root.startPage && !!root.page && root.page.loading && !root.error
+        caption: "Opening page…"
+    }
     Rectangle {
         anchors.fill:parent;visible:root.startPage;color:Theme.paper
         // A quiet, themed start page; no network requests for suggested tiles.

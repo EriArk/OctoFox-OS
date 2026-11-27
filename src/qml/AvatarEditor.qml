@@ -52,6 +52,11 @@ Item {
             onLoaded: item.modelSource=Qt.binding(function(){return root.profile.avatarPreview})
         }
         TrainerEmblem { anchors.centerIn: parent; width: 100; height: 100; visible: !view.active; emblem: root.profile.draftEmblem }
+        LoadingCover {
+            anchors.fill: view
+            visible: !root.profile.avatarError && root.profile.avatarBusy
+            caption: "Preparing character…"
+        }
         Row {
             anchors.horizontalCenter: parent.horizontalCenter; anchors.bottom: parent.bottom; anchors.bottomMargin: 12; spacing: 12
             SocialIconButton { icon: "arrow-left"; label: "Rotate left"; onClicked: { if(view.item) view.item.yaw-=30 } }

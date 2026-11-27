@@ -105,9 +105,11 @@ func run() -> void:
  press(JOY_BUTTON_DPAD_DOWN)
  check(booth.requested==4 and not client.wearing,"D-pad selects the saved look for preview")
  for i in 65:await physics_frame
+ check(booth.closure==1.0,"Curtain covers the pending saved outfit")
  check(home.cards.action.disabled,"A saved look waits for its resolved preview")
  if not descriptor.is_empty():
   receive.call({"avatar":booth.live_descriptor})
+  for i in 40:await physics_frame
   check(not home.cards.action.disabled and booth.preview_installed,"Resolved SDK character enables wear")
   var angle:float=home.walker.visual.rotation.y
   Input.action_press("look_right",0.8);booth.update(0.25);Input.action_release("look_right")
@@ -122,6 +124,7 @@ func run() -> void:
   receive.call({"items":shirt_options});await create_timer(0.16).timeout;receive.call({"avatar":booth.live_descriptor})
   press(JOY_BUTTON_DPAD_DOWN);press(JOY_BUTTON_DPAD_RIGHT);await create_timer(0.16).timeout
   receive.call({"avatar":booth.live_descriptor})
+  for i in 40:await physics_frame
   check(home.parts.displayed==home.parts.wanted and not home.parts.apply.disabled,"Browse a piece before committing")
   press(JOY_BUTTON_DPAD_LEFT)
   await create_timer(0.16).timeout
@@ -132,6 +135,7 @@ func run() -> void:
   client._packet({"id":str(discarded_request),"result":{"avatar":booth.live_descriptor}})
   check(client.serial>discarded_request,"Late discarded piece resumes the saved outfit preview")
   receive.call({"avatar":booth.live_descriptor})
+  for i in 40:await physics_frame
   press(JOY_BUTTON_B)
   check(client.wearing and client.pending[str(client.serial)].method=="ship.wear","Explicit A equips the chosen saved look")
   receive.call({});receive.call({"items":[{"id":"outfit.slot.1","name":"Evening flight","worn":true,"recipe":{}}],"next":-1})

@@ -2,7 +2,7 @@
 #include <QObject>
 #include <QVariantMap>
 namespace trainer {
-class AdventureLaunchController;class LaunchPreparation;class RuntimeMultiplayer;
+class AppsController;class AdventureLaunchController;class LaunchPreparation;class RuntimeMultiplayer;
 class SocialController;class LibraryRepository;class AdventureExitPresentation;
 // Presentation of existing launch owners, never a second launcher.
 class LaunchPresentation final : public QObject {
@@ -10,13 +10,16 @@ class LaunchPresentation final : public QObject {
     Q_PROPERTY(QVariantMap state READ state NOTIFY changed)
 public:
     LaunchPresentation(LibraryRepository&,LaunchPreparation&,AdventureLaunchController&,
-                       RuntimeMultiplayer&,SocialController&,AdventureExitPresentation&);
+                       RuntimeMultiplayer&,SocialController&,AdventureExitPresentation&,AppsController&);
     QVariantMap state() const;
     bool visible() const;
+    void setWaitingForWindow(bool waiting);
     Q_INVOKABLE void cancel();
 signals:
     void changed();
 private:
+    bool waitingForWindow_ = false;
+    AppsController& apps_;
     LibraryRepository& library_;LaunchPreparation& preparation_;AdventureLaunchController& lifecycle_;
     RuntimeMultiplayer& multiplayer_;SocialController& social_;AdventureExitPresentation& exit_;
 };

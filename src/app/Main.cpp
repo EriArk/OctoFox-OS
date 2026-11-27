@@ -819,7 +819,7 @@ int main(int argc, char* argv[]) {
         });
         if(saveBackups)saveBackups->operationGuard=[&]{return adventureLaunch.active()?QString("Exit the running game before changing saves."):QString();};
         RuntimeMultiplayer multiplayer(activeLibrary,retroarch,ppsspp,dolphin,*shell.social(),adventureProcess,adventureLaunch,exitPresentation);
-        LaunchPresentation launchPresentation(activeLibrary,shell.launchPreparation(),adventureLaunch,multiplayer,*shell.social(),exitPresentation);
+        LaunchPresentation launchPresentation(activeLibrary,shell.launchPreparation(),adventureLaunch,multiplayer,*shell.social(),exitPresentation,*shell.apps());
         LobbyImportController lobbyImport(activeLibrary,*selectedAdapter,&files,*shell.social(),multiplayer);
         bindings.connect(&lobbyImport,&LobbyImportController::imported,&shell,[&]{shell.refreshLibrary();});
         RemotePlayRuntime remotePlay(activeLibrary,retroarch,*shell.social(),adventureProcess,adventureLaunch,multiplayer.gamePreparation());
@@ -1649,7 +1649,31 @@ int main(int argc, char* argv[]) {
                         adventureLaunch.checkpointCompleted(token, error);
                     });
                 });
-                bindings.connect(&adventureLaunch, &AdventureLaunchController::suspendRequested, window, [window] { window->hide(); });
+                auto* handoff = new QTimer(window);
+                handoff->setSingleShot(true);
+                // Some compositors assign focus only after the launcher unmaps.
+                handoff->setInterval(10000);
+                const auto releaseWindow = [&,window,handoff] {
+                    if (!handoff->isActive() && !adventureLaunch.active()) return;
+                    handoff->stop();
+                    if (adventureLaunch.state()=="running" && !adventureLaunch.minimized()) window->hide();
+                    launchPresentation.setWaitingForWindow(false);
+                };
+                bindings.connect(handoff,&QTimer::timeout,window,releaseWindow);
+                bindings.connect(window,&QWindow::activeChanged,window,[window,handoff,releaseWindow]{
+                    if (!window->isActive() && handoff->isActive()) releaseWindow();
+                });
+                bindings.connect(&adventureLaunch,&AdventureLaunchController::changed,window,[&,handoff]{
+                    if (adventureLaunch.state()!="running" || adventureLaunch.minimized()) {
+                        handoff->stop();
+                        launchPresentation.setWaitingForWindow(false);
+                    }
+                });
+                bindings.connect(&adventureLaunch,&AdventureLaunchController::suspendRequested,window,[&,window,handoff,releaseWindow]{
+                    if (!window->isActive()) { releaseWindow(); return; }
+                    launchPresentation.setWaitingForWindow(true);
+                    handoff->start();
+                });
                 bindings.connect(&shell, &ShellController::changed, &adventureLaunch, [&] {
                     if(adventureLaunch.minimized())adventureLaunch.updateReturnContext(shell.navigationState());
                 });

@@ -234,7 +234,8 @@ func _appearance(descriptor:Dictionary) -> void:
   walker.install_avatar(descriptor);return
  if dye.visible:dye.close()
  fitting.finish()
- if not walker.install_avatar(descriptor):notify("Your character could not be loaded.")
+ arrival_identity_resolved=walker.install_avatar(descriptor)
+ if not arrival_identity_resolved:notify("Your character could not be loaded.")
 
 func _identity_lost(reason:String) -> void:
  arrival_identity_resolved=true

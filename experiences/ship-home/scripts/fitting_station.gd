@@ -8,6 +8,7 @@ var live_descriptor:Dictionary={}
 var preview_installed:=false
 var selected_id:=""
 var editing_parts:=false
+var loading_piece:=false
 var resolved_key:=""
 var render_key:=""
 var preview_error:=""
@@ -113,7 +114,16 @@ func resolve_selected() -> void:
 # to the live SDK session, which is revoked on profile switch/disconnect.
 func install_preview(descriptor:Dictionary,selected:Callable) -> bool:
  var owner:=str(live_descriptor.get("profile",""))
- return active and not returning and owner!="" and workshop.profile_id==owner and await walker.preview_avatar(descriptor,owner,selected)
+ if owner.is_empty() or workshop.profile_id!=owner:return false
+ while active and not returning and selected.call() and closure<1.0:
+  await get_tree().process_frame
+ if not active or returning or not selected.call():return false
+ # Present the closed curtain before installing even a cached model on the main thread.
+ if DisplayServer.get_name()!="headless":await RenderingServer.frame_post_draw
+ if not selected.call() or workshop.profile_id!=owner:return false
+ var installed:=await walker.preview_avatar(descriptor,owner,selected)
+ if installed and DisplayServer.get_name()!="headless":await RenderingServer.frame_post_draw
+ return installed and selected.call()
 
 func resolved(key:String,descriptor:Dictionary) -> void:
  if editing_parts or not active or returning or current!=requested:return
@@ -151,6 +161,7 @@ func change() -> void:
  clear_garment()
  current=requested
  if current>=LOOKS.size():
+  preview_error="";resolved_key="";render_key=""
   resolve_selected();selection_changed.emit();return
  restore_avatar()
  if current==0:
@@ -189,9 +200,12 @@ func update(delta: float) -> void:
  if not active:return
  if not returning:
   walker.visual.rotation.y-=Input.get_axis("look_left","look_right")*delta*2.6
- if editing_parts:return
  hold=maxf(0,hold-delta)
- if current!=requested:
+ var saved:=selected_look(current)
+ var waiting:=loading_piece if editing_parts else not returning and not saved.is_empty() and render_key!=recipe_key(saved) and preview_error.is_empty()
+ if editing_parts or (current==requested and waiting):
+  closure=move_toward(closure,1.0 if waiting else 0.0,delta*2.7)
+ elif current!=requested:
   # Keep a fully closed frame before changing the visible meshes.
   if closure<1:
    closure=move_toward(closure,1,delta*2.7)
@@ -205,6 +219,7 @@ func update(delta: float) -> void:
 
 func finish() -> void:
  if not active:return
+ loading_piece=false;editing_parts=false
  clear_garment();restore_avatar();selected_id="";active=false;returning=false;current=0;requested=0;hold=0;closure=0
  studio.drape.set_shader_parameter("closure",0.0)
  walker.position=previous;walker.visual.rotation.y=facing

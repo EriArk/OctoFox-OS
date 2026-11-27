@@ -21,6 +21,8 @@ var attached_at := 0
 var party := Party.new()
 var awaiting_guest := false
 var attach_pending := false
+var arrival_generation := 0
+var revealing := false
 var loader := Thread.new()
 var cabin_attached := false
 
@@ -31,6 +33,9 @@ func _ready() -> void:
 	if loader.start(ResourceLoader.load.bind(GAME))!=OK:_load_error()
 
 func _begin_flight() -> void:
+	arrival_generation+=1
+	revealing=false
+	awaiting_guest=false
 	if screen==null:
 		screen=ColorRect.new()
 		screen.color=Color("101626")
@@ -157,6 +162,15 @@ func _arrive() -> void:
 	hint.text="Arriving…" if game.transit_avatar_ready() else "Preparing your character…"
 
 func _reveal() -> void:
+	if revealing:return
+	revealing=true
+	var generation:=arrival_generation
+	# The scene and its camera draw behind the canvas while game input stays locked.
+	if DisplayServer.get_name()=="headless":
+		await get_tree().process_frame
+	else:
+		await RenderingServer.frame_post_draw
+	if generation!=arrival_generation or phase!="arrival" or not is_instance_valid(game):return
 	game.set_transit_controls(false)
 	screen.queue_free()
 	screen=null

@@ -199,6 +199,16 @@ void AppsController::setFavoriteCapacity(int value) {
     const auto previous=railFocused_?selected():QString{};
     favoriteCapacity_=value;normalize(previous);emit changed();
 }
+QString AppsController::openingTitle() const {
+    if (webPending_) return QStringLiteral("Browser");
+    if (launching_.isEmpty()) return {};
+    if (launching_ == "@file") return QStringLiteral("File");
+    for (const auto& value : catalogue_) {
+        const auto row = value.toMap();
+        if (row["id"] == launching_) return row.value("name", launching_).toString();
+    }
+    return QStringLiteral("Application");
+}
 QString AppsController::currentName() const {for(const auto& v:catalogue_)if(v.toMap()["id"]==current_)return v.toMap()["name"].toString();return "Application";}
 QString AppsController::selected() const{return (railFocused_?rail():rows()).value(railFocused_?railFocus_:focus_).toMap()["id"].toString();}
 void AppsController::normalize(const QString& preferredRailId,const QString& preferredGridId){

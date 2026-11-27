@@ -54,6 +54,7 @@ func open(row:Dictionary) -> void:
  fitting.editing_parts=true;load_field()
 
 func load_field() -> void:
+ fitting.loading_piece=true
  options=[];item=0;wanted="";displayed="";ticket+=1;status.text="Loading pieces…"
  client.get_parts(look,FIELDS[field],ticket);refresh()
 
@@ -61,6 +62,7 @@ func receive(id:int,items:Array,error:String) -> void:
  if not visible or ticket!=id:return
  options=items;item=0
  if options.is_empty():
+  fitting.loading_piece=false
   status.text="No pieces available" if error.is_empty() else error.replace("_"," ").capitalize()
   refresh();return
  for i in options.size():
@@ -72,12 +74,13 @@ func equipped_piece() -> String:
  return appearance.get("equipment",{}).get(FIELDS[field],{}).get("id",appearance.get(FIELDS[field],""))
 
 func preview() -> void:
+ fitting.loading_piece=true
  wanted="part/%d/%d"%[ticket,item];displayed=""
  status.text="Previewing…";refresh();debounce.start()
 
 func request_preview() -> void:
  if visible and debounce.is_stopped() and not wanted.is_empty() and client.resolving_key.is_empty():
-  if not client.resolve_recipe(options[item].recipe,wanted):status.text="Preview unavailable";refresh()
+  if not client.resolve_recipe(options[item].recipe,wanted):failed(wanted,"Preview unavailable")
 
 func resolved(key:String,descriptor:Dictionary) -> void:
  if not visible:return
@@ -85,6 +88,7 @@ func resolved(key:String,descriptor:Dictionary) -> void:
  var selected:=func():return visible and fitting.active and not fitting.returning and key==wanted
  var ok:bool=await fitting.install_preview(descriptor,selected)
  if not selected.call():return
+ fitting.loading_piece=false
  if ok:
   fitting.preview_installed=true;displayed=key;status.text=""
  else:status.text="Preview unavailable"
@@ -93,6 +97,7 @@ func resolved(key:String,descriptor:Dictionary) -> void:
 func failed(key:String,error:String) -> void:
  if not visible:return
  if key!=wanted:request_preview();return
+ fitting.loading_piece=false
  status.text=error.replace("_"," ").capitalize();refresh()
 
 func step(row:int,direction:int) -> void:
@@ -156,7 +161,7 @@ func sync() -> void:
 func close() -> void:
  if not visible:return
  hide();ticket+=1;wanted="";fitting.editing_parts=false
- fitting.restore_avatar();fitting.current=-1
+ fitting.loading_piece=false;fitting.current=-1
  fitting.selection_changed.emit()
 
 func _input(event:InputEvent) -> void:
