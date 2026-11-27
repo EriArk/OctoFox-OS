@@ -89,11 +89,6 @@ static func _resource_bytes(resource: PackedByteArray) -> PackedByteArray:
 	return plain
 
 static func from_descriptor(descriptor: Dictionary) -> TrainerAvatarPresenter:
-	return from_prepared(descriptor,prepare_descriptor(descriptor))
-
-# A worker may prepare the complete detached model. The caller attaches it
-# to the scene tree after rechecking the profile and the selected outfit.
-static func prepare_descriptor(descriptor: Dictionary) -> GLTFState:
 	if descriptor.get("schema") != 1 or descriptor.get("rig") != "trainer-humanoid-54-v1": return null
 	var path: String = descriptor.get("glb", "")
 	var format: String = descriptor.get("format", "glb")
@@ -111,11 +106,8 @@ static func prepare_descriptor(descriptor: Dictionary) -> GLTFState:
 	var document := GLTFDocument.new()
 	var state := GLTFState.new()
 	if document.append_from_buffer(bytes, "", state) != OK: return null
-	return state
-
-static func from_prepared(descriptor: Dictionary,state: GLTFState) -> TrainerAvatarPresenter:
-	if state==null:return null
-	var document:=GLTFDocument.new()
+	# Godot retains the mesh-conversion extensions on the importing document.
+	bytes.clear()
 	var scene := document.generate_scene(state)
 	var metadata: Dictionary = state.json.get("extras", {}).get("trainerFace", {})
 	state=null
@@ -348,7 +340,7 @@ static func _prepare_vertex_colors(scene: Node3D) -> bool:
 				var color := Color(data[start]/255.0,data[start+1]/255.0,data[start+2]/255.0).linear_to_srgb()
 				data[start]=roundi(color.r*255);data[start+1]=roundi(color.g*255);data[start+2]=roundi(color.b*255)
 			mesh.surface_update_attribute_region(surface,0,data)
-	return true
+	return not visited.is_empty()
 
 func play_action(action: String) -> bool:
 	# Unsupported game actions are explicit; wave is not a fabricated golf stroke.
