@@ -1,0 +1,8 @@
+{
+  "game_id": "art.abysstail.pocket-golf",
+  "id": "club-isles-victory",
+  "title": "Club Isles Victory",
+  "shape": "cup",
+  "criterion": "confirmed_win",
+  "ruleset": "pocket-golf.island.open7.v1"
+}

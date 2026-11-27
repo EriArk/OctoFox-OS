@@ -62,6 +62,7 @@ public:
     Q_INVOKABLE void activate();
     void cancel();
     // Fixed, host-mediated game API. No caller-supplied URL or credential export.
+    void readTrophies(const QString& game,const QJsonObject& args,Reply done);
     void playRequest(const QString& channel,const QString& app,const QString& method,QJsonObject args,Reply done);
     void closePlay(const QString& channel);
     // Composition supplies the current owner's saved SDK recipe; games cannot write it.

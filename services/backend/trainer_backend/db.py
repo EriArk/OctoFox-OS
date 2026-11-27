@@ -73,6 +73,7 @@ def migrate(database_url):
 def grant_runtime(database_url, role):
     """Grant an existing non-owner role only foundation DML; no passwords/role creation."""
     rights = {
+        'game_trophies': 'SELECT', 'trophy_proofs': 'SELECT',
         'schema_migrations': 'SELECT', 'principals': 'SELECT',
         'operation_receipts': 'SELECT,INSERT,UPDATE', 'jobs': 'SELECT,INSERT,UPDATE',
         'event_index': 'SELECT,INSERT', 'outbox': 'SELECT,INSERT',

@@ -3,6 +3,7 @@
 python scorecard_demo.py endpoint-a.json endpoint-b.json [endpoint-c.json ...]
 Runs ONLY the explicitly named integration-demo ruleset. No production Golf scores.
 """
+import argparse
 import json
 from pathlib import Path
 import sys
@@ -11,7 +12,7 @@ import uuid
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'python'))
 from traineros import Client,HostError
 
-def run(endpoints):
+def run(endpoints, verify_trophies=False):
     clients=[Client('org.traineros.scorecard-demo',endpoint,timeout=20) for endpoint in endpoints]
     try:
         people=[client.account()['player_id'] for client in clients]
@@ -40,9 +41,15 @@ def run(endpoints):
             assert len(board['items'])==len(seats)
             assert clients[0].play('stats')['wins']>=1
             return key,board
+        def has_cup(client):
+            return next(t['earned'] for t in client.trophies()['items'] if t['id'] == 'demo-cup')
+        if verify_trophies:
+            assert not any(has_cup(client) for client in clients)
         solo,board=round([1]*len(clients),list(range(2,2+len(clients))))
         report={'players':len(clients),'sdk_socket':True,'http_api':True,'individual':'confirmed','receipt_replay':'same',
                 'board_rows':len(board['items']),'credentials_exported':False,'identity_provider':'isolated_fixture'}
+        if verify_trophies:
+            assert [has_cup(client) for client in clients] == [True] + [False] * (len(clients)-1)
         if len(clients)==5:
             team,teamboard=round([2,3],[2,4]);assert sorted(len(x['members']) for x in teamboard['items'])==[2,3]
             report['teams_2_vs_3']='confirmed'
@@ -53,10 +60,19 @@ def run(endpoints):
         except HostError as error:assert error.code=='stale_revision'
         else:raise AssertionError('stale page accepted')
         report['late_conflict']='withdrawn';report['pagination']='stale_revision_rejected'
+        if verify_trophies:
+            winners = 2 if len(clients) == 5 else 0
+            assert [has_cup(client) for client in clients] == [i < winners for i in range(len(clients))]
+            report['game_trophies'] = 'confirmed_winners_only'
         return report
     finally:
         for client in clients:client.close()
 
 if __name__=='__main__':
-    if not 2<=len(sys.argv)-1<=16:raise SystemExit('Provide 2..16 explicit SDK endpoint files')
-    print(json.dumps(run(sys.argv[1:]),indent=2))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--verify-trophies', action='store_true')
+    parser.add_argument('endpoints', nargs='+')
+    args = parser.parse_args()
+    if not 2 <= len(args.endpoints) <= 16:
+        parser.error('Provide 2..16 explicit SDK endpoint files')
+    print(json.dumps(run(args.endpoints, args.verify_trophies), indent=2))

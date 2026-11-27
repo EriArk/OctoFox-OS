@@ -17,6 +17,7 @@ var fish:Array=[]
 var botany:Dictionary={}
 var ore:Dictionary={}
 var shelf_id:=""
+var trophy_key:=""
 
 func path() -> String: return directory+"/"+owner.sha256_text()+".json"
 
@@ -32,7 +33,7 @@ static func valid(rows: Variant) -> bool:
  return true
 
 func load_home(profile: String) -> Array:
- shelf_id=""
+ shelf_id="";trophy_key=""
  owner=profile if not profile.is_empty() else "guest";error="";writable=true;berth=0;survey_started=false;observations={};systems={};fish=[];botany={};ore={}
  if not FileAccess.file_exists(path()):return defaults()
  var f=FileAccess.open(path(),FileAccess.READ)
@@ -64,6 +65,8 @@ func load_home(profile: String) -> Array:
  botany=saved_botany
  var selected:Variant=value.get("shelf","")
  if selected is String and owns_sample(selected):shelf_id=selected
+ var pinned:Variant=value.get("trophy","")
+ if pinned is String and pinned.length()<=129:trophy_key=pinned
  fish=saved_fish
  berth=maxi(0,BERTH_KEYS.find(value.get("berth","station")))
  var state:Variant=value.get("flight",{})
@@ -79,7 +82,7 @@ func save(rows: Array) -> bool:
  if not writable:return false
  if not valid(rows):error="Could not save this furniture arrangement.";return false
  if DirAccess.make_dir_recursive_absolute(directory)!=OK:error="Could not create the home save folder.";return false
- var content:=JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":BERTH_KEYS[berth],"flight":systems,"survey_started":survey_started,"observations":observations,"fish":fish,"botany":botany,"ore":ore,"shelf":shelf_id},"\t")
+ var content:=JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":BERTH_KEYS[berth],"flight":systems,"survey_started":survey_started,"observations":observations,"fish":fish,"botany":botany,"ore":ore,"shelf":shelf_id,"trophy":trophy_key},"\t")
  if content.to_utf8_buffer().size()>65536:error="Home storage is full.";return false
  var temp=path()+".tmp";var f=FileAccess.open(temp,FileAccess.WRITE)
  if f==null:error="Could not write your home. Your previous layout is safe.";return false

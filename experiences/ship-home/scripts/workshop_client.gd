@@ -1,6 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends "res://addons/avatar/avatar_client.gd"
 signal fish_transferred(owner:String,id:String,problem:String)
+signal trophy_reply(ticket:int,advance:bool,result:Dictionary,error:String)
+signal trophies_disconnected
+var trophies_supported:=false
+
+func read_trophies(args:Dictionary,ticket:int,advance:bool) -> void:
+ _request("trophies.collection",args)
+ pending[str(serial)].ticket=ticket;pending[str(serial)].advance=advance
+ pending[str(serial)].deadline=Time.get_ticks_msec()+22000
+
 signal fish_stock_changed
 var fish_ready:=false
 var fish_supported:=false
@@ -44,6 +53,7 @@ func _request(method: String, params: Dictionary={}) -> void:
  if method.begins_with("workshop."):pending[str(serial)].deadline=Time.get_ticks_msec()+25000
 
 func disconnect_host() -> void:
+ trophies_supported=false;trophies_disconnected.emit()
  fish_supported=false;fish_ready=false;fish_tank=[];fish_bag=[];fish_next="";fish_error=""
  fish_stock_changed.emit()
  super.disconnect_host()
@@ -129,7 +139,11 @@ func commit(action:String, args:Dictionary, feedback:String="") -> void:
 func _process(delta:float) -> void:
  for id in pending.keys():
   var entry:Dictionary=pending[id]
-  if str(entry.method).begins_with("workshop.") and Time.get_ticks_msec()>int(entry.deadline):
+  if entry.method=="trophies.collection" and Time.get_ticks_msec()>int(entry.deadline):
+   pending.erase(id);expired[id]=true
+   if expired.size()>32:expired.erase(expired.keys()[0])
+   trophy_reply.emit(entry.ticket,entry.advance,{},"timeout")
+  elif str(entry.method).begins_with("workshop.") and Time.get_ticks_msec()>int(entry.deadline):
    if entry.method=="workshop.fish":
     fish_transferred.emit(entry.owner,entry.fish,"Transfer not confirmed · select Retry transfer")
    if entry.method in ["workshop.fishstock","workshop.fishdisplay"]:
@@ -143,6 +157,10 @@ func _process(delta:float) -> void:
 func _packet(packet:Dictionary) -> void:
  if expired.erase(str(packet.get("id",""))):return
  var method:String=pending.get(str(packet.get("id","")),{}).get("method","")
+ if method=="trophies.collection":
+  var entry:Dictionary=pending[str(packet.id)];pending.erase(str(packet.id))
+  trophy_reply.emit(entry.ticket,entry.advance,packet.get("result",{}),packet.get("error",{}).get("code",""))
+  return
  if method in ["workshop.fishstock","workshop.fishdisplay"]:
   var entry:Dictionary=pending[str(packet.id)]
   pending.erase(str(packet.id));busy=false
@@ -170,6 +188,7 @@ func _packet(packet:Dictionary) -> void:
   fish_transferred.emit(entry.owner,entry.fish,issue)
   return
  if method=="hello":
+  trophies_supported=packet.get("result",{}).get("capabilities",{}).get("trophies.collection")==1
   fish_supported=packet.get("result",{}).get("capabilities",{}).get("ship.fishing")==1
   parts_paged=packet.get("result",{}).get("capabilities",{}).get("ship.parts.paged")==1
   looks_supported=packet.get("result",{}).get("capabilities",{}).get("ship.looks")==1

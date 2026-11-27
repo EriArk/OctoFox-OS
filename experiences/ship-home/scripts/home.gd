@@ -34,6 +34,8 @@ var ride_time=0.0
 var walker:ShipWalker
 var store=Store.new()
 var facilities=preload("res://scripts/activity_facilities.gd").new()
+const TrophyCase=preload("res://scripts/trophy_case.gd")
+var trophies=TrophyCase.new()
 var shelf_choices:Array=[]
 var shelf_action:="Inspect specimen shelf"
 var avatar_client:Node
@@ -99,6 +101,8 @@ func _ready() -> void:
  store.saved.connect(_sync_service_deck)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
+ cabin.add_child(trophies);trophies.configure(self,avatar_client)
+ facilities.register("game-trophies","trophy","trophy-case",trophies.owned)
  parts.client=avatar_client;parts.fitting=fitting
  cards.pieces_requested.connect(parts.open)
  avatar_client.recipe_resolved.connect(parts.resolved)
@@ -198,6 +202,7 @@ func _load_profile(id:String) -> void:
  if computer.is_inside_tree():computer.close()
  if fabricator.is_inside_tree():fabricator.close()
  fitting.selected_pieces.clear()
+ trophies.reset()
  profile=id;rows=store.load_home(id);undo_rows=[];has_undo=false;moving_index=-1
  if instruments.is_inside_tree():instruments.clear()
  flight.avionics.fresh(store.systems)
@@ -206,6 +211,7 @@ func _load_profile(id:String) -> void:
  if is_instance_valid(avatar_client):
   avatar_client.reset_fish()
   if profile!="":avatar_client.read_fish()
+ if is_instance_valid(avatar_client):trophies.restore()
  update_fish()
  _draw_furniture()
  if not store.error.is_empty():notify(store.error)
@@ -462,7 +468,8 @@ func _process(delta:float) -> void:
  var exploring:bool=not (paused or editing or fitting.active or riding or walker.seated)
  if exploring and target!=null:
   var caption:String=STATION_ACTIONS[station]
-  if station=="cabin":caption=shelf_action
+  if station=="trophies" and not trophies.shown.is_empty():caption=str(trophies.shown.title)+" · Next trophy"
+  elif station=="cabin":caption=shelf_action
   elif station=="port_crew":
    var room=flight.station_rooms[flight.berth]
    caption="Talk to "+room.STAFF[room.port].name
@@ -640,10 +647,10 @@ func _leave_pilot() -> bool:
 const STATION_TARGETS = {
  "pilot": Vector3(0,0.9,-3.4), "workbench": Studio.PRINTER_POS+Vector3.UP*0.9,
  "refinery":Studio.REFINERY_POS+Vector3.UP*0.84,"computer":Studio.COMPUTER_POS+Vector3.UP,
- "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Studio.SHELF_POS,
+ "wardrobe": Art.BOOTH+Vector3.UP*1.3, "trophies": TrophyCase.POS, "cabin": Studio.SHELF_POS,
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
-const STATION_ACTIONS={"port_crew":"Talk","route_desk":"Plot island course","microscope":"Inspect reference slides","biologist":"Talk to Dr. Neri","cargo":"Inspect cargo","economiser":"Inspect cruise economiser","capacitor":"Inspect boost capacitor","mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
+const STATION_ACTIONS={"port_crew":"Talk","route_desk":"Plot island course","microscope":"Inspect reference slides","biologist":"Talk to Dr. Neri","cargo":"Inspect cargo","economiser":"Inspect cruise economiser","capacitor":"Inspect boost capacitor","mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","trophies":"Browse game trophies","cabin":"Inspect shelves"}
 
 func _station() -> String:
  var p=Vector2(walker.position.x,walker.position.z)
@@ -674,7 +681,10 @@ func _station() -> String:
   var distance:=p.distance_to(Vector2(at.x,at.z))
   if distance<reach:nearest=station;reach=distance
  if nearest!="":return nearest
- if p.distance_to(Vector2(Art.BOOTH.x,Art.BOOTH.z))<1.32:return "wardrobe"
+ var booth_distance:float=p.distance_to(Vector2(Art.BOOTH.x,Art.BOOTH.z))
+ var case_distance:float=p.distance_to(Vector2(TrophyCase.POS.x,TrophyCase.POS.z))
+ if case_distance<1.45 and (booth_distance>=1.32 or case_distance<booth_distance):return "trophies"
+ if booth_distance<1.32:return "wardrobe"
  if p.distance_to(Vector2(Studio.SHELF_POS.x,Studio.SHELF_POS.z))<1.56:return "cabin"
  return ""
 
@@ -808,6 +818,7 @@ func _interact() -> void:
    get_viewport().disable_3d=true
    Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
   "wardrobe":fitting.enter()
+  "trophies":trophies.read(true)
   "cabin":
    if shelf_choices.is_empty():
     notify("Gather a flower or mine ore on an island to display a sample here.")

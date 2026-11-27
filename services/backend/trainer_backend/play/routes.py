@@ -64,3 +64,11 @@ def board(request:Request,ruleset_id:Id,mode:Literal['individual','teams'],kind:
           offset:int=Query(default=0,ge=0,le=10000),limit:int=Query(default=20,ge=1,le=50),
           revision:str|None=Query(default=None,pattern=r'^[1-9][0-9]{0,18}$'),around:UUID|None=None):
     return wire(play(request).board(ruleset_id,mode,kind,offset,limit,revision,around))
+
+TrophyKey=Annotated[str,Field(pattern=r'^[a-z][a-z0-9_.-]{0,63}/[a-z][a-z0-9_.-]{0,63}$')]
+
+@router.get('/v1/me/game-trophies')
+def trophies(request:Request, game:Id|None=None, after:TrophyKey|None=None,
+             key:TrophyKey|None=None, limit:int=Query(default=24,ge=1,le=50)):
+    from .trophies import page
+    return wire(page(play(request),bearer(request),game,after or '',key,limit))

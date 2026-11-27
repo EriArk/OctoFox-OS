@@ -27,6 +27,8 @@ def test_collection_pages_whole_games_and_levels(account):
         # A later mastery upgrades the old game's single collection card.
         grant(conn, player, 'test:1:completed', 'completed', 'Game 1', now, game=1)
         grant(conn, player, 'test:1:hardcore', 'hardcore', 'Game 1', now, game=1)
+    from trainer_backend.play.trophies import page
+    assert {row['id'] for row in page(service,token,'ra.1','',None,10)['items']} == {'beaten','completed','hardcore'}
     first = prizes.snapshot(token)
     assert len(first['collection']) == 100
     assert first['collection'][0]['key'] == 'game:1'

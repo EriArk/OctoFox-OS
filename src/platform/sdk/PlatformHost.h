@@ -53,6 +53,7 @@ private:
         bool avatarResolving = false;
         bool shipWorkshop = false;
         bool playBusy = false;
+        bool trophyBusy = false;
         QString playChannel;
         std::shared_ptr<QTemporaryDir> avatarCache;
         QJsonObject widgets;

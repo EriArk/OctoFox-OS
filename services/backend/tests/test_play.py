@@ -221,3 +221,53 @@ def test_void_decision_removes_projections_without_deleting_source(play,postgres
     assert not play.board(RULE,'individual','records',0,20)['items']
     result=call(play,people[0],'get',{'match_id':key})
     assert len(result['outcomes'])==2 and len(result['decisions'])==2
+
+def test_trophies_follow_confirmed_evidence_across_games(play,postgres,tmp_path):
+    from trainer_backend.play import trophies
+    data={'game_id':'org.traineros.scorecard-demo','id':'victory','title':'Winner','shape':'cup',
+          'criterion':'confirmed_win','ruleset':RULE}
+    path=tmp_path/'trophy.json'
+    def register_def():
+        path.write_text(json.dumps(data))
+        return trophies.register(postgres[0],path)
+    cup=register_def()
+    assert register_def()==cup
+    people=players(play)
+    token=people[0][0]['access_token']
+    def read(game=None,after='',key=None,limit=24):
+        return trophies.page(play,token,game,after,key,limit)
+    with TestClient(create_app(Settings(postgres[1],'test',oauth=CONFIG),provider=Provider())) as client:
+        api='/v1/me/game-trophies'
+        headers={'Authorization':'Bearer '+token}
+        assert client.get(api).status_code==401
+        assert client.get(api,params={'limit':51},headers=headers).status_code==422
+        assert client.get(api,params={'game':data['game_id']},headers=headers).json()['items'][0]['earned'] is False
+        assert client.post(api,json={'key':cup,'earned':True},headers=headers).status_code==405
+    assert read(data['game_id'])['items'][0]['earned'] is False
+    key=match(play,people)
+    call(play,people[0],'submit',card(key));drain(play)
+    assert not read()['items']
+    call(play,people[1],'submit',card(key));drain(play)
+    assert read(key=cup)['items'][0]['earned']
+    assert not trophies.page(play,people[1][0]['access_token'],None,'',None,24)['items']
+    data.update(game_id='org.test.adventure',id='island',title='Island explorer',shape='plaque',
+                criterion='verified_event',ruleset=None)
+    plaque=register_def()
+    player=people[0][0]['player_id']
+    proof,second=uuid4(),uuid4()
+    with psycopg.connect(postgres[0]) as c:
+        for evidence in (proof,proof,second):
+            trophies.attest(c,player,data['game_id'],data['id'],evidence)
+    assert read(limit=1)['next']==plaque
+    assert [r['key'] for r in read(after=plaque)['items']]==[cup]
+    assert [r['key'] for r in read(data['game_id'])['items']]==[plaque]
+    call(play,people[1],'submit',card(key,(7,3)))
+    assert not read(key=cup)['items']
+    with psycopg.connect(postgres[0]) as c:
+        trophies.withdraw(c,player,data['game_id'],data['id'],proof)
+    assert read(key=plaque)['items']
+    with psycopg.connect(postgres[0]) as c:
+        trophies.withdraw(c,player,data['game_id'],data['id'],second)
+    assert not read()['items']
+    data['title']='Different definition'
+    with pytest.raises(ValueError,match='immutable_trophy_conflict'):register_def()

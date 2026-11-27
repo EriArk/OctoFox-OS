@@ -268,7 +268,7 @@ def test_merge_existing_schema_history(festival):
     schema = migrations()
     branch_files = {'0024_festival_tickets.sql', '0025_island_counter.sql'}
     rows = [dict(version=name, checksum=checksum) for name, checksum, _ in schema
-            if name < '0024' or (name in branch_files) == festival]
+            if name <= '0031_ship_supplies.sql' and (name < '0024' or (name in branch_files) == festival)]
     _history_matches(rows, schema, complete=False)
     with pytest.raises(MigrationError):
         _history_matches(rows, schema, complete=True)

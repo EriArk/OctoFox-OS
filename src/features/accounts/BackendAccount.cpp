@@ -581,6 +581,20 @@ void BackendAccount::syncPublicAvatar() {
         else avatarRetry_.start(60000);
     },access_);
 }
+void BackendAccount::readTrophies(const QString& game,const QJsonObject& args,Reply done) {
+    if(state_!="connected" || access_.isEmpty()) {done(401,{{"code","sign_in_required"}});return;}
+    static const QRegularExpression key("^[a-z][a-z0-9_.-]{0,63}/[a-z][a-z0-9_.-]{0,63}$");
+    QUrlQuery query;
+    if(!game.isEmpty()) query.addQueryItem("game",game);
+    for(auto it=args.begin();it!=args.end();++it) {
+        if(it.key()=="limit" && it.value().toInt()>=1 && it.value().toInt()<=50)
+            query.addQueryItem(it.key(),QString::number(it.value().toInt()));
+        else if((it.key()=="after" || it.key()=="key") && key.match(it.value().toString()).hasMatch())
+            query.addQueryItem(it.key(),it.value().toString());
+        else {done(422,{{"code","invalid_page"}});return;}
+    }
+    request("GET","/v1/me/game-trophies?"+query.toString(QUrl::FullyEncoded),{},std::move(done),access_);
+}
 void BackendAccount::playRequest(const QString& channel,const QString& app,const QString& method,QJsonObject args,Reply done) {
     auto reject=[&](const QString& code){done(409,{{"code",code}});};
     static const QRegularExpression id("^[a-z][a-z0-9_.-]{0,63}$");

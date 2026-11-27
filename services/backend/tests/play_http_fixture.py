@@ -12,6 +12,7 @@ from test_accounts import CONFIG,Provider,login
 from trainer_backend.accounts.service import Accounts
 from trainer_backend.db import Database
 from trainer_backend.play.registry import register
+from trainer_backend.play.trophies import register as register_trophy
 from trainer_backend.app import create_app
 from trainer_backend.config import Settings
 from trainer_backend.jobs import Worker
@@ -29,6 +30,12 @@ try:
           'definition':{'validator':'scorecard.v1','segments':3,'minimum':1,'maximum':99,'direction':'asc','trust':'peer_confirmed','label':'Isolated SDK integration'}}
     with tempfile.TemporaryDirectory() as directory:
         path=Path(directory)/'rules.json';path.write_text(json.dumps(rule));register(admin,path)
+        trophy_path = Path(directory) / 'trophy.json'
+        trophy_path.write_text(json.dumps({
+            'game_id': rule['game_id'], 'id': 'demo-cup', 'title': 'Demo Cup',
+            'criterion': 'confirmed_win', 'shape': 'cup', 'ruleset': rule['id'],
+        }))
+        register_trophy(admin, trophy_path)
     if os.environ.get('PLAY_FIXTURE_RULESET'):
         register(admin,os.environ['PLAY_FIXTURE_RULESET'])
     accounts=Accounts(db,CONFIG,Provider())

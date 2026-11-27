@@ -71,6 +71,13 @@ class Client:
         """
         return self.call("home.widget.select", id=widget_id, revision=self.context["revision"])
 
+    def trophies(self, *, after=None, limit=24):
+        """Read this game's trophy catalogue and the signed-in player's earned flags."""
+        params = {"limit": limit}
+        if after is not None:
+            params["after"] = after
+        return self.call("trophies.list", **params)
+
     def play_open(self, ruleset_id):
         """Host owns credentials. Use timeout >=20 for backend calls."""
         return self.call("play.open", ruleset_id=ruleset_id)

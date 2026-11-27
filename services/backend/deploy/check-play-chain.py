@@ -42,7 +42,7 @@ with tempfile.TemporaryDirectory() as temporary:
   deadline=time.monotonic()+25
   while not all(Path(p).exists() for p in endpoints) and time.monotonic()<deadline:time.sleep(0.1)
   if not all(Path(p).exists() for p in endpoints):raise RuntimeError('native_probe_start_failed:'+str([p.poll() for p in processes]))
-  result=subprocess.run(['python3','/work/source/sdk/examples/scorecard_demo.py',*endpoints],capture_output=True,text=True)
+  result=subprocess.run(['python3','/work/source/sdk/examples/scorecard_demo.py','--verify-trophies',*endpoints],capture_output=True,text=True)
   if result.returncode:raise RuntimeError(result.stderr)
   print(result.stdout)
   time.sleep(0.3)

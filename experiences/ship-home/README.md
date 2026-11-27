@@ -42,7 +42,7 @@ Approach the shelf beside the sleeping alcove and use the interaction shown on t
 
 Ship Home registers a result provider with `facilities.register(activity, result_type, facility, owned_results)`. On inspection or refresh, `facilities.results(facility)` reads from the current profile and attaches the activity and type to each result. Providers supply a stable ID and the fields their facility needs. Aquarium placement uses its existing fish actions. The shelf stores an optional display reference in the existing home save. Older homes open with an empty shelf. Both facilities work with local finds offline.
 
-Future prize cases or trophy displays can register another provider using confirmed inventory or verified records. The fixture in `tests/facilities.gd` exercises that extension. Festival prizes, race records, plant cultivation and online trading require their respective authoritative integrations.
+The game trophy shelf registers a provider backed by the SDK trophy collection. Additional cases can use confirmed inventory or verified records. The fixture in `tests/facilities.gd` exercises that extension. Festival prizes, plant cultivation and online trading require their respective authoritative integrations.
 
 ### Shore fishing and the ship aquarium
 
@@ -306,3 +306,5 @@ The initial preview was host-only; later handheld acceptance is recorded separat
 [Warm interior and lighting — earlier host evidence](../../docs/evidence/2026-11-14-ship-warm/README.md).
 
 [Current warm handheld deployment and renderer evidence](../../docs/evidence/2026-11-14-ship-warm-devices/README.md).
+
+The second shelf beside the sleeping alcove displays game trophies. Use the interaction to cycle through earned awards and then clear the shelf. The ship restores your pinned trophy after your profile connects and verifies ownership. [SDK trophy contract](../../sdk/TROPHIES.md)
