@@ -44,12 +44,13 @@ var station_rooms:Dictionary={}
 var lab:=preload("res://scripts/biostation.gd").new()
 var art:ShipInterior
 
-func build(interior:ShipInterior) -> void:
+func build(interior:ShipInterior,staged:=false) -> void:
  art=interior
  for id in Regions.BERTH_CONTACT:
   var item:Dictionary=Regions.CONTACTS[id]
   BERTHS.append(Regions.ORIGINS[item.sector]+item.p);NAMES.append(item.name)
  for i in BERTHS.size():
+  if staged:await get_tree().process_frame
   building_berth=i;obstacles_by_berth.append([]);obstacle_bounds.append(AABB(BERTHS[i],Vector3.ZERO))
   var site:=Node3D.new();add_child(site);site.position=BERTHS[i]+Vector3.UP*(GROUND_Y+3.9)
   var surface:=Vector3.DOWN*4.1
@@ -64,7 +65,7 @@ func build(interior:ShipInterior) -> void:
    pad_number.modulate=Color("f1d49d");pad_number.outline_size=0;pad_number.rotation.x=-PI/2
    pad_number.position=surface+Vector3(0,0.22,-6.3);site.add_child(pad_number)
    if i in [lab.SITE,7,8]:
-    art.batch_static(site);continue
+    await art.batch_static(site,staged);continue
    if i==2:
     # An inclined navigation hoop marks the inner-ring anchorage from cruise range.
     var hoop:=Node3D.new();site.add_child(hoop);hoop.position=Vector3(0,3,-22);hoop.rotation.x=1.28
@@ -91,7 +92,7 @@ func build(interior:ShipInterior) -> void:
    var terrain:Array=Regions.ISLANDS[contact]
    island(site,Vector3(30,-3.902,-48),terrain[0],64,contact,true)
    if i in [1,3]:build_fishing_pier(site,i)
-  art.batch_static(site)
+  await art.batch_static(site,staged)
  # Keep each station in its own render bounds, including its dockside equipment.
  for i in preload("res://scripts/station_rooms.gd").PORTS:
   building_berth=i
@@ -100,7 +101,7 @@ func build(interior:ShipInterior) -> void:
   rooms.build(self,i)
   if i==lab.SITE:
    rooms.add_child(lab);lab.build(self)
-  art.batch_static(rooms);rooms.mount_doors();station_rooms[i]=rooms
+  await art.batch_static(rooms,staged);rooms.mount_doors();station_rooms[i]=rooms
  avionics.configure(self)
  reset(0)
 

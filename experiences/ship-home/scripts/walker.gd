@@ -5,6 +5,13 @@ var pivot:Node3D
 var arm:SpringArm3D
 var camera:Camera3D
 var visual:Node3D
+var visual_key := ""
+var avatar_owner := ""
+var previous_avatar:Node3D
+var previous_key := ""
+var preview_generation:=0
+var decode:=Thread.new()
+const Presenter=preload("res://addons/avatar/avatar_presenter.gd")
 var walking=true
 var yaw=0.0
 var pitch=-0.18
@@ -41,7 +48,17 @@ func _ready() -> void:
  pilot_camera=Camera3D.new();pilot_camera.fov=78;pilot_camera.near=0.20;pilot_camera.far=2400;pilot_pivot.add_child(pilot_camera)
  anonymous()
 
+func discard_previous_avatar() -> void:
+ if is_instance_valid(previous_avatar):previous_avatar.free()
+ previous_avatar=null;previous_key=""
+
+func _exit_tree() -> void:
+ preview_generation+=1
+ if decode.is_started():decode.wait_to_finish()
+ discard_previous_avatar()
+
 func anonymous() -> void:
+ preview_generation+=1;discard_previous_avatar();visual_key="";avatar_owner=""
  worn_items.clear();guest_arms.clear();guest_forearms.clear()
  if is_instance_valid(motion):motion.free()
  motion=null;skeleton=null
@@ -58,9 +75,36 @@ func anonymous() -> void:
 
  if seated:_seat_pose()
 
-func install_avatar(descriptor:Dictionary) -> bool:
- var presenter=load("res://addons/avatar/avatar_presenter.gd").from_descriptor(descriptor)
- if presenter==null:return false
+func preview_avatar(descriptor:Dictionary,owner:String,selected:Callable) -> bool:
+ preview_generation+=1
+ var generation:=preview_generation
+ var key:=str(descriptor.get("sha256",""))
+ if avatar_owner!=owner or not selected.call():return false
+ if key!="" and key in [visual_key,previous_key]:return install_avatar(descriptor,owner)
+ while decode.is_started():
+  await get_tree().process_frame
+  if generation!=preview_generation or not selected.call():return false
+ if decode.start(Presenter.prepare_descriptor.bind(descriptor.duplicate(true)))!=OK:return false
+ while decode.is_alive():await get_tree().process_frame
+ var state:GLTFState=decode.wait_to_finish()
+ if not state or generation!=preview_generation or avatar_owner!=owner or not selected.call():return false
+ return install_avatar(descriptor,owner,state)
+
+func install_avatar(descriptor:Dictionary,preview_owner:="",state:GLTFState=null) -> bool:
+ preview_generation+=1
+ var owner:=str(descriptor.get("profile",preview_owner))
+ var key:=str(descriptor.get("sha256",""))
+ if owner.is_empty() or key.is_empty():return false
+ if owner!=avatar_owner:
+  discard_previous_avatar()
+  if not avatar_owner.is_empty():anonymous()
+ if owner==avatar_owner and key==visual_key:return true
+ var presenter:Node3D
+ if key==previous_key and owner==avatar_owner:
+  presenter=previous_avatar;previous_avatar=null;previous_key=""
+ else:
+  presenter=Presenter.from_prepared(descriptor,state) if state else Presenter.from_descriptor(descriptor)
+ if not is_instance_valid(presenter):return false
  worn_items.clear()
  var appearance=descriptor.get("appearance",descriptor.get("recipe",{}).get("appearance",{}))
  for slot in ["top","bottom","socks","shoes","gloves","headwear"]:
@@ -68,7 +112,12 @@ func install_avatar(descriptor:Dictionary) -> bool:
  var facing=visual.rotation.y if is_instance_valid(visual) else PI
  if is_instance_valid(motion):motion.free()
  motion=null
- if is_instance_valid(visual):visual.queue_free()
+ if is_instance_valid(visual):
+  if avatar_owner==owner and not visual_key.is_empty():
+   discard_previous_avatar();previous_avatar=visual;previous_key=visual_key
+   remove_child(visual)
+  else:visual.queue_free()
+ avatar_owner=owner;visual_key=key
  visual=presenter;visual.rotation.y=facing;add_child(visual)
  visual.scale=Vector3.ONE*(1.15/max(presenter.eye_height,0.5))
  var rigs=presenter.find_children("*","Skeleton3D",true,false)

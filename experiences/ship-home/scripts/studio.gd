@@ -49,9 +49,10 @@ func oval(parent: Node3D, pos: Vector3, size: Vector3, color: Color) -> MeshInst
  mesh.material_override=art.material(color); parent.add_child(mesh)
  return mesh
 
-func build_fixed(builder: ShipInterior) -> void:
+func build_fixed(builder: ShipInterior,staged:=false) -> void:
  art=builder
  berth()
+ if staged:await get_tree().process_frame
  printer=module(PRINTER_POS,0.45)
  art.box(printer,Vector3(0,0.43,0),Vector3(1.13,0.85,0.76),INK,true)
  art.box(printer,Vector3(0,0.86,0),Vector3(1.36,0.10,0.89),CERAMIC)
@@ -75,9 +76,13 @@ func build_fixed(builder: ShipInterior) -> void:
  art.faceplate(printer,Vector3(0.12,0.51,0.397),Vector2(0.41,0.30),0.065,Art.ENAMEL)
  for i in 4:
   art.faceplate(printer,Vector3(0.13,0.59-i*0.049,0.406),Vector2(0.27-i*0.033,0.014),0.006,MINT,i==0)
+ if staged:await get_tree().process_frame
  build_refinery()
+ if staged:await get_tree().process_frame
  build_computer()
+ if staged:await get_tree().process_frame
  tank()
+ if staged:await get_tree().process_frame
  booth=module(Art.BOOTH,-2.6)
  art.cylinder(booth,Vector3(0,0.037,0),0.82,0.074,INK)
  ring(booth,Vector3(0,0.078,0),0.70,0.012,MINT,true)

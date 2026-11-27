@@ -16,10 +16,12 @@ var status:=Label.new()
 var slot_button:=Button.new()
 var garment_button:=Button.new()
 var apply:=Button.new()
+var debounce:=Timer.new()
 var cursor:=0
 var saving:=false
 
 func _ready() -> void:
+ debounce.one_shot=true;debounce.wait_time=0.12;add_child(debounce);debounce.timeout.connect(request_preview)
  set_anchors_and_offsets_preset(Control.PRESET_CENTER_RIGHT)
  offset_left=-374;offset_right=-24;offset_top=-180;offset_bottom=180
  var skin:=StyleBoxFlat.new();skin.bg_color=Color("#172f35");skin.set_corner_radius_all(10)
@@ -56,16 +58,19 @@ func receive(id:int,items:Array,error:String) -> void:
 
 func preview() -> void:
  wanted="part/%d/%d"%[ticket,item];displayed=""
- status.text="Previewing…";refresh();request_preview()
+ status.text="Previewing…";refresh();debounce.start()
 
 func request_preview() -> void:
- if visible and not wanted.is_empty() and client.resolving_key.is_empty():
+ if visible and debounce.is_stopped() and not wanted.is_empty() and client.resolving_key.is_empty():
   if not client.resolve_recipe(options[item].recipe,wanted):status.text="Preview unavailable";refresh()
 
 func resolved(key:String,descriptor:Dictionary) -> void:
  if not visible:return
  if key!=wanted:request_preview();return
- if fitting.walker.install_avatar(descriptor):
+ var selected:=func():return visible and fitting.active and not fitting.returning and key==wanted
+ var ok:bool=await fitting.install_preview(descriptor,selected)
+ if not selected.call():return
+ if ok:
   fitting.preview_installed=true;displayed=key;status.text=""
  else:status.text="Preview unavailable"
  refresh()

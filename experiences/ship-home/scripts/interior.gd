@@ -66,29 +66,46 @@ func material(color: Color, glow: bool=false) -> StandardMaterial3D:
  if glow: m.emission_enabled=true;m.emission=color;m.emission_energy_multiplier=1.3
  materials[key]=m;return m
 
-func rounded_box(size:Vector3) -> ArrayMesh:
- var key=str(size)
- if meshes.has(key):return meshes[key]
- var half=size*0.5;var bevel=min(0.045,min(size.x,min(size.y,size.z))*0.26)
- var st=SurfaceTool.new();st.begin(Mesh.PRIMITIVE_TRIANGLES)
+# All bevels use the same normals, octants and triangles. Only the distance
+# between opposite corners changes when fitting a box to a fixture.
+var bevel_normals:=PackedVector3Array()
+var bevel_corners:=PackedVector3Array()
+var bevel_indices:=PackedInt32Array()
+
+func _build_bevel_template() -> void:
  for axis in 3:
-  var u=(axis+1)%3;var v=(axis+2)%3
-  for side in [-1.0,1.0]:
-   var us:Array[float]=[];var vs:Array[float]=[]
-   for k in 4:
-    us.append(-half[u]+bevel*k/3.0);vs.append(-half[v]+bevel*k/3.0)
-   for k in 4:
-    us.append(half[u]-bevel+bevel*k/3.0);vs.append(half[v]-bevel+bevel*k/3.0)
+  var u:=(axis+1)%3;var v:=(axis+2)%3
+  for side in [-1,1]:
+   var base:=bevel_normals.size()
+   for i in 8:
+    for j in 8:
+     var corner:=Vector3.ZERO
+     corner[axis]=side;corner[u]=-1 if i<4 else 1;corner[v]=-1 if j<4 else 1
+     var normal:=corner
+     normal[u]=float(i-3 if i<4 else i-4)/3.0
+     normal[v]=float(j-3 if j<4 else j-4)/3.0
+     bevel_corners.append(corner);bevel_normals.append(normal.normalized())
    for i in 7:
     for j in 7:
-     var corners=[]
-     for pair in [[i,j],[i+1,j],[i+1,j+1],[i,j+1]]:
-      var p=Vector3.ZERO;p[axis]=half[axis]*side;p[u]=us[pair[0]];p[v]=vs[pair[1]]
-      var inner=p.clamp(-half+Vector3.ONE*bevel,half-Vector3.ONE*bevel)
-      var normal=(p-inner).normalized();corners.append([inner+normal*bevel,normal])
-     var order=[0,2,1,0,3,2] if side>0 else [0,1,2,0,2,3]
-     for k in order:st.set_normal(corners[k][1]);st.add_vertex(corners[k][0])
- var result=st.commit();meshes[key]=result;return result
+     var n:=base+8*i+j
+     for offset in ([0,9,8,0,1,9] if side>0 else [0,8,9,0,9,1]):
+      bevel_indices.append(n+offset)
+
+func rounded_box(size:Vector3) -> ArrayMesh:
+ if meshes.has(size):return meshes[size]
+ if bevel_normals.is_empty():_build_bevel_template()
+ var half:=size*0.5
+ var bevel:=minf(0.045,minf(size.x,minf(size.y,size.z))*0.26)
+ var inner:=half-Vector3.ONE*bevel
+ var vertices:=PackedVector3Array()
+ vertices.resize(bevel_normals.size())
+ for i in vertices.size():vertices[i]=bevel_corners[i]*inner+bevel_normals[i]*bevel
+ var arrays:=[];arrays.resize(Mesh.ARRAY_MAX)
+ arrays[Mesh.ARRAY_VERTEX]=vertices;arrays[Mesh.ARRAY_NORMAL]=bevel_normals;arrays[Mesh.ARRAY_INDEX]=bevel_indices
+ var result:=ArrayMesh.new()
+ result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
+ meshes[size]=result
+ return result
 
 func box(parent: Node3D, pos: Vector3, size: Vector3, color: Color, solid: bool=false, glow: bool=false) -> MeshInstance3D:
  var mesh=MeshInstance3D.new()
@@ -290,12 +307,13 @@ func hull_segment(parent:Node3D,a:Vector2,b:Vector2,glazed:bool, panoramic:bool=
    var inset_z:float=0.37*inset/h-width*width/44.0*(1.0-4*x*x/(width*width))+0.052
    faceplate(root,Vector3(x,0.37,inset_z),Vector2(width*0.078,0.021),0.01,SEA_GLASS,true).rotation.x=0.144
 
-func saucer(parent:Node3D) -> void:
+func saucer(parent:Node3D,staged:=false) -> void:
  var floor_mesh=SurfaceTool.new();floor_mesh.begin(Mesh.PRIMITIVE_TRIANGLES)
  var underside=SurfaceTool.new();underside.begin(Mesh.PRIMITIVE_TRIANGLES)
  var roof_mesh=SurfaceTool.new();roof_mesh.begin(Mesh.PRIMITIVE_TRIANGLES)
  var roof=Node3D.new();roof.name="HullRoof";parent.add_child(roof)
  for i in 144:
+  if staged and i%12==0:await parent.get_tree().process_frame
   var a=i*TAU/144;var b=(i+1)*TAU/144
   var pa=HULL_CENTER+Vector2(sin(a),-cos(a))*HULL_RADII
   var pb=HULL_CENTER+Vector2(sin(b),-cos(b))*HULL_RADII
@@ -654,7 +672,7 @@ func fittings(parent:Node3D) -> void:
  box(galley,Vector3(-0.41,0.944,0.10),Vector3(0.41,0.018,0.30),TRIM)
  tube(galley,[Vector3(-0.58,0.94,-0.08),Vector3(-0.58,1.18,-0.08),Vector3(-0.55,1.22,0.07),Vector3(-0.52,1.18,0.10)],0.018,BRASS)
 
-func build(parent:Node3D,space:Node3D) -> void:
+func build(parent:Node3D,space:Node3D,staged:=false) -> void:
  var env=WorldEnvironment.new();env.environment=Environment.new()
  env.environment.background_mode=Environment.BG_SKY
  var sky=Sky.new()
@@ -678,7 +696,11 @@ func build(parent:Node3D,space:Node3D) -> void:
  env.environment.tonemap_mode=Environment.TONE_MAPPER_FILMIC;space.add_child(env)
  var sun=DirectionalLight3D.new();sun.rotation_degrees=Vector3(-25,-28,0);sun.light_color=Color("c1d4e8");sun.light_energy=0.22
  sun.shadow_enabled=false;sun.directional_shadow_max_distance=38;space.add_child(sun)
- saucer(parent);console(parent);fittings(parent);lighting_details(parent)
+ await saucer(parent,staged)
+ if staged:await parent.get_tree().process_frame
+ console(parent)
+ if staged:await parent.get_tree().process_frame
+ fittings(parent);lighting_details(parent)
  # Rake the chair and brass from the overhead optics. A dim cyan return under
  # the coaming separates the controls from the glass at night.
  var key:=fixture_light(parent,Vector3(-0.34,2.48,-3.39),Vector3(0.16,0.79,-4.26),Color("ffd3a4"),1.36,3.7,48)
@@ -757,13 +779,17 @@ func furniture(id: String, solid: bool=true) -> Node3D:
   body.add_child(c);root.add_child(body)
  return root
 
-func batch_static(parent:Node3D) -> void:
+func batch_static(parent:Node3D,staged:=false) -> void:
  # One mesh per shared material for fixed room geometry; collision bodies stay.
  # Movable furniture and the host avatar are created afterwards and stay separate.
- if parent.has_node("HullRoof"):batch_static(parent.get_node("HullRoof"))
+ if parent.has_node("HullRoof"):await batch_static(parent.get_node("HullRoof"),staged)
+ var deadline:=Time.get_ticks_usec()+6000
  var groups:Dictionary={}
  var originals:Array[MeshInstance3D]=[]
  for node in parent.find_children("*","MeshInstance3D",true,false):
+  if staged and Time.get_ticks_usec()>=deadline:
+   await parent.get_tree().process_frame
+   deadline=Time.get_ticks_usec()+6000
   if node.get_meta("collision_only",false) or (parent.name!="HullRoof" and node.find_parent("HullRoof")!=null):continue
   if not node.material_override is StandardMaterial3D:continue
   var id=node.material_override.get_instance_id()
@@ -783,4 +809,7 @@ func batch_static(parent:Node3D) -> void:
   for child in node.get_children():child.reparent(parent,true)
   node.get_parent().remove_child(node);node.queue_free()
  for group in groups.values():
+  if staged and Time.get_ticks_usec()>=deadline:
+   await parent.get_tree().process_frame
+   deadline=Time.get_ticks_usec()+6000
   var mesh=MeshInstance3D.new();mesh.mesh=group[0].commit();mesh.material_override=group[1];parent.add_child(mesh)

@@ -89,6 +89,11 @@ static func _resource_bytes(resource: PackedByteArray) -> PackedByteArray:
 	return plain
 
 static func from_descriptor(descriptor: Dictionary) -> TrainerAvatarPresenter:
+	return from_prepared(descriptor,prepare_descriptor(descriptor))
+
+# The detached GLTF state can be decoded on a worker. Nodes and animation
+# bindings are only created when the caller commits the selected preview.
+static func prepare_descriptor(descriptor: Dictionary) -> GLTFState:
 	if descriptor.get("schema") != 1 or descriptor.get("rig") != "trainer-humanoid-54-v1": return null
 	var path: String = descriptor.get("glb", "")
 	var format: String = descriptor.get("format", "glb")
@@ -106,7 +111,11 @@ static func from_descriptor(descriptor: Dictionary) -> TrainerAvatarPresenter:
 	var document := GLTFDocument.new()
 	var state := GLTFState.new()
 	if document.append_from_buffer(bytes, "", state) != OK: return null
-	bytes.clear()
+	return state
+
+static func from_prepared(descriptor: Dictionary,state: GLTFState) -> TrainerAvatarPresenter:
+	if state==null:return null
+	var document:=GLTFDocument.new()
 	var scene := document.generate_scene(state)
 	var metadata: Dictionary = state.json.get("extras", {}).get("trainerFace", {})
 	state=null

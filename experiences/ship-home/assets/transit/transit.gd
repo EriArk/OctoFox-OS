@@ -22,6 +22,7 @@ var party := Party.new()
 var awaiting_guest := false
 var attach_pending := false
 var loader := Thread.new()
+var cabin_attached := false
 
 func _ready() -> void:
 	layer=120
@@ -101,6 +102,10 @@ func _process(delta: float) -> void:
 			attach_pending=true
 			_attach_game.call_deferred()
 		return
+	if not game.cabin_ready:return
+	if not cabin_attached:
+		cabin_attached=true
+		_bind_game()
 	if flying and flight_frames>=12 and now-since>=(4500 if not party.own.is_empty() else 2100):
 		_arrive()
 	elif phase=="arrival" and now-since>=850:
@@ -116,10 +121,15 @@ func _attach_game() -> void:
 		_load_error()
 		return
 	game=scene.instantiate()
+	game.staged_start=true
+	game.hide()
 	get_tree().root.add_child(game)
 	get_tree().current_scene=game
 	get_tree().root.move_child(self,-1)
 	game.tree_exiting.connect(queue_free)
+
+func _bind_game() -> void:
+	game.show()
 	game.set_transit_controls(true)
 	attached_at=Time.get_ticks_msec()
 	var session:Node=game.transit_session()

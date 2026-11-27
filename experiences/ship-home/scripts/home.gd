@@ -63,7 +63,11 @@ var message_time=0.0
 var profile=""
 var arrival_identity_resolved := false
 
+var staged_start := false
+var cabin_ready := false
+
 func _ready() -> void:
+ if staged_start:process_mode=Node.PROCESS_MODE_DISABLED
  Engine.max_fps=60
  _inputs()
  Input.joy_connection_changed.connect(func(_id:int, connected:bool):
@@ -72,10 +76,14 @@ func _ready() -> void:
  for camera:Camera3D in get_tree().root.find_children("*","Camera3D",true,false):
   if camera.get_world_3d()==get_world_3d():Exterior.configure_camera(camera,false)
  get_tree().node_added.connect(_ship_visual_added)
- art.build(cabin,self);cabin.add_child(studio);studio.build_fixed(art);art.batch_static(cabin)
+ await art.build(cabin,self,staged_start)
+ cabin.add_child(studio);await studio.build_fixed(art,staged_start)
+ await art.batch_static(cabin,staged_start)
+ if staged_start:await get_tree().process_frame
  studio.build_moving(self);art.moving_controls()
+ if staged_start:await get_tree().process_frame
  exterior.local_ship=true;add_child(exterior)
- add_child(flight);flight.lab.studio=studio;flight.build(art)
+ add_child(flight);flight.lab.studio=studio;await flight.build(art,staged_start)
  furnishings=Node3D.new();cabin.add_child(furnishings)
  walker=Walker.new();walker.helm=art;walker.position=Vector3(0,0.1,-0.55);add_child(walker)
  add_child(fitting);fitting.configure(walker,studio)
@@ -120,6 +128,8 @@ func _ready() -> void:
  avatar_client.appearance_changed.connect(_appearance)
  avatar_client.unavailable.connect(_identity_lost)
  add_child(avatar_client);avatar_client.connect_host()
+ cabin_ready=true
+ process_mode=Node.PROCESS_MODE_INHERIT
  get_tree().auto_accept_quit=false
  if DisplayServer.get_name()!="headless":Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
 
@@ -210,6 +220,9 @@ func _appearance(descriptor:Dictionary) -> void:
  arrival_identity_resolved=true
  var id=str(descriptor.get("profile",""))
  if id.is_empty():_identity_lost("No active profile");return
+ if id==profile and fitting.live_descriptor.get("sha256","")!="" and fitting.live_descriptor.get("sha256")==descriptor.get("sha256") and not walker.avatar_owner.is_empty():
+  fitting.live_descriptor=descriptor
+  return
  if id!=profile:
   parts.close()
   if editing:_edit(false)
@@ -867,6 +880,7 @@ func _quit() -> void:
  get_tree().quit()
 
 func _notification(what:int) -> void:
+ if not cabin_ready:return
  if what==NOTIFICATION_WM_CLOSE_REQUEST:_quit()
  elif what==NOTIFICATION_APPLICATION_FOCUS_OUT and is_instance_valid(walker):
   # No input or simulation continues behind another application.

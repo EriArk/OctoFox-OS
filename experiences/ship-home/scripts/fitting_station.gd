@@ -90,13 +90,22 @@ func resolve_selected() -> void:
  if workshop.resolving_key.is_empty() and not workshop.resolve_recipe(row.recipe,recipe_key(row)):
   preview_error="Preview unavailable"
 
+# Resolved recipes have no identity of their own. Scope their preview cache
+# to the live SDK session, which is revoked on profile switch/disconnect.
+func install_preview(descriptor:Dictionary,selected:Callable) -> bool:
+ var owner:=str(live_descriptor.get("profile",""))
+ return active and not returning and owner!="" and workshop.profile_id==owner and await walker.preview_avatar(descriptor,owner,selected)
+
 func resolved(key:String,descriptor:Dictionary) -> void:
  if editing_parts or not active or returning or current!=requested:return
  var row:=selected_look(requested)
  if row.is_empty():return
  if recipe_key(row)!=key:resolve_selected();return
- preview_installed=walker.install_avatar(descriptor)
- if preview_installed:resolved_key=row.id;render_key=key;preview_error=""
+ var selected:=func():return active and not returning and not editing_parts and recipe_key(row)==key and selected_id==row.id and selected_look(requested)==row
+ var ok:=await install_preview(descriptor,selected)
+ if not selected.call():return
+ if ok:
+  preview_installed=true;resolved_key=row.id;render_key=key;preview_error=""
  else:preview_error="Preview unavailable"
  selection_changed.emit()
 
@@ -120,10 +129,11 @@ func clear_garment() -> void:
  hidden.clear()
 
 func change() -> void:
- clear_garment();restore_avatar()
+ clear_garment()
  current=requested
  if current>=LOOKS.size():
   resolve_selected();selection_changed.emit();return
+ restore_avatar()
  if current==0:
   selection_changed.emit();return
  var skin_names=walker.worn_items.duplicate()
