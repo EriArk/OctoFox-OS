@@ -16,6 +16,7 @@ var observations:Dictionary={}
 var fish:Array=[]
 var botany:Dictionary={}
 var ore:Dictionary={}
+var shelf_id:=""
 
 func path() -> String: return directory+"/"+owner.sha256_text()+".json"
 
@@ -31,6 +32,7 @@ static func valid(rows: Variant) -> bool:
  return true
 
 func load_home(profile: String) -> Array:
+ shelf_id=""
  owner=profile if not profile.is_empty() else "guest";error="";writable=true;berth=0;survey_started=false;observations={};systems={};fish=[];botany={};ore={}
  if not FileAccess.file_exists(path()):return defaults()
  var f=FileAccess.open(path(),FileAccess.READ)
@@ -60,6 +62,8 @@ func load_home(profile: String) -> Array:
   error="Could not read the ore cargo. Your save has been kept.";writable=false;return value.items
  ore=saved_ore
  botany=saved_botany
+ var selected:Variant=value.get("shelf","")
+ if selected is String and owns_sample(selected):shelf_id=selected
  fish=saved_fish
  berth=maxi(0,BERTH_KEYS.find(value.get("berth","station")))
  var state:Variant=value.get("flight",{})
@@ -75,7 +79,7 @@ func save(rows: Array) -> bool:
  if not writable:return false
  if not valid(rows):error="Could not save this furniture arrangement.";return false
  if DirAccess.make_dir_recursive_absolute(directory)!=OK:error="Could not create the home save folder.";return false
- var content:=JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":BERTH_KEYS[berth],"flight":systems,"survey_started":survey_started,"observations":observations,"fish":fish,"botany":botany,"ore":ore},"\t")
+ var content:=JSON.stringify({"schema":1,"layoutRevision":2,"owner":owner,"items":rows,"berth":BERTH_KEYS[berth],"flight":systems,"survey_started":survey_started,"observations":observations,"fish":fish,"botany":botany,"ore":ore,"shelf":shelf_id},"\t")
  if content.to_utf8_buffer().size()>65536:error="Home storage is full.";return false
  var temp=path()+".tmp";var f=FileAccess.open(temp,FileAccess.WRITE)
  if f==null:error="Could not write your home. Your previous layout is safe.";return false
@@ -84,6 +88,35 @@ func save(rows: Array) -> bool:
  if result!=OK:error="Saving failed. Your previous layout is safe.";return false
  if DirAccess.rename_absolute(temp,path())!=OK:error="Could not finish saving your home.";return false
  error="";saved.emit();return true
+
+# A field sample already has an identity: one SKU and harvest day per profile.
+# One choice per species keeps the physical shelf usable with years of harvests.
+func shelf_samples(activity:String) -> Array:
+ var choices:Array=[]
+ var cargo:Dictionary=botany if activity=="botany" else ore
+ var catalogue:Array=preload("res://scripts/botanical_garden.gd").PLANTS if activity=="botany" else preload("res://scripts/ore_outcrop.gd").ORES
+ for sku in catalogue:
+  var days:Array=cargo.get(sku,{}).get("days",[])
+  if days.is_empty():continue
+  var day:=int(days[0])
+  if shelf_id.begins_with(str(sku)+"/") and owns_sample(shelf_id):day=int(shelf_id.get_slice("/",1))
+  choices.append({"id":"%s/%d"%[sku,day],"sku":sku,"day":day})
+ return choices
+
+func owns_sample(id:String) -> bool:
+ var parts:=id.split("/")
+ if parts.size()!=2 or not parts[1].is_valid_int():return false
+ var day:=int(parts[1])
+ if str(day)!=parts[1]:return false
+ var days:Array=field_cargo(parts[0]).get(parts[0],{}).get("days",[])
+ return days.any(func(value):return int(value)==day)
+
+func select_specimen(rows:Array,id:String) -> bool:
+ if id!="" and not owns_sample(id):error="This sample is no longer aboard.";return false
+ var old:=shelf_id
+ shelf_id=id
+ if save(rows):return true
+ shelf_id=old;return false
 
 func field_cargo(sku:String) -> Dictionary:
  return ore if sku in preload("res://scripts/ore_outcrop.gd").ORES else botany
@@ -104,8 +137,11 @@ func confirm_sample_transfer(rows:Array,sku:String,day:int) -> String:
 
 func save_samples(rows:Array,cargo:Dictionary,sku:String,entry:Dictionary) -> String:
  var previous:Variant=cargo.get(sku)
+ var old_display:=shelf_id
  cargo[sku]=entry
+ if shelf_id!="" and not owns_sample(shelf_id):shelf_id=""
  if save(rows):return ""
+ shelf_id=old_display
  if previous==null:cargo.erase(sku)
  else:cargo[sku]=previous
  return error if error!="" else "Could not save samples"

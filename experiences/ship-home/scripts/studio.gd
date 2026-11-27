@@ -13,6 +13,9 @@ var art: ShipInterior
 var printer: Node3D
 var toolhead: Node3D
 var species_plates:Dictionary={}
+const SHELF_POS=Vector3(-1.53,1.095,5.42)
+var display_model:Node3D
+var display_sku:=""
 var aquarium: Node3D
 var water:=ShaderMaterial.new()
 var fish: Array[Node3D] = []
@@ -393,13 +396,49 @@ func build_moving(dock:Node3D) -> void:
   curtain.custom_aabb=AABB(Vector3(-0.86,0,-0.86),Vector3(1.72,2.15,1.72))
   curtain.scale.x=side;booth.add_child(curtain)
 
+func show_specimen(result:Dictionary) -> void:
+ var sku:String=result.get("sku","")
+ if sku==display_sku:return
+ display_sku=sku
+ if is_instance_valid(display_model):
+  remove_child(display_model);display_model.queue_free();display_model=null
+ if sku.is_empty():return
+ display_model=Node3D.new();add_child(display_model);display_model.position=SHELF_POS
+ var mount:=display_model
+ art.cylinder(mount,Vector3.UP*0.014,0.135,0.028,Art.BRASS)
+ if result.result_type=="plant":
+  const Garden=preload("res://scripts/botanical_garden.gd")
+  var tint:Color=Garden.SWATCHES[Garden.PLANTS.find(sku)]
+  art.cylinder(mount,Vector3.UP*0.08,0.063,0.115,Art.SEA_GLASS)
+  art.beam(mount,Vector3.UP*0.12,Vector3.UP*0.26,0.009,Color("597359"))
+  for i in 5:
+   var a:=i*TAU/5
+   var petal:=oval(mount,Vector3(sin(a)*0.035,0.26,cos(a)*0.035),Vector3(0.052,0.036,0.08),tint)
+   petal.rotation.y=a
+  oval(mount,Vector3.UP*0.273,Vector3(0.033,0.027,0.033),Art.BRASS)
+ else:
+  var stone:=PrismMesh.new();stone.size=Vector3(0.17,0.15,0.13)
+  var tint:=Color("b87050") if sku=="bauxite" else Color("566975")
+  for i in 3:
+   var shard:=MeshInstance3D.new();shard.mesh=stone;mount.add_child(shard)
+   shard.position=Vector3((i-1)*0.047,0.083+0.013*(i%2),0.012*i)
+   shard.rotation.y=i*1.8;shard.scale=Vector3.ONE*(0.7+0.17*i)
+   shard.material_override=art.material(tint.lightened(i*0.07))
+ art.batch_static(mount)
+
 func set_fish(stock:Array) -> void:
- for node in fish:
-  aquarium.remove_child(node);node.queue_free()
+ # Keep each swimmer across inventory refreshes so a receipt does not rebuild the tank.
+ var previous:Dictionary={}
+ for node in fish:previous[node.name]=node
  fish.clear()
- for record in stock:
+ for record:Dictionary in stock:
   if record.place!="tank":continue
-  fish.append(make_fish(aquarium,record))
+  var key:=StringName("Fish_"+str(record.id))
+  if previous.has(key):
+   fish.append(previous[key]);previous.erase(key)
+  else:fish.append(make_fish(aquarium,record))
+ for node in previous.values():
+  aquarium.remove_child(node);node.queue_free()
 
 func make_fish(parent:Node3D,record:Dictionary) -> Node3D:
  var swimmer:=Node3D.new();parent.add_child(swimmer)

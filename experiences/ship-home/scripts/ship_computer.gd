@@ -111,8 +111,8 @@ func refresh() -> void:
    add_entry("Flight status",ship.flight.NAMES[ship.flight.berth] if ship.flight.mode==ship.flight.Mode.BERTH else a.SECTORS[a.sector],
     "Hull   %d%%\nShields   %d%%\nFuel   %d / %d"%[roundi(a.hull),roundi(a.shield),floori(a.fuel),int(a.TANK)])
    add_entry("Field atlas","Echo Orchard   ·   %d / 2 species"%ship.store.observations.size(),ship.survey.brief(),"field-atlas")
-   for species in ship.store.observations:
-    var fish_record:Dictionary=ship.store.observations[species]
+   for fish_record:Dictionary in ship.facilities.results("field-atlas"):
+    var species:String=fish_record.species
     add_entry(ship.Catch.SPECIES[species][0],"Echo Orchard   ·   %d cm"%ship.Catch.length_cm(fish_record),ship.survey.NOTES[species])
    for i in a.MODULES.size():
     add_entry(a.MODULES[i],"Online" if a.enabled[i] else "Offline","Power distribution\nSYS   %d      ENG   %d      WEP   %d"%[a.pips[0],a.pips[1],a.pips[2]])

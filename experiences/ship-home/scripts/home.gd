@@ -33,6 +33,9 @@ var lift_end=0.0
 var ride_time=0.0
 var walker:ShipWalker
 var store=Store.new()
+var facilities=preload("res://scripts/activity_facilities.gd").new()
+var shelf_choices:Array=[]
+var shelf_action:="Inspect specimen shelf"
 var avatar_client:Node
 var furnishings:Node3D
 var rows:Array=[]
@@ -89,6 +92,10 @@ func _ready() -> void:
  add_child(fitting);fitting.configure(walker,studio)
  Exterior.configure_camera(walker.pilot_camera,true);Exterior.configure_camera(fitting.camera,true)
  add_child(mine);add_child(garden);add_child(fishing)
+ facilities.register("fishing","fish","aquarium",_owned_fish)
+ facilities.register("orchard-survey","observation","field-atlas",func():return store.observations.values())
+ facilities.register("botany","plant","specimen-shelf",store.shelf_samples.bind("botany"))
+ facilities.register("geology","mineral","specimen-shelf",store.shelf_samples.bind("geology"))
  store.saved.connect(_sync_service_deck)
  _load_profile("");_ui()
  avatar_client=AvatarClient.new();avatar_client.app_id="art.abysstail.octofox.ship-home"
@@ -205,6 +212,13 @@ func _load_profile(id:String) -> void:
 
 func _sync_service_deck() -> void:
  studio.service.sync(store,flight.avionics.installed)
+ shelf_choices=facilities.results("specimen-shelf")
+ var selected:=shelf_choices.find_custom(func(row):return row.id==store.shelf_id)
+ studio.show_specimen(shelf_choices[selected] if selected>=0 else {})
+ var next:=selected+1
+ if shelf_choices.is_empty():shelf_action="Inspect specimen shelf"
+ elif next==shelf_choices.size():shelf_action="Clear specimen shelf"
+ else:shelf_action="Display "+str(shelf_choices[next].sku).capitalize()
  for species in studio.species_plates:studio.species_plates[species].visible=store.observations.has(species)
 
 func transit_session() -> Node:
@@ -448,7 +462,8 @@ func _process(delta:float) -> void:
  var exploring:bool=not (paused or editing or fitting.active or riding or walker.seated)
  if exploring and target!=null:
   var caption:String=STATION_ACTIONS[station]
-  if station=="port_crew":
+  if station=="cabin":caption=shelf_action
+  elif station=="port_crew":
    var room=flight.station_rooms[flight.berth]
    caption="Talk to "+room.STAFF[room.port].name
   elif station=="route_desk":
@@ -625,7 +640,7 @@ func _leave_pilot() -> bool:
 const STATION_TARGETS = {
  "pilot": Vector3(0,0.9,-3.4), "workbench": Studio.PRINTER_POS+Vector3.UP*0.9,
  "refinery":Studio.REFINERY_POS+Vector3.UP*0.84,"computer":Studio.COMPUTER_POS+Vector3.UP,
- "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Vector3(0,0.88,5.67),
+ "wardrobe": Art.BOOTH+Vector3.UP*1.3, "cabin": Studio.SHELF_POS,
  "lift": Vector3(Art.LIFT.x,0.12,Art.LIFT.y)
 }
 const STATION_ACTIONS={"port_crew":"Talk","route_desk":"Plot island course","microscope":"Inspect reference slides","biologist":"Talk to Dr. Neri","cargo":"Inspect cargo","economiser":"Inspect cruise economiser","capacitor":"Inspect boost capacitor","mine":"Cut ore vein","garden":"Inspect flowers","fish":"Fish from pier","tank":"Inspect aquarium","pilot":"Sit at helm","workbench":"Use fabricator","refinery":"Use refinery","computer":"Use ship computer","wardrobe":"Open wardrobe","lift":"Use lift","dock_lift":"Dock lift","cabin":"Inspect shelves"}
@@ -660,7 +675,7 @@ func _station() -> String:
   if distance<reach:nearest=station;reach=distance
  if nearest!="":return nearest
  if p.distance_to(Vector2(Art.BOOTH.x,Art.BOOTH.z))<1.32:return "wardrobe"
- if p.distance_to(Vector2(0,5.67))<1.56:return "cabin"
+ if p.distance_to(Vector2(Studio.SHELF_POS.x,Studio.SHELF_POS.z))<1.56:return "cabin"
  return ""
 
 func _fly_manual(delta:float) -> Vector2:
@@ -793,7 +808,15 @@ func _interact() -> void:
    get_viewport().disable_3d=true
    Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
   "wardrobe":fitting.enter()
-  "cabin":notify("Display shelves · Figurines and awards")
+  "cabin":
+   if shelf_choices.is_empty():
+    notify("Gather a flower or mine ore on an island to display a sample here.")
+   else:
+    var next:=shelf_choices.find_custom(func(row):return row.id==store.shelf_id)+1
+    var choice:Dictionary=shelf_choices[next] if next<shelf_choices.size() else {}
+    if not store.select_specimen(rows,choice.get("id","")):notify(store.error)
+    elif choice.is_empty():notify("Shelf cleared")
+    else:notify(str(choice.sku).capitalize()+" on display")
   "lift":
    _ride(studio.lift,Art.LOWER_Y if lift_destination_is_below() else 0.0)
   "dock_lift":
@@ -801,13 +824,17 @@ func _interact() -> void:
 
 
 func fish_stock() -> Array:
+ return facilities.results("aquarium")
+
+func _owned_fish() -> Array:
  if not can_export():return store.fish
  # After a lost transfer reply the server may already own the same instance.
  var stock:Array=store.fish.duplicate()
  var local_ids:Dictionary={}
  for row in stock:local_ids[row.id]=true
  for row in avatar_client.fish_tank+avatar_client.fish_bag:
-  if not local_ids.has(row.id):stock.append(row)
+  if not local_ids.has(row.id):
+   stock.append(row);local_ids[row.id]=true
  return stock
 
 func update_fish() -> void:

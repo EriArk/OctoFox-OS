@@ -29,6 +29,21 @@ Walk past the landing circle on Echo Orchard, Table Isle or Cinder Garden. Press
 
 At the ship's **Refinery**, switch to **Plants** with the shoulder buttons. Choose **Store sample** to place the harvest in Profile Inventory. The sample can be sold at the Bazaar or used to start a one-hour extraction. The timer keeps running after exit. **Collect cartridge** adds a tradable pigment cartridge to Profile Inventory. Activate it in the fitting station to permanently unlock its colour. The server recognises a harvest by account, garden and UTC day, so retrying a transfer after a lost reply recovers the original inventory item. The field sample stays on the ship until the service confirms it.
 
+### Field specimens aboard
+
+Approach the shelf beside the sleeping alcove and use the interaction shown on the controller. Each press displays the next kind of flower or ore in local cargo. The last choice clears the shelf. The shelf remembers the particular harvest, including its UTC day. Processing or unloading that sample clears its display when the transfer is confirmed. Another sample of the same kind stays in cargo for later selection.
+
+| Activity | Facility | Source of the displayed result |
+| --- | --- | --- |
+| Fishing | Aquarium | Local livewell and confirmed profile fish, matched by specimen UUID |
+| Botany and geology | Specimen shelf | The current home's plant and ore cargo, identified by SKU and harvest day |
+| Orchard survey | Field atlas on the ship computer | Saved observations from Dr. Neri, including the documented specimen |
+| Botany and geology | Refinery | Existing sample transfer, cartridge recipes and jobs |
+
+Ship Home registers a result provider with `facilities.register(activity, result_type, facility, owned_results)`. On inspection or refresh, `facilities.results(facility)` reads from the current profile and attaches the activity and type to each result. Providers supply a stable ID and the fields their facility needs. Aquarium placement uses its existing fish actions. The shelf stores an optional display reference in the existing home save. Older homes open with an empty shelf. Both facilities work with local finds offline.
+
+Future prize cases or trophy displays can register another provider using confirmed inventory or verified records. The fixture in `tests/facilities.gd` exercises that extension. Festival prizes, race records, plant cultivation and online trading require their respective authoritative integrations.
+
 ### Shore fishing and the ship aquarium
 
 Land at Echo Orchard or Table Isle, leave by the lower lift and follow the fishing pier sign from the landing circle. Press **A / F** at the end of the pier to take out the SDK rod.

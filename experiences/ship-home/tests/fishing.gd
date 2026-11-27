@@ -79,6 +79,9 @@ func run() -> void:
   var first:String=home.store.fish[0].id
   press(JOY_BUTTON_B);press(JOY_BUTTON_RIGHT_SHOULDER);press(JOY_BUTTON_B)
   check(home.studio.fish.size()==2 and home.store.fish[0].id==first,"Same two specimens swim in the aquarium")
+  var displayed=home.studio.fish[0]
+  home.update_fish()
+  check(home.studio.fish[0]==displayed,"Inventory refresh preserves the displayed swimmer")
   await frames(12);await shot("aquarium");press(JOY_BUTTON_A)
   home._load_profile("other");check(home.studio.fish.is_empty(),"Other profile has its own tank")
   home._load_profile("angler")
