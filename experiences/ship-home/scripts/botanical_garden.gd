@@ -110,22 +110,24 @@ func rebuild(bloom_day:int) -> void:
   var head:=Node3D.new();stems.add_child(head);head.position=top+Vector3.UP*0.04
   blossoms.append(head)
   var open:=i in ripe
-  var petals:int=[6,5,8][plant]
-  var tint:Color=SWATCHES[plant].lightened(0.19)
-  # Flower faces tilt toward the clearing, so petal shape reads from the picking camera.
   var face:=Node3D.new();head.add_child(face);face.rotation.x=0.70
-  for j in petals:
-   var angle:=TAU*j/petals
-   var radial:=Vector3(cos(angle),0,sin(angle))
-   var petal:=oval(face,radial*(0.105 if open else 0.039)+Vector3.UP*(0.025 if open else 0.07),
-     Vector3(0.18 if open else 0.082,0.048 if open else 0.19,0.085 if plant!=1 else 0.14),tint if open else tint.darkened(0.25))
-   petal.rotation.y=-angle
-  if open:
-   oval(face,Vector3.UP*0.06,Vector3(0.105,0.078,0.105),Color("#f8ca62"))
-   for j in 3:
-    var angle:=TAU*j/3
-    oval(face,Vector3(0.035*cos(angle),0.097,0.035*sin(angle)),Vector3.ONE*0.036,Color("#fff1b7"))
+  flower_head(face,plant,open,oval)
   home.art.batch_static(head)
+static func flower_head(face:Node3D,plant_index:int,open:bool,make_oval:Callable) -> void:
+ var petals:int=[6,5,8][plant_index]
+ var tint:Color=SWATCHES[plant_index].lightened(0.19)
+ for j in petals:
+  var angle:=TAU*j/petals
+  var radial:=Vector3(cos(angle),0,sin(angle))
+  var petal:MeshInstance3D=make_oval.call(face,radial*(0.105 if open else 0.039)+Vector3.UP*(0.025 if open else 0.07),
+    Vector3(0.18 if open else 0.082,0.048 if open else 0.19,0.085 if plant_index!=1 else 0.14),tint if open else tint.darkened(0.25))
+  petal.rotation.y=-angle
+ if open:
+  make_oval.call(face,Vector3.UP*0.06,Vector3(0.105,0.078,0.105),Color("#f8ca62"))
+  for j in 3:
+   var angle:=TAU*j/3
+   make_oval.call(face,Vector3(0.035*cos(angle),0.097,0.035*sin(angle)),Vector3.ONE*0.036,Color("#fff1b7"))
+
 func prepare_flowers() -> void:
  var current_day:=today()
  if day!=current_day or built_plant!=plant:rebuild(current_day)

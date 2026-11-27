@@ -61,6 +61,11 @@ func configure(ship:Node, layer:CanvasLayer) -> void:
 
 # The planar front face is also the cutting surface. The trailing facets sink into the bank.
 func rock(parent:Node3D, at:Vector3, dimensions:Vector3, tint:Color) -> void:
+ var part:=MeshInstance3D.new()
+ part.mesh=specimen_mesh(tint)
+ part.material_override=stone_material;part.position=at;part.scale=dimensions;parent.add_child(part)
+
+static func specimen_mesh(tint:Color) -> ArrayMesh:
  var surface:=SurfaceTool.new()
  surface.begin(Mesh.PRIMITIVE_TRIANGLES)
  var front:=Vector3(-0.24,0.53,0.31)
@@ -77,9 +82,7 @@ func rock(parent:Node3D, at:Vector3, dimensions:Vector3, tint:Color) -> void:
    for v:Vector3 in points:
     surface.set_color(tint.lightened(0.08+0.08*sin(i*7+j*2)))
     surface.set_normal(normal);surface.add_vertex(v)
- var part:=MeshInstance3D.new()
- part.mesh=surface.commit()
- part.material_override=stone_material;part.position=at;part.scale=dimensions;parent.add_child(part)
+ return surface.commit()
 
 func set_site(site:int) -> void:
  close()

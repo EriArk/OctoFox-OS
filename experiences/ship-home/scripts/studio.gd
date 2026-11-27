@@ -408,22 +408,29 @@ func show_specimen(result:Dictionary) -> void:
  art.cylinder(mount,Vector3.UP*0.014,0.135,0.028,Art.BRASS)
  if result.result_type=="plant":
   const Garden=preload("res://scripts/botanical_garden.gd")
-  var tint:Color=Garden.SWATCHES[Garden.PLANTS.find(sku)]
-  art.cylinder(mount,Vector3.UP*0.08,0.063,0.115,Art.SEA_GLASS)
-  art.beam(mount,Vector3.UP*0.12,Vector3.UP*0.26,0.009,Color("597359"))
-  for i in 5:
-   var a:=i*TAU/5
-   var petal:=oval(mount,Vector3(sin(a)*0.035,0.26,cos(a)*0.035),Vector3(0.052,0.036,0.08),tint)
-   petal.rotation.y=a
-  oval(mount,Vector3.UP*0.273,Vector3(0.033,0.027,0.033),Art.BRASS)
+  var leaf:=Color("639079")
+  var tip:=Vector3(0.028,0.254,-0.018)
+  art.cylinder(mount,Vector3.UP*0.071,0.05,0.086,Art.SEA_GLASS,0.035)
+  art.cylinder(mount,Vector3.UP*0.116,0.037,0.008,Art.BRASS)
+  art.beam(mount,Vector3.UP*0.115,tip,0.005,leaf)
+  for side in [-1,1]:
+   var blade:=oval(mount,Vector3(side*0.029,0.174+side*0.015,0),Vector3(0.032,0.091,0.024),leaf)
+   blade.rotation.z=-side*0.81
+  var face:=Node3D.new();mount.add_child(face);face.position=tip;face.scale=Vector3.ONE*0.34
+  face.rotation.x=-1.1
+  Garden.flower_head(face,Garden.PLANTS.find(sku),true,oval)
  else:
-  var stone:=PrismMesh.new();stone.size=Vector3(0.17,0.15,0.13)
-  var tint:=Color("b87050") if sku=="bauxite" else Color("566975")
-  for i in 3:
-   var shard:=MeshInstance3D.new();shard.mesh=stone;mount.add_child(shard)
-   shard.position=Vector3((i-1)*0.047,0.083+0.013*(i%2),0.012*i)
-   shard.rotation.y=i*1.8;shard.scale=Vector3.ONE*(0.7+0.17*i)
-   shard.material_override=art.material(tint.lightened(i*0.07))
+  const Ore=preload("res://scripts/ore_outcrop.gd")
+  var stone:=MeshInstance3D.new();mount.add_child(stone)
+  var tint:=Color("944e38") if sku=="bauxite" else Color("3f5061")
+  stone.mesh=Ore.specimen_mesh(tint)
+  var mineral:=StandardMaterial3D.new();mineral.vertex_color_use_as_albedo=true
+  stone.material_override=mineral
+  stone.position=Vector3(0,0.031,0);stone.rotation.y=PI+0.29;stone.scale=Vector3(0.087,0.15,0.145)
+  var trace:=Color("f3bc85") if sku=="bauxite" else Color("adc2db")
+  for i in range(1,Ore.SEAM.size()):
+   var a:Vector2=Ore.SEAM[i-1];var b:Vector2=Ore.SEAM[i]
+   art.beam(mount,stone.transform*Vector3(a.x,a.y,0.316),stone.transform*Vector3(b.x,b.y,0.316),0.003,trace)
  art.batch_static(mount)
 
 func set_fish(stock:Array) -> void:
