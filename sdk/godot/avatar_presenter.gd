@@ -91,8 +91,8 @@ static func _resource_bytes(resource: PackedByteArray) -> PackedByteArray:
 static func from_descriptor(descriptor: Dictionary) -> TrainerAvatarPresenter:
 	return from_prepared(descriptor,prepare_descriptor(descriptor))
 
-# The detached GLTF state can be decoded on a worker. Nodes and animation
-# bindings are only created when the caller commits the selected preview.
+# A worker may prepare the complete detached model. The caller attaches it
+# to the scene tree after rechecking the profile and the selected outfit.
 static func prepare_descriptor(descriptor: Dictionary) -> GLTFState:
 	if descriptor.get("schema") != 1 or descriptor.get("rig") != "trainer-humanoid-54-v1": return null
 	var path: String = descriptor.get("glb", "")

@@ -119,3 +119,23 @@ def test_purchase_http_rejects_forgery_and_immutable_receipts(account, postgres)
             with account.db.transaction() as c:c.execute('DELETE FROM trainer_backend.'+table)
     account.revoke(user['access_token'],user['session_id'])
     with pytest.raises(AuthError):shop.purchase(user['access_token'],uuid4(),'profile.orbit',1,250)
+
+
+def test_decorator_delivers_existing_scene_right_with_recoverable_receipt(account, postgres, monkeypatch):
+    shop, user = funded(account)
+    auth = {'Authorization':'Bearer '+user['access_token']}
+    with TestClient(create_app(Settings(postgres[1], 'test', oauth=CONFIG), provider=Provider())) as client:
+        path = '/v1/bazaar-worlds/festival/decorator'
+        store = '/v1/bazaar-worlds/festival/store'
+        scene = next(row for row in client.get(store, headers=auth).json()['items'] if row['id']=='profile.aurora')
+        assert scene['kind']=='scene' and not scene['owned']
+        order = dict(operation_id=str(uuid4()),offer_id=scene['id'],offer_revision=int(scene['revision']),expected_price=scene['price'])
+        assert client.post(path,headers=auth,json=order).json()['code']=='bazaar_under_development'
+        monkeypatch.setattr('trainer_backend.bazaar.policy.PAYMENTS_AVAILABLE',True)
+        assert client.post(path,headers=auth,json={**order,'offer_id':'outfit.slot.1'}).status_code==422
+        sale = client.post(path,headers=auth,json=order).json()
+        assert sale['receipt']['offer_id']==scene['id']
+        monkeypatch.setattr('trainer_backend.bazaar.policy.PAYMENTS_AVAILABLE',False)
+        assert client.post(path,headers=auth,json=order).json()==sale
+        assert any(row['id']==scene['id'] and row['owned'] for row in client.get(store,headers=auth).json()['items'])
+        assert len(shop.snapshot(user['access_token'])['items'])==1

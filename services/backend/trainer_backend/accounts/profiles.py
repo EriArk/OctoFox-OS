@@ -19,6 +19,23 @@ def display_name(user):
     return 'Player'
 
 
+# Inventory-backed appearance slots use the existing workshop SKU and UUID.
+SHIP_SLOTS = {'top': 'top', 'bottom': 'bottom', 'shoes': 'boots', 'headwear': 'hat'}
+
+
+def owned_parts(conn, player, recipe):
+    parts = ((recipe or {}).get('appearance') or {}).get('equipment', {})
+    for slot in sorted(parts):
+        entry = parts[slot]
+        item = conn.execute("""SELECT payload FROM trainer_backend.loot_items
+            WHERE id=%s AND player_id=%s AND adapter_id='octofox.workshop' AND kind='garment'
+            AND state='stored' FOR UPDATE""", (UUID(entry['id']), player)).fetchone()
+        if not item or item['payload']['sku'] != recipe['appearance'][slot]:
+            raise AuthError('garment_not_owned', 409)
+        if item['payload'].get('colors', {}) != entry['colors']:
+            raise AuthError('garment_finish_changed', 409)
+
+
 def avatar_recipe(value):
     # Current free SDK pack only. No URLs, paths, meshes or item ownership claims.
     if value is None:
@@ -33,12 +50,27 @@ def avatar_recipe(value):
                 'socks': ('none', 'ankle-socks', 'crew-socks'),
                 'shoes': ('sandals', 'golf-shoes-classic', 'golf-shoes-sport', 'canvas-shoes', 'racing-boots', 'rose-racing-boots'),
                 'headwear': ('none', 'golf-cap', 'golf-visor', 'racing-helmet', 'rose-racing-helmet')}
-    valid = valid and isinstance(a, dict) and type(a.get('schema')) is int and a['schema'] in (1, 2, 3)
-    if valid and a['schema'] == 3:
+    valid = valid and isinstance(a, dict) and type(a.get('schema')) is int and a['schema'] in (1, 2, 3, 4)
+    if valid and a['schema'] >= 3:
         colors |= {'socksColor', 'shoesColor', 'headwearColor'}
     required = colors | {'schema', 'pack', 'hair', 'eyes'}
     if valid and a['schema'] >= 2:
         required |= wardrobe.keys()
+    if valid and a['schema'] == 4:
+        from ..economy.workshop import RECIPES, COLORS, CHANNELS
+        required.add('equipment')
+        equipment = a.get('equipment')
+        valid = isinstance(equipment, dict) and 1 <= len(equipment) <= 4 and set(equipment) <= SHIP_SLOTS.keys()
+        if valid:
+            for slot, item in equipment.items():
+                valid = (isinstance(item, dict) and set(item) == {'id', 'colors'}
+                         and isinstance(item['id'], str) and re.fullmatch(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}', item['id'])
+                         and isinstance(item['colors'], dict) and set(item['colors']) <= set(CHANNELS)
+                         and all(isinstance(v, str) and v in COLORS for v in item['colors'].values())
+                         and a.get(slot) in tuple(f'{style}.{SHIP_SLOTS[slot]}' for style in RECIPES))
+                if not valid:
+                    break
+                wardrobe[slot] += (a[slot],)
     valid = valid and set(a) == required and a['pack'] == 'trainer-avatar-1'
     valid = valid and (a['schema'] == 1 or all(isinstance(a[k], str) and a[k] in values for k, values in wardrobe.items()))
     eyes = ('round', 'almond') + tuple(f'{style}-{variant}'
@@ -84,6 +116,7 @@ def update_name(conn, player, name):
 
 
 def update_avatar(conn, player, avatar):
+    owned_parts(conn, player, avatar)
     conn.execute('''INSERT INTO trainer_backend.public_profiles(player_id,display_name,avatar) VALUES(%s,'Player',%s)
         ON CONFLICT(player_id) DO UPDATE SET avatar=EXCLUDED.avatar,needs_avatar=false,
         revision=public_profiles.revision+1,updated_at=clock_timestamp()

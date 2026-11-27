@@ -128,3 +128,28 @@ def test_wardrobe_recipe_roundtrip_and_legacy_are_bounded(account):
         with pytest.raises(AuthError,match='invalid_avatar_recipe'):avatar_recipe(bad)
     bad=copy.deepcopy(value);bad['appearance']['schema']=1
     with pytest.raises(AuthError,match='invalid_avatar_recipe'):avatar_recipe(bad)
+
+
+def test_owned_garment_identity_and_dye_follow_the_avatar(account):
+    from trainer_backend.economy import workshop
+    from uuid import uuid4
+    user = login(account)
+    token, player = user['access_token'], user['player_id']
+    with account.db.transaction() as conn:
+        workshop.lock_account(conn, player)
+        item = workshop.write(conn, player, 'garment', {'sku':'traveller.top','colors':{'trim':'rose-gold'}})
+    recipe = copy.deepcopy(RECIPE)
+    piece = {'id':str(item), 'colors':{'trim':'rose-gold'}}
+    recipe['appearance'].update(schema=4, top='traveller.top', bottom='base-shorts', socks='none', shoes='sandals',
+        headwear='none', socksColor='#ffffff', shoesColor='#334455', headwearColor='#998877', equipment={'top':piece})
+    assert account.profile(token, avatar=recipe)['avatar'] == recipe
+    piece['id'] = str(uuid4())
+    with pytest.raises(AuthError,match='garment_not_owned'):
+        account.profile(token,avatar=recipe)
+    piece['id'] = str(item)
+    piece['colors'] = {}
+    with pytest.raises(AuthError,match='garment_finish_changed'):
+        account.profile(token,avatar=recipe)
+    with account.db.transaction() as conn:
+        workshop.paint(conn, player, item, 'trim', 'original')
+    assert account.profile(token)['avatar'] == recipe

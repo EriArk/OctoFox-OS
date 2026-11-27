@@ -16,11 +16,12 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QtEndian>
+#include <QUuid>
 #include <cstring>
 namespace trainer {
 namespace {
-const QStringList fields{"headwear","top","bottom","socks","shoes","hair","eyes","skinColor","top"};
-const QStringList labels{"Headwear","Tops","Bottoms","Socks","Shoes","Hair","Eyes","Skin","Outfits"};
+const QStringList fields{"headwear","top","bottom","socks","shoes","top"};
+const QStringList labels{"Headwear","Tops","Bottoms","Socks","Shoes","Outfits"};
 QString title(const QString& id) {
     static const QMap<QString,QString> names{{"tank","Sports tank"},{"base-shorts","Basic shorts"},{"none","None"},{"sandals","Sandals"},
         {"polo-short-sleeve","Polo"},{"polo-sleeveless","Sleeveless polo"},{"golf-shorts","Golf shorts"},{"pleated-skirt","Pleated skirt"},
@@ -29,6 +30,10 @@ QString title(const QString& id) {
         {"sundress","Pleated sundress"},{"everyday-tee","Everyday T-shirt"},{"denim-breeches","Men’s denim breeches"},{"denim-breeches-womens","Women’s denim breeches"},{"canvas-shoes","Canvas shoes"},
         {"racing-suit","Racing suit"},{"rose-racing-suit","Rose racing suit"},{"racing-helmet","Racing helmet"},{"rose-racing-helmet","Rose helmet"},
         {"racing-boots","Racing boots"},{"rose-racing-boots","Rose racing boots"}};
+    static const QMap<QString,QString> ship{{"traveller.top","Trail cloak"},{"traveller.bottom","Trail trousers"},{"traveller.boots","Ranger boots"},{"traveller.hat","Feather cap"},
+        {"mage.top","Starweave coat"},{"mage.bottom","Indigo leggings"},{"mage.boots","Rune boots"},{"mage.hat","Astral hat"},
+        {"merchant.top","Apron & vest"},{"merchant.bottom","Market breeches"},{"merchant.boots","Guild shoes"},{"merchant.hat","Market beret"}};
+    if(ship.contains(id))return ship[id];
     if(names.contains(id))return names[id];
     auto text=id;text.replace("-feminine"," - lashes");text.replace("-base","");if(!text.isEmpty())text[0]=text[0].toUpper();return text;
 }
@@ -125,16 +130,119 @@ QVariantList OutfitController::rows() const {
     const auto next=account_.outfits()["next"].toMap();if(!next.isEmpty()){auto row=next;row["name"]="+";row["buy"]=true;result.append(row);}return result;
 }
 QVariantMap OutfitController::selected() const {return rows().value(index_).toMap();}
+void OutfitController::refreshGarments(std::function<void()> done) {
+    const auto player=account_.snapshot()["player_id"].toString();
+    if(player!=garmentOwner_ || !account_.inventoryConnected()){garments_={};garmentOwner_.clear();}
+    const auto generation=++garmentGeneration_;
+    if(account_.inventoryConnected())readGarments(player,{}, {},generation,std::move(done));
+    else if(done)done();
+}
+void OutfitController::readGarments(QString player,QString after,QJsonArray rows,quint64 generation,std::function<void()> done) {
+    QJsonObject args;
+    if(!after.isEmpty())args["after"]=after;
+    account_.workshopRequest("workshop.garments",args,[this,player,after,rows,generation,done=std::move(done)](int status,QJsonObject reply) mutable {
+        if(generation!=garmentGeneration_ || player!=account_.snapshot()["player_id"].toString()){if(done)done();return;}
+        if(status!=200 || reply["player_id"]!=player){garments_={};garmentOwner_.clear();emit changed();if(done)done();return;}
+        for(const auto& item:reply["items"].toArray())rows.append(item);
+        const auto next=reply["next"].toString();
+        if(!next.isEmpty() && next>after){readGarments(player,next,rows,generation,std::move(done));return;}
+        garments_=rows;garmentOwner_=player;
+        if(open_ && player==player_ && owner_==trainer_.profile()["id"].toString()){
+            auto look=appearance_;
+            const auto equipment=look["equipment"].toObject();
+            for(auto slot=equipment.begin();slot!=equipment.end();++slot){
+                const auto id=slot.value().toObject()["id"];
+                const auto match=std::find_if(rows.constBegin(),rows.constEnd(),[&](QJsonValue piece){return piece.toObject()["id"]==id;});
+                if(match!=rows.constEnd())look=AvatarAssets::withGarment(look,(*match).toObject());
+            }
+            if(look!=appearance_ && AvatarAssets::valid(look))commit(look);
+        }
+        emit changed();if(done)done();
+    });
+}
+QJsonArray OutfitController::ownedGarments() const {
+    return account_.inventoryConnected() && garmentOwner_==account_.snapshot()["player_id"].toString()?garments_:QJsonArray{};
+}
 QVariantList OutfitController::items() const {
     QVariantList result;for(const auto& id:AvatarAssets::choices(fields[category_])) {
         if(id=="none")continue;
-        if(fields[category_]=="top"&&(AvatarAssets::onePiece(id)!=(category_==8)))continue;
+        if(fields[category_]=="top"&&(AvatarAssets::onePiece(id)!=(category_==5)))continue;
         const bool covered=category_==2&&AvatarAssets::onePiece(appearance_["top"].toString());
         result.append(QVariantMap{{"id",id},{"name",title(id)},{"equipped",!covered&&appearance_[fields[category_]]==id},{"thumbnail",QString("qrc:/wardrobe/%1.png").arg(id)}});
-    }return result;
+    }
+    const auto field=fields[category_];
+    if(category_!=5)for(const auto item:ownedGarments()){
+        const auto piece=item.toObject();const auto sku=piece["sku"].toString();
+        if(AvatarAssets::workshopSlot(sku)!=field)continue;
+        result.append(QVariantMap{{"id",piece["id"].toString()},{"name",title(sku)},{"garment",piece.toVariantMap()},
+            {"equipped",appearance_["equipment"].toObject()[field].toObject()["id"]==piece["id"]},
+            {"thumbnail",QString("qrc:/wardrobe/%1.png").arg(sku)}});
+    }
+    return result;
 }
-QString OutfitController::colourKey() const {return QStringList{"headwearColor","shirtColor","shortsColor","socksColor","shoesColor","hairColor","eyeColor","skinColor","shirtColor"}[category_];}
+QString OutfitController::colourKey() const {return QStringList{"headwearColor","shirtColor","shortsColor","socksColor","shoesColor","shirtColor"}[category_];}
+QStringList OutfitController::dyeChannels() const {
+    const auto field=fields[category_];
+    if(!appearance_["equipment"].toObject().contains(field))return {};
+    const auto sku=appearance_[field].toString();
+    if(field=="bottom")return {"primary"};
+    if(sku=="merchant.hat")return {"primary","secondary","accent"};
+    if(sku=="traveller.hat" || sku=="mage.top" || sku=="mage.hat")return {"primary","trim","accent"};
+    return {"primary","secondary","trim","accent"};
+}
+QStringList OutfitController::unlockedDyes() const {
+    if(!account_.inventoryConnected() || paletteOwner_!=account_.snapshot()["player_id"].toString() || palette_.isEmpty())return {};
+    QStringList result{"original"};
+    for(const auto dye:palette_["palette"].toArray())result.append(dye.toString());
+    return result;
+}
+void OutfitController::loadPalette(){
+    const auto player=account_.snapshot()["player_id"].toString();
+    if(paletteOwner_!=player){palette_={};paletteOwner_.clear();}
+    if(!account_.inventoryConnected())return;
+    account_.workshopRequest("workshop.get",{},[this,player](int status,QJsonObject data){
+        if(player!=account_.snapshot()["player_id"].toString())return;
+        palette_=status==200?data:QJsonObject{};paletteOwner_=player;emit changed();
+    });
+}
+void OutfitController::nextDyeChannel(){
+    const auto channels=dyeChannels();if(channels.isEmpty())return;
+    dyeChannel_=(dyeChannel_+1)%channels.size();colour_=0;focus_=3;emit changed();
+}
+void OutfitController::paintGarment(const QString& dye){
+    const auto channels=dyeChannels();if(channels.isEmpty() || painting_)return;
+    const auto field=fields[category_], channel=channels[dyeChannel_%channels.size()];
+    const auto part=appearance_["equipment"].toObject()[field].toObject();
+    const auto colors=part["colors"].toObject();
+    if(dye==colors[channel].toString("original"))return;
+    const auto player=paletteOwner_,owner=owner_;
+    const auto sku=appearance_[field].toString();
+    painting_=true;
+    account_.workshopRequest("workshop.get",{},[this,player,owner,part,field,sku,channel,dye](int status,QJsonObject data){
+        if(status!=200 || data["player_id"]!=player || owner!=owner_ || !open_){
+            painting_=false;status_="Could not verify the inventory.";emit changed();return;
+        }
+        QJsonObject args{{"operation_id",QUuid::createUuid().toString(QUuid::WithoutBraces)},{"revision",data["revision"]},
+            {"item",part["id"]},{"channel",channel},{"color",dye}};
+        account_.workshopRequest("workshop.paint",args,[this,player,owner,field,sku,part,channel,dye](int status,QJsonObject result){
+            painting_=false;
+            if(player!=account_.snapshot()["player_id"].toString() || owner!=owner_)return;
+            if(status!=200 || result["item_id"]!=part["id"]){status_="Could not confirm the finish. Refresh your inventory.";emit changed();return;}
+            if(open_ && appearance_["equipment"].toObject()[field].toObject()["id"]==part["id"]){
+                auto colors=appearance_["equipment"].toObject()[field].toObject()["colors"].toObject();
+                if(dye=="original")colors.remove(channel);else colors[channel]=dye;
+                commit(AvatarAssets::withGarment(appearance_,{{"sku",sku},{"id",part["id"]},{"colors",colors}}));
+            }
+            refreshGarments();account_.refreshShop();emit changed();
+        });
+    });
+}
 QStringList OutfitController::colours() const {
+    if(!dyeChannels().isEmpty()){
+        QStringList values;
+        for(const auto& dye:unlockedDyes())values.append(palette_["colors"].toObject()[dye].toObject()["hex"].toString("#eee8df"));
+        return values;
+    }
     auto values=AvatarAssets::choices(colourKey());const auto current=appearance_[colourKey()].toString();
     if(!current.isEmpty()&&!values.contains(current))values.append(current);return values;
 }
@@ -143,15 +251,18 @@ QJsonObject OutfitController::recipe() const {
     return {{"schema",1},{"appearance",appearance_},{"packRevision",QString::fromLatin1(QCryptographicHash::hash(manifest.readAll(),QCryptographicHash::Sha256).toHex())}};
 }
 QVariantMap OutfitController::view() const {
-    QVariantList categories;for(int i=0;i<fields.size();++i)categories.append(QVariantMap{{"id",i==8?"outfit":fields[i]},{"name",labels[i]}});
+    QVariantList categories;for(int i=0;i<fields.size();++i)categories.append(QVariantMap{{"id",i==5?"outfit":fields[i]},{"name",labels[i]}});
     const auto row=selected(),chosen=items().value(item_).toMap();const auto key=fields[category_];
     const bool full=AvatarAssets::onePiece(appearance_["top"].toString());
-    const bool visible=!(category_==2&&full)&&!(category_==1&&full)&&!(category_==8&&!full);
-    const bool canRemove=visible&&(category_<5||category_==8)&&appearance_[key]!=AvatarAssets::defaults()[key];
+    const bool visible=!(category_==2&&full)&&!(category_==1&&full)&&!(category_==5&&!full);
+    const bool canRemove=visible&&(category_<5||category_==5)&&appearance_[key]!=AvatarAssets::defaults()[key];
     const bool hasColour=visible&&appearance_[key]!="none";
+    const auto channels=dyeChannels();const auto channel=channels.isEmpty()?QString():channels[dyeChannel_%channels.size()];
+    const auto finish=appearance_["equipment"].toObject()[key].toObject()["colors"].toObject()[channel].toString("original");
+    const auto tint=channels.isEmpty()?appearance_[colourKey()].toString():palette_["colors"].toObject()[finish].toObject()["hex"].toString("#eee8df");
     return {{"rows",rows()},{"selected",row},{"index",index_},{"focus",focus_},{"command",command_},
         {"categories",categories},{"category",category_},{"items",items()},{"item",item_},{"chosen",chosen},
-        {"colours",hasColour?colours():QStringList()},{"colour",appearance_[colourKey()].toString()},
+        {"colours",hasColour?colours():QStringList()},{"colour",tint},{"channel",channel},{"dyes",unlockedDyes()},{"painting",painting_},
         {"colourIndex",colour_},{"equippedName",visible?title(appearance_[key].toString()):QString("None")},{"canRemove",canRemove},
         {"appearance",appearance_.toVariantMap()},{"preview",previewUrl_},{"previewBusy",job_.isRunning()},
         {"previewError",previewError_},{"busy",false},{"review",account_.outfits()["review"]},
@@ -168,15 +279,16 @@ QJsonArray OutfitController::shipLooks() const {
     for(const auto& entry:account_.outfits()["items"].toList()) {
         const auto row=entry.toMap(), saved=row["saved"].toMap();
         const auto recipe=QJsonObject::fromVariantMap(saved["recipe"].toMap());
-        const auto appearance=recipe["appearance"].toObject();
-        if(row["conflict"].toBool()||!AvatarAssets::valid(appearance))continue;
+        const auto savedAppearance=recipe["appearance"].toObject();
+        if(row["conflict"].toBool()||!AvatarAssets::valid(savedAppearance))continue;
+        const auto appearance=AvatarAssets::withClothes(savedAppearance,live);
         const bool worn=state["active"].toString()==row["id"].toString() && AvatarAssets::normalized(appearance)==live;
         wearingSlot|=worn;
         // The profile wardrobe already resolves supported old appearances with the installed pack.
         looks.append(QJsonObject{{"id",row["id"].toString()},{"name",saved["name"].toString()},
             {"recipe",QJsonObject{{"schema",1},{"packRevision",revision},{"appearance",appearance}}},{"worn",worn}});
     }
-    const auto free=wearingSlot?state["free"].toObject():live;
+    const auto free=wearingSlot?AvatarAssets::withClothes(state["free"].toObject(),live):live;
     if(AvatarAssets::valid(free))
         looks.prepend(QJsonObject{{"id","current"},{"name",state["freeName"].toString("Everyday")},{"worn",!wearingSlot},
             {"recipe",QJsonObject{{"schema",1},{"packRevision",revision},{"appearance",free}}}});
@@ -192,6 +304,14 @@ QJsonArray OutfitController::shipParts(const QJsonObject& recipe,const QString& 
         // Selecting the current garment must preserve its existing dye.
         if(appearance[field]!=item)variant["appearance"]=AvatarAssets::equipped(appearance,field,item);
         parts.append(QJsonObject{{"id",item},{"name",title(item)},{"recipe",variant}});
+    }
+    for(const auto item:ownedGarments()){
+        const auto piece=item.toObject();
+        if(AvatarAssets::workshopSlot(piece["sku"].toString())!=field)continue;
+        const auto next=AvatarAssets::withGarment(appearance,piece);
+        if(next.isEmpty())continue;
+        auto variant=recipe;variant["appearance"]=next;
+        parts.append(QJsonObject{{"id",piece["id"]},{"name",title(piece["sku"].toString())},{"recipe",variant}});
     }
     return parts;
 }
@@ -236,7 +356,7 @@ void OutfitController::wearShipLook(const QString& slot,const QJsonObject& expec
             if(!account_.storeWardrobeState(previousState)){done("wardrobe_state_save_failed");return;}
             done(changedSlot?"look_saved_equip_failed":"appearance_save_failed");
         };
-        const auto appearance=recipe["appearance"].toObject();
+        const auto appearance=AvatarAssets::withClothes(recipe["appearance"].toObject(),before);
         if(AvatarAssets::normalized(appearance)==before)complete(true);
         else if(!trainer_.applyAppearance(appearance,complete))complete(false);
         return;
@@ -249,9 +369,9 @@ void OutfitController::open(){
     const auto state=account_.wardrobeState();free_=AvatarAssets::normalized(state["free"].toObject());if(free_.isEmpty())free_=appearance_;
     const auto all=rows();for(int i=1;i<all.size();++i)if(all[i].toMap()["id"]==state["active"].toString()&&!all[i].toMap()["buy"].toBool()) {
         const auto saved=QJsonObject::fromVariantMap(all[i].toMap()["saved"].toMap()["recipe"].toMap())["appearance"].toObject();
-        if(!saved.isEmpty()&&AvatarAssets::normalized(saved)==appearance_)index_=i;
+        if(!saved.isEmpty()&&AvatarAssets::withClothes(saved,appearance_)==appearance_)index_=i;
     }
-    if(index_==0)free_=appearance_;selectCategory(category_);preview();account_.refreshShop();emit changed();
+    if(index_==0)free_=appearance_;selectCategory(category_);preview();refreshGarments();loadPalette();account_.refreshShop();emit changed();
 }
 void OutfitController::close(){if(!open_)return;open_=false;++generation_;previewAppearance_={};nameSlot_.clear();account_.cancelPurchaseReview();}
 void OutfitController::select(int index){
@@ -260,6 +380,7 @@ void OutfitController::select(int index){
     if(row["buy"].toBool()){account_.reviewOutfitSlot();focus_=0;command_=0;emit changed();return;}
     const auto old=index_;index_=index;
     auto a=index==0?free_:AvatarAssets::normalized(QJsonObject::fromVariantMap(row["saved"].toMap()["recipe"].toMap())["appearance"].toObject());
+    a=AvatarAssets::withClothes(a,trainer_.appearance());
     if(a.isEmpty())a=appearance_;if(!commit(a)){index_=old;emit changed();return;}
     selectCategory(category_);focus_=0;emit admired();emit changed();
 }
@@ -287,15 +408,20 @@ void OutfitController::selectItem(int index){if(!open_)return;item_=qBound(0,ind
 void OutfitController::equip(){
     if(!open_)return;const auto chosen=items().value(item_).toMap();if(chosen.isEmpty())return;
     const auto key=fields[category_];auto a=appearance_;
-    const auto value=chosen["equipped"].toBool()&&(category_<5||category_==8)?AvatarAssets::defaults()[key].toString():chosen["id"].toString();
+    if(chosen.contains("garment") && !chosen["equipped"].toBool()){
+        if(commit(AvatarAssets::withGarment(a,QJsonObject::fromVariantMap(chosen["garment"].toMap()))))emit admired();
+        return;
+    }
+    const auto value=chosen["equipped"].toBool()&&(category_<5||category_==5)?AvatarAssets::defaults()[key].toString():chosen["id"].toString();
     a=AvatarAssets::equipped(a,key,value);if(a==appearance_)return;
     if(commit(a))emit admired();
 }
 void OutfitController::chooseColour(int index){
     const auto values=view()["colours"].toStringList();if(!open_||index<0||index>=values.size())return;
+    if(!dyeChannels().isEmpty()){colour_=index;focus_=3;paintGarment(unlockedDyes().value(index));emit changed();return;}
     auto a=appearance_;a[colourKey()]=values[index];colour_=index;focus_=3;commit(a);
 }
-void OutfitController::refresh(){status_.clear();liveFailed_=false;saveLive();account_.refreshShop();}
+void OutfitController::refresh(){loadPalette();refreshGarments();status_.clear();liveFailed_=false;saveLive();account_.refreshShop();}
 void OutfitController::preview(){if(appearance_==previewAppearance_)return;previewAppearance_=appearance_;previewError_.clear();++generation_;if(!job_.isRunning())startPreview();}
 void OutfitController::startPreview(){
     jobGeneration_=generation_;if(!open_||!AvatarAssets::valid(previewAppearance_))return;
@@ -330,7 +456,7 @@ void OutfitController::dispatch(Action action){
     if(action==Action::Back){close();emit backRequested();return;}
     if(action==Action::PreviousFace||action==Action::NextFace){selectCategory((category_+(action==Action::NextFace?1:fields.size()-1))%fields.size());return;}
     if(action==Action::ScrollUp||action==Action::ScrollDown){emit rotateRequested(action==Action::ScrollUp?-20:20);return;}
-    if(action==Action::ContextMenu){activate(2);return;}
+    if(action==Action::ContextMenu){if(focus_==3 && !dyeChannels().isEmpty())nextDyeChannel();else activate(2);return;}
     if(action==Action::Confirm){
         if(focus_==0){select(index_);focus_=2;}else if(focus_==1)focus_=2;else if(focus_==2||focus_==4)equip();
         else if(focus_==3)chooseColour(colour_);else if(focus_==5)activate(command_==0?2:command_==1?1:3);emit changed();return;

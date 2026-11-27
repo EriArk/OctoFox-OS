@@ -8,7 +8,7 @@ from trainer_backend.config import Settings
 from trainer_backend.economy import workshop
 
 
-def test_supply_terminal_and_parallel_refining(account, postgres):
+def test_supply_terminal_and_parallel_refining(account, postgres, monkeypatch):
     user = login(account)
     player = user['player_id']
     path = '/v1/me/workshop'
@@ -50,9 +50,20 @@ def test_supply_terminal_and_parallel_refining(account, postgres):
         second=post('print',args(ore='bauxite',hours=2,extra_case=True)).json()['job_id']
         assert first!=second and snapshot()['prints']['material.Aluminium']['quantity']==2
         assert not any(row['sku']=='Empty' for row in snapshot()['stock'])
-        assert post('buy',buy('cap',35)).status_code==200
+        store = '/v1/bazaar-worlds/festival/store'
+        assert set(snapshot()['supplies']) == {'case-plan', 'traveller-plan', 'merchant-plan'}
+        assert post('buy', buy('case-plan', 30)).json()['code'] == 'blueprint_already_owned'
+        assert post('buy', buy('cap',35)).json()['code'] == 'offer_changed'
+        assert all(row['kind'] != 'blueprint' for row in client.get(store,headers=auth).json()['items'])
+        assert client.post(store,headers=auth,json=buy('cap',35)).json()['code'] == 'bazaar_under_development'
+        monkeypatch.setattr('trainer_backend.bazaar.policy.PAYMENTS_AVAILABLE', True)
+        assert client.post(store,headers=auth,json=buy('case-plan',30)).json()['code'] == 'offer_changed'
+        cap_order = buy('cap',35)
+        cap = client.post(store,headers=auth,json=cap_order).json()
+        assert cap['operation_id'] == cap_order['operation_id']
+        assert client.post(store,headers=auth,json=cap_order).json()['item_id'] == cap['item_id']
         assert client.get(path+'/garments',headers=auth).json()['items'][0]['sku']=='merchant.hat'
-        assert post('buy',buy('boost-kit',300)).status_code==200
+        assert client.post(store,headers=auth,json=buy('boost-kit',300)).status_code==200
         fitted=args(module='capacitor',player_id=str(player))
         assert post('install',fitted).status_code==200
         assert post('install',fitted).status_code==200

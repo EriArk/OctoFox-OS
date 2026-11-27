@@ -117,6 +117,7 @@ void BackendAccount::bazaarRead(const QString& method,QJsonObject args,Reply don
         path="/v1/bazaar-worlds/"+args["world"].toString("festival");
     }
     else if(method=="bazaar.costumes"&&args.isEmpty())path="/v1/bazaar-costumes";
+    else if(method=="bazaar.store" && args.isEmpty())path="/v1/bazaar-worlds/festival/store";
     else if(method=="bazaar.sellers"&&args.isEmpty())path="/v1/bazaar-sellers";
     else if(method=="bazaar.listings"||method=="bazaar.own_listings") {
         if(method=="bazaar.listings") {

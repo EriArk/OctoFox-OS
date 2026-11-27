@@ -48,11 +48,37 @@ QStringList AvatarAssets::choices(const QString& key) {
     if(key=="socksColor"||key=="headwearColor")return choices("shirtColor");
     return {};
 }
+QString AvatarAssets::workshopSlot(const QString& sku) {
+    const auto pieces=sku.split('.');
+    if(pieces.size()!=2 || !QStringList{"traveller","mage","merchant"}.contains(pieces[0]))return {};
+    static const QMap<QString,QString> slotsByPart{{"top","top"},{"bottom","bottom"},{"hat","headwear"},{"boots","shoes"}};
+    return slotsByPart.value(pieces[1]);
+}
+QJsonObject AvatarAssets::withClothes(const QJsonObject& saved,const QJsonObject& person) {
+    auto result=normalized(saved);
+    if(result.isEmpty())return {};
+    for(const auto key:{"hair","eyes","hairColor","eyeColor","skinColor"})result[key]=person[key];
+    return result;
+}
+QJsonObject AvatarAssets::withGarment(const QJsonObject& input,const QJsonObject& item) {
+    auto a=normalized(input);
+    const auto sku=item["sku"].toString(), slot=workshopSlot(sku);
+    if(a.isEmpty() || slot.isEmpty())return {};
+    auto equipment=a["equipment"].toObject();
+    equipment[slot]=QJsonObject{{"id",item["id"]},{"colors",item["colors"].toObject()}};
+    if(slot=="bottom" && onePiece(a["top"].toString()))a["top"]="tank";
+    a["schema"]=4;a[slot]=sku;a["equipment"]=equipment;
+    return valid(a)?a:QJsonObject{};
+}
 bool AvatarAssets::onePiece(const QString& id) {
     return id=="sundress"||id=="racing-suit"||id=="rose-racing-suit";
 }
 QJsonObject AvatarAssets::equipped(const QJsonObject& input,const QString& key,const QString& value) {
     auto a=normalized(input);if(a.isEmpty()||!choices(key).contains(value))return {};
+    auto equipment=a["equipment"].toObject();
+    equipment.remove(key);
+    if(equipment.isEmpty()){a.remove("equipment");a["schema"]=3;}
+    else a["equipment"]=equipment;
     a[key]=value;
     // A full garment covers the stored bottom; selecting a bottom replaces it.
     if(key=="bottom"&&onePiece(a["top"].toString()))a["top"]="tank";
@@ -70,15 +96,30 @@ QJsonObject AvatarAssets::equipped(const QJsonObject& input,const QString& key,c
 }
 bool AvatarAssets::valid(const QJsonObject& a) {
     const bool legacy=a["schema"]==1;
-    const bool current=a["schema"]==3;
-    if((!legacy && a["schema"]!=2 && !current) || a["pack"]!="trainer-avatar-1" || a.size()!=(legacy?9:current?17:14))return false;
+    const bool inventory=a["schema"]==4;
+    const bool current=a["schema"]==3 || inventory;
+    const auto equipment=a["equipment"].toObject();
+    if(inventory){
+        if(equipment.isEmpty()||equipment.size()>4)return false;
+        static const QRegularExpression uuid("^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$");
+        for(auto i=equipment.begin();i!=equipment.end();++i){
+            const auto item=i.value().toObject();
+            if(workshopSlot(a[i.key()].toString())!=i.key() || i.key().isEmpty() || item.size()!=2 ||
+               !uuid.match(item["id"].toString()).hasMatch() || !item["colors"].isObject())return false;
+            const auto colors=item["colors"].toObject();
+            for(auto c=colors.begin();c!=colors.end();++c)
+                if(!QStringList{"primary","secondary","trim","accent"}.contains(c.key()) ||
+                   !QStringList{"sea-glass","rose-gold","aurora","oxide","saffron","moonstone"}.contains(c.value().toString()))return false;
+        }
+    }
+    if((!legacy && a["schema"]!=2 && !current) || a["pack"]!="trainer-avatar-1" || a.size()!=(legacy?9:inventory?18:current?17:14))return false;
     static const QRegularExpression color("^#[0-9a-fA-F]{6}$");
     for(const auto& key:keys()) {
         if(!current && QStringList{"socksColor","shoesColor","headwearColor"}.contains(key))continue;
         if(legacy && QStringList{"top","bottom","socks","shoes","headwear"}.contains(key))continue;
         if(!a[key].isString())return false;
         if(key.endsWith("Color")){if(!color.match(a[key].toString()).hasMatch())return false;}
-        else if(!choices(key).contains(a[key].toString()))return false;
+        else if(!equipment.contains(key) && !choices(key).contains(a[key].toString()))return false;
     }
     return true;
 }
@@ -86,7 +127,7 @@ QJsonObject AvatarAssets::normalized(const QJsonObject& a) {
     if(!valid(a))return {};
     auto result=defaults();for(auto it=a.begin();it!=a.end();++it)result[it.key()]=it.value();
     if(!a.contains("shoesColor")&&result["shoes"]!="sandals")result["shoesColor"]="#f4f0df";
-    result["schema"]=3;return result;
+    result["schema"]=result.contains("equipment")?4:3;return result;
 }
 QString AvatarAssets::packRoot(){
     const auto override=qEnvironmentVariable("TRAINEROS_AVATAR_PACK");if(!override.isEmpty())return override;

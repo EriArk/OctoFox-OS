@@ -217,7 +217,7 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
         peer.shipWorkshop=backend_ && app=="art.abysstail.octofox.ship-home" && takeShipLaunchKey
             && takeShipLaunchKey(args["ship_key"].toString());
         if(peer.shipWorkshop){caps["ship.workshop"]=1;caps["ship.timed_prints"]=1;caps["ship.fishing"]=1;caps["ship.supplies"]=1;}
-        if(peer.shipWorkshop&&shipLooks&&wearShipLook)caps["ship.looks"]=1;
+        if(peer.shipWorkshop&&shipLooks&&wearShipLook){caps["ship.looks"]=1;caps["ship.parts.paged"]=1;}
         if(permitsStartWidgets&&!permitsStartWidgets(app))caps.remove("ui.start.widget");
         if(avatarAvailable_){caps["avatar.local"]=1;caps["avatar.recipe"]=1;caps["avatar.resource"]=1;}
         if(network_&&network_->available()){caps["lobby.activity"]=1;caps["network.records"]=1;caps["network.group"]=1;caps["bazaar.cup"]=1;}
@@ -243,8 +243,19 @@ void PlatformHost::request(QTcpSocket* socket, const QJsonObject& packet) {
             ok({{"items",page},{"next",end<looks.size()?int(end):-1}});return;
         }
         if(method=="ship.parts"){
-            if(!shipParts||args.size()!=3||!args["recipe"].isObject()||!args["field"].isString()){fail("invalid_piece");return;}
-            ok({{"items",shipParts(args["recipe"].toObject(),args["field"].toString())}});return;
+            const int offset=args.contains("offset")?args["offset"].toInt(-1):0;
+            if(!shipParts || args.size()!=(args.contains("offset")?4:3) || offset<0 || !args["recipe"].isObject() || !args["field"].isString()){fail("invalid_piece");return;}
+            const QPointer<PlatformHost> host(this);const QPointer<QTcpSocket> target(socket);
+            const auto channel=peer.playChannel;
+            auto reply=[host,target,channel,args,id,offset]{
+                if(!host || !target || !host->peers_.contains(target) || host->peers_[target].playChannel!=channel)return;
+                const auto rows=host->shipParts(args["recipe"].toObject(),args["field"].toString());
+                QJsonArray page;int end=offset;
+                while(end<rows.size() && page.size()<24)page.append(rows[end++]);
+                host->send(target,{{"id",id},{"result",QJsonObject{{"items",page},{"next",end<rows.size()?end:-1}}}});
+            };
+            if(offset==0 && refreshShipGarments)refreshShipGarments(reply);else reply();
+            return;
         }
         const bool editing=args.contains("field")||args.contains("item");
         if((editing&&(!args["field"].isString()||!args["item"].isString()||args["field"].toString().isEmpty()))||

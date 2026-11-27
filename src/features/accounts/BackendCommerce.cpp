@@ -78,10 +78,11 @@ bool BackendAccount::adoptShop(const QJsonObject& value,bool cached) {
 }
 QVariantList BackendAccount::shopItems() const {
     QVariantList result{QVariantMap{{"id",""},{"title","Classic"},{"description","Your original OctoFox OS scene. Always free."},{"appearance",""},{"owned",true},{"price",0},{"equipped",shopSnapshot_["equipped"].toString().isEmpty()}}};
-    QJsonArray rows=shopSnapshot_["catalogue"].toArray();QSet<QString> owned,listed;
-    for(const auto row:rows)listed.insert(row.toObject()["id"].toString());
-    for(const auto row:shopSnapshot_["items"].toArray()) {const auto id=row.toObject()["id"].toString();owned.insert(id);if(!listed.contains(id))rows.append(row);}
-    for(const auto row:rows){auto value=row.toObject().toVariantMap();value["owned"]=owned.contains(value["id"].toString());value["equipped"]=value["id"].toString()==shopSnapshot_["equipped"].toString();result.append(value);}
+    for(const auto row:shopSnapshot_["items"].toArray()){
+        auto item=row.toObject().toVariantMap();
+        item["owned"]=true;item["equipped"]=item["id"].toString()==shopSnapshot_["equipped"].toString();
+        result.append(item);
+    }
     return result;
 }
 QString BackendAccount::profileAppearance() const {
@@ -116,7 +117,7 @@ void BackendAccount::refreshShop() {
                 QJsonObject catalogue{{"outfit_catalogue",value["outfit_catalogue"]}};
                 if(value.contains("outfit_catalogue")&&validOutfits(catalogue))shopSnapshot_["outfit_catalogue"]=value["outfit_catalogue"];
             }
-            shopStatus_="Browse freely. Sign in to buy and restore your permanent items.";emit changed();
+            shopStatus_="Sign in to restore your scenes.";emit changed();
         });return;
     }
     if(!shopSnapshot_.isEmpty()&&shopSnapshot_["player_id"]!=player_){shopSnapshot_={};shopIndex_=0;saveCommerce();}

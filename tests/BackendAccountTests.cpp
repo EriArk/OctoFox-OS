@@ -105,9 +105,17 @@ class BackendAccountTests:public QObject {
     static QJsonObject offer() {return {{"id","profile.aurora"},{"title","Aurora"},{"description","Northern forest"},{"appearance","aurora"},
         {"price",250},{"revision","1"},{"minimum_level",1},{"kind","permanent_license"},{"available",true}};}
     static QJsonObject inventory() {return {{"player_id",Player},{"revision","1"},{"items",QJsonArray{}},{"catalogue",QJsonArray{offer()}},{"equipped",QJsonValue()}};}
+    static QJsonObject collectionWithSlotOffer() {
+        auto state=inventory();
+        auto scene=offer();scene["purchase_id"]="55555555-5555-4555-8555-555555555555";
+        state["items"]=QJsonArray{scene};
+        state["outfit_catalogue"]=QJsonArray{QJsonObject{{"id","outfit.slot.1"},{"slot_number",1},{"purpose","outfit_slot"},
+            {"title","Look slot 1"},{"revision","1"},{"price",250},{"kind","permanent_license"}}};
+        return state;
+    }
     static void settle(Harness& h) {
-        auto item=offer();item["purchase_id"]="44444444-4444-4444-8444-444444444444";
-        h.shopValue["items"]=QJsonArray{item};h.shopValue["revision"]="2";
+        auto item=h.shopValue["outfit_catalogue"].toArray().first().toObject();item["purchase_id"]="44444444-4444-4444-8444-444444444444";
+        h.shopValue["outfit_items"]=QJsonArray{item};h.shopValue["revision"]="2";
         auto receipt=h.purchaseBody;receipt["id"]=item["purchase_id"];receipt["player_id"]=Player;receipt["price"]=receipt.take("expected_price");
         h.shopValue["receipt"]=receipt;
     }
@@ -471,7 +479,7 @@ private slots:
         QCOMPARE(h.calls.count("/v1/me/purchases"),charges);QVERIFY(!restored.shop()["pending"].toBool());
         QCOMPARE(restored.outfits()["items"].toList().size(),1);
         QCOMPARE(restored.outfits()["items"].toList()[0].toMap()["saved"].toMap()["name"].toString(),"Everyday");
-        QCOMPARE(restored.shop()["items"].toList().size(),2); // Classic and scene; no slots in scene picker.
+        QCOMPARE(restored.shop()["items"].toList().size(),1); // Only Classic is owned. Slots and unowned scenes stay out of the picker.
         restored.configure("other-local-owner");QVERIFY(restored.outfits()["items"].toList().isEmpty());
         h.loseRefresh=true;restored.configure("outfit-owner");
         QCOMPARE(restored.outfits()["items"].toList().size(),1);QVERIFY(restored.outfits()["stale"].toBool());
@@ -512,7 +520,7 @@ private slots:
         grant["xp"]=1;h.progress["history"]=QJsonArray{grant};a.refreshProgression(false);QVERIFY(a.progression()["stale"].toBool());
     }
     void supportPreviewRejectsMalformedStaleAndUnsettledBalances() {
-        Harness h;h.progressionOk=true;h.shopEnabled=true;h.shopValue=inventory();
+        Harness h;h.progressionOk=true;h.shopEnabled=true;h.shopValue=collectionWithSlotOffer();
         const QJsonObject preview{{"policy","support-preview-2026-10-v1"},{"state","calculation_only"},{"activation_available",false},
             {"eligible_rewards",31},{"base_sparks",1000},{"credited_reward_sparks",1000},{"options",QJsonArray{
                 QJsonObject{{"id","support-x2"},{"title","Support x2"},{"multiplier",2},{"top_up",1000},{"potential_balance",1750}},
@@ -537,17 +545,17 @@ private slots:
         h.deferProgression=true;a.refreshProgression(false);QVERIFY(!known());
         auto reply=std::move(h.pendingProgression);reply(503,{});QVERIFY(!known());QVERIFY(a.progression()["stale"].toBool());
         h.deferProgression=false;a.refreshProgression(false);QVERIFY(known());
-        a.selectShopItem(1);a.activateShopItem();a.confirmPurchase();QVERIFY(h.pendingPurchase);QVERIFY(!known());
+        a.reviewOutfitSlot();a.confirmPurchase();QVERIFY(h.pendingPurchase);QVERIFY(!known());
         settle(h);h.deferProgression=true;h.pendingPurchase(200,h.shopValue);QVERIFY(!known());
         reply=std::move(h.pendingProgression);QVERIFY(reply);reply(200,h.progress);QVERIFY(known());
         h.deferProgression=true;a.refreshProgression(false);reply=std::move(h.pendingProgression);
         a.configure("support-bob");reply(200,h.progress);QVERIFY(!known());QVERIFY(!a.progression()["known"].toBool());
     }
     void purchaseNeedsReviewAndDurableIntentThenRestoresLostResponse() {
-        Harness h;h.shopEnabled=true;h.shopValue=inventory();
+        Harness h;h.shopEnabled=true;h.shopValue=collectionWithSlotOffer();
         {
             BackendAccount a;a.setServices(h.services());a.configure("shop-alice");a.activate();h.callback();
-            a.selectShopItem(1);a.activateShopItem();QVERIFY(!a.shop()["review"].toMap().isEmpty());QVERIFY(!h.pendingPurchase);
+            a.reviewOutfitSlot();QVERIFY(!a.shop()["review"].toMap().isEmpty());QVERIFY(!h.pendingPurchase);
             h.failCommerce=true;a.confirmPurchase();QVERIFY(!h.pendingPurchase);QVERIFY(a.shop()["status"].toString().contains("Nothing was sent"));
             h.failCommerce=false;a.confirmPurchase();QVERIFY(h.pendingPurchase);QVERIFY(a.shop()["pending"].toBool());
             QVERIFY(QJsonDocument::fromJson(h.commerceDisk.values().first()).object()["pending"].toObject().contains("operation_id"));
@@ -563,9 +571,9 @@ private slots:
         restored.selectShopItem(0);restored.activateShopItem();QVERIFY(restored.profileAppearance().isEmpty());
     }
     void purchaseLateOwnerResponseAndOfflineAppearanceAreIsolated() {
-        Harness h;h.shopEnabled=true;h.shopValue=inventory();
+        Harness h;h.shopEnabled=true;h.shopValue=collectionWithSlotOffer();
         BackendAccount a;a.setServices(h.services());a.configure("shop-first");a.activate();h.callback();
-        a.selectShopItem(1);a.activateShopItem();a.confirmPurchase();auto late=std::move(h.pendingPurchase);settle(h);
+        a.reviewOutfitSlot();a.confirmPurchase();auto late=std::move(h.pendingPurchase);settle(h);
         a.configure("shop-second");late(200,h.shopValue);QVERIFY(a.profileAppearance().isEmpty());QVERIFY(!a.shop()["pending"].toBool());
         a.configure("shop-first");a.selectShopItem(1);a.activateShopItem();QCOMPARE(a.profileAppearance(),"aurora");
         a.configure("shop-third");h.loseRefresh=true;a.configure("shop-first");

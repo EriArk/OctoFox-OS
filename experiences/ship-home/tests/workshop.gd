@@ -119,11 +119,12 @@ func run() -> void:
   press(JOY_BUTTON_Y)
   check(home.parts.visible and client.pending[str(client.serial)].method=="ship.parts","X opens pieces of this saved outfit")
   var shirt_options=[{"id":"tank","name":"Sports tank","recipe":{"schema":1}},{"id":"everyday-tee","name":"Everyday T-shirt","recipe":{"schema":1}}]
-  receive.call({"items":shirt_options});receive.call({"avatar":booth.live_descriptor})
-  press(JOY_BUTTON_DPAD_DOWN);press(JOY_BUTTON_DPAD_RIGHT)
+  receive.call({"items":shirt_options});await create_timer(0.16).timeout;receive.call({"avatar":booth.live_descriptor})
+  press(JOY_BUTTON_DPAD_DOWN);press(JOY_BUTTON_DPAD_RIGHT);await create_timer(0.16).timeout
   receive.call({"avatar":booth.live_descriptor})
   check(home.parts.displayed==home.parts.wanted and not home.parts.apply.disabled,"Browse a piece before committing")
   press(JOY_BUTTON_DPAD_LEFT)
+  await create_timer(0.16).timeout
   var discarded_request:int=client.serial
   press(JOY_BUTTON_A)
   check(not home.parts.visible and not client.wearing,"Back discards a piece preview")
@@ -136,9 +137,11 @@ func run() -> void:
   receive.call({});receive.call({"items":[{"id":"outfit.slot.1","name":"Evening flight","worn":true,"recipe":{}}],"next":-1})
   check(booth.requested==0,"Newly worn look returns to equipped card")
  booth.select(0)
- press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_DPAD_UP);press(JOY_BUTTON_B)
- check(home.dye.visible and home.dye.garment().sku=="mage.top","Collection opens its own parts")
- press(JOY_BUTTON_A);check(booth.requested==2,"Colour studio preserves collection selection")
+ press(JOY_BUTTON_DPAD_UP)
+ for i in 65:await physics_frame
+ press(JOY_BUTTON_B)
+ check(home.dye.visible and home.dye.garment().sku=="traveller.top","Collection opens its own parts")
+ press(JOY_BUTTON_A);check(booth.requested==1,"Colour studio preserves collection selection")
  for style in Garment.STYLES:
   for slot in Garment.SLOTS:
    check(not Garment.channels(style,slot).is_empty(),"Selectable surfaces in "+style+" "+slot)

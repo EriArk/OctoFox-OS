@@ -38,6 +38,7 @@ public:
     std::function<bool(const QString&)> takeShipLaunchKey;
     std::function<bool(const QString& app)> permitsStartWidgets;
     std::function<QJsonArray()> shipLooks;
+    std::function<void(std::function<void()>)> refreshShipGarments;
     std::function<QJsonArray(const QJsonObject&,const QString&)> shipParts;
     std::function<void(const QString&,const QJsonObject&,const QString&,const QString&,std::function<void(QString)>)> wearShipLook;
     void refreshWidgetPolicy();

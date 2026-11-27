@@ -34,6 +34,7 @@ public:
         host_.setNetwork(network_.get());
         host_.setBackend(shell_.backendAccount());
         host_.takeShipLaunchKey=[this](const QString& key){return shell_.apps()->takeShipLaunchKey(key);};
+        host_.refreshShipGarments=[this](std::function<void()> done){shell_.outfits()->refreshGarments(std::move(done));};
         host_.shipLooks=[this]{return shell_.outfits()->shipLooks();};
         host_.shipParts=[this](const QJsonObject& recipe,const QString& field){return shell_.outfits()->shipParts(recipe,field);};
         host_.wearShipLook=[this](const QString& slot,const QJsonObject& recipe,const QString& field,const QString& item,std::function<void(QString)> done){

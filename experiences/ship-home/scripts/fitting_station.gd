@@ -54,9 +54,28 @@ func selected_look(index:int) -> Dictionary:
  var i:=index-LOOKS.size()
  return rows[i] if i>=0 and i<rows.size() else {}
 
+func owned_slots(index:int) -> Dictionary:
+ var look:Dictionary={}
+ if index<=0 or index>=LOOKS.size() or not is_instance_valid(workshop):return look
+ var style:String=LOOKS[index].to_lower()
+ for piece in workshop.garments:
+  var sku:=str(piece.sku).split(".")
+  if sku.size()==2 and sku[0]==style and sku[1].capitalize() in Garment.SLOTS:
+   look[sku[1].capitalize()]=style
+ return look
+
+func inventory_changed() -> void:
+ if not active:return
+ if requested>0 and requested<LOOKS.size() and owned_slots(requested).is_empty():select(0)
+ if current>0 and current<LOOKS.size() and current==requested:
+  if is_instance_valid(garment) and garment.get_meta("slots",{})!=owned_slots(current):current=-1
+  else:restore_colors()
+ selection_changed.emit()
+
 func select(index:int) -> void:
  if returning or not active:return
  var next:=clampi(index,0,LOOKS.size()+saved_rows().size()-1)
+ if next>0 and next<LOOKS.size() and owned_slots(next).is_empty():return
  if requested==next:return
  requested=next
  selected_id=selected_look(requested).get("id","")
@@ -136,15 +155,22 @@ func change() -> void:
  restore_avatar()
  if current==0:
   selection_changed.emit();return
- var skin_names=walker.worn_items.duplicate()
- skin_names.append_array(["shirt","shoes","racing-gloves","rose-racing-gloves"])
+ var owned:=owned_slots(current)
+ if owned.is_empty():requested=0;current=0;selection_changed.emit();return
+ var skin_names:Array=[]
+ var appearance:Dictionary=live_descriptor.get("recipe",{}).get("appearance",{})
+ for slot in owned:
+  var field:String={"Top":"top","Bottom":"bottom","Boots":"shoes","Hat":"headwear"}[slot]
+  skin_names.append(appearance.get(field,""))
+  if slot=="Top":skin_names.append("shirt")
+  if slot=="Boots":skin_names.append("shoes")
  for mesh in walker.visual.find_children("*","MeshInstance3D",true,false):
   if mesh.visible and str(mesh.name) in skin_names:
    mesh.hide();hidden.append(mesh)
  garment=Garment.new();walker.visual.add_child(garment)
  if not is_instance_valid(walker.skeleton):garment.scale=Vector3.ONE*1.43
- var style:String=LOOKS[current].to_lower()
- garment.build(Garment.full_set(style),walker.skeleton)
+ garment.set_meta("slots",owned)
+ garment.build(owned,walker.skeleton)
  restore_colors()
  changed.emit()
 

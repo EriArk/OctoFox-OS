@@ -20,6 +20,8 @@ public:
     QJsonArray shipLooks() const;
     QJsonArray shipParts(const QJsonObject& recipe,const QString& field) const;
     void wearShipLook(const QString& slot,const QJsonObject& expected,const QString& field,const QString& item,std::function<void(QString)> done);
+    void refreshGarments(std::function<void()> done = {});
+    Q_INVOKABLE void nextDyeChannel();
     void open(); void close(); void dispatch(Action); void acceptName(const QString&);
     Q_INVOKABLE void select(int);
     Q_INVOKABLE void activate(int);
@@ -35,6 +37,17 @@ signals:
     void changed(); void backRequested(); void nameRequested(const QString&); void editRequested();
     void admired(); void rotateRequested(int degrees);
 private:
+    QStringList dyeChannels() const;
+    QStringList unlockedDyes() const;
+    void loadPalette();
+    void paintGarment(const QString& dye);
+    QJsonObject palette_;
+    QString paletteOwner_;
+    int dyeChannel_=0;
+    bool painting_=false;
+    QJsonArray ownedGarments() const;
+    void readGarments(QString player,QString after,QJsonArray rows,quint64 generation,std::function<void()> done);
+    QJsonArray garments_;QString garmentOwner_;quint64 garmentGeneration_=0;
     QVariantList rows() const; QVariantMap selected() const; QVariantList items() const;
     QString colourKey() const; QJsonObject recipe() const;
     QStringList colours() const;

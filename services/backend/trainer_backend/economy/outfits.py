@@ -4,7 +4,7 @@ import unicodedata
 from uuid import uuid4
 from psycopg.types.json import Jsonb
 from ..accounts.provider import AuthError
-from ..accounts.profiles import avatar_recipe
+from ..accounts.profiles import avatar_recipe, owned_parts
 
 
 def save(shop, access, offer_id, name, recipe, expected_revision):
@@ -20,6 +20,7 @@ def save(shop, access, offer_id, name, recipe, expected_revision):
         actor = shop.progression.account(conn, access)
         player = actor.player_id
         conn.execute('SELECT revision FROM trainer_backend.progression_accounts WHERE player_id=%s FOR UPDATE', (player,))
+        owned_parts(conn, player, recipe)
         owned = conn.execute('SELECT 1 FROM trainer_backend.outfit_slots WHERE player_id=%s AND slot_id=%s', (player, offer_id)).fetchone()
         if not owned:
             raise AuthError('outfit_slot_not_owned', 403)

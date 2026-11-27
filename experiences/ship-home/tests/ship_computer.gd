@@ -36,7 +36,9 @@ func run() -> void:
  press(JOY_BUTTON_RIGHT_SHOULDER);check(pc.title.text=="Bauxite" and pc.figures.text.contains("1"),"Offline cargo matches local hold")
  await shot("cargo")
  press(JOY_BUTTON_RIGHT_SHOULDER);press(JOY_BUTTON_B)
- check(pc.page==3 and pc.index==6 and pc.action.disabled,"Browse upgrade offer offline")
+ check(pc.page==2 and not pc.action.visible,"Missing kit cannot be ordered from upgrades")
+ press(JOY_BUTTON_RIGHT_SHOULDER)
+ check(pc.page==3 and pc.items.size()==3 and pc.action.disabled,"Offline market only contains blueprints")
  var player:="73987842-2263-4ccc-a980-41f4b6ecfaaa"
  var data={"supplies":{"cruise-kit":{"title":"Cruise economiser","price":250}},"sparks":500,"installed":[],"stock":[],"player_id":player,"revision":"0","prints":{}}
  client.supported=true;client.supplies_supported=true;client.profile_id="captain";client.inventory=data
@@ -46,10 +48,13 @@ func run() -> void:
  check(not pc.confirmation.is_empty() and not client.busy,"Review quote before charging")
  press(JOY_BUTTON_A);check(pc.visible and pc.confirmation.is_empty(),"Cancel quote without leaving PC")
  press(JOY_BUTTON_B);press(JOY_BUTTON_B)
- check(client.last_action=="buy" and client.busy,"Order selected upgrade")
+ check(client.last_action=="buy" and client.busy,"Buy selected blueprint")
  var receive=func(value):client._packet({"id":str(client.serial),"result":value})
- receive.call({"item_id":player});data.sparks=250;data.stock=[{"kind":"upgrade","sku":"economiser","units":1}]
+ receive.call({"item_id":player});data.sparks=470;data.stock=[{"kind":"blueprint","sku":"empty","units":1}]
  receive.call(data);receive.call({"items":[],"next":null})
+ check(pc.action.disabled and pc.action.text=="Owned","Owned blueprint cannot be charged again")
+ data.stock=[{"kind":"upgrade","sku":"economiser","units":1}]
+ client.refresh_workshop();receive.call(data);receive.call({"items":[],"next":null})
  await shot("store")
  press(JOY_BUTTON_LEFT_SHOULDER);check(pc.action.text=="Fit module","Purchased kit can be fitted")
  press(JOY_BUTTON_B);check(client.last_action=="install","Fit calls authenticated workshop")

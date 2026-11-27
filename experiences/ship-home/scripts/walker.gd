@@ -54,7 +54,9 @@ func discard_previous_avatar() -> void:
 
 func _exit_tree() -> void:
  preview_generation+=1
- if decode.is_started():decode.wait_to_finish()
+ if decode.is_started():
+  var unused=decode.wait_to_finish()
+  if is_instance_valid(unused):unused.free()
  discard_previous_avatar()
 
 func anonymous() -> void:
@@ -79,18 +81,20 @@ func preview_avatar(descriptor:Dictionary,owner:String,selected:Callable) -> boo
  preview_generation+=1
  var generation:=preview_generation
  var key:=str(descriptor.get("sha256",""))
- if avatar_owner!=owner or not selected.call():return false
+ if avatar_owner!=owner or descriptor.get("profile",owner)!=owner or not selected.call():return false
  if key!="" and key in [visual_key,previous_key]:return install_avatar(descriptor,owner)
  while decode.is_started():
   await get_tree().process_frame
   if generation!=preview_generation or not selected.call():return false
- if decode.start(Presenter.prepare_descriptor.bind(descriptor.duplicate(true)))!=OK:return false
+ if decode.start(Presenter.from_descriptor.bind(descriptor.duplicate(true)))!=OK:return false
  while decode.is_alive():await get_tree().process_frame
- var state:GLTFState=decode.wait_to_finish()
- if not state or generation!=preview_generation or avatar_owner!=owner or not selected.call():return false
- return install_avatar(descriptor,owner,state)
+ var model:Node3D=decode.wait_to_finish()
+ if not is_instance_valid(model):return false
+ if generation!=preview_generation or avatar_owner!=owner or not selected.call():
+  model.free();return false
+ return install_avatar(descriptor,owner,model)
 
-func install_avatar(descriptor:Dictionary,preview_owner:="",state:GLTFState=null) -> bool:
+func install_avatar(descriptor:Dictionary,preview_owner:="",prepared:Node3D=null) -> bool:
  preview_generation+=1
  var owner:=str(descriptor.get("profile",preview_owner))
  var key:=str(descriptor.get("sha256",""))
@@ -103,7 +107,7 @@ func install_avatar(descriptor:Dictionary,preview_owner:="",state:GLTFState=null
  if key==previous_key and owner==avatar_owner:
   presenter=previous_avatar;previous_avatar=null;previous_key=""
  else:
-  presenter=Presenter.from_prepared(descriptor,state) if state else Presenter.from_descriptor(descriptor)
+  presenter=prepared if prepared else Presenter.from_descriptor(descriptor)
  if not is_instance_valid(presenter):return false
  worn_items.clear()
  var appearance=descriptor.get("appearance",descriptor.get("recipe",{}).get("appearance",{}))

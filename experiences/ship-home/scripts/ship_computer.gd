@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends ColorRect
 signal dismissed
-const TABS=["Ship","Cargo","Upgrades","Store"]
-const OFFERS=["case-plan","traveller-plan","merchant-plan","case","trousers","cap","cruise-kit","boost-kit"]
-const TITLES=["Empty cartridge blueprint","Traveller set blueprint","Merchant set blueprint","Empty cartridge","Trail trousers","Market beret","Cruise economiser","Boost capacitor"]
+const TABS=["Ship","Cargo","Upgrades","Market"]
+const OFFERS=["case-plan","traveller-plan","merchant-plan"]
+const TITLES=["Empty cartridge blueprint","Traveller set blueprint","Merchant set blueprint"]
 const KITS=["economiser","capacitor"]
+const KIT_NAMES=["Cruise economiser","Boost capacitor"]
 const EFFECTS=["Cruise uses 20% less fuel.","Boost draws 27 energy instead of 36."]
 const INK=Color("#12282b")
 const PANEL=Color("#233d40")
@@ -15,6 +16,9 @@ const MINT=Color("#a8d9cc")
 var ship:Node
 var workshop
 var page:=0
+const FILTERS=["All blueprints","Clothing","Consumables"]
+var category:=0
+var filter_button:Button
 var index:=0
 var confirmation:Dictionary={}
 var stick:=0
@@ -22,6 +26,7 @@ var sheet:=Control.new()
 var tabs:Array[Button]=[]
 var scroll:=ScrollContainer.new()
 var entries:=VBoxContainer.new()
+var previews:=HBoxContainer.new()
 var detail:=VBoxContainer.new()
 var account:=Label.new()
 var title:=Label.new()
@@ -54,12 +59,14 @@ func _ready() -> void:
  place(button("Close",close),Rect2(1112,23,125,46))
  for i in TABS.size():
   var tab:=button(TABS[i],select_page.bind(i));tabs.append(tab);place(tab,Rect2(43+i*298,96,284,50))
+ filter_button=button("",filter_market.bind(1));place(filter_button,Rect2(42,164,483,45))
  place(scroll,Rect2(42,173,483,438));scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
  scroll.add_child(entries);entries.size_flags_horizontal=Control.SIZE_EXPAND_FILL;entries.add_theme_constant_override("separation",6)
  var panel:=Panel.new();panel.add_theme_stylebox_override("panel",style(PANEL,LINE));place(panel,Rect2(550,173,686,438))
  place(detail,Rect2(580,203,625,365));detail.add_theme_constant_override("separation",19)
  for label in [title,figures,description]:
   label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;detail.add_child(label)
+ detail.add_child(previews)
  typeface(title,37,TEXT);typeface(figures,24,GOLD);typeface(description,24,MINT)
  typeface(notice,20,MINT);notice.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;place(notice,Rect2(44,615,800,61))
  action=button("",activate);place(action,Rect2(879,625,357,51))
@@ -79,6 +86,9 @@ func close() -> void:
 func select_page(value:int) -> void:
  page=posmod(value,TABS.size());index=0;confirmation.clear();scroll.scroll_vertical=0;refresh()
 
+func filter_market(direction:int) -> void:
+ category=posmod(category+direction,FILTERS.size());index=0;confirmation.clear();refresh()
+
 func select(index_value:int) -> void:
  index=index_value;confirmation.clear();draw_selection()
 
@@ -91,6 +101,8 @@ func online() -> bool:
 func refresh() -> void:
  if not visible or not is_node_ready():return
  items.clear()
+ filter_button.visible=page==3;filter_button.text="‹    "+FILTERS[category]+"    ›"
+ scroll.position.y=224 if page==3 else 173;scroll.size.y=387 if page==3 else 438
  var a=ship.flight.avionics
  var inventory:Dictionary=workshop.inventory
  account.text=("%s Sparks"%inventory.sparks) if online() else "Local ship"
@@ -123,13 +135,24 @@ func refresh() -> void:
    for i in KITS.size():
     var installed:bool=KITS[i] in a.installed
     var held:int=workshop.units("upgrade",KITS[i])
-    add_entry(TITLES[6+i],"Installed" if installed else ("Kit in inventory" if held else "Available to order"),EFFECTS[i],KITS[i])
+    add_entry(KIT_NAMES[i],"Installed" if installed else ("Kit in inventory" if held else "Available through Bazaar"),EFFECTS[i],KITS[i])
   3:
    for i in OFFERS.size():
+    if category==1 and i==0 or category==2 and i!=0:continue
     var offer:Dictionary=inventory.get("supplies",{}).get(OFFERS[i],{})
-    var details:String=["Reusable plan. Print empty shells from plastic at the fabricator.","Reusable plan for four Traveller garments.","Reusable plan for four Merchant garments.","Use one shell for an additional refinery batch.","Ready to wear at the fitting station.","Ready to wear at the fitting station.",EFFECTS[0],EFFECTS[1]][i]
-    var summary:="%s Sparks"%offer.price if not offer.is_empty() else "Price unavailable"
-    add_entry(offer.get("title",TITLES[i]),summary,details,OFFERS[i])
+    var style:String=["empty","traveller","merchant"][i]
+    var details:Array[String]=[]
+    if i==0:
+     details.append("Empty cartridge   ·   1 Plastic   ·   1 h")
+    else:
+     for part:String in inventory.get("recipes",{}).get(style,{}):
+      var costs:Dictionary=inventory.recipes[style][part]
+      var materials:Array[String]=[]
+      for material_name:String in costs:materials.append("%d %s"%[costs[material_name],material_name])
+      details.append("%s   ·   %s   ·   %d h"%[garment_name(style+"."+part),", ".join(materials),inventory.print_hours[style][part]])
+    var held:int=workshop.units("blueprint",style)
+    var summary:="Owned" if held else ("%s Sparks"%offer.price if not offer.is_empty() else "Price unavailable")
+    add_entry(offer.get("title",TITLES[i]),summary,"Reusable blueprint\n"+"\n".join(details),OFFERS[i])
  for child in entries.get_children():entries.remove_child(child);child.queue_free()
  index=clampi(index,0,items.size()-1)
  for i in items.size():
@@ -150,6 +173,14 @@ func draw_selection() -> void:
   var b:Button=entries.get_child(i);b.add_theme_stylebox_override("normal",style(Color("#344b48") if i==index else INK,GOLD if i==index else LINE))
  reveal_selection.call_deferred()
  var row:Dictionary=items[index];title.text=row.name;figures.text=row.measure;description.text=row.body
+ for child in previews.get_children():previews.remove_child(child);child.queue_free()
+ previews.visible=page==3
+ if page==3:
+  var utility:bool=row.id=="case-plan"
+  for part in (1 if utility else 4):
+   var plate=preload("res://scripts/fabricator_plate.gd").new()
+   plate.custom_minimum_size=Vector2(72,66);previews.add_child(plate)
+   plate.present(0 if row.id!="merchant-plan" else 2,part,utility)
  action.hide();notice.text=""
  if row.id=="field-atlas":
   action.text="Track "+ship.flight.NAMES[ship.survey.next_site()];action.disabled=false;action.show()
@@ -157,14 +188,15 @@ func draw_selection() -> void:
  if page==1 and workshop.inventory.is_empty():notice.text="Profile inventory is offline."
  if page==2 and row.id not in ship.flight.avionics.installed:
   action.show();var held:int=workshop.units("upgrade",row.id)
-  action.text="Fit module" if held else "View in store";action.disabled=workshop.busy or (held>0 and not online())
+  action.text="Fit module";action.visible=held>0;action.disabled=workshop.busy or not online()
  if page==3:
   action.show();var offer:Dictionary=workshop.inventory.get("supplies",{}).get(row.id,{})
-  action.disabled=not online() or workshop.busy or offer.is_empty() or int(workshop.inventory.get("sparks",0))<int(offer.get("price",0))
+  var owned:bool=row.measure=="Owned"
+  action.disabled=owned or not online() or workshop.busy or offer.is_empty() or int(workshop.inventory.get("sparks",0))<int(offer.get("price",0))
   var quote={"offer":row.id,"price":offer.get("price",-1),"player_id":workshop.inventory.get("player_id","")}
   if confirmation!=quote or action.disabled:confirmation.clear()
-  action.text=("Confirm · %s Sparks"%offer.price) if not confirmation.is_empty() else "Order"
-  if online() and action.disabled and not workshop.busy:notice.text="Insufficient Sparks"
+  action.text=("Confirm · %s Sparks"%offer.price) if not confirmation.is_empty() else ("Owned" if owned else "Buy blueprint")
+  if online() and not owned and not offer.is_empty() and action.disabled and not workshop.busy:notice.text="Insufficient Sparks"
  if not workshop.notice.is_empty():notice.text=workshop.notice
  if workshop.busy:notice.text="Updating inventory…"
 
@@ -180,9 +212,6 @@ func activate() -> void:
  elif page==2:
   if workshop.units("upgrade",row.id)>0:
    workshop.commit("install",{"module":row.id,"player_id":workshop.inventory.player_id})
-  else:
-   var item:=OFFERS.find("cruise-kit" if row.id=="economiser" else "boost-kit")
-   select_page(3);select(item)
  elif page==3 and online():
   var offer:Dictionary=workshop.inventory.supplies[row.id]
   var quote={"offer":row.id,"price":offer.price,"player_id":workshop.inventory.player_id}
@@ -191,6 +220,7 @@ func activate() -> void:
 
 func action_hints() -> Array:
  var hints:Array=[["tab_pair","Pages"],["vertical","Select"]]
+ if page==3:hints.append(["horizontal","Category"])
  if action.visible and not action.disabled:hints.append(["interact",action.text])
  hints.append(["cancel_ship","Back"]);return hints
 
@@ -201,6 +231,8 @@ func _input(event:InputEvent) -> void:
   else:close()
  elif event.is_action_pressed("previous_item"):select_page(page-1)
  elif event.is_action_pressed("next_item"):select_page(page+1)
+ elif page==3 and event.is_action_pressed("ui_left"):filter_market(-1)
+ elif page==3 and event.is_action_pressed("ui_right"):filter_market(1)
  elif event.is_action_pressed("ui_down",true):select(posmod(index+1,items.size()))
  elif event.is_action_pressed("ui_up",true):select(posmod(index-1,items.size()))
  elif event is InputEventJoypadMotion and event.axis==JOY_AXIS_LEFT_Y:

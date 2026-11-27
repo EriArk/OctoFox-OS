@@ -25,7 +25,7 @@ Item {
             SparkIcon { width:20;height:20 }
             Text { text:root.shell.profileAccount.sparksText;font.pixelSize:16;color:Theme.ink }
         }
-        Text { id:description;y:title.height+10;width:parent.width;text:root.reviewing?"One purchase. Yours on every device.":"Choose a scene, try it with your character, then apply it.";wrapMode:Text.WordWrap;font.pixelSize:11;color:Theme.muted }
+        Text { id:description;y:title.height+10;width:parent.width;text:root.reviewing?"One purchase. Yours on every device.":"Apply an owned scene. Find more at the Bazaar decorator.";wrapMode:Text.WordWrap;font.pixelSize:11;color:Theme.muted }
         ListView {
             id:list;y:description.y+description.height+14;width:parent.width;height:Math.max(80,parent.height-y-110);spacing:5;clip:true
             visible:!root.reviewing;model:root.shop.items||[]

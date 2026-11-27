@@ -21,6 +21,13 @@ QJsonObject error(QString code) { return {{"code",code}}; }
 bool matchesReceipt(const QJsonObject& intent,const QJsonObject& result) {
     const auto op=intent["operation_id"],player=intent["player_id"],price=intent["price"];
     if(result["player_id"]!=player)return false;
+    if(intent["action"]=="store" && intent["scene"]==true){
+        const auto receipt=result["receipt"].toObject();
+        return uuid(receipt["id"]) && receipt["player_id"]==player && receipt["offer_id"]==intent["offer"] &&
+            receipt["operation_id"]==op && receipt["price"]==price && receipt["offer_revision"].toInt()==intent["offer_revision"].toInt();
+    }
+    if(intent["action"]=="store")
+        return uuid(result["item_id"]) && result["operation_id"]==op && result["offer"]==intent["offer"] && result["price"]==price;
     if(intent["action"]=="festival"){
         const auto round=result["round"].toObject();
         return result["game"]==intent["game"] && uuid(round["id"]) && round["operation_id"]==op && round["price"]==price;
@@ -76,9 +83,10 @@ void BackendAccount::marketCheckout(QString channel,QJsonObject args,Reply done)
     if(!worldKey.isUndefined() && worldKey!="mika-island"){done(422,error("invalid_world"));return;}
     QJsonObject scope;
     if(worldKey=="mika-island")scope["world"]=worldKey;
-    if(action!="resolve" && action!="inventory" && action!="festival" && (slot.toInt()<1 || slot.toInt()>12 || !money(price))){done(422,error("invalid_offer"));return;}
+    if(action!="resolve" && action!="inventory" && action!="festival" && action!="store" && (slot.toInt()<1 || slot.toInt()>12 || !money(price))){done(422,error("invalid_offer"));return;}
     const bool valid=((action=="resolve" || action=="inventory") && args.size()==1) ||
         (action=="rent" && args.size()==6 && args["species"].isString() && money(args["seller_price"]) && args.contains("revision")) ||
+        (action=="store" && scope.isEmpty() && args.size()==3 && money(price) && !args["offer"].toString().isEmpty() && args["offer"].toString().size()<=64) ||
         (action=="festival" && args.size()==3 && money(price) && args["game"].isString()) ||
         ((action=="reprice" || action=="withdraw") && args.size()==5 && uuid(args["listing_id"]) && args["revision"].isString()) ||
         ((action=="build" || action=="weekly") && worldKey=="mika-island" && slot.toInt()==1 && args.size()==4 && args["revision"].isString()) ||
@@ -96,6 +104,28 @@ void BackendAccount::marketCheckout(QString channel,QJsonObject args,Reply done)
     if(action=="resolve") {
         if(marketPending_.isEmpty() || marketPending_["player_id"]!=player_){endMarket(404,error("no_pending_checkout"));return;}
         marketIntent_=marketPending_;marketView_={{"text",marketIntent_["summary"]},{"ready",true},{"retry",true}};emit changed();return;
+    }
+    if(action=="store"){
+        bazaarRead("bazaar.store",{},[this,args,generation](int status,QJsonObject shop){
+            if(generation!=marketGeneration_)return;
+            if(status!=200 || shop["payments_available"]!=true){endMarket(409,error("market_closed"));return;}
+            for(const auto value:shop["items"].toArray()){
+                const auto offer=value.toObject();
+                if(offer["id"]!=args["offer"] || offer["price"]!=args["price"])continue;
+                marketIntent_=args;
+                marketIntent_["player_id"]=player_;
+                if(offer["owned"]==true){endMarket(409,error("already_owned"));return;}
+                if(offer["kind"]=="scene"){
+                    marketIntent_["scene"]=true;marketIntent_["offer_revision"]=offer["revision"].toString().toInt();
+                }
+                marketIntent_["revision"]=shop["revision"];
+                marketIntent_["subject"]=offer["title"];
+                marketIntent_["summary"]=QString("Buy %1 at the Bazaar for %2 Sparks?").arg(offer["title"].toString()).arg(offer["price"].toInteger());
+                marketView_={{"text",marketIntent_["summary"]},{"ready",true}};emit changed();return;
+            }
+            endMarket(409,error("offer_changed"));
+        });
+        return;
     }
     if(action=="festival"){
         bazaarRead("bazaar.festival",{{"game",args["game"]}},[this,args,generation](int status,QJsonObject offer){
@@ -267,7 +297,13 @@ void BackendAccount::submitMarket() {
     const auto op=p["operation_id"];
     if(p["player_id"]!=player_ || !uuid(op) || !money(p["price"])){endMarket(422,error("invalid_pending_checkout"));return;}
     QString path;QJsonObject body{{"operation_id",op}};
-    if(p["action"]=="build" && p["world"]=="mika-island"){
+    if(p["action"]=="store" && p["scene"]==true){
+        path="/v1/bazaar-worlds/festival/decorator";body["offer_id"]=p["offer"];
+        body["expected_price"]=p["price"];body["offer_revision"]=p["offer_revision"];
+    }else if(p["action"]=="store"){
+        path="/v1/bazaar-worlds/festival/store";
+        for(const auto key:{"offer","price","revision","player_id"})body[key]=p[key];
+    }else if(p["action"]=="build" && p["world"]=="mika-island"){
         path="/v1/bazaar-worlds/mika-island/stall";body["revision"]=p["revision"];body["expected_price"]=p["price"];
     }else if(p["action"]=="festival" && QStringList{"gallery","rings","golf_local","golf_online"}.contains(p["game"].toString())){
         path="/v1/me/festival/"+p["game"].toString();body["expected_price"]=p["price"];
@@ -287,7 +323,7 @@ void BackendAccount::submitMarket() {
         if(paid || refused){
             marketPending_={};
             if(!saveCommerce()){marketPending_=p;endMarket(503,error("checkout_pending"));return;}
-            if(paid){endMarket(200,{{"confirmed",true},{"action",p["action"]}});refreshProgression(false);}
+            if(paid){if(p["scene"]==true)refreshShop();endMarket(200,{{"confirmed",true},{"action",p["action"]}});refreshProgression(false);}
             else endMarket(status,error(result["code"].toString()));
         }else endMarket(503,error("checkout_pending"));
     },access_);

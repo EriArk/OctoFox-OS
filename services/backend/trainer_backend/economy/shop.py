@@ -60,7 +60,7 @@ class Shop:
                     'bazaar': bazaar.owned(conn, actor.player_id),
                     'equipped': appearance['offer_id'] if appearance else None, 'receipt': receipt}
 
-    def purchase(self, access, operation, offer_id, revision, price, bazaar_details=None, *, first_island_stall=False):
+    def purchase(self, access, operation, offer_id, revision, price, bazaar_details=None, *, first_island_stall=False, decorator=False):
         purchase_details = bazaar.details(bazaar_details) if bazaar_details is not None else {}
         with self.db.transaction() as conn:
             actor = self.progression.account(conn, access)
@@ -70,12 +70,14 @@ class Shop:
                 if (prior['offer_id'], prior['offer_revision'], prior['price'], prior['details']) != (offer_id, revision, price, purchase_details):
                     raise AuthError('purchase_identity_conflict', 409)
             else:
-                if offer_id in ('bazaar.personal','bazaar.stall') and not bazaar_policy.PAYMENTS_AVAILABLE:
+                if (decorator or offer_id in ('bazaar.personal','bazaar.stall')) and not bazaar_policy.PAYMENTS_AVAILABLE:
                     raise AuthError('bazaar_under_development',409)
                 # Old receipts remain recoverable, but new purchases only unlock the right.
                 if purchase_details:
                     raise AuthError('invalid_bazaar', 422)
                 offer = conn.execute('SELECT * FROM trainer_backend.lock_shop_offer(%s)', (offer_id,)).fetchone()
+                if decorator and (not offer or offer['purpose'] != 'profile_scene'):
+                    raise AuthError('invalid_scene', 422)
                 if offer and offer['purpose']=='avatar_costume':
                     raise AuthError('costume_assets_unavailable',409)
                 if not offer or not offer['available']:

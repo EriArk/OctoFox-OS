@@ -111,7 +111,22 @@ def test_traded_lots_and_painted_garment_keep_identity(account, postgres, monkey
     trading.hire(bazaar, seller['access_token'], rent['id'], uuid4(), 'Frog', 1, 100)
     rows = read_inventory(account, seller['access_token'])['items']
     assert {r['kind'] for r in rows} == {'blueprint', 'pigment', 'material', 'garment'}
+    from test_profiles import RECIPE
+    import copy
+    outfit = copy.deepcopy(RECIPE)
+    outfit['appearance'].update(schema=4, top='traveller.top', bottom='base-shorts', socks='none', shoes='sandals',
+        headwear='none', socksColor='#ffffff', shoesColor='#334455', headwearColor='#998877',
+        equipment={'top':{'id':str(piece),'colors':{'trim':'sea-glass'}}})
+    assert account.profile(seller['access_token'], avatar=outfit)['avatar']==outfit
+    with pytest.raises(AuthError, match='garment_equipped'):
+        trading.create_listing(bazaar,seller['access_token'],rent['id'],piece,uuid4(),1)
+    account.profile(seller['access_token'], avatar=RECIPE)
+    blueprints = sum(row['kind'] == 'blueprint' for row in rows)
     for row in rows:
+        if row['kind'] == 'blueprint':
+            with pytest.raises(AuthError, match='blueprints_not_listable'):
+                trading.create_listing(bazaar, seller['access_token'], rent['id'], row['id'], uuid4(), 1)
+            continue
         listing = trading.create_listing(bazaar, seller['access_token'], rent['id'], row['id'], uuid4(), 1)['listing']
         if row['kind'] == 'garment':
             with pytest.raises(AuthError, match='garment_unavailable'), account.db.transaction() as conn:
@@ -122,7 +137,10 @@ def test_traded_lots_and_painted_garment_keep_identity(account, postgres, monkey
         assert workshop.snapshot(conn, them)['palette'] == []
         assert workshop.stored(conn, them, 'garment', 'traveller.top')['payload']['colors'] == {'trim': 'sea-glass'}
         workshop.activate(conn, them, 'rose-gold')
-    assert read_inventory(account, seller['access_token'])['total'] == 0
+    with pytest.raises(AuthError,match='garment_not_owned'):
+        account.profile(seller['access_token'],avatar=outfit)
+    assert account.profile(buyer['access_token'],avatar=outfit)['avatar'] == outfit
+    assert read_inventory(account, seller['access_token'])['total'] == blueprints
 
 
 def test_verified_first_achievement_and_replay(account):

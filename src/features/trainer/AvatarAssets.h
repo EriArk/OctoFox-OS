@@ -11,6 +11,9 @@ public:
     static bool valid(const QJsonObject&);
     static QStringList keys();
     static QStringList choices(const QString& key);
+    static QString workshopSlot(const QString& sku);
+    static QJsonObject withClothes(const QJsonObject& saved,const QJsonObject& person);
+    static QJsonObject withGarment(const QJsonObject&,const QJsonObject& item);
     static bool onePiece(const QString& id);
     static QJsonObject equipped(const QJsonObject&, const QString& key, const QString& value);
     static QString packRoot();

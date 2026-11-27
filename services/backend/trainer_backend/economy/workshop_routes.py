@@ -172,6 +172,36 @@ def buy(request: Request, body: SuppliesOrder):
     return mutate(request, 'buy', body, lambda c, p: workshop.purchase(c, p, body.offer, body.price))
 
 
+@router.get('/v1/bazaar-worlds/festival/store')
+def official_store(request: Request):
+    from ..bazaar import policy
+    api = service(request)
+    with api.db.transaction() as conn:
+        player = api.accounts.authenticate(conn, bearer(request)).player_id
+        scenes = conn.execute('''SELECT s.id,s.title,s.price,s.revision,s.appearance,s.minimum_level,
+               i.offer_id IS NOT NULL AS owned FROM trainer_backend.shop_offers s
+               LEFT JOIN trainer_backend.owned_items i ON i.offer_id=s.id AND i.player_id=%s
+               WHERE s.available AND s.purpose='profile_scene' ORDER BY s.id LIMIT 100''', (player,)).fetchall()
+        return wire({'player_id': player, 'revision': revision(conn, player),
+                     'payments_available': policy.PAYMENTS_AVAILABLE,
+                     'items': [{'id': key, 'title': workshop.item_title(kind, sku), 'price': price,
+                                'kind': kind, 'sku': sku} for key, (kind, sku, price) in workshop.BAZAAR_GOODS.items()]
+                              + [dict(row,kind='scene') for row in scenes]})
+
+
+@router.post('/v1/bazaar-worlds/festival/store')
+def buy_official(request: Request, body: SuppliesOrder):
+    from ..bazaar import trading
+
+    def order(conn, player):
+        trading.enabled()
+        return workshop.purchase(conn, player, body.offer, body.price, bazaar=True)
+
+    # Receipt recovery precedes fresh-order validation and the trade gate.
+    result = mutate(request, 'bazaar_store', body, order)
+    return {**result, 'operation_id': body.operation_id, 'offer': body.offer, 'price': body.price}
+
+
 @router.post('/v1/me/workshop/install')
 def install(request: Request, body: FitModule):
     return mutate(request, 'install', body, lambda c, p: workshop.install_module(c, p, body.module))

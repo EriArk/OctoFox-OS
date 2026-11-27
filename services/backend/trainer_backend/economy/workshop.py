@@ -35,7 +35,10 @@ CHANNELS = ('primary', 'secondary', 'trim', 'accent')
 # Prices are in Sparks. Offers always issue inventory items, including upgrade kits.
 SUPPLIES = {
     'case-plan': ('blueprint', 'empty', 30), 'traveller-plan': ('blueprint', 'traveller', 100),
-    'merchant-plan': ('blueprint', 'merchant', 100), 'case': ('material', 'Empty', 12),
+    'merchant-plan': ('blueprint', 'merchant', 100),
+}
+BAZAAR_GOODS = {
+    'case': ('material', 'Empty', 12),
     'trousers': ('garment', 'traveller.bottom', 45), 'cap': ('garment', 'merchant.hat', 35),
     'cruise-kit': ('upgrade', 'economiser', 250), 'boost-kit': ('upgrade', 'capacitor', 300),
 }
@@ -63,7 +66,7 @@ def item_title(kind, sku):
 
 def write(conn, player, kind, payload, item=None):
     sku = payload['sku']
-    facts = [{'label': 'Trade', 'value': 'Bazaar item'}]
+    facts = [{'label': 'Trade', 'value': 'Market blueprint' if kind == 'blueprint' else 'Bazaar item'}]
     if payload.get('source'):
         facts.append({'label': 'Earned from', 'value': payload['source']})
     if kind == 'blueprint':
@@ -143,15 +146,18 @@ def stored(conn, player, kind, sku):
                         (player, kind, sku)).fetchone()
 
 
-def purchase(conn, player, offer, price):
-    if offer not in SUPPLIES or SUPPLIES[offer][2] != price:
+def purchase(conn, player, offer, price, *, bazaar=False):
+    catalogue = BAZAAR_GOODS if bazaar else SUPPLIES
+    if offer not in catalogue or catalogue[offer][2] != price:
         raise AuthError('offer_changed', 409)
-    kind, sku, _ = SUPPLIES[offer]
+    kind, sku, _ = catalogue[offer]
+    if kind == 'blueprint' and stored(conn, player, kind, sku):
+        raise AuthError('blueprint_already_owned', 409)
     paid = conn.execute("""UPDATE trainer_backend.progression_accounts SET balance=balance-%s,revision=revision+1
         WHERE player_id=%s AND balance>=%s RETURNING balance""", (price, player, price)).fetchone()
     if not paid:
         raise AuthError('insufficient_sparks', 409)
-    data = {'sku': sku, 'source': 'Ship supplies'}
+    data = {'sku': sku, 'source': 'Official Bazaar' if bazaar else 'Ship Market'}
     if kind == 'material':
         data['units'] = 1
     if kind == 'garment':
@@ -295,4 +301,11 @@ def paint(conn, player, item: UUID, channel, color):
     else:
         data['colors'][channel] = color
     write(conn, player, 'garment', data, item)
+    slot = {'boots': 'shoes', 'hat': 'headwear'}.get(data['sku'].split('.')[1], data['sku'].split('.')[1])
+    path = ['appearance', 'equipment', slot]
+    for table, field in [('public_profiles', 'avatar'), ('outfits', 'recipe')]:
+        conn.execute(f"""UPDATE trainer_backend.{table} SET {field}=jsonb_set({field},%s,%s),
+            revision=revision+1, updated_at=clock_timestamp()
+            WHERE player_id=%s AND ({field} #>> %s)=%s AND ({field} #> %s) IS DISTINCT FROM %s""",
+            (path+['colors'], Jsonb(data['colors']), player, path+['id'], str(item), path+['colors'], Jsonb(data['colors'])))
     return item

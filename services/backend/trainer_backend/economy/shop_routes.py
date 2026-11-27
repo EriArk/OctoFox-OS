@@ -56,6 +56,15 @@ def purchase(body: Purchase, request: Request):
     return wire(service(request).purchase(bearer(request), UUID(body.operation_id), body.offer_id, body.offer_revision, body.expected_price, body.bazaar.model_dump(exclude_none=True) if body.bazaar else None))
 
 
+@router.post('/v1/bazaar-worlds/festival/decorator')
+def buy_scene(body: Purchase, request: Request):
+    if body.bazaar or not body.offer_id.startswith('profile.'):
+        raise AuthError('invalid_scene', 422)
+    sale = service(request).purchase(bearer(request), UUID(body.operation_id), body.offer_id, body.offer_revision,
+                                     body.expected_price, decorator=True)
+    return wire({'player_id': sale['player_id'], 'receipt': sale['receipt']})
+
+
 @router.get('/v1/me/purchases/{operation_id}')
 def receipt(operation_id: UUID, request: Request):
     return wire(service(request).snapshot(bearer(request), operation_id))

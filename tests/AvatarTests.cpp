@@ -1,3 +1,4 @@
+#include <QUuid>
 #include <QtTest>
 #include "../sdk/qt/AvatarResource.h"
 #include <QFile>
@@ -208,7 +209,7 @@ private slots:
         services.request=[](QByteArray,QString,QJsonObject,QByteArray,auto done){done(0,{});};
         account.setServices(services);account.configure(p.id);
         OutfitController wardrobe(account,trainer);wardrobe.open();wardrobe.select(1);
-        QCOMPARE(trainer.appearance()["hair"],QJsonValue("bob"));
+        QCOMPARE(trainer.appearance()["hair"],p.avatar["hair"]);
         wardrobe.selectCategory(1);wardrobe.selectItem(1);wardrobe.equip();
         QCOMPARE(trainer.appearance()["top"],QJsonValue("polo-short-sleeve"));
         wardrobe.selectItem(2);wardrobe.chooseColour(1);
@@ -249,6 +250,29 @@ private slots:
         wardrobe.wearShipLook("outfit.slot.1",base,"headwear","golf-visor",done);QCOMPARE(status,QString());
         QCOMPARE(repo.load()->avatar["headwear"].toString(),QString("golf-visor"));
         QCOMPARE(wardrobe.shipLooks()[1].toObject()["recipe"].toObject()["appearance"].toObject(),repo.load()->avatar);
+    }
+    void shipGarmentsResolveWithTheCurrentCharacter() {
+        QTemporaryDir cache;
+        auto person=AvatarAssets::defaults();person["hair"]="bob";
+        for(const auto style:{"traveller","mage","merchant"}){
+            auto outfit=AvatarAssets::defaults();
+            for(const auto part:{"top","bottom","boots","hat"}){
+                QJsonObject piece{{"sku",QString(style)+"."+part},{"id",QUuid::createUuid().toString(QUuid::WithoutBraces)},
+                    {"colors",QJsonObject{{"trim","rose-gold"}}}};
+                outfit=AvatarAssets::withGarment(outfit,piece);
+                QVERIFY(AvatarAssets::valid(outfit));
+            }
+            outfit=AvatarAssets::withClothes(outfit,person);
+            QCOMPARE(outfit["hair"],person["hair"]);
+            const auto descriptor=AvatarAssets::resolve(outfit,{},cache.path());
+            QVERIFY2(!descriptor.contains("error"),qPrintable(descriptor["error"].toString()));
+            const auto bytes=AvatarResource::read(descriptor["glb"].toString());
+            QVERIFY(!bytes.isEmpty());
+            const auto scene=QJsonDocument::fromJson(bytes.mid(20,qFromLittleEndian<quint32>(bytes.constData()+12))).object();
+            QSet<QString> nodes;
+            for(const auto node:scene["nodes"].toArray())nodes.insert(node.toObject()["name"].toString());
+            for(const auto part:{"top","bottom","boots","hat"})QVERIFY(nodes.contains(QString(style)+"."+part));
+        }
     }
     void wardrobeCompatibilityAndRig() {
         auto legacy=AvatarAssets::defaults();legacy["schema"]=1;

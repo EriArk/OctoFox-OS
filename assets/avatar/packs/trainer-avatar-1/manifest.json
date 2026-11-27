@@ -122,7 +122,19 @@
     "fit-racing-helmet-bob-0-normal.bin": "ad4696a7de4315877bb24d0b078b7d7bf5f4049d16ed9b041e7277cd97aeaecd",
     "fit-racing-helmet-bob-1-position.bin": "c8bd04a94c00327ac869e2d4a3d46a1a05aaaaba4233a7c14c80ab41305cdafb",
     "fit-racing-helmet-bob-1-normal.bin": "770e189d41ceb46f2933e5e81305a39c48ac1a7b8980f66b02a2b5050d1108cf",
-    "wear-denim-breeches-womens.glb": "f955a110a750eaae078ed24c7e53db3e0084543ada26f66293ef6d4d78168172"
+    "wear-denim-breeches-womens.glb": "f955a110a750eaae078ed24c7e53db3e0084543ada26f66293ef6d4d78168172",
+    "wear-traveller.top.glb": "ec378984df39f69e922cf5d611a9dbd4a970ee4c9597bef39db5ed88c3939c99",
+    "wear-traveller.bottom.glb": "34dccae063446611dfdd93db378be489ceadcb5522c2bdbf70a5b6ff085596fb",
+    "wear-traveller.boots.glb": "dfe0d687e26c30fbcdad33df661e57873101a6c6e738ece222cb2565b02584ca",
+    "wear-traveller.hat.glb": "1d43e9e64107bf6cb51a011ab9450748d46a1964be9389b6931027220b4efa1d",
+    "wear-mage.top.glb": "903d92f002b0b091915903236af7ffb0e836afa9a670a5acb3a32891cfd6d199",
+    "wear-mage.bottom.glb": "7080ef8c4f2c33561ef0f4da0d12831ba75f94bef9a748301d8794e41833f978",
+    "wear-mage.boots.glb": "a1d70e548659bafdf119b7ae65ae200b40b82980cf943e66d0d3471fc9bbf5d7",
+    "wear-mage.hat.glb": "ff707565eced826238d668d197296a8ed940a5b3d1039d50220c9beb20a4de12",
+    "wear-merchant.top.glb": "e514e023c9aa224b9f095cdcf669a2e7688165a89d655969ad6541c0021e6661",
+    "wear-merchant.bottom.glb": "fedc599916341612f6d92909e8167f9856d892375cb1efa3c363c4c3f7a7e9f3",
+    "wear-merchant.boots.glb": "5e3b1124e251bf32ba355af6770421d893b60216e0b319ecad67b563b1b9d7c4",
+    "wear-merchant.hat.glb": "74bd36ed888f3a937dabb3922c19d895b67a4ffb827d261ab95c506f2a71e7e4"
   },
   "clothing": {
     "deformation": "torso-skin",
@@ -697,6 +709,78 @@
       "tintMaterial": "denim",
       "tintRole": "shortsColor",
       "defaultColor": "#527899"
+    },
+    "traveller.top": {
+      "slot": "top",
+      "file": "wear-traveller.top.glb",
+      "sha256": "ec378984df39f69e922cf5d611a9dbd4a970ee4c9597bef39db5ed88c3939c99",
+      "workshop": true
+    },
+    "traveller.bottom": {
+      "slot": "bottom",
+      "file": "wear-traveller.bottom.glb",
+      "sha256": "34dccae063446611dfdd93db378be489ceadcb5522c2bdbf70a5b6ff085596fb",
+      "workshop": true
+    },
+    "traveller.boots": {
+      "slot": "shoes",
+      "file": "wear-traveller.boots.glb",
+      "sha256": "dfe0d687e26c30fbcdad33df661e57873101a6c6e738ece222cb2565b02584ca",
+      "workshop": true
+    },
+    "traveller.hat": {
+      "slot": "headwear",
+      "file": "wear-traveller.hat.glb",
+      "sha256": "1d43e9e64107bf6cb51a011ab9450748d46a1964be9389b6931027220b4efa1d",
+      "workshop": true
+    },
+    "mage.top": {
+      "slot": "top",
+      "file": "wear-mage.top.glb",
+      "sha256": "903d92f002b0b091915903236af7ffb0e836afa9a670a5acb3a32891cfd6d199",
+      "workshop": true
+    },
+    "mage.bottom": {
+      "slot": "bottom",
+      "file": "wear-mage.bottom.glb",
+      "sha256": "7080ef8c4f2c33561ef0f4da0d12831ba75f94bef9a748301d8794e41833f978",
+      "workshop": true
+    },
+    "mage.boots": {
+      "slot": "shoes",
+      "file": "wear-mage.boots.glb",
+      "sha256": "a1d70e548659bafdf119b7ae65ae200b40b82980cf943e66d0d3471fc9bbf5d7",
+      "workshop": true
+    },
+    "mage.hat": {
+      "slot": "headwear",
+      "file": "wear-mage.hat.glb",
+      "sha256": "ff707565eced826238d668d197296a8ed940a5b3d1039d50220c9beb20a4de12",
+      "workshop": true
+    },
+    "merchant.top": {
+      "slot": "top",
+      "file": "wear-merchant.top.glb",
+      "sha256": "e514e023c9aa224b9f095cdcf669a2e7688165a89d655969ad6541c0021e6661",
+      "workshop": true
+    },
+    "merchant.bottom": {
+      "slot": "bottom",
+      "file": "wear-merchant.bottom.glb",
+      "sha256": "fedc599916341612f6d92909e8167f9856d892375cb1efa3c363c4c3f7a7e9f3",
+      "workshop": true
+    },
+    "merchant.boots": {
+      "slot": "shoes",
+      "file": "wear-merchant.boots.glb",
+      "sha256": "5e3b1124e251bf32ba355af6770421d893b60216e0b319ecad67b563b1b9d7c4",
+      "workshop": true
+    },
+    "merchant.hat": {
+      "slot": "headwear",
+      "file": "wear-merchant.hat.glb",
+      "sha256": "74bd36ed888f3a937dabb3922c19d895b67a4ffb827d261ab95c506f2a71e7e4",
+      "workshop": true
     }
   },
   "headwearFits": {

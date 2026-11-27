@@ -15,6 +15,8 @@ signal workshop_changed
 var supported := false
 signal looks_changed
 signal parts_received(ticket:int,items:Array,error:String)
+var parts_paged:=false
+var parts_ticket:=-1
 var looks_supported:=false
 var looks_loading:=false
 var wearing:=false
@@ -45,6 +47,7 @@ func disconnect_host() -> void:
  fish_supported=false;fish_ready=false;fish_tank=[];fish_bag=[];fish_next="";fish_error=""
  fish_stock_changed.emit()
  super.disconnect_host()
+ parts_ticket=-1;parts_paged=false
  looks_supported=false;looks_loading=false;wearing=false;saved_looks.clear();pending_looks.clear();look_notice=""
  looks_changed.emit()
  expired.clear();supplies_supported=false;supported=false;timed_prints=false;busy=false;inventory.clear();stock.clear();garments.clear();next_page="";notice=""
@@ -75,8 +78,13 @@ func refresh_looks() -> void:
  _request("ship.looks",{"profile":profile_id,"offset":0})
 
 func get_parts(row:Dictionary,field:String,ticket:int) -> void:
- _request("ship.parts",{"profile":profile_id,"recipe":row.recipe,"field":field})
- pending[str(serial)].ticket=ticket
+ parts_ticket=ticket
+ request_parts({"profile":profile_id,"recipe":row.recipe,"field":field},ticket,[])
+
+func request_parts(args:Dictionary,ticket:int,items:Array) -> void:
+ if parts_paged:args["offset"]=items.size()
+ _request("ship.parts",args)
+ pending[str(serial)].merge({"ticket":ticket,"args":args,"items":items})
 
 func wear_look(row:Dictionary,field:String="",item:String="") -> void:
  if not looks_supported or wearing or looks_loading or (row.get("worn",false) and field.is_empty()):return
@@ -163,14 +171,22 @@ func _packet(packet:Dictionary) -> void:
   return
  if method=="hello":
   fish_supported=packet.get("result",{}).get("capabilities",{}).get("ship.fishing")==1
+  parts_paged=packet.get("result",{}).get("capabilities",{}).get("ship.parts.paged")==1
   looks_supported=packet.get("result",{}).get("capabilities",{}).get("ship.looks")==1
   supplies_supported=packet.get("result",{}).get("capabilities",{}).get("ship.supplies")==1
   timed_prints=packet.get("result",{}).get("capabilities",{}).get("ship.timed_prints")==1
   supported=packet.get("result",{}).get("capabilities",{}).get("ship.workshop")==1
  if method=="ship.parts":
-  var ticket:int=pending[str(packet.id)].ticket
+  var page:Dictionary=pending[str(packet.id)]
   pending.erase(str(packet.id))
-  parts_received.emit(ticket,packet.get("result",{}).get("items",[]),packet.get("error",{}).get("code",""))
+  if page.ticket!=parts_ticket:return
+  var result:Dictionary=packet.get("result",{})
+  var error:String=packet.get("error",{}).get("code","")
+  var rows:Array=result.get("items",[])
+  page.items.append_array(rows)
+  if parts_paged and error.is_empty() and not rows.is_empty() and int(result.get("next",-1))==page.items.size():
+   request_parts(page.args,page.ticket,page.items)
+  else:parts_received.emit(page.ticket,page.items if error.is_empty() else [],error)
   return
  if method in ["ship.wear","ship.looks"]:
   pending.erase(str(packet.id))

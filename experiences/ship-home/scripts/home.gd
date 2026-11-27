@@ -105,7 +105,7 @@ func _ready() -> void:
  avatar_client.recipe_resolved.connect(fitting.resolved)
  avatar_client.recipe_failed.connect(fitting.resolve_failed)
  fitting.workshop=avatar_client
- avatar_client.workshop_changed.connect(fitting.restore_colors)
+ avatar_client.workshop_changed.connect(fitting.inventory_changed)
  computer.workshop=avatar_client;computer.ship=self
  fabricator.workshop=avatar_client;dye.workshop=avatar_client;dye.fitting=fitting
  avatar_client.sample_stored.connect(func(owner:String,plant:String,day:int):
@@ -275,6 +275,7 @@ func _ui() -> void:
   if not paused and not riding and not editing and not fitting.active and not fabricator.visible and not computer.visible and not walker.seated and id==_station():_interact())
 
 func _open_colours() -> void:
+ if avatar_client.garments.is_empty():return
  if not fitting.returning:
   dye.open();Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 
@@ -477,7 +478,7 @@ func _action_hints() -> Array:
   var rows:Array=[["vertical","Outfit"]]
   if not cards.action.disabled:rows.append(["interact",cards.action.text])
   if cards.parts.visible and not cards.parts.disabled:rows.append(["decorate","Change piece"])
-  if cards.action.disabled or cards.action.text!="Preview colours":rows.append(["pick_item","Colours"])
+  if not avatar_client.garments.is_empty() and cards.action.text!="Garment colours":rows.append(["pick_item","Colours"])
   if prompts.gamepad:rows.append(["turn","Turn"])
   rows.append(["cancel_ship","Leave"]);return rows
  if walker.seated:

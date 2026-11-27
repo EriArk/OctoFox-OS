@@ -19,7 +19,7 @@ func _ready() -> void:
  for side in [SIDE_LEFT,SIDE_RIGHT,SIDE_TOP,SIDE_BOTTOM]:panel.set_content_margin(side,16)
  add_theme_stylebox_override("panel",panel);add_child(column)
  column.add_theme_constant_override("separation",10)
- var heading:=Label.new();heading.text="Outfits";heading.add_theme_font_size_override("font_size",26);column.add_child(heading)
+ var heading:=Label.new();heading.text="Wardrobe";heading.add_theme_font_size_override("font_size",26);column.add_child(heading)
  scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
  scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL;column.add_child(scroll)
  cards.size_flags_horizontal=Control.SIZE_EXPAND_FILL;scroll.add_child(cards)
@@ -38,7 +38,9 @@ func refresh() -> void:
    if row.worn:rows[0]=[row.name,"Equipped",0];break
  var saved:Array=fitting.saved_rows()
  for i in saved.size():rows.append([saved[i].name,"Saved outfit",fitting.LOOKS.size()+i])
- for i in range(1,fitting.LOOKS.size()):rows.append([fitting.LOOKS[i],"Collection",i])
+ for i in range(1,fitting.LOOKS.size()):
+  var count:int=fitting.owned_slots(i).size()
+  if count:rows.append([fitting.LOOKS[i],"%d / 4 pieces owned"%count,i])
  if entries!=rows:
   entries=rows
   for b in cards.get_children():cards.remove_child(b);b.queue_free()
@@ -67,8 +69,8 @@ func refresh() -> void:
  var can_edit:=not editable().is_empty()
  parts.visible=can_edit and not selected.is_empty()
  parts.disabled=not parts.visible or not is_instance_valid(fitting.workshop) or fitting.workshop.wearing or fitting.current!=fitting.requested or (not selected.is_empty() and fitting.resolved_key!=selected.id)
- action.text="Wear outfit" if not selected.is_empty() else ("Change a piece" if can_edit else "Preview colours")
- action.disabled=can_edit and (fitting.current!=fitting.requested or fitting.workshop.wearing or fitting.workshop.looks_loading or (not selected.is_empty() and fitting.resolved_key!=selected.id))
+ action.text="Wear outfit" if not selected.is_empty() else ("Change a piece" if can_edit else "Garment colours")
+ action.disabled=(not can_edit and (fitting.requested==0 or fitting.owned_slots(fitting.requested).is_empty())) or can_edit and (fitting.current!=fitting.requested or fitting.workshop.wearing or fitting.workshop.looks_loading or (not selected.is_empty() and fitting.resolved_key!=selected.id))
 
 func selected_card() -> int:
  for i in entries.size():

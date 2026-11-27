@@ -108,8 +108,13 @@ def create_listing(service, token, rental_id, item_id, operation, price):
         enabled();lease(conn,actor,rental_id)
         if not conn.execute('SELECT 1 FROM trainer_backend.bazaar_sellers WHERE rental_id=%s',(rental_id,)).fetchone():
             raise AuthError('seller_required',409)
-        item=conn.execute('SELECT id,player_id,state FROM trainer_backend.loot_items WHERE id=%s FOR UPDATE',(item_id,)).fetchone()
+        item=conn.execute('SELECT id,player_id,state,kind FROM trainer_backend.loot_items WHERE id=%s FOR UPDATE',(item_id,)).fetchone()
         if not item or item['player_id']!=actor.player_id:raise AuthError('item_not_found',404)
+        if item['kind']=='blueprint':raise AuthError('blueprints_not_listable',409)
+        if item['kind']=='garment' and conn.execute("""SELECT 1 FROM trainer_backend.public_profiles p,
+                jsonb_each(p.avatar->'appearance'->'equipment') part WHERE p.player_id=%s
+                AND part.value->>'id'=%s""",(actor.player_id,str(item_id))).fetchone():
+            raise AuthError('garment_equipped',409)
         if item['state']!='stored':raise AuthError('item_unavailable',409)
         conn.execute("UPDATE trainer_backend.loot_items SET state='listed' WHERE id=%s",(item_id,))
         row=conn.execute('''INSERT INTO trainer_backend.bazaar_listings(id,rental_id,seller_id,item_id,operation_id,price)
@@ -162,7 +167,7 @@ def listings(service, token, place_id=None, after=None, listing_id=None):
         rows=conn.execute('''SELECT l.*,r.expires_at,r.place_id,i.presentation,i.game_id,i.kind
             FROM trainer_backend.bazaar_listings l JOIN trainer_backend.bazaar_rentals r ON r.id=l.rental_id
             JOIN trainer_backend.loot_items i ON i.id=l.item_id
-            WHERE (%s::uuid IS NULL AND l.seller_id=%s OR r.place_id=%s AND l.state='listed' AND r.expires_at>clock_timestamp())
+            WHERE (%s::uuid IS NULL AND l.seller_id=%s OR r.place_id=%s AND l.state='listed' AND i.kind<>'blueprint' AND r.expires_at>clock_timestamp())
             AND (%s::uuid IS NULL OR l.id>%s) AND (%s::uuid IS NULL OR l.id=%s) ORDER BY l.id LIMIT 25''',(place_id,actor.player_id,place_id,after,after,listing_id,listing_id)).fetchall()
         items=[]
         for row in rows[:24]:
@@ -196,6 +201,7 @@ def buy(service, token, listing_id, operation, revision, expected_price):
         row=conn.execute('SELECT * FROM trainer_backend.bazaar_listings WHERE id=%s FOR UPDATE',(listing_id,)).fetchone()
         if (row['state'],row['revision'],row['price'])!=('listed',revision,expected_price):raise AuthError('listing_changed',409)
         item=conn.execute('SELECT * FROM trainer_backend.loot_items WHERE id=%s FOR UPDATE',(row['item_id'],)).fetchone()
+        if item['kind']=='blueprint':raise AuthError('blueprints_not_listable',409)
         if item['player_id']!=row['seller_id'] or item['state']!='listed':raise AuthError('item_unavailable',409)
         payer=next(r for r in locked if r['player_id']==actor.player_id)
         if payer['balance']<expected_price:raise AuthError('insufficient_sparks',409)

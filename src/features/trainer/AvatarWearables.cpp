@@ -87,7 +87,35 @@ bool applyAvatarWearables(QJsonObject& g,QByteArray& binary,const QJsonObject& m
             if(mat["name"]==material&&!role.isEmpty()){
                 QColor c(a[role].toString());auto pbr=mat["pbrMetallicRoughness"].toObject();
                 pbr["baseColorFactor"]=QJsonArray{linear(c.redF()),linear(c.greenF()),linear(c.blueF()),1};mat["pbrMetallicRoughness"]=pbr;
-            }materials.append(mat);
+            }
+            if(entry["workshop"].toBool()){
+                const auto material=mat["name"].toString();
+                QString channel="primary";
+                if(slot!="bottom"){
+                    if(QStringList{"brass","silver","gem","saffron","lilac"}.contains(material))channel="accent";
+                    else if(QStringList{"sole","hide","ink","wine"}.contains(material))channel="trim";
+                    else if(!(slot=="shoes" && (material=="umber" || material=="indigo")) &&
+                            QStringList{"tan","umber","fern","teal","oat","plum"}.contains(material))channel="secondary";
+                }
+                const auto finish=a["equipment"].toObject()[slot].toObject()["colors"].toObject()[channel].toString();
+                static const QMap<QString,QColor> pigments{{"sea-glass",QColor("#479b91")},{"rose-gold",QColor("#c78d75")},
+                    {"aurora",QColor("#7966c2")},{"oxide",QColor("#50867c")},{"saffron",QColor("#dfae43")},{"moonstone",QColor("#accbda")}};
+                if(pigments.contains(finish)){
+                    const auto c=pigments[finish];auto pbr=mat["pbrMetallicRoughness"].toObject();
+                    pbr["baseColorFactor"]=QJsonArray{linear(c.redF()),linear(c.greenF()),linear(c.blueF()),1};
+                    const bool metal=finish=="rose-gold"||finish=="oxide";
+                    pbr["metallicFactor"]=metal?.87:0.0;pbr["roughnessFactor"]=metal?.30:finish=="saffron"?.85:.45;
+                    if(finish=="aurora" || finish=="moonstone"){
+                        auto ext=mat["extensions"].toObject();
+                        ext["KHR_materials_iridescence"]=QJsonObject{{"iridescenceFactor",finish=="aurora"?.95:.65}};
+                        mat["extensions"]=ext;auto used=g["extensionsUsed"].toArray();
+                        if(!used.contains("KHR_materials_iridescence"))used.append("KHR_materials_iridescence");
+                        g["extensionsUsed"]=used;
+                    }
+                    mat["pbrMetallicRoughness"]=pbr;
+                }
+            }
+            materials.append(mat);
         }
         for(const auto& value:w["meshes"].toArray()){
             auto mesh=value.toObject();auto primitives=mesh["primitives"].toArray();
@@ -132,7 +160,7 @@ bool applyAvatarWearables(QJsonObject& g,QByteArray& binary,const QJsonObject& m
         auto node=nodes[index.toInt()].toObject();node.remove("mesh");node.remove("skin");nodes[index.toInt()]=node;
     }
     g["nodes"]=nodes;
-    if(a["headwear"]!="none"&&!hidesHair){
+    if(a["headwear"]!="none"&&!hidesHair && !catalogue[a["headwear"].toString()].toObject()["workshop"].toBool()){
         const auto patches=m["headwearFits"].toObject()[a["headwear"].toString()+"/"+a["hair"].toString()].toArray();
         if(patches.isEmpty())return false;
         auto accessors=g["accessors"].toArray();const auto views=g["bufferViews"].toArray();

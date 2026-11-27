@@ -60,19 +60,12 @@ func close() -> void:
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 
 func pieces() -> Array:
- if scope.is_empty() and not workshop.garments.is_empty():return workshop.garments
- var style:String="traveller" if scope.is_empty() else scope
- var rows:Array=[]
- for slot in Garment.SLOTS:
-  var sku:String=style+"."+slot.to_lower()
-  var owned:Array=workshop.garments.filter(func(piece):return piece.sku==sku)
-  if owned.is_empty():rows.append({"id":"","sku":sku,"colors":{}})
-  else:rows.append_array(owned)
- return rows
+ if scope.is_empty():return workshop.garments
+ return workshop.garments.filter(func(piece):return str(piece.sku).get_slice(".",0)==scope)
 
 func garment() -> Dictionary:
  var rows:=pieces()
- return rows[clampi(garment_index,0,rows.size()-1)]
+ return {} if rows.is_empty() else rows[clampi(garment_index,0,rows.size()-1)]
 
 func pick_swatch(index:int) -> void:
  color_index=index;cursor=2;workshop.notice="";refresh()
@@ -121,7 +114,7 @@ func refresh() -> void:
   open_next_page=false
   if garment_index>=rows.size() and not workshop.next_page.is_empty():
    open_next_page=true;workshop.more_garments();return
-  garment_index=posmod(garment_index,rows.size())
+  garment_index=posmod(garment_index,rows.size()) if not rows.is_empty() else 0
  var item:=garment()
  var palette:Dictionary=workshop.inventory.get("colors",{})
  colors=["original"];colors.append_array(palette.keys())
@@ -169,6 +162,7 @@ func step(row:int, amount:int) -> void:
    open_next_page=true;garment_index=rows.size();workshop.more_garments();return
   # Restore previous part before showing another part of the same set.
   if is_instance_valid(fitting.garment):fitting.restore_colors()
+  if rows.is_empty():return
   garment_index=posmod(garment_index+amount,rows.size());channel_index=0
  elif row==1 and not channel_names.is_empty():channel_index=posmod(channel_index+amount,channel_names.size())
  elif row==2 and not colors.is_empty():color_index=clampi(color_index+amount,0,colors.size()-1)

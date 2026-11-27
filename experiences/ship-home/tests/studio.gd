@@ -12,7 +12,7 @@ func run() -> void:
  var home=load("res://main.tscn").instantiate();root.add_child(home)
  home.avatar_client.appearance_changed.disconnect(home._appearance)
  home.avatar_client.unavailable.disconnect(home._identity_lost)
- home.avatar_client.queue_free();home._pause(false)
+ home.avatar_client.disconnect_host();home._pause(false)
  var desc:=OS.get_environment("SHIP_TEST_DESCRIPTOR")
  if not desc.is_empty():
   check(home.walker.install_avatar(JSON.parse_string(FileAccess.get_file_as_string(desc))),"SDK avatar loads")
@@ -55,6 +55,10 @@ func run() -> void:
  var approach:Vector3=home.walker.position
  var original_meshes=home.walker.visual.find_children("*","MeshInstance3D",true,false).filter(func(m):return m.visible)
  press(JOY_BUTTON_B);check(home.fitting.active and home.fitting.camera.current,"Enter fitting camera")
+ check(home.cards.entries.size()==1,"Empty wardrobe only offers the current outfit")
+ for name_value in ["traveller","mage","merchant"]:
+  home.avatar_client.garments.append({"id":name_value,"sku":name_value+".top","colors":{}})
+ home.fitting.inventory_changed()
  for style in [1,2,3]:
   press(JOY_BUTTON_RIGHT_SHOULDER)
   var saw_closed:=false
@@ -62,7 +66,7 @@ func run() -> void:
    await physics_frame
    if home.fitting.closure>0.99:saw_closed=true
    if home.fitting.current==style:check(saw_closed,"Screen closes before garment changes")
-  check(home.fitting.current==style and home.fitting.closure==0 and is_instance_valid(home.fitting.garment),"Full costume revealed")
+  check(home.fitting.current==style and home.fitting.closure==0 and is_instance_valid(home.fitting.garment),"Owned garment revealed")
  press(JOY_BUTTON_A)
  for i in 100:await physics_frame
  check(not home.fitting.active and home.walker.camera.current,"Restore exploration camera")
