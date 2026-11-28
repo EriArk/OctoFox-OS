@@ -67,11 +67,12 @@ func run() -> void:
  check(hud.station=="wardrobe","Wardrobe prompt from any camera heading")
  pad(JOY_BUTTON_B);await settle()
  check(home.cards.visible and not hud.bubble.visible and ["cancel_ship","Leave"] in hud.last_actions,"Wardrobe actions")
+ home.avatar_client.garments=[{"id":"test-cloak","sku":"traveller.top","colors":{}}]
  pad(JOY_BUTTON_X);await settle()
  check(home.dye.visible and ["cancel_ship","Back"] in hud.last_actions and not ["cancel_ship","Leave"] in hud.last_actions,"Colour studio owns its footer")
  pad(JOY_BUTTON_A);await settle();pad(JOY_BUTTON_A)
  for i in 100:await physics_frame
- home.walker.position=Vector3(0,0.08,4.58);await settle()
+ home.walker.position=Vector3(-1.42,0.08,4.58);await settle()
  check(hud.station=="cabin","Display shelf prompt")
  home.walker.position=Vector3(ShipInterior.LIFT.x,0.08,ShipInterior.LIFT.y);await settle()
  check(hud.station=="lift" and hud.bubble.text=="Go below","Lift direction on main deck")

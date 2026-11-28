@@ -13,6 +13,9 @@ var preview_generation:=0
 var decode:=Thread.new()
 const Presenter=preload("res://addons/avatar/avatar_presenter.gd")
 var walking=true
+var require_neutral:=false
+var rest_visual:=Transform3D.IDENTITY
+var rest_pivot:=Transform3D.IDENTITY
 var yaw=0.0
 var pitch=-0.18
 var is_moving=false
@@ -166,6 +169,47 @@ func stand(at:Vector3) -> void:
  camera_occludes_avatar=false
  if is_instance_valid(visual):visual.show()
 
+func rest_at(anchor:Node3D) -> void:
+ stationary=true;velocity=Vector3.ZERO;attend(null)
+ rest_visual=visual.transform;rest_pivot=pivot.transform
+ var kind:String=anchor.get_meta("rest")
+ var facing:Basis=anchor.global_basis.orthonormalized()
+ if kind=="armchair":facing=facing.rotated(Vector3.UP,PI)
+ if is_instance_valid(skeleton):skeleton.reset_bone_poses()
+ if kind=="bed":
+  # Local +Y runs along the mattress toward the pillow, +Z faces the ceiling.
+  facing=Basis(anchor.global_basis.x.cross(Vector3.UP),anchor.global_basis.x,Vector3.UP).orthonormalized()
+ visual.global_transform=Transform3D(facing.scaled_local(rest_visual.basis.get_scale()),anchor.global_position)
+ if kind!="bed":
+  if is_instance_valid(skeleton):
+   if is_instance_valid(motion) and motion.player.has_animation("Sitting_Idle_Loop"):
+    motion.player.play("Sitting_Idle_Loop",0);motion.player.advance(0);motion.apply_pose(0)
+   var hip:int=pose.bones["pelvis"]
+   visual.global_position+=anchor.global_position+Vector3.UP*0.08-skeleton.to_global(pose.point(hip))
+  else:
+   visual.global_position-=Vector3.UP*0.46
+   for limb in visual.get_children():
+    if limb is MeshInstance3D and is_equal_approx(limb.position.y,0.25):
+     limb.rotation.x=-PI/2;limb.position.y=0.46;limb.position.z=0.20
+ var approach:Vector3=anchor.to_global(anchor.get_meta("approach"))-anchor.global_position
+ pivot.global_position=anchor.global_position+Vector3.UP*0.30
+ pivot.rotation=Vector3(-0.18,atan2(approach.x,approach.z),0)
+ reset_physics_interpolation()
+
+func finish_rest() -> void:
+ stationary=false;require_neutral=true;pivot.transform=rest_pivot;visual.transform=rest_visual
+ if is_instance_valid(skeleton):
+  skeleton.reset_bone_poses()
+  if motion:motion.current="";motion.advance(0,0,false)
+ else:anonymous()
+ reset_physics_interpolation()
+
+func safe_deck(at:Vector3) -> bool:
+ if not can_stand(at):return false
+ var ray:=PhysicsRayQueryParameters3D.create(at+Vector3.UP*0.05,at+Vector3.DOWN*0.23,3,[get_rid()])
+ var floor_hit:=get_world_3d().direct_space_state.intersect_ray(ray)
+ return not floor_hit.is_empty() and floor_hit.normal.y>0.8
+
 func can_stand(at:Vector3) -> bool:
  var query=PhysicsShapeQueryParameters3D.new();var shape=CapsuleShape3D.new()
  shape.radius=0.25;shape.height=1.3;query.shape=shape
@@ -231,7 +275,9 @@ func _physics_process(delta:float) -> void:
  if stationary:
   velocity=Vector3.ZERO;is_moving=false;return
  var direction=Vector3.ZERO
- if walking:
+ if require_neutral:
+  require_neutral=not Input.get_vector("walk_left","walk_right","walk_forward","walk_back",0.18).is_zero_approx() or not Input.get_vector("look_left","look_right","look_up","look_down",0.20).is_zero_approx()
+ if walking and not require_neutral:
   var look=Input.get_vector("look_left","look_right","look_up","look_down",0.20)
   if seated:look=Vector2.ZERO
   yaw-=look.x*delta*2.2;pitch=clamp(pitch-look.y*delta*1.7,-1.10 if seated else -0.75,0.45)

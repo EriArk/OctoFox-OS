@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="288" height="32" viewBox="0 0 288 32" fill="none" stroke="#f3ce8d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <g><circle cx="16" cy="16" r="10"/><path d="m6 14 7 3 3 8 3-8 7-3M13 17h6"/></g>
+  <g transform="translate(32)"><path d="M13 10a3 3 0 1 1 4 2.8L16 14v1l11 7v2H5v-2l11-7"/></g>
+  <g transform="translate(64)"><rect x="4" y="6" width="24" height="16" rx="2"/><path d="M13 22v4m6-4v4m-10 0h14M8 12l3 2-3 2m6 0h4"/></g>
+  <g transform="translate(96)"><path d="M5 26h22M7 23V7h18v16M8 10h16m-11 0v4h6v-4m-3 4v3m-4 6v-4h8v4z"/></g>
+  <g transform="translate(128)"><path d="M6 7h20l-7 9v7l-6 3V16zM10 11h12"/></g>
+  <g transform="translate(160)"><path d="M5 16q8-13 18-1l4-5v12l-4-5Q13 28 5 16z"/><circle cx="11" cy="15" r="1"/></g>
+  <g transform="translate(192)"><path d="m5 10 11-5 11 5v13l-11 5-11-5zm0 0 11 5 11-5m-11 5v12m-6-19 11 5"/></g>
+  <g transform="translate(224)"><path d="M10 6h12v8a6 6 0 0 1-12 0zM10 8H5v3q0 5 5 5m12-8h5v3q0 5-5 5m-6 4v5m-5 2h10"/></g>
+  <g transform="translate(256)"><path d="m6 22 14-15 5 5-15 14-5 1zm12-13 5 5M6 22l4 4m9-2h8"/></g>
+</svg>

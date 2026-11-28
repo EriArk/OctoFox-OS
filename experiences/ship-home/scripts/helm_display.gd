@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 extends Control
 ## One set of selectable panel rows serves touch, keyboard and the pilot's pad.
+signal operate
 signal page_changed
 const AMBER=Color("ffce78")
 const MINT=Color("94e5d5")
@@ -32,6 +33,7 @@ var canopy:=preload("res://scripts/canopy_display.gd").new()
 var radar_mesh:=ImmediateMesh.new()
 var ordnance:=preload("res://scripts/ordnance_effects.gd").new()
 var scanner:=MeshInstance3D.new()
+var prompts
 var sweep:=0.0
 
 
@@ -95,7 +97,7 @@ func key_text(key:Node3D,at:Vector3,size:int,ink:Color) -> Label3D:
  return line
 
 func side_of(section:String) -> int:
- return 1 if section in ["Ship","Power","Modules","Fire control"] else 0
+ return 1 if section in ["Ship","Power","Modules","Fire control","Drive"] else 0
 
 func refresh() -> void:
  if page in ["","Scope","Chart","Local"]:return
@@ -179,7 +181,7 @@ func tick(dt:float,active:bool) -> void:
    mount.position.y=STOWED_Y+TRAVEL*smoothstep(0.0,1.0,extension)
   mount.visible=extensions[i]>0.0
   gauges[i].visible=active
- var glass_live:bool=active and page=="" and f.mode==f.Mode.FLYING and a.transit==0
+ var glass_live:bool=active and page==""
  canopy.update_projection(dt,glass_live)
  ordnance.refresh(a)
  if not active:return
@@ -201,7 +203,46 @@ func tick(dt:float,active:bool) -> void:
  if sweep>=0.10 or gauges[0].text.is_empty():
   sweep=0
   var ray:Vector3=f.attitude.transposed()*(a.jump_axis() if a.route>=0 else a.position_of(a.target)-f.location)
-  update_keys(ray.z>=0);scan();refresh()
+  update_keys(ray.z>=0);canopy.instruction=next_action();scan();refresh()
+
+func shortcut(action:String) -> String:
+ if prompts==null or not prompts.gamepad:
+  return {"land":"Enter","jump":"Shift+M","cruise":"M","arms":"SYS","lock":"Contacts"}.get(action,"")
+ var select:String=prompts.button_name(JOY_BUTTON_BACK)
+ match action:
+  "land":return prompts.glyph("interact")
+  "jump":return prompts.button_name(JOY_BUTTON_LEFT_SHOULDER)+" + "+select
+  "cruise":return select
+  "arms":return prompts.button_name(JOY_BUTTON_Y)
+  "lock":return prompts.button_name(JOY_BUTTON_LEFT_SHOULDER)+" + "+prompts.button_name(JOY_BUTTON_X)
+ return ""
+
+func next_action() -> String:
+ var operate:=shortcut("land")
+ if f.mode==f.Mode.BERTH:return operate+"  Launch"
+ if f.mode==f.Mode.DEPARTING:return "Launching"
+ if f.mode==f.Mode.LANDING:return operate+"  Cancel landing"
+ if a.transit>0:return "In transit · "+a.SECTORS[a.route]
+ if a.charge>0:return "Charging %d%%    %s  Cancel"%[roundi(a.charge/3*100),shortcut("jump")]
+ if a.reply_time>0 and a.reply.begins_with("Arrived"):return a.reply
+ if a.route>=0:
+  var reason:String=a.blocker("jump")
+  return (shortcut("jump")+"  Jump" if reason=="" else reason)+" · "+a.SECTORS[a.route]
+ if a.target==a.Regions.BERTH_CONTACT[f.destination] and a.range_to(a.target)<=850:
+  var order:String=f.clearance()
+  if order=="Request docking clearance":
+   var radio:String=a.blocker("hail")
+   return operate+"  Request pad" if radio=="" else radio
+  if order=="":return operate+("  Land" if f.assisted else "  Touch down")
+  if f.in_approach(f.destination) or a.permit==a.target:return order
+ if a.deployed and a.CATALOG[a.target].kind=="hostile":
+  if a.lock_id!=a.target:
+   var lock:String=a.blocker("lock")
+   return lock if lock!="" else shortcut("lock")+"  Lock target"
+  return a.GROUP_NAMES[a.group]+" · "+("Tracking" if a.tracking() else "Align with target")
+ var reason:String=a.blocker("cruise")
+ if reason=="Stow hardpoints":return shortcut("arms")+"  Stow hardpoints for cruise"
+ return reason if reason!="" else shortcut("cruise")+("  Exit cruise" if a.cruise else "  Engage cruise")
 
 func update_keys(aft:bool) -> void:
  var nav:String=a.CATALOG[a.target].name+"\n"+a.Regions.range_text(a.range_to(a.target))+("  AFT" if aft else "")
@@ -212,7 +253,7 @@ func update_keys(aft:bool) -> void:
  if f.mode==f.Mode.BERTH:
   nav=f.NAMES[f.berth];systems="MOORED"
  elif f.mode==f.Mode.LANDING:
-  nav=f.NAMES[f.destination];systems="LANDING · A CANCEL"
+  nav=f.NAMES[f.destination];systems="LANDING"
  elif f.mode==f.Mode.DEPARTING:
   nav=f.NAMES[f.berth];systems="LIFTING OFF"
  elif a.transit>0:
@@ -221,7 +262,7 @@ func update_keys(aft:bool) -> void:
   nav=a.SECTORS[a.route];systems="CHARGING %d%%"%roundi(a.charge/3*100)
  elif f.assisted and f.nearby_island()>=0:
   var site:int=f.nearby_island()
-  nav="%s   %d m\n%s  LAND" % [f.NAMES[site],roundi(f.location.distance_to(f.BERTHS[site])),"A" if not Input.get_connected_joypads().is_empty() else "F"]
+  nav="%s   %d m\n%s  LAND" % [f.NAMES[site],roundi(f.location.distance_to(f.BERTHS[site])),shortcut("land")]
  elif a.route>=0:
   nav=a.SECTORS[a.route]+"\nSHIFT VECTOR"
  elif a.target==a.Regions.BERTH_CONTACT[f.destination] and a.range_to(a.target)<=850:
@@ -242,14 +283,22 @@ func update_keys(aft:bool) -> void:
 
 func landing_order(instruction:String) -> String:
  match instruction:
-  "Request docking clearance":return "A · REQUEST PAD"
+  "Request docking clearance":return shortcut("land")+" · REQUEST PAD"
   "Select the landing site":return "SELECT SITE"
   "Approach the pad":return "ON APPROACH"
   "Level the ship":return "LEVEL %d°"%roundi(rad_to_deg(f.attitude.y.angle_to(Vector3.UP)))
   "Slow below 2.5 m/s":return "SLOW < 2.5 m/s"
   _:return instruction.to_upper()
 
-func rows() -> Array:
+func flight_order() -> String:
+ match f.mode:
+  f.Mode.BERTH:return "Launch"
+  f.Mode.DEPARTING:return "Launching"
+  f.Mode.LANDING:return "Cancel landing"
+ var order:String=f.clearance()
+ return "Land" if order=="" else order
+
+func raw_rows() -> Array:
  match page:
   "Contacts":
    var entries:Array=[]
@@ -262,7 +311,16 @@ func rows() -> Array:
    if id==a.received_from and a.received_waypoint>=0:
     return [["Hail again","COMMS","hail"],["Track "+a.CATALOG[a.received_waypoint].name,"COURSE","fix"]]
    return [["Request pad 01" if kind=="station" else "Hail contact","CLEARED" if a.permit==id else "COMMS","hail"]]
-  "Ship":return [["Components","6 MODULES","modules"],["Hardpoints","DEPLOYED" if a.deployed else "STOWED","arms"],["Cruise drive","ENGAGED" if a.cruise else "STANDBY","cruise"],["Engine boost","%d%%"%roundi(a.engine),"boost"],["Station service","FUEL / REPAIR","service"],["Fire control",a.GROUP_NAMES[a.group].to_upper(),"fire_control"],["Landing assist","ON" if f.assisted else "MANUAL","assist"]]
+  "Ship":return [["Components","6 MODULES","modules"],["Hardpoints","DEPLOYED" if a.deployed else "STOWED","arms"],["Cruise drive","ENGAGED" if a.cruise else "STANDBY","cruise"],["Engine boost","%d%%"%roundi(a.engine),"boost"],["Station service","FUEL / REPAIR","service"],["Fire control",a.GROUP_NAMES[a.group].to_upper(),"fire_control"],["Landing assist","ON" if f.assisted else "MANUAL","assist"],["Drive checklist","NAV / SYS","drive"],[flight_order(),"HELM","operate"]]
+  "Drive":
+   var entries:Array=[]
+   for cmd in ["cruise","jump","boost"]:
+    var reasons:PackedStringArray=a.drive_blockers(cmd)
+    var name:String={"cruise":"Exit cruise" if a.cruise else "Engage cruise","jump":"Cancel charge" if a.charge>0 else "Shift jump","boost":"Boost"}[cmd]
+    if reasons.is_empty():entries.append([name,"AVAILABLE",cmd])
+    else:
+     for reason in reasons:entries.append([name,reason,cmd])
+   return entries
   "Fire control":
    var controls:Array=[["Fire group",a.GROUP_NAMES[a.group],"cycle"]]
    if a.group!=a.Group.MISSILES:controls.append(["Mount","GIMBAL" if a.gimballed else "FIXED","mount"])
@@ -278,6 +336,14 @@ func rows() -> Array:
    return list
  return []
 
+func rows() -> Array:
+ var entries:=raw_rows()
+ for entry in entries:
+  if entry[2] is String:
+   var reason:String=a.blocker(entry[2])
+   if reason!="" and page!="Drive":entry[1]=reason
+ return entries
+
 func activate(power_delta:int=1) -> void:
  var entries:=rows()
  if cursor>=entries.size() or entries.is_empty() or a.transit>0:return
@@ -288,6 +354,9 @@ func activate(power_delta:int=1) -> void:
   "Modules":a.module_switch(action)
   _:
    match action:
+    "operate":operate.emit()
+    "drive":open("Drive")
+    "jump":a.jump()
     "modules":open("Modules")
     "arms":a.hardpoints()
     "cruise":a.toggle_cruise()
@@ -305,7 +374,7 @@ func activate(power_delta:int=1) -> void:
  refresh()
 
 func back() -> void:
- open("Contacts" if page=="Contact" else ("Ship" if page in ["Modules","Fire control"] else ("Chart" if page=="Local" else "")))
+ open("Contacts" if page=="Contact" else ("Ship" if page in ["Modules","Fire control","Drive"] else ("Chart" if page=="Local" else "")))
 
 func event(e:InputEvent) -> bool:
  if y_down and e.is_action_pressed("interact"):
@@ -377,7 +446,7 @@ func _input(e:InputEvent) -> void:
    if px.x>507:open("")
    elif side==0:open("Contacts" if px.x<260 else "Chart")
    else:open("Ship" if px.x<260 else "Power")
-  elif page in ["Contacts","Ship"] and rows().size()>6 and px.y<87 and px.x>=409:
+  elif page in ["Contacts","Ship","Drive"] and rows().size()>6 and px.y<87 and px.x>=409:
    var count:=rows().size()
    cursor=clampi(first_button+11 if px.x>=502 else first_button-1,0,count-1)
    refresh()
@@ -429,7 +498,7 @@ func paint(c:Control,side:int) -> void:
    label(c,415,77,"‹ Prev",MUTED if cursor<6 else WHITE,20)
    label(c,503,77,"Next ›",MUTED if cursor==rows().size()-1 else WHITE,20)
   top=88
- elif page=="Ship":
+ elif page in ["Ship","Drive"]:
   label(c,23,79,"HULL  %d%%     SHIELD  %d%%     FUEL  %d"%[roundi(a.hull),roundi(a.shield),floori(a.fuel)],MINT,20)
   label(c,420,77,"‹ Prev",MUTED if cursor<6 else WHITE,18)
   label(c,508,77,"Next ›",WHITE if cursor<rows().size()-1 else MUTED,18)
@@ -457,7 +526,7 @@ func paint(c:Control,side:int) -> void:
    label(c,342,r.position.y+38,"−",WHITE if a.pips[i]>0 else MUTED,30)
    for j in 4:c.draw_rect(Rect2(389+31*j,r.position.y+19,23,17),AMBER if j<a.pips[i] else Color("36494e"))
    label(c,536,r.position.y+38,"+",WHITE if a.pips[i]<4 else MUTED,30)
-  else:label(c,362,r.position.y+26,str(entries[i][1]),MINT,20)
+  else:label(c,330,r.position.y+26,str(entries[i][1]),MINT,17)
  if a.incoming>0 or a.reply_time>0:
   c.draw_rect(Rect2(0,320,600,40),Color("243b40"))
   label(c,13,347,"MISSILE INBOUND  ·  %d s"%ceili(a.incoming) if a.incoming>0 else a.reply,RED if a.incoming>0 else AMBER,19)

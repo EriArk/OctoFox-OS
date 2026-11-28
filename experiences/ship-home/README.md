@@ -129,7 +129,7 @@ Walk up behind the seat and press **A / F** to board. Press it again to launch. 
 | Brake / boost | R1 / L3 | Tab / Systems panel |
 | Fire / deploy hardpoints / change weapon | R2 / X / L1 + X | F while armed / Systems / G |
 | Target ahead / lock | Y / L1 + Y | Y / Contacts |
-| Cruise / jump along plotted route | Select / L1 + Select | Systems / Atlas |
+| Cruise / jump along plotted route | Select / L1 + Select | M / Shift + M |
 | Open Contacts / Systems / Atlas / Power | D-pad left / right / up / down | Hold Y + arrow |
 | Scope / pause | R3 / Start | V / P |
 | Launch, request pad, land, abort landing | A | F |
@@ -213,6 +213,7 @@ Native Home/minimize/return acceptance with the handheld compositor is still pen
 
 | Action | Controller | Keyboard / mouse |
 | --- | --- | --- |
+| Choose ship station on foot | Select | M / Stations button |
 | Walk / look | Left / right stick | WASD / mouse |
 | Run | L3 | Shift |
 | Decorate | X | Tab |
@@ -224,6 +225,10 @@ Native Home/minimize/return acceptance with the handheld compositor is still pen
 | Interact / sit | A (right) | F |
 | Leave the pilot seat | B (bottom) | Esc |
 | Undo / remove / exit | Pause menu | Pause menu; Z also undoes |
+
+Select opens a nine-destination station chooser while walking aboard. Choosing a station moves the character to a clear spot on its deck and uses the same interaction as walking there. Start opens the pause menu. At the helm, the forward glass shows the next flight action. Open **Systems → Drive checklist** to inspect all active cruise, jump and boost interlocks, or open the Atlas to plot the next leg. Enter operates the helm from the keyboard, including with hardpoints deployed.
+
+Approach the bunk, dinette bench or the open side of an armchair to rest. Use the interaction prompt or Back to stand at the same spot. The chair's seat and approach turn with it when decorating.
 
 Seven starter furniture types can be placed, moved, rotated and removed. A
 translucent green preview means placement is valid; red means it overlaps a

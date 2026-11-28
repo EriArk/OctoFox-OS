@@ -63,7 +63,7 @@ func run() -> void:
  if not out.is_empty():await frames(52)
  home._pause(false);home.walker.position=Vector3(0,0.08,-2.4);press(JOY_BUTTON_B);await frames(4)
  check(hud.extensions==[0.0,0.0] and not hud.surfaces[0].is_visible_in_tree() and not hud.surfaces[1].is_visible_in_tree(),"Both drawers are housed when seated")
- check(not hud.canopy.visible,"Parked ship keeps the canopy clear")
+ check(hud.canopy.visible and hud.next_action().ends_with("Launch"),"Parked canopy shows the launch control")
  await shot("moored")
  if not out.is_empty():
   for side in 2:

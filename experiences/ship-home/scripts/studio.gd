@@ -135,6 +135,7 @@ func build_computer() -> void:
 
 func berth() -> void:
  var bay:=module(Vector3(0,0,5.67),PI)
+ art.rest_anchor(bay,"bed",Vector3(-0.68,0.98,0.04),Vector3(0,0,1.05))
  # The mattress sits inside a deep lined recess with a continuous outer fascia.
  art.box(bay,Vector3(0,1.05,-0.53),Vector3(3.75,2.08,0.14),INK,true)
  art.box(bay,Vector3(0,0.28,0),Vector3(3.74,0.55,1.03),Art.WOOD,true)

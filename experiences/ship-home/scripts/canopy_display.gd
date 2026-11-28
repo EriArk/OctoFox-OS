@@ -12,6 +12,7 @@ var drawing:=Control.new()
 var flight
 var pilot
 var island_pad:=-1
+var instruction:=""
 var approach:=false
 var age:=0.0
 
@@ -72,6 +73,12 @@ func text_at(at:Vector2,value:String,color:Color,size:int) -> void:
 func paint() -> void:
  if not visible:return
  var systems=flight.avionics
+ if not instruction.is_empty():
+  var width:=ThemeDB.fallback_font.get_string_size(instruction,HORIZONTAL_ALIGNMENT_LEFT,-1,30).x
+  var origin:=Vector2((PIXELS.x-width)*0.5,384)
+  drawing.draw_rect(Rect2(origin-Vector2(10,31),Vector2(width+20,38)),Color("#10262cbd"))
+  text_at(origin,instruction,TARGET,30)
+ if flight.mode!=flight.Mode.FLYING or systems.transit>0:return
  var eye:=to_local(pilot.pilot_camera.global_position)
  var local_basis:Basis=flight.attitude.transposed()
  var nose:=glass_point(eye,Vector3.FORWARD)

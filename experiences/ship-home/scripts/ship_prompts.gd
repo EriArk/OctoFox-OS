@@ -6,6 +6,21 @@ const INK:=Color("#173136")
 const PAPER:=Color("#f4efdd")
 const GOLD:=Color("#edd099")
 var gamepad:=false
+var family:="nintendo"
+
+func read_family() -> void:
+ var path:=OS.get_environment("XDG_RUNTIME_DIR").path_join("traineros-shell-input.json")
+ if FileAccess.file_exists(path):
+  var state=JSON.parse_string(FileAccess.get_file_as_string(path))
+  if state is Dictionary:family=state.get("family",family)
+
+func button_name(index:int) -> String:
+ var faces:Array={"playstation":["×","○","□","△"],"nintendo":["B","A","Y","X"],"generic":["↓","→","←","↑"]}.get(family,["A","B","X","Y"])
+ if index>=0 and index<4:return faces[index]
+ if index==JOY_BUTTON_BACK:return {"playstation":"Share","xbox":"View","steam":"View"}.get(family,"Select")
+ if index==JOY_BUTTON_LEFT_SHOULDER:return "LB" if family in ["xbox","steam"] else "L1"
+ return "Start" if index==JOY_BUTTON_START else ""
+
 var bubble:=Button.new()
 var tail:=Polygon2D.new()
 var strip:=PanelContainer.new()
@@ -16,7 +31,7 @@ var pressed_station:=""
 var last_actions:Array=[]
 var strip_pad:=false
 
-func skin(color:Color,radius:int,horizontal:int,vertical:int) -> StyleBoxFlat:
+static func skin(color:Color,radius:int,horizontal:int,vertical:int) -> StyleBoxFlat:
  var style:=StyleBoxFlat.new();style.bg_color=color;style.set_corner_radius_all(radius)
  style.content_margin_left=horizontal;style.content_margin_right=horizontal
  style.content_margin_top=vertical;style.content_margin_bottom=vertical
@@ -24,6 +39,7 @@ func skin(color:Color,radius:int,horizontal:int,vertical:int) -> StyleBoxFlat:
 
 func _ready() -> void:
  set_anchors_and_offsets_preset(PRESET_FULL_RECT);mouse_filter=MOUSE_FILTER_IGNORE
+ read_family()
  gamepad=not Input.get_connected_joypads().is_empty()
  tail.polygon=PackedVector2Array([Vector2(-7,-1),Vector2(7,-1),Vector2(0,7)])
  tail.color=INK;tail.hide();add_child(tail)
@@ -59,7 +75,7 @@ func glyph(action:String) -> String:
   "rotation":return "← →" if gamepad else "Q E"
  for event in InputMap.action_get_events(action):
   if gamepad and event is InputEventJoypadButton:
-   return str({JOY_BUTTON_A:"B",JOY_BUTTON_B:"A",JOY_BUTTON_X:"Y",JOY_BUTTON_Y:"X"}.get(event.button_index,""))
+   return button_name(event.button_index)
   if not gamepad and event is InputEventKey:
    return OS.get_keycode_string(event.physical_keycode if event.physical_keycode else event.keycode).replace("Escape","Esc")
  return ""

@@ -628,6 +628,7 @@ func fittings(parent:Node3D) -> void:
   box(hatch_plate,Vector3(0,0.014,0),Vector3(0.18,0.008,0.025),TRIM)
  # Two-person dinette fitted into the forward starboard shoulder.
  var booth=Node3D.new();booth.position=Vector3(3.35,0,-0.62);booth.rotation.y=-0.50;parent.add_child(booth)
+ rest_anchor(booth,"bench",Vector3(-0.35,0.64,0.04),Vector3(-0.6,0,0.93))
  box(booth,Vector3(0,0.26,0),Vector3(1.75,0.52,0.72),TRIM,true)
  box(booth,Vector3(0,0.57,0),Vector3(1.74,0.14,0.73),Color("c77f50"))
  box(booth,Vector3(0,0.88,-0.29),Vector3(1.78,0.65,0.18),ENAMEL)
@@ -716,10 +717,16 @@ func build(parent:Node3D,space:Node3D,staged:=false) -> void:
 func footprint(id: String) -> Vector2:
  return {"armchair":Vector2(1.25,1.25),"low-table":Vector2(1.6,1.0),"plant":Vector2(0.7,0.7),"lamp":Vector2(0.5,0.5),"stool":Vector2(0.65,0.65),"books":Vector2(0.5,0.38),"rug":Vector2(2.8,2.0)}.get(id,Vector2.ONE)
 
+func rest_anchor(parent:Node3D,kind:String,at:Vector3,approach:Vector3) -> void:
+ var seat:=Marker3D.new();parent.add_child(seat);seat.position=at
+ seat.set_meta("rest",kind);seat.set_meta("approach",approach-at)
+ seat.add_to_group("ship_rest")
+
 func furniture(id: String, solid: bool=true) -> Node3D:
  var root=Node3D.new();root.set_meta("item",id)
  match id:
   "armchair":
+   if solid:rest_anchor(root,"armchair",Vector3(0,0.59,0),Vector3(0,0,-1.05))
    cylinder(root,Vector3(0,0.08,0),0.42,0.16,TRIM)
    cylinder(root,Vector3(0,0.28,0),0.14,0.40,BRASS)
    cylinder(root,Vector3(0,0.51,0),0.54,0.16,Color("bd906b"))

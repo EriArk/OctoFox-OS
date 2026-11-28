@@ -185,12 +185,9 @@ func module_switch(index:int) -> void:
    5:deployed=false;lock_id=-1
 
 func hail() -> void:
- if not enabled[3]:say("Comms offline");return
- if range_to(target)>850:say("Outside communications range");return
+ if not permitted("hail"):return
  match CATALOG[target].kind:
   "station":
-   if f.mode!=f.Mode.FLYING:say("Already alongside");return
-   if deployed:say("Control · Stow hardpoints first");return
    permit=target;f.destination=CATALOG[target].site;say(CATALOG[target].name+" · Cleared for pad 01")
   "ship":
    var entry:Dictionary=CATALOG[target]
@@ -227,8 +224,7 @@ func ray_song() -> AudioStreamWAV:
  clip.data=bytes;return clip
 
 func hardpoints() -> void:
- if not enabled[5]:say("Emitter bank offline");return
- if f.mode!=f.Mode.FLYING or cruise or charge>0:say("Normal flight required");return
+ if not permitted("arms"):return
  deployed=not deployed
  if deployed:permit=-1
  else:lock_id=-1;seeker=0
@@ -236,9 +232,7 @@ func hardpoints() -> void:
 
 func acquire() -> void:
  if lock_id==target:lock_id=-1;seeker=0;return
- if not deployed or not enabled[2]:say("Deploy hardpoints and power sensors");return
- if CATALOG[target].kind!="hostile" or disabled_time>0:say("No hostile signature");return
- if range_to(target)>650:say("Outside tracking range");return
+ if not permitted("lock"):return
  lock_id=target;say("Target locked · "+CATALOG[target].name)
 
 func cycle_group() -> void:
@@ -280,16 +274,12 @@ func hit_hostile(amount:float) -> void:
   say("%s shield  %d%%"%[CATALOG[hostile_id].name,roundi(npc_shield)])
 
 func fire() -> void:
- if not deployed or not enabled[5] or f.mode!=f.Mode.FLYING:return
+ if not permitted("fire"):return
  if group==Group.MISSILES:
-  if not tracking() or seeker<1:say("Seeker has no lock");return
-  if missiles==0:say("Rack empty");return
-  if missile_time>0:return
   missiles-=1;seeker=0;missile_time=FLIGHT_TIME
   missile_from=f.location+f.attitude*Vector3(1.7,0.8,-5.5)
   say("Seeker away");return
  var cost:=20 if group==Group.PULSE else 28
- if weapon<cost or pulse_time>0:say("Emitter recharging");return
  var ray:=gun_ray()
  shot_group=group;weapon-=cost
  burst_from=muzzle()
@@ -310,8 +300,7 @@ func incoming_point() -> Vector3:
  return incoming_from.lerp(f.location,1.0-incoming/WARNING_TIME)
 
 func intercept() -> void:
- if incoming<=0:say("No inbound signature");return
- if not enabled[5] or defence_cooldown>0:say("Defence unavailable");return
+ if not permitted("defend"):return
  flare_at=incoming_point();flare_time=0.65;incoming=0;defence_cooldown=6
  say("Inbound neutralised")
 
@@ -338,16 +327,84 @@ func advance_ordnance(dt:float) -> void:
   if retaliation==0 and disabled_time<=0 and hostile_id>=0 and f.mode==f.Mode.FLYING and range_to(hostile_id)<500 and not cruise and charge==0:
    incoming=WARNING_TIME;incoming_from=position_of(hostile_id);retaliation=12
 
+# The terminal, forward glass and command handlers read these same interlocks.
+func drive_blockers(action:String) -> PackedStringArray:
+ var reasons:=PackedStringArray()
+ if transit>0:
+  reasons.append("Shift in transit");return reasons
+ if action=="cruise" and cruise or action=="jump" and charge>0:return reasons
+ if action=="jump":
+  if route<0:reasons.append("Plot a route first")
+  elif not Regions.linked(sector,route):reasons.append("Destination outside drive range")
+ if f.mode!=f.Mode.FLYING:reasons.append("Launch first")
+ if action!="jump" and not enabled[0]:reasons.append("Power thrusters")
+ if action!="boost" and not enabled[4]:reasons.append("Power shift drive")
+ if action!="boost" and deployed:reasons.append("Stow hardpoints")
+ if action=="boost":
+  if cruise:reasons.append("Disengage cruise")
+  if engine<boost_cost():reasons.append("Recharge engines")
+ elif fuel<(JUMP_COST if action=="jump" else 1.0):
+  reasons.append("Refuel · need %d"%int(JUMP_COST if action=="jump" else 1))
+ if action!="jump" and charge>0:reasons.append("Cancel shift charge")
+ if action=="jump" and f.mode==f.Mode.FLYING:
+  if f.local_air>0.01 or range_to(Regions.GATE_CONTACT[sector])<75:reasons.append("Clear the local mass shadow")
+  if route>=0 and (-f.attitude.z).dot(jump_axis())<0.95:reasons.append("Align with the course diamond")
+ return reasons
+
+func equipment_blocker(action:String) -> String:
+ match action:
+  "hail":
+   if not enabled[3]:return "Power comms"
+   if range_to(target)>850:return "Approach within 850 m"
+   if CATALOG[target].kind=="station":
+    if f.mode!=f.Mode.FLYING:return "Already alongside"
+    if deployed:return "Stow hardpoints"
+  "arms":
+   if not enabled[5]:return "Power emitter bank"
+   if f.mode!=f.Mode.FLYING or cruise or charge>0 or transit>0:return "Normal flight required"
+  "lock":
+   if lock_id==target:return ""
+   if not deployed:return "Deploy hardpoints"
+   if not enabled[2]:return "Power sensors"
+   if CATALOG[target].kind!="hostile" or disabled_time>0:return "No hostile signature"
+   if range_to(target)>650:return "Outside tracking range"
+  "fire":
+   if not deployed:return "Deploy hardpoints"
+   if not enabled[5]:return "Power emitter bank"
+   if f.mode!=f.Mode.FLYING:return "Normal flight required"
+   if group==Group.MISSILES:
+    if not tracking() or seeker<1:return "Seeker has no lock"
+    if missiles==0:return "Rack empty"
+    if missile_time>0:return "Missile in flight"
+   elif weapon<(20 if group==Group.PULSE else 28) or pulse_time>0:return "Emitter recharging"
+  "defend":
+   if incoming<=0:return "No inbound signature"
+   if not enabled[5]:return "Power emitter bank"
+   if defence_cooldown>0:return "Defence recharging"
+  "service":
+   if f.mode!=f.Mode.BERTH or CATALOG[Regions.BERTH_CONTACT[f.berth]].kind!="station":return "Dock at a station"
+ return ""
+
+func blocker(action:String) -> String:
+ if action in ["cruise","jump","boost"]:
+  var reasons:=drive_blockers(action)
+  return reasons[0] if not reasons.is_empty() else ""
+ return equipment_blocker(action)
+
+func permitted(action:String) -> bool:
+ var reason:=blocker(action)
+ if reason!="":say(reason);return false
+ return true
+
 func toggle_cruise() -> void:
  if cruise:cruise=false;say("Normal flight");return
- if f.mode!=f.Mode.FLYING or not enabled[0] or not enabled[4] or deployed or charge>0 or fuel<1:
-  say("Cruise requires fuel, drives and stowed hardpoints");return
+ if not permitted("cruise"):return
  cruise=true;boost=0;say("Cruise engaged")
 
 func boost_cost() -> float:return 27.0 if "capacitor" in installed else 36.0
 
 func boost_drive() -> void:
- if f.mode!=f.Mode.FLYING or cruise or not enabled[0] or engine<boost_cost() or charge>0:say("Boost unavailable");return
+ if not permitted("boost"):return
  engine-=boost_cost();boost=1.8;say("Boost")
 
 func plot(waypoint:int=-1) -> void:
@@ -381,15 +438,11 @@ func navigate_to(id:int) -> bool:
 
 func jump() -> void:
  if charge>0:charge=0;say("Charge cancelled");return
- if route<0:say("Plot a route first");return
- if not Regions.linked(sector,route):say("Destination outside drive range");return
- if f.mode!=f.Mode.FLYING or deployed or not enabled[4] or fuel<JUMP_COST:say("Jump requires flight, fuel and a clear drive");return
- if f.local_air>0.01 or range_to(Regions.GATE_CONTACT[sector])<75:say("Clear the local mass shadow");return
- if (-f.attitude.z).dot(jump_axis())<0.95:say("Align with the course diamond");return
+ if not permitted("jump"):return
  cruise=false;boost=0;f.velocity=Vector3.ZERO;f.throttle=0;charge=0.001;say("Shift drive charging")
 
 func service() -> void:
- if f.mode!=f.Mode.BERTH or CATALOG[Regions.BERTH_CONTACT[f.berth]].kind!="station":say("Station service requires a berth");return
+ if not permitted("service"):return
  fuel=TANK;missiles=RACK_SIZE;hull=100;shield=100 if enabled[1] else 0;say("Service complete · tank full")
 
 func impact(speed:float) -> void:

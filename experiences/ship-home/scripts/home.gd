@@ -65,6 +65,9 @@ var status:Label
 var prompts=preload("res://scripts/ship_prompts.gd").new()
 var instruments:=preload("res://scripts/helm_display.gd").new()
 var helm_help:=Label.new()
+var quick=preload("res://scripts/cabin_menu.gd").new()
+var station_key:=Button.new()
+var leisure:Node3D
 var menu:PanelContainer
 var message=""
 var message_time=0.0
@@ -168,12 +171,12 @@ func _set_ship_view(at_dock:bool) -> void:
  walker.arm.collision_mask=(flight.WALK_LAYER|Exterior.HULL_COLLISION) if at_dock else 3
 
 func _inputs() -> void:
- for action in ["pilot_pitch_up","pilot_pitch_down","pilot_yaw_left","pilot_yaw_right","pilot_brake","roll_left","roll_right","throttle_down","throttle_up","pilot_thrust","pilot_fire","walk_left","walk_right","walk_forward","walk_back","look_left","look_right","look_up","look_down","fly_up","fly_down","fly_left","fly_right","walk_run","decorate","confirm_place","cancel_ship","next_item","previous_item","rotate_left","rotate_right","pick_item","undo_place","interact","pause_ship"]:
+ for action in ["pilot_pitch_up","pilot_pitch_down","pilot_yaw_left","pilot_yaw_right","pilot_brake","roll_left","roll_right","throttle_down","throttle_up","pilot_thrust","pilot_fire","walk_left","walk_right","walk_forward","walk_back","look_left","look_right","look_up","look_down","fly_up","fly_down","fly_left","fly_right","walk_run","decorate","confirm_place","cancel_ship","next_item","previous_item","rotate_left","rotate_right","pick_item","undo_place","interact","pause_ship","quick_ship"]:
   if not InputMap.has_action(action):InputMap.add_action(action,0.18)
- var keys={"pilot_pitch_up":KEY_S,"pilot_pitch_down":KEY_W,"pilot_yaw_left":KEY_A,"pilot_yaw_right":KEY_D,"roll_left":KEY_Q,"roll_right":KEY_E,"throttle_down":KEY_BRACKETLEFT,"throttle_up":KEY_BRACKETRIGHT,"fly_up":KEY_R,"fly_down":KEY_C,"fly_left":KEY_Z,"fly_right":KEY_X,"walk_left":KEY_A,"walk_right":KEY_D,"walk_forward":KEY_W,"walk_back":KEY_S,"walk_run":KEY_SHIFT,"decorate":KEY_TAB,"confirm_place":KEY_ENTER,"cancel_ship":KEY_ESCAPE,"next_item":KEY_BRACKETRIGHT,"previous_item":KEY_BRACKETLEFT,"rotate_left":KEY_Q,"rotate_right":KEY_E,"pick_item":KEY_Y,"undo_place":KEY_Z,"interact":KEY_F,"pause_ship":KEY_P}
+ var keys={"quick_ship":KEY_M,"pilot_pitch_up":KEY_S,"pilot_pitch_down":KEY_W,"pilot_yaw_left":KEY_A,"pilot_yaw_right":KEY_D,"roll_left":KEY_Q,"roll_right":KEY_E,"throttle_down":KEY_BRACKETLEFT,"throttle_up":KEY_BRACKETRIGHT,"fly_up":KEY_R,"fly_down":KEY_C,"fly_left":KEY_Z,"fly_right":KEY_X,"walk_left":KEY_A,"walk_right":KEY_D,"walk_forward":KEY_W,"walk_back":KEY_S,"walk_run":KEY_SHIFT,"decorate":KEY_TAB,"confirm_place":KEY_ENTER,"cancel_ship":KEY_ESCAPE,"next_item":KEY_BRACKETRIGHT,"previous_item":KEY_BRACKETLEFT,"rotate_left":KEY_Q,"rotate_right":KEY_E,"pick_item":KEY_Y,"undo_place":KEY_Z,"interact":KEY_F,"pause_ship":KEY_P}
  for action in keys:
   var key=InputEventKey.new();key.physical_keycode=keys[action];InputMap.action_add_event(action,key)
- var pads={"pilot_brake":JOY_BUTTON_RIGHT_SHOULDER,"decorate":JOY_BUTTON_Y,"confirm_place":JOY_BUTTON_B,"cancel_ship":JOY_BUTTON_A,"next_item":JOY_BUTTON_RIGHT_SHOULDER,"previous_item":JOY_BUTTON_LEFT_SHOULDER,"rotate_left":JOY_BUTTON_DPAD_LEFT,"rotate_right":JOY_BUTTON_DPAD_RIGHT,"pick_item":JOY_BUTTON_X,"interact":JOY_BUTTON_B,"pause_ship":JOY_BUTTON_START,"walk_run":JOY_BUTTON_LEFT_STICK}
+ var pads={"quick_ship":JOY_BUTTON_BACK,"pilot_brake":JOY_BUTTON_RIGHT_SHOULDER,"decorate":JOY_BUTTON_Y,"confirm_place":JOY_BUTTON_B,"cancel_ship":JOY_BUTTON_A,"next_item":JOY_BUTTON_RIGHT_SHOULDER,"previous_item":JOY_BUTTON_LEFT_SHOULDER,"rotate_left":JOY_BUTTON_DPAD_LEFT,"rotate_right":JOY_BUTTON_DPAD_RIGHT,"pick_item":JOY_BUTTON_X,"interact":JOY_BUTTON_B,"pause_ship":JOY_BUTTON_START,"walk_run":JOY_BUTTON_LEFT_STICK}
  for action in pads:
   var button=InputEventJoypadButton.new();button.device=-1;button.button_index=pads[action];InputMap.action_add_event(action,button)
  var axes={"pilot_left":[JOY_AXIS_LEFT_X,-1],"pilot_right":[JOY_AXIS_LEFT_X,1],"pilot_up":[JOY_AXIS_LEFT_Y,-1],"pilot_down":[JOY_AXIS_LEFT_Y,1],"pilot_thrust":[JOY_AXIS_TRIGGER_LEFT,1],"pilot_fire":[JOY_AXIS_TRIGGER_RIGHT,1],"walk_left":[JOY_AXIS_LEFT_X,-1],"walk_right":[JOY_AXIS_LEFT_X,1],"walk_forward":[JOY_AXIS_LEFT_Y,-1],"walk_back":[JOY_AXIS_LEFT_Y,1],"look_left":[JOY_AXIS_RIGHT_X,-1],"look_right":[JOY_AXIS_RIGHT_X,1],"look_up":[JOY_AXIS_RIGHT_Y,-1],"look_down":[JOY_AXIS_RIGHT_Y,1]}
@@ -190,6 +193,7 @@ func _inputs() -> void:
   var key:=InputEventKey.new();key.physical_keycode=KEY_SPACE if reeling else KEY_R;InputMap.action_add_event(action,key)
 
 func _load_profile(id:String) -> void:
+ _close_quick();_end_leisure()
  if is_instance_valid(walker) and walker.seated:
   # Profile changes return to the reserved central approach before replacing furniture.
   walker.stand(Vector3(0,0.08,-2.1))
@@ -236,6 +240,7 @@ func transit_session() -> Node:
  return null
 
 func set_transit_controls(locked:bool) -> void:
+ if locked:_close_quick();_end_leisure()
  walker.walking=not locked and not paused
 
 func transit_avatar_ready() -> bool:
@@ -253,6 +258,7 @@ func _appearance(descriptor:Dictionary) -> void:
   if editing:_edit(false)
   fitting.finish()
   _load_profile(id)
+ _end_leisure()
  fitting.live_descriptor=descriptor
  if fitting.active and id==profile and not fitting.returning:
   fitting.clear_garment();fitting.preview_installed=false;fitting.current=-1
@@ -263,6 +269,7 @@ func _appearance(descriptor:Dictionary) -> void:
  if not arrival_identity_resolved:notify("Your character could not be loaded.")
 
 func _identity_lost(reason:String) -> void:
+ _end_leisure()
  arrival_identity_resolved=true
  parts.close()
  if dye.visible:dye.close()
@@ -299,12 +306,63 @@ func _ui() -> void:
  layer.add_child(cards);layer.add_child(dye);layer.add_child(parts)
  layer.add_child(computer);computer.dismissed.connect(_close_fabricator)
  layer.add_child(fabricator);fabricator.dismissed.connect(_close_fabricator)
- layer.add_child(instruments);instruments.bind(flight,walker)
+ layer.add_child(instruments);instruments.prompts=prompts;instruments.bind(flight,walker)
  instruments.page_changed.connect(_reset_helm_input)
+ instruments.operate.connect(_pilot_interact)
  layer.add_child(prompts)
+ layer.add_child(station_key);station_key.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT);station_key.offset_left=14;station_key.offset_top=-50;station_key.offset_bottom=-12;station_key.focus_mode=Control.FOCUS_NONE
+ station_key.add_theme_stylebox_override("normal",prompts.skin(Color("#193035dd"),8,12,5))
+ station_key.pressed.connect(_open_quick)
+ layer.add_child(quick);quick.chosen.connect(_visit);quick.dismissed.connect(_close_quick)
  survey.configure(self,layer);fishing.configure(self,layer);garden.configure(self,layer);mine.configure(self,layer);fabricator.ship=self
  prompts.used.connect(func(id:String):
+  if id=="stand" and is_instance_valid(leisure):_end_leisure();return
   if not paused and not riding and not editing and not fitting.active and not fabricator.visible and not computer.visible and not walker.seated and id==_station():_interact())
+
+func _on_deck() -> bool:
+ return cabin_ready and walker.walking and not (paused or outside or editing or riding or walker.stationary or walker.seated or fitting.active or computer.visible or fabricator.visible or survey.visible or mine.active or garden.active or fishing.phase!=fishing.Phase.AWAY)
+
+func _open_quick() -> void:
+ if not _on_deck():return
+ walker.walking=false;walker.velocity=Vector3.ZERO;walker.attend(null)
+ quick.open(store.writable and walker.position.y>=-0.4)
+ Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
+
+func _close_quick() -> void:
+ if not quick.visible:return
+ quick.hide();walker.walking=true
+ walker.require_neutral=true
+ Input.mouse_mode=Input.MOUSE_MODE_CAPTURED
+
+func _visit(id:String) -> void:
+ if not quick.visible:return
+ _close_quick()
+ if not _on_deck():return
+ if id=="decorate":_edit(true);return
+ var goal:Vector3
+ match id:
+  "tank":goal=studio.aquarium.to_global(Vector3(0,0,0.95))
+  "cargo":goal=studio.service.cargo.to_global(Vector3(0,0,1.08))
+  "pilot":goal=Walker.PILOT_ORIGIN+Vector3.BACK
+  "computer","workbench","refinery","wardrobe","trophies":goal=STATION_TARGETS[id]
+  _:return
+ var floor_y:float=Art.LOWER_Y if id=="cargo" else 0.0
+ goal.y=floor_y+0.08
+ # Start on the aisle-facing side. Check the capsule and actual deck underfoot
+ # before committing, including furniture placed since the last visit.
+ var original:=walker.position
+ for radius in [0.0,1.05,0.78,1.28]:
+  for side in (1 if radius==0 else 12):
+   var at:Vector3=goal+Vector3(sin(side*PI/6),0,cos(side*PI/6))*radius
+   if not walker.safe_deck(at):continue
+   walker.position=at
+   if _station()==id:
+    if absf(original.y-floor_y)>1.0:studio.lift.position.y=floor_y
+    var facing:Vector3=studio.service.targets.cargo if id=="cargo" else (studio.aquarium.global_position if id=="tank" else STATION_TARGETS[id])
+    walker.yaw=atan2(at.x-facing.x,at.z-facing.z);walker.pitch=-0.18
+    walker.visual.rotation.y=walker.yaw+PI
+    walker.reset_physics_interpolation();_interact();return
+ walker.position=original;notify("No clear approach to this station.")
 
 func _open_colours() -> void:
  if avatar_client.garments.is_empty():return
@@ -312,6 +370,7 @@ func _open_colours() -> void:
   dye.open();Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 
 func _pause(value:bool) -> void:
+ if value:_close_quick();_end_leisure()
  if walker.seated:_reset_helm_input()
  if value:
   if survey.visible:survey.close()
@@ -326,6 +385,9 @@ func _pause(value:bool) -> void:
  helm_help.visible=value and walker.seated
  if helm_help.visible:
   helm_help.text=("LS   Strafe / lift       RS   Pitch / roll       L1 + RS   Yaw\nL2   Thrust   ·   L1 reverse       R1   Brake       R2   Fire\nA   Launch / request / land / cancel       B   Stabilize · hold to stand\nX   Hardpoints · L1 group       Y   Target · L1 lock\nL3   Boost       R3   Scope       Select   Cruise · L1 jump\n← Contacts       → Systems       ↑ Atlas       ↓ Power" if prompts.gamepad else "W S   Pitch       A D   Yaw       Mouse   Look\nQ E   Roll       R C   Lift       Z X   Strafe\n[ ]   Throttle       Tab   Brake       Esc   Leave seat\nY + arrow   Bridge instruments     V   Scope\nG   Fire group     Y + G   Mount     Y + F   Point defence")
+  if prompts.gamepad:
+   for pair in [["A   Launch",prompts.button_name(JOY_BUTTON_B)+"   Launch"],["B   Stabilize",prompts.button_name(JOY_BUTTON_A)+"   Stabilize"],["X   Hardpoints",prompts.button_name(JOY_BUTTON_Y)+"   Hardpoints"],["Y   Target",prompts.button_name(JOY_BUTTON_X)+"   Target"],["Select",prompts.button_name(JOY_BUTTON_BACK)],["L1",prompts.button_name(JOY_BUTTON_LEFT_SHOULDER)]]:
+    helm_help.text=helm_help.text.replace(pair[0],pair[1])
  exterior.set_process(not value)
  paused=value;walker.walking=not value;menu.visible=value
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value or fitting.active else Input.MOUSE_MODE_CAPTURED
@@ -349,10 +411,30 @@ func _pilot_interact() -> void:
  flight.interact()
 
 func _input(event:InputEvent) -> void:
- if not is_instance_valid(walker) or not walker.seated or paused:return
+ if not is_instance_valid(walker) or paused:return
+ if quick.visible:
+  if event.is_action_pressed("pause_ship"):_close_quick();_pause(true)
+  elif event.is_action_pressed("cancel_ship") or event.is_action_pressed("quick_ship"):_close_quick()
+  elif event.is_action_pressed("interact") or event.is_action_pressed("ui_accept"):
+   var tile:=get_viewport().gui_get_focus_owner()
+   if tile in quick.tiles and not tile.disabled:tile.pressed.emit()
+  elif event is InputEventJoypadButton and event.button_index==JOY_BUTTON_A:pass
+  else:return
+  get_viewport().set_input_as_handled();return
+ if not walker.seated:
+  if event.is_action_pressed("quick_ship") and _on_deck():
+   if not (event is InputEventJoypadButton and Input.is_joy_button_pressed(event.device,JOY_BUTTON_LEFT_SHOULDER)):_open_quick()
+   get_viewport().set_input_as_handled()
+  return
  if event.is_action_pressed("pause_ship"):
   _pause(true);get_viewport().set_input_as_handled();return
  if event is InputEventKey:
+  if event.is_action_pressed("ui_accept") and instruments.page=="":
+   _pilot_interact();get_viewport().set_input_as_handled();return
+  if event.is_action_pressed("quick_ship") and instruments.page=="":
+   if event.shift_pressed:flight.avionics.jump()
+   else:flight.avionics.toggle_cruise()
+   get_viewport().set_input_as_handled();return
   if instruments.event(event):get_viewport().set_input_as_handled()
   return
  if not event is InputEventJoypadButton:return
@@ -400,6 +482,7 @@ func _unhandled_input(event:InputEvent) -> void:
   fishing.control(event);get_viewport().set_input_as_handled();return
  if event.is_action_pressed("cancel_ship"):
   if paused:_pause(false)
+  elif is_instance_valid(leisure):_end_leisure()
   elif fitting.active:fitting.leave()
   elif walker.seated:_leave_pilot()
   elif editing:_edit(false)
@@ -421,6 +504,10 @@ func _unhandled_input(event:InputEvent) -> void:
    else:_pilot_interact()
    get_viewport().set_input_as_handled()
   return
+ if quick.visible:return
+ if is_instance_valid(leisure):
+  if event.is_action_pressed("interact"):_end_leisure()
+  return
  if event.is_action_pressed("decorate"):_edit(not editing)
  elif event.is_action_pressed("undo_place"):_undo()
  elif editing:
@@ -434,12 +521,19 @@ func _unhandled_input(event:InputEvent) -> void:
  elif event.is_action_pressed("interact"):_interact()
 
 func _process(delta:float) -> void:
+ station_key.visible=_on_deck()
+ if station_key.visible:station_key.text=prompts.glyph("quick_ship")+"  Stations"
  instruments.tick(delta,walker.seated and not paused)
  if not paused:
   flight.coast.animate(delta)
   var sky:=art.sky_environment.sky.sky_material as ShaderMaterial
   if int(flight.coast.clock*8)!=int((flight.coast.clock-delta)*8):sky.set_shader_parameter("field_time",flight.coast.clock)
   if not walker.seated and flight.mode==flight.Mode.BERTH:flight.avionics.update_traffic(delta)
+ if quick.visible:
+  prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
+ if is_instance_valid(leisure):
+  prompts.show_world("stand","Get up",walker.camera,walker.visual.global_position+Vector3.UP,walker.position+Vector3.UP)
+  prompts.actions([]);status.hide();dot.hide();return
  if survey.visible:
   prompts.clear_world();prompts.actions([]);status.hide();dot.hide();return
  if computer.visible:
@@ -461,6 +555,7 @@ func _process(delta:float) -> void:
   return
  var station = _station()
  var target=STATION_TARGETS.get(station)
+ if station=="rest":target=_rest_place().global_position
  if studio.service.targets.has(station):target=studio.service.targets[station]
  elif station=="port_crew":
   target=flight.station_rooms[flight.berth].resident.global_position+Vector3.UP*1.26
@@ -479,7 +574,8 @@ func _process(delta:float) -> void:
  message_time=max(0.0,message_time-delta)
  var exploring:bool=not (paused or editing or fitting.active or riding or walker.seated)
  if exploring and target!=null:
-  var caption:String=STATION_ACTIONS[station]
+  var caption:String=STATION_ACTIONS.get(station,"Sit down")
+  if station=="rest" and _rest_place().get_meta("rest")=="bed":caption="Lie down"
   if station=="trophies" and not trophies.shown.is_empty():caption=str(trophies.shown.title)+" · Next trophy"
   elif station=="cabin":caption=shelf_action
   elif station=="port_crew":
@@ -538,6 +634,7 @@ func notify(text:String) -> void:
  else:message=text;message_time=6
 
 func _draw_furniture() -> void:
+ _end_leisure()
  for node in furnishings.get_children():furnishings.remove_child(node);node.queue_free()
  for i in rows.size():
   var r=rows[i];var node=art.furniture(r.item);node.position=Vector3(r.x,0,r.z);node.rotation.y=r.angle;node.set_meta("row",i);furnishings.add_child(node)
@@ -684,6 +781,7 @@ func _station() -> String:
  if p.distance_to(Art.LIFT)<0.89 and abs(walker.position.y-studio.lift.position.y)<0.4:return "lift"
  if absf(walker.position.y-Art.LOWER_Y)<0.45:return studio.service.nearest(p)
  if walker.position.y< -0.4:return ""
+ if _rest_place(0.60)!=null:return "rest"
  if studio.aquarium.to_local(walker.position).distance_to(Vector3(0,0,0.95))<1.42:return "tank"
  if _near_pilot():return "pilot"
  var nearest:=""
@@ -698,7 +796,20 @@ func _station() -> String:
  if case_distance<1.45 and (booth_distance>=1.32 or case_distance<booth_distance):return "trophies"
  if booth_distance<1.32:return "wardrobe"
  if p.distance_to(Vector2(Studio.SHELF_POS.x,Studio.SHELF_POS.z))<1.56:return "cabin"
+ if _rest_place()!=null:return "rest"
  return ""
+
+func _rest_place(distance:float=1.18) -> Node3D:
+ var best:Node3D
+ for anchor:Node3D in get_tree().get_nodes_in_group("ship_rest"):
+  if not cabin.is_ancestor_of(anchor):continue
+  var d:=walker.global_position.distance_to(anchor.to_global(anchor.get_meta("approach")))
+  if d<distance:best=anchor;distance=d
+ return best
+
+func _end_leisure() -> void:
+ if not is_instance_valid(leisure):return
+ walker.finish_rest();leisure=null
 
 func _fly_manual(delta:float) -> Vector2:
  var translate:=Input.get_vector("pilot_left","pilot_right","pilot_down","pilot_up",0.18)
@@ -799,6 +910,9 @@ func _interact() -> void:
  prompts.clear_world()
  var station:=_station()
  match station:
+  "rest":
+   leisure=_rest_place()
+   if leisure:walker.rest_at(leisure)
   "port_crew":
    var room=flight.station_rooms[flight.berth]
    var staff:Dictionary=room.STAFF[room.port]
@@ -945,6 +1059,7 @@ func _notification(what:int) -> void:
   # activity rather than opening the local Start menu and closing the station.
   suspended_for_focus=true
   if walker.seated:_reset_helm_input()
+  walker.require_neutral=true
   get_tree().paused=true
   Engine.max_fps=10
  elif what==NOTIFICATION_APPLICATION_FOCUS_IN and suspended_for_focus:

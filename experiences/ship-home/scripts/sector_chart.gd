@@ -292,11 +292,17 @@ func _draw() -> void:
    label(Vector2(870,315),"Next   "+R.NAMES[path[0]],GOLD,17)
    label(Vector2(870,342),"Next leg  %d   /   tank  %d"%[int(a.JUMP_COST),floori(a.fuel)],DIM,17)
   else:label(Vector2(870,315),"Select a cluster to plot",DIM,17)
+ if not is_detail():
+  var issues:PackedStringArray=a.drive_blockers("jump")
+  var message:String="Shift ready" if issues.is_empty() else issues[0]
+  if a.charge>0:message="Charging %d%%"%roundi(a.charge/3*100)
+  if a.transit>0:message="In transit"
+  label(Vector2(870,370),message,GOLD,16)
  var actions:=controls()
  for i in actions.size():button(row(i),actions[i],helm.cursor==i)
  button(PLUS,"+");button(MINUS,"−")
  draw_rect(Rect2(0,589,1152,59),PANEL)
- label(Vector2(32,626),"RS   Orbit       LT / RT   Zoom       LB / RB   Cluster       D-pad   Select       A   Confirm",DIM,19)
+ label(Vector2(32,626),"RS   Orbit       LT / RT   Zoom       LB / RB   Cluster       D-pad   Select       "+helm.shortcut("land")+"   Confirm" if helm.prompts!=null and helm.prompts.gamepad else "Drag   Orbit       Scroll   Zoom       [ / ]   Cluster       Arrows   Select       Enter   Confirm",DIM,19)
  if a.reply_time>0 and a.reply!="":label(Vector2(162,547),a.reply,GOLD,17)
 
 func tap(p:Vector2) -> void:
