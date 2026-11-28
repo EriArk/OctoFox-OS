@@ -45,16 +45,22 @@ def supervise(command, attempts=3, ready_timeout=None):
                         child.kill()
             finally:
                 os.close(reader)
-        result = child.wait()
-        logging.info("OctoFox OS exited: %s", result)
+        # A detached game can finish before or after the shell. Wait for
+        # either child, retaining the shell's status for the restart policy.
         while True:
             try:
                 pid, status = os.waitpid(-1, 0)
-                logging.info("Adventure descendant finished: pid=%s exit=%s", pid, os.waitstatus_to_exitcode(status))
             except ChildProcessError:
                 break
             except InterruptedError:
                 continue
+            code = os.waitstatus_to_exitcode(status)
+            if pid == child.pid:
+                child.returncode = code
+            else:
+                logging.info("Adventure descendant finished: pid=%s exit=%s", pid, code)
+        result = child.returncode  # Startup checks may already have reaped it.
+        logging.info("OctoFox OS exited: %s", result)
         if result == 0:
             return 0
         if startup_timed_out:

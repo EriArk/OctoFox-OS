@@ -75,6 +75,12 @@ sys.exit(module.supervise([sys.executable,{str(folder / 'probe.py')!r}],attempts
         result, _ = self.run_probe("import os,time\nos.write(int(os.environ['TRAINEROS_READY_FD']), b'R')\ntime.sleep(0.4)\n", ready_timeout=0.2)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @unittest.skipUnless(sys.platform == 'linux', 'Requires Linux child adoption')
+    def test_reaps_game_while_shell_stays_open(self):
+        probe = (ROOT / 'tests/fixtures/adopted_game_exit.py').read_text()
+        result, _ = self.run_probe(probe, attempts=1, ready_timeout=2)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_orphan_finishes_before_shell_restarts(self):
         result, files = self.run_probe("""
 from pathlib import Path

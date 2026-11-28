@@ -350,6 +350,14 @@ class InstallationTests(unittest.TestCase):
         return sw.prepare(manifest, self.public, self.cache, progress=lambda *args: None,
                           opener=lambda req, timeout: Response((out / 'traineros.tar.gz').read_bytes(), url=req.full_url))
 
+    @unittest.skipUnless(sys.platform == 'linux', 'Requires Linux child adoption')
+    def test_managed_launcher_reaps_game_while_shell_stays_open(self):
+        probe = (SOURCE / 'tests/fixtures/adopted_game_exit.py').read_text()
+        install.install_prepared(self.installation, self.executable_release(7, probe))
+        launched = subprocess.run([sys.executable, str(SOURCE / 'packaging/software/launcher.py'),
+                                   '--root', str(self.installation)], capture_output=True, timeout=15)
+        self.assertEqual(launched.returncode, 0, launched.stderr)
+
     @unittest.skipUnless(sys.platform == 'linux', 'Requires real Linux subreaper and flock; never substitute Windows proof')
     def test_launcher_retains_runtime_lease_until_orphaned_game_exits(self):
         child_ready, release_child = self.root / 'child-ready', self.root / 'release-child'

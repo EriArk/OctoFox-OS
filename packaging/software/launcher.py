@@ -66,13 +66,18 @@ def run(root, arguments=()):
                     except OSError: pass
                     forwarded = True
             finally: os.close(reader)
-            result = child.wait()
-            # Closing/crashing the GUI does not imply its game has exited. No
-            # signals are sent to descendants; the lease remains held until all end.
+            # Reap adopted apps even while the GUI is live. Keep the lease until
+            # the shell and every adopted descendant have exited.
             while True:
-                try: os.waitpid(-1, 0)
-                except InterruptedError: continue
-                except ChildProcessError: break
+                try:
+                    pid, status = os.waitpid(-1, 0)
+                except InterruptedError:
+                    continue
+                except ChildProcessError:
+                    break
+                if pid == child.pid:
+                    child.returncode = os.waitstatus_to_exitcode(status)
+            result = child.returncode
             if result not in (0, 75):
                 (root / 'request.json').unlink(missing_ok=True)
                 install.record_event(root, 'launch', phase='failed', exit=result)
