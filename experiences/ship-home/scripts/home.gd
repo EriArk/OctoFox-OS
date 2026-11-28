@@ -51,6 +51,9 @@ var placement=Vector3.ZERO
 var placement_valid=false
 var moving_index=-1
 var paused=false
+var suspended_for_focus := false
+var save_problem := Label.new()
+var discard_exit := Button.new()
 var trigger_thrust:=false
 var modifier:=false
 var stand_timer:=-1.0
@@ -138,6 +141,8 @@ func _ready() -> void:
  fitting.changed.connect(dye.paint_preview)
  avatar_client.appearance_changed.connect(_appearance)
  avatar_client.unavailable.connect(_identity_lost)
+ # The account connection stays live while Home owns the controller.
+ avatar_client.process_mode=Node.PROCESS_MODE_ALWAYS
  add_child(avatar_client);avatar_client.connect_host()
  cabin_ready=true
  process_mode=Node.PROCESS_MODE_INHERIT
@@ -284,6 +289,12 @@ func _ui() -> void:
  for entry in [["Return",func():_pause(false)],["Decorate",func():_pause(false);_edit(true)],["Undo last arrangement",func():_undo()],["Remove selected furniture",func():_remove()],["Save and exit",func():_quit()]]:
   var b=Button.new();b.text=entry[0];b.custom_minimum_size.y=44;b.pressed.connect(entry[1]);column.add_child(b)
  helm_help.add_theme_font_size_override("font_size",17);column.add_child(helm_help);helm_help.hide()
+ save_problem.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+ save_problem.add_theme_color_override("font_color",Color("ffe3b0"))
+ column.add_child(save_problem);save_problem.hide()
+ discard_exit.text="Leave without saving";discard_exit.custom_minimum_size.y=44
+ discard_exit.pressed.connect(func():get_tree().quit())
+ column.add_child(discard_exit);discard_exit.hide()
  menu.visible=false
  layer.add_child(cards);layer.add_child(dye);layer.add_child(parts)
  layer.add_child(computer);computer.dismissed.connect(_close_fabricator)
@@ -319,6 +330,7 @@ func _pause(value:bool) -> void:
  paused=value;walker.walking=not value;menu.visible=value
  Input.mouse_mode=Input.MOUSE_MODE_VISIBLE if value or fitting.active else Input.MOUSE_MODE_CAPTURED
  if value:menu.get_child(0).get_child(1).grab_focus()
+ else:save_problem.hide();discard_exit.hide()
 
 func _close_fabricator() -> void:
  get_viewport().disable_3d=false
@@ -916,13 +928,26 @@ func fish_sent(owner:String,id:String,problem:String) -> void:
 
 func _quit() -> void:
  if flight.mode==flight.Mode.BERTH:store.systems=flight.avionics.snapshot()
- if store.writable and not store.save(rows):notify(store.error);return
- get_tree().quit()
+ if store.save(rows):
+  get_tree().quit()
+  return
+ _pause(true)
+ helm_help.hide()
+ save_problem.text=store.error if not store.error.is_empty() else "Could not save your ship."
+ save_problem.show()
+ discard_exit.show()
 
 func _notification(what:int) -> void:
  if not cabin_ready:return
  if what==NOTIFICATION_WM_CLOSE_REQUEST:_quit()
- elif what==NOTIFICATION_APPLICATION_FOCUS_OUT and is_instance_valid(walker):
-  # No input or simulation continues behind another application.
-  _pause(true);Engine.max_fps=10
- elif what==NOTIFICATION_APPLICATION_FOCUS_IN:Engine.max_fps=60
+ elif what==NOTIFICATION_APPLICATION_FOCUS_OUT and not suspended_for_focus and not get_tree().paused:
+  # Home and Quick Apps can cover any station or the helm. Freeze that exact
+  # activity rather than opening the local Start menu and closing the station.
+  suspended_for_focus=true
+  if walker.seated:_reset_helm_input()
+  get_tree().paused=true
+  Engine.max_fps=10
+ elif what==NOTIFICATION_APPLICATION_FOCUS_IN and suspended_for_focus:
+  suspended_for_focus=false
+  get_tree().paused=false
+  Engine.max_fps=60

@@ -121,6 +121,23 @@ void startAppsSmoke(QQuickWindow* window,ShellController& shell,ControllerInput&
             shell.openAppsFace("crates");flow->accept({{"event","error"},{"message","Application could not open"}});
             check(shell.notice()=="Application could not open","Crates launch error was hidden");break;
         }
+        case 13:
+            flow->accept({{"event","foreground"},{"id","art.abysstail.octofox.ship-home.desktop"}});
+            flow->accept({{"event","controls"}});
+            break;
+        case 14: {
+            auto* ship=window->findChild<QQuickWindow*>("ship-home-window");
+            auto* generic=window->findChild<QQuickWindow*>("app-controls-window");
+            check(ship && ship->isVisible() && generic && !generic->isVisible(),"Ship opened the generic app menu");
+            if(ship && !directory.isEmpty())check(ship->grabWindow().save(directory+"/ship-home-menu.png"),"Ship Home capture failed");
+            flow->accept({{"event","action"},{"action","down"}});
+            flow->accept({{"event","action"},{"action","down"}});
+            auto* save=ship?appsItem(ship->contentItem(),"ship-home-action-2"):nullptr;
+            check(save && save->property("selected").toBool() && save->property("label").toString()=="Save and exit","Ship save action missing");
+            flow->accept({{"event","action"},{"action","back"}});
+            check(!flow->controlsOpen(),"Back did not dismiss Ship Home");
+            break;
+        }
         default:
             check(warnings==0,"Apps QML warnings");completed=true;timer->stop();
             if(!directory.isEmpty()){QFile file(directory+"/apps-verification.txt");if(file.open(QIODevice::WriteOnly))file.write(((*failed?QString("FAILED\n"):QString("PASSED\n"))+diagnostics.join('\n')).toUtf8());}

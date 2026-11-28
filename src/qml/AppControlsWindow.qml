@@ -11,7 +11,8 @@ Window {
     flags: Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.WindowDoesNotAcceptFocus
     transientParent: null
     x: Screen.virtualX; y: Screen.virtualY; width: Screen.width; height: Screen.height
-    visible: bridge.ready && flow.current.length > 0 && flow.controlsOpen
+    readonly property bool aboard: flow.current === "art.abysstail.octofox.ship-home.desktop"
+    visible: !aboard && bridge.ready && flow.current.length > 0 && flow.controlsOpen
     readonly property real unit: Math.min(Theme.uiScale, width/460, height/410)
     readonly property var hitRegions: [0,1,2].map(i => ({id:"control-"+i,rect:Qt.rect(card.x+20*unit,card.y+(114+i*58)*unit,380*unit,52*unit)})).concat([
         {id:"menu",rect:Qt.rect(card.x,card.y,card.width*unit,card.height*unit)}

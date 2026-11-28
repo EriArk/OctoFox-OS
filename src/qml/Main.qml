@@ -19,7 +19,8 @@ Window {
     Binding { target: controllerInput; property: "browserMode"; value: !shell.social.incomingCall.id && browserPane.takesFocus }
     MarketCheckoutWindow { account: shell.backendAccount }
     RadialInputWindow { flow: shell.settings.gameInput; bridge: radialOverlay; permitted: adventureLaunch.active && !adventureLaunch.minimized && !sessionState.blocked && !adventureExitPresentation.visible }
-    AppControlsWindow { flow: shell.apps; bridge: appsOverlay }
+    AppControlsWindow { id: appControls; flow: shell.apps; bridge: appsOverlay }
+    ShipHomeWindow { flow: shell.apps; visible: appControls.aboard && shell.apps.controlsOpen }
     ExternalKeyboardWindow { keyboard: externalKeyboard; bridge: keyboardOverlay }
     AdventureExitWindow {
         presentation: adventureExitPresentation

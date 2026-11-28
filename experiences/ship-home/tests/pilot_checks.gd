@@ -67,9 +67,14 @@ func run() -> void:
  check(home._leave_pilot(),"Exit succeeds when a safe space is available")
  home.walker.position=Vector3(0,0.08,-2.4);key("interact");await physics_frame
  home._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
- check(home.walker.seated and home.paused and Engine.max_fps==10,"Focus loss pauses seated controls and reduces rendering")
- home._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN);home._pause(false)
+ check(home.walker.seated and paused and not home.menu.visible and Engine.max_fps==10,"Focus loss pauses seated controls and reduces rendering")
+ home._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+ check(not paused and home.walker.seated and not home.menu.visible and Engine.max_fps==60,"Return resumes the same helm without opening Start")
  home._identity_lost("test disconnect")
  check(not home.walker.seated and home.walker.camera.current and home.paused and home.profile.is_empty(),"Identity loss returns to paused guest deck")
+ home.store.writable=false
+ home.store.error="Previous save could not be read."
+ home._quit()
+ check(home.menu.visible and home.save_problem.visible and home.discard_exit.visible and home.save_problem.text==home.store.error,"Failed save stays aboard with an explicit discard choice")
  home.queue_free();await process_frame
  print("SHIP PILOT CHECKS: ","PASSED" if failures.is_empty() else str(failures));quit(0 if failures.is_empty() else 1)
